@@ -46,8 +46,8 @@ Future<IrmaPreferences> freshPreferences() async {
   return preferences;
 }
 
-Future<void> setOnboardingV2(IrmaPreferences preferences, {required bool on}) =>
-    preferences.setFeatureFlag(FeatureFlag.onboardingV2, on);
+Future<void> enableOnboardingV2(IrmaPreferences preferences) =>
+    preferences.setFeatureFlag(FeatureFlag.onboardingV2, true);
 
 /// Lets writes to the preference store finish; they run on the real event loop
 /// rather than the test's fake clock.

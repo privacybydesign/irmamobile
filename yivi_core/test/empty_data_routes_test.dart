@@ -188,7 +188,7 @@ void main() {
     testWidgets("flag on: shows the two routes when there is no data", (
       tester,
     ) async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpDataTab(tester);
       await settle(tester);
 
@@ -200,7 +200,7 @@ void main() {
     testWidgets("flag on: the routes make way for the first credential", (
       tester,
     ) async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpDataTab(tester, credentials: [_credential()]);
       await settle(tester);
       await settle(tester);
