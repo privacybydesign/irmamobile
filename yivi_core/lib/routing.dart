@@ -22,6 +22,7 @@ import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
+import "src/screens/debug/feature_flags_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -166,6 +167,12 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           GoRoute(
             path: "debug",
             builder: (context, state) => const DebugScreen(),
+            routes: [
+              GoRoute(
+                path: "feature_flags",
+                builder: (context, state) => const FeatureFlagsScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: "settings",

@@ -6,6 +6,7 @@ import "../../models/credential_events.dart";
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/handle_pointer.dart";
+import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";
 import "cert_management/cert_management_screen.dart";
@@ -123,6 +124,11 @@ class _DebugScreenState extends State<DebugScreen> {
             Icons.verified_outlined,
             "debug.cert_management.title",
             onTap: _onOpenCertManagement,
+          ),
+          ListTile(
+            leading: const Icon(Icons.flag_outlined),
+            title: const Text("Feature flags"),
+            onTap: context.pushFeatureFlagsScreen,
           ),
           _buildListTile(
             Icons.badge,
