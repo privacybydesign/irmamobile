@@ -18,6 +18,7 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_route.dart";
 import "package:yivi_core/src/screens/add_data/external_issuer_heads_up_screen.dart";
+import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_step_credential_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
@@ -519,6 +520,73 @@ void main() {
       await pump(tester);
 
       expect(find.textContaining("You're back from"), findsNothing);
+    });
+  });
+
+  group("SessionScreen issuance confirmation", () {
+    const welcomeBack = "You're back from the website of Gemeente Voorbeeld";
+
+    SessionState offered() => SessionState(
+      id: _sessionId,
+      protocol: "irma",
+      type: SessionType.issuance,
+      status: SessionStatus.requestPermission,
+      requestor: _issuer(),
+      offeredCredentials: [
+        Credential(
+          credentialId: _websiteCredential,
+          hash: "hash",
+          name: "Persoonsgegevens",
+          issuer: _issuer(),
+          credentialInstanceIds: const {},
+          batchInstanceCountsRemaining: const {},
+          attributes: const [],
+          revoked: false,
+          revocationSupported: false,
+          issueUrl: _issueUrl,
+        ),
+      ],
+    );
+
+    Future<_Env> pump(WidgetTester tester, {required bool flagOn}) async {
+      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      env.repo.markInAppLaunched([_websiteCredential]);
+      await _pumpApp(
+        tester,
+        env,
+        const SessionScreen(sessionId: _sessionId),
+        overrides: [
+          sessionStateProvider(
+            _sessionId,
+          ).overrideWith((ref) => Stream.value(offered())),
+        ],
+      );
+      return env;
+    }
+
+    testWidgets("welcomes the user back after opening the website", (
+      tester,
+    ) async {
+      await pump(tester, flagOn: true);
+
+      expect(find.text(welcomeBack), findsOne);
+    });
+
+    testWidgets("shows no welcome while the flag is off", (tester) async {
+      await pump(tester, flagOn: false);
+
+      expect(find.text(welcomeBack), findsNothing);
+    });
+
+    testWidgets("shows no welcome when the website was not opened from Yivi", (
+      tester,
+    ) async {
+      final env = await pump(tester, flagOn: true);
+
+      env.repo.clearInAppLaunches();
+      await tester.pumpAndSettle();
+
+      expect(find.text(welcomeBack), findsNothing);
     });
   });
 }
