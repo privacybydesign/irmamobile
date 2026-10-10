@@ -8,7 +8,7 @@ import "navigation.dart";
 /// Lets the issuance screens lead back to the missing data checklist when the
 /// user came from there.
 extension MissingDataFlowNavigation on BuildContext {
-  bool get isCollectingMissingData =>
+  bool get _isCollectingMissingData =>
       ProviderScope.containerOf(
         this,
         listen: false,
@@ -17,19 +17,19 @@ extension MissingDataFlowNavigation on BuildContext {
 
   /// The band for the bottom of an app bar, or null when the user is not
   /// collecting data for a request.
-  PreferredSizeWidget? get missingDataBand => isCollectingMissingData
+  PreferredSizeWidget? get missingDataBand => _isCollectingMissingData
       ? MissingDataBand(height: MissingDataBand.heightFor(this))
       : null;
 
   /// The label for the secondary button of an issuance screen: "back to the
   /// list" while collecting data for a request, [cancelKey] otherwise.
   String missingDataBackLabel(String cancelKey) =>
-      isCollectingMissingData ? "missing_data.back_to_list" : cancelKey;
+      _isCollectingMissingData ? "missing_data.back_to_list" : cancelKey;
 
   /// Goes back to the checklist while collecting data for a request, and runs
   /// [onCancel] otherwise.
   VoidCallback missingDataBack(VoidCallback onCancel) => () {
-    if (isCollectingMissingData) {
+    if (_isCollectingMissingData) {
       popToUnderlyingSession();
     } else {
       onCancel();

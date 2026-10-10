@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../models/missing_data_checklist.dart";
+import "../models/schemaless/credential_store.dart";
 import "../providers/missing_data_flow_provider.dart";
 import "../theme/theme.dart";
 import "base64_image.dart";
@@ -98,11 +99,8 @@ class MissingDataBand extends ConsumerWidget implements PreferredSizeWidget {
                   children: [
                     for (final entry in checklist.entries) ...[
                       _BandCredential(
-                        entry: entry,
-                        isCurrent:
-                            !entry.isPresent &&
-                            entry.credential.credentialId ==
-                                band.currentCredentialId,
+                        credential: entry.credential,
+                        state: _stateOf(entry, band.currentCredentialId),
                       ),
                       SizedBox(width: theme.tinySpacing),
                     ],
@@ -117,20 +115,30 @@ class MissingDataBand extends ConsumerWidget implements PreferredSizeWidget {
   }
 }
 
-class _BandCredential extends StatelessWidget {
-  final ChecklistEntry entry;
-  final bool isCurrent;
+enum _BandState { done, current, pending }
 
-  const _BandCredential({required this.entry, required this.isCurrent});
+_BandState _stateOf(ChecklistEntry entry, String currentCredentialId) {
+  if (entry.isPresent) return _BandState.done;
+
+  return entry.credential.credentialId == currentCredentialId
+      ? _BandState.current
+      : _BandState.pending;
+}
+
+class _BandCredential extends StatelessWidget {
+  final CredentialDescriptor credential;
+  final _BandState state;
+
+  const _BandCredential({required this.credential, required this.state});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final credential = entry.credential;
     final image = credential.image;
+    final isCurrent = state == _BandState.current;
 
     return Opacity(
-      opacity: entry.isPresent || isCurrent ? 1 : _dimmedOpacity,
+      opacity: state == _BandState.pending ? _dimmedOpacity : 1,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -153,7 +161,7 @@ class _BandCredential extends StatelessWidget {
               initials: credential.name.isNotEmpty ? credential.name[0] : "?",
             ),
           ),
-          if (entry.isPresent)
+          if (state == _BandState.done)
             Positioned(
               right: -_ringWidth,
               bottom: -_ringWidth,

@@ -152,7 +152,9 @@ class _MissingDataChecklistScreenState
                 if (step.isChoice)
                   _ChoiceStepCard(
                     step: step,
-                    isNext: next?.step.index == step.index,
+                    state: next?.step.index == step.index
+                        ? _RowState.next
+                        : _RowState.missing,
                     onChoiceUpdated: (option) => ref
                         .read(
                           issueDuringDisclosureProvider(
@@ -420,13 +422,13 @@ class _CredentialLogo extends StatelessWidget {
 /// existing radio choice.
 class _ChoiceStepCard extends StatelessWidget {
   final ChecklistStep step;
-  final bool isNext;
+  final _RowState state;
   final ValueChanged<int> onChoiceUpdated;
   final ValueChanged<CredentialDescriptor> onObtain;
 
   const _ChoiceStepCard({
     required this.step,
-    required this.isNext,
+    required this.state,
     required this.onChoiceUpdated,
     required this.onObtain,
   });
@@ -443,7 +445,7 @@ class _ChoiceStepCard extends StatelessWidget {
       child: Container(
         key: Key("missing_data_choice_${step.index}"),
         padding: EdgeInsets.all(theme.smallSpacing),
-        foregroundDecoration: isNext
+        foregroundDecoration: state == _RowState.next
             ? BoxDecoration(
                 borderRadius: theme.borderRadius,
                 border: Border.all(color: theme.primary, width: _ringWidth),
