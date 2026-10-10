@@ -21,10 +21,10 @@ import "package:yivi_core/src/util/test_detection.dart";
 
 import "support/pump_translated.dart";
 
-enum _Flag { on, off }
-
 const _phone = Key("face_verification_phone");
 const _selfieCard = Key("face_verification_selfie_card");
+
+enum _Flag { on, off }
 
 class _FakePassportData extends Fake implements PassportData {}
 
@@ -42,6 +42,8 @@ class _SucceedingReader extends DocumentReader<PassportData> {
         ),
       );
 
+  int readCount = 0;
+
   @override
   DocumentReaderState build() => DocumentReaderPending();
 
@@ -58,8 +60,13 @@ class _SucceedingReader extends DocumentReader<PassportData> {
   Future<(PassportData, RawDocumentData)?> readDocument({
     required IosNfcMessageMapper iosNfcMessages,
     NonceAndSessionId? activeAuthenticationParams,
-  }) async =>
-      (_FakePassportData(), RawDocumentData(dataGroups: const {}, efSod: ""));
+  }) async {
+    readCount += 1;
+    return (
+      _FakePassportData(),
+      RawDocumentData(dataGroups: const {}, efSod: ""),
+    );
+  }
 }
 
 /// Announces face verification, so the flow reaches the intro screen.
@@ -176,7 +183,11 @@ void main() {
   });
 
   group("the intro after reading a document", () {
+    // One per time the screen watches the autoDispose provider anew.
+    late List<_SucceedingReader> readers;
+
     setUp(() {
+      readers = [];
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
             const MethodChannel("privacy_screen"),
@@ -195,7 +206,6 @@ void main() {
       WidgetTester tester, {
       required _Flag flag,
     }) async {
-      final reader = _SucceedingReader();
       await pumpTranslated(
         tester,
         _app(
@@ -209,7 +219,11 @@ void main() {
             translationKeys: _translationKeys(),
           ),
           overrides: [
-            passportReaderProvider.overrideWith2((mrz) => reader),
+            passportReaderProvider.overrideWith2((mrz) {
+              final reader = _SucceedingReader();
+              readers.add(reader);
+              return reader;
+            }),
             passportIssuerProvider.overrideWithValue(_AnnouncingIssuer()),
             regulaFaceServiceProvider.overrideWithValue(_IdleFaceService()),
             featureFlagProvider(
@@ -236,6 +250,25 @@ void main() {
       expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
       expect(find.byKey(_selfieCard), findsOneWidget);
       expect(find.byKey(_phone), findsNothing);
+    }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+
+    testWidgets("flag on: cancelling the intro starts a new read on Android", (
+      tester,
+    ) async {
+      await pumpUntilIntro(tester, flag: .on);
+      await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+
+      // Round one lets the screen see the cancel, round two the read it starts.
+      for (var round = 0; round < 2; round++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 100)),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      // The first reader is dropped while the loader shows. The one the
+      // screen watches after the cancel has to be read too.
+      expect(readers.map((reader) => reader.readCount), [1, 1]);
     }, variant: const TargetPlatformVariant({TargetPlatform.android}));
 
     testWidgets("flag off: the selfie stays on the upright phone", (

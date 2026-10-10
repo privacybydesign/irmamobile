@@ -308,7 +308,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                 : FaceVerificationIllustration.phone,
           );
           if (!proceed) {
-            if (mounted) setState(() => _preparingIssuance = false);
+            if (mounted) {
+              setState(() => _preparingIssuance = false);
+              // The reader was dropped while the loader showed. The new one
+              // starts in Pending, which ref.listen does not report.
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _autoStartScanning(),
+              );
+            }
             return;
           }
           if (!mounted) return;
@@ -979,10 +986,7 @@ class _TitleAndBody extends StatelessWidget {
       mainAxisAlignment: .center,
       mainAxisSize: .min,
       children: [
-        _OrientationAwareTranslatedText(
-          titleKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
-        ),
+        _OrientationAwareTranslatedText(titleKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
         SizedBox(height: theme.defaultSpacing),
         _OrientationAwareTranslatedText(bodyKey),
       ],
