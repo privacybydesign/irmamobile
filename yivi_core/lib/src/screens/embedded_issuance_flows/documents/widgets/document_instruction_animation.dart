@@ -62,7 +62,8 @@ class _DocumentInstructionState extends State<_DocumentInstruction>
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return AspectRatio(
-      aspectRatio: 1.5,
+      // An open passport is wide, so its frame is too.
+      aspectRatio: widget.documentType == DocumentType.passport ? 1.9 : 1.5,
       child: CustomPaint(
         painter: _DocumentInstructionPainter(
           documentType: widget.documentType,
@@ -123,8 +124,8 @@ class _DocumentInstructionPainter extends CustomPainter {
     final ratio = documentType == DocumentType.passport
         ? _openPassportRatio
         : _cardRatio;
-    final maxWidth = frame.width * 0.82;
-    final maxHeight = frame.height * 0.78;
+    final maxWidth = frame.width * 0.86;
+    final maxHeight = frame.height * 0.8;
     final width = math.min(maxWidth, maxHeight * ratio);
     return Rect.fromCenter(
       center: frame.center,
