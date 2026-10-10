@@ -87,7 +87,7 @@ void main() {
     });
 
     testWidgets("flag on: goes home and marks the ready chip", (tester) async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       final router = await pumpEnrollment(tester);
 
       await finishOnboarding(tester, introductionPages: 1);
@@ -102,7 +102,7 @@ void main() {
     testWidgets("flag on, opened from a website: shows the way back", (
       tester,
     ) async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await prefs.markBackToWebsitePending();
       final router = await pumpEnrollment(tester);
 

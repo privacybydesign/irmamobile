@@ -50,7 +50,7 @@ void main() {
     });
 
     testWidgets("flag on: red asterisk before the label", (tester) async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpTerms(tester);
       await settle(tester);
 
@@ -67,7 +67,7 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpTerms(tester);
       await settle(tester);
 
@@ -83,7 +83,7 @@ void main() {
 
     testWidgets("flag on: required is spoken in Dutch", (tester) async {
       final handle = tester.ensureSemantics();
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpTerms(tester, locale: const Locale("nl", "NL"));
       await settle(tester);
 
@@ -117,7 +117,7 @@ void main() {
 
     testWidgets("flag on: no Optional prefix, seen or heard", (tester) async {
       final handle = tester.ensureSemantics();
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpErrorReporting(tester);
       await settle(tester);
 
@@ -163,7 +163,7 @@ void main() {
 
       testWidgets("flag on: 24 px from the side", (tester) async {
         usePhoneScreen(tester);
-        await setOnboardingV2(prefs, on: true);
+        await enableOnboardingV2(prefs);
         await pumpErrorReporting(tester);
         await settle(tester);
 
@@ -178,7 +178,7 @@ void main() {
         tester,
       ) async {
         usePhoneScreen(tester);
-        await setOnboardingV2(prefs, on: true);
+        await enableOnboardingV2(prefs);
         await pumpErrorReporting(tester);
         await settle(tester);
 

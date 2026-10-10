@@ -59,13 +59,13 @@ void main() {
     );
 
     test("flag on: one step, then the terms", () async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
 
       expect(await send(EnrollmentNextPressed()), isA<EnrollmentAcceptTerms>());
     });
 
     test("flag on: back from the terms lands on the only step", () async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await send(EnrollmentNextPressed());
 
       final state = await send(EnrollmentPreviousPressed());
@@ -107,7 +107,7 @@ void main() {
     testWidgets("flag on: the single page has no progress dots", (
       tester,
     ) async {
-      await setOnboardingV2(prefs, on: true);
+      await enableOnboardingV2(prefs);
       await pumpIntro(tester);
 
       expect(find.byType(YiviProgressIndicator), findsNothing);
