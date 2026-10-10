@@ -65,6 +65,8 @@ void main() {
       "from=webinar",
       "from=app",
       "%zz",
+      "%ff",
+      "from=web&x=%ff",
       "",
       null,
     ]) {
