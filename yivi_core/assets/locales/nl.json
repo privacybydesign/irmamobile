@@ -111,7 +111,15 @@
     "revoked": "Ingetrokken",
     "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
     "boolean_yes": "Ja",
-    "boolean_no": "Nee"
+    "boolean_no": "Nee",
+    "age": {
+      "label": "Leeftijd",
+      "over": "Ouder dan {age}",
+      "not_over": "Niet ouder dan {age}",
+      "over_and_not_over": "Ouder dan {over}, niet ouder dan {notOver}",
+      "show_all": "Toon alle leeftijden",
+      "hide_all": "Verberg leeftijden"
+    }
   },
   "data": {
     "tab": {
