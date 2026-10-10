@@ -125,6 +125,7 @@ void main() {
           const MethodChannel("plugins.flutter.io/url_launcher"),
           (call) async => null,
         );
+
     prefs = await IrmaPreferences.fromInstance(
       mostRecentTermsUrlNl: "",
       mostRecentTermsUrlEn: "",

@@ -224,6 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if (!ref.watch(emailLinkAvailableProvider)) {
                     return const SizedBox.shrink();
                   }
+
                   return Padding(
                     padding: EdgeInsets.only(bottom: theme.defaultSpacing),
                     child: TilesCard(
