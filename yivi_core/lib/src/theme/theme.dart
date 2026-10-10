@@ -73,6 +73,9 @@ class IrmaThemeData {
   late final TextStyle boldBody;
   late final TextStyle highlightedTextStyle;
 
+  // A heading above body text, on screens that have no app bar title for it.
+  TextStyle? get bodyHeading => textTheme.bodyLarge?.copyWith(fontSize: 20);
+
   IrmaThemeData() {
     //Init color scheme
     final colorScheme = ColorScheme(

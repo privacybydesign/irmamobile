@@ -45,10 +45,7 @@ class DocumentInstructionScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: theme.largeSpacing),
-              TranslatedText(
-                "$keys.title",
-                style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
-              ),
+              TranslatedText("$keys.title", style: theme.bodyHeading),
               SizedBox(height: theme.defaultSpacing),
               TranslatedText("$keys.body"),
               SizedBox(height: theme.defaultSpacing),
