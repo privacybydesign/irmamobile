@@ -42,7 +42,7 @@ class NfcStageScaffold extends StatelessWidget {
     super.key,
   });
 
-  static const double pictureSize = 200;
+  static const double _pictureSize = 200;
 
   final String appBarTitleKey;
   final Widget picture;
@@ -61,7 +61,7 @@ class NfcStageScaffold extends StatelessWidget {
         fit: BoxFit.scaleDown,
         child: SizedBox.square(
           key: const Key("nfc_stage_picture"),
-          dimension: pictureSize,
+          dimension: _pictureSize,
           child: picture,
         ),
       ),
