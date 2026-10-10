@@ -349,6 +349,30 @@ void main() {
       expect(container().read(missingDataFlowProvider), isNull);
     });
 
+    testWidgets("clears the flow when the list becomes the share screen", (
+      tester,
+    ) async {
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+      await tester.tap(find.text("Ophalen").last);
+      await tester.pumpAndSettle();
+      expect(container().read(missingDataFlowProvider), isNotNull);
+
+      await emit(
+        tester,
+        testSession(
+          steps: twoSteps,
+          issued: {"email", "phone"},
+          withChoices: true,
+        ),
+      );
+      router.pop();
+      await tester.pumpAndSettle();
+
+      expect(find.text("Alles staat klaar"), findsOneWidget);
+      expect(container().read(missingDataFlowProvider), isNull);
+    });
+
     testWidgets("keeps the choice between options", (tester) async {
       await setUpScreen(tester, flagOn: true);
       await emit(
