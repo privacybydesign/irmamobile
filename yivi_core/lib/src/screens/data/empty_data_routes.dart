@@ -13,6 +13,7 @@ import "../../widgets/translated_text.dart";
 const double _illustrationHeight = 132;
 const double _maxContentWidth = 480;
 const double _routeIconSize = 32;
+const double _chipRadius = 16;
 
 // The scan button floats over the bottom of the tab: its top edge is 23 px
 // above the tab's bottom edge, so the arrow stops a little above that.
@@ -20,6 +21,9 @@ const double _qrButtonClearance = 32;
 const double _arrowMinHeight = 96;
 const double _arrowStrokeWidth = 3;
 const double _arrowHeadSize = 12;
+
+// The arrow starts three quarters across, under the second card.
+const double _arrowStartFraction = 0.75;
 
 /// Empty state of the data tab with onboarding v2: the two ways to add the
 /// first data. Shown until the first credential is added.
@@ -124,7 +128,7 @@ class _ReadyChip extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.successSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(_chipRadius),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -204,7 +208,7 @@ class _ArrowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final start = Offset(size.width * 0.75, 0);
+    final start = Offset(size.width * _arrowStartFraction, 0);
     final tip = Offset(size.width / 2, size.height - _qrButtonClearance);
     final halfHeight = (tip.dy - start.dy) / 2;
 
