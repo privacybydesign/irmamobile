@@ -434,6 +434,8 @@
       "add": "Zu Favoriten hinzufügen",
       "remove": "Aus Favoriten entfernen"
     },
+    "section_count-1": "{count} Eintrag",
+    "section_count-2": "{count} Einträge",
     "start": {
       "ready": "Ihre Yivi-App ist bereit",
       "title": "Wie möchten Sie beginnen?",

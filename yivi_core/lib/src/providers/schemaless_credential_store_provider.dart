@@ -54,7 +54,10 @@ final groupedCredentialStoreProvider =
 
       final categorized = <String, List<CredentialStoreItem>>{};
       for (final item in all) {
-        if (_sourceOf(item) != CredentialStoreSource.production) continue;
+        if (credentialSourceOf(item.credential.credentialId) !=
+            CredentialStoreSource.production) {
+          continue;
+        }
         final category = item.credential.category ?? "";
         categorized.putIfAbsent(category, () => []).add(item);
       }
@@ -84,7 +87,8 @@ final groupedCredentialStoreProvider =
             category: "",
             items: [
               for (final item in all)
-                if (_sourceOf(item) == source) item,
+                if (credentialSourceOf(item.credential.credentialId) == source)
+                  item,
             ]..sort(_byName),
             source: source,
           ),
@@ -93,11 +97,11 @@ final groupedCredentialStoreProvider =
       yield [...sections, ...separate];
     });
 
-/// The environment of [item]'s scheme, the first part of its credential id. The
-/// attribute index names its staging and demo schemes `pbdf-staging` and
-/// `irma-demo`.
-CredentialStoreSource _sourceOf(CredentialStoreItem item) {
-  final scheme = item.credential.credentialId.split(".").first;
+/// The environment of the scheme [credentialId] belongs to, the first part of
+/// the id. The attribute index names its staging and demo schemes
+/// `pbdf-staging` and `irma-demo`.
+CredentialStoreSource credentialSourceOf(String credentialId) {
+  final scheme = credentialId.split(".").first;
   if (scheme.endsWith("-staging")) return CredentialStoreSource.staging;
   if (scheme.endsWith("-demo")) return CredentialStoreSource.demo;
   return CredentialStoreSource.production;

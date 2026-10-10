@@ -434,6 +434,8 @@
       "add": "Voeg toe aan favorieten",
       "remove": "Verwijder uit favorieten"
     },
+    "section_count-1": "{count} gegeven",
+    "section_count-2": "{count} gegevens",
     "start": {
       "ready": "Je Yivi-app is klaar",
       "title": "Hoe wil je beginnen?",

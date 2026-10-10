@@ -434,6 +434,8 @@
       "add": "Add to favourites",
       "remove": "Remove from favourites"
     },
+    "section_count-1": "{count} item",
+    "section_count-2": "{count} items",
     "start": {
       "ready": "Your Yivi app is ready",
       "title": "How do you want to start?",
