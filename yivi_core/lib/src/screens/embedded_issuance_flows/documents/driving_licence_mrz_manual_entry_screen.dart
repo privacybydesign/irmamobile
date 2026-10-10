@@ -6,6 +6,7 @@ import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_field_group.dart";
 import "widgets/driving_licence_mrz_field.dart";
 
 /// Data returned on continue.
@@ -104,7 +105,13 @@ class _DrivingLicencetMrzManualEntryScreenState
                         "driving_licence.manual.explanation",
                       ),
                       SizedBox(height: theme.mediumSpacing),
-                      DrivingLicenceMrzInputField(controller: _documentNrCtrl),
+                      YiviFieldGroup(
+                        children: [
+                          DrivingLicenceMrzInputField(
+                            controller: _documentNrCtrl,
+                          ),
+                        ],
+                      ),
                       SizedBox(height: theme.largeSpacing),
                     ],
                   ),

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_text_field.dart";
 
 class EmailInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -15,14 +16,16 @@ class EmailInputField extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final baseTextStyle = theme.textTheme.bodyMedium;
 
-    return TextFormField(
-      key: const Key("email_input_field"),
-      controller: controller,
-      keyboardType: TextInputType.emailAddress,
-      autofillHints: const [AutofillHints.email],
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      decoration: InputDecoration(
+    return YiviTextField(
+      label: FlutterI18n.translate(
+        context,
+        "enrollment.email.provide.input.label",
+      ),
+      hint: FlutterI18n.translate(
+        context,
+        "enrollment.email.provide.input.hint",
+      ),
+      legacyDecoration: InputDecoration(
         contentPadding: const EdgeInsets.only(top: -10.0),
         label: TranslatedText(
           "enrollment.email.provide.input.label",
@@ -35,13 +38,23 @@ class EmailInputField extends StatelessWidget {
           "enrollment.email.provide.input.hint",
         ),
       ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (email) => email != null && !EmailValidator.validate(email)
-          ? FlutterI18n.translate(
-              context,
-              "enrollment.email.provide.input.invalid",
-            )
-          : null,
+      builder: (decoration, errorBuilder) => TextFormField(
+        key: const Key("email_input_field"),
+        controller: controller,
+        keyboardType: TextInputType.emailAddress,
+        autofillHints: const [AutofillHints.email],
+        cursorColor: theme.themeData.colorScheme.secondary,
+        style: baseTextStyle,
+        decoration: decoration,
+        errorBuilder: errorBuilder,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (email) => email != null && !EmailValidator.validate(email)
+            ? FlutterI18n.translate(
+                context,
+                "enrollment.email.provide.input.invalid",
+              )
+            : null,
+      ),
     );
   }
 }

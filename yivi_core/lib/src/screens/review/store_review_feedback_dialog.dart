@@ -2,10 +2,13 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../theme/theme.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_text_field.dart";
 import "../../widgets/yivi_themed_button.dart";
 
 /// Private feedback box shown to users who tapped "Not really" on the sentiment
@@ -65,6 +68,8 @@ class _StoreReviewFeedbackDialogState
     }
 
     final hint = FlutterI18n.translate(context, "review.feedback.hint");
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     // Body lives in the child (not IrmaDialog's centered `content`) so it can be
     // left-aligned like a normal form prompt.
@@ -80,23 +85,14 @@ class _StoreReviewFeedbackDialogState
           ),
           SizedBox(height: theme.defaultSpacing),
           // The hint disappears once text is entered, so give screen readers a
-          // persistent label for the field's purpose.
+          // persistent label for the field's purpose. With form fields V2 the
+          // field has a label of its own.
           Semantics(
-            label: hint,
+            label: formFieldsV2 ? null : hint,
             textField: true,
-            child: TextField(
-              key: const Key("review_feedback_input"),
-              controller: _controller,
-              minLines: 3,
-              maxLines: 6,
-              autofocus: true,
-              keyboardType: TextInputType.multiline,
-              // Matches the app's standard text fields (e.g. MRZ manual entry):
-              // the global underline InputDecorationTheme, a bodyMedium style, a
-              // secondary-coloured cursor and a 50%-opacity hint.
-              cursorColor: theme.themeData.colorScheme.secondary,
-              style: theme.textTheme.bodyMedium,
-              decoration: InputDecoration(
+            child: YiviTextField(
+              label: FlutterI18n.translate(context, "review.feedback.label"),
+              legacyDecoration: InputDecoration(
                 hint: Text(
                   hint,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -105,6 +101,20 @@ class _StoreReviewFeedbackDialogState
                     ),
                   ),
                 ),
+              ),
+              builder: (decoration, _) => TextField(
+                key: const Key("review_feedback_input"),
+                controller: _controller,
+                minLines: 3,
+                maxLines: 6,
+                autofocus: true,
+                keyboardType: TextInputType.multiline,
+                // Matches the app's standard text fields (e.g. MRZ manual entry):
+                // the global underline InputDecorationTheme, a bodyMedium style, a
+                // secondary-coloured cursor and a 50%-opacity hint.
+                cursorColor: theme.themeData.colorScheme.secondary,
+                style: theme.textTheme.bodyMedium,
+                decoration: decoration,
               ),
             ),
           ),
