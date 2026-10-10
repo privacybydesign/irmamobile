@@ -8,6 +8,7 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_card.dart";
+import "../../widgets/irma_step_indicator.dart";
 import "../../widgets/translated_text.dart";
 
 /// Tells the user they are about to leave Yivi for the issuer's website.
@@ -118,7 +119,7 @@ class _Step extends StatelessWidget {
     this.translationParams,
   });
 
-  static const _badgeSize = 28.0;
+  static const _badgeSize = 24.0;
 
   @override
   Widget build(BuildContext context) {
@@ -129,30 +130,18 @@ class _Step extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: theme.smallSpacing + theme.tinySpacing,
         children: [
-          Container(
-            width: _badgeSize,
-            height: _badgeSize,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.light,
-              border: Border.all(color: theme.neutralExtraDark),
-            ),
-            child: Text(
-              "$number",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          SizedBox.square(
+            dimension: _badgeSize,
+            child: IrmaStepIndicator(
+              step: number,
+              style: IrmaStepIndicatorStyle.outlined,
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(top: theme.tinySpacing),
-              child: TranslatedText(
-                translationKey,
-                translationParams: translationParams,
-                style: theme.textTheme.bodyMedium,
-              ),
+            child: TranslatedText(
+              translationKey,
+              translationParams: translationParams,
+              style: theme.textTheme.bodyMedium,
             ),
           ),
         ],
