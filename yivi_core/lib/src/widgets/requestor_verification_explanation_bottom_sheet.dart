@@ -6,7 +6,7 @@ import "credential_card/yivi_credential_card_header.dart";
 import "irma_markdown.dart";
 import "yivi_bottom_sheet.dart";
 
-Future<void> showRequestorVerificationSheet(BuildContext context) {
+Future<void> showVerificationSheet(BuildContext context) {
   final theme = IrmaTheme.of(context);
   return showYiviBottomSheet(
     context: context,
