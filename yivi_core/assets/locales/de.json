@@ -496,6 +496,37 @@
       }
     }
   },
+  "email_linking": {
+    "banner": {
+      "title": "Sichere deine Yivi-App",
+      "body": "Verknüpfe deine E-Mail-Adresse. Dann kannst du deine App sperren, wenn dein Telefon verloren geht.",
+      "link": "E-Mail-Adresse verknüpfen"
+    },
+    "later": {
+      "title": "Später erinnern?",
+      "body": "Ohne verknüpfte E-Mail-Adresse kannst du deine App nicht aus der Ferne sperren. Du kannst sie jederzeit unter Mehr › Einstellungen verknüpfen.",
+      "remind_me": "Später fragen",
+      "dismiss": "Ignorieren"
+    },
+    "enter_email": {
+      "title": "E-Mail-Adresse verknüpfen",
+      "header": "Verknüpfe deine E-Mail-Adresse",
+      "body": "Dann kannst du deine Yivi-App sperren, wenn dein Telefon verloren geht. Wir senden dir eine E-Mail mit einem Code zur Bestätigung.",
+      "label": "E-Mail-Adresse"
+    },
+    "verify_code": {
+      "title": "E-Mail-Adresse verknüpfen",
+      "header": "Code eingeben",
+      "body": "Wir haben eine E-Mail an {email} gesendet. Tippe auf diesem Telefon auf den Link in der E-Mail oder gib den Code hier ein.",
+      "next_button": "Code prüfen",
+      "resend_button": "E-Mail erneut senden",
+      "filled_from_link": "Code aus dem Link eingetragen"
+    },
+    "done": {
+      "title": "E-Mail-Adresse verknüpft",
+      "body": "Du kannst deine Yivi-App jetzt sperren, wenn dein Telefon verloren geht."
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Telefonnummer hinzufügen",
@@ -709,6 +740,7 @@
     "language": "Sprache",
     "use_system_language": "Systemsprache verwenden",
     "change_pin": "PIN ändern",
+    "link_email": "E-Mail-Adresse verknüpfen",
     "biometric_unlock": "Mit Biometrie entsperren",
     "biometric_unlock_explanation": "Verwenden Sie Ihren Fingerabdruck oder Ihr Gesicht, um die App zu entsperren. Zum Empfangen oder Teilen von Daten benötigen Sie weiterhin Ihre PIN.",
     "biometric_immediate": "Automatisch entsperren",
