@@ -56,12 +56,27 @@ SelectableCredentialInstance _instance(String id) =>
       revocationSupported: false,
     );
 
+Credential testCredential(String id) => Credential(
+  credentialId: id,
+  hash: "hash-$id",
+  name: "Cred $id",
+  issuer: testParty("Issuer"),
+  credentialInstanceIds: const {},
+  batchInstanceCountsRemaining: const {},
+  attributes: const [],
+  revoked: false,
+  revocationSupported: false,
+  issueUrl: null,
+);
+
 /// A disclosure session of "Test Verifier" waiting for permission, with
 /// [steps] still to obtain except for the [issued] credentials. With
-/// [withChoices] it also has the overview irmago adds once nothing is missing.
+/// [withChoices] it also has the overview irmago adds once nothing is missing,
+/// and [wrongCredential] is the credential irmago reports as not matching.
 SessionState testSession({
   required List<IssuanceStep> steps,
   Set<String> issued = const {},
+  Credential? wrongCredential,
   bool withChoices = false,
   SessionType type = SessionType.disclosure,
   bool verified = true,
@@ -75,6 +90,7 @@ SessionState testSession({
     issueDuringDisclosure: IssueDuringDisclosure(
       steps: steps,
       issuedCredentialIds: {for (final id in issued) id: null},
+      wrongCredentialIssued: wrongCredential,
     ),
     disclosureChoicesOverview: withChoices
         ? [

@@ -8,6 +8,7 @@ import "package:yivi_core/src/providers/issue_during_disclosure_provider.dart";
 import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
@@ -188,6 +189,10 @@ void main() {
           GoRoute(
             path: "/session",
             builder: (_, _) => const SessionScreen(sessionId: testSessionId),
+          ),
+          GoRoute(
+            path: "/session_issue",
+            builder: (_, _) => const Scaffold(body: Text("issuance session")),
           ),
           GoRoute(
             path: "/home/add_data/details",
@@ -371,6 +376,27 @@ void main() {
 
       expect(find.text("Alles staat klaar"), findsOneWidget);
       expect(container().read(missingDataFlowProvider), isNull);
+    });
+
+    testWidgets("shows the wrong credential dialog on the list, not on top "
+        "of the issuance session", (tester) async {
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+      router.push("/session_issue");
+      await tester.pumpAndSettle();
+
+      await emit(
+        tester,
+        testSession(steps: twoSteps, wrongCredential: testCredential("email")),
+      );
+      await tester.pumpAndSettle();
+
+      // The issuance session pops back to the list once it succeeds.
+      tester.element(find.text("issuance session")).popToUnderlyingSession();
+      await tester.pumpAndSettle();
+
+      expect(find.text("issuance session"), findsNothing);
+      expect(find.text("Foutmelding"), findsOneWidget);
     });
 
     testWidgets("keeps the choice between options", (tester) async {
