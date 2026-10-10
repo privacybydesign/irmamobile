@@ -183,11 +183,13 @@
       "header": {
         "success": "Gelukt",
         "canceled": "Afgebroken",
-        "not_satisfiable": "Afgebroken"
+        "not_satisfiable": "Afgebroken",
+        "success_calm": "Gedeeld"
       },
       "text": {
         "success": "Je gegevens zijn doorgegeven aan {otherParty}",
         "success_signature": "Je hebt het bericht van {otherParty} ondertekend",
+        "success_calm": "Je gegevens zijn gedeeld met {otherParty}",
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
         "canceled_signature": "Je hebt het bericht van {otherParty} niet ondertekend",
         "not_satisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij.",
@@ -435,7 +437,9 @@
     "cancel": "Annuleren",
     "success_feedback": {
       "header": "Gelukt",
-      "text": "De gegevens zijn successvol aan Yivi toegevoegd."
+      "text": "De gegevens zijn succesvol aan Yivi toegevoegd.",
+      "calm_header": "Toegevoegd",
+      "calm_text": "De gegevens staan in je Yivi-app. Je vindt ze terug onder Gegevens."
     },
     "pre-authorized_code": {
       "tx_code_screen": {

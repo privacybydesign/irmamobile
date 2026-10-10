@@ -183,11 +183,13 @@
       "header": {
         "success": "Success",
         "canceled": "Cancelled",
-        "not_satisfiable": "Cancelled"
+        "not_satisfiable": "Cancelled",
+        "success_calm": "Shared"
       },
       "text": {
         "success": "Your data is disclosed to {otherParty}",
         "success_signature": "You signed the request of {otherParty}",
+        "success_calm": "Your data has been shared with {otherParty}",
         "canceled": "Your data has not been disclosed to {otherParty}",
         "canceled_signature": "You did not sign the request of {otherParty}",
         "not_satisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party.",
@@ -435,7 +437,9 @@
     "cancel": "Cancel",
     "success_feedback": {
       "header": "Success",
-      "text": "The data has been successfully added to Yivi"
+      "text": "The data has been successfully added to Yivi",
+      "calm_header": "Added",
+      "calm_text": "The data is in your Yivi app. You can find it under Data."
     },
     "pre-authorized_code": {
       "tx_code_screen": {
