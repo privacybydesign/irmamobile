@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart" show ProviderListenable;
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
@@ -10,8 +11,12 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../../package_name.dart";
 import "../../../../routing.dart";
 import "../../../../yivi_core.dart";
+import "../../../data/feature_flags.dart";
 import "../../../models/session.dart";
 import "../../../providers/document_reader_providers.dart";
+import "../../../providers/feature_flag_provider.dart";
+import "../../../providers/nfc_availability_provider.dart";
+import "../../../providers/nfc_settings_provider.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/handle_pointer.dart";
@@ -22,10 +27,14 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/irma_linear_progresss_indicator.dart";
 import "../../../widgets/translated_text.dart";
+import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
+import "widgets/face_verification_animation.dart"
+    show FaceVerificationIllustration;
 import "widgets/id_card_nfc_scanning_animation.dart";
 import "widgets/nfc_error_dialog.dart";
+import "widgets/nfc_stage_view.dart";
 import "widgets/passport_nfc_scanning_animation.dart";
 
 class NfcReadingTranslationKeys {
@@ -108,8 +117,12 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
+/// What the document flow V2 screen shows. Only states without an error or a
+/// cancel have one; those keep their own layout.
+enum _NfcStage { waiting, reading, done, nfcOff }
+
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
-    with RouteAware {
+    with RouteAware, WidgetsBindingObserver {
   String? issuanceError;
 
   /// True when the current [issuanceError] is the issuer rejecting the face
@@ -121,6 +134,19 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// Shows a loader instead of the (already-completed) readout page, so the
   /// user is not sent back to the readout screen after the liveness session.
   bool _preparingIssuance = false;
+
+  DocumentType get _documentType => switch (widget.mrz) {
+    ScannedPassportMrz() => .passport,
+    ScannedDrivingLicenceMrz() => .drivingLicence,
+    ScannedIdCardMrz() => .identityCard,
+  };
+
+  bool get _documentFlowV2 =>
+      ref.read(featureFlagProvider(FeatureFlag.documentFlowV2)).value ?? false;
+
+  // Android polls for the tag as soon as the screen opens. iOS needs a tap
+  // first, because that opens Apple's own NFC sheet.
+  bool get _listensAtOnce => defaultTargetPlatform == .android;
 
   Widget _getAnimation() {
     return switch (widget.mrz) {
@@ -155,6 +181,47 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _autoStartScanning());
+  }
+
+  /// Starts the read without a tap, for the V2 screen on Android. The flag is
+  /// read through its future, because nothing may have watched it yet; one
+  /// that cannot be read counts as off.
+  Future<void> _autoStartScanning() async {
+    if (!_listensAtOnce) return;
+
+    final documentFlowV2 = await ref
+        .read(featureFlagProvider(FeatureFlag.documentFlowV2).future)
+        .catchError((_) => false);
+    if (!mounted || !documentFlowV2) return;
+    if (_readDocumentReaderState() is! DocumentReaderPending) return;
+
+    _startScanning();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == .resumed) _recheckNfc();
+  }
+
+  /// Back from the system settings: carry on once NFC is on. The reader keeps
+  /// reporting NFC as unavailable until it is reset.
+  Future<void> _recheckNfc() async {
+    if (!_documentFlowV2) return;
+    if (_readDocumentReaderState() is! DocumentReaderNfcUnavailable) return;
+
+    final status = await ref
+        .read(nfcStatusReaderProvider)()
+        .catchError((_) => NfcStatus.notSupported);
+    if (!mounted || status != NfcStatus.enabled) return;
+
+    _getDocumentReader().reset();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
@@ -165,6 +232,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -213,7 +281,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // progress text. Hold it back until the sheet is gone.
       final result = await PrivacyScreen.suspendDuring(
         () => _getDocumentReader().readDocument(
-          iosNfcMessages: _createIosNfcMessageMapper(),
+          iosNfcMessages: _documentFlowV2
+              ? _createStageNfcMessageMapper()
+              : _createIosNfcMessageMapper(),
           activeAuthenticationParams: startValidation.nonceAndSessionId,
         ),
       );
@@ -233,9 +303,21 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // page is not revealed again after the intro/liveness — instead the
           // user sees a loader that leads into issuance.
           setState(() => _preparingIssuance = true);
-          final proceed = await FaceVerificationIntroScreen.show(context);
+          final proceed = await FaceVerificationIntroScreen.show(
+            context,
+            illustration: _documentFlowV2
+                ? FaceVerificationIllustration.neutral
+                : FaceVerificationIllustration.phone,
+          );
           if (!proceed) {
-            if (mounted) setState(() => _preparingIssuance = false);
+            if (mounted) {
+              setState(() => _preparingIssuance = false);
+              // The reader was dropped while the loader showed. The new one
+              // starts in Pending, which ref.listen does not report.
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _autoStartScanning(),
+              );
+            }
             return;
           }
           if (!mounted) return;
@@ -375,6 +457,20 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     final passportState = _watchDocumentReaderState();
 
+    ref.listen(_readerStateProvider, (previous, next) {
+      if (next is DocumentReaderPending && previous is! DocumentReaderPending) {
+        _autoStartScanning();
+      }
+    });
+
+    final documentFlowV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
+    final stage = documentFlowV2 ? _stageFor(passportState) : null;
+    if (stage != null) {
+      return _buildStage(context, stage, passportState);
+    }
+
     if (passportState is DocumentReaderNfcUnavailable) {
       return _buildNfcUnavailableScreen(context);
     }
@@ -403,6 +499,88 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         secondaryButtonLabel: "ui.cancel",
         onSecondaryPressed: cancel,
       ),
+    );
+  }
+
+  _NfcStage? _stageFor(DocumentReaderState state) => switch (state) {
+    DocumentReaderNfcUnavailable() => _NfcStage.nfcOff,
+    // Connecting is the wait for the tag, so the phone has not touched the
+    // document yet.
+    DocumentReaderPending() || DocumentReaderConnecting() => _NfcStage.waiting,
+    DocumentReaderAuthenticating() ||
+    DocumentReaderReadingCardAccess() ||
+    DocumentReaderReadingCOM() ||
+    DocumentReaderReadingDataGroup() ||
+    DocumentReaderReadingSOD() ||
+    DocumentReaderActiveAuthentication() => _NfcStage.reading,
+    DocumentReaderSuccess() => _NfcStage.done,
+    _ => null,
+  };
+
+  Widget _buildStage(
+    BuildContext context,
+    _NfcStage stage,
+    DocumentReaderState state,
+  ) {
+    final theme = IrmaTheme.of(context);
+    final cancelAction = NfcStageAction.secondary(
+      labelKey: "ui.cancel",
+      onPressed: cancel,
+    );
+    const keys = "document_flow.nfc";
+
+    final (picture, text, actions) = switch (stage) {
+      _NfcStage.waiting => (
+        _getAnimation(),
+        (
+          "$keys.waiting_title",
+          _documentType == .passport
+              ? "$keys.waiting_body_passport"
+              : "$keys.waiting_body_card",
+        ),
+        [
+          if (state is DocumentReaderPending && !_listensAtOnce)
+            NfcStageAction.primary(
+              labelKey: "document_flow.start",
+              onPressed: _startScanning,
+            )
+          else
+            cancelAction,
+        ],
+      ),
+      _NfcStage.reading => (
+        NfcProgressRing(progress: progressForState(state)),
+        ("$keys.reading_title", "$keys.reading_body"),
+        [cancelAction],
+      ),
+      _NfcStage.done => (
+        const NfcDoneCheck(),
+        ("$keys.done_title", "$keys.done_body"),
+        <NfcStageAction>[],
+      ),
+      _NfcStage.nfcOff => (
+        Icon(Icons.nfc, size: 120, color: theme.link),
+        ("$keys.off_title", "$keys.off_body"),
+        [
+          if (defaultTargetPlatform == .android)
+            NfcStageAction.primary(
+              labelKey: "$keys.open_settings",
+              onPressed: () => ref.read(nfcSettingsOpenerProvider).open(),
+            ),
+          cancelAction,
+        ],
+      ),
+    };
+
+    return NfcStageScaffold(
+      appBarTitleKey: widget.translationKeys.title,
+      picture: picture,
+      titleKey: text.$1,
+      bodyKey: text.$2,
+      textParams: {
+        "document": FlutterI18n.translate(context, _documentType.nameKey),
+      },
+      actions: actions,
     );
   }
 
@@ -451,7 +629,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         children: [
           _OrientationAwareTranslatedText(
             uiState.stateKey,
-            style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+            style: theme.bodyHeading,
           ),
           SizedBox(height: theme.defaultSpacing),
           _OrientationAwareTranslatedText(uiState.tipKey),
@@ -633,6 +811,19 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return _UiState(tipKey: tipKey, progress: progress, stateKey: stateKey);
   }
 
+  ProviderListenable<DocumentReaderState> get _readerStateProvider =>
+      switch (widget.mrz) {
+        ScannedPassportMrz() => passportReaderProvider(
+          widget.mrz as ScannedPassportMrz,
+        ),
+        ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+          widget.mrz as ScannedDrivingLicenceMrz,
+        ),
+        ScannedIdCardMrz() => idCardReaderProvider(
+          widget.mrz as ScannedIdCardMrz,
+        ),
+      };
+
   DocumentReaderState _readDocumentReaderState() {
     return ref.read(switch (widget.mrz) {
       ScannedPassportMrz() => passportReaderProvider(
@@ -734,6 +925,29 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     };
   }
 
+  /// The text on Apple's NFC sheet, in step with the on-screen stage, e.g.
+  /// "Niet bewegen · 62%" while reading.
+  IosNfcMessageMapper _createStageNfcMessageMapper() {
+    const keys = "document_flow.nfc";
+
+    return (state) {
+      final params = {
+        "document": FlutterI18n.translate(context, _documentType.nameKey),
+      };
+      String translate(String key) =>
+          FlutterI18n.translate(context, key, translationParams: params);
+
+      return switch (_stageFor(state)) {
+        _NfcStage.waiting => translate("$keys.waiting_title"),
+        _NfcStage.reading =>
+          "${translate("$keys.reading_title")} · "
+              "${(progressForState(state) * 100).round()}%",
+        _NfcStage.done => translate("$keys.done_title"),
+        _ => FlutterI18n.translate(context, _getTranslationKeyForState(state)),
+      };
+    };
+  }
+
   String _readingErrorToHintKey(DocumentReadingError error) {
     return switch (error) {
       .unknown => widget.translationKeys.errorGeneric,
@@ -774,10 +988,7 @@ class _TitleAndBody extends StatelessWidget {
       mainAxisAlignment: .center,
       mainAxisSize: .min,
       children: [
-        _OrientationAwareTranslatedText(
-          titleKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
-        ),
+        _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
         SizedBox(height: theme.defaultSpacing),
         _OrientationAwareTranslatedText(bodyKey),
       ],
@@ -910,7 +1121,7 @@ class _ScanningContent extends StatelessWidget {
       children: [
         TranslatedText(
           statusKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+          style: theme.bodyHeading,
           textAlign: textAlign,
         ),
         SizedBox(height: theme.smallSpacing),

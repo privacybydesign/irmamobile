@@ -36,12 +36,14 @@ import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
+import "../providers/feature_flag_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "app_language.dart";
+import "feature_flags.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -757,54 +759,18 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel("irma.app/iiab");
 
+  /// Read through `.future` so the answer is right even when nothing has
+  /// watched the flag yet (credential details and the issue wizard also start
+  /// document issuance).
+  Future<bool> _documentFlowV2(WidgetRef ref) =>
+      ref.read(featureFlagProvider(FeatureFlag.documentFlowV2).future);
+
   // Passport issuance is a special case where we use the scanner built into the app as the issuer
-  void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushPassportMrzReaderScreen();
-      } else {
-        context.pushPassportManualEntryScreen();
-      }
-    }
-  }
-
-  void _startIdCardIssuance(BuildContext context, String url, WidgetRef ref) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushIdCardMrzReaderScreen();
-      } else {
-        context.pushIdCardManualEntryScreen();
-      }
-    }
-  }
-
-  void _startDrivingLicenceIssuance(
+  Future<void> _startPassportIssuance(
     BuildContext context,
     String url,
     WidgetRef ref,
-  ) {
+  ) async {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -817,11 +783,82 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushDrivingLicenceMrzReaderScreen();
-      } else {
-        context.pushDrivingLicenceManualEntryScreen();
+      if (await _documentFlowV2(ref)) {
+        if (context.mounted) {
+          context.pushDocumentInstructionScreen(.passport);
+        }
+        return;
       }
+
+      if (!context.mounted) return;
+      context.pushDocumentCapture(
+        .passport,
+        ocrProcessor: ref.read(ocrProcessorProvider),
+      );
+    }
+  }
+
+  Future<void> _startIdCardIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref,
+  ) async {
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
+
+      if (await _documentFlowV2(ref)) {
+        if (context.mounted) {
+          context.pushDocumentInstructionScreen(.identityCard);
+        }
+        return;
+      }
+
+      if (!context.mounted) return;
+      context.pushDocumentCapture(
+        .identityCard,
+        ocrProcessor: ref.read(ocrProcessorProvider),
+      );
+    }
+  }
+
+  Future<void> _startDrivingLicenceIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref,
+  ) async {
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
+
+      if (await _documentFlowV2(ref)) {
+        if (context.mounted) {
+          context.pushDocumentInstructionScreen(.drivingLicence);
+        }
+        return;
+      }
+
+      if (!context.mounted) return;
+      context.pushDocumentCapture(
+        .drivingLicence,
+        ocrProcessor: ref.read(ocrProcessorProvider),
+      );
     }
   }
 

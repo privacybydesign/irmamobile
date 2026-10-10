@@ -2,7 +2,10 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../models/schemaless/credential_store.dart";
+import "../../providers/feature_flag_provider.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../theme/theme.dart";
@@ -45,6 +48,9 @@ class SchemalessAddDataScreen extends ConsumerWidget {
     // than showing it normally. Only a confirmed "no NFC chip" result greys
     // out the NFC-requiring credentials.
     final nfcAvailable = ref.watch(nfcAvailableProvider).value ?? true;
+    final documentFlowV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
@@ -121,6 +127,19 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                                     onTap: nfcBlocked
                                         ? () =>
                                               _showNfcUnsupportedDialog(context)
+                                        : documentFlowV2 &&
+                                              credentialRequiresNfc(
+                                                credential.credentialId,
+                                              )
+                                        ? () =>
+                                              IrmaRepositoryProvider.of(
+                                                context,
+                                              ).openIssueURL(
+                                                context,
+                                                credential.credentialId,
+                                                credential.issueURL,
+                                                ref,
+                                              )
                                         : () => context
                                               .pushSchemalessDataDetailsScreen(
                                                 AddDataDetailsRouteParams(

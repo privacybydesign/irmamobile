@@ -111,7 +111,15 @@
     "revoked": "Widerrufen",
     "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
     "boolean_yes": "Ja",
-    "boolean_no": "Nein"
+    "boolean_no": "Nein",
+    "age": {
+      "label": "Alter",
+      "over": "Älter als {age}",
+      "not_over": "Nicht älter als {age}",
+      "over_and_not_over": "Älter als {over}, nicht älter als {notOver}",
+      "show_all": "Alle Alter anzeigen",
+      "hide_all": "Alter ausblenden"
+    }
   },
   "data": {
     "tab": {
@@ -786,6 +794,43 @@
     "title": "Keine Kameraberechtigungen",
     "content": "Yivi benötigt Zugriff auf die Kamera, um Ihr Dokument automatisch zu scannen. Erteilen Sie Yivi über die Systemeinstellungen die Berechtigung, die Kamera zu verwenden, oder geben Sie die erforderlichen Daten manuell ein.",
     "open_settings": "Einstellungen öffnen"
+  },
+  "document_flow": {
+    "start": "Start",
+    "document": {
+      "passport": "Reisepass",
+      "id_card": "Personalausweis",
+      "driving_licence": "Führerschein"
+    },
+    "instruction": {
+      "passport": {
+        "title": "Öffnen Sie Ihren Reisepass auf der Seite mit dem Foto",
+        "body": "Halten Sie Ihren Reisepass vor die Kamera und achten Sie darauf, dass die ganze Seite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie den Reisepass nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen."
+      },
+      "id_card": {
+        "title": "Verwenden Sie die Rückseite Ihres Personalausweises",
+        "body": "Halten Sie Ihren Personalausweis vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie die Karte nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen."
+      },
+      "driving_licence": {
+        "title": "Verwenden Sie die Rückseite Ihres Führerscheins",
+        "body": "Halten Sie Ihren Führerschein vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie den Führerschein nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen."
+      }
+    },
+    "nfc": {
+      "waiting_title": "Legen Sie Ihr Telefon auf Ihren {document}",
+      "waiting_body_passport": "Ihr Reisepass kann geschlossen bleiben.",
+      "waiting_body_card": "Halten Sie die Rückseite Ihres Telefons an die Karte.",
+      "reading_title": "Nicht bewegen",
+      "reading_body": "Ihr {document} wird gelesen.",
+      "done_title": "Ihr {document} wurde gelesen",
+      "done_body": "Sie können Ihr Telefon wieder aufnehmen.",
+      "off_title": "NFC einschalten",
+      "off_body": "Damit liest Ihr Telefon den Chip in Ihrem {document}.",
+      "open_settings": "NFC-Einstellungen öffnen"
+    }
   },
   "face_verification": {
     "title": "Gesichtsverifizierung",

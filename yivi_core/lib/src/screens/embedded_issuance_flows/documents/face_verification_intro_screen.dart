@@ -16,21 +16,28 @@ import "widgets/face_verification_animation.dart";
 class FaceVerificationIntroScreen extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onCancel;
+  final FaceVerificationIllustration illustration;
 
   const FaceVerificationIntroScreen({
     required this.onStart,
     required this.onCancel,
+    this.illustration = FaceVerificationIllustration.phone,
     super.key,
   });
 
   /// Presents the intro on the root navigator and resolves to `true` when the
   /// user taps start, `false` when they cancel or back out.
-  static Future<bool> show(BuildContext context) async {
+  static Future<bool> show(
+    BuildContext context, {
+    FaceVerificationIllustration illustration =
+        FaceVerificationIllustration.phone,
+  }) async {
     final result = await Navigator.of(context, rootNavigator: true).push<bool>(
       MaterialPageRoute(
         builder: (routeContext) => FaceVerificationIntroScreen(
           onStart: () => Navigator.of(routeContext).pop(true),
           onCancel: () => Navigator.of(routeContext).pop(false),
+          illustration: illustration,
         ),
       ),
     );
@@ -49,7 +56,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(child: FaceVerificationAnimation()),
+              Center(
+                child: FaceVerificationAnimation(illustration: illustration),
+              ),
               SizedBox(height: theme.largeSpacing),
               TranslatedText(
                 "face_verification.intro.explanation",
