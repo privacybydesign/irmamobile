@@ -144,11 +144,13 @@ void main() {
   late _ScriptedReader reader;
   late _RecordingSettingsOpener settingsOpener;
   var nfcStatus = NfcStatus.enabled;
+  Object? nfcStatusError;
 
   setUp(() {
     reader = _ScriptedReader();
     settingsOpener = _RecordingSettingsOpener();
     nfcStatus = NfcStatus.enabled;
+    nfcStatusError = null;
 
     // The read runs inside PrivacyScreen.suspendDuring.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -180,7 +182,11 @@ void main() {
           featureFlagProvider(
             FeatureFlag.documentFlowV2,
           ).overrideWith((ref) => Stream.value(flag == .on)),
-          nfcStatusReaderProvider.overrideWithValue(() async => nfcStatus),
+          nfcStatusReaderProvider.overrideWithValue(() async {
+            final error = nfcStatusError;
+            if (error != null) throw error;
+            return nfcStatus;
+          }),
           nfcSettingsOpenerProvider.overrideWithValue(settingsOpener),
         ],
         // TestContext stops the scanning animation from looping on a timer.
@@ -416,6 +422,19 @@ void main() {
       await tester.pumpAndSettle();
 
       nfcStatus = NfcStatus.disabled;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+
+      expect(find.text("Turn on NFC"), findsOneWidget);
+    }, variant: _androidOnly);
+
+    testWidgets("returning from the settings with a failing status check "
+        "stays", (tester) async {
+      await pumpScreen(tester);
+      reader.emit(DocumentReaderNfcUnavailable());
+      await tester.pumpAndSettle();
+
+      nfcStatusError = StateError("no NFC status");
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
 
