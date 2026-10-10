@@ -6,6 +6,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:rxdart/rxdart.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
@@ -14,6 +15,7 @@ import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
 import "src/providers/irma_repository_provider.dart";
+import "src/providers/ocr_processor_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
@@ -23,6 +25,7 @@ import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/debug/feature_flags_screen.dart";
+import "src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -272,6 +275,19 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/mrz",
         builder: (context, state) => Container(),
         routes: [
+          GoRoute(
+            path: "/instructions/:type",
+            builder: (context, state) {
+              final documentType = DocumentType.values.byName(
+                state.pathParameters["type"]!,
+              );
+              return DocumentInstructionScreen(
+                documentType: documentType,
+                onCancel: context.pop,
+                onStart: () => _pushDocumentCapture(context, ref, documentType),
+              );
+            },
+          ),
           GoRoute(
             path: "/manual_entry",
             builder: (context, state) => Container(),
@@ -794,4 +810,27 @@ Stream<bool> _displayDeviceIsRootedWarning(
     }
   });
   return streamController.stream;
+}
+
+/// Opens the MRZ camera, or manual entry when the build has no OCR processor.
+void _pushDocumentCapture(
+  BuildContext context,
+  WidgetRef ref,
+  DocumentType documentType,
+) {
+  final hasCamera = ref.read(ocrProcessorProvider) != null;
+  switch (documentType) {
+    case .passport:
+      hasCamera
+          ? context.pushPassportMrzReaderScreen()
+          : context.pushPassportManualEntryScreen();
+    case .identityCard:
+      hasCamera
+          ? context.pushIdCardMrzReaderScreen()
+          : context.pushIdCardManualEntryScreen();
+    case .drivingLicence:
+      hasCamera
+          ? context.pushDrivingLicenceMrzReaderScreen()
+          : context.pushDrivingLicenceManualEntryScreen();
+  }
 }

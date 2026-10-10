@@ -787,6 +787,31 @@
     "content": "Yivi heeft toegang tot de camera nodig om je document automatisch te scannen. Geef Yivi toestemming om de camera te gebruiken via de systeeminstellingen of voer de benodigde gegevens handmatig in.",
     "open_settings": "Open instellingen"
   },
+  "document_flow": {
+    "start": "Start",
+    "document": {
+      "passport": "paspoort",
+      "id_card": "identiteitskaart",
+      "driving_licence": "rijbewijs"
+    },
+    "instruction": {
+      "passport": {
+        "title": "Open je paspoort op de pagina met je pasfoto",
+        "body": "Houd je paspoort voor de camera en zorg dat de hele pagina goed zichtbaar is. Druk daarna op Start om te beginnen.",
+        "tip": "Leg het paspoort niet direct onder een lamp, dan geeft het minder reflectie."
+      },
+      "id_card": {
+        "title": "Gebruik de achterkant van je identiteitskaart",
+        "body": "Houd je identiteitskaart voor de camera en zorg dat de hele achterkant goed zichtbaar is. Druk daarna op Start om te beginnen.",
+        "tip": "Leg de kaart niet direct onder een lamp, dan geeft het minder reflectie."
+      },
+      "driving_licence": {
+        "title": "Gebruik de achterkant van je rijbewijs",
+        "body": "Houd je rijbewijs voor de camera en zorg dat de hele achterkant goed zichtbaar is. Druk daarna op Start om te beginnen.",
+        "tip": "Leg het rijbewijs niet direct onder een lamp, dan geeft het minder reflectie."
+      }
+    }
+  },
   "face_verification": {
     "title": "Gezichtsverificatie",
     "preparing": "Een moment, je gegevens worden voorbereid…",

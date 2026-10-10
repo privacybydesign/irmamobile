@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
@@ -179,6 +180,11 @@ extension RoutingHelpers on BuildContext {
       queryParameters: params.toQueryParams(),
     );
     pushReplacement(uri.toString());
+  }
+
+  void pushDocumentInstructionScreen(DocumentType documentType) {
+    final uri = Uri(path: "/mrz/instructions/${documentType.name}");
+    push(uri.toString());
   }
 
   void pushPassportMrzReaderScreen() {

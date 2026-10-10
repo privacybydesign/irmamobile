@@ -787,6 +787,31 @@
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
   },
+  "document_flow": {
+    "start": "Start",
+    "document": {
+      "passport": "passport",
+      "id_card": "ID-card",
+      "driving_licence": "driving licence"
+    },
+    "instruction": {
+      "passport": {
+        "title": "Open your passport on the photo page",
+        "body": "Hold your passport in front of the camera and make sure the whole page is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the passport directly under a lamp, it gives less glare."
+      },
+      "id_card": {
+        "title": "Use the back of your ID-card",
+        "body": "Hold your ID-card in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the card directly under a lamp, it gives less glare."
+      },
+      "driving_licence": {
+        "title": "Use the back of your driving licence",
+        "body": "Hold your driving licence in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the driving licence directly under a lamp, it gives less glare."
+      }
+    }
+  },
   "face_verification": {
     "title": "Face verification",
     "preparing": "One moment, preparing your data…",
