@@ -6,8 +6,10 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/clear_all_data_event.dart";
+import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/section_header.dart";
@@ -217,6 +219,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+              Consumer(
+                builder: (context, ref, _) {
+                  if (!ref.watch(emailLinkAvailableProvider)) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                    child: TilesCard(
+                      children: [
+                        InternalLinkTile(
+                          key: const Key("link_email_link"),
+                          labelTranslationKey: "settings.link_email",
+                          onTap: () => openEmailLinking(context, ref),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               buildHeaderText("settings.other"),
               TilesCard(
                 children: [

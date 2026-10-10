@@ -18,6 +18,7 @@ import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credentials.dart";
 import "../models/delete_keyshare_tokens_event.dart";
+import "../models/email_code_pointer.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -42,6 +43,7 @@ import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "app_language.dart";
+import "feature_flags.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -250,7 +252,8 @@ class IrmaRepository {
           return;
         }
 
-        final pointer = Pointer.fromString(event.url);
+        final pointer =
+            await _emailCodePointer(event.url) ?? Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
         closeInAppWebView();
@@ -639,6 +642,18 @@ class IrmaRepository {
     });
   }
 
+  /// The e-mail code link in [url], or null when it is not one or e-mail
+  /// linking is off, so the link is then treated like any other unknown URL.
+  Future<EmailCodePointer?> _emailCodePointer(String url) async {
+    final pointer = EmailCodePointer.tryParse(url);
+    if (pointer == null) return null;
+
+    final linkingOn = await preferences
+        .getFeatureFlag(FeatureFlag.emailLinking)
+        .first;
+    return linkingOn ? pointer : null;
+  }
+
   Stream<Pointer?> getPendingPointer() {
     return _pendingPointerSubject.stream;
   }
@@ -846,7 +861,12 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
+  void _startEmailIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref, {
+    EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
+  }) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -859,8 +879,34 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(emailIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      context.pushEmailIssuanceScreen();
+      context.pushEmailIssuanceScreen(purpose: purpose);
     }
+  }
+
+  /// Opens the e-mail issuance flow with the e-mail issuer of the default
+  /// scheme, to link the address to the keyshare server afterwards
+  /// (`FeatureFlag.emailLinking`).
+  Future<void> startEmailLinking(BuildContext context, WidgetRef ref) async {
+    final credentialId = "$defaultKeyshareScheme.sidn-pbdf.email";
+    final store = await getCredentialStoreItems().first;
+    final issueUrl = store
+        .where((item) => item.credential.credentialId == credentialId)
+        .firstOrNull
+        ?.credential
+        .issueURL;
+    if (issueUrl == null || issueUrl.isEmpty) {
+      throw UnsupportedError(
+        "Credential type $credentialId does not have a suitable issue url",
+      );
+    }
+    if (!context.mounted) return;
+
+    _startEmailIssuance(
+      context,
+      issueUrl,
+      ref,
+      purpose: EmailIssuancePurpose.linkKeyshare,
+    );
   }
 
   /// Unified entry point for "user tapped Get / Reobtain inside the app
