@@ -18,6 +18,7 @@ import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
+import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
@@ -102,6 +103,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/enrollment",
         builder: (context, state) => EnrollmentScreen(),
+      ),
+      GoRoute(
+        path: "/back_to_website",
+        builder: (context, state) => const BackToWebsiteScreen(),
       ),
       GoRoute(
         path: "/home",

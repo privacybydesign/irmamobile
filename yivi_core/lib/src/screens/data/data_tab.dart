@@ -8,8 +8,10 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
+import "../../data/feature_flags.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
@@ -23,6 +25,7 @@ import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
+import "empty_data_routes.dart";
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -275,13 +278,18 @@ class _AllCredentialsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final credentials = ref.watch(schemalessCredentialsProvider);
+    // Read next to the credentials so it has loaded by the time they have.
+    final onboardingV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
 
     return switch (credentials) {
       // Problematic credentials keep the overview non-empty even when every
       // loadable credential is gone, so the user can still see and delete them.
       AsyncData(:final value) =>
         value.credentials.isEmpty && value.problematic.isEmpty
-            ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
+            ? (onboardingV2
+                  ? const EmptyDataRoutes()
+                  : _NoCredentialsYet(addDataButtonKey: addDataButtonKey))
             : _ReorderableCredentialList(),
       AsyncError() => Center(
         child: Padding(

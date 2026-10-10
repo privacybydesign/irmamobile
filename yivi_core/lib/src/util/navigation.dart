@@ -108,6 +108,10 @@ extension RoutingHelpers on BuildContext {
     go("/enrollment");
   }
 
+  void goBackToWebsiteScreen() {
+    go("/back_to_website");
+  }
+
   void goIssueWizardSuccessScreen({
     TranslatedValue? headerTranslation,
     TranslatedValue? contentTranslation,

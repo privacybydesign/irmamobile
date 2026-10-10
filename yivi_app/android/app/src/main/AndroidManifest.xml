@@ -1,5 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- The Play Install Referrer library binds to the Play Store, which
+         package visibility hides from the app unless it is declared here. -->
+    <queries>
+        <package android:name="com.android.vending" />
+    </queries>
+
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
          In most cases you can leave this as-is, but you if you want to provide

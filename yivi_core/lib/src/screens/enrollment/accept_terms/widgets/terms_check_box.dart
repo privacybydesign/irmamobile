@@ -2,6 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../data/feature_flags.dart";
+import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/translated_text.dart";
@@ -47,6 +49,20 @@ class TermsCheckBox extends ConsumerWidget {
       "enrollment.terms_and_conditions.accept_markdown",
     );
 
+    // Onboarding v2 marks this checkbox as required with a red asterisk. The
+    // asterisk is read as "asterisk" or skipped by screen readers, so the word
+    // goes into the checkbox's label instead.
+    final onboardingV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
+    final semanticsLabel = onboardingV2
+        ? "${_withoutMarkdownLinks(acceptLabel)}, ${FlutterI18n.translate(context, "enrollment.terms_and_conditions.required")}"
+        : _withoutMarkdownLinks(acceptLabel);
+
+    final acceptText = TranslatedText(
+      "enrollment.terms_and_conditions.accept_markdown",
+      translationParams: {"terms_url": termsUrl},
+    );
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -58,7 +74,7 @@ class TermsCheckBox extends ConsumerWidget {
         // link reachable.
         MergeSemantics(
           child: Semantics(
-            label: _withoutMarkdownLinks(acceptLabel),
+            label: semanticsLabel,
             child: Checkbox(
               key: const Key("accept_terms_checkbox"),
               value: isAccepted,
@@ -69,10 +85,23 @@ class TermsCheckBox extends ConsumerWidget {
         ),
         SizedBox(width: theme.smallSpacing),
         Flexible(
-          child: TranslatedText(
-            "enrollment.terms_and_conditions.accept_markdown",
-            translationParams: {"terms_url": termsUrl},
-          ),
+          child: onboardingV2
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ExcludeSemantics(
+                      child: Text(
+                        "*",
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: theme.error,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: theme.tinySpacing),
+                    Expanded(child: acceptText),
+                  ],
+                )
+              : acceptText,
         ),
       ],
     );
