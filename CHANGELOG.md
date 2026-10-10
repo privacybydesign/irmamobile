@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Two feature flags in the debug menu change the Data tab. Both are off by default and the tab looks the same while they are off. `dataTabV2` lists staging and demo credentials in sections of their own below the rest, and shows an expired credential faded, with a red badge and "Expired" under its name. `dataTabCategories` groups the tab by category like the add data screen, adds a Favourites section that you fill with the star on the credential screen, and lets you collapse a category
+
 ### Fixed
 - The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from the staging scheme (`pbdf-staging`) and the demo scheme (`irma-demo`) are listed separately at the bottom, under "Staging (test environment)" and "Demo (example data)"
 

@@ -426,7 +426,15 @@
     "empty": {
       "title": "Obtain your personal data",
       "subtitle": "Tap on the plus icon to obtain your personal data."
-    }
+    },
+    "expired_label": "{name}, expired",
+    "favourites": {
+      "title": "Favourites",
+      "add": "Add to favourites",
+      "remove": "Remove from favourites"
+    },
+    "section_count-1": "{count} item",
+    "section_count-2": "{count} items"
   },
   "issuance": {
     "title": "Add data",

@@ -426,7 +426,15 @@
     "empty": {
       "title": "Holen Sie sich Ihre persönlichen Daten",
       "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
-    }
+    },
+    "expired_label": "{name}, abgelaufen",
+    "favourites": {
+      "title": "Favoriten",
+      "add": "Zu Favoriten hinzufügen",
+      "remove": "Aus Favoriten entfernen"
+    },
+    "section_count-1": "{count} Eintrag",
+    "section_count-2": "{count} Einträge"
   },
   "issuance": {
     "title": "Daten hinzufügen",

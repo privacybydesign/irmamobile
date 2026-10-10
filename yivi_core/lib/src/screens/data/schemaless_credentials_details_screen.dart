@@ -2,8 +2,11 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/favourite_credentials_provider.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
@@ -13,6 +16,7 @@ import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.
 import "../../widgets/credential_card/yivi_credential_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
+import "../../widgets/irma_icon_button.dart";
 import "../../widgets/progress.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_bottom_sheet.dart";
@@ -76,7 +80,15 @@ class _CredentialsDetailsScreenState
       ],
     );
 
+    final pinnable =
+        credential != null &&
+        (ref.watch(featureFlagProvider(FeatureFlag.dataTabCategories)).value ??
+            false);
+
     return IrmaAppBar(
+      actions: [
+        if (pinnable) _FavouriteButton(credentialId: credential.credentialId),
+      ],
       title: AnimatedBuilder(
         animation: _scrollController,
         builder: (context, child) {
@@ -250,5 +262,30 @@ class _CredentialsDetailsScreenState
     IrmaRepositoryProvider.of(
       context,
     ).openIssueURL(context, credential.credentialId, credential.issueUrl, ref);
+  }
+}
+
+/// Pins the credential to the top of the data tab, or unpins it.
+class _FavouriteButton extends ConsumerWidget {
+  final String credentialId;
+
+  const _FavouriteButton({required this.credentialId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favourite =
+        ref.watch(favouriteCredentialsProvider).value?.contains(credentialId) ??
+        false;
+
+    return IrmaIconButton(
+      key: const Key("favourite_button"),
+      icon: favourite ? Icons.star : Icons.star_border,
+      size: 28,
+      semanticsLabelKey: favourite
+          ? "data_tab.favourites.remove"
+          : "data_tab.favourites.add",
+      onTap: () =>
+          ref.read(favouriteCredentialsControllerProvider).toggle(credentialId),
+    );
   }
 }
