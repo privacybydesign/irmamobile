@@ -30,6 +30,8 @@ import "../../../widgets/translated_text.dart";
 import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
+import "widgets/face_verification_animation.dart"
+    show FaceVerificationIllustration;
 import "widgets/id_card_nfc_scanning_animation.dart";
 import "widgets/nfc_error_dialog.dart";
 import "widgets/nfc_stage_view.dart";
@@ -299,7 +301,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // page is not revealed again after the intro/liveness — instead the
           // user sees a loader that leads into issuance.
           setState(() => _preparingIssuance = true);
-          final proceed = await FaceVerificationIntroScreen.show(context);
+          final proceed = await FaceVerificationIntroScreen.show(
+            context,
+            illustration: _documentFlowV2
+                ? FaceVerificationIllustration.neutral
+                : FaceVerificationIllustration.phone,
+          );
           if (!proceed) {
             if (mounted) setState(() => _preparingIssuance = false);
             return;
