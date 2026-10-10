@@ -321,7 +321,8 @@
       "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
       "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
       "point_3": "Niemand schaut zu, auch Yivi nicht!",
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
+      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
+      "required": "erforderlich"
     },
     "error_reporting": {
       "accept": {
