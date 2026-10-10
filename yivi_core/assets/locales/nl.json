@@ -427,7 +427,12 @@
       "title": "Haal je gegevens op",
       "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
     },
-    "expired_label": "{name}, verlopen"
+    "expired_label": "{name}, verlopen",
+    "favourites": {
+      "title": "Favorieten",
+      "add": "Voeg toe aan favorieten",
+      "remove": "Verwijder uit favorieten"
+    }
   },
   "issuance": {
     "title": "Gegevens toevoegen",
