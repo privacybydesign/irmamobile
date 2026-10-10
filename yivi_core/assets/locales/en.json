@@ -111,7 +111,15 @@
     "revoked": "Revoked",
     "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data.",
     "boolean_yes": "Yes",
-    "boolean_no": "No"
+    "boolean_no": "No",
+    "age": {
+      "label": "Age",
+      "over": "Older than {age}",
+      "not_over": "Not older than {age}",
+      "over_and_not_over": "Older than {over}, not older than {notOver}",
+      "show_all": "Show all ages",
+      "hide_all": "Hide ages"
+    }
   },
   "data": {
     "tab": {

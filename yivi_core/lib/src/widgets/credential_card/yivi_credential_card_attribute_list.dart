@@ -8,6 +8,18 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
+import "../link.dart";
+import "../translated_text.dart";
+
+/// How `overNN` age attributes are listed.
+enum AgeDisplay {
+  /// One row per attribute, like any other.
+  perAttribute,
+
+  /// One row with the highest age that is true and the lowest that is false,
+  /// and a link that expands it into one chip per age.
+  collapsed,
+}
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -15,11 +27,13 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // When true, each leaf/primarray row draws a 1px horizontal divider at
   // its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
+  final AgeDisplay ageDisplay;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
     this.showDividers = false,
+    this.ageDisplay = AgeDisplay.perAttribute,
   });
 
   @override
@@ -37,6 +51,10 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       });
 
     final tree = _buildTree(sorted, compareTo: compareTo);
+    // Comparing against another credential needs every attribute on its own row.
+    if (ageDisplay == AgeDisplay.collapsed && compareTo == null) {
+      _collapseAges(tree.children);
+    }
     final items = _flatten(tree);
 
     return Column(
@@ -92,6 +110,18 @@ class _RowNode extends _Node {
     required this.hasCompareTo,
     this.compareToValue,
   });
+}
+
+class _AgeEntry {
+  final int age;
+  final bool over;
+  const _AgeEntry({required this.age, required this.over});
+}
+
+/// All `overNN` attributes of one group, folded into a single row.
+class _AgeNode extends _Node {
+  final List<_AgeEntry> ages;
+  _AgeNode({required this.ages});
 }
 
 class _PrimArrayNode extends _Node {
@@ -279,6 +309,61 @@ _GroupNode _buildTree(
   return root;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Ages — `overNN` attributes fold into one row per group.
+// ─────────────────────────────────────────────────────────────────────────────
+
+final _ageClaim = RegExp(r"^over(\d+)$");
+
+_AgeEntry? _ageEntry(schemaless.Attribute attribute) {
+  final claim = attribute.claimPath.lastOrNull;
+  if (claim is! String) return null;
+  final age = _ageClaim.firstMatch(claim)?.group(1);
+  if (age == null) return null;
+
+  final value = attribute.value;
+  final over = switch (value?.type) {
+    schemaless.AttributeType.boolean => value?.boolValue,
+    schemaless.AttributeType.string => switch (value?.string?.toLowerCase()) {
+      "yes" || "true" => true,
+      "no" || "false" => false,
+      _ => null,
+    },
+    _ => null,
+  };
+  if (over == null) return null;
+
+  return _AgeEntry(age: int.parse(age), over: over);
+}
+
+void _collapseAges(List<_Node> children) {
+  final ages = <_AgeEntry>[];
+  int? firstIndex;
+  final rest = <_Node>[];
+  for (final child in children) {
+    final entry = child is _RowNode ? _ageEntry(child.attribute) : null;
+    if (entry == null) {
+      rest.add(child);
+      continue;
+    }
+    ages.add(entry);
+    firstIndex ??= rest.length;
+  }
+
+  if (firstIndex != null) {
+    ages.sort((a, b) => a.age.compareTo(b.age));
+    rest.insert(firstIndex, _AgeNode(ages: ages));
+    children
+      ..clear()
+      ..addAll(rest);
+  }
+
+  for (final child in children) {
+    if (child is _GroupNode) _collapseAges(child.children);
+    if (child is _ItemNode) _collapseAges(child.children);
+  }
+}
+
 void _stampItemTotals(_Node node) {
   List<_Node>? children;
   if (node is _GroupNode) children = node.children;
@@ -337,7 +422,7 @@ List<_RenderItem> _flatten(_GroupNode root) {
       final c = children[i];
       final isLast = i == children.length - 1;
 
-      if (c is _RowNode || c is _PrimArrayNode) {
+      if (c is _RowNode || c is _PrimArrayNode || c is _AgeNode) {
         emit(c, depth, isLast);
         continue;
       }
@@ -477,6 +562,7 @@ class _RenderItemView extends StatelessWidget {
     // and primarrays (and empty-group fallbacks rendered as labelled rows).
     if (node is _RowNode) return true;
     if (node is _PrimArrayNode) return true;
+    if (node is _AgeNode) return true;
     if (node is _GroupNode) return node.children.isEmpty;
     return false;
   }
@@ -500,6 +586,7 @@ class _RowContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (node) {
       _RowNode n => _LeafContent(node: n),
+      _AgeNode n => _AgeContent(node: n),
       _PrimArrayNode n => _PrimArrayContent(node: n),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
@@ -616,6 +703,108 @@ class _LeafContent extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
         child: image,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Age — the highest age that is true and the lowest that is false, or one chip
+// per age once expanded.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AgeContent extends StatefulWidget {
+  final _AgeNode node;
+  const _AgeContent({required this.node});
+
+  @override
+  State<_AgeContent> createState() => _AgeContentState();
+}
+
+class _AgeContentState extends State<_AgeContent> {
+  bool _expanded = false;
+
+  String _summary(BuildContext context) {
+    final ages = widget.node.ages;
+    final over = ages.where((a) => a.over).map((a) => a.age).lastOrNull;
+    final notOver = ages.where((a) => !a.over).map((a) => a.age).firstOrNull;
+
+    final (key, params) = switch ((over, notOver)) {
+      (final over?, final notOver?) => (
+        "credential.age.over_and_not_over",
+        {"over": "$over", "notOver": "$notOver"},
+      ),
+      (final over?, null) => ("credential.age.over", {"age": "$over"}),
+      (null, final notOver?) => (
+        "credential.age.not_over",
+        {"age": "$notOver"},
+      ),
+      (null, null) => ("", <String, String>{}),
+    };
+    return FlutterI18n.translate(context, key, translationParams: params);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    // Nothing to expand into when there is only one age.
+    final canExpand = widget.node.ages.length > 1;
+
+    return Column(
+      mainAxisSize: .min,
+      crossAxisAlignment: .start,
+      children: [
+        TranslatedText("credential.age.label", style: _labelStyle(theme)),
+        if (_expanded)
+          Padding(
+            padding: EdgeInsets.only(top: theme.tinySpacing),
+            child: Wrap(
+              spacing: theme.smallSpacing,
+              runSpacing: theme.smallSpacing,
+              children: [
+                for (final entry in widget.node.ages) _AgeChip(entry: entry),
+              ],
+            ),
+          )
+        else
+          Text(_summary(context), style: _valueStyle(theme, theme.dark)),
+        if (canExpand)
+          Padding(
+            padding: EdgeInsets.only(top: theme.tinySpacing),
+            child: Link(
+              label: _expanded
+                  ? "credential.age.hide_all"
+                  : "credential.age.show_all",
+              onTap: () => setState(() => _expanded = !_expanded),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _AgeChip extends StatelessWidget {
+  final _AgeEntry entry;
+  const _AgeChip({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    // The wording says which side of the age it is, so the colour is only a
+    // second cue.
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.smallSpacing,
+        vertical: theme.tinySpacing,
+      ),
+      decoration: BoxDecoration(
+        color: entry.over ? theme.successSurface : theme.neutralExtraLight,
+        borderRadius: theme.borderRadius,
+      ),
+      child: TranslatedText(
+        entry.over ? "credential.age.over" : "credential.age.not_over",
+        translationParams: {"age": "${entry.age}"},
+        style: _labelStyle(theme).copyWith(color: theme.dark),
       ),
     );
   }

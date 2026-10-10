@@ -2,10 +2,12 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../base64_image.dart";
@@ -284,6 +286,9 @@ class YiviCredentialCard extends ConsumerWidget {
     final displayIssuerName = issuerName.isNotEmpty
         ? issuerName
         : FlutterI18n.translate(context, "ui.unknown");
+    final collapseAges =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
 
     return IrmaCard(
       style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
@@ -312,7 +317,13 @@ class YiviCredentialCard extends ConsumerWidget {
                 bottom: theme.smallSpacing,
               ),
             ),
-            YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
+            YiviCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
+              ageDisplay: collapseAges
+                  ? AgeDisplay.collapsed
+                  : AgeDisplay.perAttribute,
+            ),
           ],
           if (!hideFooter && !status.revoked)
             Column(
