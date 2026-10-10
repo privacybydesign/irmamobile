@@ -32,6 +32,8 @@ import "../../widgets/yivi_search_bar.dart";
 import "empty_data_routes.dart";
 import "widgets/email_link_banner.dart";
 
+const _listFooterHeight = 50.0;
+
 class DataTab extends ConsumerStatefulWidget {
   @override
   ConsumerState<DataTab> createState() => _DataTabState();
@@ -426,7 +428,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
           header: problematic.isEmpty
               ? null
               : _ProblematicCredentialsSection(problematic),
-          footer: const SizedBox(height: 50),
+          footer: const SizedBox(height: _listFooterHeight),
           itemBuilder: (_, i) {
             final cred = items[i];
 
@@ -554,7 +556,9 @@ class _SectionedCredentialList extends ConsumerWidget {
                     key: ValueKey(section.key),
                     section: section,
                   ),
-                const SliverToBoxAdapter(child: SizedBox(height: 50)),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: _listFooterHeight),
+                ),
               ],
             ),
           ),
