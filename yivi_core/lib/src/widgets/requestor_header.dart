@@ -63,7 +63,7 @@ class RequestorHeader extends StatelessWidget {
       subtitleTextWidget = Padding(
         padding: EdgeInsets.only(top: theme.defaultSpacing),
         child: GestureDetector(
-          onTap: () => showRequestorVerificationSheet(context),
+          onTap: () => showVerificationSheet(context),
           child: TranslatedText(
             "disclosure_permission.overview.requestor_verification.explanation",
             style: theme.hyperlinkTextStyle.copyWith(

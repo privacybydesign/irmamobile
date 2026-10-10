@@ -43,7 +43,7 @@ class ShareTrustBar extends StatelessWidget {
           Link(
             label:
                 "disclosure_permission.overview.requestor_verification.explanation",
-            onTap: () => showRequestorVerificationSheet(context),
+            onTap: () => showVerificationSheet(context),
             style: const TextStyle(fontWeight: FontWeight.w400),
           ),
         ],
