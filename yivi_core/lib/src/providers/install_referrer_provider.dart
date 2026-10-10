@@ -47,5 +47,6 @@ final installReferrerReaderProvider = FutureProvider<void>((ref) async {
   if (_isFromWeb(await service.getInstallReferrer())) {
     await preferences.markBackToWebsitePending();
   }
+
   await preferences.markInstallReferrerRead();
 });
