@@ -8,6 +8,7 @@ import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
+import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
@@ -160,6 +161,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
         },
         child: Scaffold(
           appBar: IrmaAppBar(
+            bottom: context.missingDataBand,
             titleTranslationKey: "sms_issuance.verify_code.title",
             leading: YiviBackButton(onTap: _goBack),
           ),
@@ -235,8 +237,10 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
             ),
           ),
           bottomNavigationBar: IrmaBottomBar(
-            secondaryButtonLabel: "sms_issuance.verify_code.back_button",
-            onSecondaryPressed: context.pop,
+            secondaryButtonLabel: context.missingDataBackLabel(
+              "sms_issuance.verify_code.back_button",
+            ),
+            onSecondaryPressed: context.missingDataBack(context.pop),
           ),
         ),
       ),

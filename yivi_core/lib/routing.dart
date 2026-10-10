@@ -50,6 +50,7 @@ import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
+import "src/util/missing_data_flow.dart";
 import "src/util/navigation.dart";
 import "src/widgets/irma_app_bar.dart";
 
@@ -280,7 +281,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/driving_licence",
                 builder: (context, state) {
                   return DrivingLicenceMrzManualEntryScreen(
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     onContinue: (data) {
                       context.pushDrivingLicenceNfcReadingScreen(
                         DrivingLicenceNfcReadingRouteParams(
@@ -315,7 +316,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                           "passport.manual.fields.document_nr_invalid",
                       dateInvalid: "passport.manual.fields.date_invalid",
                     ),
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     onContinue: (data) {
                       context.pushPassportNfcReadingScreen(
                         PassportNfcReadingRouteParams(
@@ -348,7 +349,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                           "id_card.manual.fields.document_nr_invalid",
                       dateInvalid: "id_card.manual.fields.date_invalid",
                     ),
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     onContinue: (data) {
                       context.pushIdCardNfcReadingScreen(
                         PassportNfcReadingRouteParams(
@@ -397,7 +398,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushDrivingLicenceManualEntryScreen,
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     mrzParser: DrivingLicenceMrzParser(),
                   );
                 },
@@ -430,7 +431,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushPassportManualEntryScreen,
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     mrzParser: PassportMrzParser(),
                   );
                 },
@@ -460,7 +461,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushIdCardManualEntryScreen,
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     mrzParser: IdCardMrzParser(),
                   );
                 },
@@ -527,7 +528,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   randomData: args.randomData,
                   configuration: args.configuration,
                 ),
-                onCancel: context.goHomeScreen,
+                onCancel: context.missingDataBack(context.goHomeScreen),
               );
             },
           ),
@@ -579,7 +580,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   dateOfBirth: args.dateOfBirth,
                   dateOfExpiry: args.dateOfExpiry,
                 ),
-                onCancel: context.goHomeScreen,
+                onCancel: context.missingDataBack(context.goHomeScreen),
               );
             },
           ),
@@ -631,7 +632,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   dateOfBirth: args.dateOfBirth,
                   dateOfExpiry: args.dateOfExpiry,
                 ),
-                onCancel: context.goHomeScreen,
+                onCancel: context.missingDataBack(context.goHomeScreen),
               );
             },
           ),

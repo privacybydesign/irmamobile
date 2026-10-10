@@ -274,6 +274,35 @@
       "extra_explanation_android": "Sie hören einige Pieptöne und werden verbunden."
     }
   },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} fragt nach {n} Angabe",
+      "other": "{requestor} fragt nach {n} Angaben"
+    },
+    "known_party": "Bekannte Partei",
+    "unknown_party": "Unbekannte Partei",
+    "progress": "{x} von {n} bereit",
+    "status": {
+      "present": "Bereits in Ihrer App",
+      "missing": "Noch nicht in Ihrer App",
+      "just_added": "Gerade hinzugefügt"
+    },
+    "obtain": "Abrufen",
+    "obtain_named": "Abrufen: {credential}",
+    "share_with": "Mit {requestor} teilen",
+    "hint": {
+      "one": "Rufen Sie zuerst die fehlende Angabe ab",
+      "other": "Rufen Sie zuerst die {n} fehlenden Angaben ab"
+    },
+    "band": "Für {requestor} · {x} von {n} bereit",
+    "back_to_list": "Zurück zur Liste",
+    "ready_title": "Alles ist bereit",
+    "share_question": {
+      "one": "Möchten Sie diese Angabe mit {requestor} teilen?",
+      "other": "Möchten Sie diese {n} Angaben mit {requestor} teilen?"
+    },
+    "share": "Teilen"
+  },
   "enrollment": {
     "introduction": {
       "step_1": {

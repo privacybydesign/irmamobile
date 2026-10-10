@@ -43,6 +43,7 @@ class YiviButtonSize {
 
 class YiviThemedButton extends StatelessWidget {
   final String label;
+  final Map<String, String>? labelParams;
   final VoidCallback? onPressed;
   final YiviButtonStyle style;
   final YiviButtonSize size;
@@ -51,6 +52,7 @@ class YiviThemedButton extends StatelessWidget {
   const YiviThemedButton({
     super.key,
     required this.label,
+    this.labelParams,
     this.onPressed,
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
@@ -135,6 +137,7 @@ class YiviThemedButton extends StatelessWidget {
     final centeredTextWidget = Center(
       child: TranslatedText(
         label,
+        translationParams: labelParams,
         textAlign: TextAlign.center,
         style: baseTextStyle.copyWith(
           color: style == YiviButtonStyle.outlined
