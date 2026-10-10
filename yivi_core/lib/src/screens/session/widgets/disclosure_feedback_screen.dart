@@ -1,10 +1,13 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../widgets/action_feedback.dart";
 
 enum DisclosureFeedbackType { success, canceled, notSatisfiable }
 
-class DisclosureFeedbackScreen extends StatefulWidget {
+class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
   static const _translationKeys = {
     DisclosureFeedbackType.success: "success",
     DisclosureFeedbackType.canceled: "canceled",
@@ -27,12 +30,13 @@ class DisclosureFeedbackScreen extends StatefulWidget {
        _translationKey = _translationKeys[feedbackType];
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<DisclosureFeedbackScreen> createState() {
     return DisclosureFeedbackScreenState();
   }
 }
 
-class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
+class DisclosureFeedbackScreenState
+    extends ConsumerState<DisclosureFeedbackScreen>
     with WidgetsBindingObserver {
   @override
   void initState() {
@@ -49,14 +53,20 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
   @override
   Widget build(BuildContext context) {
     final otherPartyTranslationParam = {"otherParty": widget.otherParty};
+    final success = widget.feedbackType == DisclosureFeedbackType.success;
+    final calm =
+        ref.watch(featureFlagProvider(FeatureFlag.calmSuccess)).value ?? false;
+    // "Shared" is wrong for a signature, so signature sessions keep their copy.
+    final translationKey = calm && success && !widget.isSignatureSession
+        ? "success_calm"
+        : widget._translationKey;
 
     return ActionFeedback(
-      success: widget.feedbackType == DisclosureFeedbackType.success,
-      titleTranslationKey:
-          "disclosure.feedback.header.${widget._translationKey}",
+      success: success,
+      titleTranslationKey: "disclosure.feedback.header.$translationKey",
       titleTranslationParams: otherPartyTranslationParam,
       explanationTranslationKey:
-          'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}',
+          'disclosure.feedback.text.$translationKey${widget.isSignatureSession ? '_signature' : ''}',
       explanationTranslationParams: otherPartyTranslationParam,
       onDismiss: () => widget.onDismiss(context),
     );
