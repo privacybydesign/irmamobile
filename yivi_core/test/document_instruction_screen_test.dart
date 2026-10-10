@@ -139,4 +139,51 @@ void main() {
       findsWidgets,
     );
   });
+
+  group("the loop", () {
+    // No TestContext here: it would stop the ticker whatever the setting.
+    Future<void> pumpAnimating(WidgetTester tester) => pumpTranslated(
+      tester,
+      IrmaTheme(
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: FileTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
+              ),
+            ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          home: DocumentInstructionScreen(
+            documentType: DocumentType.passport,
+            onStart: () {},
+            onCancel: () {},
+          ),
+        ),
+      ),
+    );
+
+    testWidgets("keeps running by default", (tester) async {
+      await pumpAnimating(tester);
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(tester.binding.transientCallbackCount, greaterThan(0));
+    });
+
+    testWidgets("stands still when the system asks for less motion", (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+
+      await pumpAnimating(tester);
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(tester.binding.transientCallbackCount, 0);
+    });
+  });
 }
