@@ -810,6 +810,18 @@
         "body": "Houd je rijbewijs voor de camera en zorg dat de hele achterkant goed zichtbaar is. Druk daarna op Start om te beginnen.",
         "tip": "Leg het rijbewijs niet direct onder een lamp, dan geeft het minder reflectie."
       }
+    },
+    "nfc": {
+      "waiting_title": "Leg je telefoon op je {document}",
+      "waiting_body_passport": "Je paspoort mag dicht blijven.",
+      "waiting_body_card": "Leg de achterkant van je telefoon tegen de kaart.",
+      "reading_title": "Niet bewegen",
+      "reading_body": "Je {document} wordt gelezen.",
+      "done_title": "Je {document} is gelezen",
+      "done_body": "Je kunt je telefoon weer oppakken.",
+      "off_title": "Zet NFC aan",
+      "off_body": "Daarmee leest je telefoon de chip in je {document}.",
+      "open_settings": "Open NFC-instellingen"
     }
   },
   "face_verification": {

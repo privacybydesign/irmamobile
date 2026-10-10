@@ -810,6 +810,18 @@
         "body": "Hold your driving licence in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
         "tip": "Don't hold the driving licence directly under a lamp, it gives less glare."
       }
+    },
+    "nfc": {
+      "waiting_title": "Place your phone on your {document}",
+      "waiting_body_passport": "Your passport can stay closed.",
+      "waiting_body_card": "Hold the back of your phone against the card.",
+      "reading_title": "Don't move",
+      "reading_body": "Your {document} is being read.",
+      "done_title": "Your {document} has been read",
+      "done_body": "You can pick up your phone again.",
+      "off_title": "Turn on NFC",
+      "off_body": "Your phone uses it to read the chip in your {document}.",
+      "open_settings": "Open NFC settings"
     }
   },
   "face_verification": {

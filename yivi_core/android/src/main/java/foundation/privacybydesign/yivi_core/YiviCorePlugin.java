@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.iiab.IIABPlugin;
+import foundation.privacybydesign.yivi_core.plugins.nfc_settings.NfcSettingsPlugin;
 import foundation.privacybydesign.yivi_core.plugins.privacy_screen.PrivacyScreenPlugin;
 import foundation.privacybydesign.yivi_core.plugins.root_detection.RootDetectionPlugin;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -27,6 +28,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private IIABPlugin webBrowser;
     private PrivacyScreenPlugin privacyScreenPlugin;
     private RootDetectionPlugin rootDetectionPlugin;
+    private NfcSettingsPlugin nfcSettingsPlugin;
 
     public YiviCorePlugin() {
         Irmagobridge.prestart();
@@ -89,6 +91,9 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         rootDetectionPlugin = new RootDetectionPlugin();
         rootDetectionPlugin.onAttachedToEngine(binding);
+
+        nfcSettingsPlugin = new NfcSettingsPlugin();
+        nfcSettingsPlugin.onAttachedToEngine(binding);
     }
 
     @Override
@@ -102,6 +107,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         webBrowser.onDetachedFromEngine(binding);
         privacyScreenPlugin.onDetachedFromEngine(binding);
         rootDetectionPlugin.onDetachedFromEngine(binding);
+        nfcSettingsPlugin.onDetachedFromEngine(binding);
     }
 
     private void cleanupActivity() {

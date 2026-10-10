@@ -810,6 +810,18 @@
         "body": "Halten Sie Ihren Führerschein vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
         "tip": "Halten Sie den Führerschein nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen."
       }
+    },
+    "nfc": {
+      "waiting_title": "Legen Sie Ihr Telefon auf Ihren {document}",
+      "waiting_body_passport": "Ihr Reisepass kann geschlossen bleiben.",
+      "waiting_body_card": "Halten Sie die Rückseite Ihres Telefons an die Karte.",
+      "reading_title": "Nicht bewegen",
+      "reading_body": "Ihr {document} wird gelesen.",
+      "done_title": "Ihr {document} wurde gelesen",
+      "done_body": "Sie können Ihr Telefon wieder aufnehmen.",
+      "off_title": "NFC einschalten",
+      "off_body": "Damit liest Ihr Telefon den Chip in Ihrem {document}.",
+      "open_settings": "NFC-Einstellungen öffnen"
     }
   },
   "face_verification": {
