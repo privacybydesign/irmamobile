@@ -650,7 +650,7 @@ class _SectionTitle extends ConsumerWidget {
         padding: EdgeInsets.only(bottom: theme.smallSpacing),
         child: Row(
           children: [
-            SectionHeader.text(title),
+            Flexible(child: SectionHeader.text(title)),
             if (section.kind == DataTabSectionKind.favourites) ...[
               SizedBox(width: theme.tinySpacing),
               ExcludeSemantics(
