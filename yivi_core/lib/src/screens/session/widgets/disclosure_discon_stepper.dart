@@ -4,11 +4,10 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_stepper.dart";
 import "../../../widgets/translated_text.dart";
 import "disclosure_permission_choice.dart";
+import "disclosure_step_credential_card.dart";
 
 /// A stepper widget that displays the issuance-during-disclosure steps.
 ///
@@ -152,10 +151,9 @@ class DisclosureDisconStepper extends StatelessWidget {
       case _CredentialVirtualStep(:final descriptor):
         return Padding(
           padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: YiviCredentialCard.fromDescriptor(
+          child: DisclosureStepCredentialCard(
             descriptor: descriptor,
-            compact: true,
-            style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+            isCurrent: isCurrent,
           ),
         );
     }

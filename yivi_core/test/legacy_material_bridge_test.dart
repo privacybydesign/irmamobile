@@ -6,6 +6,7 @@ import "package:yivi_core/app.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_markdown.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "pump_and_load_locales.dart";
 
 // Flutter 3.47 unbundled the Material and Cupertino widget libraries and the app
 // moved to package:material_ui, so a material_ui MaterialApp no longer installs
@@ -55,7 +56,8 @@ void main() {
   ) async {
     late core.ThemeData coreTheme;
 
-    await tester.pumpWidget(
+    await pumpAndLoadLocales(
+      tester,
       _app(
         bridge: true,
         child: core.Builder(
@@ -75,7 +77,8 @@ void main() {
   });
 
   testWidgets("markdown keeps the Yivi body text style", (tester) async {
-    await tester.pumpWidget(
+    await pumpAndLoadLocales(
+      tester,
       _app(bridge: true, child: const IrmaMarkdown("hello world")),
     );
     await tester.pumpAndSettle();
@@ -93,7 +96,8 @@ void main() {
   });
 
   testWidgets("a legacy widget builds inside the app tree", (tester) async {
-    await tester.pumpWidget(
+    await pumpAndLoadLocales(
+      tester,
       _app(bridge: true, child: Pinput(length: 4, autofocus: false)),
     );
     await tester.pumpAndSettle();
@@ -105,7 +109,8 @@ void main() {
   testWidgets("without the bridge a legacy widget cannot build", (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await pumpAndLoadLocales(
+      tester,
       _app(bridge: false, child: Pinput(length: 4, autofocus: false)),
     );
     await tester.pumpAndSettle();

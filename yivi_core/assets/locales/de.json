@@ -531,6 +531,23 @@
       }
     }
   },
+  "external_issuer": {
+    "source": "Über die Website von {issuer}",
+    "returned": "Sie sind zurück von der Website von {issuer}",
+    "heads_up": {
+      "title": "Sie wechseln kurz zu einer anderen Website",
+      "step_1": "Folgen Sie den Schritten auf dieser Website.",
+      "step_2": "Danach öffnet sich Yivi von selbst, um {credential} hinzuzufügen.",
+      "step_3": "Sie kehren zu dieser Liste zurück.",
+      "to_website": "Zur Website",
+      "back_to_list": "Zurück zur Liste"
+    },
+    "waiting": {
+      "status": "Noch nicht erhalten",
+      "body": "Sind Sie noch auf der Website von {issuer}? Machen Sie dort weiter. Wenn Sie fertig sind, öffnet sich Yivi von selbst.",
+      "reopen": "Website erneut öffnen"
+    }
+  },
   "issue_wizard": {
     "back": "Abbrechen",
     "done": "OK",
