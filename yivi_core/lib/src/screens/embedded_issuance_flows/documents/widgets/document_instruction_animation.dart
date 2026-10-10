@@ -43,13 +43,29 @@ class _DocumentInstructionState extends State<_DocumentInstruction>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
+  // Where the loop rests when the user asked for less motion: mid-sweep, so the
+  // scan line is still in the picture.
+  static const _restingPoint = 0.4;
+
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       duration: const Duration(seconds: 4),
       vsync: this,
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller
+        ..stop()
+        ..value = _restingPoint;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
   }
 
   @override
