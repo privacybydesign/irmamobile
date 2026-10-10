@@ -445,6 +445,7 @@
         "body_multiple": "{issuer} sent you a transaction code. Enter it below to receive {count} credentials.",
         "continue": "Continue",
         "cancel": "Cancel",
+        "code_label": "Transaction code",
         "invalid_code_error-0": "Incorrect code. {count} attempts remaining.",
         "invalid_code_error-1": "Incorrect code. {count} attempt remaining.",
         "invalid_code_error-2": "Incorrect code. {count} attempts remaining."
@@ -469,6 +470,7 @@
       "header": "Enter your email address",
       "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
       "error": "Something went wrong while sending the verification code.",
+      "email_label": "Email address",
       "email_hint": "Enter your email address...",
       "next_button": "Send email",
       "back_button": "Cancel"
@@ -502,6 +504,7 @@
       "header": "Enter your phone number",
       "body": "We'll send you an sms with a verification code. You'll need to enter this code in the next step.",
       "error": "Something went wrong while sending the verification code.",
+      "phone_label": "Phone number",
       "phone_hint": "Enter your phone number...",
       "next_button": "Send sms",
       "back_button": "Cancel",
@@ -739,7 +742,9 @@
     "unknown": "Unknown",
     "go_back": "Go back",
     "add": "Add",
-    "activate": "Activate"
+    "activate": "Activate",
+    "date_placeholder": "DD-MM-YYYY",
+    "choose_date": "Choose date"
   },
   "search": {
     "cancel": "Cancel"
@@ -1056,6 +1061,7 @@
     "feedback": {
       "title": "What could be better?",
       "body": "Tell us what's not working.",
+      "label": "Your feedback",
       "hint": "Your feedback",
       "privacy": "Your message goes to our team, so please don't include personal data.",
       "send": "Send",

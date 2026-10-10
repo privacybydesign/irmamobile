@@ -445,6 +445,7 @@
         "body_multiple": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {count} gegevens te ontvangen.",
         "continue": "Doorgaan",
         "cancel": "Annuleren",
+        "code_label": "Transactiecode",
         "invalid_code_error-0": "Onjuiste code. Nog {count} pogingen over.",
         "invalid_code_error-1": "Onjuiste code. Nog {count} poging over.",
         "invalid_code_error-2": "Onjuiste code. Nog {count} pogingen over."
@@ -469,6 +470,7 @@
       "header": "Voer je e-mailadres in",
       "body": "Wij sturen je een e-mail met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
       "error": "Er ging iets fout bij het versturen van de verificatiecode.",
+      "email_label": "E-mailadres",
       "email_hint": "Voer je e-mailadres in...",
       "next_button": "E-mail versturen",
       "back_button": "Annuleer"
@@ -502,6 +504,7 @@
       "header": "Voer je telefoonnummer in",
       "body": "Wij sturen je een sms met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
       "error": "Er ging iets fout bij het versturen van de verificatiecode.",
+      "phone_label": "Telefoonnummer",
       "phone_hint": "Voer je telefoonnummer in...",
       "next_button": "Sms versturen",
       "back_button": "Annuleer",
@@ -739,7 +742,9 @@
     "unknown": "Onbekend",
     "go_back": "Ga terug",
     "add": "Toevoegen",
-    "activate": "Activeren"
+    "activate": "Activeren",
+    "date_placeholder": "DD-MM-JJJJ",
+    "choose_date": "Kies een datum"
   },
   "search": {
     "cancel": "Annuleer"
@@ -1056,6 +1061,7 @@
     "feedback": {
       "title": "Wat kan er beter?",
       "body": "Laat ons weten wat niet werkt.",
+      "label": "Jouw feedback",
       "hint": "Jouw feedback",
       "privacy": "Je bericht gaat naar ons team, dus voeg geen persoonlijke gegevens toe.",
       "send": "Versturen",

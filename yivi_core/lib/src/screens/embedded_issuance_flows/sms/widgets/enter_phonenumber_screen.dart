@@ -10,6 +10,8 @@ import "package:intl_phone_number_input/src/models/country_list.dart";
 import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../data/feature_flags.dart";
+import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -177,6 +179,65 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     }
   }
 
+  /// The form fields V2 look of a single field, as the core SDK decoration
+  /// that intl_phone_number_input takes. Mirrors
+  /// [IrmaThemeData.fieldDecorationTheme].
+  core.InputDecoration _fieldDecorationV2(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    core.UnderlineInputBorder line(Color color) {
+      return core.UnderlineInputBorder(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+        borderSide: BorderSide(color: color, width: 2.0),
+      );
+    }
+
+    // Material scales a floating label to 75%, so 16 renders at 12.
+    final labelStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: theme.neutralExtraDark,
+    );
+
+    return core.InputDecoration(
+      filled: true,
+      fillColor: WidgetStateColor.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return theme.fieldDisabledSurface;
+        }
+        if (states.contains(WidgetState.focused)) {
+          return theme.fieldFocusedSurface;
+        }
+        return theme.light;
+      }),
+      labelText: FlutterI18n.translate(
+        context,
+        "sms_issuance.enter_phone.phone_label",
+      ),
+      labelStyle: labelStyle,
+      floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return labelStyle.copyWith(color: theme.link);
+        }
+        return labelStyle;
+      }),
+      floatingLabelBehavior: core.FloatingLabelBehavior.always,
+      hintText: FlutterI18n.translate(
+        context,
+        "sms_issuance.enter_phone.phone_hint",
+      ),
+      hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.neutralDark),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: theme.defaultSpacing,
+        vertical: theme.smallSpacing,
+      ),
+      border: line(theme.neutralDark),
+      enabledBorder: line(theme.neutralDark),
+      focusedBorder: line(theme.link),
+      disabledBorder: line(theme.neutralLight),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(smsIssuanceProvider);
@@ -201,6 +262,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     return GestureDetector(
       onTap: () {
@@ -246,12 +309,14 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                               spaceBetweenSelectorAndTextField:
                                   theme.smallSpacing,
                               focusNode: _focusNode,
-                              inputDecoration: core.InputDecoration(
-                                hint: TranslatedText(
-                                  "sms_issuance.enter_phone.phone_hint",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ),
+                              inputDecoration: formFieldsV2
+                                  ? _fieldDecorationV2(context)
+                                  : core.InputDecoration(
+                                      hint: TranslatedText(
+                                        "sms_issuance.enter_phone.phone_hint",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
                               searchBoxDecoration: core.InputDecoration(
                                 label: TranslatedText(
                                   "sms_issuance.enter_phone.search_label",

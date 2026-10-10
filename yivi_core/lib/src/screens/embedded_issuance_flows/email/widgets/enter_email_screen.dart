@@ -9,6 +9,7 @@ import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_text_field.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -108,6 +109,48 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     }
   }
 
+  Widget _buildEmailField(
+    InputDecoration decoration,
+    FormFieldErrorBuilder? errorBuilder,
+  ) {
+    return TextFormField(
+      decoration: decoration,
+      errorBuilder: errorBuilder,
+      controller: _textController,
+      focusNode: _focusNode,
+      key: const Key("email_input_field"),
+      keyboardType: .emailAddress,
+      autofillHints: const [AutofillHints.email],
+      autocorrect: false,
+      enableSuggestions: false,
+      textCapitalization: .none,
+      autovalidateMode: _showErrors ? .onUserInteraction : .disabled,
+      onChanged: (v) {
+        final lower = v.toLowerCase();
+        if (v != lower) {
+          _textController.value = _textController.value.copyWith(
+            text: lower,
+            selection: TextSelection.collapsed(
+              offset: _textController.selection.baseOffset,
+            ),
+          );
+        }
+        final ok = isValidEmail(lower);
+        if (ok != _validEmail) {
+          setState(() => _validEmail = ok);
+        }
+      },
+      validator: (v) {
+        final value = (v ?? "").trim();
+        if (value.isEmpty) return "Enter your email";
+        if (!isValidEmail(value)) {
+          return "Enter a valid email";
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(emailIssuanceProvider);
@@ -172,50 +215,22 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                         children: [
                           Container(
                             key: _emailFieldPositionKey,
-                            child: TextFormField(
-                              decoration: InputDecoration(
+                            child: YiviTextField(
+                              label: FlutterI18n.translate(
+                                context,
+                                "email_issuance.enter_email.email_label",
+                              ),
+                              hint: FlutterI18n.translate(
+                                context,
+                                "email_issuance.enter_email.email_hint",
+                              ),
+                              legacyDecoration: InputDecoration(
                                 hint: TranslatedText(
                                   "email_issuance.enter_email.email_hint",
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               ),
-                              controller: _textController,
-                              focusNode: _focusNode,
-                              key: const Key("email_input_field"),
-                              keyboardType: .emailAddress,
-                              autofillHints: const [AutofillHints.email],
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              textCapitalization: .none,
-                              autovalidateMode: _showErrors
-                                  ? .onUserInteraction
-                                  : .disabled,
-                              onChanged: (v) {
-                                final lower = v.toLowerCase();
-                                if (v != lower) {
-                                  _textController.value = _textController.value
-                                      .copyWith(
-                                        text: lower,
-                                        selection: TextSelection.collapsed(
-                                          offset: _textController
-                                              .selection
-                                              .baseOffset,
-                                        ),
-                                      );
-                                }
-                                final ok = isValidEmail(lower);
-                                if (ok != _validEmail) {
-                                  setState(() => _validEmail = ok);
-                                }
-                              },
-                              validator: (v) {
-                                final value = (v ?? "").trim();
-                                if (value.isEmpty) return "Enter your email";
-                                if (!isValidEmail(value)) {
-                                  return "Enter a valid email";
-                                }
-                                return null;
-                              },
+                              builder: _buildEmailField,
                             ),
                           ),
                         ],

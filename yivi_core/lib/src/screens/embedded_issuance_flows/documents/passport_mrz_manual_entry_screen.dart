@@ -5,6 +5,7 @@ import "../../../theme/theme.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_field_group.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
 
@@ -101,14 +102,15 @@ class _PassportMrzManualEntryScreenState
   }
 
   DateTime _parseDate(String input) {
-    // assuming format dd-MM-yyyy
+    // The date field shows yyyy-MM-dd, or dd-MM-yyyy with form fields V2 on.
     final parts = input.split("-");
     if (parts.length != 3) {
       throw FormatException("Invalid date format: $input");
     }
-    final year = int.parse(parts[0]);
+    final yearFirst = parts[0].length == 4;
+    final year = int.parse(yearFirst ? parts[0] : parts[2]);
     final month = int.parse(parts[1]);
-    final day = int.parse(parts[2]);
+    final day = int.parse(yearFirst ? parts[2] : parts[0]);
     return DateTime(year, month, day);
   }
 
@@ -138,54 +140,56 @@ class _PassportMrzManualEntryScreenState
                     children: [
                       TranslatedText(widget.translationKeys.explanation),
                       SizedBox(height: theme.mediumSpacing),
-                      DocumentNrInputField(
-                        controller: _documentNrCtrl,
-                        labelText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.documentNumber,
-                        ),
-                        requiredText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.documentNumberRequired,
-                        ),
-                        invalidText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.documentNumberInvalid,
-                        ),
-                      ),
-                      SizedBox(height: theme.mediumSpacing),
-                      DateInputField(
-                        controller: _dateOfBirthCtrl,
-                        fieldKey: const Key("passport_dob_field"),
-                        labelText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfBirth,
-                        ),
-                        requiredText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfBirthRequired,
-                        ),
-                        dateInvalidText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateInvalid,
-                        ),
-                      ),
-                      SizedBox(height: theme.mediumSpacing),
-                      DateInputField(
-                        controller: _expiryDateCtrl,
-                        fieldKey: const Key("passport_expiry_date_field"),
-                        dateInvalidText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateInvalid,
-                        ),
-                        labelText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfExpiry,
-                        ),
-                        requiredText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfExpiryRequired,
-                        ),
+                      YiviFieldGroup(
+                        children: [
+                          DocumentNrInputField(
+                            controller: _documentNrCtrl,
+                            labelText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.documentNumber,
+                            ),
+                            requiredText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.documentNumberRequired,
+                            ),
+                            invalidText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.documentNumberInvalid,
+                            ),
+                          ),
+                          DateInputField(
+                            controller: _dateOfBirthCtrl,
+                            fieldKey: const Key("passport_dob_field"),
+                            labelText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.dateOfBirth,
+                            ),
+                            requiredText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.dateOfBirthRequired,
+                            ),
+                            dateInvalidText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.dateInvalid,
+                            ),
+                          ),
+                          DateInputField(
+                            controller: _expiryDateCtrl,
+                            fieldKey: const Key("passport_expiry_date_field"),
+                            dateInvalidText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.dateInvalid,
+                            ),
+                            labelText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.dateOfExpiry,
+                            ),
+                            requiredText: FlutterI18n.translate(
+                              context,
+                              widget.translationKeys.dateOfExpiryRequired,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: theme.largeSpacing),
                     ],

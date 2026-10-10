@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_text_field.dart";
 
 class DrivingLicenceMrzInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -35,18 +36,12 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final baseTextStyle = theme.textTheme.bodyMedium;
 
-    return TextFormField(
-      key: const Key("driving_licence_mrz_input_field"),
-      controller: controller,
-      keyboardType: .text,
-      textCapitalization: .characters,
-      autofillHints: const [AutofillHints.creditCardNumber],
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
-      ],
-      decoration: InputDecoration(
+    return YiviTextField(
+      label: FlutterI18n.translate(
+        context,
+        "driving_licence.manual.fields.mrz",
+      ),
+      legacyDecoration: InputDecoration(
         hint: TranslatedText(
           "driving_licence.manual.fields.mrz",
           style: baseTextStyle?.copyWith(
@@ -61,8 +56,22 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
         floatingLabelAlignment: .start,
         floatingLabelBehavior: .always,
       ),
-      autovalidateMode: .onUserInteraction,
-      validator: (documentNr) => _validateDocumentNr(documentNr, context),
+      builder: (decoration, errorBuilder) => TextFormField(
+        key: const Key("driving_licence_mrz_input_field"),
+        controller: controller,
+        keyboardType: .text,
+        textCapitalization: .characters,
+        autofillHints: const [AutofillHints.creditCardNumber],
+        cursorColor: theme.themeData.colorScheme.secondary,
+        style: baseTextStyle,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
+        ],
+        decoration: decoration,
+        errorBuilder: errorBuilder,
+        autovalidateMode: .onUserInteraction,
+        validator: (documentNr) => _validateDocumentNr(documentNr, context),
+      ),
     );
   }
 }

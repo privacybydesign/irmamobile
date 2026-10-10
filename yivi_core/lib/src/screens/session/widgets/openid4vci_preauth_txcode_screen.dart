@@ -4,11 +4,14 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../models/schemaless/credential_store.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/yivi_text_field.dart";
 import "session_scaffold.dart";
 
 class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
@@ -120,7 +123,17 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         .watch(sessionStateProvider(widget.sessionId))
         .value
         ?.remainingTxCodeAttempts;
-    final codeInvalid = remainingAttempts != null;
+    final invalidMessage = remainingAttempts == null
+        ? null
+        : FlutterI18n.plural(
+            context,
+            "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
+            remainingAttempts,
+          );
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
+    // Without the PIN boxes the field shows the message itself.
+    final messageInField = formFieldsV2 && length == null;
 
     return SessionScaffold(
       appBarTitle: "issuance.pre-authorized_code.tx_code_screen.title",
@@ -149,16 +162,14 @@ class _OpenID4VCIPreAuthTxCodeScreenState
                   style: theme.textTheme.bodyMedium,
                 ),
                 SizedBox(height: theme.largeSpacing),
-                _buildInput(context, length, codeInvalid),
-                if (codeInvalid)
-                  Text(
-                    FlutterI18n.plural(
-                      context,
-                      "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
-                      remainingAttempts,
-                    ),
-                    style: TextStyle(color: theme.error),
-                  ),
+                _buildInput(context, length, invalidMessage),
+                if (invalidMessage != null && !messageInField)
+                  formFieldsV2
+                      ? YiviFieldError(invalidMessage)
+                      : Text(
+                          invalidMessage,
+                          style: TextStyle(color: theme.error),
+                        ),
                 SizedBox(height: theme.largeSpacing),
               ],
             ),
@@ -168,8 +179,15 @@ class _OpenID4VCIPreAuthTxCodeScreenState
     );
   }
 
-  Widget _buildInput(BuildContext context, int? length, bool codeInvalid) {
+  Widget _buildInput(
+    BuildContext context,
+    int? length,
+    String? invalidMessage,
+  ) {
     final theme = IrmaTheme.of(context);
+    final codeInvalid = invalidMessage != null;
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     if (length != null) {
       final defaultPinTheme = PinTheme(
@@ -217,16 +235,13 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       );
     }
 
-    return TextField(
-      controller: _textController,
-      key: const Key("openid4vci_tx_code_input_field"),
-      focusNode: _focusNode,
-      autocorrect: false,
-      autofocus: true,
-      textAlign: TextAlign.center,
-      keyboardType: _keyboardType,
-      inputFormatters: _inputFormatters,
-      decoration: InputDecoration(
+    return YiviTextField(
+      label: FlutterI18n.translate(
+        context,
+        "issuance.pre-authorized_code.tx_code_screen.code_label",
+      ),
+      errorText: invalidMessage,
+      legacyDecoration: InputDecoration(
         enabledBorder: codeInvalid
             ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
             : null,
@@ -234,10 +249,21 @@ class _OpenID4VCIPreAuthTxCodeScreenState
             ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
             : null,
       ),
-      onChanged: (_) => setState(() {}),
-      onSubmitted: (value) {
-        if (value.isNotEmpty) widget.onSubmit(value);
-      },
+      builder: (decoration, _) => TextField(
+        controller: _textController,
+        key: const Key("openid4vci_tx_code_input_field"),
+        focusNode: _focusNode,
+        autocorrect: false,
+        autofocus: true,
+        textAlign: formFieldsV2 ? TextAlign.start : TextAlign.center,
+        keyboardType: _keyboardType,
+        inputFormatters: _inputFormatters,
+        decoration: decoration,
+        onChanged: (_) => setState(() {}),
+        onSubmitted: (value) {
+          if (value.isNotEmpty) widget.onSubmit(value);
+        },
+      ),
     );
   }
 
