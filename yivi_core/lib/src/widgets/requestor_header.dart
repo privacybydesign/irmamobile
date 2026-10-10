@@ -4,13 +4,13 @@ import "package:material_ui/material_ui.dart";
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
 import "base64_image.dart";
+import "bold_markers_text.dart";
 import "credential_card/yivi_credential_card_header.dart";
 import "irma_avatar.dart";
 import "irma_card.dart";
 import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
-import "yivi_bottom_sheet.dart";
 
 IrmaAvatar _buildRequestorAvatar({
   required String? title,
@@ -31,20 +31,6 @@ class RequestorHeader extends StatelessWidget {
   final bool? isVerified;
 
   const RequestorHeader({this.requestor, this.isVerified});
-
-  Future<void> _showCredentialOptionsBottomSheet(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return showYiviBottomSheet(
-      context: context,
-      titleKey:
-          "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
-      titleStyle: credentialNameStyle(
-        theme,
-        18,
-      ).copyWith(fontWeight: FontWeight.w500),
-      child: RequestorVerificationExplanationBottomSheet(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +63,7 @@ class RequestorHeader extends StatelessWidget {
       subtitleTextWidget = Padding(
         padding: EdgeInsets.only(top: theme.defaultSpacing),
         child: GestureDetector(
-          onTap: () => _showCredentialOptionsBottomSheet(context),
+          onTap: () => showRequestorVerificationSheet(context),
           child: TranslatedText(
             "disclosure_permission.overview.requestor_verification.explanation",
             style: theme.hyperlinkTextStyle.copyWith(
@@ -146,6 +132,54 @@ class RequestorHeader extends StatelessWidget {
       mainText: mainTextWidget,
       subtitleText: subtitleTextWidget,
       backgroundColor: backgroundColorOverride,
+    );
+  }
+}
+
+/// Header of the share screen: the requestor logo next to a share icon, above
+/// the sentence "Share your data with X".
+class ShareRequestorHeader extends StatelessWidget {
+  final TrustedParty requestor;
+
+  const ShareRequestorHeader({required this.requestor});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return Column(
+      crossAxisAlignment: .start,
+      children: [
+        Row(
+          spacing: theme.smallSpacing,
+          children: [
+            _buildRequestorAvatar(
+              title: requestor.name,
+              image: requestor.image != null
+                  ? Base64Image(
+                      base64: requestor.image!.base64,
+                      mimeType: requestor.image!.mimeType,
+                    )
+                  : null,
+              imagePath: requestor.imagePath,
+            ),
+            ExcludeSemantics(
+              child: Icon(Icons.share_outlined, color: theme.neutralDark),
+            ),
+          ],
+        ),
+        SizedBox(height: theme.defaultSpacing),
+        Semantics(
+          header: true,
+          child: BoldMarkersText(
+            "disclosure_permission.share_v2.title",
+            translationParams: {"requestorName": requestor.name},
+            style: theme.textTheme.displayMedium?.copyWith(
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
