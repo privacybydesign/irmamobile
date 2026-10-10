@@ -9,5 +9,12 @@ class RealNfcSettingsOpener implements NfcSettingsOpener {
   static const _channel = MethodChannel("yivi.app/nfc_settings");
 
   @override
-  Future<void> open() => _channel.invokeMethod<void>("open");
+  Future<void> open() async {
+    try {
+      await _channel.invokeMethod<void>("open");
+    } on PlatformException {
+      // A device without the screen (`no_nfc_settings`). The NFC screen stays
+      // as it is: it still asks for NFC to be turned on and offers Cancel.
+    }
+  }
 }

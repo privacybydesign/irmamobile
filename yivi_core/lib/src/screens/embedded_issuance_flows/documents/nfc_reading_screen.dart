@@ -213,7 +213,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     if (!_documentFlowV2) return;
     if (_readDocumentReaderState() is! DocumentReaderNfcUnavailable) return;
 
-    final status = await ref.read(nfcStatusReaderProvider)();
+    final status = await ref
+        .read(nfcStatusReaderProvider)()
+        .catchError((_) => NfcStatus.notSupported);
     if (!mounted || status != NfcStatus.enabled) return;
 
     _getDocumentReader().reset();
