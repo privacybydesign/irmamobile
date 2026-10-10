@@ -158,8 +158,16 @@ class _DocumentInstructionPainter extends CustomPainter {
       rect.height,
     );
     final right = left.shift(Offset(rect.width / 2, 0));
-    _paintPage(canvas, left, const Radius.circular(8), rightSquare: true);
-    _paintPage(canvas, right, const Radius.circular(8), leftSquare: true);
+    _paintPage(
+      canvas,
+      left,
+      const BorderRadius.horizontal(left: Radius.circular(8)),
+    );
+    _paintPage(
+      canvas,
+      right,
+      const BorderRadius.horizontal(right: Radius.circular(8)),
+    );
 
     // Photo page: portrait, two name lines and the machine readable zone.
     final photo = Rect.fromLTWH(
@@ -203,7 +211,7 @@ class _DocumentInstructionPainter extends CustomPainter {
   }
 
   void _paintCardBack(Canvas canvas, Rect rect) {
-    _paintPage(canvas, rect, const Radius.circular(10));
+    _paintPage(canvas, rect, BorderRadius.circular(10));
     _paintTextLines(
       canvas,
       Rect.fromLTWH(
@@ -225,20 +233,8 @@ class _DocumentInstructionPainter extends CustomPainter {
     );
   }
 
-  void _paintPage(
-    Canvas canvas,
-    Rect rect,
-    Radius radius, {
-    bool leftSquare = false,
-    bool rightSquare = false,
-  }) {
-    final rrect = RRect.fromRectAndCorners(
-      rect,
-      topLeft: leftSquare ? Radius.zero : radius,
-      bottomLeft: leftSquare ? Radius.zero : radius,
-      topRight: rightSquare ? Radius.zero : radius,
-      bottomRight: rightSquare ? Radius.zero : radius,
-    );
+  void _paintPage(Canvas canvas, Rect rect, BorderRadius corners) {
+    final rrect = corners.toRRect(rect);
     canvas.drawRRect(rrect, Paint()..color = theme.backgroundTertiary);
     canvas.drawRRect(
       rrect,
