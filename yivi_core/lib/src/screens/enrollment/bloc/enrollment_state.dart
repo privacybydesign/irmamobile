@@ -4,8 +4,12 @@ abstract class EnrollmentState {}
 
 class EnrollmentIntroduction extends EnrollmentState {
   final int currentStepIndex;
+  final IntroductionEntry entry;
 
-  EnrollmentIntroduction({this.currentStepIndex = 0});
+  EnrollmentIntroduction({
+    this.currentStepIndex = 0,
+    this.entry = IntroductionEntry.first,
+  });
 }
 
 class EnrollmentChoosePin extends EnrollmentState {}

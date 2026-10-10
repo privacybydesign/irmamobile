@@ -80,6 +80,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           if (state is EnrollmentIntroduction) {
             return IntroductionScreen(
               currentStepIndex: state.currentStepIndex,
+              entry: state.entry,
               onContinue: addOnNextPressed,
               onPrevious: addOnPreviousPressed,
             );
