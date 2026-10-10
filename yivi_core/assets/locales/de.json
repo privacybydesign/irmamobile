@@ -207,6 +207,15 @@
     "optional_data": "Optionale Daten",
     "add_optional_data": "Optionale Daten hinzufügen",
     "no_data_selected": "Keine Daten ausgewählt",
+    "choice": {
+      "or": "oder",
+      "none_yet": "Noch nicht in Ihrer App. Tippen Sie auf das, was Sie abrufen möchten.",
+      "obtain": "Abrufen",
+      "certified_by": "Beglaubigt von {issuer}",
+      "switch": "Wechseln",
+      "sheet_title": "Was möchten Sie teilen?",
+      "sheet_explanation": "{requestor} akzeptiert: {options}. Tippen Sie auf das, was Sie teilen möchten."
+    },
     "introduction": {
       "title": "Los geht's",
       "header": "Teilen Sie Ihre Daten",
