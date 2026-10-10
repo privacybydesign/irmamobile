@@ -10,6 +10,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
@@ -23,6 +24,7 @@ import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
+import "widgets/email_link_banner.dart";
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -84,9 +86,13 @@ class _DataTabState extends ConsumerState<DataTab> {
         ],
       ),
       body: SafeArea(
-        child: SizedBox(
-          height: double.infinity,
-          child: _AllCredentialsList(addDataButtonKey: _addDataButtonKey),
+        child: Column(
+          children: [
+            if (ref.watch(emailBannerVisibleProvider)) const EmailLinkBanner(),
+            Expanded(
+              child: _AllCredentialsList(addDataButtonKey: _addDataButtonKey),
+            ),
+          ],
         ),
       ),
     );

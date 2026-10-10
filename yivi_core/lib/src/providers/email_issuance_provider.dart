@@ -109,6 +109,16 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
 
 enum EmailIssuanceStage { enteringEmail, enteringVerificationCode, waiting }
 
+/// What the e-mail issuance flow is for. It decides the copy and layout of the
+/// screens, and whether the issued address is shared with the keyshare server.
+enum EmailIssuancePurpose {
+  /// Add the e-mail credential, as from the add data screen.
+  addCredential,
+
+  /// Link the address to the keyshare server (`FeatureFlag.emailLinking`).
+  linkKeyshare,
+}
+
 class EmailIssuanceState {
   final EmailIssuanceStage stage;
   final String enteredCode;
@@ -205,6 +215,17 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
       email: "",
       enteredCode: "",
       stage: .enteringEmail,
+      error: EmailIssuanceNoError(),
+    );
+  }
+
+  /// Skips sending for a code that is already on its way, as when the link in
+  /// the e-mail opens the app.
+  void startVerification({required String email}) {
+    state = EmailIssuanceState(
+      email: email,
+      enteredCode: "",
+      stage: .enteringVerificationCode,
       error: EmailIssuanceNoError(),
     );
   }
