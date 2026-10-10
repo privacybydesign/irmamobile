@@ -1,5 +1,7 @@
 import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
 
+import "feature_flags.dart";
+
 class IrmaPreferences {
   final String mostRecentTermsUrlNl;
   final String mostRecentTermsUrlEn;
@@ -80,7 +82,11 @@ class IrmaPreferences {
          _reviewLastAskEpochMsKey,
          defaultValue: 0,
        ),
-       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
+       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false),
+       _featureFlags = {
+         for (final flag in FeatureFlag.values)
+           flag: preferences.getBool(flag.prefKey, defaultValue: false),
+       } {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -195,6 +201,9 @@ class IrmaPreferences {
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
 
+  /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
+  final Map<FeatureFlag, Preference<bool>> _featureFlags;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -304,6 +313,13 @@ class IrmaPreferences {
     await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
     await _reviewLastAskEpochMs.setValue(nowEpochMs);
   }
+
+  // --- Feature flags --------------------------------------------------------
+
+  Stream<bool> getFeatureFlag(FeatureFlag flag) => _featureFlags[flag]!;
+
+  Future<bool> setFeatureFlag(FeatureFlag flag, bool value) =>
+      _featureFlags[flag]!.setValue(value);
 
   Future<void> clearAll() {
     // Reset all preferences to their default values
