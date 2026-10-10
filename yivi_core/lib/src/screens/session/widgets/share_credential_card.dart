@@ -14,7 +14,9 @@ const _footerBandColor = Color(0xFFF5F3F1);
 const _valueFontSize = 17.0;
 
 // Municipality credentials all have this one issuer. The municipality that
-// holds the data is an attribute of the credential, when it has one.
+// holds the data is an attribute of the credential, when it has one. The
+// instance only carries the requested attributes, so a request without this
+// one shows the issuer name instead.
 const _municipalityIssuerId = "pbdf.gemeente";
 const _municipalityAttributeId = "municipality";
 
