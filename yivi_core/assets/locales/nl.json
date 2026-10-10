@@ -207,6 +207,15 @@
     "optional_data": "Optionele gegevens",
     "add_optional_data": "Voeg optionele gegevens toe",
     "no_data_selected": "Geen gegevens geselecteerd",
+    "choice": {
+      "or": "of",
+      "none_yet": "Nog niet in je app. Tik op wat je wilt ophalen.",
+      "obtain": "Ophalen",
+      "certified_by": "Gewaarmerkt door {issuer}",
+      "switch": "Wissel",
+      "sheet_title": "Wat wil je delen?",
+      "sheet_explanation": "{requestor} accepteert: {options}. Tik op wat je wilt delen."
+    },
     "introduction": {
       "continue": "Aan de slag",
       "explanation": "Verzamel de gegevens die nodig zijn, zodat je deze kunt delen met de partij die daar om vraagt.",
