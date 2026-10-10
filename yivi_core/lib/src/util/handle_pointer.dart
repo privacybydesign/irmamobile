@@ -50,10 +50,18 @@ Future<int?> handlePointer(
 /// provider instead.
 void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
   final container = ProviderScope.containerOf(context, listen: false);
-  final alreadyOpen = container.exists(emailIssuanceProvider);
+
+  // A link that stays queued is handled again after every unlock, and keeps
+  // the biometric unlock disabled.
+  IrmaRepositoryProvider.of(context).setPendingPointer(null);
+
+  final linkingOpen = container.exists(linkingFlowOpenProvider);
+  // Nothing takes the link in the flow that adds the e-mail credential, and
+  // the next linking flow must not pick up a stale one.
+  if (!linkingOpen && container.exists(emailIssuanceProvider)) return;
 
   container.read(emailLinkingProvider.notifier).receiveLink(link);
-  if (!alreadyOpen) {
+  if (!linkingOpen) {
     context.pushEmailIssuanceScreen(purpose: EmailIssuancePurpose.linkKeyshare);
   }
 }

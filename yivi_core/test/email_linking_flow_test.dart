@@ -43,6 +43,7 @@ class _SilentBridge extends IrmaBridge {
 class _FakeEmailIssuerApi implements EmailIssuerApi {
   final sent = <String>[];
   final verified = <({String email, String code})>[];
+  Object? verifyFailsWith;
 
   @override
   Future<void> sendEmail({
@@ -58,6 +59,7 @@ class _FakeEmailIssuerApi implements EmailIssuerApi {
     required String verificationCode,
   }) async {
     verified.add((email: email, code: verificationCode));
+    if (verifyFailsWith != null) throw verifyFailsWith!;
     return SessionPointer(
       u: "https://email-issuer.example/irma/session/abc",
       irmaqr: "issuing",
@@ -471,7 +473,76 @@ void main() {
         findsOneWidget,
       );
       expect(issuerApi.sent, isEmpty);
+      expect(find.text("Code filled in from the link"), findsOneWidget);
+      expect(issuerApi.verified, isEmpty);
+
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await settle(tester);
+
       expect(issuerApi.verified, [(email: "jan@example.com", code: "XYZ789")]);
+    });
+
+    testWidgets("is cleared from the queue once handled", (tester) async {
+      await pumpApp(tester);
+      final context = tester.element(find.text("home"));
+      final link = EmailCodePointer(email: "jan@example.com", code: "XYZ789");
+      issuerApi.verifyFailsWith = EmailIssuanceInvalidCodeError();
+
+      repo.setPendingPointer(link);
+      handlePointer(context, link);
+      await settle(tester);
+
+      expect(repo.pendingPointer, isNull);
+    });
+
+    testWidgets("is dropped while adding the credential", (tester) async {
+      await pumpApp(tester);
+      router.push("/issue_email");
+      await tester.pumpAndSettle();
+
+      handlePointer(
+        tester.element(find.byType(EmailIssuanceScreen)),
+        EmailCodePointer(email: "evil@example.com", code: "XYZ789"),
+      );
+      await settle(tester);
+      router.pop();
+      await tester.pumpAndSettle();
+      router.push("/issue_email", extra: EmailIssuancePurpose.linkKeyshare);
+      await tester.pump();
+      await settle(tester);
+
+      expect(issuerApi.verified, isEmpty);
+      expect(container.read(emailLinkingProvider).link, isNull);
+      expect(find.text("Link your email address"), findsOneWidget);
+    });
+
+    testWidgets("for another address waits for a tap on Check code", (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openLinkingFlow(tester);
+      await sendEmailTo(tester, "jan@example.com");
+
+      container
+          .read(emailLinkingProvider.notifier)
+          .receiveLink(
+            EmailCodePointer(email: "other@example.com", code: "XYZ789"),
+          );
+      await settle(tester);
+
+      expect(find.text("Code filled in from the link"), findsOneWidget);
+      expect(
+        find.textContaining("We've sent an email to other@example.com"),
+        findsOneWidget,
+      );
+      expect(issuerApi.verified, isEmpty);
+
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await settle(tester);
+
+      expect(issuerApi.verified, [
+        (email: "other@example.com", code: "XYZ789"),
+      ]);
     });
 
     testWidgets("is applied once when the flow is already open", (

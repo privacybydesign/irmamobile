@@ -52,6 +52,10 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
       _showCodeScreenFor(link);
     });
 
+    if (widget.purpose == EmailIssuancePurpose.linkKeyshare) {
+      ref.watch(linkingFlowOpenProvider);
+    }
+
     final state = ref.watch(emailIssuanceProvider);
 
     return switch (state.stage) {

@@ -7,6 +7,7 @@ import "../data/feature_flags.dart";
 import "../models/email_code_pointer.dart";
 import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
+import "email_issuance_provider.dart";
 import "feature_flag_provider.dart";
 import "preferences_provider.dart";
 
@@ -104,10 +105,16 @@ class EmailLinkingState {
   /// The link from the e-mail, waiting for the code screen to pick it up.
   final EmailCodePointer? link;
 
+  /// Whether [link] is for the address the user already asked a code for in
+  /// the open flow. Only then may the code be sent without a tap: anyone can
+  /// send a link with their own address and code.
+  final bool linkMatchesFlow;
+
   const EmailLinkingState({
     this.issuanceSessionId,
     this.disclosureSessionId,
     this.link,
+    this.linkMatchesFlow = false,
   });
 }
 
@@ -119,7 +126,11 @@ class EmailLinking extends Notifier<EmailLinkingState> {
   EmailLinkingState build() => const EmailLinkingState();
 
   void trackIssuance(int sessionId) {
-    state = EmailLinkingState(issuanceSessionId: sessionId, link: state.link);
+    state = EmailLinkingState(
+      issuanceSessionId: sessionId,
+      link: state.link,
+      linkMatchesFlow: state.linkMatchesFlow,
+    );
   }
 
   void trackDisclosure(int sessionId) {
@@ -133,7 +144,16 @@ class EmailLinking extends Notifier<EmailLinkingState> {
     state = EmailLinkingState(
       issuanceSessionId: state.issuanceSessionId,
       link: link,
+      linkMatchesFlow: _codeRequestedFor(link.email),
     );
+  }
+
+  bool _codeRequestedFor(String email) {
+    if (!ref.exists(emailIssuanceProvider)) return false;
+
+    final flow = ref.read(emailIssuanceProvider);
+    return flow.stage == EmailIssuanceStage.enteringVerificationCode &&
+        flow.email.trim().toLowerCase() == email.toLowerCase();
   }
 
   /// Hands the pending link to the caller exactly once.
@@ -157,3 +177,7 @@ class EmailLinking extends Notifier<EmailLinkingState> {
 final emailLinkingProvider = NotifierProvider<EmailLinking, EmailLinkingState>(
   EmailLinking.new,
 );
+
+/// Alive while the e-mail issuance flow for linking is open, as opposed to the
+/// flow that adds the e-mail credential. Only its presence is read.
+final linkingFlowOpenProvider = Provider.autoDispose<bool>((ref) => true);
