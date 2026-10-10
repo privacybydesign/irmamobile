@@ -71,6 +71,7 @@ class ShareCredentialCard extends StatelessWidget {
     final statusKey = _statusKey(status);
 
     return IrmaCard(
+      margin: .zero,
       style: status.isExpired || status.revoked
           ? IrmaCardStyle.danger
           : IrmaCardStyle.normal,
