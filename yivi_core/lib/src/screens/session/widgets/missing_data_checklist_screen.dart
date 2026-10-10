@@ -41,7 +41,6 @@ class MissingDataChecklistScreen extends ConsumerStatefulWidget {
 class _MissingDataChecklistScreenState
     extends ConsumerState<MissingDataChecklistScreen> {
   String? _justAddedCredentialId;
-  bool _wasCovered = false;
   bool _wrongCredentialDialogOpen = false;
 
   void _obtain(CredentialDescriptor credential) {
@@ -54,22 +53,6 @@ class _MissingDataChecklistScreenState
     context.pushSchemalessDataDetailsScreen(
       AddDataDetailsRouteParams(credential: credential),
     );
-  }
-
-  /// The issuance screens lead back here, so the flow is over once this
-  /// screen is the visible route again.
-  void _clearFlowWhenVisibleAgain() {
-    final isCurrent = ModalRoute.isCurrentOf(context) ?? true;
-    if (!isCurrent) {
-      _wasCovered = true;
-      return;
-    }
-    if (!_wasCovered) return;
-
-    _wasCovered = false;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) ref.read(missingDataFlowProvider.notifier).clear();
-    });
   }
 
   void _onWizardStateChanged(
@@ -135,7 +118,6 @@ class _MissingDataChecklistScreenState
       issueDuringDisclosureProvider(widget.sessionId),
       _onWizardStateChanged,
     );
-    _clearFlowWhenVisibleAgain();
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.issue_wizard.title",

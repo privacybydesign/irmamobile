@@ -31,6 +31,7 @@ import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/missing_data_checklist_screen.dart";
+import "widgets/missing_data_flow_reset.dart";
 import "widgets/missing_data_header.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
@@ -288,13 +289,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     if (_useMissingDataChecklist && session.type == .disclosure) {
       if (needsIssueBeforeDisclosure) {
-        return MissingDataChecklistScreen(
-          sessionId: widget.sessionId,
-          onDismiss: _showDismissDialog,
+        return MissingDataFlowReset(
+          child: MissingDataChecklistScreen(
+            sessionId: widget.sessionId,
+            onDismiss: _showDismissDialog,
+          ),
         );
       }
       if (_hadIssueDuringDisclosure) {
-        return _buildMissingDataShareScreen(session);
+        return MissingDataFlowReset(
+          child: _buildMissingDataShareScreen(session),
+        );
       }
     }
 
