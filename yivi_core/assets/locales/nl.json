@@ -428,6 +428,7 @@
       "title": "Haal je gegevens op",
       "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
     },
+    "expired_label": "{name}, verlopen",
     "start": {
       "ready": "Je Yivi-app is klaar",
       "title": "Hoe wil je beginnen?",

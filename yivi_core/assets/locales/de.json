@@ -428,6 +428,7 @@
       "title": "Holen Sie sich Ihre persönlichen Daten",
       "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
     },
+    "expired_label": "{name}, abgelaufen",
     "start": {
       "ready": "Ihre Yivi-App ist bereit",
       "title": "Wie möchten Sie beginnen?",
