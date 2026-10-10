@@ -187,7 +187,7 @@ class _DelayedPrimaryButtonState extends State<_DelayedPrimaryButton>
                     key: const Key("share_check_progress"),
                     alignment: Alignment.centerLeft,
                     widthFactor: _wait.value,
-                    child: const ColoredBox(color: Colors.white),
+                    child: ColoredBox(color: IrmaTheme.of(context).light),
                   ),
                 ),
             ],
