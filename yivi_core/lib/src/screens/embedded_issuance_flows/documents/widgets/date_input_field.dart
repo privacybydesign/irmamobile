@@ -108,7 +108,10 @@ class _DateInputFieldState extends ConsumerState<DateInputField> {
       label: widget.labelText,
       hint: FlutterI18n.translate(context, "ui.date_placeholder"),
       suffixIcon: IconButton(
-        constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+        constraints: BoxConstraints.tightFor(
+          width: theme.fieldButtonSize,
+          height: theme.fieldButtonSize,
+        ),
         style: IconButton.styleFrom(
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),

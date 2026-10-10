@@ -30,6 +30,9 @@ import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/yivi_field_group.dart";
 import "package:yivi_core/src/widgets/yivi_text_field.dart";
 
+/// Which form fields a test runs with: V2 is `FeatureFlag.formFieldsV2` on.
+enum _Fields { v2, legacy }
+
 /// A pixel read from a screenshot of the test app, at 1 logical px per pixel.
 class _Screenshot {
   final ByteData _bytes;
@@ -76,14 +79,14 @@ void main() {
   Future<void> pumpField(
     WidgetTester tester,
     Widget child, {
-    required bool flag,
+    required _Fields fields,
     String locale = "en",
     List<Override> overrides = const [],
   }) async {
     tester.view.physicalSize = const Size(400, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
-    await prefs.setFeatureFlag(FeatureFlag.formFieldsV2, flag);
+    await prefs.setFeatureFlag(FeatureFlag.formFieldsV2, fields == _Fields.v2);
 
     // FileTranslationLoader reads the locale JSON with real IO, which the test
     // framework's fake clock does not drive.
@@ -143,7 +146,6 @@ void main() {
     String? hint,
     TextEditingController? controller,
     FocusNode? focusNode,
-    bool enabled = true,
     String? Function(String?)? validator,
   }) {
     return YiviTextField(
@@ -153,7 +155,6 @@ void main() {
       builder: (decoration, errorBuilder) => TextFormField(
         controller: controller,
         focusNode: focusNode,
-        enabled: enabled,
         decoration: decoration,
         errorBuilder: errorBuilder,
         validator: validator,
@@ -185,7 +186,11 @@ void main() {
     testWidgets("is white with the label inside and a grey 2px line", (
       tester,
     ) async {
-      await pumpField(tester, onPage(textField(hint: "Hint")), flag: true);
+      await pumpField(
+        tester,
+        onPage(textField(hint: "Hint")),
+        fields: _Fields.v2,
+      );
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
 
@@ -208,7 +213,7 @@ void main() {
     });
 
     testWidgets("has 8 px radius on the top corners only", (tester) async {
-      await pumpField(tester, onPage(textField()), flag: true);
+      await pumpField(tester, onPage(textField()), fields: _Fields.v2);
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
 
@@ -222,7 +227,7 @@ void main() {
     });
 
     testWidgets("turns blue when focused", (tester) async {
-      await pumpField(tester, onPage(textField()), flag: true);
+      await pumpField(tester, onPage(textField()), fields: _Fields.v2);
 
       await tester.tap(find.byType(TextFormField));
       await tester.pumpAndSettle();
@@ -240,7 +245,7 @@ void main() {
       await pumpField(
         tester,
         onPage(textField(validator: (_) => "Enter a label")),
-        flag: true,
+        fields: _Fields.v2,
       );
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
@@ -260,7 +265,18 @@ void main() {
     });
 
     testWidgets("is greyed out when disabled", (tester) async {
-      await pumpField(tester, onPage(textField(enabled: false)), flag: true);
+      await pumpField(
+        tester,
+        onPage(
+          YiviTextField(
+            label: "Label",
+            legacyDecoration: const InputDecoration(),
+            builder: (decoration, _) =>
+                TextField(enabled: false, decoration: decoration),
+          ),
+        ),
+        fields: _Fields.v2,
+      );
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
 
@@ -274,7 +290,7 @@ void main() {
       await pumpField(
         tester,
         onPage(textField(validator: (_) => "Enter a label")),
-        flag: false,
+        fields: _Fields.legacy,
       );
       final decoration = decorationOf(tester);
 
@@ -294,7 +310,7 @@ void main() {
       await pumpField(
         tester,
         onPage(textField(controller: controller, focusNode: focusNode)),
-        flag: false,
+        fields: _Fields.legacy,
       );
       focusNode.requestFocus();
       await tester.pumpAndSettle();
@@ -347,7 +363,7 @@ void main() {
       await pumpField(
         tester,
         onPage(group(first: first, second: second)),
-        flag: true,
+        fields: _Fields.v2,
       );
       final shot = await screenshot(tester);
       final firstRow = tester.getRect(find.byType(InputDecorator).first);
@@ -382,7 +398,7 @@ void main() {
       await pumpField(
         tester,
         onPage(group(first: first, second: second)),
-        flag: true,
+        fields: _Fields.v2,
       );
 
       await tester.tap(find.byKey(second));
@@ -421,7 +437,7 @@ void main() {
       await pumpField(
         tester,
         onPage(group(first: first, second: second)),
-        flag: true,
+        fields: _Fields.v2,
       );
 
       await tester.enterText(find.byKey(first), "bad");
@@ -463,7 +479,7 @@ void main() {
             ],
           ),
         ),
-        flag: false,
+        fields: _Fields.legacy,
       );
 
       expect(find.byType(IrmaDivider), findsNothing);
@@ -495,7 +511,7 @@ void main() {
     }
 
     testWidgets("is typed as DD-MM-YYYY with the flag on", (tester) async {
-      await pumpField(tester, dateField(), flag: true);
+      await pumpField(tester, dateField(), fields: _Fields.v2);
 
       expect(find.text("DD-MM-YYYY"), findsOneWidget);
 
@@ -515,7 +531,12 @@ void main() {
       ("de", "TT-MM-JJJJ"),
     ]) {
       testWidgets("shows $placeholder in $locale", (tester) async {
-        await pumpField(tester, dateField(), flag: true, locale: locale);
+        await pumpField(
+          tester,
+          dateField(),
+          fields: _Fields.v2,
+          locale: locale,
+        );
 
         expect(find.text(placeholder), findsOneWidget);
       });
@@ -524,7 +545,7 @@ void main() {
     testWidgets("has a 44 px calendar button that fills the field", (
       tester,
     ) async {
-      await pumpField(tester, dateField(), flag: true);
+      await pumpField(tester, dateField(), fields: _Fields.v2);
 
       expect(tester.getSize(find.byType(IconButton)), const Size(44, 44));
       expect(find.byTooltip("Choose date"), findsOneWidget);
@@ -539,7 +560,7 @@ void main() {
     });
 
     testWidgets("is typed as YYYY-MM-DD with the flag off", (tester) async {
-      await pumpField(tester, dateField(), flag: false);
+      await pumpField(tester, dateField(), fields: _Fields.legacy);
 
       expect(find.text("YYYY-MM-DD"), findsOneWidget);
       await tester.enterText(find.byType(TextFormField), "20251231");
@@ -583,18 +604,18 @@ void main() {
       );
     }
 
-    for (final (flag, birth, expiry) in [
-      (true, "01021990", "03042030"),
-      (false, "19900201", "20300403"),
+    for (final (fields, birth, expiry) in [
+      (_Fields.v2, "01021990", "03042030"),
+      (_Fields.legacy, "19900201", "20300403"),
     ]) {
-      testWidgets("passes the typed dates on with the flag $flag", (
+      testWidgets("passes the typed dates on with ${fields.name} fields", (
         tester,
       ) async {
         PassportMrzManualEntryData? entered;
         await pumpField(
           tester,
           passportScreen((data) => entered = data),
-          flag: flag,
+          fields: fields,
         );
 
         await tester.enterText(
@@ -622,7 +643,7 @@ void main() {
     testWidgets("puts the passport fields in one card with the flag on", (
       tester,
     ) async {
-      await pumpField(tester, passportScreen((_) {}), flag: true);
+      await pumpField(tester, passportScreen((_) {}), fields: _Fields.v2);
 
       expect(find.byType(IrmaDivider), findsNWidgets(2));
       expect(decorationOf(tester).labelText, "Document number");
@@ -633,7 +654,7 @@ void main() {
     testWidgets("keeps the passport fields apart with the flag off", (
       tester,
     ) async {
-      await pumpField(tester, passportScreen((_) {}), flag: false);
+      await pumpField(tester, passportScreen((_) {}), fields: _Fields.legacy);
 
       expect(find.byType(IrmaDivider), findsNothing);
       expect(decorationOf(tester).labelText, isNull);
@@ -646,7 +667,7 @@ void main() {
       await pumpField(
         tester,
         DrivingLicenceMrzManualEntryScreen(onContinue: (_) {}, onCancel: () {}),
-        flag: true,
+        fields: _Fields.v2,
       );
 
       expect(find.byType(IrmaDivider), findsNothing);
@@ -657,7 +678,7 @@ void main() {
     testWidgets("shows an invalid document number with an icon", (
       tester,
     ) async {
-      await pumpField(tester, passportScreen((_) {}), flag: true);
+      await pumpField(tester, passportScreen((_) {}), fields: _Fields.v2);
 
       await tester.enterText(
         find.byKey(const Key("document_nr_input_field")),
@@ -671,7 +692,10 @@ void main() {
   });
 
   group("feedback dialog", () {
-    Future<void> openDialog(WidgetTester tester, {required bool flag}) async {
+    Future<void> openDialog(
+      WidgetTester tester, {
+      required _Fields fields,
+    }) async {
       await pumpField(
         tester,
         Builder(
@@ -684,7 +708,7 @@ void main() {
             ),
           ),
         ),
-        flag: flag,
+        fields: fields,
       );
       await tester.tap(find.text("open"));
       await tester.pumpAndSettle();
@@ -709,7 +733,7 @@ void main() {
     testWidgets("has its label inside the field with the flag on", (
       tester,
     ) async {
-      await openDialog(tester, flag: true);
+      await openDialog(tester, fields: _Fields.v2);
 
       expect(dialogDecoration(tester).labelText, "Your feedback");
       expect(dialogDecoration(tester).hint, isNull);
@@ -718,7 +742,7 @@ void main() {
     });
 
     testWidgets("shows its hint with the flag off", (tester) async {
-      await openDialog(tester, flag: false);
+      await openDialog(tester, fields: _Fields.legacy);
 
       expect(dialogDecoration(tester).labelText, isNull);
       expect(dialogDecoration(tester).hint, isA<Text>());
@@ -780,7 +804,7 @@ void main() {
       await pumpField(
         tester,
         txCodeScreen(),
-        flag: true,
+        fields: _Fields.v2,
         overrides: [session(remainingAttempts: 2)],
       );
 
@@ -800,7 +824,7 @@ void main() {
       await pumpField(
         tester,
         txCodeScreen(),
-        flag: true,
+        fields: _Fields.v2,
         overrides: [session()],
       );
 
@@ -814,7 +838,7 @@ void main() {
         await pumpField(
           tester,
           txCodeScreen(),
-          flag: false,
+          fields: _Fields.legacy,
           overrides: [session(remainingAttempts: 2)],
         );
 
@@ -840,7 +864,7 @@ void main() {
     testWidgets("has its label inside the field with the flag on", (
       tester,
     ) async {
-      await pumpField(tester, const EnterEmailScreen(), flag: true);
+      await pumpField(tester, const EnterEmailScreen(), fields: _Fields.v2);
 
       final decoration = decorationOf(tester);
       expect(decoration.labelText, "Email address");
@@ -849,7 +873,7 @@ void main() {
     });
 
     testWidgets("shows only its hint with the flag off", (tester) async {
-      await pumpField(tester, const EnterEmailScreen(), flag: false);
+      await pumpField(tester, const EnterEmailScreen(), fields: _Fields.legacy);
 
       final decoration = decorationOf(tester);
       expect(decoration.labelText, isNull);
@@ -868,7 +892,7 @@ void main() {
     testWidgets("is white with the label inside with the flag on", (
       tester,
     ) async {
-      await pumpField(tester, const EnterPhoneScreen(), flag: true);
+      await pumpField(tester, const EnterPhoneScreen(), fields: _Fields.v2);
 
       final decoration = phoneDecoration(tester);
       expect(decoration.labelText, "Phone number");
@@ -885,7 +909,7 @@ void main() {
     });
 
     testWidgets("turns blue when focused", (tester) async {
-      await pumpField(tester, const EnterPhoneScreen(), flag: true);
+      await pumpField(tester, const EnterPhoneScreen(), fields: _Fields.v2);
 
       await tester.tap(find.byKey(const Key("phone_number_input_field")));
       await tester.pumpAndSettle();
@@ -897,7 +921,7 @@ void main() {
     });
 
     testWidgets("shows only its hint with the flag off", (tester) async {
-      await pumpField(tester, const EnterPhoneScreen(), flag: false);
+      await pumpField(tester, const EnterPhoneScreen(), fields: _Fields.legacy);
 
       final decoration = phoneDecoration(tester);
       expect(decoration.labelText, isNull);
