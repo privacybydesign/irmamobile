@@ -427,6 +427,14 @@
     "empty": {
       "title": "Haal je gegevens op",
       "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
+    },
+    "start": {
+      "ready": "Je Yivi-app is klaar",
+      "title": "Hoe wil je beginnen?",
+      "website_title": "Kwam je van een website op deze telefoon?",
+      "website_text": "Ga terug naar je browser en tik nog een keer op 'Open Yivi-app'.",
+      "qr_title": "Zie je een QR-code op een computer?",
+      "qr_text": "Tik op Scan QR hieronder."
     }
   },
   "issuance": {

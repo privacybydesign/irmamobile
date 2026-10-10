@@ -427,6 +427,14 @@
     "empty": {
       "title": "Obtain your personal data",
       "subtitle": "Tap on the plus icon to obtain your personal data."
+    },
+    "start": {
+      "ready": "Your Yivi app is ready",
+      "title": "How do you want to start?",
+      "website_title": "Did you come from a website on this phone?",
+      "website_text": "Go back to your browser and tap 'Open Yivi app' again.",
+      "qr_title": "Do you see a QR code on a computer?",
+      "qr_text": "Tap Scan QR below."
     }
   },
   "issuance": {
