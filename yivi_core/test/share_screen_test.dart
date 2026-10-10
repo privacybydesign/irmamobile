@@ -42,17 +42,19 @@ final _declineButton = find.byKey(const Key("share_check_decline"));
 final _progressLine = find.byKey(const Key("share_check_progress"));
 final _issuerBand = find.byKey(const Key("share_card_issuer_band"));
 
+enum _Trust { known, unknown }
+
 TrustedParty _party(
   String name, {
   String id = "party",
-  bool verified = true,
+  _Trust trust = _Trust.known,
   String? url,
 }) => TrustedParty(
   id: id,
   name: name,
   url: url,
   parent: null,
-  verified: verified,
+  verified: trust == _Trust.known,
 );
 
 Attribute _attribute(String id, String label, String value) => Attribute(
@@ -66,7 +68,6 @@ SelectableCredentialInstance _instance({
   TrustedParty? issuer,
   List<Attribute>? attributes,
   int? expiryDate,
-  bool revoked = false,
 }) => SelectableCredentialInstance(
   credentialId: credentialId,
   hash: "hash-$credentialId",
@@ -75,15 +76,17 @@ SelectableCredentialInstance _instance({
   format: CredentialFormat.idemix,
   attributes: attributes ?? [_attribute("surname", "Surname", "Jansen")],
   expiryDate: expiryDate,
-  revoked: revoked,
+  revoked: false,
   revocationSupported: false,
 );
 
+enum _Need { mandatory, optional }
+
 DisclosurePickOne _choice(
   List<SelectableCredentialInstance> options, {
-  bool optional = false,
+  _Need need = _Need.mandatory,
 }) => DisclosurePickOne(
-  optional: optional,
+  optional: need == _Need.optional,
   ownedOptions: [
     for (final o in options) DisclosureBundle(credentials: [o]),
   ],
@@ -419,7 +422,7 @@ void main() {
                 credentialId: "pbdf.sidn-pbdf.email",
                 attributes: [_attribute("email", "Email", "a@example.com")],
               ),
-            ], optional: true),
+            ], need: _Need.optional),
           ],
         ),
       );
@@ -481,7 +484,7 @@ void main() {
       await pumpOverview(
         tester,
         session: _session(
-          requestor: _party("shop.example.com", verified: false),
+          requestor: _party("shop.example.com", trust: _Trust.unknown),
           choices: [
             _choice([_instance()]),
           ],
@@ -584,7 +587,7 @@ void main() {
         session: _session(
           requestor: _party(
             "shop.example.com",
-            verified: false,
+            trust: _Trust.unknown,
             url: "https://shop.example.com/pay?id=1",
           ),
           choices: [
@@ -615,7 +618,7 @@ void main() {
         session: _session(
           requestor: _party(
             "shop.example.com",
-            verified: false,
+            trust: _Trust.unknown,
             url: "https://shop.example.com",
           ),
           choices: [
@@ -779,7 +782,7 @@ void main() {
         session: _session(
           requestor: _party(
             "shop.example.com",
-            verified: false,
+            trust: _Trust.unknown,
             url: "https://shop.example.com",
           ),
           choices: [
