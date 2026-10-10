@@ -40,6 +40,7 @@ class MissingDataChecklistScreen extends ConsumerStatefulWidget {
 
 class _MissingDataChecklistScreenState
     extends ConsumerState<MissingDataChecklistScreen> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
   String? _justAddedCredentialId;
   bool _wrongCredentialDialogOpen = false;
 
@@ -81,15 +82,19 @@ class _MissingDataChecklistScreenState
       if (e.isPresent) e.credential.credentialId,
   };
 
+  // The dialog goes on a navigator of its own, so an issuance screen pushed
+  // over the list covers it instead of being popped in its place.
   void _showWrongCredentialDialog(IssueDuringDisclosureState state) {
-    if (_wrongCredentialDialogOpen) return;
+    final navigator = _navigatorKey.currentState;
+    if (navigator == null || _wrongCredentialDialogOpen) return;
     _wrongCredentialDialogOpen = true;
 
     final notifier = ref.read(
       issueDuringDisclosureProvider(widget.sessionId).notifier,
     );
     showDialog(
-      context: context,
+      context: navigator.context,
+      useRootNavigator: false,
       builder: (context) => DisclosurePermissionWrongCredentialsAddedDialog(
         wrongCredential: state.wrongCredentialIssued!,
         template: state.wrongCredentialTemplate!,
@@ -119,7 +124,7 @@ class _MissingDataChecklistScreenState
       _onWizardStateChanged,
     );
 
-    return SessionScaffold(
+    final scaffold = SessionScaffold(
       appBarTitle: "disclosure_permission.issue_wizard.title",
       onDismiss: widget.onDismiss,
       bottomNavigationBar: requestor == null
@@ -168,6 +173,12 @@ class _MissingDataChecklistScreenState
           ),
         ),
       ),
+    );
+
+    return Navigator(
+      key: _navigatorKey,
+      onDidRemovePage: (_) {},
+      pages: [MaterialPage(child: scaffold)],
     );
   }
 
