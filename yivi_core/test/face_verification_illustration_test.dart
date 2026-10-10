@@ -21,6 +21,8 @@ import "package:yivi_core/src/util/test_detection.dart";
 
 import "support/pump_translated.dart";
 
+enum _Flag { on, off }
+
 const _phone = Key("face_verification_phone");
 const _selfieCard = Key("face_verification_selfie_card");
 
@@ -191,7 +193,7 @@ void main() {
 
     Future<void> pumpUntilIntro(
       WidgetTester tester, {
-      required bool flagOn,
+      required _Flag flag,
     }) async {
       final reader = _SucceedingReader();
       await pumpTranslated(
@@ -212,7 +214,7 @@ void main() {
             regulaFaceServiceProvider.overrideWithValue(_IdleFaceService()),
             featureFlagProvider(
               FeatureFlag.documentFlowV2,
-            ).overrideWith((ref) => Stream.value(flagOn)),
+            ).overrideWith((ref) => Stream.value(flag == .on)),
           ],
         ),
       );
@@ -229,7 +231,7 @@ void main() {
     }
 
     testWidgets("flag on: the selfie is on a plain card", (tester) async {
-      await pumpUntilIntro(tester, flagOn: true);
+      await pumpUntilIntro(tester, flag: .on);
 
       expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
       expect(find.byKey(_selfieCard), findsOneWidget);
@@ -239,7 +241,7 @@ void main() {
     testWidgets("flag off: the selfie stays on the upright phone", (
       tester,
     ) async {
-      await pumpUntilIntro(tester, flagOn: false);
+      await pumpUntilIntro(tester, flag: .off);
 
       expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
       expect(find.byKey(_phone), findsOneWidget);
