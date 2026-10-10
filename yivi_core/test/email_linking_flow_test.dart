@@ -548,6 +548,51 @@ void main() {
       ]);
     });
 
+    testWidgets("twice for another address still waits for a tap", (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openLinkingFlow(tester);
+      await sendEmailTo(tester, "jan@example.com");
+
+      for (final code in ["AAA111", "BBB222"]) {
+        container
+            .read(emailLinkingProvider.notifier)
+            .receiveLink(
+              EmailCodePointer(email: "evil@example.com", code: code),
+            );
+        await settle(tester);
+      }
+
+      expect(issuerApi.verified, isEmpty);
+
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await settle(tester);
+
+      expect(issuerApi.verified, [(email: "evil@example.com", code: "BBB222")]);
+    });
+
+    testWidgets("twice when the flow was closed still waits for a tap", (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      final context = tester.element(find.text("home"));
+
+      handlePointer(
+        context,
+        EmailCodePointer(email: "evil@example.com", code: "AAA111"),
+      );
+      await settle(tester);
+      await settle(tester);
+      handlePointer(
+        tester.element(find.byType(EmailIssuanceScreen)),
+        EmailCodePointer(email: "evil@example.com", code: "BBB222"),
+      );
+      await settle(tester);
+
+      expect(issuerApi.verified, isEmpty);
+    });
+
     testWidgets("is applied once when the flow is already open", (
       tester,
     ) async {

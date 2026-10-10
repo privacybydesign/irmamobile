@@ -102,6 +102,16 @@ final emailBannerVisibleProvider = Provider<bool>((ref) {
   return false;
 });
 
+/// What the code screen does with the code from a link.
+enum EmailLinkHandling {
+  /// Fill in the code and wait for a tap on "Code controleren".
+  fillIn,
+
+  /// Fill in the code and send it. Only for a link for the address the user
+  /// asked a code for: anyone can send a link with their own address and code.
+  submit,
+}
+
 class EmailLinkingState {
   /// The e-mail issuance session that has to finish before the keyshare
   /// disclosure starts.
@@ -113,16 +123,14 @@ class EmailLinkingState {
   /// The link from the e-mail, waiting for the code screen to pick it up.
   final EmailCodePointer? link;
 
-  /// Whether [link] is for the address the user already asked a code for in
-  /// the open flow. Only then may the code be sent without a tap: anyone can
-  /// send a link with their own address and code.
-  final bool linkMatchesFlow;
+  /// What to do with [link] once the code screen picks it up.
+  final EmailLinkHandling linkHandling;
 
   const EmailLinkingState({
     this.issuanceSessionId,
     this.disclosureSessionId,
     this.link,
-    this.linkMatchesFlow = false,
+    this.linkHandling = .fillIn,
   });
 }
 
@@ -137,7 +145,7 @@ class EmailLinking extends Notifier<EmailLinkingState> {
     state = EmailLinkingState(
       issuanceSessionId: sessionId,
       link: state.link,
-      linkMatchesFlow: state.linkMatchesFlow,
+      linkHandling: state.linkHandling,
     );
   }
 
@@ -152,7 +160,7 @@ class EmailLinking extends Notifier<EmailLinkingState> {
     state = EmailLinkingState(
       issuanceSessionId: state.issuanceSessionId,
       link: link,
-      linkMatchesFlow: _codeRequestedFor(link.email),
+      linkHandling: _codeRequestedFor(link.email) ? .submit : .fillIn,
     );
   }
 
@@ -161,6 +169,7 @@ class EmailLinking extends Notifier<EmailLinkingState> {
 
     final flow = ref.read(emailIssuanceProvider);
     return flow.stage == EmailIssuanceStage.enteringVerificationCode &&
+        flow.emailSource == EmailSource.typed &&
         flow.email.trim().toLowerCase() == email.toLowerCase();
   }
 
