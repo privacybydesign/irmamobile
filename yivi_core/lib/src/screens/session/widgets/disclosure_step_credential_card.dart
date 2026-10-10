@@ -40,11 +40,6 @@ class DisclosureStepCredentialCard extends ConsumerWidget {
       style: isCurrent && !waiting
           ? IrmaCardStyle.highlighted
           : IrmaCardStyle.normal,
-      headerTrailing: waiting
-          ? ExcludeSemantics(
-              child: Icon(Icons.schedule, color: theme.warning, size: 24),
-            )
-          : null,
     );
     if (status == ExternalIssuerStatus.notExternal) return card;
 
@@ -71,9 +66,19 @@ class DisclosureStepCredentialCard extends ConsumerWidget {
           style: theme.textTheme.bodySmall,
         ),
         if (waiting) ...[
-          TranslatedText(
-            "external_issuer.waiting.status",
-            style: theme.textTheme.headlineMedium,
+          Row(
+            spacing: theme.tinySpacing,
+            children: [
+              ExcludeSemantics(
+                child: Icon(Icons.schedule, color: theme.warning, size: 24),
+              ),
+              Expanded(
+                child: TranslatedText(
+                  "external_issuer.waiting.status",
+                  style: theme.textTheme.headlineMedium,
+                ),
+              ),
+            ],
           ),
           TranslatedText(
             "external_issuer.waiting.body",
