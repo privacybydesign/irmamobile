@@ -23,6 +23,8 @@ class MissingPointer implements Exception {
   }
 }
 
+const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
+
 /// Interface for all pointers referring to new sessions and issue wizards.
 abstract class Pointer {
   Future<void> validate({
@@ -31,8 +33,6 @@ abstract class Pointer {
   });
 
   factory Pointer.fromString(String content) {
-    const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
-
     // OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
     // Default to production; if the inbound URL is a universal link on a
     // recognized host (notably the staging host), derive the callback URI

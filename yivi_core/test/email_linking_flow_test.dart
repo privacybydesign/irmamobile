@@ -86,6 +86,9 @@ class _FakeKeyshareLinkApi implements KeyshareEmailLinkApi {
   }
 }
 
+// Not a session id the flow allocates itself (those count up from 1).
+const _issuanceSessionId = 100;
+
 final _requestor = TrustedParty(
   id: "pbdf.sidn-pbdf.email",
   name: "Yivi",
@@ -573,7 +576,7 @@ void main() {
             (ref, sessionId) => Stream.value(
               _successState(
                 sessionId,
-                sessionId == 100
+                sessionId == _issuanceSessionId
                     ? SessionType.issuance
                     : SessionType.disclosure,
               ),
@@ -593,7 +596,7 @@ void main() {
         tester,
         overrides: [
           sessionStateProvider.overrideWith(
-            (ref, sessionId) => sessionId == 100
+            (ref, sessionId) => sessionId == _issuanceSessionId
                 ? Stream.value(_successState(sessionId, SessionType.issuance))
                 // Go answers after the screen has been pushed, not within it.
                 : Stream.fromFuture(
@@ -605,9 +608,11 @@ void main() {
           ),
         ],
       );
-      container.read(emailLinkingProvider.notifier).trackIssuance(100);
+      container
+          .read(emailLinkingProvider.notifier)
+          .trackIssuance(_issuanceSessionId);
 
-      router.push("/session?session_id=100");
+      router.push("/session?session_id=$_issuanceSessionId");
       await tester.pump();
       await settle(tester);
       await settle(tester);
@@ -627,7 +632,7 @@ void main() {
     testWidgets("an issuance that is not part of the flow ends as today", (
       tester,
     ) async {
-      await pumpSession(tester, 100);
+      await pumpSession(tester, _issuanceSessionId);
 
       expect(linkApi.calls, 0);
       expect(
@@ -659,9 +664,11 @@ void main() {
           ),
         ],
       );
-      container.read(emailLinkingProvider.notifier).trackIssuance(100);
+      container
+          .read(emailLinkingProvider.notifier)
+          .trackIssuance(_issuanceSessionId);
 
-      router.push("/session?session_id=100");
+      router.push("/session?session_id=$_issuanceSessionId");
       await tester.pump();
       await settle(tester);
       await settle(tester);
@@ -755,6 +762,11 @@ void main() {
         ))!.isAfter(DateTime.now().add(const Duration(days: 1))),
         isTrue,
       );
+
+      // The timer that ends the snooze only stops with its container, and the
+      // test checks for pending timers before the tear-down runs.
+      await tester.pumpWidget(const SizedBox());
+      container.dispose();
     });
 
     testWidgets("Dismiss hides the banner for good", (tester) async {

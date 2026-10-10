@@ -1,9 +1,12 @@
 import "../data/irma_repository.dart";
 import "session.dart";
 
-const _universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
 const _emailLinkPath = "/-/email";
-final _codePattern = RegExp(r"^[A-Za-z0-9]{6}$");
+
+/// The number of characters in the code the e-mail issuer sends.
+const emailCodeLength = 6;
+
+final _codePattern = RegExp("^[A-Za-z0-9]{$emailCodeLength}\$");
 
 /// The universal link in the verification e-mail, for example
 /// `https://open.yivi.app/-/email#code=ABC123&email=jan%40example.com`. Both
@@ -19,7 +22,7 @@ class EmailCodePointer implements Pointer {
     final uri = Uri.tryParse(url);
     if (uri == null ||
         uri.scheme != "https" ||
-        !_universalLinkHosts.contains(uri.host) ||
+        !universalLinkHosts.contains(uri.host) ||
         uri.path != _emailLinkPath) {
       return null;
     }

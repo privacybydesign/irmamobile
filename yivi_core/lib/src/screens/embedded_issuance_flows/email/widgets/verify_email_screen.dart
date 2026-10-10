@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
 import "../../../../../routing.dart";
+import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/theme.dart";
@@ -102,7 +103,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   }
 
   void _codeChanged(String code) {
-    final complete = code.length == 6;
+    final complete = code.length == emailCodeLength;
     if (complete != _codeComplete) {
       setState(() => _codeComplete = complete);
     }
@@ -249,7 +250,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                           mainAxisAlignment: .start,
                           defaultPinTheme: defaultPinTheme,
                           focusedPinTheme: focussedPinTheme,
-                          length: 6,
+                          length: emailCodeLength,
                           onChanged: _linking ? _codeChanged : null,
                           onCompleted: _linking ? null : _handleCode,
                           pinAnimationType: .scale,
