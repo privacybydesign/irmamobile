@@ -73,7 +73,9 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Starts reading the install referrer as soon as onboarding opens, so it
-    // is known by the time onboarding completes.
+    // is known by the time onboarding completes. Completion does not wait for
+    // it: a Play call that never answers would leave the user stuck on the
+    // last PIN step, and a missed read only skips the website screen.
     if (ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ??
         false) {
       ref.watch(installReferrerReaderProvider);
