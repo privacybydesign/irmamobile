@@ -26,6 +26,7 @@ import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
@@ -762,9 +763,13 @@ void main() {
   });
 
   group("banner", () {
-    Future<void> pumpBanner(WidgetTester tester) async {
+    Future<void> pumpBanner(
+      WidgetTester tester, {
+      bool hasCredentials = true,
+    }) async {
       await pumpApp(
         tester,
+        overrides: [hasCredentialsProvider.overrideWithValue(hasCredentials)],
         home: Scaffold(
           body: Consumer(
             builder: (context, ref, _) => ref.watch(emailBannerVisibleProvider)
@@ -791,6 +796,14 @@ void main() {
       );
       expect(find.text("Link email address"), findsOneWidget);
       expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+    });
+
+    testWidgets("waits for the first credential, so it is not there right "
+        "after enrollment", (tester) async {
+      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      await pumpBanner(tester, hasCredentials: false);
+
+      expect(find.byType(EmailLinkBanner), findsNothing);
     });
 
     testWidgets("is absent with the flag off", (tester) async {

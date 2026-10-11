@@ -13,6 +13,7 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
 
 class _FakeLinkApi implements KeyshareEmailLinkApi {
   int calls = 0;
@@ -43,9 +44,18 @@ void main() {
     await prefs.clearAll();
   });
 
-  ProviderContainer newContainer([List<Override> overrides = const []]) {
+  // Most tests are about an install that already holds a credential, where
+  // the banner may show.
+  ProviderContainer newContainer([
+    List<Override> overrides = const [],
+    bool hasCredentials = true,
+  ]) {
     final container = ProviderContainer(
-      overrides: [preferencesProvider.overrideWithValue(prefs), ...overrides],
+      overrides: [
+        preferencesProvider.overrideWithValue(prefs),
+        hasCredentialsProvider.overrideWithValue(hasCredentials),
+        ...overrides,
+      ],
     );
     addTearDown(container.dispose);
     return container;
@@ -73,6 +83,12 @@ void main() {
       await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
 
       expect(await readVisible(newContainer()), isTrue);
+    });
+
+    test("is hidden until the data tab has a credential", () async {
+      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+
+      expect(await readVisible(newContainer(const [], false)), isFalse);
     });
 
     test("is hidden once an address is linked", () async {

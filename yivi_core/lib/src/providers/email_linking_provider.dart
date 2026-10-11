@@ -13,6 +13,7 @@ import "email_issuance_provider.dart";
 import "feature_flag_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
+import "schemaless_credentials_provider.dart";
 
 /// How long "Vraag het me later" hides the banner.
 const emailBannerSnoozeDuration = Duration(days: 7);
@@ -91,8 +92,11 @@ final emailLinkAvailableProvider = Provider<bool>((ref) {
 
 /// Whether the banner on the Gegevens tab shows. It stays hidden until every
 /// preference has loaded, so it never flashes up for a user who dismissed it.
+/// It also waits for the first credential: right after enrollment the tab is
+/// empty, and the banner should not be the first thing a new user sees.
 final emailBannerVisibleProvider = Provider<bool>((ref) {
   if (!ref.watch(emailLinkAvailableProvider)) return false;
+  if (!ref.watch(hasCredentialsProvider)) return false;
 
   final dismissed = ref.watch(_emailBannerDismissedProvider).value ?? true;
   final snoozedUntil = ref.watch(_emailBannerSnoozedUntilProvider).value;
