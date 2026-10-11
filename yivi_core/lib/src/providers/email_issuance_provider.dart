@@ -6,13 +6,18 @@ import "package:http/http.dart" as http;
 
 import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
+import "local_backends_provider.dart";
 
 final emailIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://email-issuer.staging.yivi.app"),
 );
 
 final emailIssuerApiProvider = Provider<EmailIssuerApi>(
-  (ref) => DefaultEmailIssuerApi(host: ref.watch(emailIssuerUrlProvider)),
+  (ref) => DefaultEmailIssuerApi(
+    host:
+        ref.watch(localBackendsProvider)?.emailIssuer ??
+        ref.watch(emailIssuerUrlProvider),
+  ),
 );
 
 final emailIssuanceProvider = NotifierProvider.autoDispose(EmailIssuer.new);
@@ -109,16 +114,38 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
 
 enum EmailIssuanceStage { enteringEmail, enteringVerificationCode, waiting }
 
+/// What the e-mail issuance flow is for. It decides the copy and layout of the
+/// screens, and whether the issued address is shared with the keyshare server.
+enum EmailIssuancePurpose {
+  /// Add the e-mail credential, as from the add data screen.
+  addCredential,
+
+  /// Link the address to the keyshare server (`FeatureFlag.emailLinking`).
+  linkKeyshare,
+}
+
+/// Where the address of the flow came from.
+enum EmailSource {
+  /// The user entered it and asked for a code.
+  typed,
+
+  /// The link in the e-mail carried it, so the user never asked for a code
+  /// for it.
+  link,
+}
+
 class EmailIssuanceState {
   final EmailIssuanceStage stage;
   final String enteredCode;
   final String email;
+  final EmailSource emailSource;
   final EmailIssuanceError error;
 
   EmailIssuanceState({
     required this.stage,
     required this.enteredCode,
     required this.email,
+    required this.emailSource,
     required this.error,
   });
 
@@ -132,6 +159,7 @@ class EmailIssuanceState {
       stage: stage ?? this.stage,
       enteredCode: enteredCode ?? this.enteredCode,
       email: email ?? this.email,
+      emailSource: emailSource,
       error: error ?? this.error,
     );
   }
@@ -144,6 +172,7 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
       stage: .enteringEmail,
       enteredCode: "",
       email: "",
+      emailSource: .typed,
       error: EmailIssuanceNoError(),
     );
   }
@@ -156,6 +185,7 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
       stage: .waiting,
       enteredCode: "",
       email: email,
+      emailSource: .typed,
       error: EmailIssuanceNoError(),
     );
     await ref
@@ -205,6 +235,19 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
       email: "",
       enteredCode: "",
       stage: .enteringEmail,
+      emailSource: .typed,
+      error: EmailIssuanceNoError(),
+    );
+  }
+
+  /// Skips sending for a code that is already on its way, as when the link in
+  /// the e-mail opens the app.
+  void startVerification({required String email}) {
+    state = EmailIssuanceState(
+      email: email,
+      enteredCode: "",
+      stage: .enteringVerificationCode,
+      emailSource: .link,
       error: EmailIssuanceNoError(),
     );
   }
@@ -214,6 +257,7 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
       email: state.email,
       enteredCode: "",
       stage: .enteringEmail,
+      emailSource: state.emailSource,
       error: EmailIssuanceNoError(),
     );
   }

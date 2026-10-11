@@ -95,6 +95,19 @@ class IrmaPreferences {
          _backToWebsitePendingKey,
          defaultValue: false,
        ),
+       _emailLinked = preferences.getBool(_emailLinkedKey, defaultValue: false),
+       _emailBannerDismissed = preferences.getBool(
+         _emailBannerDismissedKey,
+         defaultValue: false,
+       ),
+       _emailBannerSnoozedUntilMs = preferences.getInt(
+         _emailBannerSnoozedUntilMsKey,
+         defaultValue: 0,
+       ),
+       _localBackendHost = preferences.getString(
+         _localBackendHostKey,
+         defaultValue: "",
+       ),
        _featureFlags = {
          for (final flag in FeatureFlag.values)
            flag: preferences.getBool(flag.prefKey, defaultValue: false),
@@ -231,6 +244,30 @@ class IrmaPreferences {
       "preference.back_to_website_pending";
   final Preference<bool> _backToWebsitePending;
 
+  // --- E-mail linking (FeatureFlag.emailLinking) ------------------------------
+  // All wiped by clearAll().
+
+  /// Whether this install has linked an e-mail address to the keyshare server.
+  /// The server offers no way to ask, so this is only set by the linking flow.
+  static const String _emailLinkedKey = "preference.email_linked";
+  final Preference<bool> _emailLinked;
+
+  /// Terminal: the user chose "Negeren", so the banner never shows again.
+  static const String _emailBannerDismissedKey =
+      "preference.email_banner_dismissed";
+  final Preference<bool> _emailBannerDismissed;
+
+  /// Wall-clock time (ms since epoch) before which the banner stays hidden,
+  /// set by "Vraag het me later".
+  static const String _emailBannerSnoozedUntilMsKey =
+      "preference.email_banner_snoozed_until_ms";
+  final Preference<int> _emailBannerSnoozedUntilMs;
+
+  /// Host of a local backend setup, set in the debug menu, such as
+  /// "localhost" with `adb reverse`. Empty means the real backends.
+  static const String _localBackendHostKey = "preference.local_backend_host";
+  final Preference<String> _localBackendHost;
+
   /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
   final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
@@ -363,6 +400,29 @@ class IrmaPreferences {
 
   Future<bool> markBackToWebsiteShown() =>
       _backToWebsitePending.setValue(false);
+
+  // --- E-mail linking -------------------------------------------------------
+
+  Stream<bool> getEmailLinked() => _emailLinked;
+
+  Future<bool> markEmailLinked() => _emailLinked.setValue(true);
+
+  Stream<bool> getEmailBannerDismissed() => _emailBannerDismissed;
+
+  Future<bool> dismissEmailBanner() => _emailBannerDismissed.setValue(true);
+
+  Stream<DateTime> getEmailBannerSnoozedUntil() =>
+      _emailBannerSnoozedUntilMs.map(DateTime.fromMillisecondsSinceEpoch);
+
+  Future<bool> snoozeEmailBannerUntil(DateTime until) =>
+      _emailBannerSnoozedUntilMs.setValue(until.millisecondsSinceEpoch);
+
+  // --- Local backends -------------------------------------------------------
+
+  Stream<String> getLocalBackendHost() => _localBackendHost;
+
+  Future<bool> setLocalBackendHost(String host) =>
+      _localBackendHost.setValue(host);
 
   // --- Feature flags --------------------------------------------------------
 

@@ -17,6 +17,7 @@ import "scheme_management/widgets/scheme_management_warning_dialog.dart";
 import "session/session_helper_screen.dart";
 import "util/snackbar.dart";
 import "widgets/delete_all_credentials_confirmation_dialog.dart";
+import "widgets/local_backends_tile.dart";
 
 class DebugScreen extends StatefulWidget {
   const DebugScreen({super.key});
@@ -130,6 +131,7 @@ class _DebugScreenState extends State<DebugScreen> {
             title: const Text("Feature flags"),
             onTap: context.pushFeatureFlagsScreen,
           ),
+          const LocalBackendsTile(),
           _buildListTile(
             Icons.badge,
             "debug.issue_digid",
