@@ -11,6 +11,7 @@ import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
 import "email_issuance_provider.dart";
 import "feature_flag_provider.dart";
+import "local_backends_provider.dart";
 import "preferences_provider.dart";
 
 /// How long "Vraag het me later" hides the banner.
@@ -18,14 +19,17 @@ const emailBannerSnoozeDuration = Duration(days: 7);
 
 /// Endpoint of the keyshare server that starts the disclosure linking the
 /// e-mail address, from privacybydesign/irmago#744. Empty until that endpoint
-/// ships and the app is told where it lives.
+/// ships and the app is told where it lives; until then only a local backend
+/// set in the debug menu has it.
 final _keyshareEmailLinkUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier(""),
 );
 
 final keyshareEmailLinkApiProvider = Provider<KeyshareEmailLinkApi>(
   (ref) => DefaultKeyshareEmailLinkApi(
-    url: ref.watch(_keyshareEmailLinkUrlProvider),
+    url:
+        ref.watch(localBackendsProvider)?.keyshareEmailLink ??
+        ref.watch(_keyshareEmailLinkUrlProvider),
   ),
 );
 

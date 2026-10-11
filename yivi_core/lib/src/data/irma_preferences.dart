@@ -104,6 +104,10 @@ class IrmaPreferences {
          _emailBannerSnoozedUntilMsKey,
          defaultValue: 0,
        ),
+       _localBackendHost = preferences.getString(
+         _localBackendHostKey,
+         defaultValue: "",
+       ),
        _featureFlags = {
          for (final flag in FeatureFlag.values)
            flag: preferences.getBool(flag.prefKey, defaultValue: false),
@@ -259,6 +263,11 @@ class IrmaPreferences {
       "preference.email_banner_snoozed_until_ms";
   final Preference<int> _emailBannerSnoozedUntilMs;
 
+  /// Host of a local backend setup, set in the debug menu, such as
+  /// "localhost" with `adb reverse`. Empty means the real backends.
+  static const String _localBackendHostKey = "preference.local_backend_host";
+  final Preference<String> _localBackendHost;
+
   /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
   final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
@@ -407,6 +416,13 @@ class IrmaPreferences {
 
   Future<bool> snoozeEmailBannerUntil(DateTime until) =>
       _emailBannerSnoozedUntilMs.setValue(until.millisecondsSinceEpoch);
+
+  // --- Local backends -------------------------------------------------------
+
+  Stream<String> getLocalBackendHost() => _localBackendHost;
+
+  Future<bool> setLocalBackendHost(String host) =>
+      _localBackendHost.setValue(host);
 
   // --- Feature flags --------------------------------------------------------
 

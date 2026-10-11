@@ -6,13 +6,18 @@ import "package:http/http.dart" as http;
 
 import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
+import "local_backends_provider.dart";
 
 final emailIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://email-issuer.staging.yivi.app"),
 );
 
 final emailIssuerApiProvider = Provider<EmailIssuerApi>(
-  (ref) => DefaultEmailIssuerApi(host: ref.watch(emailIssuerUrlProvider)),
+  (ref) => DefaultEmailIssuerApi(
+    host:
+        ref.watch(localBackendsProvider)?.emailIssuer ??
+        ref.watch(emailIssuerUrlProvider),
+  ),
 );
 
 final emailIssuanceProvider = NotifierProvider.autoDispose(EmailIssuer.new);
