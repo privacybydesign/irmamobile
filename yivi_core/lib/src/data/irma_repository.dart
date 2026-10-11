@@ -44,6 +44,7 @@ import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "app_language.dart";
+import "demo_session_requests.dart";
 import "feature_flags.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
@@ -1014,6 +1015,20 @@ class IrmaRepository {
     }
 
     markInAppLaunched([credentialId]);
+
+    // Debug menu: get a demo credential here, from the demo IRMA server with
+    // made-up values, instead of on its website. A website would hand the
+    // session back through a link that another Yivi app on the phone may take.
+    if (credentialId.startsWith("irma-demo.") &&
+        await getDeveloperMode().first &&
+        await preferences.getIssueDemoCredentialsInApp().first) {
+      final configuration = await getIrmaConfiguration().first;
+      return startTestSession(
+        DemoSessionRequests.fromConfiguration(
+          configuration,
+        ).issuance([credentialId]),
+      );
+    }
 
     // TODO: surface `isULIssueUrl` on the schemaless credential models
     // (CredentialDescriptor / Credential) so we can drop the legacy
