@@ -156,8 +156,12 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
     // passive selfie and clutters the otherwise minimal Yivi camera screen.
     torchButtonEnabled: false,
     livenessType: livenessType,
-    // The app is portrait-only.
-    screenOrientation: const [ScreenOrientation.PORTRAIT],
+    // Landscape as well as portrait, so that people who can only hold their
+    // phone sideways can do the face check too.
+    screenOrientation: const [
+      ScreenOrientation.PORTRAIT,
+      ScreenOrientation.LANDSCAPE,
+    ],
     // Always skip Regula's success ("checkmark") screen: liveness passing only
     // means a live face was captured, not that it matches the document. The
     // actual match happens server-side during issuance, so a client-side
