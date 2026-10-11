@@ -146,6 +146,10 @@ func (ah *eventHandler) clearAllData() (err error) {
 
 	dispatchCredentialsEvent()
 	dispatchEnrollmentStatusEvent()
+	// RemoveStorage also puts the preferences back to their defaults, which
+	// turns developer mode off. Without this the app kept showing the old
+	// preferences, while sessions over http failed.
+	dispatchPreferencesEvent()
 	return nil
 }
 

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - After deleting all data in the settings and enrolling again, the app opens on the data tab, as after a fresh install, instead of on the tab it showed before
+- After deleting all data, the app shows developer mode as off, as it then is. It kept showing it as on, while sessions over http failed with "remote server does not use https"
 - Tilting the phone to landscape during the face check in the F-Droid build no longer ends the issuance with an error (`LANDSCAPE_MODE_RESTRICTED`); the face check screen stays in portrait
 - The F-Droid build finds the MRZ of a document on a textured surface such as a tablecloth, where it used to read the fabric below the document instead; it reads documents held at any angle, upside down included, and no longer stalls for seconds on frames without a document in them
 - An MRZ line that OCR read a filler or two too short or too long is no longer thrown away; the run of fillers is brought back to length, which puts the check digits back in place
