@@ -23,7 +23,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart"
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 
-import "pump_and_load_locales.dart";
+import "support/pump_translated.dart";
 
 const _sessionId = 1;
 const _detailsPath = "/home/add_data/details";
@@ -196,13 +196,14 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         _app(
           overrides: [],
           home: Scaffold(body: stepper(onObtainOption: (_) {})),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text("Passport or ID card"), findsOneWidget);
       expect(
@@ -226,13 +227,14 @@ void main() {
 
     testWidgets("a single tap reports the tapped option", (tester) async {
       ({int stepIndex, int optionIndex})? obtained;
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         _app(
           overrides: [],
           home: Scaffold(body: stepper(onObtainOption: (c) => obtained = c)),
         ),
       );
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text("ID card"));
 
@@ -243,7 +245,7 @@ void main() {
       tester,
     ) async {
       ({int stepIndex, int optionIndex})? obtained;
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         _app(
           overrides: [],
@@ -260,6 +262,7 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text("Obtain"), findsOneWidget);
       await tester.tap(find.text("ID card"));
@@ -270,13 +273,14 @@ void main() {
     testWidgets("without the callback it keeps the radio buttons", (
       tester,
     ) async {
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         _app(
           overrides: [],
           home: Scaffold(body: stepper()),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text("Make a choice"), findsOneWidget);
       expect(find.byType(RadioIndicator), findsNWidgets(2));
@@ -312,7 +316,8 @@ void main() {
       tester,
     ) async {
       final obtained = <String>[];
-      await pumpAndLoadLocales(tester, app(_Flag.on, obtained));
+      await pumpTranslated(tester, app(_Flag.on, obtained));
+      await tester.pumpAndSettle();
 
       expect(find.byKey(const Key("bottom_bar_primary")), findsNothing);
       expect(find.byKey(const Key("bottom_bar_secondary")), findsOneWidget);
@@ -328,7 +333,8 @@ void main() {
     testWidgets("flag off: radio buttons and the obtain button stay", (
       tester,
     ) async {
-      await pumpAndLoadLocales(tester, app(_Flag.off, []));
+      await pumpTranslated(tester, app(_Flag.off, []));
+      await tester.pumpAndSettle();
 
       expect(find.byType(RadioIndicator), findsNWidgets(2));
       expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
@@ -364,7 +370,8 @@ void main() {
     testWidgets("flag on: label above the values, Switch in the footer", (
       tester,
     ) async {
-      await pumpAndLoadLocales(tester, app(_Flag.on));
+      await pumpTranslated(tester, app(_Flag.on));
+      await tester.pumpAndSettle();
 
       expect(find.text("PASSPORT OR ID CARD"), findsOneWidget);
       expect(find.text("Jansen"), findsOneWidget);
@@ -375,7 +382,8 @@ void main() {
     });
 
     testWidgets("flag off: the Change choice button stays", (tester) async {
-      await pumpAndLoadLocales(tester, app(_Flag.off));
+      await pumpTranslated(tester, app(_Flag.off));
+      await tester.pumpAndSettle();
 
       expect(find.text("Change choice"), findsOneWidget);
       expect(find.text("PASSPORT OR ID CARD"), findsNothing);
@@ -386,7 +394,7 @@ void main() {
     testWidgets("flag on: instances of one credential get no label", (
       tester,
     ) async {
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         app(
           _Flag.on,
@@ -401,6 +409,7 @@ void main() {
           ],
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text("E-MAIL"), findsNothing);
       expect(_switchButton, findsOneWidget);
@@ -409,7 +418,7 @@ void main() {
     testWidgets("flag on: a single option has no Switch button", (
       tester,
     ) async {
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         app(
           _Flag.on,
@@ -423,6 +432,7 @@ void main() {
           ],
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text("Jansen"), findsOneWidget);
       expect(_switchButton, findsNothing);
@@ -432,7 +442,8 @@ void main() {
     testWidgets("flag on: Switch opens the sheet and a tap picks and closes", (
       tester,
     ) async {
-      await pumpAndLoadLocales(tester, app(_Flag.on));
+      await pumpTranslated(tester, app(_Flag.on));
+      await tester.pumpAndSettle();
 
       await tester.tap(_switchButton);
       await tester.pumpAndSettle();
@@ -466,7 +477,8 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      await pumpAndLoadLocales(tester, app(_Flag.on));
+      await pumpTranslated(tester, app(_Flag.on));
+      await tester.pumpAndSettle();
 
       await tester.tap(_switchButton);
       await tester.pumpAndSettle();
@@ -492,7 +504,8 @@ void main() {
     testWidgets("flag on: the sheet highlights the option picked earlier", (
       tester,
     ) async {
-      await pumpAndLoadLocales(tester, app(_Flag.on));
+      await pumpTranslated(tester, app(_Flag.on));
+      await tester.pumpAndSettle();
 
       await tester.tap(_switchButton);
       await tester.pumpAndSettle();
@@ -517,10 +530,11 @@ void main() {
         ownedOptions: [_bundle(_instance("passport", "Passport", "Jansen"))],
         obtainableOptions: [idCard],
       );
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         app(_Flag.on, choices: [choice], obtained: obtained),
       );
+      await tester.pumpAndSettle();
 
       await tester.tap(_switchButton);
       await tester.pumpAndSettle();
@@ -536,13 +550,14 @@ void main() {
     });
 
     testWidgets("flag on: adding optional data uses the sheet", (tester) async {
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         app(
           _Flag.on,
           choices: [_passportOrIdCard(optionality: _Optionality.optional)],
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text("Jansen"), findsNothing);
 
@@ -577,10 +592,8 @@ void main() {
           ],
         ),
       );
-      await pumpAndLoadLocales(
-        tester,
-        app(_Flag.on, sessions: sessions.stream),
-      );
+      await pumpTranslated(tester, app(_Flag.on, sessions: sessions.stream));
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text("Add optional data"));
       await tester.pumpAndSettle();
@@ -620,7 +633,8 @@ void main() {
     });
 
     testWidgets("flag off: Change choice opens the old screen", (tester) async {
-      await pumpAndLoadLocales(tester, app(_Flag.off));
+      await pumpTranslated(tester, app(_Flag.off));
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text("Change choice"));
       await tester.pumpAndSettle();
