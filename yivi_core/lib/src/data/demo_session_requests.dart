@@ -5,6 +5,12 @@ import "package:collection/collection.dart";
 
 import "../models/irma_configuration.dart";
 
+/// The demo IRMA server the test flows run on (see `createTestSession`).
+const demoServerHost = "is.demo.staging.yivi.app";
+
+/// The demo scheme's BSN, which counts as sensitive.
+const demoBsnAttributeId = "irma-demo.gemeente.personalData.bsn";
+
 /// The demo credentials the test flows in the debug menu use. Their sessions
 /// run on the demo IRMA server (see `createTestSession`), which knows the
 /// official irma-demo scheme, so these all come from there and all have an
@@ -60,6 +66,17 @@ class DemoSessionRequests {
       for (final id in credentialIds)
         [
           [_firstAttribute(id)],
+        ],
+    ],
+  });
+
+  /// Asks for each of [attributeIds] (`<credential id>.<attribute id>`).
+  String disclosureOfAttributes(List<String> attributeIds) => jsonEncode({
+    "@context": "https://irma.app/ld/request/disclosure/v2",
+    "disclose": [
+      for (final id in attributeIds)
+        [
+          [id],
         ],
     ],
   });

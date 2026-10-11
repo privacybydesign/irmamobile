@@ -52,6 +52,18 @@ void main() {
     ]);
   });
 
+  test("a disclosure of attributes asks for each of them on its own", () {
+    final request = jsonDecode(
+      _requests().disclosureOfAttributes([demoBsnAttributeId]),
+    );
+
+    expect(request["disclose"], [
+      [
+        ["irma-demo.gemeente.personalData.bsn"],
+      ],
+    ]);
+  });
+
   test("a choice asks for one of the credentials", () {
     final request = jsonDecode(_requests().choice([_fullName, _studentCard]));
 
