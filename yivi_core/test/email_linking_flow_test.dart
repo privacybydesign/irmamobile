@@ -594,6 +594,38 @@ void main() {
       expect(issuerApi.verified, isEmpty);
     });
 
+    testWidgets("without an address, fills in the code for the address the "
+        "user typed and continues on its own", (tester) async {
+      await pumpApp(tester);
+      await openLinkingFlow(tester);
+      await sendEmailTo(tester, "jan@example.com");
+
+      container
+          .read(emailLinkingProvider.notifier)
+          .receiveLink(EmailCodePointer(code: "XYZ789"));
+      await settle(tester);
+
+      expect(find.text("Code filled in from the link"), findsOneWidget);
+      expect(issuerApi.verified, [(email: "jan@example.com", code: "XYZ789")]);
+      expect(container.read(emailLinkingProvider).link, isNull);
+    });
+
+    testWidgets("without an address, opens the flow at the address when it "
+        "was closed", (tester) async {
+      await pumpApp(tester);
+      final context = tester.element(find.text("home"));
+
+      handlePointer(context, EmailCodePointer(code: "XYZ789"));
+      await settle(tester);
+      await settle(tester);
+
+      expect(find.byType(EmailIssuanceScreen), findsOneWidget);
+      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("Enter the code"), findsNothing);
+      expect(issuerApi.verified, isEmpty);
+      expect(container.read(emailLinkingProvider).link, isNull);
+    });
+
     testWidgets("is applied once when the flow is already open", (
       tester,
     ) async {

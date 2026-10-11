@@ -112,8 +112,11 @@ enum EmailLinkHandling {
   /// Fill in the code and wait for a tap on "Code controleren".
   fillIn,
 
-  /// Fill in the code and send it. Only for a link for the address the user
-  /// asked a code for: anyone can send a link with their own address and code.
+  /// Fill in the code and send it. Only while the user waits for a code for
+  /// an address they typed, and the link names no other address: anyone can
+  /// send a link with their own address and code. A link without an address
+  /// is checked against the typed one, so a code meant for another address
+  /// fails.
   submit,
 }
 
@@ -169,13 +172,14 @@ class EmailLinking extends Notifier<EmailLinkingState> {
     );
   }
 
-  bool _codeRequestedFor(String email) {
+  bool _codeRequestedFor(String? email) {
     if (!ref.exists(emailIssuanceProvider)) return false;
 
     final flow = ref.read(emailIssuanceProvider);
     return flow.stage == EmailIssuanceStage.enteringVerificationCode &&
         flow.emailSource == EmailSource.typed &&
-        flow.email.trim().toLowerCase() == email.toLowerCase();
+        (email == null ||
+            flow.email.trim().toLowerCase() == email.toLowerCase());
   }
 
   /// Hands the pending link to the caller exactly once.

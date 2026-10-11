@@ -58,12 +58,20 @@ void main() {
     );
   });
 
+  test("reads a link with only the code, as the e-mail issuer sends it", () {
+    final pointer = EmailCodePointer.tryParse(
+      "https://open.yivi.app/-/email#code=ABC123",
+    );
+
+    expect(pointer?.code, "ABC123");
+    expect(pointer?.email, isNull);
+  });
+
   test("rejects a link without a usable code or address", () {
     const base = "https://open.yivi.app/-/email";
 
     expect(EmailCodePointer.tryParse(base), isNull);
     expect(EmailCodePointer.tryParse("$base#email=jan%40example.com"), isNull);
-    expect(EmailCodePointer.tryParse("$base#code=ABC123"), isNull);
     expect(
       EmailCodePointer.tryParse("$base#code=ABC12&email=jan%40example.com"),
       isNull,

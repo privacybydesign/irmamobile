@@ -37,13 +37,23 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
 
   /// The link in the e-mail skips sending, so go straight to the code screen,
   /// which then picks the link up and fills in the code.
+  ///
+  /// A link without an address needs the address the user typed. Before one
+  /// is typed, the code cannot be checked, so the link is dropped and the flow
+  /// starts at the address.
   void _showCodeScreenFor(EmailCodePointer? link) {
     if (link == null || widget.purpose != EmailIssuancePurpose.linkKeyshare) {
       return;
     }
-    ref
-        .read(emailIssuanceProvider.notifier)
-        .startVerification(email: link.email);
+    final email = link.email;
+    if (email == null) {
+      final stage = ref.read(emailIssuanceProvider).stage;
+      if (stage == .enteringEmail) {
+        ref.read(emailLinkingProvider.notifier).takeLink();
+      }
+      return;
+    }
+    ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
   }
 
   @override

@@ -117,9 +117,10 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     final link = ref.read(emailLinkingProvider.notifier).takeLink();
     if (link == null) return;
 
-    ref
-        .read(emailIssuanceProvider.notifier)
-        .startVerification(email: link.email);
+    // Without an address the code is for the address of this screen.
+    if (link.email case final email?) {
+      ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
+    }
     _textController.text = link.code;
     setState(() {
       _codeComplete = true;
