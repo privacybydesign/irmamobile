@@ -1,9 +1,11 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
 import "../chevron.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
+import "models/credential_card_status.dart";
 
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
@@ -27,12 +29,18 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   /// dimmed appearance alone.
   final String? disabledHint;
 
+  /// [ExpireState.expired] fades the card, puts a badge on the logo and shows
+  /// "Expired" in place of the issuer name. The other states look like
+  /// [ExpireState.notExpired].
+  final ExpireState expireState;
+
   const SchemalessYiviCredentialTypeCard({
     this.onTap,
     this.checked = false,
     this.trailingIcon,
     this.disabled = false,
     this.disabledHint,
+    this.expireState = ExpireState.notExpired,
     this.credentialImagePath,
     this.credentialImageBase64,
     required this.credentialName,
@@ -45,6 +53,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     const logoContainerSize = 52.0;
+    final bool expired = expireState == ExpireState.expired;
 
     final bool hasImage =
         credentialImagePath != null || credentialImageBase64 != null;
@@ -86,17 +95,27 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     // Greyed-out credentials dim the avatar and trailing icon for a clear
     // "unavailable" look, while the title/issuer text keeps an AA-compliant
     // muted colour (not a blanket opacity, which would drop the text below the
-    // 4.5:1 contrast minimum on a still-interactive control).
-    if (disabled) {
+    // 4.5:1 contrast minimum on a still-interactive control). Expired
+    // credentials are faded the same way.
+    final bool faded = disabled || expired;
+    if (faded) {
       avatar = Opacity(opacity: 0.4, child: avatar);
     }
-    final Color titleColor = disabled ? theme.neutralDark : theme.dark;
-    final Color issuerColor = disabled
+    // The badge sits outside the Opacity so it keeps its full colour.
+    if (expired) {
+      avatar = Stack(
+        alignment: Alignment.topRight,
+        children: [
+          avatar,
+          Icon(Icons.error, color: theme.error, size: logoContainerSize * 0.35),
+        ],
+      );
+    }
+    final Color titleColor = faded ? theme.neutralDark : theme.dark;
+    final Color issuerColor = faded
         ? theme.neutralDark
         : theme.neutralExtraDark;
-    final Color trailingColor = disabled
-        ? theme.neutral
-        : theme.neutralExtraDark;
+    final Color trailingColor = faded ? theme.neutral : theme.neutralExtraDark;
 
     return Semantics(
       enabled: !disabled,
@@ -126,22 +145,38 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                   ExcludeSemantics(child: avatar),
                   SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          credentialName,
-                          style: theme.themeData.textTheme.headlineMedium!
-                              .copyWith(fontSize: 16, color: titleColor),
-                        ),
-                        Text(
-                          issuerName,
-                          style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                            fontSize: 14,
-                            color: issuerColor,
+                    child: Semantics(
+                      label: expired
+                          ? FlutterI18n.translate(
+                              context,
+                              "data_tab.expired_label",
+                              translationParams: {"name": credentialName},
+                            )
+                          : null,
+                      excludeSemantics: expired,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            credentialName,
+                            style: theme.themeData.textTheme.headlineMedium!
+                                .copyWith(fontSize: 16, color: titleColor),
                           ),
-                        ),
-                      ],
+                          Text(
+                            expired
+                                ? FlutterI18n.translate(
+                                    context,
+                                    "credential.expired",
+                                  )
+                                : issuerName,
+                            style: theme.themeData.textTheme.bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: expired ? theme.error : issuerColor,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(width: theme.smallSpacing),
