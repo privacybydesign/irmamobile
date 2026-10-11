@@ -79,6 +79,34 @@ class _ScriptedReader extends DocumentReader<PassportData> {
   }
 }
 
+/// A reader that reads the passport as soon as it is started.
+class _SucceedingReader extends _ScriptedReader {
+  @override
+  Future<(PassportData, RawDocumentData)?> readDocument({
+    required IosNfcMessageMapper iosNfcMessages,
+    NonceAndSessionId? activeAuthenticationParams,
+  }) async {
+    readCount += 1;
+    state = DocumentReaderSuccess();
+    return (_passportData(), RawDocumentData(dataGroups: const {}, efSod: ""));
+  }
+}
+
+/// A DG1 blob the real parser accepts, the fixture the integration helpers use.
+PassportData _passportData() {
+  const dg1Hex =
+      "615D5F1F5A503C4E4C44584938353933354638363939393939393939303C3C3C3C3C"
+      "3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E"
+      "3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345";
+  return PassportData(
+    mrz: PassportParser().parseDG1(dg1Hex.parseHex())!.mrz,
+    photoImageData: Uint8List(0),
+    photoImageType: .jpeg2000,
+    photoImageWidth: 0,
+    photoImageHeight: 0,
+  );
+}
+
 class _StubIssuer implements PassportIssuer {
   @override
   Future<StartValidationResult> startSessionAtPassportIssuer() async =>
@@ -91,6 +119,21 @@ class _StubIssuer implements PassportIssuer {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Counts the issuance sessions it is asked to start. Each then fails, which
+/// ends the flow on the screen's error state.
+class _RecordingIssuer extends _StubIssuer {
+  int issuances = 0;
+
+  @override
+  Future<IrmaSessionPointer> startIrmaIssuanceSession(
+    RawDocumentData documentDataResult,
+    DocumentType docType,
+  ) async {
+    issuances += 1;
+    throw Exception("issuance stops here in this test");
+  }
 }
 
 class _RecordingSettingsOpener implements NfcSettingsOpener {
@@ -171,6 +214,7 @@ void main() {
     WidgetTester tester, {
     _Flag flag = .on,
     ScannedMrz? mrz,
+    PassportIssuer? issuer,
   }) async {
     await pumpTranslated(
       tester,
@@ -178,7 +222,7 @@ void main() {
         overrides: [
           passportReaderProvider.overrideWith2((mrz) => reader),
           idCardReaderProvider.overrideWith2((mrz) => reader),
-          passportIssuerProvider.overrideWithValue(_StubIssuer()),
+          passportIssuerProvider.overrideWithValue(issuer ?? _StubIssuer()),
           featureFlagProvider(
             FeatureFlag.documentFlowV2,
           ).overrideWith((ref) => Stream.value(flag == .on)),
@@ -319,6 +363,25 @@ void main() {
   });
 
   group("done", () {
+    testWidgets("the check stays up until it has drawn, then the flow moves "
+        "on", (tester) async {
+      final issuer = _RecordingIssuer();
+      reader = _SucceedingReader();
+      await pumpScreen(tester, issuer: issuer);
+
+      await tester.tap(primaryButton());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(find.byType(NfcDoneCheck), findsOneWidget);
+      expect(issuer.issuances, 0);
+
+      await tester.pump(NfcDoneCheck.holdDuration);
+      await tester.pump();
+
+      expect(issuer.issuances, 1);
+    }, variant: _iosOnly);
+
     testWidgets("the ring becomes a check, with no button left", (
       tester,
     ) async {

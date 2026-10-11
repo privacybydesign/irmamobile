@@ -203,6 +203,10 @@ class NfcDoneCheck extends StatelessWidget {
 
   static const _drawDuration = Duration(milliseconds: 500);
 
+  /// How long the done stage stays up before the flow moves on: the check
+  /// draws itself, then stays a moment, so the user sees the read succeeded.
+  static const holdDuration = Duration(milliseconds: 1200);
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);

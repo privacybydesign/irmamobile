@@ -118,6 +118,12 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
+/// How long the done stage stays up after a successful read with
+/// FeatureFlag.documentFlowV2 on. Tests that do not look at it set it to zero.
+final nfcDoneHoldProvider = Provider<Duration>(
+  (ref) => NfcDoneCheck.holdDuration,
+);
+
 /// What the document flow V2 screen shows. Only states without an error or a
 /// cancel have one; those keep their own layout.
 enum _NfcStage { waiting, reading, done, nfcOff }
@@ -290,6 +296,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       );
 
       if (result != null) {
+        // G6: the check draws itself and stays a moment before the flow moves
+        // on to the face check or issuance.
+        if (mounted && _documentFlowV2) {
+          await Future<void>.delayed(ref.read(nfcDoneHoldProvider));
+          if (!mounted) return;
+        }
         final (pdr, rawDocData) = result;
         var toIssue = rawDocData;
         final faceVerification = faceService != null;

@@ -226,6 +226,8 @@ void main() {
             }),
             passportIssuerProvider.overrideWithValue(_AnnouncingIssuer()),
             regulaFaceServiceProvider.overrideWithValue(_IdleFaceService()),
+            // The done stage's hold has its own test.
+            nfcDoneHoldProvider.overrideWithValue(Duration.zero),
             featureFlagProvider(
               FeatureFlag.documentFlowV2,
             ).overrideWith((ref) => Stream.value(flag == .on)),
