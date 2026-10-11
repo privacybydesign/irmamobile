@@ -3,7 +3,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../data/feature_flags.dart";
 import "../../../../providers/email_issuance_provider.dart";
+import "../../../../providers/feature_flag_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -180,6 +182,8 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     }
 
     final theme = IrmaTheme.of(context);
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
 
@@ -189,6 +193,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
+        backgroundColor: formFieldsV2 ? theme.fieldPageBackground : null,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
           titleTranslationKey: titleKey,

@@ -137,6 +137,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
 
     return SessionScaffold(
       appBarTitle: "issuance.pre-authorized_code.tx_code_screen.title",
+      backgroundColor: formFieldsV2 ? theme.fieldPageBackground : null,
       onDismiss: widget.onDismiss,
       bottomNavigationBar: _buildBottomBar(context, length),
       body: SafeArea(

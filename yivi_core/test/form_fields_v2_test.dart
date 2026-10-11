@@ -163,6 +163,10 @@ void main() {
     );
   }
 
+  /// The background the screen sets on its scaffold, if any.
+  Color? pageColor(WidgetTester tester) =>
+      tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor;
+
   Rect decoratorRect(WidgetTester tester) =>
       tester.getRect(find.byType(InputDecorator).first);
 
@@ -226,7 +230,9 @@ void main() {
       expect(shot.at(rect.left + 12, rect.top + 0.5), theme.light);
     });
 
-    testWidgets("turns blue when focused", (tester) async {
+    testWidgets("stays white when focused, with a blue line and label", (
+      tester,
+    ) async {
       await pumpField(tester, onPage(textField()), fields: _Fields.v2);
 
       await tester.tap(find.byType(TextFormField));
@@ -234,7 +240,7 @@ void main() {
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
 
-      expect(shot.at(rect.left + 20, rect.top + 4), theme.fieldFocusedSurface);
+      expect(shot.at(rect.left + 20, rect.top + 4), theme.light);
       expect(shot.at(rect.center.dx, rect.bottom - 1), theme.link);
       expect(labelColor(tester, "Label"), theme.link);
     });
@@ -798,6 +804,17 @@ void main() {
 
     final codeField = find.byKey(const Key("openid4vci_tx_code_input_field"));
 
+    testWidgets("is on the blue page with the flag on", (tester) async {
+      await pumpField(
+        tester,
+        txCodeScreen(),
+        fields: _Fields.v2,
+        overrides: [session()],
+      );
+
+      expect(pageColor(tester), theme.fieldPageBackground);
+    });
+
     testWidgets("shows the wrong code error in the field with the flag on", (
       tester,
     ) async {
@@ -872,6 +889,18 @@ void main() {
       expect(decoration.filled, isTrue);
     });
 
+    testWidgets("puts the white field on the blue page with the flag on", (
+      tester,
+    ) async {
+      await pumpField(tester, const EnterEmailScreen(), fields: _Fields.v2);
+      final shot = await screenshot(tester);
+      final rect = decoratorRect(tester);
+
+      // The screen focuses the field when it opens; it stays white.
+      expect(pageColor(tester), theme.fieldPageBackground);
+      expect(shot.at(rect.left + 20, rect.top + 4), theme.light);
+    });
+
     testWidgets("shows only its hint with the flag off", (tester) async {
       await pumpField(tester, const EnterEmailScreen(), fields: _Fields.legacy);
 
@@ -879,6 +908,7 @@ void main() {
       expect(decoration.labelText, isNull);
       expect(decoration.hint, isNotNull);
       expect(decoration.filled, isNot(true));
+      expect(pageColor(tester), isNull);
     });
   });
 
@@ -908,7 +938,7 @@ void main() {
       expect(shot.at(rect.center.dx, rect.bottom - 1), theme.neutralDark);
     });
 
-    testWidgets("turns blue when focused", (tester) async {
+    testWidgets("stays white on the blue page when focused", (tester) async {
       await pumpField(tester, const EnterPhoneScreen(), fields: _Fields.v2);
 
       await tester.tap(find.byKey(const Key("phone_number_input_field")));
@@ -916,7 +946,8 @@ void main() {
       final shot = await screenshot(tester);
       final rect = tester.getRect(find.byType(core.InputDecorator).first);
 
-      expect(shot.at(rect.center.dx, rect.top + 4), theme.fieldFocusedSurface);
+      expect(pageColor(tester), theme.fieldPageBackground);
+      expect(shot.at(rect.center.dx, rect.top + 4), theme.light);
       expect(shot.at(rect.center.dx, rect.bottom - 1), theme.link);
     });
 

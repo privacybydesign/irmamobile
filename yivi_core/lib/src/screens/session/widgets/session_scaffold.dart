@@ -10,12 +10,16 @@ class SessionScaffold extends StatelessWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onPrevious;
 
+  /// The grey-white of the session screens unless given.
+  final Color? backgroundColor;
+
   const SessionScaffold({
     Key? key,
     this.onDismiss,
     this.onPrevious,
     this.bottomNavigationBar,
     this.body,
+    this.backgroundColor,
     required this.appBarTitle,
   });
 
@@ -24,7 +28,7 @@ class SessionScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: backgroundColor ?? theme.backgroundSecondary,
       bottomNavigationBar: bottomNavigationBar,
       body: body,
       appBar: IrmaAppBar(

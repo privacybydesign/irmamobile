@@ -52,8 +52,10 @@ class IrmaThemeData {
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
-  // Form fields V2
-  final Color fieldFocusedSurface = const Color(0xFFF4F8FC);
+  // Form fields V2. A single field is white on the blue page
+  // ([fieldPageBackground]), also while focused: the line and the label turn
+  // blue instead.
+  Color get fieldPageBackground => backgroundTertiary;
   final Color fieldDisabledSurface = const Color(0xFFF2F0EE);
   final BorderRadius fieldBorderRadius = const BorderRadius.vertical(
     top: Radius.circular(8),
@@ -279,7 +281,6 @@ class IrmaThemeData {
       lineColor: neutralDark,
       fillColor: WidgetStateColor.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) return fieldDisabledSurface;
-        if (states.contains(WidgetState.focused)) return fieldFocusedSurface;
         return light;
       }),
     );

@@ -201,9 +201,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         if (states.contains(WidgetState.disabled)) {
           return theme.fieldDisabledSurface;
         }
-        if (states.contains(WidgetState.focused)) {
-          return theme.fieldFocusedSurface;
-        }
         return theme.light;
       }),
       labelText: FlutterI18n.translate(
@@ -267,6 +264,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
+        backgroundColor: formFieldsV2 ? theme.fieldPageBackground : null,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
           titleTranslationKey: "sms_issuance.enter_phone.title",
