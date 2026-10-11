@@ -21,11 +21,13 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
 import "package:yivi_core/src/screens/session/widgets/share_credential_card.dart";
 import "package:yivi_core/src/screens/session/widgets/share_trust_bar.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/bold_markers_text.dart";
+import "package:yivi_core/src/widgets/chevron.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -308,7 +310,7 @@ void main() {
       expect(_issuerBand, findsNWidgets(2));
     });
 
-    testWidgets("a tap on the issuer band opens the credential details", (
+    testWidgets("a credential that cannot be changed has a plain issuer band", (
       tester,
     ) async {
       final opened = <String>[];
@@ -322,10 +324,41 @@ void main() {
         ),
       );
 
+      expect(
+        find.descendant(of: _issuerBand, matching: find.byType(Chevron)),
+        findsNothing,
+      );
       await tester.tap(_issuerBand);
       await tester.pumpAndSettle();
 
-      expect(opened, ["pbdf.sidn-pbdf.email"]);
+      expect(opened, isEmpty);
+      expect(find.byType(DisclosureMakeChoiceScreen), findsNothing);
+    });
+
+    testWidgets("the values sit on a white card with rounded corners and a "
+        "shadow, above the issuer band", (tester) async {
+      await pumpOverview(
+        tester,
+        session: _session(
+          choices: [
+            _choice([_instance()]),
+          ],
+        ),
+      );
+
+      final values = tester.widget<DecoratedBox>(
+        find.byKey(const Key("share_card_values")),
+      );
+      final decoration = values.decoration as BoxDecoration;
+      final theme = IrmaTheme.of(tester.element(_issuerBand));
+      expect(decoration.color, theme.light);
+      expect(decoration.borderRadius, theme.borderRadius);
+      expect(decoration.boxShadow, isNotEmpty);
+      expect(decoration.boxShadow!.first.offset.dy, greaterThan(0));
+      expect(
+        tester.getRect(_issuerBand).top,
+        tester.getRect(find.byKey(const Key("share_card_values"))).bottom,
+      );
     });
 
     testWidgets("a municipality credential names the municipality", (
@@ -395,9 +428,8 @@ void main() {
       expect(tester.widget<YiviThemedButton>(_shareButton).onPressed, isNull);
     });
 
-    testWidgets("a choice between credentials keeps the change button", (
-      tester,
-    ) async {
+    testWidgets("a choice between credentials is changed from the issuer "
+        "band, without a separate button", (tester) async {
       await pumpOverview(
         tester,
         session: _session(
@@ -407,7 +439,16 @@ void main() {
         ),
       );
 
-      expect(find.text("Change choice"), findsOneWidget);
+      expect(find.text("Change choice"), findsNothing);
+      expect(
+        find.descendant(of: _issuerBand, matching: find.byType(Chevron)),
+        findsOneWidget,
+      );
+
+      await tester.tap(_issuerBand);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
     });
 
     testWidgets("optional data is added with the existing action card", (

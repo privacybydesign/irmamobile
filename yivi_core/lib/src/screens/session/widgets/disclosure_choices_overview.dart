@@ -160,12 +160,6 @@ class _DisclosureChoicesOverviewState
     if (confirmed && mounted) widget.onChoicesConfirmed(choices);
   }
 
-  void _showCredentialDetails(SelectableCredentialInstance instance) {
-    context.pushCredentialsDetailsScreen(
-      CredentialsDetailsRouteParams(credentialTypeId: instance.credentialId),
-    );
-  }
-
   /// Returns true if any credential in the selected bundle is expired, revoked,
   /// or has zero remaining batch instances. Disclosing a bundle is atomic — if
   /// any credential is unsharable, the whole bundle is.
@@ -332,7 +326,6 @@ class _DisclosureChoicesOverviewState
       onAddOptional: unaddedOptional.isEmpty
           ? null
           : () => _onChangeChoice(unaddedOptional.first.$1, addOptional: true),
-      onShowDetails: _showCredentialDetails,
       onShare: _hasUnsharableSelection() ? null : _onShare,
       onDismiss: widget.onDismiss,
       progressIndicator: widget.hasIssueDuringDisclosure

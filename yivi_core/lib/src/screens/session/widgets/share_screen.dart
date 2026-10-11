@@ -48,7 +48,6 @@ class ShareScreen extends StatelessWidget {
   final List<ShareChoice> requiredChoices;
   final List<ShareChoice> optionalChoices;
   final VoidCallback? onAddOptional;
-  final ValueChanged<SelectableCredentialInstance> onShowDetails;
   final VoidCallback? onShare;
   final VoidCallback onDismiss;
   final Widget? progressIndicator;
@@ -59,7 +58,6 @@ class ShareScreen extends StatelessWidget {
     required this.requiredChoices,
     required this.optionalChoices,
     required this.onAddOptional,
-    required this.onShowDetails,
     required this.onShare,
     required this.onDismiss,
     this.progressIndicator,
@@ -89,7 +87,7 @@ class ShareScreen extends StatelessWidget {
                 SizedBox(height: theme.defaultSpacing),
               ],
               for (final choice in requiredChoices)
-                _ShareChoiceEntry(choice: choice, onShowDetails: onShowDetails),
+                _ShareChoiceEntry(choice: choice),
               if (optionalChoices.isNotEmpty) ...[
                 TranslatedText(
                   "disclosure_permission.optional_data",
@@ -97,10 +95,7 @@ class ShareScreen extends StatelessWidget {
                 ),
                 SizedBox(height: theme.smallSpacing),
                 for (final choice in optionalChoices)
-                  _ShareChoiceEntry(
-                    choice: choice,
-                    onShowDetails: onShowDetails,
-                  ),
+                  _ShareChoiceEntry(choice: choice),
               ],
               if (nothingToShare)
                 TranslatedText(
@@ -139,9 +134,8 @@ class ShareScreen extends StatelessWidget {
 
 class _ShareChoiceEntry extends StatelessWidget {
   final ShareChoice choice;
-  final ValueChanged<SelectableCredentialInstance> onShowDetails;
 
-  const _ShareChoiceEntry({required this.choice, required this.onShowDetails});
+  const _ShareChoiceEntry({required this.choice});
 
   @override
   Widget build(BuildContext context) {
@@ -157,21 +151,11 @@ class _ShareChoiceEntry extends StatelessWidget {
           crossAxisAlignment: .stretch,
           spacing: theme.smallSpacing,
           children: [
-            if (choice.onChange != null)
-              Align(
-                alignment: Alignment.centerRight,
-                child: YiviThemedButton(
-                  label: "disclosure_permission.change_choice",
-                  style: .outlined,
-                  size: .small,
-                  isTransparent: true,
-                  onPressed: choice.onChange,
-                ),
-              ),
+            // The issuer band of each card opens the choice, when there is one.
             for (final (index, credential) in credentials.indexed)
               ShareCredentialCard(
                 instance: credential,
-                onShowDetails: () => onShowDetails(credential),
+                onChangeChoice: choice.onChange,
                 trailing: index == 0 && choice.onRemove != null
                     ? IrmaIconButton(
                         key: const Key("remove_optional_data_button"),
