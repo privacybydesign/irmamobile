@@ -226,6 +226,28 @@ void main() {
   }
 
   group("share screen with the flag on", () {
+    testWidgets("is on the light blue page", (tester) async {
+      await pumpOverview(
+        tester,
+        session: _session(
+          choices: [
+            _choice([_instance()]),
+          ],
+        ),
+      );
+
+      final scaffold = tester.widget<Scaffold>(
+        find.ancestor(
+          of: find.byType(ShareCredentialCard),
+          matching: find.byType(Scaffold),
+        ),
+      );
+      final theme = IrmaTheme.of(
+        tester.element(find.byType(ShareCredentialCard)),
+      );
+      expect(scaffold.backgroundColor, theme.backgroundTertiary);
+    });
+
     testWidgets("has a close button and no app bar", (tester) async {
       await pumpOverview(
         tester,

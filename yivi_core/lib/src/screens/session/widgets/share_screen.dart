@@ -69,7 +69,8 @@ class ShareScreen extends StatelessWidget {
     final nothingToShare = requiredChoices.isEmpty && optionalChoices.isEmpty;
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      // The light blue page of the redesign screens, behind the white cards.
+      backgroundColor: theme.backgroundTertiary,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: .all(theme.defaultSpacing),
