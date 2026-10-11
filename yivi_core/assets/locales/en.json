@@ -321,7 +321,8 @@
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})"
+      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
+      "required": "required"
     },
     "error_reporting": {
       "accept": {
@@ -426,7 +427,22 @@
     "empty": {
       "title": "Obtain your personal data",
       "subtitle": "Tap on the plus icon to obtain your personal data."
+    },
+    "start": {
+      "ready": "Your Yivi app is ready",
+      "title": "How do you want to start?",
+      "website_title": "Did you come from a website on this phone?",
+      "website_text": "Go back to your browser and tap 'Open Yivi app' again.",
+      "qr_title": "Do you see a QR code on a computer?",
+      "qr_text": "Tap Scan QR below."
     }
+  },
+  "back_to_website": {
+    "title": "Your Yivi app is ready. Go back to the website.",
+    "text": "You came here from a website. Go back to your browser and tap 'Open Yivi app' there again. Yivi then opens by itself and continues where you left off.",
+    "sketch_button": "Open Yivi app",
+    "hint": "Not working anymore? Reload the page on the website and try again.",
+    "other": "I want to do something else"
   },
   "issuance": {
     "title": "Add data",

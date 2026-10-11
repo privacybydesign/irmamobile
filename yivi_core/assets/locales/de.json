@@ -321,7 +321,8 @@
       "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
       "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
       "point_3": "Niemand schaut zu, auch Yivi nicht!",
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
+      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
+      "required": "erforderlich"
     },
     "error_reporting": {
       "accept": {
@@ -426,7 +427,22 @@
     "empty": {
       "title": "Holen Sie sich Ihre persönlichen Daten",
       "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
+    },
+    "start": {
+      "ready": "Ihre Yivi-App ist bereit",
+      "title": "Wie möchten Sie beginnen?",
+      "website_title": "Kamen Sie von einer Website auf diesem Telefon?",
+      "website_text": "Gehen Sie zurück zu Ihrem Browser und tippen Sie noch einmal auf 'Yivi-App öffnen'.",
+      "qr_title": "Sehen Sie einen QR-Code auf einem Computer?",
+      "qr_text": "Tippen Sie unten auf QR scannen."
     }
+  },
+  "back_to_website": {
+    "title": "Ihre Yivi-App ist bereit. Gehen Sie zurück zur Website.",
+    "text": "Sie kamen von einer Website hierher. Gehen Sie zurück zu Ihrem Browser und tippen Sie dort noch einmal auf 'Yivi-App öffnen'. Yivi öffnet sich dann automatisch und macht dort weiter, wo Sie waren.",
+    "sketch_button": "Yivi-App öffnen",
+    "hint": "Funktioniert es nicht mehr? Laden Sie die Seite auf der Website neu und versuchen Sie es noch einmal.",
+    "other": "Ich möchte etwas anderes tun"
   },
   "issuance": {
     "title": "Daten hinzufügen",

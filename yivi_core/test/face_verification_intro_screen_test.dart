@@ -6,6 +6,8 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_ver
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
+import "support/pump_translated.dart";
+
 Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
   // TestContext disables the intro animation's repeating ticker so
   // pumpAndSettle does not hang.
@@ -29,7 +31,7 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
 
 void main() {
   testWidgets("shows the guidance tips", (tester) async {
-    await tester.pumpWidget(_wrap(onStart: () {}, onCancel: () {}));
+    await pumpTranslated(tester, _wrap(onStart: () {}, onCancel: () {}));
     await tester.pumpAndSettle();
 
     // Title appears only in the app bar, not duplicated in the body.
@@ -46,7 +48,10 @@ void main() {
 
   testWidgets("start button invokes onStart", (tester) async {
     var started = 0;
-    await tester.pumpWidget(_wrap(onStart: () => started++, onCancel: () {}));
+    await pumpTranslated(
+      tester,
+      _wrap(onStart: () => started++, onCancel: () {}),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key("bottom_bar_primary")));
@@ -57,7 +62,10 @@ void main() {
 
   testWidgets("cancel button invokes onCancel", (tester) async {
     var cancelled = 0;
-    await tester.pumpWidget(_wrap(onStart: () {}, onCancel: () => cancelled++));
+    await pumpTranslated(
+      tester,
+      _wrap(onStart: () {}, onCancel: () => cancelled++),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key("bottom_bar_secondary")));

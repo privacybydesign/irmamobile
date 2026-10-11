@@ -8,6 +8,8 @@ import "package:native_device_orientation/native_device_orientation.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
+import "support/pump_translated.dart";
+
 const _prompt = "Hold your phone upright";
 
 /// Shows a capture screen under the overlay, following [orientations], and
@@ -17,7 +19,8 @@ Future<void> _pump(
   Stream<NativeDeviceOrientation> orientations, {
   MediaQueryData mediaQuery = const MediaQueryData(),
 }) async {
-  await tester.pumpWidget(
+  await pumpTranslated(
+    tester,
     MediaQuery(
       data: mediaQuery,
       child: IrmaTheme(
