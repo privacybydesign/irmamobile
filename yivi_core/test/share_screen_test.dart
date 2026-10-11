@@ -30,7 +30,7 @@ import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
-import "pump_and_load_locales.dart";
+import "support/pump_translated.dart";
 
 const _sessionId = 1;
 const _detailsPath = "/home/credentials_details";
@@ -212,7 +212,7 @@ void main() {
     List<String>? openedDetails,
   }) async {
     _usePhoneScreen(tester);
-    await pumpAndLoadLocales(
+    await pumpTranslated(
       tester,
       _app(
         home: _Overview(confirmed: confirmed, dismissed: dismissed),
@@ -220,6 +220,7 @@ void main() {
         openedDetails: openedDetails,
       ),
     );
+    await tester.pumpAndSettle();
   }
 
   group("share screen with the flag on", () {
@@ -884,7 +885,7 @@ void main() {
       addTearDown(repo.close);
 
       _usePhoneScreen(tester);
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         ProviderScope(
           overrides: [
@@ -912,6 +913,7 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
     }
 
     Iterable<SessionUserInteractionEvent> permissions() => bridge.dispatched
@@ -983,7 +985,7 @@ void main() {
 
   group("BoldMarkersText", () {
     testWidgets("sets the marked words in bold", (tester) async {
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         _app(
           home: const Scaffold(
@@ -995,6 +997,7 @@ void main() {
           overrides: [],
         ),
       );
+      await tester.pumpAndSettle();
 
       final text = tester.widget<Text>(
         find.descendant(
@@ -1014,7 +1017,7 @@ void main() {
     testWidgets("a name with the marker cannot change what is bold", (
       tester,
     ) async {
-      await pumpAndLoadLocales(
+      await pumpTranslated(
         tester,
         _app(
           home: const Scaffold(
@@ -1026,6 +1029,7 @@ void main() {
           overrides: [],
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(
         find.text("AB is known to us.", findRichText: true),
