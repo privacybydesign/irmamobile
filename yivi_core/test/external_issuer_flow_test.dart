@@ -23,7 +23,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_step_credential
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "pump_and_load_locales.dart";
+import "support/pump_translated.dart";
 
 const _websiteCredential = "pbdf.gemeente.personalData";
 const _issueUrl = "https://gemeente.example/start";
@@ -128,7 +128,8 @@ Future<void> _pumpApp(
     ),
   );
 
-  await pumpAndLoadLocales(tester, app);
+  await pumpTranslated(tester, app);
+  await tester.pumpAndSettle();
 }
 
 ExternalIssuerStatus _status(
