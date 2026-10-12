@@ -224,6 +224,7 @@ void main() {
           isSemantics(isButton: true, hasTapAction: true),
         );
       }
+
       expect(_glyph(DataTabGlyph.search), findsOneWidget);
       expect(_glyph(DataTabGlyph.plusCircle), findsOneWidget);
 
@@ -460,7 +461,6 @@ void main() {
       final personal = find.byKey(const Key("category:Personal_header"));
       final contact = find.byKey(const Key("category:Contact_header"));
       expect(tester.getSize(contact).height, 44);
-      // A header lines up with the edge of the cards, 8 above them.
       expect(
         tester.getTopLeft(contact).dx,
         tester.getTopLeft(_card("E-mail")).dx,

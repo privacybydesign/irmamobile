@@ -37,6 +37,9 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
 
   final VoidCallback? onTap;
   final bool checked;
+
+  /// Shown in place of the chevron. The compact layout draws the board's plus
+  /// for any value.
   final IconData? trailingIcon;
 
   /// Whether the credential is shown greyed out (e.g. it requires onboard NFC

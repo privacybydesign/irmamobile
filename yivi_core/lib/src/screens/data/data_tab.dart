@@ -34,7 +34,6 @@ import "empty_data_routes.dart";
 import "widgets/email_link_banner.dart";
 
 const _listFooterHeight = 50.0;
-const _appBarButtonSize = 44.0;
 const _searchIconSize = 24.0;
 const _addIconSize = 26.0;
 const _sectionHeaderHeight = 44.0;
@@ -92,16 +91,16 @@ class _DataTabState extends ConsumerState<DataTab> {
         hasBorder: !redesign,
         actions: redesign
             ? [
-                _AppBarButton(
+                DataTabIconButton(
+                  DataTabGlyph.search,
                   key: const Key("search_button"),
-                  glyph: DataTabGlyph.search,
                   iconSize: _searchIconSize,
                   labelKey: "data_tab.search",
                   onTap: _openSearch,
                 ),
-                _AppBarButton(
+                DataTabIconButton(
+                  DataTabGlyph.plusCircle,
                   key: _addDataButtonKey,
-                  glyph: DataTabGlyph.plusCircle,
                   iconSize: _addIconSize,
                   labelKey: "data_tab.add",
                   onTap: context.pushAddDataScreen,
@@ -153,43 +152,6 @@ class _DataTabState extends ConsumerState<DataTab> {
 
   void _searchQueryChanged(String query) {
     ref.read(credentialsSearchQueryProvider.notifier).set(query);
-  }
-}
-
-class _AppBarButton extends StatelessWidget {
-  const _AppBarButton({
-    super.key,
-    required this.glyph,
-    required this.iconSize,
-    required this.labelKey,
-    required this.onTap,
-  });
-
-  final DataTabGlyph glyph;
-  final double iconSize;
-  final String labelKey;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return Semantics(
-      button: true,
-      label: FlutterI18n.translate(context, labelKey),
-      onTap: onTap,
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox.square(
-          dimension: _appBarButtonSize,
-          child: Center(
-            child: DataTabIcon(glyph, size: iconSize, color: theme.dark),
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -631,12 +593,12 @@ class _SectionedCredentialList extends ConsumerWidget {
                   SliverToBoxAdapter(
                     child: _ProblematicCredentialsSection(problematic),
                   ),
-                for (var i = 0; i < sections.length; i++) ...[
+                for (final (i, section) in sections.indexed) ...[
                   if (i > 0)
                     SliverToBoxAdapter(child: SizedBox(height: sectionGap)),
                   _CredentialSection(
-                    key: ValueKey(sections[i].key),
-                    section: sections[i],
+                    key: ValueKey(section.key),
+                    section: section,
                   ),
                 ],
                 const SliverToBoxAdapter(

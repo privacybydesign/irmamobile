@@ -62,7 +62,15 @@ class SchemalessAddDataScreen extends ConsumerWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: "data.add.title",
         hasBorder: !redesign,
-        leading: redesign ? const _BackButton() : const YiviBackButton(),
+        leading: redesign
+            ? DataTabIconButton(
+                DataTabGlyph.arrowBack,
+                key: const Key("irma_app_bar_leading"),
+                iconSize: _backIconSize,
+                labelKey: "ui.go_back",
+                onTap: () => Navigator.of(context).pop(),
+              )
+            : const YiviBackButton(),
       ),
       body: SingleChildScrollView(
         padding: .all(theme.defaultSpacing),
@@ -160,36 +168,6 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                 ),
               },
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The back arrow of the redesigned screen: black, as on the design boards.
-class _BackButton extends StatelessWidget {
-  const _BackButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    void pop() => Navigator.of(context).pop();
-
-    return Semantics(
-      button: true,
-      label: FlutterI18n.translate(context, "ui.go_back"),
-      onTap: pop,
-      excludeSemantics: true,
-      child: InkWell(
-        key: const Key("irma_app_bar_leading"),
-        onTap: pop,
-        customBorder: const CircleBorder(),
-        child: Center(
-          child: DataTabIcon(
-            DataTabGlyph.arrowBack,
-            size: _backIconSize,
-            color: theme.dark,
           ),
         ),
       ),

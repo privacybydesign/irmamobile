@@ -1,5 +1,11 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
+
+import "../theme/theme.dart";
+
+const _svgNamespace = "http://www.w3.org/2000/svg";
+const _buttonSize = 44.0;
 
 /// The icons of the redesigned data tab and add data screen, drawn as on the
 /// design boards. The shapes use `currentColor`, which [DataTabIcon] sets.
@@ -37,8 +43,7 @@ enum DataTabGlyph {
   final String _shapes;
 
   String get _svg =>
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
-      "$_shapes</svg>";
+      '<svg xmlns="$_svgNamespace" viewBox="0 0 24 24">$_shapes</svg>';
 }
 
 class DataTabIcon extends StatelessWidget {
@@ -60,6 +65,43 @@ class DataTabIcon extends StatelessWidget {
       width: size,
       height: size,
       theme: SvgTheme(currentColor: color),
+    );
+  }
+}
+
+class DataTabIconButton extends StatelessWidget {
+  const DataTabIconButton(
+    this.glyph, {
+    super.key,
+    required this.iconSize,
+    required this.labelKey,
+    required this.onTap,
+  });
+
+  final DataTabGlyph glyph;
+  final double iconSize;
+  final String labelKey;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return Semantics(
+      button: true,
+      label: FlutterI18n.translate(context, labelKey),
+      onTap: onTap,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox.square(
+          dimension: _buttonSize,
+          child: Center(
+            child: DataTabIcon(glyph, size: iconSize, color: theme.dark),
+          ),
+        ),
+      ),
     );
   }
 }
