@@ -21,6 +21,10 @@ import "package:yivi_core/src/widgets/missing_data_button.dart";
 import "missing_data_fixtures.dart";
 
 const _issuanceSessionId = 2;
+const _testAddress = "rosanne@voorbeeld.nl";
+
+// Long enough for the code screen to finish animating in.
+const _codeScreenSettled = Duration(milliseconds: 800);
 
 enum _EmailEntry { fromChecklist, standalone }
 
@@ -59,10 +63,7 @@ Credential _emailCredential() => Credential(
     Attribute(
       claimPath: ["email"],
       displayName: "E-mailadres",
-      value: AttributeValue(
-        type: AttributeType.string,
-        string: "rosanne@voorbeeld.nl",
-      ),
+      value: AttributeValue(type: AttributeType.string, string: _testAddress),
     ),
   ],
   revoked: false,
@@ -184,14 +185,14 @@ void main() {
       );
       harness.container
           .read(emailIssuanceProvider.notifier)
-          .startVerification(email: "rosanne@voorbeeld.nl");
-      await tester.pump(const Duration(milliseconds: 800));
+          .startVerification(email: _testAddress);
+      await tester.pump(_codeScreenSettled);
 
       expect(find.text("Cred email ophalen"), findsOneWidget);
       expect(find.text("Vul de code in"), findsOneWidget);
       expect(
         find.text(
-          "We hebben een e-mail gestuurd naar rosanne@voorbeeld.nl. "
+          "We hebben een e-mail gestuurd naar $_testAddress. "
           "Vul de code uit de e-mail hier in.",
           findRichText: true,
         ),
@@ -226,8 +227,8 @@ void main() {
       );
       harness.container
           .read(emailIssuanceProvider.notifier)
-          .startVerification(email: "rosanne@voorbeeld.nl");
-      await tester.pump(const Duration(milliseconds: 800));
+          .startVerification(email: _testAddress);
+      await tester.pump(_codeScreenSettled);
       final field = find.byKey(
         const Key("email_verification_code_input_field"),
       );
@@ -246,6 +247,7 @@ void main() {
       issuer.release();
       await tester.pump();
       await tester.pump();
+
       await tester.enterText(field, "B" * emailCodeLength);
       await tester.pump();
       await tester.tap(check);
@@ -261,8 +263,8 @@ void main() {
       );
       harness.container
           .read(emailIssuanceProvider.notifier)
-          .startVerification(email: "rosanne@voorbeeld.nl");
-      await tester.pump(const Duration(milliseconds: 800));
+          .startVerification(email: _testAddress);
+      await tester.pump(_codeScreenSettled);
 
       final theme = IrmaThemeData();
       final page = tester.widget<Scaffold>(find.byType(Scaffold).last);
@@ -287,8 +289,8 @@ void main() {
       );
       harness.container
           .read(emailIssuanceProvider.notifier)
-          .startVerification(email: "rosanne@voorbeeld.nl");
-      await tester.pump(const Duration(milliseconds: 800));
+          .startVerification(email: _testAddress);
+      await tester.pump(_codeScreenSettled);
 
       expect(find.text("We hebben je een e-mail gestuurd"), findsOneWidget);
       expect(find.text("Code niet ontvangen?"), findsOneWidget);
@@ -391,7 +393,7 @@ void main() {
       expect(find.text("Cred email"), findsOneWidget);
       expect(find.text("Yivi"), findsOneWidget);
       expect(find.text("E-mailadres"), findsOneWidget);
-      expect(find.text("rosanne@voorbeeld.nl"), findsOneWidget);
+      expect(find.text(_testAddress), findsOneWidget);
       expect(
         find.text("Daarna ga je terug naar de lijst van Test Verifier."),
         findsOneWidget,
