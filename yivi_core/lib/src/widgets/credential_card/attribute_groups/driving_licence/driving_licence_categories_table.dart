@@ -110,15 +110,17 @@ class _DrivingLicenceCategoriesTableState
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: Row(
             children: [
-              Expanded(child: Text(label, style: attributeLabelStyle(theme))),
+              // In the link colour, so it reads as tappable.
+              Expanded(
+                child: Text(
+                  label,
+                  style: attributeLabelStyle(theme).copyWith(color: theme.link),
+                ),
+              ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  Icons.expand_more,
-                  size: 20,
-                  color: theme.neutralDark,
-                ),
+                child: Icon(Icons.expand_more, size: 20, color: theme.link),
               ),
             ],
           ),

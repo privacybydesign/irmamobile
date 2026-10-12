@@ -93,6 +93,12 @@ void main() {
       FontWeight.w400,
       reason: "not bold",
     );
+    final linkColor = IrmaTheme.of(tester.element(summary)).link;
+    expect(tester.widget<Text>(summary).style?.color, linkColor);
+    expect(
+      tester.widget<Icon>(find.byIcon(Icons.expand_more)).color,
+      linkColor,
+    );
     final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
     final tableBox = find.byType(Table);
     expect(
