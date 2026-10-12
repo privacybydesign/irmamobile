@@ -54,6 +54,7 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
         leading: YiviBackButton(
           onTap: onBack,
           semanticsLabelKey: "external_issuer.back_to_list",
+          color: theme.dark,
         ),
         bottom: context.missingDataBand,
       ),
