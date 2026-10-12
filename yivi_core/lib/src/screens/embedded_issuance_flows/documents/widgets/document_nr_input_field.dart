@@ -2,6 +2,10 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../widgets/yivi_text_field.dart";
+
+/// The characters of a document number are spaced out with form fields V2.
+const _letterSpacing = 1.0;
 
 class DocumentNrInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -36,17 +40,9 @@ class DocumentNrInputField extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final baseTextStyle = theme.textTheme.bodyMedium;
 
-    return TextFormField(
-      key: const Key("document_nr_input_field"),
-      controller: controller,
-      keyboardType: .text,
-      textCapitalization: .characters,
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
-      ],
-      decoration: InputDecoration(
+    return YiviTextField(
+      label: labelText,
+      legacyDecoration: InputDecoration(
         hint: Text(
           labelText,
           style: baseTextStyle?.copyWith(
@@ -58,8 +54,21 @@ class DocumentNrInputField extends StatelessWidget {
         floatingLabelAlignment: .start,
         floatingLabelBehavior: .always,
       ),
-      autovalidateMode: .onUserInteraction,
-      validator: (documentNr) => _validateDocumentNr(documentNr, context),
+      builder: (decoration, errorBuilder, style) => TextFormField(
+        key: const Key("document_nr_input_field"),
+        controller: controller,
+        keyboardType: .text,
+        textCapitalization: .characters,
+        cursorColor: theme.themeData.colorScheme.secondary,
+        style: style?.copyWith(letterSpacing: _letterSpacing) ?? baseTextStyle,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
+        ],
+        decoration: decoration,
+        errorBuilder: errorBuilder,
+        autovalidateMode: .onUserInteraction,
+        validator: (documentNr) => _validateDocumentNr(documentNr, context),
+      ),
     );
   }
 }

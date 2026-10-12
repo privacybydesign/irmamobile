@@ -10,6 +10,8 @@ import "package:intl_phone_number_input/src/models/country_list.dart";
 import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../data/feature_flags.dart";
+import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/missing_data_flow.dart";
@@ -178,6 +180,54 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     }
   }
 
+  /// The form fields V2 look of a single field, as the core SDK decoration
+  /// that intl_phone_number_input takes. Mirrors
+  /// [IrmaThemeData.fieldDecorationTheme].
+  core.InputDecoration _fieldDecorationV2(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    core.UnderlineInputBorder line(Color color) {
+      return core.UnderlineInputBorder(
+        borderRadius: theme.fieldBorderRadius,
+        borderSide: BorderSide(color: color, width: theme.fieldLineWidth),
+      );
+    }
+
+    final labelStyle = theme.fieldLabelStyle;
+
+    return core.InputDecoration(
+      filled: true,
+      fillColor: WidgetStateColor.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return theme.fieldDisabledSurface;
+        }
+        return theme.light;
+      }),
+      labelText: FlutterI18n.translate(
+        context,
+        "sms_issuance.enter_phone.phone_label",
+      ),
+      labelStyle: labelStyle,
+      floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return labelStyle.copyWith(color: theme.link);
+        }
+        return labelStyle;
+      }),
+      floatingLabelBehavior: core.FloatingLabelBehavior.always,
+      hintText: FlutterI18n.translate(
+        context,
+        "sms_issuance.enter_phone.phone_hint",
+      ),
+      hintStyle: theme.fieldValueStyle.copyWith(color: theme.neutralDark),
+      contentPadding: theme.fieldContentPadding,
+      border: line(theme.neutralDark),
+      enabledBorder: line(theme.neutralDark),
+      focusedBorder: line(theme.link),
+      disabledBorder: line(theme.neutralLight),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(smsIssuanceProvider);
@@ -202,6 +252,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     return GestureDetector(
       onTap: () {
@@ -209,6 +261,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
+        backgroundColor: formFieldsV2 ? theme.fieldPageBackground : null,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
           titleTranslationKey: "sms_issuance.enter_phone.title",
@@ -243,17 +296,31 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                         children: [
                           Container(
                             key: _phoneFieldPositionKey,
+                            // The shadow of the field. Also there with the
+                            // flag off, so that the field keeps its state when
+                            // the flag value arrives.
+                            decoration: BoxDecoration(
+                              borderRadius: theme.fieldBorderRadius,
+                              boxShadow: formFieldsV2
+                                  ? [theme.fieldShadow]
+                                  : null,
+                            ),
                             child: InternationalPhoneNumberInput(
                               key: const Key("phone_number_input_field"),
+                              textStyle: formFieldsV2
+                                  ? theme.fieldValueStyle
+                                  : null,
                               spaceBetweenSelectorAndTextField:
                                   theme.smallSpacing,
                               focusNode: _focusNode,
-                              inputDecoration: core.InputDecoration(
-                                hint: TranslatedText(
-                                  "sms_issuance.enter_phone.phone_hint",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ),
+                              inputDecoration: formFieldsV2
+                                  ? _fieldDecorationV2(context)
+                                  : core.InputDecoration(
+                                      hint: TranslatedText(
+                                        "sms_issuance.enter_phone.phone_hint",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
                               searchBoxDecoration: core.InputDecoration(
                                 label: TranslatedText(
                                   "sms_issuance.enter_phone.search_label",

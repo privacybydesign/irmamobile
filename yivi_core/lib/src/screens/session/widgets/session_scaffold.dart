@@ -9,6 +9,7 @@ class SessionScaffold extends StatelessWidget {
   final String appBarTitle;
   final VoidCallback? onDismiss;
   final VoidCallback? onPrevious;
+  final Color? backgroundColor;
 
   const SessionScaffold({
     Key? key,
@@ -16,6 +17,7 @@ class SessionScaffold extends StatelessWidget {
     this.onPrevious,
     this.bottomNavigationBar,
     this.body,
+    this.backgroundColor,
     required this.appBarTitle,
   });
 
@@ -24,7 +26,7 @@ class SessionScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: backgroundColor ?? theme.backgroundSecondary,
       bottomNavigationBar: bottomNavigationBar,
       body: body,
       appBar: IrmaAppBar(
