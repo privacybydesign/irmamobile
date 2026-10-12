@@ -54,15 +54,7 @@ class YiviFieldGroup extends ConsumerWidget {
       decoration: BoxDecoration(
         color: formFieldsV2 ? theme.light : null,
         borderRadius: radius,
-        boxShadow: formFieldsV2
-            ? [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  offset: const Offset(0.0, 1.0),
-                  blurRadius: 6.0,
-                ),
-              ]
-            : null,
+        boxShadow: formFieldsV2 ? [theme.fieldGroupShadow] : null,
       ),
       child: ClipRRect(
         borderRadius: radius,

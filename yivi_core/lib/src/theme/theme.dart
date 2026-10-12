@@ -100,6 +100,12 @@ class IrmaThemeData {
     offset: const Offset(0.0, 1.0),
     blurRadius: 3.0,
   );
+  // The shadow of a field group is the one of IrmaCard.
+  late final BoxShadow fieldGroupShadow = BoxShadow(
+    color: fieldShadow.color,
+    offset: fieldShadow.offset,
+    blurRadius: 6.0,
+  );
 
   // Fonts
   final String primaryFontFamily = "Open Sans";
