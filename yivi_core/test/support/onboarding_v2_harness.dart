@@ -57,8 +57,11 @@ Finder findSvg(String name) => find.byWidgetPredicate((widget) {
   return loader is SvgAssetLoader && loader.assetName.endsWith(name);
 });
 
-/// Sizes the test screen like the phone of the design, 390 x 844 logical px.
-void usePhoneScreen(WidgetTester tester, {Size size = const Size(390, 844)}) {
+/// The phone of the design, 390 x 844 logical px.
+const phoneScreen = Size(390, 844);
+
+/// Sizes the test screen like the phone of the design.
+void usePhoneScreen(WidgetTester tester, {Size size = phoneScreen}) {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);

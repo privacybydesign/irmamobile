@@ -18,6 +18,8 @@ import "missing_data_fixtures.dart";
 
 const _issuanceSessionId = 2;
 
+enum _EmailEntry { fromChecklist, standalone }
+
 Credential _emailCredential() => Credential(
   credentialId: "email",
   hash: "hash-email",
@@ -103,10 +105,10 @@ void main() {
 
     Future<MissingDataHarness> openEmailScreen(
       WidgetTester tester, {
-      required bool fromChecklist,
+      required _EmailEntry entry,
     }) async {
       final harness = await MissingDataHarness.pump(tester, router);
-      if (fromChecklist) {
+      if (entry == _EmailEntry.fromChecklist) {
         await collectFor(harness, tester, credentialId: "email");
       }
       router.push("/issue_email");
@@ -115,7 +117,7 @@ void main() {
     }
 
     testWidgets("ask for the address as the design does", (tester) async {
-      await openEmailScreen(tester, fromChecklist: true);
+      await openEmailScreen(tester, entry: _EmailEntry.fromChecklist);
 
       expect(find.text("Cred email ophalen"), findsOneWidget);
       expect(find.text("Wat is je e-mailadres?"), findsOneWidget);
@@ -133,7 +135,7 @@ void main() {
     });
 
     testWidgets("keep today's copy outside the checklist", (tester) async {
-      await openEmailScreen(tester, fromChecklist: false);
+      await openEmailScreen(tester, entry: _EmailEntry.standalone);
 
       expect(find.text("E-mailadres toevoegen"), findsOneWidget);
       expect(find.text("Voer je e-mailadres in"), findsOneWidget);
@@ -143,7 +145,10 @@ void main() {
     testWidgets("ask for the code with a button, as the design does", (
       tester,
     ) async {
-      final harness = await openEmailScreen(tester, fromChecklist: true);
+      final harness = await openEmailScreen(
+        tester,
+        entry: _EmailEntry.fromChecklist,
+      );
       harness.container
           .read(emailIssuanceProvider.notifier)
           .startVerification(email: "rosanne@voorbeeld.nl");
@@ -178,7 +183,10 @@ void main() {
     });
 
     testWidgets("draw the code boxes white on the blue page", (tester) async {
-      final harness = await openEmailScreen(tester, fromChecklist: true);
+      final harness = await openEmailScreen(
+        tester,
+        entry: _EmailEntry.fromChecklist,
+      );
       harness.container
           .read(emailIssuanceProvider.notifier)
           .startVerification(email: "rosanne@voorbeeld.nl");
@@ -201,7 +209,10 @@ void main() {
     testWidgets("keep today's code screen outside the checklist", (
       tester,
     ) async {
-      final harness = await openEmailScreen(tester, fromChecklist: false);
+      final harness = await openEmailScreen(
+        tester,
+        entry: _EmailEntry.standalone,
+      );
       harness.container
           .read(emailIssuanceProvider.notifier)
           .startVerification(email: "rosanne@voorbeeld.nl");

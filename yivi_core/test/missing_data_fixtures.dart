@@ -21,12 +21,21 @@ import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 const testSessionId = 1;
 
-TrustedParty testParty(String name, {bool verified = true}) => TrustedParty(
+enum RequestorTrust { verified, unverified }
+
+enum ChoicesOverview { absent, present }
+
+enum ChecklistFlag { on, off }
+
+TrustedParty testParty(
+  String name, {
+  RequestorTrust trust = RequestorTrust.verified,
+}) => TrustedParty(
   id: name,
   name: name,
   url: null,
   parent: null,
-  verified: verified,
+  verified: trust == RequestorTrust.verified,
 );
 
 CredentialDescriptor testDescriptor(
@@ -72,28 +81,29 @@ Credential testCredential(String id) => Credential(
 
 /// A disclosure session of "Test Verifier" waiting for permission, with
 /// [steps] still to obtain except for the [issued] credentials. With
-/// [withChoices] it also has the overview irmago adds once nothing is missing,
-/// and [wrongCredential] is the credential irmago reports as not matching.
+/// [overview] present it also has the overview irmago adds once nothing is
+/// missing, and [wrongCredential] is the credential irmago reports as not
+/// matching.
 SessionState testSession({
   required List<IssuanceStep> steps,
   Set<String> issued = const {},
   Credential? wrongCredential,
-  bool withChoices = false,
+  ChoicesOverview overview = ChoicesOverview.absent,
   SessionType type = SessionType.disclosure,
-  bool verified = true,
+  RequestorTrust trust = RequestorTrust.verified,
 }) => SessionState(
   id: testSessionId,
   protocol: "irma",
   type: type,
   status: SessionStatus.requestPermission,
-  requestor: testParty("Test Verifier", verified: verified),
+  requestor: testParty("Test Verifier", trust: trust),
   disclosurePlan: DisclosurePlan(
     issueDuringDisclosure: IssueDuringDisclosure(
       steps: steps,
       issuedCredentialIds: {for (final id in issued) id: null},
       wrongCredentialIssued: wrongCredential,
     ),
-    disclosureChoicesOverview: withChoices
+    disclosureChoicesOverview: overview == ChoicesOverview.present
         ? [
             for (final step in steps)
               DisclosurePickOne(
@@ -130,7 +140,7 @@ class MissingDataHarness {
   static Future<MissingDataHarness> pump(
     WidgetTester tester,
     GoRouter router, {
-    bool flagOn = true,
+    ChecklistFlag flag = ChecklistFlag.on,
   }) async {
     final bridge = _TestBridge();
 
@@ -143,7 +153,10 @@ class MissingDataHarness {
       );
       await prefs.clearAll();
       await prefs.setCompletedDisclosurePermissionIntro(true);
-      await prefs.setFeatureFlag(FeatureFlag.missingDataChecklist, flagOn);
+      await prefs.setFeatureFlag(
+        FeatureFlag.missingDataChecklist,
+        flag == ChecklistFlag.on,
+      );
     });
 
     final repo = IrmaRepository(client: bridge, preferences: prefs);

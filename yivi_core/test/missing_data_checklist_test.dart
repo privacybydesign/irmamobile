@@ -15,6 +15,9 @@ import "package:yivi_core/src/widgets/missing_data_button.dart";
 import "missing_data_fixtures.dart";
 import "support/load_open_sans.dart";
 
+// Long enough for the flash and the growing bar to finish.
+const _animationsDone = Duration(seconds: 2);
+
 IssueDuringDisclosureState _wizard(
   List<IssuanceStep> steps, {
   Set<String> issued = const {},
@@ -61,7 +64,6 @@ void main() {
       expect(checklist.total, 2);
       expect(checklist.presentCount, 0);
       expect(checklist.missingCount, 2);
-      expect(checklist.isComplete, isFalse);
     });
 
     test("marks issued credentials as present", () {
@@ -83,7 +85,7 @@ void main() {
       expect(checklist.missingCount, 1);
     });
 
-    test("is complete when every credential is issued", () {
+    test("has nothing missing when every credential is issued", () {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
@@ -95,7 +97,7 @@ void main() {
         ),
       );
 
-      expect(checklist.isComplete, isTrue);
+      expect(checklist.missingCount, 0);
     });
 
     test("a multi-credential bundle counts every credential", () {
@@ -132,7 +134,7 @@ void main() {
       );
       expect(done.steps.single.isChoice, isFalse);
       expect(done.steps.single.entries.single.credential.credentialId, "phone");
-      expect(done.isComplete, isTrue);
+      expect(done.missingCount, 0);
     });
 
     test("follows the selected option while none is obtained", () {
@@ -179,7 +181,7 @@ void main() {
 
     Future<void> setUpScreen(
       WidgetTester tester, {
-      required bool flagOn,
+      required ChecklistFlag flag,
     }) async {
       router = GoRouter(
         initialLocation: "/session",
@@ -202,7 +204,7 @@ void main() {
           ),
         ],
       );
-      harness = await MissingDataHarness.pump(tester, router, flagOn: flagOn);
+      harness = await MissingDataHarness.pump(tester, router, flag: flag);
     }
 
     Future<void> emit(WidgetTester tester, SessionState session) =>
@@ -222,7 +224,7 @@ void main() {
     testWidgets("lists the missing credentials with what to do about them", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
 
       expect(find.text("Test Verifier vraagt om 2 gegevens"), findsOneWidget);
@@ -242,7 +244,7 @@ void main() {
     testWidgets("puts the header at the top, with its own close button", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
 
       expect(find.byKey(const Key("irma_app_bar")), findsNothing);
@@ -258,7 +260,7 @@ void main() {
     });
 
     testWidgets("asks for the missing credentials in words", (tester) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
 
@@ -271,7 +273,7 @@ void main() {
     testWidgets("keeps sharing disabled and says what is missing", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
 
       expect(find.text("Stap 1 van 2"), findsNothing);
@@ -286,7 +288,7 @@ void main() {
     testWidgets("uses the singular for a single missing credential", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: [twoSteps.first]));
 
       expect(find.text("Test Verifier vraagt om 1 gegeven"), findsOneWidget);
@@ -294,14 +296,17 @@ void main() {
     });
 
     testWidgets("flags an unknown requestor", (tester) async {
-      await setUpScreen(tester, flagOn: true);
-      await emit(tester, testSession(steps: twoSteps, verified: false));
+      await setUpScreen(tester, flag: ChecklistFlag.on);
+      await emit(
+        tester,
+        testSession(steps: twoSteps, trust: RequestorTrust.unverified),
+      );
 
       expect(find.text("Onbekende partij"), findsOneWidget);
     });
 
     testWidgets("counts up and flashes the new row", (tester) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
 
@@ -316,7 +321,7 @@ void main() {
       // Green right after it is added, white again once the flash is over.
       await tester.pump();
       expect(rowColor(), theme.successSurface);
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(_animationsDone);
       expect(rowColor(), theme.light);
     });
 
@@ -327,7 +332,7 @@ void main() {
         tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
       );
 
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
       await tester.pump();
@@ -339,7 +344,7 @@ void main() {
     testWidgets("obtaining starts the flow and clears it on return", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
 
       await tester.tap(find.text("Ophalen").last);
@@ -360,7 +365,7 @@ void main() {
     testWidgets("clears the flow when the list becomes the share screen", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       await tester.tap(find.text("Ophalen").last);
       await tester.pumpAndSettle();
@@ -371,7 +376,7 @@ void main() {
         testSession(
           steps: twoSteps,
           issued: {"email", "phone"},
-          withChoices: true,
+          overview: ChoicesOverview.present,
         ),
       );
       expect(container().read(missingDataFlowProvider), isNotNull);
@@ -385,7 +390,7 @@ void main() {
 
     testWidgets("shows the wrong credential dialog on the list, not on top "
         "of the issuance session", (tester) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       router.push("/session_issue");
       await tester.pumpAndSettle();
@@ -407,7 +412,7 @@ void main() {
     testWidgets("clears the flow when the session screen is removed", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       await tester.tap(find.text("Ophalen").last);
       await tester.pumpAndSettle();
@@ -421,7 +426,7 @@ void main() {
     });
 
     testWidgets("keeps the choice between options", (tester) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(
         tester,
         testSession(
@@ -452,14 +457,14 @@ void main() {
     testWidgets("becomes the share screen when nothing is missing", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
       await emit(
         tester,
         testSession(
           steps: twoSteps,
           issued: {"email", "phone"},
-          withChoices: true,
+          overview: ChoicesOverview.present,
         ),
       );
       await tester.pumpAndSettle();
@@ -482,7 +487,7 @@ void main() {
     testWidgets("lightens the status bar icons over the blue header", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
 
       Brightness? icons() => tester
@@ -503,7 +508,7 @@ void main() {
         testSession(
           steps: twoSteps,
           issued: {"email", "phone"},
-          withChoices: true,
+          overview: ChoicesOverview.present,
         ),
       );
       await tester.pumpAndSettle();
@@ -519,9 +524,9 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.runAsync(loadOpenSans);
 
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(tester, testSession(steps: twoSteps));
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(_animationsDone);
       expect(tester.takeException(), isNull);
       expect(find.text("Ophalen"), findsNWidgets(2));
 
@@ -530,17 +535,17 @@ void main() {
         testSession(
           steps: twoSteps,
           issued: {"email", "phone"},
-          withChoices: true,
+          overview: ChoicesOverview.present,
         ),
       );
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(_animationsDone);
 
       expect(find.text("Alles staat klaar"), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets("keeps today's screens when the flag is off", (tester) async {
-      await setUpScreen(tester, flagOn: false);
+      await setUpScreen(tester, flag: ChecklistFlag.off);
       await emit(tester, testSession(steps: twoSteps));
 
       expect(find.text("Stap 1 van 2"), findsOneWidget);
@@ -551,7 +556,7 @@ void main() {
     testWidgets("keeps today's screens for sessions that are not disclosures", (
       tester,
     ) async {
-      await setUpScreen(tester, flagOn: true);
+      await setUpScreen(tester, flag: ChecklistFlag.on);
       await emit(
         tester,
         testSession(steps: twoSteps, type: SessionType.signature),
