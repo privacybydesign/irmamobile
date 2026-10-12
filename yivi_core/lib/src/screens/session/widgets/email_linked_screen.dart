@@ -31,13 +31,16 @@ class EmailLinkedScreen extends StatelessWidget {
           hasBorder: false,
           leading: null,
           actions: [
-            IrmaIconButton(
-              icon: Icons.close,
-              size: _closeIconSize,
-              padding: const EdgeInsets.all(_closePadding),
-              color: theme.dark,
-              semanticsLabelKey: "accessibility.close",
-              onTap: () => onDismiss(context),
+            Padding(
+              padding: EdgeInsets.only(right: theme.tinySpacing),
+              child: IrmaIconButton(
+                icon: Icons.close,
+                size: _closeIconSize,
+                padding: const EdgeInsets.all(_closePadding),
+                color: theme.dark,
+                semanticsLabelKey: "accessibility.close",
+                onTap: () => onDismiss(context),
+              ),
             ),
           ],
         ),
