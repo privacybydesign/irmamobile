@@ -439,8 +439,8 @@ void main() {
 
       // 12 px radius, and a soft shadow around the card.
       final card = tester
-          .widgetList<Container>(find.byType(Container))
-          .map((container) => container.decoration)
+          .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+          .map((box) => box.decoration)
           .whereType<BoxDecoration>()
           .firstWhere((decoration) => decoration.boxShadow != null);
       expect(card.borderRadius, BorderRadius.circular(12));
@@ -590,6 +590,27 @@ void main() {
             tester.getBottomLeft(find.byKey(first)).dy,
         theme.mediumSpacing,
       );
+    });
+
+    testWidgets("does not rebuild its fields when the flag value arrives", (
+      tester,
+    ) async {
+      await pumpField(
+        tester,
+        onPage(group(first: first, second: second)),
+        fields: _Fields.legacy,
+      );
+      await tester.tap(find.byKey(first));
+      await tester.pumpAndSettle();
+      final focus = FocusManager.instance.primaryFocus;
+      final before = tester.state(find.byKey(first));
+
+      await prefs.setFeatureFlag(FeatureFlag.formFieldsV2, true);
+      await tester.pumpAndSettle();
+
+      expect(tester.state(find.byKey(first)), same(before));
+      expect(focus, isNotNull);
+      expect(FocusManager.instance.primaryFocus, same(focus));
     });
   });
 

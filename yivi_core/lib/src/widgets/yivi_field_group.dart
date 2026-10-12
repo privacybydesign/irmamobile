@@ -32,49 +32,63 @@ class YiviFieldGroup extends ConsumerWidget {
     final formFieldsV2 =
         ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
-    if (!formFieldsV2) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final (i, child) in children.indexed) ...[
-            if (i > 0) SizedBox(height: theme.mediumSpacing),
-            child,
-          ],
-        ],
-      );
+    final radius = formFieldsV2
+        ? BorderRadius.circular(_groupRadius)
+        : BorderRadius.zero;
+    final gap = formFieldsV2 ? 0.0 : theme.mediumSpacing;
+
+    YiviFieldRowPosition? positionOf(int i) {
+      if (!formFieldsV2) {
+        return null;
+      }
+
+      return i == children.length - 1
+          ? YiviFieldRowPosition.last
+          : YiviFieldRowPosition.inner;
     }
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
+    // The same widgets with the flag off and on, so that a field is not
+    // rebuilt from scratch, losing its focus, when the flag value arrives a
+    // frame after the screen opens.
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.light,
-        borderRadius: BorderRadius.circular(_groupRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            offset: const Offset(0.0, 1.0),
-            blurRadius: 6.0,
-          ),
-        ],
+        color: formFieldsV2 ? theme.light : null,
+        borderRadius: radius,
+        boxShadow: formFieldsV2
+            ? [
+                BoxShadow(
+                  color: Colors.grey.shade300,
+                  offset: const Offset(0.0, 1.0),
+                  blurRadius: 6.0,
+                ),
+              ]
+            : null,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final (i, child) in children.indexed)
-            _YiviFieldRowScope(
-              position: i == children.length - 1
-                  ? YiviFieldRowPosition.last
-                  : YiviFieldRowPosition.inner,
-              child: child,
-            ),
-        ],
+      child: ClipRRect(
+        borderRadius: radius,
+        clipBehavior: formFieldsV2 ? Clip.antiAlias : Clip.none,
+        child: Column(
+          crossAxisAlignment: formFieldsV2
+              ? CrossAxisAlignment.stretch
+              : CrossAxisAlignment.start,
+          children: [
+            for (final (i, child) in children.indexed)
+              _YiviFieldRowScope(
+                position: positionOf(i),
+                child: Padding(
+                  padding: EdgeInsets.only(top: i == 0 ? 0 : gap),
+                  child: child,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _YiviFieldRowScope extends InheritedWidget {
-  final YiviFieldRowPosition position;
+  final YiviFieldRowPosition? position;
 
   const _YiviFieldRowScope({required this.position, required super.child});
 
