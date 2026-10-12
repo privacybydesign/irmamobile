@@ -21,10 +21,12 @@ import "package:yivi_core/src/screens/add_data/add_data_details_route.dart";
 import "package:yivi_core/src/screens/add_data/external_issuer_heads_up_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_step_credential_card.dart";
+import "package:yivi_core/src/screens/session/widgets/external_issuer_checklist_row.dart";
 import "package:yivi_core/src/screens/session/widgets/external_issuer_return_notice.dart";
 import "package:yivi_core/src/screens/session/widgets/external_issuer_returned_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/missing_data_checklist_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/missing_data_band.dart";
 import "support/pump_translated.dart";
@@ -32,6 +34,7 @@ import "support/pump_translated.dart";
 const _websiteCredential = "pbdf.gemeente.personalData";
 const _issueUrl = "https://gemeente.example/start";
 const _sessionId = 1;
+const _sourceLine = "Via the website of Gemeente Voorbeeld";
 
 class _ActiveFlow extends MissingDataFlowNotifier {
   @override
@@ -67,30 +70,35 @@ CredentialDescriptor _descriptor({
   issueURL: issueUrl,
 );
 
-SessionState _sessionNeeding(CredentialDescriptor descriptor) => SessionState(
-  id: _sessionId,
-  protocol: "irma",
-  type: SessionType.disclosure,
-  status: SessionStatus.requestPermission,
-  requestor: TrustedParty(
-    id: "requestor",
-    name: "Webshop",
-    url: null,
-    parent: null,
-    verified: true,
-  ),
-  disclosurePlan: DisclosurePlan(
-    issueDuringDisclosure: IssueDuringDisclosure(
-      steps: [
-        IssuanceStep(
-          options: [
-            IssuanceBundle(credentials: [descriptor]),
+SessionState _sessionNeeding(CredentialDescriptor descriptor) =>
+    _sessionNeedingAll([descriptor]);
+
+SessionState _sessionNeedingAll(List<CredentialDescriptor> descriptors) =>
+    SessionState(
+      id: _sessionId,
+      protocol: "irma",
+      type: SessionType.disclosure,
+      status: SessionStatus.requestPermission,
+      requestor: TrustedParty(
+        id: "requestor",
+        name: "Webshop",
+        url: null,
+        parent: null,
+        verified: true,
+      ),
+      disclosurePlan: DisclosurePlan(
+        issueDuringDisclosure: IssueDuringDisclosure(
+          steps: [
+            for (final descriptor in descriptors)
+              IssuanceStep(
+                options: [
+                  IssuanceBundle(credentials: [descriptor]),
+                ],
+              ),
           ],
         ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
 
 class _Env {
   final IrmaPreferences prefs;
@@ -474,7 +482,6 @@ void main() {
   });
 
   group("DisclosureStepCredentialCard", () {
-    const sourceLine = "Via the website of Gemeente Voorbeeld";
     const waitingStatus = "Not received yet";
     const waitingBody =
         "Still busy on the website of Gemeente Voorbeeld? Continue there. "
@@ -503,14 +510,14 @@ void main() {
       await pump(tester, flagOn: false);
 
       expect(find.text("Persoonsgegevens"), findsOne);
-      expect(find.text(sourceLine), findsNothing);
+      expect(find.text(_sourceLine), findsNothing);
       expect(find.text(waitingStatus), findsNothing);
     });
 
     testWidgets("says where the data comes from", (tester) async {
       await pump(tester, flagOn: true);
 
-      expect(find.text(sourceLine), findsOne);
+      expect(find.text(_sourceLine), findsOne);
       expect(find.text(waitingStatus), findsNothing);
     });
 
@@ -521,7 +528,7 @@ void main() {
         descriptor: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
       );
 
-      expect(find.text(sourceLine), findsNothing);
+      expect(find.text(_sourceLine), findsNothing);
     });
 
     testWidgets("shows the waiting state once the website was opened", (
@@ -534,8 +541,126 @@ void main() {
 
       expect(find.text(waitingStatus), findsOne);
       expect(find.text(waitingBody), findsOne);
-      expect(find.text(sourceLine), findsNothing);
+      expect(find.text(_sourceLine), findsNothing);
       expect(find.byIcon(Icons.schedule), findsNothing);
+    });
+  });
+
+  group("ExternalIssuerChecklistRow", () {
+    Future<_Env> pump(
+      WidgetTester tester, {
+      required bool flagOn,
+      CredentialDescriptor? descriptor,
+      VoidCallback? onObtain,
+    }) async {
+      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      await _pumpApp(
+        tester,
+        env,
+        Scaffold(
+          body: ExternalIssuerChecklistRow(
+            credential: descriptor ?? _descriptor(),
+            onObtain: onObtain ?? () {},
+            fallback: const Text("the regular row"),
+          ),
+        ),
+      );
+      return env;
+    }
+
+    testWidgets("builds the regular row while the flag is off", (tester) async {
+      await pump(tester, flagOn: false);
+
+      expect(find.text("the regular row"), findsOne);
+      expect(find.text(_sourceLine), findsNothing);
+    });
+
+    testWidgets("builds the regular row for an embedded flow", (tester) async {
+      await pump(
+        tester,
+        flagOn: true,
+        descriptor: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
+      );
+
+      expect(find.text("the regular row"), findsOne);
+    });
+
+    testWidgets("says where the data comes from and offers to get it", (
+      tester,
+    ) async {
+      var obtained = 0;
+      await pump(tester, flagOn: true, onObtain: () => obtained++);
+
+      expect(find.text("the regular row"), findsNothing);
+      expect(find.text("Persoonsgegevens"), findsOne);
+      expect(find.text(_sourceLine), findsOne);
+      expect(find.byIcon(Icons.open_in_new), findsOne);
+
+      await tester.tap(find.text("Obtain"));
+      expect(obtained, 1);
+    });
+
+    testWidgets("names the credential and the website for screen readers", (
+      tester,
+    ) async {
+      await pump(tester, flagOn: true);
+
+      expect(
+        find.bySemanticsLabel("Obtain: Persoonsgegevens, opens a website"),
+        findsOne,
+      );
+    });
+
+    testWidgets("waits for the website once it was opened", (tester) async {
+      var obtained = 0;
+      final env = await pump(tester, flagOn: true, onObtain: () => obtained++);
+
+      env.repo.markInAppLaunched([_websiteCredential]);
+      await tester.pumpAndSettle();
+
+      expect(find.text("Not received yet"), findsOne);
+      expect(find.textContaining("Still busy on the website of"), findsOne);
+      expect(find.text(_sourceLine), findsNothing);
+      expect(find.text("Obtain"), findsNothing);
+
+      await tester.tap(find.text("Open the website again"));
+      expect(obtained, 1);
+    });
+  });
+
+  group("MissingDataChecklistScreen", () {
+    Future<void> pump(WidgetTester tester, {required bool flagOn}) async {
+      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      final session = _sessionNeedingAll([
+        _descriptor(),
+        _descriptor(credentialId: "pbdf.sidn-pbdf.email", name: "E-mailadres"),
+      ]);
+      await _pumpApp(
+        tester,
+        env,
+        MissingDataChecklistScreen(sessionId: _sessionId, onDismiss: () {}),
+        overrides: [
+          sessionStateProvider(
+            _sessionId,
+          ).overrideWith((ref) => Stream.value(session)),
+        ],
+      );
+    }
+
+    testWidgets("marks the row of a website credential", (tester) async {
+      await pump(tester, flagOn: true);
+
+      expect(find.text(_sourceLine), findsOne);
+      expect(find.text("Not in your app yet"), findsOne);
+    });
+
+    testWidgets("leaves the rows as they were while the flag is off", (
+      tester,
+    ) async {
+      await pump(tester, flagOn: false);
+
+      expect(find.text(_sourceLine), findsNothing);
+      expect(find.text("Not in your app yet"), findsNWidgets(2));
     });
   });
 
