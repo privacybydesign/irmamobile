@@ -3,9 +3,30 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
 import "../chevron.dart";
+import "../data_tab_icon.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
 import "models/credential_card_status.dart";
+
+enum CredentialCardLayout {
+  standard,
+
+  /// The card of the redesigned data tab and add data screen: 72 px high with
+  /// a 44 px logo, a chevron for opening and a plus for adding.
+  compact,
+}
+
+const _logoSize = 52.0;
+const _compactLogoSize = 44.0;
+const _compactMinHeight = 72.0;
+const _compactChevronSize = 20.0;
+const _compactPlusSize = 26.0;
+const _badgeSize = 20.0;
+const _badgeBorderWidth = 2.0;
+const _badgeOverhang = 4.0;
+const _fadedLogoOpacity = 0.4;
+const _expiredLogoOpacity = 0.45;
+const _expiredSurface = Color(0xFFF7F5F4);
 
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
@@ -34,6 +55,8 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   /// [ExpireState.notExpired].
   final ExpireState expireState;
 
+  final CredentialCardLayout layout;
+
   const SchemalessYiviCredentialTypeCard({
     this.onTap,
     this.checked = false,
@@ -41,6 +64,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     this.disabled = false,
     this.disabledHint,
     this.expireState = ExpireState.notExpired,
+    this.layout = CredentialCardLayout.standard,
     this.credentialImagePath,
     this.credentialImageBase64,
     required this.credentialName,
@@ -52,7 +76,8 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    const logoContainerSize = 52.0;
+    final bool compact = layout == CredentialCardLayout.compact;
+    final double logoContainerSize = compact ? _compactLogoSize : _logoSize;
     final bool expired = expireState == ExpireState.expired;
 
     final bool hasImage =
@@ -99,15 +124,22 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     // credentials are faded the same way.
     final bool faded = disabled || expired;
     if (faded) {
-      avatar = Opacity(opacity: 0.4, child: avatar);
+      avatar = Opacity(
+        opacity: expired ? _expiredLogoOpacity : _fadedLogoOpacity,
+        child: avatar,
+      );
     }
     // The badge sits outside the Opacity so it keeps its full colour.
     if (expired) {
       avatar = Stack(
-        alignment: Alignment.topRight,
+        clipBehavior: Clip.none,
         children: [
           avatar,
-          Icon(Icons.error, color: theme.error, size: logoContainerSize * 0.35),
+          Positioned(
+            top: -_badgeOverhang,
+            right: -_badgeOverhang,
+            child: _ExpiredBadge(),
+          ),
         ],
       );
     }
@@ -116,23 +148,34 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
         ? theme.neutralDark
         : theme.neutralExtraDark;
     final Color trailingColor = faded ? theme.neutral : theme.neutralExtraDark;
+    final Color? surface = expired ? _expiredSurface : null;
 
     return Semantics(
       enabled: !disabled,
       hint: disabled ? disabledHint : null,
       child: IrmaCard(
         margin: EdgeInsets.zero,
+        color: surface,
         child: Material(
+          color: surface,
           child: InkWell(
             key: Key("${credentialId}_tile"),
             onTap: onTap,
             // Greyed-out credentials stay tappable so onTap can explain why they
             // are unavailable.
-            child: Padding(
+            child: Container(
+              constraints: BoxConstraints(
+                minHeight: compact ? _compactMinHeight : 0,
+              ),
               // Tighter right padding when showing the default chevron so it
               // sits closer to the card edge. Action icons (e.g. the `+` on the
               // add-data screen) keep the standard padding.
-              padding: trailingIcon == null
+              padding: compact
+                  ? EdgeInsets.symmetric(
+                      horizontal: theme.defaultSpacing,
+                      vertical: theme.tinySpacing,
+                    )
+                  : trailingIcon == null
                   ? EdgeInsets.fromLTRB(
                       theme.defaultSpacing,
                       theme.defaultSpacing,
@@ -143,7 +186,11 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
               child: Row(
                 children: [
                   ExcludeSemantics(child: avatar),
-                  SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                  SizedBox(
+                    width: compact
+                        ? theme.defaultSpacing
+                        : theme.defaultSpacing - theme.tinySpacing,
+                  ),
                   Expanded(
                     child: Semantics(
                       label: expired
@@ -160,7 +207,11 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                           Text(
                             credentialName,
                             style: theme.themeData.textTheme.headlineMedium!
-                                .copyWith(fontSize: 16, color: titleColor),
+                                .copyWith(
+                                  fontSize: 16,
+                                  height: compact ? 22 / 16 : null,
+                                  color: titleColor,
+                                ),
                           ),
                           Text(
                             expired
@@ -172,6 +223,8 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                             style: theme.themeData.textTheme.bodyMedium!
                                 .copyWith(
                                   fontSize: 14,
+                                  height: compact ? 20 / 14 : null,
+                                  fontWeight: expired ? FontWeight.w600 : null,
                                   color: expired ? theme.error : issuerColor,
                                 ),
                           ),
@@ -179,8 +232,24 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: theme.smallSpacing),
-                  if (trailingIcon != null)
+                  SizedBox(
+                    width: compact ? theme.defaultSpacing : theme.smallSpacing,
+                  ),
+                  if (compact && trailingIcon != null)
+                    DataTabIcon(
+                      DataTabGlyph.plusCircle,
+                      size: _compactPlusSize,
+                      color: trailingColor,
+                    )
+                  else if (compact)
+                    DataTabIcon(
+                      DataTabGlyph.chevronRight,
+                      size: _compactChevronSize,
+                      color: expired
+                          ? theme.neutralDark
+                          : theme.neutralExtraDark,
+                    )
+                  else if (trailingIcon != null)
                     Icon(trailingIcon, size: 24, color: trailingColor)
                   else
                     const Chevron(),
@@ -188,6 +257,33 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpiredBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return Container(
+      width: _badgeSize,
+      height: _badgeSize,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: theme.error,
+        border: Border.all(color: theme.light, width: _badgeBorderWidth),
+      ),
+      child: Text(
+        "!",
+        style: TextStyle(
+          fontSize: 12,
+          height: 16 / 12,
+          fontWeight: FontWeight.w700,
+          color: theme.light,
         ),
       ),
     );
