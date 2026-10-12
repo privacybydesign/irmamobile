@@ -175,8 +175,6 @@ class NfcProgressRing extends StatelessWidget {
     super.key,
   });
 
-  static const double _size = 240;
-
   final double progress;
   final String label;
 
@@ -188,7 +186,7 @@ class NfcProgressRing extends StatelessWidget {
       label: label,
       value: "$percent%",
       child: SizedBox.square(
-        dimension: _size,
+        dimension: _ringGrid,
         child: CustomPaint(
           painter: _RingPainter(
             color: theme.success,
@@ -218,8 +216,6 @@ class NfcProgressRing extends StatelessWidget {
 class NfcDoneCheck extends StatelessWidget {
   const NfcDoneCheck({super.key});
 
-  static const double _size = 240;
-
   /// The board's loop lasts 3 seconds, of which the first 36% is the disc
   /// popping and the check drawing; the rest is rest.
   static const _loopShare = 0.36;
@@ -242,12 +238,12 @@ class NfcDoneCheck extends StatelessWidget {
         builder: (context, t, _) {
           final time = t * _loopShare;
           return SizedBox.square(
-            dimension: _size,
+            dimension: _ringGrid,
             child: CustomPaint(
               painter: _DiscPainter(
                 theme: theme,
                 pop: _pop(time),
-                checkProgress: _interval(time, 0.12, 0.36, _drawCurve),
+                checkProgress: _interval(time, 0.12, _loopShare, _drawCurve),
                 checkOpacity: _interval(time, 0.12, 0.14, _drawCurve),
               ),
             ),

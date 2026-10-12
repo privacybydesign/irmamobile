@@ -253,7 +253,7 @@ class NfcOffIllustration extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExcludeSemantics(
       child: SizedBox.square(
-        dimension: 200,
+        dimension: _NfcOffPainter._grid,
         child: CustomPaint(
           painter: _NfcOffPainter(theme: IrmaTheme.of(context)),
         ),
