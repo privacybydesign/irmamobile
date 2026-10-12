@@ -835,7 +835,9 @@ class _AgeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final textColor = entry.over ? _overText : theme.neutralDark;
+    // The board's neutralDark is 4.14:1 on _notOverSurface, below the 4.5:1 of
+    // WCAG 1.4.3.
+    final textColor = entry.over ? _overText : theme.neutralExtraDark;
     return Semantics(
       excludeSemantics: true,
       label: FlutterI18n.translate(

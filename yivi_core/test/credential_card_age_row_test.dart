@@ -15,6 +15,15 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attri
 
 import "support/pump_translated.dart";
 
+// WCAG 1.4.3 AA for normal text.
+const _minTextContrast = 4.5;
+
+double _contrast(Color a, Color b) {
+  final [lighter, darker] = [a, b].map((c) => c.computeLuminance()).toList()
+    ..sort((x, y) => y.compareTo(x));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 enum _Answer { yes, no }
 
 enum _Flag { on, off }
@@ -157,6 +166,26 @@ void main() {
 
     expect(find.bySemanticsLabel("Older than 21: yes"), findsOneWidget);
     expect(find.bySemanticsLabel("Older than 65: no"), findsOneWidget);
+  });
+
+  testWidgets("chip text is legible on the chip surface", (tester) async {
+    await _pumpList(tester, _mixedAges);
+    await tester.tap(find.text("Show all ages"));
+    await tester.pumpAndSettle();
+
+    for (final label in ["✓ 21", "– 65"]) {
+      final text = tester.widget<Text>(find.text(label));
+      final chip = tester
+          .element(find.text(label))
+          .findAncestorWidgetOfExactType<Container>()!;
+      final surface = (chip.decoration! as BoxDecoration).color!;
+
+      expect(
+        _contrast(text.style!.color!, surface),
+        greaterThanOrEqualTo(_minTextContrast),
+        reason: label,
+      );
+    }
   });
 
   testWidgets("the toggle tells assistive technology whether it is open", (
