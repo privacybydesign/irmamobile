@@ -454,6 +454,31 @@ void main() {
       expect(button.height, greaterThan(DocumentFlowButton.height));
       expect(label.height, lessThanOrEqualTo(button.height));
     });
+
+    testWidgets("a button without an action is announced as disabled", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await _pump(
+        tester,
+        const Scaffold(
+          bottomNavigationBar: DocumentFlowFooter(
+            buttons: [
+              DocumentFlowButton(
+                labelKey: "document_flow.cancel",
+                onPressed: null,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(
+        tester.getSemantics(find.byType(DocumentFlowButton)),
+        isSemantics(isButton: true, hasEnabledState: true, isEnabled: false),
+      );
+      semantics.dispose();
+    });
   });
 
   group("motion", () {
