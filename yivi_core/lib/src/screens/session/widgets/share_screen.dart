@@ -226,7 +226,7 @@ class _ShareChoiceEntry extends StatelessWidget {
                   ? IrmaIconButton(
                       key: const Key("remove_optional_data_button"),
                       icon: Icons.close,
-                      size: 22,
+                      size: _closeIconSize,
                       padding: .zero,
                       onTap: choice.onRemove!,
                     )
