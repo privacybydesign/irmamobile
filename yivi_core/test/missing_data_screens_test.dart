@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:pinput/pinput.dart";
 import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
@@ -10,6 +11,7 @@ import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/missing_data_confirm_screen.dart";
+import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/missing_data_button.dart";
 
 import "missing_data_fixtures.dart";
@@ -173,6 +175,27 @@ void main() {
       await tester.pump();
 
       expect(check().onPressed, isNotNull);
+    });
+
+    testWidgets("draw the code boxes white on the blue page", (tester) async {
+      final harness = await openEmailScreen(tester, fromChecklist: true);
+      harness.container
+          .read(emailIssuanceProvider.notifier)
+          .startVerification(email: "rosanne@voorbeeld.nl");
+      await tester.pump(const Duration(milliseconds: 800));
+
+      final theme = IrmaThemeData();
+      final page = tester.widget<Scaffold>(find.byType(Scaffold).last);
+      final box = tester
+          .widget<Pinput>(
+            find.byKey(const Key("email_verification_code_input_field")),
+          )
+          .defaultPinTheme!
+          .decoration!;
+
+      expect(page.backgroundColor, theme.backgroundTertiary);
+      expect(box.gradient?.colors.first, theme.light);
+      expect(find.text("Code"), findsOneWidget);
     });
 
     testWidgets("keep today's code screen outside the checklist", (

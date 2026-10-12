@@ -181,8 +181,9 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
     final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is EmailIssuanceInvalidCodeError;
-    // The code is sent with a button, as when linking.
-    final explicitSubmit = _linking || _collecting;
+    // Linking and collecting data for a request follow the newer boards:
+    // the code goes in boxes of the design and is sent with a button.
+    final redesigned = _linking || _collecting;
 
     final defaultPinTheme = PinTheme(
       width: 50,
@@ -208,7 +209,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
       ),
     );
 
-    final linkingPinThemes = _linking
+    final linkingPinThemes = redesigned
         ? LinkingPinThemes(
             theme,
             codeInvalid
@@ -229,9 +230,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           _focusNode.unfocus();
         },
         child: Scaffold(
-          backgroundColor: _linking || _collecting
-              ? theme.backgroundTertiary
-              : null,
+          backgroundColor: redesigned ? theme.backgroundTertiary : null,
           appBar: _linking
               ? IrmaAppBar(
                   titleTranslationKey: titleKey,
@@ -252,7 +251,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                     crossAxisAlignment: .start,
                     children: [
                       SizedBox(
-                        height: _linking || _collecting
+                        height: redesigned
                             ? theme.smallSpacing
                             : theme.defaultSpacing,
                       ),
@@ -272,7 +271,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                           ),
                         ),
                       SizedBox(height: theme.defaultSpacing),
-                      if (_linking || _collecting)
+                      if (redesigned)
                         TranslatedRichText(
                           _linking
                               ? "email_linking.verify_code.body"
@@ -292,13 +291,15 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                           translationParams: {"email": state.email},
                         ),
                       SizedBox(
-                        height: _linking || _collecting
+                        height: redesigned
                             ? theme.mediumSpacing
                             : theme.largeSpacing,
                       ),
-                      if (_linking) ...[
+                      if (redesigned) ...[
                         TranslatedText(
-                          "email_linking.verify_code.label",
+                          _collecting
+                              ? "missing_data.email.code_label"
+                              : "email_linking.verify_code.label",
                           style: theme.textTheme.labelSmall!.copyWith(
                             color: theme.neutralExtraDark,
                           ),
@@ -314,15 +315,17 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                           textCapitalization: .characters,
                           focusNode: _focusNode,
                           autofocus: true,
-                          mainAxisAlignment: _linking ? .spaceBetween : .start,
+                          mainAxisAlignment: redesigned
+                              ? .spaceBetween
+                              : .start,
                           defaultPinTheme:
                               linkingPinThemes?.normal ?? defaultPinTheme,
                           focusedPinTheme:
                               linkingPinThemes?.focused ?? focussedPinTheme,
                           submittedPinTheme: linkingPinThemes?.filled,
                           length: emailCodeLength,
-                          onChanged: explicitSubmit ? _codeChanged : null,
-                          onCompleted: explicitSubmit ? null : _handleCode,
+                          onChanged: redesigned ? _codeChanged : null,
+                          onCompleted: redesigned ? null : _handleCode,
                           pinAnimationType: .scale,
                           hapticFeedbackType: .lightImpact,
                         ),
@@ -339,7 +342,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                         ),
                       ],
                       SizedBox(height: theme.largeSpacing),
-                      if (!explicitSubmit)
+                      if (!redesigned)
                         Row(
                           mainAxisAlignment: .start,
                           mainAxisSize: .max,

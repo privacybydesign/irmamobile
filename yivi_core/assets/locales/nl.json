@@ -313,6 +313,7 @@
       "body": "We sturen je een e-mail met een code. Daarmee laat je zien dat het jouw e-mailadres is.",
       "code_header": "Vul de code in",
       "code_body": "We hebben een e-mail gestuurd naar {email}. Vul de code uit de e-mail hier in.",
+      "code_label": "Code",
       "check_code": "Code controleren",
       "resend": "E-mail opnieuw sturen"
     },

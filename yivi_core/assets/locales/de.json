@@ -313,6 +313,7 @@
       "body": "Wir senden Ihnen eine E-Mail mit einem Code. Damit zeigen Sie, dass die E-Mail-Adresse Ihnen gehört.",
       "code_header": "Code eingeben",
       "code_body": "Wir haben eine E-Mail an {email} gesendet. Geben Sie den Code aus der E-Mail hier ein.",
+      "code_label": "Code",
       "check_code": "Code prüfen",
       "resend": "E-Mail erneut senden"
     },

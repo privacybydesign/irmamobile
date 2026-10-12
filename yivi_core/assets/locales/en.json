@@ -1187,6 +1187,7 @@
       "body": "We'll send you an email with a code. This shows that the email address is yours.",
       "code_header": "Enter the code",
       "code_body": "We've sent an email to {email}. Enter the code from the email here.",
+      "code_label": "Code",
       "check_code": "Check code",
       "resend": "Send email again"
     },
