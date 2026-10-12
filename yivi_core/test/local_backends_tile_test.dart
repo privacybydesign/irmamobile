@@ -6,6 +6,9 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/debug/widgets/local_backends_tile.dart";
 
+const _lanHost = "192.168.1.20";
+const _localhost = "localhost";
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -48,26 +51,26 @@ void main() {
 
     await tester.enterText(
       find.byKey(const Key("local_backend_host_field")),
-      " 192.168.1.20 ",
+      " $_lanHost ",
     );
     await tester.tap(find.text("Save"));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.byType(AlertDialog), findsNothing);
-    expect(await storedHost(tester), "192.168.1.20");
-    expect(find.textContaining("http://192.168.1.20:8080"), findsOneWidget);
+    expect(await storedHost(tester), _lanHost);
+    expect(find.textContaining("http://$_lanHost:8080"), findsOneWidget);
   });
 
   testWidgets("Off clears the host", (tester) async {
-    await prefs.setLocalBackendHost("localhost");
+    await prefs.setLocalBackendHost(_localhost);
     await pumpTile(tester);
     await openDialog(tester);
 
     final field = tester.widget<TextField>(
       find.byKey(const Key("local_backend_host_field")),
     );
-    expect(field.controller?.text, "localhost");
+    expect(field.controller?.text, _localhost);
 
     await tester.tap(find.text("Off"));
     await tester.pumpAndSettle();
@@ -79,7 +82,7 @@ void main() {
   });
 
   testWidgets("dismissing the dialog keeps the host", (tester) async {
-    await prefs.setLocalBackendHost("localhost");
+    await prefs.setLocalBackendHost(_localhost);
     await pumpTile(tester);
     await openDialog(tester);
 
@@ -91,6 +94,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(await storedHost(tester), "localhost");
+    expect(await storedHost(tester), _localhost);
   });
 }
