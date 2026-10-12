@@ -6,7 +6,6 @@ import "yivi_themed_button.dart";
 
 export "irma_bottom_bar_base.dart" show IrmaBottomBarStyle;
 
-// The outline of the secondary button of the flat bar.
 const _flatOutlineWidth = 1.0;
 
 enum IrmaBottomBarAlignment { horizontal, vertical, automatic }

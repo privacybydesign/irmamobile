@@ -11,6 +11,9 @@ import "../../../widgets/linking_heading.dart";
 const _logoSize = 44.0;
 const _logoGap = 12.0;
 const _bodyTopPadding = 12.0;
+const _nameLineHeight = 22 / 16;
+const _captionFontSize = 14.0;
+const _captionLineHeight = 20 / 14;
 
 /// Asks permission to add the e-mail address to the app, as the first step of
 /// linking it (`FeatureFlag.emailLinking`). Shown instead of
@@ -105,7 +108,11 @@ class _CredentialCard extends StatelessWidget {
                             base64: logo.base64,
                             mimeType: logo.mimeType,
                           ),
-                    initials: logo == null ? credential.name[0] : null,
+                    initials: logo == null
+                        ? (credential.name.isNotEmpty
+                              ? credential.name[0]
+                              : "?")
+                        : null,
                   ),
                 ),
                 const SizedBox(width: _logoGap),
@@ -116,14 +123,14 @@ class _CredentialCard extends StatelessWidget {
                       Text(
                         credential.name,
                         style: theme.textTheme.bodyLarge!.copyWith(
-                          height: 22 / 16,
+                          height: _nameLineHeight,
                         ),
                       ),
                       Text(
                         credential.issuer.name,
                         style: theme.textTheme.bodyMedium!.copyWith(
-                          fontSize: 14,
-                          height: 20 / 14,
+                          fontSize: _captionFontSize,
+                          height: _captionLineHeight,
                           color: theme.neutralExtraDark,
                         ),
                       ),
@@ -170,14 +177,14 @@ class _Attribute extends StatelessWidget {
         Text(
           attribute.effectiveDisplayName,
           style: theme.textTheme.bodyMedium!.copyWith(
-            fontSize: 14,
-            height: 20 / 14,
+            fontSize: _captionFontSize,
+            height: _captionLineHeight,
             color: theme.neutralExtraDark,
           ),
         ),
         Text(
           value?.string ?? "",
-          style: theme.textTheme.bodyLarge!.copyWith(height: 22 / 16),
+          style: theme.textTheme.bodyLarge!.copyWith(height: _nameLineHeight),
         ),
       ],
     );

@@ -48,7 +48,6 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
     if (link == null || widget.purpose != EmailIssuancePurpose.linkKeyshare) {
       return;
     }
-
     final email = link.email;
     if (email == null) {
       final stage = ref.read(emailIssuanceProvider).stage;
@@ -57,7 +56,6 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
       }
       return;
     }
-
     ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
   }
 

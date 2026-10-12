@@ -22,7 +22,6 @@ import "disclosure_make_choice_screen.dart";
 import "missing_data_header.dart";
 import "session_scaffold.dart";
 
-/// How the overview presents itself.
 enum DisclosureOverviewLayout {
   standard,
 
@@ -380,8 +379,6 @@ class _DisclosureChoicesOverviewState
     );
   }
 
-  /// The checklist, once nothing is missing anymore: the same screen, now
-  /// asking the user to share.
   Widget _buildMissingDataLayout(
     BuildContext context,
     List<Widget> entries, {

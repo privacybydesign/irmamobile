@@ -71,6 +71,7 @@ class _IconPainter extends CustomPainter {
         path.lineTo(point.dx * scale, point.dy * scale);
       }
     }
+
     canvas.drawPath(
       path,
       Paint()

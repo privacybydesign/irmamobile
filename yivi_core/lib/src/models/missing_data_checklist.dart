@@ -60,8 +60,6 @@ class MissingDataChecklist {
 
   int get missingCount => total - presentCount;
 
-  bool get isComplete => total > 0 && missingCount == 0;
-
   static ChecklistStep _buildStep(
     int index,
     IssuanceStep step,

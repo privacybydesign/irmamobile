@@ -15,7 +15,6 @@ const _shieldSize = 32.0;
 const _closeIconSize = 18.0;
 // 18 px icon plus this padding on both sides makes the 44 px touch target.
 const _closePadding = 13.0;
-// Inset of the close button from the top and right edge of the banner.
 const _closeInset = 2.0;
 // Keeps the text out from under the close button.
 const _textEndPadding = 28.0;

@@ -216,6 +216,7 @@ enum _RowState { present, justAdded, missing }
 const _flashDuration = Duration(milliseconds: 1600);
 const _growDuration = Duration(milliseconds: 1000);
 const _stackScale = 1.5;
+const _popOvershoot = 1.25;
 const _listPadding = 16.0;
 const _listVerticalPadding = 20.0;
 const _progressBarHeight = 8.0;
@@ -384,8 +385,8 @@ class _ChecklistRowState extends State<_ChecklistRow>
 
     // The check pops in while the row is still green.
     final pop = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: 1.25), weight: 55),
-      TweenSequenceItem(tween: Tween(begin: 1.25, end: 1), weight: 45),
+      TweenSequenceItem(tween: Tween(begin: 0, end: _popOvershoot), weight: 55),
+      TweenSequenceItem(tween: Tween(begin: _popOvershoot, end: 1), weight: 45),
     ]).animate(CurvedAnimation(parent: _flash, curve: const Interval(0, 0.3)));
 
     return AnimatedBuilder(

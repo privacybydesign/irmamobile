@@ -12,6 +12,8 @@ const _digitFontSize = 24.0;
 const _digitFocusedFill = Color(0xFFF4F8FC);
 
 const _statusIconSize = 18.0;
+const _statusFontSize = 14.0;
+const _statusLineHeight = 20 / 14;
 const _statusGreen = Color(0xFF00602A);
 
 const _spinnerSize = 18.0;
@@ -108,8 +110,8 @@ class CodeFromLinkStatus extends StatelessWidget {
             child: TranslatedText(
               "email_linking.verify_code.filled_from_link",
               style: theme.textTheme.bodyMedium!.copyWith(
-                fontSize: 14,
-                height: 20 / 14,
+                fontSize: _statusFontSize,
+                height: _statusLineHeight,
                 fontWeight: FontWeight.w600,
                 color: _statusGreen,
               ),
