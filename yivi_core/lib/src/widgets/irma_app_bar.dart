@@ -36,15 +36,21 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
 class YiviBackButton extends StatelessWidget {
   final Function()? onTap;
   final Color? color;
+  final String semanticsLabelKey;
 
-  const YiviBackButton({super.key, this.onTap, this.color});
+  const YiviBackButton({
+    super.key,
+    this.onTap,
+    this.color,
+    this.semanticsLabelKey = "ui.go_back",
+  });
 
   @override
   Widget build(BuildContext context) {
     return IrmaIconButton(
       key: const Key("irma_app_bar_leading"),
       icon: Icons.arrow_back_sharp,
-      semanticsLabelKey: "ui.go_back",
+      semanticsLabelKey: semanticsLabelKey,
       color: color,
       onTap: () {
         if (onTap == null) {

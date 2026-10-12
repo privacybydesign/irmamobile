@@ -14,6 +14,7 @@ import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
+import "../../../../widgets/linking_back_button.dart";
 import "../../../../widgets/linking_heading.dart";
 import "../../../../widgets/translated_rich_text.dart";
 import "../../../../widgets/translated_text.dart";
@@ -218,10 +219,9 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           appBar: IrmaAppBar(
             titleTranslationKey: titleKey,
             hasBorder: !_linking,
-            leading: YiviBackButton(
-              onTap: _goBack,
-              color: _linking ? theme.dark : null,
-            ),
+            leading: _linking
+                ? LinkingBackButton(onTap: _goBack)
+                : YiviBackButton(onTap: _goBack),
           ),
           body: SafeArea(
             child: KeyboardAnimationListener(

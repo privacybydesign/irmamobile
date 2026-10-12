@@ -8,6 +8,7 @@ import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/linking_back_button.dart";
 import "widgets/enter_email_screen.dart";
 import "widgets/verify_email_screen.dart";
 
@@ -93,7 +94,7 @@ class _WaitingScreen extends StatelessWidget {
             ? "email_linking.enter_email.title"
             : "email_issuance.enter_email.title",
         hasBorder: !linking,
-        leading: YiviBackButton(color: linking ? theme.dark : null),
+        leading: linking ? const LinkingBackButton() : const YiviBackButton(),
       ),
       body: Padding(
         padding: .all(theme.defaultSpacing),

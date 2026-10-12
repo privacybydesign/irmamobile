@@ -8,6 +8,7 @@ import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
+import "../../../../widgets/linking_back_button.dart";
 import "../../../../widgets/linking_heading.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
@@ -153,7 +154,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         appBar: IrmaAppBar(
           titleTranslationKey: titleKey,
           hasBorder: !linking,
-          leading: YiviBackButton(color: linking ? theme.dark : null),
+          leading: linking ? const LinkingBackButton() : const YiviBackButton(),
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(

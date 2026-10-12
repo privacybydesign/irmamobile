@@ -512,6 +512,16 @@ void main() {
       final arrow = find.byIcon(Icons.arrow_back_sharp);
       expect(tester.widget<Icon>(arrow).color, theme.dark);
       expect(tester.getCenter(arrow), const Offset(28, 28));
+      expect(
+        tester.getSemantics(find.byKey(const Key("irma_app_bar_leading"))),
+        matchesSemantics(
+          label: "Back",
+          isButton: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isFocusable: true,
+        ),
+      );
     });
 
     testWidgets("B1 sets the heading in 20 px, 80 px from the top", (
@@ -547,6 +557,12 @@ void main() {
       expect(
         tester.widget<Icon>(find.byIcon(Icons.arrow_back_sharp)).color,
         theme.neutralExtraDark,
+      );
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key("irma_app_bar_leading")))
+            .label,
+        "Go back",
       );
       expect(
         rectOf(tester, find.byKey(const Key("bottom_bar_primary"))).height,
@@ -913,6 +929,7 @@ void main() {
     final linking = nl["email_linking"] as Map<String, dynamic>;
 
     test("matches the boards word for word", () {
+      expect(linking["go_back"], "Terug");
       expect(linking["banner"], {
         "title": "Beveilig je Yivi-app",
         "body":

@@ -525,6 +525,7 @@
       "remind_me": "Ask me later",
       "dismiss": "Dismiss"
     },
+    "go_back": "Back",
     "enter_email": {
       "title": "Link email address",
       "header": "What is your email address?",
