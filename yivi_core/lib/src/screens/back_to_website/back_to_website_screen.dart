@@ -29,6 +29,7 @@ const Color _sketchBarColor = Color(0xFFF2F0EE);
 const Color _sketchButtonColor = Color(0xFFE12747);
 const Duration _tapPulseDuration = Duration(milliseconds: 2400);
 const double _tapPulseScale = 0.94;
+const double _smallTextSize = 14;
 
 /// Shown once after onboarding when the install started on a website, so the
 /// user returns to the browser instead of staying in an empty app.
@@ -83,8 +84,8 @@ class _BackToWebsiteScreenState extends ConsumerState<BackToWebsiteScreen> {
                     TranslatedText(
                       "back_to_website.hint",
                       style: theme.textTheme.bodyMedium!.copyWith(
-                        fontSize: 14,
-                        height: 20 / 14,
+                        fontSize: _smallTextSize,
+                        height: 20 / _smallTextSize,
                         color: theme.neutralExtraDark,
                       ),
                       textAlign: TextAlign.center,
@@ -205,8 +206,8 @@ class _BrowserSketch extends StatelessWidget {
                     TranslatedText(
                       "back_to_website.sketch_label",
                       style: theme.textTheme.bodyMedium!.copyWith(
-                        fontSize: 14,
-                        height: 19 / 14,
+                        fontSize: _smallTextSize,
+                        height: 19 / _smallTextSize,
                         fontWeight: FontWeight.w700,
                         color: theme.neutralExtraDark,
                       ),
@@ -247,7 +248,7 @@ class _SketchButton extends StatelessWidget {
           child: TranslatedText(
             "back_to_website.sketch_button",
             style: theme.textTheme.bodyMedium!.copyWith(
-              fontSize: 14,
+              fontSize: _smallTextSize,
               fontWeight: FontWeight.w700,
               color: theme.light,
             ),
