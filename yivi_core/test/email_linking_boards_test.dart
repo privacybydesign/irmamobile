@@ -26,6 +26,7 @@ import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/slim_button_background.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "support/onboarding_v2_harness.dart";
@@ -271,6 +272,66 @@ void main() {
 
       expect(outline(const Key("slim")), 1);
       expect(outline(const Key("medium")), 1.7);
+    });
+
+    testWidgets(
+      "paints the bands of the board at 110 degrees when it is slim",
+      (tester) async {
+        await pumpScreen(
+          tester,
+          const Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 358,
+                child: YiviThemedButton(
+                  label: "email_linking.confirm.add",
+                  size: YiviButtonSize.slim,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        final box = tester.widget<DecoratedBox>(
+          find.descendant(
+            of: find.byType(SlimButtonBackground),
+            matching: find.byType(DecoratedBox),
+          ),
+        );
+        final gradient =
+            (box.decoration as BoxDecoration).gradient! as LinearGradient;
+        expect(gradient.colors, [
+          const Color(0xFFE12747),
+          const Color(0xFFE12747),
+          const Color(0xFFBA3555),
+          const Color(0xFFBA3555),
+          const Color(0xFFA03352),
+          const Color(0xFFA03352),
+          const Color(0xFF87314F),
+          const Color(0xFF87314F),
+        ]);
+        expect(gradient.stops, [0, 0.64, 0.64, 0.74, 0.74, 0.84, 0.84, 1]);
+
+        // CSS puts the ends of a 110 degree line at the corners of the box.
+        final begin = gradient.begin as Alignment;
+        final end = gradient.end as Alignment;
+        expect(begin.x, closeTo(-0.926, 0.001));
+        expect(begin.y, closeTo(-2.514, 0.001));
+        expect(end.x, closeTo(0.926, 0.001));
+        expect(end.y, closeTo(2.514, 0.001));
+      },
+    );
+
+    testWidgets("keeps the button asset when it is not slim", (tester) async {
+      await pumpScreen(
+        tester,
+        const Scaffold(
+          body: YiviThemedButton(label: "email_linking.confirm.add"),
+        ),
+      );
+
+      expect(find.byType(SlimButtonBackground), findsNothing);
     });
 
     testWidgets("shows the leading widget 10 px before the label", (

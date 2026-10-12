@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../package_name.dart";
 import "../theme/theme.dart";
 import "../widgets/link.dart";
+import "slim_button_background.dart";
 import "translated_text.dart";
 
 enum YiviButtonStyle { fancy, outlined, filled }
@@ -76,11 +77,13 @@ class YiviThemedButton extends StatelessWidget {
       Positioned.fill(
         bottom: 0.0,
         child: ExcludeSemantics(
-          child: SvgPicture.asset(
-            yiviAsset("ui/btn-bg.svg"),
-            alignment: Alignment.center,
-            fit: BoxFit.fill,
-          ),
+          child: size == YiviButtonSize.slim
+              ? const SlimButtonBackground()
+              : SvgPicture.asset(
+                  yiviAsset("ui/btn-bg.svg"),
+                  alignment: Alignment.center,
+                  fit: BoxFit.fill,
+                ),
         ),
       ),
       Positioned.fill(
