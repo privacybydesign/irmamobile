@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
     as schemaless;
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_comparison.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_renderer.dart";
 

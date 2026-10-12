@@ -112,6 +112,13 @@
     "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
     "boolean_yes": "Ja",
     "boolean_no": "Nee",
+    "profile_header": {
+      "date_of_birth": "Geboortedatum",
+      "place_of_birth": "Geboorteplaats",
+      "nationality": "Nationaliteit",
+      "gender": "Geslacht",
+      "dutch": "Nederlands"
+    },
     "driving_licence_categories": {
       "title": "Rijbewijscategorieën",
       "category": "Categorie",

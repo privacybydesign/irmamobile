@@ -358,9 +358,13 @@ void main() {
     expect(table, findsOneWidget);
     expect(find.text("Category B"), findsNothing);
     expect(find.text("B"), findsOneWidget);
-    // At the very end, below the photo.
+    // At the very end. The photo now sits in the profile header at the top.
+    final header = find.byKey(const Key("attribute_group_profile_header"));
+    expect(header, findsOneWidget);
+    expect(find.text("label-photo"), findsNothing);
+    expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(table).dy));
     expect(
-      tester.getTopLeft(find.text("label-photo")).dy,
+      tester.getTopLeft(find.text("label-over18")).dy,
       lessThan(tester.getTopLeft(table).dy),
     );
   });

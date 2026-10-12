@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
+import "../attribute_comparison.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
@@ -245,7 +246,7 @@ class _DrivingLicenceCategoriesTableState
         style: dateStyle.copyWith(
           color: value == null
               ? null
-              : _comparisonColor(theme, value.comparison),
+              : comparisonColor(theme, value.comparison),
         ),
       ),
     );
@@ -263,7 +264,7 @@ class _DrivingLicenceCategoriesTableState
             fontWeight: isHeld ? FontWeight.w600 : FontWeight.w400,
             color: held == null || held.comparison == AttributeComparison.none
                 ? (isHeld ? theme.dark : theme.neutralDark)
-                : _comparisonColor(theme, held.comparison),
+                : comparisonColor(theme, held.comparison),
           ),
         ),
       );
@@ -359,7 +360,7 @@ class _CategoryCell extends StatelessWidget {
             overflow: TextOverflow.visible,
             style: attributeValueStyle(
               theme,
-              _comparisonColor(
+              comparisonColor(
                 theme,
                 row.held?.comparison ?? AttributeComparison.none,
               ),
@@ -401,10 +402,3 @@ Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
   "T" => ("tractor", false),
   _ => ("car", false),
 };
-
-Color _comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
-    switch (comparison) {
-      AttributeComparison.none => theme.dark,
-      AttributeComparison.match => theme.success,
-      AttributeComparison.mismatch => theme.error,
-    };

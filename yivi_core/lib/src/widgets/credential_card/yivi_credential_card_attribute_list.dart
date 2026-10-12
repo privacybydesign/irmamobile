@@ -6,9 +6,9 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
-import "../irma_app_bar.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
+import "attribute_groups/attribute_image.dart";
 import "attribute_groups/attribute_value_formatting.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
@@ -588,6 +588,7 @@ class _RenderItemView extends StatelessWidget {
                 child: _RowContent(
                   node: node,
                   isFirst: item.previousDepth < 0,
+                  isLast: nextDepth < 0,
                   disclosure: disclosure,
                 ),
               ),
@@ -628,10 +629,13 @@ class _RowContent extends StatelessWidget {
   final _Node node;
   // The first row of the list: nothing is drawn above it.
   final bool isFirst;
+  // The last row of the list: nothing is drawn below it.
+  final bool isLast;
   final bool disclosure;
   const _RowContent({
     required this.node,
     required this.isFirst,
+    required this.isLast,
     required this.disclosure,
   });
 
@@ -644,6 +648,7 @@ class _RowContent extends StatelessWidget {
       _ItemNode n => _ItemEyebrowContent(node: n),
       _AttributeGroupNode n => AttributeGroupScope(
         isFirst: isFirst,
+        isLast: isLast,
         isDisclosure: disclosure,
         child: Builder(builder: n.group.build),
       ),
@@ -699,37 +704,9 @@ class _LeafContent extends StatelessWidget {
         val.intValue?.toString() ?? "",
         style: attributeValueStyle(theme, _valueColor(val, theme)),
       ),
-      schemaless.AttributeType.image ||
-      schemaless.AttributeType.base64Image => _tappableImage(context, theme),
+      schemaless.AttributeType.image || schemaless.AttributeType.base64Image =>
+        TappableAttributeImage(attribute: node.attribute),
     };
-  }
-
-  Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
-    final attribute = node.attribute;
-    final bytes = decodeAttributeImage(attribute.value);
-    if (bytes == null) return const SizedBox.shrink();
-    final image = Image.memory(
-      bytes,
-      fit: BoxFit.fitWidth,
-      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-    );
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Scaffold(
-              appBar: IrmaAppBar(titleString: attribute.effectiveDisplayName),
-              body: SingleChildScrollView(child: Center(child: image)),
-            ),
-          ),
-        );
-      },
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
-        child: image,
-      ),
-    );
   }
 }
 

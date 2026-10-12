@@ -1,7 +1,7 @@
-import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 
 import "../../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../attribute_comparison.dart";
 import "../attribute_group.dart";
 import "driving_licence_categories_table.dart";
 
@@ -89,13 +89,13 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
           code: code,
           held: c.held == null
               ? null
-              : CompareValue(heldFlag, _compare(c.held!, compareTo)),
+              : CompareValue(heldFlag, compareAttribute(c.held!, compareTo)),
           issued: issued == null
               ? null
-              : CompareValue(issued, _compare(c.issued!, compareTo)),
+              : CompareValue(issued, compareAttribute(c.issued!, compareTo)),
           expires: expires == null
               ? null
-              : CompareValue(expires, _compare(c.expires!, compareTo)),
+              : CompareValue(expires, compareAttribute(c.expires!, compareTo)),
         ),
       );
     }
@@ -138,25 +138,6 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     final s = v?.string;
     return s == null || s.isEmpty ? null : s;
   }
-
-  /// When the card compares, an attribute absent from [compareTo] counts as a
-  /// mismatch, like ordinary string rows.
-  static AttributeComparison _compare(
-    schemaless.Attribute attribute,
-    List<schemaless.Attribute>? compareTo,
-  ) {
-    if (compareTo == null) return AttributeComparison.none;
-    final other = compareTo.firstWhereOrNull(
-      (c) => listEquals(c.claimPath, attribute.claimPath),
-    );
-    if (other == null) return AttributeComparison.mismatch;
-    return _comparable(other.value) == _comparable(attribute.value)
-        ? AttributeComparison.match
-        : AttributeComparison.mismatch;
-  }
-
-  static Object? _comparable(schemaless.AttributeValue? v) =>
-      v?.string ?? v?.boolValue ?? v?.intValue;
 }
 
 enum _Field { held, issued, expires }
@@ -175,8 +156,6 @@ class _CategoryAttributes {
       v == null ||
       (v.boolValue == null && v.intValue == null && (v.string ?? "").isEmpty);
 }
-
-enum AttributeComparison { none, match, mismatch }
 
 class CompareValue<T> {
   final T value;

@@ -112,6 +112,13 @@
     "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
     "boolean_yes": "Ja",
     "boolean_no": "Nein",
+    "profile_header": {
+      "date_of_birth": "Geburtsdatum",
+      "place_of_birth": "Geburtsort",
+      "nationality": "Staatsangehörigkeit",
+      "gender": "Geschlecht",
+      "dutch": "Niederländisch"
+    },
     "driving_licence_categories": {
       "title": "Führerscheinklassen",
       "category": "Klasse",

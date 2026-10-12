@@ -77,6 +77,9 @@ class AttributeGroupScope extends InheritedWidget {
   /// No attribute row is drawn above the group.
   final bool isFirst;
 
+  /// No attribute row is drawn below the group.
+  final bool isLast;
+
   /// The card is on a disclosure screen (or a disclosure in the activity
   /// log): the attributes are the ones being shared, not the whole
   /// credential.
@@ -85,6 +88,7 @@ class AttributeGroupScope extends InheritedWidget {
   const AttributeGroupScope({
     super.key,
     required this.isFirst,
+    this.isLast = false,
     required this.isDisclosure,
     required super.child,
   });
@@ -94,7 +98,9 @@ class AttributeGroupScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AttributeGroupScope oldWidget) =>
-      isFirst != oldWidget.isFirst || isDisclosure != oldWidget.isDisclosure;
+      isFirst != oldWidget.isFirst ||
+      isLast != oldWidget.isLast ||
+      isDisclosure != oldWidget.isDisclosure;
 }
 
 /// Stable key for comparing claim paths.

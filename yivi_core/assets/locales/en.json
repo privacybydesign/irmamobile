@@ -112,6 +112,13 @@
     "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data.",
     "boolean_yes": "Yes",
     "boolean_no": "No",
+    "profile_header": {
+      "date_of_birth": "Date of birth",
+      "place_of_birth": "Place of birth",
+      "nationality": "Nationality",
+      "gender": "Gender",
+      "dutch": "Dutch"
+    },
     "driving_licence_categories": {
       "title": "Driving licence categories",
       "category": "Category",
