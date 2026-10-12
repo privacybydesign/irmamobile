@@ -8,6 +8,7 @@ import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
+import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
@@ -344,7 +345,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
-        returnedFromIssuer: _returnedFromIssuer(session),
+        returnedFrom: _returnedFrom(session),
         onDismiss: _dismissSession,
         onGivePermission: () {
           _grantPermission(_pendingDisclosureChoices ?? []);
@@ -384,9 +385,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  /// The issuer whose website the user opened from the app and who now offers
-  /// the credential, when the external issuer flow is on.
-  String? _returnedFromIssuer(SessionState session) {
+  /// The offered credential whose issuer website the user opened from the app,
+  /// when the external issuer flow is on.
+  Credential? _returnedFrom(SessionState session) {
     if (!ref.watch(externalIssuerFlowEnabledProvider)) return null;
 
     final launched =
@@ -394,7 +395,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     for (final credential in session.offeredCredentials ?? const []) {
       if (launched.contains(credential.credentialId) &&
           _repo.issuesViaWebsite(credential.credentialId)) {
-        return credential.issuer.name;
+        return credential;
       }
     }
     return null;
