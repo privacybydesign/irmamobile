@@ -191,17 +191,20 @@
       "header": {
         "success": "Erfolg",
         "canceled": "Abgebrochen",
-        "not_satisfiable": "Abgebrochen",
-        "success_calm": "Geteilt"
+        "not_satisfiable": "Abgebrochen"
       },
       "text": {
         "success": "Ihre Daten wurden an {otherParty} weitergegeben",
         "success_signature": "Sie haben die Anfrage von {otherParty} signiert",
-        "success_calm": "Ihre Daten wurden mit {otherParty} geteilt",
         "canceled": "Ihre Daten wurden nicht an {otherParty} weitergegeben",
         "canceled_signature": "Sie haben die Anfrage von {otherParty} nicht signiert",
         "not_satisfiable": "Ihre Daten wurden nicht weitergegeben, weil {otherParty} veraltete Daten anfordert. Sie können nichts tun, um dies zu beheben. Bitte kontaktieren Sie die anfragende Partei.",
         "not_satisfiable_signature": "{otherParty} fordert Sie auf, mit veralteten Daten zu signieren. Sie können dieses Problem selbst nicht beheben. Bitte kontaktieren Sie die anfragende Partei."
+      },
+      "calm_success": {
+        "app_bar": "Geteilt",
+        "heading": "Ihre Daten wurden mit {otherParty} geteilt",
+        "text": "Sie können zurück zur Website."
       }
     }
   },
@@ -525,8 +528,11 @@
     "success_feedback": {
       "header": "Erfolg",
       "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt",
-      "calm_header": "Hinzugefügt",
-      "calm_text": "Die Daten sind in Ihrer Yivi-App. Sie finden sie unter Daten."
+      "calm": {
+        "app_bar": "Hinzugefügt",
+        "heading": "Die Daten sind in Ihrer Yivi-App",
+        "text": "Sie finden sie unter Daten."
+      }
     },
     "pre-authorized_code": {
       "tx_code_screen": {

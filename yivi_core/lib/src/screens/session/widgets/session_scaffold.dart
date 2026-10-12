@@ -9,8 +9,6 @@ class SessionScaffold extends StatelessWidget {
   final String appBarTitle;
   final VoidCallback? onDismiss;
   final VoidCallback? onPrevious;
-
-  /// The grey-white of the session screens unless given.
   final Color? backgroundColor;
 
   const SessionScaffold({

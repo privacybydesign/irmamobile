@@ -107,17 +107,24 @@ class _DateInputFieldState extends ConsumerState<DateInputField> {
     return YiviTextField(
       label: widget.labelText,
       hint: FlutterI18n.translate(context, "ui.date_placeholder"),
-      suffixIcon: IconButton(
-        constraints: BoxConstraints.tightFor(
-          width: theme.fieldButtonSize,
-          height: theme.fieldButtonSize,
+      suffixIcon: Padding(
+        padding: theme.fieldRowButtonPadding,
+        child: IconButton(
+          constraints: BoxConstraints.tightFor(
+            width: theme.fieldButtonSize,
+            height: theme.fieldButtonSize,
+          ),
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          tooltip: FlutterI18n.translate(context, "ui.choose_date"),
+          icon: Icon(
+            Icons.calendar_today,
+            size: 22,
+            color: theme.neutralExtraDark,
+          ),
+          onPressed: _pickDate,
         ),
-        style: IconButton.styleFrom(
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        tooltip: FlutterI18n.translate(context, "ui.choose_date"),
-        icon: const Icon(Icons.calendar_today),
-        onPressed: _pickDate,
       ),
       legacyDecoration: InputDecoration(
         hintText: "YYYY-MM-DD",
@@ -134,14 +141,14 @@ class _DateInputFieldState extends ConsumerState<DateInputField> {
           onPressed: _pickDate,
         ),
       ),
-      builder: (decoration, errorBuilder) => TextFormField(
+      builder: (decoration, errorBuilder, style) => TextFormField(
         key: widget.fieldKey ?? const Key("date_input_field"),
         controller: widget.controller,
         readOnly: false,
         keyboardType: .number,
         textInputAction: .next,
         cursorColor: theme.themeData.colorScheme.secondary,
-        style: baseTextStyle,
+        style: style ?? baseTextStyle,
         inputFormatters: [formFieldsV2 ? _dateMaskV2 : _dateMask],
         decoration: decoration,
         errorBuilder: errorBuilder,
@@ -155,7 +162,7 @@ class _DateInputFieldState extends ConsumerState<DateInputField> {
           if (parsed == null) {
             return widget.dateInvalidText;
           }
-          // Round-trip to ensure canonical yyyy-MM-dd (no partials like 2025-13-40)
+          // Round-trip to ensure a canonical date (no partials like month 13)
           if (_format.format(parsed) != v) {
             return widget.dateInvalidText;
           }

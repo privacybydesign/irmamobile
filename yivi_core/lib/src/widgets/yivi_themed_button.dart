@@ -38,6 +38,7 @@ class YiviButtonSize {
 
   static const large = YiviButtonSize._internal(55);
   static const medium = YiviButtonSize._internal(50);
+  static const compact = YiviButtonSize._internal(48);
   static const small = YiviButtonSize._internal(37);
 }
 
