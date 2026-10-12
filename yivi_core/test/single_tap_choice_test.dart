@@ -174,7 +174,7 @@ List<IrmaCardStyle> _cardStyles(WidgetTester tester) => tester
     .map((c) => c.style)
     .toList();
 
-final _switchButton = find.byKey(const Key("choice_switch_button"));
+final _footer = find.byKey(const Key("choice_card_footer"));
 
 void main() {
   final passport = _descriptor("passport", "Passport");
@@ -372,18 +372,44 @@ void main() {
       );
     }
 
-    testWidgets("flag on: label above the values, Switch in the footer", (
+    testWidgets("flag on: label in the card, issuer band below it", (
       tester,
     ) async {
       await pumpTranslated(tester, app(_Flag.on));
       await tester.pumpAndSettle();
 
-      expect(find.text("PASSPORT OR ID CARD"), findsOneWidget);
+      final card = find.byType(YiviCredentialCard);
+      expect(
+        find.descendant(of: card, matching: find.text("PASSPORT OR ID CARD")),
+        findsOneWidget,
+      );
       expect(find.text("Jansen"), findsOneWidget);
-      expect(find.text("Certified by RvIG"), findsOneWidget);
-      expect(_switchButton, findsOneWidget);
-      expect(find.text("Switch"), findsOneWidget);
+      expect(
+        find.descendant(of: _footer, matching: find.text("Certified by RvIG")),
+        findsOneWidget,
+      );
+      expect(tester.getTopLeft(_footer).dy, tester.getBottomLeft(card).dy);
       expect(find.text("Change choice"), findsNothing);
+      expect(find.text("Switch"), findsNothing);
+    });
+
+    testWidgets("flag on: the band is a button that changes the choice", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpTranslated(tester, app(_Flag.on));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(_footer),
+        isSemantics(
+          label: "Certified by RvIG",
+          hint: "Change choice",
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      semantics.dispose();
     });
 
     testWidgets("flag off: the Change choice button stays", (tester) async {
@@ -393,7 +419,7 @@ void main() {
       expect(find.text("Change choice"), findsOneWidget);
       expect(find.text("PASSPORT OR ID CARD"), findsNothing);
       expect(find.text("Certified by RvIG"), findsNothing);
-      expect(_switchButton, findsNothing);
+      expect(_footer, findsNothing);
     });
 
     testWidgets("flag on: instances of one credential get no label", (
@@ -417,12 +443,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("E-MAIL"), findsNothing);
-      expect(_switchButton, findsOneWidget);
+      expect(_footer, findsOneWidget);
     });
 
-    testWidgets("flag on: a single option has no Switch button", (
-      tester,
-    ) async {
+    testWidgets("flag on: a single option has no band", (tester) async {
       await pumpTranslated(
         tester,
         app(
@@ -440,17 +464,17 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Jansen"), findsOneWidget);
-      expect(_switchButton, findsNothing);
+      expect(_footer, findsNothing);
       expect(find.text("Certified by RvIG"), findsNothing);
     });
 
-    testWidgets("flag on: Switch opens the sheet and a tap picks and closes", (
+    testWidgets("flag on: the band opens the sheet and a tap picks and closes", (
       tester,
     ) async {
       await pumpTranslated(tester, app(_Flag.on));
       await tester.pumpAndSettle();
 
-      await tester.tap(_switchButton);
+      await tester.tap(_footer);
       await tester.pumpAndSettle();
 
       expect(find.text("What do you want to share?"), findsOneWidget);
@@ -485,7 +509,7 @@ void main() {
       await pumpTranslated(tester, app(_Flag.on));
       await tester.pumpAndSettle();
 
-      await tester.tap(_switchButton);
+      await tester.tap(_footer);
       await tester.pumpAndSettle();
 
       // Index 0 is the share screen card behind the sheet.
@@ -512,11 +536,11 @@ void main() {
       await pumpTranslated(tester, app(_Flag.on));
       await tester.pumpAndSettle();
 
-      await tester.tap(_switchButton);
+      await tester.tap(_footer);
       await tester.pumpAndSettle();
       await tester.tap(find.text("de Vries"));
       await tester.pumpAndSettle();
-      await tester.tap(_switchButton);
+      await tester.tap(_footer);
       await tester.pumpAndSettle();
 
       expect(_cardStyles(tester), [
@@ -541,7 +565,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(_switchButton);
+      await tester.tap(_footer);
       await tester.pumpAndSettle();
 
       expect(find.text("ID card"), findsOneWidget);

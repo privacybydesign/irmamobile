@@ -442,17 +442,28 @@ class _DisclosureChoiceEntry extends ConsumerWidget {
       final singleTapChoice =
           ref.watch(featureFlagProvider(FeatureFlag.singleTapChoice)).value ??
           false;
-      final switchInFooter = singleTapChoice && changeable && !optional;
+      final changeInFooter = singleTapChoice && changeable && !optional;
       final names = pickOneNames(pickOne);
+      // Instances of one credential share a name, so they get no label.
+      final label = changeInFooter && names.length > 1
+          ? _ChoiceLabel(joinChoiceNames(context, names))
+          : null;
+
+      Widget withFooter(SelectableCredentialInstance credential, Widget card) {
+        if (!changeInFooter) return card;
+
+        return ChoiceCardFooter(
+          card: card,
+          issuerName: credential.issuer.name,
+          onTap: onChangeChoice,
+        );
+      }
 
       return Padding(
         padding: .only(bottom: theme.defaultSpacing),
         child: Column(
           children: [
-            // Instances of one credential share a name, so they get no label.
-            if (switchInFooter && names.length > 1)
-              _ChoiceLabel(joinChoiceNames(context, names))
-            else if (changeable && !optional && !singleTapChoice)
+            if (changeable && !optional && !singleTapChoice)
               Padding(
                 padding: .only(
                   bottom: theme.smallSpacing,
@@ -478,27 +489,23 @@ class _DisclosureChoiceEntry extends ConsumerWidget {
                 padding: EdgeInsets.only(
                   bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
                 ),
-                child: YiviCredentialCard.fromSelectableInstance(
-                  instance: credentials[i],
-                  compact: true,
-                  hideFooter: true,
-                  footer: switchInFooter
-                      ? ChoiceCardFooter(
-                          issuerName: credentials[i].issuer.name,
-                          onSwitch: i == credentials.length - 1
-                              ? onChangeChoice
-                              : null,
-                        )
-                      : null,
-                  headerTrailing: i == 0 && optional && onRemove != null
-                      ? IrmaIconButton(
-                          key: const Key("remove_optional_data_button"),
-                          icon: Icons.close,
-                          size: 22,
-                          padding: .zero,
-                          onTap: onRemove!,
-                        )
-                      : null,
+                child: withFooter(
+                  credentials[i],
+                  YiviCredentialCard.fromSelectableInstance(
+                    instance: credentials[i],
+                    compact: true,
+                    hideFooter: true,
+                    eyebrow: i == 0 ? label : null,
+                    headerTrailing: i == 0 && optional && onRemove != null
+                        ? IrmaIconButton(
+                            key: const Key("remove_optional_data_button"),
+                            icon: Icons.close,
+                            size: 22,
+                            padding: .zero,
+                            onTap: onRemove!,
+                          )
+                        : null,
+                  ),
                 ),
               ),
           ],
@@ -541,9 +548,8 @@ class _DisclosureChoiceEntry extends ConsumerWidget {
   }
 }
 
-/// Small uppercase label above a card that is one of several options, such
-/// as "PASPOORT OF ID-KAART". Uses the eyebrow style of the attribute list,
-/// indented like SectionHeader to line up with the card content.
+/// Small uppercase label at the top of a card that is one of several
+/// options, such as "PASPOORT OF ID-KAART".
 class _ChoiceLabel extends StatelessWidget {
   final String text;
 
@@ -553,22 +559,17 @@ class _ChoiceLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Padding(
-      padding: .only(left: theme.defaultSpacing, bottom: theme.smallSpacing),
-      child: Align(
-        alignment: .centerLeft,
-        child: Text(
-          text.toUpperCase(),
-          // Screen readers may spell out words in capitals.
-          semanticsLabel: text,
-          style: TextStyle(
-            fontFamily: theme.secondaryFontFamily,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: theme.neutralDark,
-            letterSpacing: 0.96,
-          ),
-        ),
+    return Text(
+      text.toUpperCase(),
+      // Screen readers may spell out words in capitals.
+      semanticsLabel: text,
+      style: TextStyle(
+        fontFamily: theme.secondaryFontFamily,
+        fontSize: 12,
+        height: 16 / 12,
+        fontWeight: FontWeight.w700,
+        color: theme.neutralDark,
+        letterSpacing: 0.48, // 0.04em × 12px
       ),
     );
   }

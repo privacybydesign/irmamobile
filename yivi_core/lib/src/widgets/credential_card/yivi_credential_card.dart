@@ -35,9 +35,8 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool hideFooter;
   final bool hideNotObtainable;
 
-  /// Replaces the validity footer: shown below the attributes, behind a
-  /// divider, even when [hideFooter] is set.
-  final Widget? footer;
+  /// Shown above the header, such as the label of a choice.
+  final Widget? eyebrow;
 
   const YiviCredentialCard({
     super.key,
@@ -55,7 +54,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
-    this.footer,
+    this.eyebrow,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -110,7 +109,7 @@ class YiviCredentialCard extends ConsumerWidget {
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
-    Widget? footer,
+    Widget? eyebrow,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   }) : this(
          key: key,
@@ -141,7 +140,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
-         footer: footer,
+         eyebrow: eyebrow,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -300,6 +299,10 @@ class YiviCredentialCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (eyebrow != null) ...[
+            eyebrow!,
+            SizedBox(height: theme.smallSpacing + theme.tinySpacing),
+          ],
           YiviCredentialCardHeader(
             compact: compact,
             credentialName: displayName,
@@ -321,13 +324,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
             YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
           ],
-          if (footer != null) ...[
-            IrmaDivider(
-              color: status.isExpired ? theme.danger : null,
-              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-            ),
-            footer!,
-          ] else if (!hideFooter && !status.revoked)
+          if (!hideFooter && !status.revoked)
             Column(
               children: [
                 if (attributes.isNotEmpty)
