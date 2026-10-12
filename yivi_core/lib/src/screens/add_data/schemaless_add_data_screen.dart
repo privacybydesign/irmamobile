@@ -2,7 +2,9 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../models/schemaless/credential_store.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../theme/theme.dart";
@@ -10,10 +12,13 @@ import "../../util/navigation.dart";
 import "../../util/nfc_credentials.dart";
 import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "../../widgets/data_tab_icon.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/yivi_themed_button.dart";
+
+const _backIconSize = 24.0;
 
 class SchemalessAddDataScreen extends ConsumerWidget {
   /// Shows an explanation that the credential cannot be loaded because the
@@ -46,9 +51,19 @@ class SchemalessAddDataScreen extends ConsumerWidget {
     // out the NFC-requiring credentials.
     final nfcAvailable = ref.watch(nfcAvailableProvider).value ?? true;
 
+    final redesign =
+        ref.watch(featureFlagProvider(FeatureFlag.dataTabV2)).value ?? false;
+    final headerIndent = redesign
+        ? SectionHeaderIndent.cardEdge
+        : SectionHeaderIndent.cardContent;
+
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
+      appBar: IrmaAppBar(
+        titleTranslationKey: "data.add.title",
+        hasBorder: !redesign,
+        leading: redesign ? const _BackButton() : const YiviBackButton(),
+      ),
       body: SingleChildScrollView(
         padding: .all(theme.defaultSpacing),
         child: SafeArea(
@@ -79,14 +94,17 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                         spacing: theme.smallSpacing,
                         children: [
                           if (source == CredentialStoreSource.staging)
-                            const SectionHeader("data.add.staging")
+                            SectionHeader(
+                              "data.add.staging",
+                              indent: headerIndent,
+                            )
                           else if (source == CredentialStoreSource.demo)
-                            const SectionHeader("data.add.demo")
+                            SectionHeader("data.add.demo", indent: headerIndent)
                           // A credential without a category (irmago marshals
                           // it `omitempty`) groups under "", which would
                           // otherwise render as a blank gap above the cards.
                           else if (category.isNotEmpty)
-                            SectionHeader.text(category),
+                            SectionHeader.text(category, indent: headerIndent),
                           Column(
                             spacing: theme.smallSpacing,
                             children: [
@@ -111,6 +129,9 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                                     credentialId: credential.credentialId,
                                     issuerName: credential.issuer.name,
                                     trailingIcon: Icons.add_circle_sharp,
+                                    layout: redesign
+                                        ? CredentialCardLayout.compact
+                                        : CredentialCardLayout.standard,
                                     disabled: nfcBlocked,
                                     disabledHint: nfcBlocked
                                         ? FlutterI18n.translate(
@@ -139,6 +160,36 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                 ),
               },
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The back arrow of the redesigned screen: black, as on the design boards.
+class _BackButton extends StatelessWidget {
+  const _BackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    void pop() => Navigator.of(context).pop();
+
+    return Semantics(
+      button: true,
+      label: FlutterI18n.translate(context, "ui.go_back"),
+      onTap: pop,
+      excludeSemantics: true,
+      child: InkWell(
+        key: const Key("irma_app_bar_leading"),
+        onTap: pop,
+        customBorder: const CircleBorder(),
+        child: Center(
+          child: DataTabIcon(
+            DataTabGlyph.arrowBack,
+            size: _backIconSize,
+            color: theme.dark,
           ),
         ),
       ),
