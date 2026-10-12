@@ -197,6 +197,8 @@ void main() {
         (widget) => widget is Container && widget.constraints?.maxWidth == 260,
       );
       final other = find.byKey(const Key("back_to_website_other_button"));
+      // The press-in ends 70 percent into the 2.4 s loop.
+      const pressedIn = Duration(milliseconds: 1680);
 
       Future<void> pumpPhone(WidgetTester tester) async {
         usePhoneScreen(tester);
@@ -316,11 +318,11 @@ void main() {
         double scale() => tester.widget<ScaleTransition>(pulse).scale.value;
 
         expect(scale(), 1);
-        await tester.pump(const Duration(milliseconds: 1680));
+        await tester.pump(pressedIn);
         expect(scale(), closeTo(0.94, 0.001));
         await tester.pump(const Duration(milliseconds: 720));
         expect(scale(), 1);
-        await tester.pump(const Duration(milliseconds: 1680));
+        await tester.pump(pressedIn);
         expect(scale(), closeTo(0.94, 0.001));
       });
 
@@ -338,7 +340,7 @@ void main() {
           matching: find.byType(ScaleTransition),
         );
 
-        await tester.pump(const Duration(milliseconds: 1680));
+        await tester.pump(pressedIn);
 
         expect(tester.widget<ScaleTransition>(pulse).scale.value, 1);
         expect(tester.hasRunningAnimations, isFalse);
