@@ -531,6 +531,31 @@ void main() {
       );
     });
 
+    testWidgets("a screen reader reads the values before the issuer band", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpOverview(
+        tester,
+        session: _session(
+          choices: [
+            _choice([_instance()]),
+          ],
+        ),
+      );
+
+      final labels = tester.semantics
+          .simulatedAccessibilityTraversal()
+          .map((node) => node.label)
+          .toList();
+      expect(
+        labels.indexWhere((l) => l.contains("Jansen")),
+        lessThan(labels.indexWhere((l) => l.contains("Certified by RvIG"))),
+      );
+      expect(labels.indexWhere((l) => l.contains("Jansen")), isNonNegative);
+      semantics.dispose();
+    });
+
     testWidgets("K1: label 14/20 grey, value 17/24 semibold black", (
       tester,
     ) async {
