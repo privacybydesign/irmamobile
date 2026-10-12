@@ -10,10 +10,14 @@ const _nameLineHeight = 22.0;
 const _subtitleLineHeight = 20.0;
 
 /// The line below a credential name.
-TextStyle credentialSubtitleStyle(IrmaThemeData theme) => theme
-    .textTheme
-    .bodySmall!
-    .copyWith(height: _subtitleLineHeight / 14, color: theme.neutralExtraDark);
+TextStyle credentialSubtitleStyle(IrmaThemeData theme) {
+  final style = theme.textTheme.bodySmall!;
+
+  return style.copyWith(
+    height: _subtitleLineHeight / style.fontSize!,
+    color: theme.neutralExtraDark,
+  );
+}
 
 const _waitingColor = Color(0xFF7A4B00);
 
@@ -60,6 +64,7 @@ class CredentialSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final logo = image;
+    final nameStyle = theme.textTheme.bodyMedium!;
 
     return Row(
       spacing: theme.smallSpacing + theme.tinySpacing,
@@ -79,9 +84,9 @@ class CredentialSummary extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: theme.textTheme.bodyMedium!.copyWith(
+                style: nameStyle.copyWith(
                   fontWeight: nameWeight,
-                  height: _nameLineHeight / 16,
+                  height: _nameLineHeight / nameStyle.fontSize!,
                 ),
               ),
               ?subtitle,

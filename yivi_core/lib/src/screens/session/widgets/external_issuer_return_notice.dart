@@ -99,6 +99,7 @@ class _ExternalIssuerReturnNoticeState extends State<ExternalIssuerReturnNotice>
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final textStyle = theme.textTheme.bodySmall!;
 
     final notice = Container(
       padding: const EdgeInsets.symmetric(
@@ -126,8 +127,8 @@ class _ExternalIssuerReturnNoticeState extends State<ExternalIssuerReturnNotice>
             child: TranslatedText(
               "external_issuer.returned",
               translationParams: {"issuer": widget.issuer},
-              style: theme.textTheme.bodySmall!.copyWith(
-                height: _textLineHeight / 14,
+              style: textStyle.copyWith(
+                height: _textLineHeight / textStyle.fontSize!,
                 color: theme.dark,
               ),
             ),

@@ -14,6 +14,8 @@ const _sectionGap = 20.0;
 const _stepGap = 14.0;
 const _cardRadius = 10.0;
 const _cardPaddingVertical = 14.0;
+const _cardShadowOffset = Offset(0, 1);
+const _cardShadowBlur = 6.0;
 const _logoSize = 40.0;
 const _badgeSize = 28.0;
 const _badgeBorderWidth = 2.0;
@@ -147,8 +149,8 @@ class _CredentialCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade300,
-            offset: const Offset(0, 1),
-            blurRadius: 6,
+            offset: _cardShadowOffset,
+            blurRadius: _cardShadowBlur,
           ),
         ],
       ),

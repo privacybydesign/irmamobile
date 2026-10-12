@@ -32,9 +32,16 @@ import "package:yivi_core/src/widgets/missing_data_band.dart";
 import "support/pump_translated.dart";
 
 const _websiteCredential = "pbdf.gemeente.personalData";
+const _embeddedCredential = "pbdf.sidn-pbdf.email";
+const _credentialName = "Persoonsgegevens";
 const _issueUrl = "https://gemeente.example/start";
 const _sessionId = 1;
 const _sourceLine = "Via the website of Gemeente Voorbeeld";
+const _fallbackText = "the regular row";
+const _english = Locale("en", "US");
+const _backButtonKey = Key("irma_app_bar_leading");
+
+enum _Flag { on, off }
 
 class _ActiveFlow extends MissingDataFlowNotifier {
   @override
@@ -60,7 +67,7 @@ TrustedParty _issuer() => TrustedParty(
 CredentialDescriptor _descriptor({
   String credentialId = _websiteCredential,
   String? issueUrl = _issueUrl,
-  String name = "Persoonsgegevens",
+  String name = _credentialName,
 }) => CredentialDescriptor(
   credentialId: credentialId,
   name: name,
@@ -112,14 +119,14 @@ class _Env {
   ];
 }
 
-Future<_Env> _env({required bool flagOn}) async {
+Future<_Env> _env({required _Flag flag}) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await IrmaPreferences.fromInstance(
     mostRecentTermsUrlNl: "",
     mostRecentTermsUrlEn: "",
   );
   await prefs.clearAll();
-  await prefs.setFeatureFlag(FeatureFlag.externalIssuerFlow, flagOn);
+  await prefs.setFeatureFlag(FeatureFlag.externalIssuerFlow, flag == _Flag.on);
   final repo = IrmaRepository(client: _RecordingBridge(), preferences: prefs);
   addTearDown(repo.close);
   return _Env(prefs, repo);
@@ -129,7 +136,7 @@ Widget _app(
   _Env env,
   Widget home, {
   List<dynamic> overrides = const [],
-  Locale locale = const Locale("en", "US"),
+  Locale locale = _english,
 }) => ProviderScope(
   overrides: [...env.overrides, ...overrides].cast(),
   child: IrmaTheme(
@@ -153,7 +160,7 @@ Future<void> _pumpApp(
   _Env env,
   Widget home, {
   List<dynamic> overrides = const [],
-  Locale locale = const Locale("en", "US"),
+  Locale locale = _english,
 }) async {
   await pumpTranslated(
     tester,
@@ -165,7 +172,7 @@ Future<void> _pumpApp(
 Credential _offered() => Credential(
   credentialId: _websiteCredential,
   hash: "hash",
-  name: "Persoonsgegevens",
+  name: _credentialName,
   issuer: _issuer(),
   credentialInstanceIds: const {},
   batchInstanceCountsRemaining: const {},
@@ -211,7 +218,7 @@ void main() {
 
   group("externalIssuerStatusProvider", () {
     test("is notExternal for every credential while the flag is off", () async {
-      final container = await _container(await _env(flagOn: false));
+      final container = await _container(await _env(flag: _Flag.off));
 
       expect(
         _status(container, _descriptor()),
@@ -220,13 +227,13 @@ void main() {
     });
 
     test("is ready for a credential issued on a website", () async {
-      final container = await _container(await _env(flagOn: true));
+      final container = await _container(await _env(flag: _Flag.on));
 
       expect(_status(container, _descriptor()), ExternalIssuerStatus.ready);
     });
 
     test("is notExternal without an issue URL", () async {
-      final container = await _container(await _env(flagOn: true));
+      final container = await _container(await _env(flag: _Flag.on));
 
       expect(
         _status(container, _descriptor(issueUrl: null)),
@@ -239,7 +246,7 @@ void main() {
     });
 
     test("is notExternal for credentials with an embedded flow", () async {
-      final container = await _container(await _env(flagOn: true));
+      final container = await _container(await _env(flag: _Flag.on));
 
       for (final id in [
         "pbdf.pbdf.passport",
@@ -257,7 +264,7 @@ void main() {
     test(
       "is waiting once the website was opened, until it is cleared",
       () async {
-        final env = await _env(flagOn: true);
+        final env = await _env(flag: _Flag.on);
         final container = await _container(env);
         final descriptor = _descriptor();
 
@@ -272,7 +279,7 @@ void main() {
     );
 
     test("only the credential whose website was opened is waiting", () async {
-      final env = await _env(flagOn: true);
+      final env = await _env(flag: _Flag.on);
       final container = await _container(env);
 
       env.repo.markInAppLaunched([_websiteCredential]);
@@ -288,13 +295,13 @@ void main() {
   group("ExternalIssuerHeadsUpScreen", () {
     Future<void> pump(
       WidgetTester tester, {
-      String name = "Persoonsgegevens",
-      Locale locale = const Locale("en", "US"),
+      String name = _credentialName,
+      Locale locale = _english,
       List<dynamic> overrides = const [],
       VoidCallback? onOpenWebsite,
       VoidCallback? onBack,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env(flag: _Flag.on)))!;
       await _pumpApp(
         tester,
         env,
@@ -313,9 +320,9 @@ void main() {
     ) async {
       await pump(tester);
 
-      expect(find.text("Obtain Persoonsgegevens"), findsOne);
+      expect(find.text("Obtain $_credentialName"), findsOne);
       expect(find.text("You're about to go to another website"), findsOne);
-      expect(find.text("Persoonsgegevens"), findsOne);
+      expect(find.text(_credentialName), findsOne);
       expect(find.text("gemeente.example"), findsOne);
       expect(find.text("Follow the steps on that website."), findsOne);
       expect(
@@ -345,7 +352,7 @@ void main() {
     testWidgets("falls back to the credential id for a nameless credential", (
       tester,
     ) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env(flag: _Flag.on)))!;
       await _pumpApp(
         tester,
         env,
@@ -384,7 +391,7 @@ void main() {
       await tester.tap(find.text("Back to the list"));
       expect(wentBack, 1);
 
-      await tester.tap(find.byKey(const Key("irma_app_bar_leading")));
+      await tester.tap(find.byKey(_backButtonKey));
       expect(wentBack, 2);
     });
 
@@ -434,10 +441,10 @@ void main() {
   group("AddDataDetailsRoute", () {
     Future<void> pump(
       WidgetTester tester, {
-      required bool flagOn,
+      required _Flag flag,
       CredentialDescriptor? credential,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      final env = (await tester.runAsync(() => _env(flag: flag)))!;
       await _pumpApp(
         tester,
         env,
@@ -453,7 +460,7 @@ void main() {
     testWidgets("keeps the regular details page while the flag is off", (
       tester,
     ) async {
-      await pump(tester, flagOn: false);
+      await pump(tester, flag: _Flag.off);
 
       expect(find.text("regular details"), findsOne);
       expect(find.byType(ExternalIssuerHeadsUpScreen), findsNothing);
@@ -462,7 +469,7 @@ void main() {
     testWidgets("shows the heads-up screen for a website credential", (
       tester,
     ) async {
-      await pump(tester, flagOn: true);
+      await pump(tester, flag: _Flag.on);
 
       expect(find.byType(ExternalIssuerHeadsUpScreen), findsOne);
       expect(find.text("regular details"), findsNothing);
@@ -473,8 +480,8 @@ void main() {
     ) async {
       await pump(
         tester,
-        flagOn: true,
-        credential: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
+        flag: _Flag.on,
+        credential: _descriptor(credentialId: _embeddedCredential),
       );
 
       expect(find.text("regular details"), findsOne);
@@ -489,10 +496,10 @@ void main() {
 
     Future<_Env> pump(
       WidgetTester tester, {
-      required bool flagOn,
+      required _Flag flag,
       CredentialDescriptor? descriptor,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      final env = (await tester.runAsync(() => _env(flag: flag)))!;
       await _pumpApp(
         tester,
         env,
@@ -507,15 +514,15 @@ void main() {
     }
 
     testWidgets("looks as before while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
+      await pump(tester, flag: _Flag.off);
 
-      expect(find.text("Persoonsgegevens"), findsOne);
+      expect(find.text(_credentialName), findsOne);
       expect(find.text(_sourceLine), findsNothing);
       expect(find.text(waitingStatus), findsNothing);
     });
 
     testWidgets("says where the data comes from", (tester) async {
-      await pump(tester, flagOn: true);
+      await pump(tester, flag: _Flag.on);
 
       expect(find.text(_sourceLine), findsOne);
       expect(find.text(waitingStatus), findsNothing);
@@ -524,8 +531,8 @@ void main() {
     testWidgets("adds no source line for an embedded flow", (tester) async {
       await pump(
         tester,
-        flagOn: true,
-        descriptor: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
+        flag: _Flag.on,
+        descriptor: _descriptor(credentialId: _embeddedCredential),
       );
 
       expect(find.text(_sourceLine), findsNothing);
@@ -534,7 +541,7 @@ void main() {
     testWidgets("shows the waiting state once the website was opened", (
       tester,
     ) async {
-      final env = await pump(tester, flagOn: true);
+      final env = await pump(tester, flag: _Flag.on);
 
       env.repo.markInAppLaunched([_websiteCredential]);
       await tester.pumpAndSettle();
@@ -549,11 +556,11 @@ void main() {
   group("ExternalIssuerChecklistRow", () {
     Future<_Env> pump(
       WidgetTester tester, {
-      required bool flagOn,
+      required _Flag flag,
       CredentialDescriptor? descriptor,
       VoidCallback? onObtain,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      final env = (await tester.runAsync(() => _env(flag: flag)))!;
       await _pumpApp(
         tester,
         env,
@@ -561,7 +568,7 @@ void main() {
           body: ExternalIssuerChecklistRow(
             credential: descriptor ?? _descriptor(),
             onObtain: onObtain ?? () {},
-            fallback: const Text("the regular row"),
+            fallback: const Text(_fallbackText),
           ),
         ),
       );
@@ -569,30 +576,30 @@ void main() {
     }
 
     testWidgets("builds the regular row while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
+      await pump(tester, flag: _Flag.off);
 
-      expect(find.text("the regular row"), findsOne);
+      expect(find.text(_fallbackText), findsOne);
       expect(find.text(_sourceLine), findsNothing);
     });
 
     testWidgets("builds the regular row for an embedded flow", (tester) async {
       await pump(
         tester,
-        flagOn: true,
-        descriptor: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
+        flag: _Flag.on,
+        descriptor: _descriptor(credentialId: _embeddedCredential),
       );
 
-      expect(find.text("the regular row"), findsOne);
+      expect(find.text(_fallbackText), findsOne);
     });
 
     testWidgets("says where the data comes from and offers to get it", (
       tester,
     ) async {
       var obtained = 0;
-      await pump(tester, flagOn: true, onObtain: () => obtained++);
+      await pump(tester, flag: _Flag.on, onObtain: () => obtained++);
 
-      expect(find.text("the regular row"), findsNothing);
-      expect(find.text("Persoonsgegevens"), findsOne);
+      expect(find.text(_fallbackText), findsNothing);
+      expect(find.text(_credentialName), findsOne);
       expect(find.text(_sourceLine), findsOne);
       expect(find.byIcon(Icons.open_in_new), findsOne);
 
@@ -603,7 +610,7 @@ void main() {
     testWidgets("names the credential and the website for screen readers", (
       tester,
     ) async {
-      await pump(tester, flagOn: true);
+      await pump(tester, flag: _Flag.on);
 
       expect(
         find.bySemanticsLabel("Obtain: Persoonsgegevens, opens a website"),
@@ -613,7 +620,11 @@ void main() {
 
     testWidgets("waits for the website once it was opened", (tester) async {
       var obtained = 0;
-      final env = await pump(tester, flagOn: true, onObtain: () => obtained++);
+      final env = await pump(
+        tester,
+        flag: _Flag.on,
+        onObtain: () => obtained++,
+      );
 
       env.repo.markInAppLaunched([_websiteCredential]);
       await tester.pumpAndSettle();
@@ -629,11 +640,11 @@ void main() {
   });
 
   group("MissingDataChecklistScreen", () {
-    Future<void> pump(WidgetTester tester, {required bool flagOn}) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+    Future<void> pump(WidgetTester tester, {required _Flag flag}) async {
+      final env = (await tester.runAsync(() => _env(flag: flag)))!;
       final session = _sessionNeedingAll([
         _descriptor(),
-        _descriptor(credentialId: "pbdf.sidn-pbdf.email", name: "E-mailadres"),
+        _descriptor(credentialId: _embeddedCredential, name: "E-mailadres"),
       ]);
       await _pumpApp(
         tester,
@@ -648,7 +659,7 @@ void main() {
     }
 
     testWidgets("marks the row of a website credential", (tester) async {
-      await pump(tester, flagOn: true);
+      await pump(tester, flag: _Flag.on);
 
       expect(find.text(_sourceLine), findsOne);
       expect(find.text("Not in your app yet"), findsOne);
@@ -657,7 +668,7 @@ void main() {
     testWidgets("leaves the rows as they were while the flag is off", (
       tester,
     ) async {
-      await pump(tester, flagOn: false);
+      await pump(tester, flag: _Flag.off);
 
       expect(find.text(_sourceLine), findsNothing);
       expect(find.text("Not in your app yet"), findsNWidgets(2));
@@ -665,8 +676,8 @@ void main() {
   });
 
   group("IssueDuringDisclosureScreen primary button", () {
-    Future<_Env> pump(WidgetTester tester, {required bool flagOn}) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+    Future<_Env> pump(WidgetTester tester, {required _Flag flag}) async {
+      final env = (await tester.runAsync(() => _env(flag: flag)))!;
       await _pumpApp(
         tester,
         env,
@@ -690,7 +701,7 @@ void main() {
     );
 
     testWidgets("is unchanged while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
+      await pump(tester, flag: _Flag.off);
 
       expect(primary(find.text("Obtain data")), findsOne);
       expect(primary(find.byType(Icon)), findsNothing);
@@ -699,7 +710,7 @@ void main() {
     testWidgets("carries an external-link icon for a website credential", (
       tester,
     ) async {
-      await pump(tester, flagOn: true);
+      await pump(tester, flag: _Flag.on);
 
       expect(primary(find.text("Obtain data")), findsOne);
       expect(primary(find.byIcon(Icons.open_in_new)), findsOne);
@@ -708,7 +719,7 @@ void main() {
     testWidgets("offers to open the website again when it is pending", (
       tester,
     ) async {
-      final env = await pump(tester, flagOn: true);
+      final env = await pump(tester, flag: _Flag.on);
 
       env.repo.markInAppLaunched([_websiteCredential]);
       await tester.pumpAndSettle();
@@ -726,7 +737,7 @@ void main() {
       VoidCallback? onGivePermission,
       VoidCallback? onDismiss,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env(flag: _Flag.on)))!;
       await _pumpApp(
         tester,
         env,
@@ -760,8 +771,8 @@ void main() {
     ) async {
       await pump(tester, returnedFrom: _offered());
 
-      expect(find.text("Obtain Persoonsgegevens"), findsOne);
-      expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
+      expect(find.text("Obtain $_credentialName"), findsOne);
+      expect(find.byKey(_backButtonKey), findsNothing);
       expect(
         find.text("Do you want to add this data to your Yivi app?"),
         findsOne,
@@ -780,7 +791,7 @@ void main() {
     testWidgets("shows the credential with all its attributes", (tester) async {
       await pump(tester, returnedFrom: _offered());
 
-      expect(find.text("Persoonsgegevens"), findsWidgets);
+      expect(find.text(_credentialName), findsWidgets);
       expect(find.text("Gemeente Voorbeeld"), findsOne);
       expect(find.text("First names"), findsOne);
       expect(find.text("Rosanne"), findsOne);
@@ -811,7 +822,7 @@ void main() {
     testWidgets("slides the notice in, holds it and fades it out", (
       tester,
     ) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env(flag: _Flag.on)))!;
       await pumpTranslated(
         tester,
         _app(
@@ -822,6 +833,7 @@ void main() {
           ),
         ),
       );
+
       expect(noticeOpacity(tester), 0);
 
       await tester.pump(const Duration(milliseconds: 700));
@@ -845,7 +857,9 @@ void main() {
       await pump(tester, returnedFrom: _offered());
 
       expect(noticeOpacity(tester), 1);
+
       await tester.pump(const Duration(seconds: 5));
+
       expect(noticeOpacity(tester), 1);
     });
   });
@@ -862,8 +876,8 @@ void main() {
       offeredCredentials: [_offered()],
     );
 
-    Future<_Env> pump(WidgetTester tester, {required bool flagOn}) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+    Future<_Env> pump(WidgetTester tester, {required _Flag flag}) async {
+      final env = (await tester.runAsync(() => _env(flag: flag)))!;
       env.repo.markInAppLaunched([_websiteCredential]);
       await _pumpApp(
         tester,
@@ -881,13 +895,13 @@ void main() {
     testWidgets("welcomes the user back after opening the website", (
       tester,
     ) async {
-      await pump(tester, flagOn: true);
+      await pump(tester, flag: _Flag.on);
 
       expect(find.text(welcomeBack), findsOne);
     });
 
     testWidgets("shows no welcome while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
+      await pump(tester, flag: _Flag.off);
 
       expect(find.text(welcomeBack), findsNothing);
     });
@@ -895,7 +909,7 @@ void main() {
     testWidgets("shows no welcome when the website was not opened from Yivi", (
       tester,
     ) async {
-      final env = await pump(tester, flagOn: true);
+      final env = await pump(tester, flag: _Flag.on);
 
       env.repo.clearInAppLaunches();
       await tester.pumpAndSettle();

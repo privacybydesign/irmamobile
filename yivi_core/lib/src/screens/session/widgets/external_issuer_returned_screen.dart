@@ -12,6 +12,8 @@ import "external_issuer_return_notice.dart";
 
 const _logoSize = 44.0;
 const _attributesPaddingVertical = 10.0;
+const _cardShadowOffset = Offset(0, 1);
+const _cardShadowBlur = 6.0;
 
 /// The issuance confirmation for a user who just came back from the issuer's
 /// website, which they opened from the app.
@@ -90,8 +92,8 @@ class _CredentialCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade300,
-            offset: const Offset(0, 1),
-            blurRadius: 6,
+            offset: _cardShadowOffset,
+            blurRadius: _cardShadowBlur,
           ),
         ],
       ),
