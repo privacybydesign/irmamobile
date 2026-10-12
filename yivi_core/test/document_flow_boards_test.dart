@@ -33,6 +33,9 @@ import "support/pump_translated.dart";
 
 enum _Flag { on, off }
 
+/// Whether the animations that loop on a timer run.
+enum _Ticker { stopped, running }
+
 const _phone = Size(390, 844);
 const _dutch = Locale("nl", "NL");
 
@@ -45,7 +48,7 @@ Future<void> _pump(
   Widget home, {
   Locale locale = const Locale("en", "US"),
   _Flag flag = .on,
-  bool animations = false,
+  _Ticker ticker = .stopped,
 }) async {
   tester.view
     ..physicalSize = _phone
@@ -68,7 +71,7 @@ Future<void> _pump(
   );
   // TestContext stops the animations that loop on a timer, so that
   // pumpAndSettle can finish.
-  if (!animations) app = TestContext(child: app);
+  if (ticker == .stopped) app = TestContext(child: app);
 
   await pumpTranslated(
     tester,
@@ -82,7 +85,7 @@ Future<void> _pump(
     ),
   );
   // A looping animation never settles.
-  animations ? await tester.pump() : await tester.pumpAndSettle();
+  ticker == .running ? await tester.pump() : await tester.pumpAndSettle();
 }
 
 Finder _primary() => find.byKey(const Key("bottom_bar_primary"));
@@ -420,7 +423,7 @@ void main() {
       Future<void> pumpPhone() => _pump(
         tester,
         const Scaffold(body: Center(child: NfcPhoneOnPassport())),
-        animations: true,
+        ticker: .running,
       );
 
       await pumpPhone();
@@ -442,7 +445,7 @@ void main() {
       Future<void> pumpCheck() => _pump(
         tester,
         const Scaffold(body: Center(child: NfcDoneCheck())),
-        animations: true,
+        ticker: .running,
       );
 
       await tester.runAsync(() async {});
