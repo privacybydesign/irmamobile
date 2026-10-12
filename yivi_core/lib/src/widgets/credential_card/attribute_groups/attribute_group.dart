@@ -43,7 +43,7 @@ class AfterPlacement extends AttributeGroupPlacement {
 }
 
 /// A set of a credential's attributes drawn as one widget instead of as
-/// ordinary rows. See _Attribute Group_ in CONTEXT.md.
+/// ordinary rows.
 class AttributeGroup {
   /// The attributes this group takes out of the ordinary list, identified by
   /// claim path. Must be a subset of what the renderer was offered.

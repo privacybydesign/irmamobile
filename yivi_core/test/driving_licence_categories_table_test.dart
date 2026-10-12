@@ -38,6 +38,8 @@ Widget _wrap(
   ),
 );
 
+const _toggleKey = Key("driving_licence_categories_toggle");
+
 CompareValue<T> _v<T>(T value) => CompareValue(value, AttributeComparison.none);
 
 /// As on the credential detail screen.
@@ -130,7 +132,7 @@ void main() {
       tester.widget<Icon>(find.byIcon(Icons.expand_more)).color,
       linkColor,
     );
-    final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
+    final toggle = find.byKey(_toggleKey);
     final tableBox = find.byType(Table);
     expect(
       tester.getTopLeft(toggle).dy,
@@ -183,9 +185,7 @@ void main() {
     final before = tester.getTopLeft(find.text("2015-03-01")).dx;
     final headerBefore = tester.getTopLeft(find.text("ISSUED")).dx;
 
-    await tester.tap(
-      find.byKey(const Key("driving_licence_categories_toggle")),
-    );
+    await tester.tap(find.byKey(_toggleKey));
     await tester.pumpAndSettle();
     expect(find.text("C1E"), findsOneWidget);
 
@@ -208,7 +208,7 @@ void main() {
               : CategoryRow(code: code, held: _v<bool?>(false)),
       ],
     );
-    final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
+    final toggle = find.byKey(_toggleKey);
     double offset(WidgetTester tester) =>
         tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels;
     Future<void> toggleAndSettle(WidgetTester tester) async {
@@ -471,7 +471,7 @@ void main() {
       for (final svg in tester.widgetList<SvgPicture>(find.byType(SvgPicture)))
         (svg.bytesLoader as SvgAssetLoader).assetName.split("/").last,
     ];
-    // B, BE (+ trailer), T — in row order; C is collapsed away.
+    // B, BE (+ trailer), T, in row order; C is collapsed away.
     expect(pictograms, ["car.svg", "car.svg", "trailer.svg", "tractor.svg"]);
 
     // Pictograms are right-aligned against their code: a lone car and a
@@ -592,10 +592,7 @@ void main() {
 
     // Nothing held: nothing to collapse to, so every row and no toggle.
     expect(find.text("-"), findsNWidgets(32));
-    expect(
-      find.byKey(const Key("driving_licence_categories_toggle")),
-      findsNothing,
-    );
+    expect(find.byKey(_toggleKey), findsNothing);
   });
 
   testWidgets("fits a narrow phone card without overflowing", (tester) async {

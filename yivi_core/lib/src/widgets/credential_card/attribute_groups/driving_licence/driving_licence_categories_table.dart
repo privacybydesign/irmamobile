@@ -186,7 +186,9 @@ class _DrivingLicenceCategoriesTableState
               ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
-                duration: _resizeDuration,
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : _resizeDuration,
                 child: Icon(Icons.expand_more, size: 20, color: theme.link),
               ),
             ],
@@ -243,7 +245,7 @@ class _DrivingLicenceCategoriesTableState
         style: dateStyle.copyWith(
           color: value == null
               ? null
-              : comparisonColor(theme, value.comparison),
+              : _comparisonColor(theme, value.comparison),
         ),
       ),
     );
@@ -357,7 +359,7 @@ class _CategoryCell extends StatelessWidget {
             overflow: TextOverflow.visible,
             style: attributeValueStyle(
               theme,
-              comparisonColor(
+              _comparisonColor(
                 theme,
                 row.held?.comparison ?? AttributeComparison.none,
               ),
@@ -400,7 +402,7 @@ Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
   _ => ("car", false),
 };
 
-Color comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
+Color _comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
     switch (comparison) {
       AttributeComparison.none => theme.dark,
       AttributeComparison.match => theme.success,
