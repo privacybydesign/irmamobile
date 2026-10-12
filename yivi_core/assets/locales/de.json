@@ -944,7 +944,13 @@
       "done_body": "Sie können Ihr Telefon wieder aufnehmen.",
       "off_title": "NFC einschalten",
       "off_body": "Damit liest Ihr Telefon den Chip in Ihrem {document}.",
-      "open_settings": "NFC-Einstellungen öffnen"
+      "open_settings": "NFC-Einstellungen öffnen",
+      "waiting_image_alt": "Animation: Legen Sie die Rückseite Ihres Telefons auf Ihren geschlossenen Reisepass",
+      "reading_label": {
+        "passport": "Reisepass lesen",
+        "id_card": "Personalausweis lesen",
+        "driving_licence": "Führerschein lesen"
+      }
     }
   },
   "mrz_scanner": {

@@ -4,25 +4,24 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
-import "../../../../widgets/irma_bottom_bar_base.dart";
 import "../../../../widgets/translated_text.dart";
-import "../../../../widgets/yivi_themed_button.dart";
+import "document_flow_footer.dart";
 
-/// A button in the bar below an NFC stage. [secondary] draws it outlined.
+/// A button in the bar below an NFC stage.
 class NfcStageAction {
   const NfcStageAction.primary({
     required this.labelKey,
     required this.onPressed,
-  }) : secondary = false;
+  }) : style = DocumentFlowButtonStyle.primary;
 
   const NfcStageAction.secondary({
     required this.labelKey,
     required this.onPressed,
-  }) : secondary = true;
+  }) : style = DocumentFlowButtonStyle.outline;
 
   final String labelKey;
   final VoidCallback onPressed;
-  final bool secondary;
+  final DocumentFlowButtonStyle style;
 }
 
 /// The one layout every state of the NFC read uses: a picture area, a title
@@ -39,51 +38,51 @@ class NfcStageScaffold extends StatelessWidget {
     required this.bodyKey,
     required this.textParams,
     required this.actions,
+    this.leading = const YiviBackButton(),
     super.key,
   });
 
-  static const double _pictureSize = 200;
+  static const double _pictureAreaHeight = 380;
+  static const double _pictureAreaShare = 0.46;
 
   final String appBarTitleKey;
+
+  /// Sets its own size; the area centers it.
   final Widget picture;
   final String titleKey;
   final String bodyKey;
   final Map<String, String> textParams;
   final List<NfcStageAction> actions;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final size = MediaQuery.sizeOf(context);
     final isLandscape = MediaQuery.orientationOf(context) == .landscape;
 
     final pictureArea = Center(
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: SizedBox.square(
-          key: const Key("nfc_stage_picture"),
-          dimension: _pictureSize,
-          child: picture,
-        ),
-      ),
+      key: const Key("nfc_stage_picture"),
+      child: picture,
     );
     final textArea = Semantics(
       key: const Key("nfc_stage_text"),
       liveRegion: true,
       child: SingleChildScrollView(
         padding: .symmetric(
-          horizontal: theme.defaultSpacing,
-          vertical: theme.defaultSpacing,
+          horizontal: theme.largeSpacing,
+          vertical: isLandscape ? theme.defaultSpacing : 0,
         ),
         child: Column(
           mainAxisSize: .min,
+          spacing: theme.smallSpacing + theme.tinySpacing / 2,
           children: [
             TranslatedText(
               titleKey,
               translationParams: textParams,
               textAlign: .center,
-              style: theme.bodyHeading,
+              style: documentFlowTitleStyle(theme),
             ),
-            SizedBox(height: theme.smallSpacing),
             TranslatedText(
               bodyKey,
               translationParams: textParams,
@@ -95,8 +94,12 @@ class NfcStageScaffold extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
-      appBar: IrmaAppBar(titleTranslationKey: appBarTitleKey),
+      backgroundColor: theme.backgroundPrimary,
+      appBar: IrmaAppBar(
+        titleTranslationKey: appBarTitleKey,
+        leading: leading,
+        hasBorder: false,
+      ),
       body: SafeArea(
         child: isLandscape
             ? Row(
@@ -109,8 +112,14 @@ class NfcStageScaffold extends StatelessWidget {
             : Column(
                 crossAxisAlignment: .stretch,
                 children: [
-                  Expanded(flex: 5, child: pictureArea),
-                  Expanded(flex: 3, child: textArea),
+                  SizedBox(
+                    height: math.min(
+                      _pictureAreaHeight,
+                      size.height * _pictureAreaShare,
+                    ),
+                    child: pictureArea,
+                  ),
+                  Expanded(child: textArea),
                 ],
               ),
       ),
@@ -126,8 +135,6 @@ class _ActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     // Hidden rather than removed: a stage without an action keeps the bar's
     // height, so the area above it does not resize.
     if (actions.isEmpty) {
@@ -136,58 +143,67 @@ class _ActionBar extends StatelessWidget {
         maintainSize: true,
         maintainAnimation: true,
         maintainState: true,
-        child: IrmaBottomBarBase(child: _button(null)),
+        child: DocumentFlowFooter(style: .flat, buttons: [_button(null)]),
       );
     }
 
-    return IrmaBottomBarBase(
-      child: Column(
-        mainAxisSize: .min,
-        spacing: theme.tinySpacing,
-        children: [for (final action in actions) _button(action)],
-      ),
+    return DocumentFlowFooter(
+      style: .flat,
+      buttons: [for (final action in actions) _button(action)],
     );
   }
 
   Widget _button(NfcStageAction? action) {
-    final secondary = action?.secondary ?? true;
-    return SizedBox(
-      height: YiviButtonSize.medium.value,
-      width: double.infinity,
-      child: YiviThemedButton(
-        key: Key(secondary ? "bottom_bar_secondary" : "bottom_bar_primary"),
-        label: action?.labelKey ?? "ui.cancel",
-        onPressed: action?.onPressed,
-        style: secondary ? YiviButtonStyle.outlined : YiviButtonStyle.fancy,
+    final style = action?.style ?? DocumentFlowButtonStyle.outline;
+    return DocumentFlowButton(
+      key: Key(
+        style == .primary ? "bottom_bar_primary" : "bottom_bar_secondary",
       ),
+      labelKey: action?.labelKey ?? "document_flow.cancel",
+      onPressed: action?.onPressed,
+      style: style,
     );
   }
 }
 
 /// A ring that fills with [progress] (0 to 1) and shows it as a percentage.
+/// [label] names what is being read, for screen readers.
 class NfcProgressRing extends StatelessWidget {
-  const NfcProgressRing({required this.progress, super.key});
+  const NfcProgressRing({
+    required this.progress,
+    required this.label,
+    super.key,
+  });
+
+  static const double _size = 240;
 
   final double progress;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final percent = (progress * 100).round().clamp(0, 100);
     return Semantics(
+      label: label,
       value: "$percent%",
-      child: CustomPaint(
-        painter: _RingPainter(
-          color: theme.primary,
-          trackColor: theme.neutralExtraLight,
-          progress: progress.clamp(0.0, 1.0),
-        ),
-        child: Center(
-          child: ExcludeSemantics(
-            child: Text(
-              "$percent%",
-              style: theme.textTheme.displaySmall?.copyWith(
-                color: theme.neutralExtraDark,
+      child: SizedBox.square(
+        dimension: _size,
+        child: CustomPaint(
+          painter: _RingPainter(
+            color: theme.success,
+            trackColor: theme.backgroundTertiary,
+            progress: progress.clamp(0.0, 1.0),
+          ),
+          child: Center(
+            child: ExcludeSemantics(
+              child: Text(
+                "$percent%",
+                style: theme.textTheme.displayMedium?.copyWith(
+                  fontSize: 44,
+                  height: 1,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
           ),
@@ -197,83 +213,92 @@ class NfcProgressRing extends StatelessWidget {
   }
 }
 
-/// The full ring with a check that draws itself, shown once the read is done.
+/// The full ring turned into a disc with a check that draws itself, shown once
+/// the read is done. Under reduced motion it is drawn at once.
 class NfcDoneCheck extends StatelessWidget {
   const NfcDoneCheck({super.key});
 
-  static const _drawDuration = Duration(milliseconds: 500);
+  static const double _size = 240;
+
+  /// The board's loop lasts 3 seconds, of which the first 36% is the disc
+  /// popping and the check drawing; the rest is rest.
+  static const _loopShare = 0.36;
+  static const _drawDuration = Duration(milliseconds: 1080);
 
   /// How long the done stage stays up before the flow moves on: the check
   /// draws itself, then stays a moment, so the user sees the read succeeded.
-  static const holdDuration = Duration(milliseconds: 1200);
+  static const holdDuration = Duration(milliseconds: 1500);
+
+  static const _drawCurve = Cubic(0.65, 0, 0.35, 1);
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return ExcludeSemantics(
       child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: 1),
-        duration: _drawDuration,
-        curve: Curves.easeOut,
-        builder: (context, checkProgress, _) => CustomPaint(
-          painter: _RingPainter(
-            color: theme.success,
-            trackColor: theme.neutralExtraLight,
-            progress: 1,
-            checkProgress: checkProgress,
-          ),
-        ),
+        tween: Tween(begin: reduceMotion ? 1 : 0, end: 1),
+        duration: reduceMotion ? Duration.zero : _drawDuration,
+        builder: (context, t, _) {
+          final time = t * _loopShare;
+          return SizedBox.square(
+            dimension: _size,
+            child: CustomPaint(
+              painter: _DiscPainter(
+                theme: theme,
+                pop: _pop(time),
+                checkProgress: _interval(time, 0.12, 0.36, _drawCurve),
+                checkOpacity: _interval(time, 0.12, 0.14, _drawCurve),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
+
+  /// The disc swells a little and settles back.
+  static double _pop(double time) =>
+      1 +
+      0.06 *
+          (_interval(time, 0.10, 0.20, Curves.easeOut) -
+              _interval(time, 0.20, 0.30, Curves.easeOut));
+
+  static double _interval(double time, double from, double to, Curve curve) =>
+      curve.transform(((time - from) / (to - from)).clamp(0.0, 1.0));
 }
+
+const _ringGrid = 240.0;
+const _ringCenter = Offset(120, 120);
+const _ringRadius = 104.0;
+const _ringStroke = 16.0;
 
 class _RingPainter extends CustomPainter {
   _RingPainter({
     required this.color,
     required this.trackColor,
     required this.progress,
-    this.checkProgress,
   });
 
   final Color color;
   final Color trackColor;
   final double progress;
 
-  /// How much of the check is drawn (0 to 1); null draws no check.
-  final double? checkProgress;
-
-  static const _strokeWidth = 14.0;
-
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = (size.shortestSide - _strokeWidth) / 2;
+    canvas.scale(size.width / _ringGrid);
 
     final stroke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _strokeWidth
+      ..strokeWidth = _ringStroke
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawCircle(center, radius, stroke..color = trackColor);
+    canvas.drawCircle(_ringCenter, _ringRadius, stroke..color = trackColor);
     canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
+      Rect.fromCircle(center: _ringCenter, radius: _ringRadius),
       -math.pi / 2,
       2 * math.pi * progress,
       false,
-      stroke..color = color,
-    );
-
-    final check = checkProgress;
-    if (check == null) return;
-
-    final path = Path()
-      ..moveTo(center.dx - radius * 0.38, center.dy + radius * 0.02)
-      ..lineTo(center.dx - radius * 0.1, center.dy + radius * 0.3)
-      ..lineTo(center.dx + radius * 0.4, center.dy - radius * 0.28);
-    final metric = path.computeMetrics().first;
-    canvas.drawPath(
-      metric.extractPath(0, metric.length * check),
       stroke..color = color,
     );
   }
@@ -281,6 +306,61 @@ class _RingPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RingPainter oldDelegate) =>
       oldDelegate.progress != progress ||
+      oldDelegate.color != color ||
+      oldDelegate.trackColor != trackColor;
+}
+
+class _DiscPainter extends CustomPainter {
+  _DiscPainter({
+    required this.theme,
+    required this.pop,
+    required this.checkProgress,
+    required this.checkOpacity,
+  });
+
+  final IrmaThemeData theme;
+  final double pop;
+
+  /// How much of the check is drawn (0 to 1).
+  final double checkProgress;
+  final double checkOpacity;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / _ringGrid);
+    canvas.translate(_ringCenter.dx, _ringCenter.dy);
+    canvas.scale(pop);
+    canvas.translate(-_ringCenter.dx, -_ringCenter.dy);
+
+    canvas.drawCircle(
+      _ringCenter,
+      _ringRadius,
+      Paint()..color = theme.successSurface,
+    );
+    final stroke = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _ringStroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawCircle(_ringCenter, _ringRadius, stroke..color = theme.success);
+
+    if (checkProgress <= 0) return;
+
+    final check = Path()
+      ..moveTo(80, 122)
+      ..lineTo(106, 148)
+      ..lineTo(160, 94);
+    final metric = check.computeMetrics().first;
+    canvas.drawPath(
+      metric.extractPath(0, metric.length * checkProgress),
+      stroke..color = theme.success.withValues(alpha: checkOpacity),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_DiscPainter oldDelegate) =>
+      oldDelegate.pop != pop ||
       oldDelegate.checkProgress != checkProgress ||
-      oldDelegate.color != color;
+      oldDelegate.checkOpacity != checkOpacity ||
+      oldDelegate.theme != theme;
 }

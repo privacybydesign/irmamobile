@@ -215,7 +215,13 @@ void main() {
     _Flag flag = .on,
     ScannedMrz? mrz,
     PassportIssuer? issuer,
+    Size surface = const Size(390, 844),
   }) async {
+    tester.view
+      ..physicalSize = surface
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
     await pumpTranslated(
       tester,
       ProviderScope(
@@ -305,6 +311,25 @@ void main() {
       expect(cancelButton(), findsOneWidget);
     }, variant: _iosOnly);
 
+    testWidgets("the passport's picture says what it shows", (tester) async {
+      await pumpScreen(tester);
+
+      expect(
+        find.bySemanticsLabel(
+          "Animation: place the back of your phone on your closed passport",
+        ),
+        findsOneWidget,
+      );
+    }, variant: _androidOnly);
+
+    testWidgets("a card's picture is left out of the semantics", (
+      tester,
+    ) async {
+      await pumpScreen(tester, mrz: _idCardMrz);
+
+      expect(find.bySemanticsLabel(RegExp("closed passport")), findsNothing);
+    }, variant: _androidOnly);
+
     testWidgets("a card says to hold the phone against it, not that it can "
         "stay closed", (tester) async {
       await pumpScreen(tester, mrz: _idCardMrz);
@@ -357,7 +382,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.byType(NfcProgressRing)),
-        matchesSemantics(value: "80%"),
+        matchesSemantics(label: "Reading passport", value: "80%"),
       );
     }, variant: _androidOnly);
   });
@@ -419,10 +444,7 @@ void main() {
     expect(tester.getRect(cancelButton()), cancel);
     expect(
       titlePosition("Don't move").dy,
-      tester.getTopLeft(find.byKey(const Key("nfc_stage_text"))).dy +
-          IrmaTheme.of(
-            tester.element(find.byType(NfcStageScaffold)),
-          ).defaultSpacing,
+      tester.getTopLeft(find.byKey(const Key("nfc_stage_text"))).dy,
     );
 
     reader.emit(DocumentReaderSuccess());
@@ -432,6 +454,18 @@ void main() {
     // Hidden, not removed: the bar still takes its place.
     expect(tester.getRect(cancelButton()), cancel);
     expect(barRect(), screen);
+  }, variant: _androidOnly);
+
+  testWidgets("in landscape the text and the picture sit side by side", (
+    tester,
+  ) async {
+    await pumpScreen(tester, surface: const Size(844, 390));
+
+    final picture = tester.getRect(find.byKey(const Key("nfc_stage_picture")));
+    final text = tester.getRect(find.byKey(const Key("nfc_stage_text")));
+    expect(text.right, lessThanOrEqualTo(picture.left));
+    expect(find.text("Place your phone on your passport"), findsOneWidget);
+    expect(tester.takeException(), isNull);
   }, variant: _androidOnly);
 
   group("NFC off", () {

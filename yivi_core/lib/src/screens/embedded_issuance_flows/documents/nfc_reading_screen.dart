@@ -33,6 +33,7 @@ import "face_verification_intro_screen.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
 import "widgets/id_card_nfc_scanning_animation.dart";
 import "widgets/nfc_error_dialog.dart";
+import "widgets/nfc_stage_pictures.dart";
 import "widgets/nfc_stage_view.dart";
 import "widgets/passport_nfc_scanning_animation.dart";
 
@@ -533,16 +534,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     _NfcStage stage,
     DocumentReaderState state,
   ) {
-    final theme = IrmaTheme.of(context);
     final cancelAction = NfcStageAction.secondary(
-      labelKey: "ui.cancel",
+      labelKey: "document_flow.cancel",
       onPressed: cancel,
     );
     const keys = "document_flow.nfc";
 
     final (picture, text, actions) = switch (stage) {
       _NfcStage.waiting => (
-        _getAnimation(),
+        _waitingPicture(context),
         (
           "$keys.waiting_title",
           _documentType == .passport
@@ -560,7 +560,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ],
       ),
       _NfcStage.reading => (
-        NfcProgressRing(progress: progressForState(state)),
+        NfcProgressRing(
+          progress: progressForState(state),
+          label: FlutterI18n.translate(context, _documentType.readingLabelKey),
+        ),
         ("$keys.reading_title", "$keys.reading_body"),
         [cancelAction],
       ),
@@ -570,7 +573,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         <NfcStageAction>[],
       ),
       _NfcStage.nfcOff => (
-        Icon(Icons.nfc, size: 120, color: theme.link),
+        const NfcOffIllustration(),
         ("$keys.off_title", "$keys.off_body"),
         [
           if (defaultTargetPlatform == .android)
@@ -586,12 +589,28 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return NfcStageScaffold(
       appBarTitleKey: widget.translationKeys.title,
       picture: picture,
+      // Nothing to go back to once the read is done.
+      leading: stage == _NfcStage.done ? null : const YiviBackButton(),
       titleKey: text.$1,
       bodyKey: text.$2,
       textParams: {
         "document": FlutterI18n.translate(context, _documentType.nameKey),
       },
       actions: actions,
+    );
+  }
+
+  Widget _waitingPicture(BuildContext context) {
+    if (_documentType != .passport) {
+      return SizedBox.square(dimension: 300, child: _getAnimation());
+    }
+    return Semantics(
+      image: true,
+      label: FlutterI18n.translate(
+        context,
+        "document_flow.nfc.waiting_image_alt",
+      ),
+      child: const NfcPhoneOnPassport(),
     );
   }
 

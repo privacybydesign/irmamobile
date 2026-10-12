@@ -15,4 +15,7 @@ extension DocumentTranslationKeys on DocumentType {
   String get nameKey => "document_flow.document.$_segment";
 
   String get instructionKey => "document_flow.instruction.$_segment";
+
+  /// Names the NFC progress ring for screen readers.
+  String get readingLabelKey => "document_flow.nfc.reading_label.$_segment";
 }

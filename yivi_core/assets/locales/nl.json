@@ -944,7 +944,13 @@
       "done_body": "Je kunt je telefoon weer oppakken.",
       "off_title": "Zet NFC aan",
       "off_body": "Daarmee leest je telefoon de chip in je {document}.",
-      "open_settings": "Open NFC-instellingen"
+      "open_settings": "Open NFC-instellingen",
+      "waiting_image_alt": "Animatie: leg de achterkant van je telefoon op je dichte paspoort",
+      "reading_label": {
+        "passport": "Paspoort lezen",
+        "id_card": "Identiteitskaart lezen",
+        "driving_licence": "Rijbewijs lezen"
+      }
     }
   },
   "mrz_scanner": {
