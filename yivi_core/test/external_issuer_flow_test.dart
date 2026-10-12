@@ -332,11 +332,16 @@ void main() {
       expect(find.text("You come back to this list."), findsOne);
     });
 
-    testWidgets("keeps an acronym as it is in the sentence", (tester) async {
-      await pump(tester, name: "BSN");
+    for (final name in ["BSN", "DigiD"]) {
+      testWidgets("keeps $name as it is in the sentence", (tester) async {
+        await pump(tester, name: name);
 
-      expect(find.text("Yivi then opens by itself to add your BSN."), findsOne);
-    });
+        expect(
+          find.text("Yivi then opens by itself to add your $name."),
+          findsOne,
+        );
+      });
+    }
 
     testWidgets("keeps a nouns capital in German", (tester) async {
       await pump(tester, locale: const Locale("de", "DE"));

@@ -109,16 +109,15 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
 }
 
 /// The name as it reads in the middle of a sentence ("om je persoonsgegevens
-/// toe te voegen"). German capitalises its nouns, and an acronym such as BSN
-/// keeps its capitals.
+/// toe te voegen"). German capitalises its nouns, and a name with capitals
+/// after its first letter, such as BSN or DigiD, keeps them.
 String _inSentence(BuildContext context, String name) {
   final isGerman = FlutterI18n.currentLocale(context)?.languageCode == "de";
-  if (isGerman || name.length < 2) return name;
+  final firstWord = name.split(" ").first;
+  if (isGerman || firstWord.length < 2) return name;
 
-  final second = name[1];
-  final secondIsUpperCase =
-      second == second.toUpperCase() && second != second.toLowerCase();
-  if (secondIsUpperCase) return name;
+  final afterFirstLetter = firstWord.substring(1);
+  if (afterFirstLetter != afterFirstLetter.toLowerCase()) return name;
 
   return name[0].toLowerCase() + name.substring(1);
 }
