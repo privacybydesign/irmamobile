@@ -301,6 +301,7 @@
       "other": "Haal eerst de {n} ontbrekende gegevens op"
     },
     "band": "Voor {requestor} · {x} van {n} klaar",
+    "band_semantics": "Voor {requestor}, {x} van {n} klaar, nu: {credential}",
     "back_to_list": "Terug naar de lijst",
     "ready_title": "Alles staat klaar",
     "share_question": {

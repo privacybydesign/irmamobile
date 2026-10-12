@@ -75,6 +75,25 @@ void main() {
       expect(find.text("Voor Test Verifier · 0 van 3 klaar"), findsOneWidget);
     });
 
+    testWidgets("reads as one line with what is being obtained", (
+      tester,
+    ) async {
+      final harness = await MissingDataHarness.pump(tester, router);
+      watchSession(harness);
+      await harness.emit(tester, testSession(steps: steps, issued: {"email"}));
+      startFlow(harness, "phone");
+      await tester.pump();
+      final semantics = tester.ensureSemantics();
+
+      expect(
+        find.bySemanticsLabel(
+          "Voor Test Verifier, 1 van 3 klaar, nu: Cred phone",
+        ),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
     testWidgets("is hidden again when the flow is cleared", (tester) async {
       final harness = await MissingDataHarness.pump(tester, router);
       watchSession(harness);

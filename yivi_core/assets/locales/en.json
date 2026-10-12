@@ -1156,6 +1156,7 @@
       "other": "Obtain the {n} missing items of data first"
     },
     "band": "For {requestor} · {x} of {n} ready",
+    "band_semantics": "For {requestor}, {x} of {n} ready, now: {credential}",
     "back_to_list": "Back to the list",
     "ready_title": "Everything is ready",
     "share_question": {

@@ -126,44 +126,58 @@ class MissingDataBand extends ConsumerWidget implements PreferredSizeWidget {
       checklist.total,
     );
 
-    return Container(
-      key: const Key("missing_data_band"),
-      height: height,
-      padding: const EdgeInsets.fromLTRB(
-        _sidePadding,
-        _bandVerticalPadding,
-        _iconsEndPadding,
-        _bandVerticalPadding,
-      ),
-      decoration: BoxDecoration(
-        color: theme.light,
-        border: Border.symmetric(
-          horizontal: BorderSide(
-            color: theme.neutralExtraLight,
-            width: _borderWidth,
+    final semanticsLabel = FlutterI18n.translate(
+      context,
+      "missing_data.band_semantics",
+      translationParams: {
+        "requestor": band.requestorName,
+        "x": "${checklist.presentCount}",
+        "n": "${checklist.total}",
+        "credential": band.currentName,
+      },
+    );
+
+    return Semantics(
+      container: true,
+      label: semanticsLabel,
+      excludeSemantics: true,
+      child: Container(
+        key: const Key("missing_data_band"),
+        height: height,
+        padding: const EdgeInsets.fromLTRB(
+          _sidePadding,
+          _bandVerticalPadding,
+          _iconsEndPadding,
+          _bandVerticalPadding,
+        ),
+        decoration: BoxDecoration(
+          color: theme.light,
+          border: Border.symmetric(
+            horizontal: BorderSide(
+              color: theme.neutralExtraLight,
+              width: _borderWidth,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: _labelVerticalPadding,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: _labelBarGap,
-                children: [
-                  Text(
-                    _label(context, band),
-                    maxLines: _maxLabelLines,
-                    overflow: TextOverflow.ellipsis,
-                    style: missingDataLabelStyle(theme),
-                  ),
-                  ExcludeSemantics(
-                    child: ClipRRect(
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: _labelVerticalPadding,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: _labelBarGap,
+                  children: [
+                    Text(
+                      _label(context, band),
+                      maxLines: _maxLabelLines,
+                      overflow: TextOverflow.ellipsis,
+                      style: missingDataLabelStyle(theme),
+                    ),
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(
                         _progressBarHeight / 2,
                       ),
@@ -178,32 +192,32 @@ class MissingDataBand extends ConsumerWidget implements PreferredSizeWidget {
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: _iconsGap),
-          ExcludeSemantics(
-            child: SizedBox(
-              width: iconsWidth,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.all(_ringRoom),
-                child: Row(
-                  spacing: _iconGap,
-                  children: [
-                    for (final entry in checklist.entries)
-                      _BandCredential(
-                        credential: entry.credential,
-                        state: _stateOf(entry, band.currentCredentialId),
-                      ),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: _iconsGap),
+            ExcludeSemantics(
+              child: SizedBox(
+                width: iconsWidth,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.all(_ringRoom),
+                  child: Row(
+                    spacing: _iconGap,
+                    children: [
+                      for (final entry in checklist.entries)
+                        _BandCredential(
+                          credential: entry.credential,
+                          state: _stateOf(entry, band.currentCredentialId),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

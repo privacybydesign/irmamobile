@@ -301,6 +301,7 @@
       "other": "Rufen Sie zuerst die {n} fehlenden Angaben ab"
     },
     "band": "Für {requestor} · {x} von {n} bereit",
+    "band_semantics": "Für {requestor}, {x} von {n} bereit, jetzt: {credential}",
     "back_to_list": "Zurück zur Liste",
     "ready_title": "Alles ist bereit",
     "share_question": {
