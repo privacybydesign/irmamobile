@@ -21,6 +21,7 @@ const _disabledOpacity = 0.45;
 const _fullHeight = 48.0;
 const _compactHeight = 40.0;
 const _compactPadding = 14.0;
+const _textPadding = 8.0;
 const _outlineWidth = 1.0;
 
 /// A button of the missing data screens. Without [onPressed] it is dimmed.
@@ -56,12 +57,27 @@ class MissingDataButton extends StatelessWidget {
       ),
     );
 
+    // The text may wrap at a large text size, so the height is a minimum.
+    final content = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? _compactPadding : theme.defaultSpacing,
+        vertical: _textPadding,
+      ),
+      child: Center(
+        widthFactor: compact ? 1 : null,
+        heightFactor: 1,
+        child: text,
+      ),
+    );
+
     final button = ClipRRect(
       borderRadius: theme.borderRadius,
-      child: switch (style) {
-        MissingDataButtonStyle.primary => SizedBox(
-          height: _fullHeight,
-          child: Stack(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: compact ? _compactHeight : _fullHeight,
+        ),
+        child: switch (style) {
+          MissingDataButtonStyle.primary => Stack(
             children: [
               Positioned.fill(
                 child: ExcludeSemantics(
@@ -71,21 +87,13 @@ class MissingDataButton extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned.fill(
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: InkWell(
-                    onTap: onPressed,
-                    child: Center(child: text),
-                  ),
-                ),
+              Material(
+                type: MaterialType.transparency,
+                child: InkWell(onTap: onPressed, child: content),
               ),
             ],
           ),
-        ),
-        MissingDataButtonStyle.outline => SizedBox(
-          height: _fullHeight,
-          child: Material(
+          MissingDataButtonStyle.outline => Material(
             color: theme.light,
             child: InkWell(
               onTap: onPressed,
@@ -97,31 +105,16 @@ class MissingDataButton extends StatelessWidget {
                     width: _outlineWidth,
                   ),
                 ),
-                child: Center(child: text),
+                child: content,
               ),
             ),
           ),
-        ),
-        MissingDataButtonStyle.compact => Material(
-          color: missingDataActionRed,
-          child: InkWell(
-            onTap: onPressed,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: _compactHeight),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: _compactPadding,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Flexible(child: text)],
-                ),
-              ),
-            ),
+          MissingDataButtonStyle.compact => Material(
+            color: missingDataActionRed,
+            child: InkWell(onTap: onPressed, child: content),
           ),
-        ),
-      },
+        },
+      ),
     );
 
     return Semantics(

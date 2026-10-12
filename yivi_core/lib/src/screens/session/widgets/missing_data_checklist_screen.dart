@@ -131,21 +131,21 @@ class _MissingDataChecklistScreenState
               requestorName: requestor.name,
               missingCount: checklist.missingCount,
             ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (requestor != null)
-            MissingDataHeader(
-              requestor: requestor,
-              phase: MissingDataPhase.collecting,
-              total: checklist.total,
-              onDismiss: widget.onDismiss,
-            ),
-          Expanded(
-            child: SafeArea(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (requestor != null)
+              MissingDataHeader(
+                requestor: requestor,
+                phase: MissingDataPhase.collecting,
+                total: checklist.total,
+                onDismiss: widget.onDismiss,
+              ),
+            SafeArea(
               top: false,
               bottom: false,
-              child: SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: _listPadding,
                   vertical: _listVerticalPadding,
@@ -190,8 +190,8 @@ class _MissingDataChecklistScreenState
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
@@ -215,6 +215,7 @@ enum _RowState { present, justAdded, missing }
 
 const _flashDuration = Duration(milliseconds: 1600);
 const _growDuration = Duration(milliseconds: 1000);
+const _stackScale = 1.5;
 const _listPadding = 16.0;
 const _listVerticalPadding = 20.0;
 const _progressBarHeight = 8.0;
@@ -366,6 +367,11 @@ class _ChecklistRowState extends State<_ChecklistRow>
     final theme = IrmaTheme.of(context);
     final credential = widget.entry.credential;
     final isPresent = widget.entry.isPresent;
+    final obtain = !isPresent && credential.issueURL != null
+        ? _ObtainButton(credential: credential, onPressed: widget.onObtain)
+        : null;
+    // At a large text size the button no longer fits beside the name.
+    final stacked = MediaQuery.textScalerOf(context).scale(1) >= _stackScale;
 
     // Hold the green for the first part of the animation, then fade out.
     final background = TweenSequence<Color?>([
@@ -390,29 +396,37 @@ class _ChecklistRowState extends State<_ChecklistRow>
         color: widget.state == _RowState.justAdded
             ? background.value ?? theme.light
             : theme.light,
-        child: Row(
-          spacing: _rowGap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.smallSpacing,
           children: [
-            _CredentialLogo(credential: credential),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    credential.name,
-                    style: theme.textTheme.bodyMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 22 / 16,
-                    ),
+            Row(
+              spacing: _rowGap,
+              children: [
+                _CredentialLogo(credential: credential),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        credential.name,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          height: 22 / 16,
+                        ),
+                      ),
+                      _RowStatus(state: widget.state),
+                    ],
                   ),
-                  _RowStatus(state: widget.state),
-                ],
-              ),
+                ),
+                if (isPresent)
+                  ScaleTransition(scale: pop, child: const MissingDataCheck())
+                else if (obtain != null && !stacked)
+                  obtain,
+              ],
             ),
-            if (isPresent)
-              ScaleTransition(scale: pop, child: const MissingDataCheck())
-            else if (credential.issueURL != null)
-              _ObtainButton(credential: credential, onPressed: widget.onObtain),
+            if (obtain != null && stacked)
+              Align(alignment: Alignment.centerRight, child: obtain),
           ],
         ),
       ),

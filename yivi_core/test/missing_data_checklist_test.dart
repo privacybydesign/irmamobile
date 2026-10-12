@@ -12,6 +12,7 @@ import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/src/widgets/missing_data_button.dart";
 
 import "missing_data_fixtures.dart";
+import "support/load_open_sans.dart";
 
 IssueDuringDisclosureState _wizard(
   List<IssuanceStep> steps, {
@@ -475,6 +476,34 @@ void main() {
         find.byKey(const Key("missing_data_header")),
       );
       expect((header.decoration as BoxDecoration).color, IrmaThemeData().link);
+    });
+
+    testWidgets("fits a small screen at a large text size", (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.runAsync(loadOpenSans);
+
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+      await tester.pump(const Duration(seconds: 2));
+      expect(tester.takeException(), isNull);
+      expect(find.text("Ophalen"), findsNWidgets(2));
+
+      await emit(
+        tester,
+        testSession(
+          steps: twoSteps,
+          issued: {"email", "phone"},
+          withChoices: true,
+        ),
+      );
+      await tester.pump(const Duration(seconds: 2));
+
+      expect(find.text("Alles staat klaar"), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets("keeps today's screens when the flag is off", (tester) async {

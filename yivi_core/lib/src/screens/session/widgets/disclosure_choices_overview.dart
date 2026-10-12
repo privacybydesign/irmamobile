@@ -399,26 +399,26 @@ class _DisclosureChoicesOverviewState
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: .stretch,
-        children: [
-          MissingDataHeader(
-            requestor: widget.sessionState.requestor,
-            phase: MissingDataPhase.ready,
-            total: itemCount,
-            onDismiss: widget.onDismiss,
-          ),
-          Expanded(
-            child: SafeArea(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            MissingDataHeader(
+              requestor: widget.sessionState.requestor,
+              phase: MissingDataPhase.ready,
+              total: itemCount,
+              onDismiss: widget.onDismiss,
+            ),
+            SafeArea(
               top: false,
               bottom: false,
-              child: SingleChildScrollView(
+              child: Padding(
                 padding: const .symmetric(horizontal: 16, vertical: 20),
                 child: Column(crossAxisAlignment: .start, children: entries),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
