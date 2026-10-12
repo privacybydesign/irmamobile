@@ -120,7 +120,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                         style: document
                             ? credentialNameStyle(theme, 16).copyWith(
                                 fontWeight: FontWeight.w700,
-                                height: 22 / 16,
+                                height: CredentialCardLayout.bodyLineHeight,
                               )
                             : credentialNameStyle(theme, 19),
                         softWrap: true,
@@ -129,9 +129,11 @@ class YiviCredentialCardHeader extends StatelessWidget {
                         SizedBox(height: document ? 0 : 1),
                         Text(
                           issuerName!,
-                          style: issuerLabelStyle(
-                            theme,
-                          ).copyWith(height: document ? 20 / 14 : null),
+                          style: issuerLabelStyle(theme).copyWith(
+                            height: document
+                                ? CredentialCardLayout.smallLineHeight
+                                : null,
+                          ),
                         ),
                       ],
                     ],

@@ -37,14 +37,16 @@ class YiviCredentialCardFooter extends StatelessWidget {
 
   TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
     fontSize: 14,
-    height: layout == .document ? 20 / 14 : null,
+    height: layout == .document ? CredentialCardLayout.smallLineHeight : null,
     color: theme.neutralExtraDark,
   );
 
   TextStyle _valueStyle(IrmaThemeData theme, Color color) =>
       theme.textTheme.bodyLarge!.copyWith(
         fontSize: 14,
-        height: layout == .document ? 20 / 14 : null,
+        height: layout == .document
+            ? CredentialCardLayout.smallLineHeight
+            : null,
         fontWeight: layout == .document ? FontWeight.w700 : FontWeight.w600,
         color: color,
       );

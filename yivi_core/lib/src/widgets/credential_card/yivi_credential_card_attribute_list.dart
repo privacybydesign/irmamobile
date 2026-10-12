@@ -614,7 +614,7 @@ TextStyle _labelStyle(
 }) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
   fontSize: 14,
-  height: layout == .document ? 20 / 14 : null,
+  height: layout == .document ? CredentialCardLayout.smallLineHeight : null,
   fontWeight: FontWeight.w400,
   color: theme.neutralExtraDark,
 );
@@ -626,7 +626,7 @@ TextStyle _valueStyle(
 }) => TextStyle(
   fontFamily: theme.primaryFontFamily,
   fontSize: 16,
-  height: layout == .document ? 22 / 16 : null,
+  height: layout == .document ? CredentialCardLayout.bodyLineHeight : null,
   fontWeight: layout == .document ? FontWeight.w700 : FontWeight.w600,
   color: color,
 );
@@ -827,6 +827,8 @@ class _AgeChip extends StatelessWidget {
 
   static const double gap = 6;
   static const double _height = 30;
+
+  // Colours of the pills on board F_AgeConfirm, which no theme token has.
   static const _overText = Color(0xFF00602A);
   static const _notOverSurface = Color(0xFFF2F0EE);
 
