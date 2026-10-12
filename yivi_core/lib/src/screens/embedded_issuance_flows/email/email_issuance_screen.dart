@@ -7,7 +7,9 @@ import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/missing_data_flow.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/linking_back_button.dart";
 import "../../../widgets/missing_data_bottom_bar.dart";
 import "widgets/enter_email_screen.dart";
 import "widgets/verify_email_screen.dart";
@@ -46,6 +48,7 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
     if (link == null || widget.purpose != EmailIssuancePurpose.linkKeyshare) {
       return;
     }
+
     final email = link.email;
     if (email == null) {
       final stage = ref.read(emailIssuanceProvider).stage;
@@ -54,6 +57,7 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
       }
       return;
     }
+
     ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
   }
 
@@ -72,24 +76,33 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
     return switch (state.stage) {
       .enteringEmail => EnterEmailScreen(purpose: widget.purpose),
       .enteringVerificationCode => VerifyEmailScreen(purpose: widget.purpose),
-      .waiting => _WaitingScreen(),
+      .waiting => _WaitingScreen(purpose: widget.purpose),
     };
   }
 }
 
 class _WaitingScreen extends StatelessWidget {
-  const _WaitingScreen();
+  final EmailIssuancePurpose purpose;
+
+  const _WaitingScreen({required this.purpose});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final collecting = context.missingDataState != null;
+    final linking = purpose == EmailIssuancePurpose.linkKeyshare;
+    final collecting = !linking && context.missingDataState != null;
 
     return Scaffold(
-      backgroundColor: collecting ? theme.backgroundTertiary : null,
-      appBar: context.issuanceAppBar(
-        titleKey: "email_issuance.enter_email.title",
-      ),
+      backgroundColor: linking || collecting ? theme.backgroundTertiary : null,
+      appBar: linking
+          ? IrmaAppBar(
+              titleTranslationKey: "email_linking.enter_email.title",
+              hasBorder: false,
+              leading: const LinkingBackButton(),
+            )
+          : context.issuanceAppBar(
+              titleKey: "email_issuance.enter_email.title",
+            ),
       body: Padding(
         padding: .all(theme.defaultSpacing),
         child: Center(child: CircularProgressIndicator()),
@@ -100,6 +113,9 @@ class _WaitingScreen extends StatelessWidget {
               onSecondaryPressed: context.missingDataBack(context.pop),
             )
           : IrmaBottomBar(
+              style: linking
+                  ? IrmaBottomBarStyle.flat
+                  : IrmaBottomBarStyle.standard,
               secondaryButtonLabel: "email_issuance.enter_email.back_button",
               onSecondaryPressed: context.pop,
             ),

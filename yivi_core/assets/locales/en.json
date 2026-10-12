@@ -324,6 +324,13 @@
       "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
       "required": "required"
     },
+    "onboarding_v2": {
+      "intro_explanation": "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app.",
+      "point_1": "You decide what you store, what you share and with whom.",
+      "point_2": "Your data is only on your phone, which is safer.",
+      "point_3": "Nobody is watching along, not even Yivi!",
+      "error_reporting_explanation": "By sending the error messages to us automatically, we can fix problems faster. The app also periodically sends a message to say whether everything still works. Of course, we do all of this without having access to your personal data or transactions."
+    },
     "error_reporting": {
       "accept": {
         "share_errors": "Share error messages and app status",
@@ -450,6 +457,7 @@
   "back_to_website": {
     "title": "Your Yivi app is ready. Go back to the website.",
     "text": "You came here from a website. Go back to your browser and tap 'Open Yivi app' there again. Yivi then opens by itself and continues where you left off.",
+    "sketch_label": "Continue with Yivi",
     "sketch_button": "Open Yivi app",
     "hint": "Not working anymore? Reload the page on the website and try again.",
     "other": "I want to do something else"
@@ -526,7 +534,8 @@
     "banner": {
       "title": "Secure your Yivi app",
       "body": "Link your email address. Then you can block your app if you lose your phone.",
-      "link": "Link email address"
+      "link": "Link email address",
+      "close": "Close notification"
     },
     "later": {
       "title": "Remind you later?",
@@ -534,9 +543,10 @@
       "remind_me": "Ask me later",
       "dismiss": "Dismiss"
     },
+    "go_back": "Back",
     "enter_email": {
       "title": "Link email address",
-      "header": "Link your email address",
+      "header": "What is your email address?",
       "body": "Then you can block your Yivi app if you lose your phone. We'll send you an email with a code to confirm it.",
       "label": "Email address"
     },
@@ -546,11 +556,20 @@
       "body": "We've sent an email to {email}. On this phone, tap the link in the email, or enter the code here.",
       "next_button": "Check code",
       "resend_button": "Send email again",
-      "filled_from_link": "Code filled in from the link"
+      "filled_from_link": "Code filled in from the link",
+      "label": "Code",
+      "checking": "Checking code…"
+    },
+    "confirm": {
+      "title": "Link email address",
+      "header": "Do you want to add this email address to your Yivi app?",
+      "add": "Add",
+      "cancel": "Cancel"
     },
     "done": {
-      "title": "Email address linked",
-      "body": "You can now block your Yivi app if you lose your phone."
+      "app_bar_title": "Link email address",
+      "title": "Success",
+      "body": "Your email address has been added to your Yivi app. Your account is now also linked to MijnYivi."
     }
   },
   "sms_issuance": {

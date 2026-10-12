@@ -7,6 +7,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/providers/install_referrer_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
+import "package:yivi_core/src/theme/theme.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -183,9 +184,166 @@ void main() {
       final router = await pumpScreen(tester);
 
       await tester.tap(find.byKey(const Key("back_to_website_other_button")));
-      await tester.pumpAndSettle();
+      // The tapping button on the page animates forever.
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(currentLocation(router), "/home");
+    });
+
+    group("layout of the design", () {
+      final theme = IrmaThemeData();
+      final sketch = find.byWidgetPredicate(
+        (widget) => widget is Container && widget.constraints?.maxWidth == 260,
+      );
+      final other = find.byKey(const Key("back_to_website_other_button"));
+
+      Future<void> pumpPhone(WidgetTester tester) async {
+        usePhoneScreen(tester);
+        await pumpScreen(tester);
+      }
+
+      testWidgets("the page is the pale blue of the design", (tester) async {
+        await pumpPhone(tester);
+
+        expect(
+          tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
+          const Color(0xFFF7FAFC),
+        );
+      });
+
+      testWidgets("the title is centered 56 px from the top, 24 px bold", (
+        tester,
+      ) async {
+        await pumpPhone(tester);
+
+        const title = "Your Yivi app is ready. Go back to the website.";
+        final style = tester.widget<Text>(find.text(title)).style!;
+        expect(style.fontSize, 24);
+        expect(style.fontWeight, FontWeight.w700);
+        expect(style.height, 32 / 24);
+        expect(tester.getTopLeft(find.text(title)).dy, 56);
+        expect(
+          tester.widget<Text>(find.text(title)).textAlign,
+          TextAlign.center,
+        );
+      });
+
+      testWidgets("the text and the hint are centered, the hint 14 px", (
+        tester,
+      ) async {
+        await pumpPhone(tester);
+
+        final text = tester.widget<Text>(
+          find.textContaining("You came here from a website."),
+        );
+        expect(text.textAlign, TextAlign.center);
+        final hintFinder = find.textContaining("Not working anymore?");
+        final hint = tester.widget<Text>(hintFinder).style!;
+        expect(hint.fontSize, 14);
+        expect(hint.height, 20 / 14);
+        expect(hint.color, theme.neutralExtraDark);
+        expect(tester.widget<Text>(hintFinder).textAlign, TextAlign.center);
+      });
+
+      testWidgets("the browser is 260 px wide with a 28 px bar", (
+        tester,
+      ) async {
+        await pumpPhone(tester);
+
+        final box = tester.getRect(sketch);
+        expect(box.width, 260);
+        expect(box.center.dx, 195);
+        expect(
+          tester.getRect(find.text("Continue with Yivi")).left,
+          box.left + 2 + 16,
+        );
+        // Bar 28 px, label after 18 px, button after 12 px.
+        final label = tester.getRect(find.text("Continue with Yivi"));
+        expect(label.top, box.top + 2 + 28 + 18);
+        final button = tester.getRect(find.text("Open Yivi app"));
+        expect(button.center.dy, closeTo(label.bottom + 12 + 20, 0.5));
+      });
+
+      testWidgets("the browser has a label above the button", (tester) async {
+        await pumpPhone(tester);
+
+        final label = tester.widget<Text>(find.text("Continue with Yivi"));
+        expect(label.style!.fontSize, 14);
+        expect(label.style!.fontWeight, FontWeight.w700);
+        expect(label.style!.color, theme.neutralExtraDark);
+      });
+
+      testWidgets("the label is in Dutch", (tester) async {
+        usePhoneScreen(tester);
+        await pumpScreen(tester, locale: const Locale("nl", "NL"));
+
+        expect(find.text("Ga verder met Yivi"), findsOneWidget);
+      });
+
+      testWidgets("the label is in German", (tester) async {
+        usePhoneScreen(tester);
+        await pumpScreen(tester, locale: const Locale("de", "DE"));
+
+        expect(find.text("Weiter mit Yivi"), findsOneWidget);
+      });
+
+      testWidgets("the other button is 48 px high, full width at the bottom", (
+        tester,
+      ) async {
+        await pumpPhone(tester);
+
+        expect(
+          tester.getRect(other),
+          const Rect.fromLTWH(16, 844 - 32 - 48, 358, 48),
+        );
+        final style = tester
+            .widget<Text>(find.text("I want to do something else"))
+            .style!;
+        expect(style.fontWeight, FontWeight.w600);
+        expect(style.color, theme.neutralExtraDark);
+        expect(style.decoration, TextDecoration.underline);
+      });
+
+      testWidgets("the browser button presses in and out on a loop", (
+        tester,
+      ) async {
+        await pumpPhone(tester);
+        final pulse = find.ancestor(
+          of: find.text("Open Yivi app"),
+          matching: find.byType(ScaleTransition),
+        );
+        double scale() => tester.widget<ScaleTransition>(pulse).scale.value;
+
+        expect(scale(), 1);
+        await tester.pump(const Duration(milliseconds: 1680));
+        expect(scale(), closeTo(0.94, 0.001));
+        await tester.pump(const Duration(milliseconds: 720));
+        expect(scale(), 1);
+        await tester.pump(const Duration(milliseconds: 1680));
+        expect(scale(), closeTo(0.94, 0.001));
+      });
+
+      testWidgets("the browser button holds still without animations", (
+        tester,
+      ) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(disableAnimations: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+        await pumpPhone(tester);
+        final pulse = find.ancestor(
+          of: find.text("Open Yivi app"),
+          matching: find.byType(ScaleTransition),
+        );
+
+        await tester.pump(const Duration(milliseconds: 1680));
+
+        expect(tester.widget<ScaleTransition>(pulse).scale.value, 1);
+        expect(tester.hasRunningAnimations, isFalse);
+        expect(tester.takeException(), isNull);
+      });
     });
 
     testWidgets("is shown once: the marker is cleared on arrival", (

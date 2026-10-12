@@ -10,6 +10,9 @@ class IrmaIconButton extends StatelessWidget {
   final EdgeInsets? padding;
   final String? semanticsLabelKey;
 
+  /// The theme's dark grey when null.
+  final Color? color;
+
   const IrmaIconButton({
     super.key,
     required this.icon,
@@ -17,6 +20,7 @@ class IrmaIconButton extends StatelessWidget {
     this.size = 24,
     this.padding,
     this.semanticsLabelKey,
+    this.color,
   }) : assert(size >= 2);
 
   @override
@@ -37,7 +41,11 @@ class IrmaIconButton extends StatelessWidget {
           borderRadius: borderRadius,
           child: Padding(
             padding: padding ?? const EdgeInsets.all(12),
-            child: Icon(icon, size: size, color: theme.neutralExtraDark),
+            child: Icon(
+              icon,
+              size: size,
+              color: color ?? theme.neutralExtraDark,
+            ),
           ),
         ),
       ),

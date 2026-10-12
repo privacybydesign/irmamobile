@@ -30,7 +30,9 @@ import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/email/widgets/linking_code_widgets.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/email_link_permission.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/handle_pointer.dart";
 import "package:yivi_core/src/util/navigation.dart";
@@ -46,6 +48,9 @@ class _FakeEmailIssuerApi implements EmailIssuerApi {
   final verified = <({String email, String code})>[];
   Object? verifyFailsWith;
 
+  /// While set, a code check waits for it to complete.
+  Completer<void>? verifyGate;
+
   @override
   Future<void> sendEmail({
     required String emailAddress,
@@ -60,6 +65,7 @@ class _FakeEmailIssuerApi implements EmailIssuerApi {
     required String verificationCode,
   }) async {
     verified.add((email: email, code: verificationCode));
+    await verifyGate?.future;
     if (verifyFailsWith != null) throw verifyFailsWith!;
     return SessionPointer(
       u: "https://email-issuer.example/irma/session/abc",
@@ -106,6 +112,8 @@ SessionState _successState(int id, SessionType type) => SessionState(
   requestor: _requestor,
   continueOnSecondDevice: true,
 );
+
+enum DataTabCredentials { some, none }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -290,7 +298,7 @@ void main() {
       await pumpApp(tester);
       await openLinkingFlow(tester);
 
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
       expect(
         find.textContaining("Then you can block your Yivi app"),
         findsOneWidget,
@@ -458,6 +466,36 @@ void main() {
       expect(container.read(emailLinkingProvider).link, isNull);
     });
 
+    testWidgets("the button shows Checking code while the code is checked", (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openLinkingFlow(tester);
+      await sendEmailTo(tester, "jan@example.com");
+      issuerApi.verifyGate = Completer<void>();
+
+      container
+          .read(emailLinkingProvider.notifier)
+          .receiveLink(EmailCodePointer(code: "XYZ789"));
+      await settle(tester);
+
+      expect(find.text("Checking code…"), findsOneWidget);
+      expect(find.text("Check code"), findsNothing);
+      expect(find.byType(LinkingButtonSpinner), findsOneWidget);
+
+      // A second tap does not send the code again.
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await settle(tester);
+      expect(issuerApi.verified, hasLength(1));
+
+      issuerApi.verifyFailsWith = EmailIssuanceInvalidCodeError();
+      issuerApi.verifyGate!.complete();
+      await settle(tester);
+
+      expect(find.text("Check code"), findsOneWidget);
+      expect(find.byType(LinkingButtonSpinner), findsNothing);
+    });
+
     testWidgets("opens the linking screens when they are not open yet", (
       tester,
     ) async {
@@ -518,7 +556,7 @@ void main() {
 
       expect(issuerApi.verified, isEmpty);
       expect(container.read(emailLinkingProvider).link, isNull);
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
     });
 
     testWidgets("for another address waits for a tap on Check code", (
@@ -621,7 +659,7 @@ void main() {
       await settle(tester);
 
       expect(find.byType(EmailIssuanceScreen), findsOneWidget);
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
       expect(find.text("Enter the code"), findsNothing);
       expect(issuerApi.verified, isEmpty);
       expect(container.read(emailLinkingProvider).link, isNull);
@@ -704,7 +742,10 @@ void main() {
       );
       expect(openSessions(tester), [1]);
       expect(container.read(emailLinkingProvider).disclosureSessionId, 1);
-      expect(find.text("Email address linked"), findsOneWidget);
+      expect(
+        find.textContaining("now also linked to MijnYivi"),
+        findsOneWidget,
+      );
       expect(await stored(tester, prefs.getEmailLinked()), isTrue);
     });
 
@@ -726,7 +767,7 @@ void main() {
     ) async {
       await pumpSession(tester, 5);
 
-      expect(find.text("Email address linked"), findsNothing);
+      expect(find.textContaining("now also linked to MijnYivi"), findsNothing);
       expect(await stored(tester, prefs.getEmailLinked()), isFalse);
     });
 
@@ -762,14 +803,120 @@ void main() {
     });
   });
 
-  group("banner", () {
-    Future<void> pumpBanner(
+  group("permission to add the address", () {
+    final credential = Credential(
+      credentialId: "pbdf.sidn-pbdf.email",
+      hash: "hash",
+      name: "Email address",
+      issuer: _requestor,
+      credentialInstanceIds: const {},
+      batchInstanceCountsRemaining: const {},
+      attributes: [
+        Attribute(
+          claimPath: const ["email"],
+          displayName: "Email address",
+          value: AttributeValue(
+            type: AttributeType.string,
+            string: "jan@example.com",
+          ),
+        ),
+      ],
+      revoked: false,
+      revocationSupported: false,
+      issueUrl: null,
+    );
+
+    Future<void> pumpPermission(
       WidgetTester tester, {
-      bool hasCredentials = true,
+      void Function()? beforePush,
     }) async {
       await pumpApp(
         tester,
-        overrides: [hasCredentialsProvider.overrideWithValue(hasCredentials)],
+        overrides: [
+          sessionStateProvider.overrideWith(
+            (ref, sessionId) => Stream.value(
+              SessionState(
+                id: sessionId,
+                protocol: "irma",
+                type: SessionType.issuance,
+                status: SessionStatus.requestPermission,
+                requestor: _requestor,
+                offeredCredentials: [credential],
+                continueOnSecondDevice: true,
+              ),
+            ),
+          ),
+        ],
+      );
+      beforePush?.call();
+      router.push("/session?session_id=$_issuanceSessionId");
+      await tester.pump();
+      await settle(tester);
+    }
+
+    void expectConfirmScreen() {
+      expect(find.byType(EmailLinkPermission), findsOneWidget);
+      expect(
+        find.text("Do you want to add this email address to your Yivi app?"),
+        findsOneWidget,
+      );
+      expect(find.text("jan@example.com"), findsOneWidget);
+      expect(find.text("Add"), findsOneWidget);
+      expect(find.text("Cancel"), findsOneWidget);
+    }
+
+    testWidgets("the issuance of the flow asks to add this e-mail address", (
+      tester,
+    ) async {
+      await pumpPermission(
+        tester,
+        beforePush: () => container
+            .read(emailLinkingProvider.notifier)
+            .trackIssuance(_issuanceSessionId),
+      );
+
+      expectConfirmScreen();
+    });
+
+    testWidgets("also when the flow tracks the session after it started", (
+      tester,
+    ) async {
+      await pumpPermission(tester);
+      expect(find.byType(EmailLinkPermission), findsNothing);
+
+      container
+          .read(emailLinkingProvider.notifier)
+          .trackIssuance(_issuanceSessionId);
+      await settle(tester);
+
+      expectConfirmScreen();
+    });
+
+    testWidgets("another issuance keeps the permission screen as it was", (
+      tester,
+    ) async {
+      await pumpPermission(tester);
+
+      expect(find.byType(EmailLinkPermission), findsNothing);
+      expect(
+        find.text("Do you want to add this data to your Yivi app?"),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group("banner", () {
+    Future<void> pumpBanner(
+      WidgetTester tester, {
+      DataTabCredentials credentials = DataTabCredentials.some,
+    }) async {
+      await pumpApp(
+        tester,
+        overrides: [
+          hasCredentialsProvider.overrideWithValue(
+            credentials == DataTabCredentials.some,
+          ),
+        ],
         home: Scaffold(
           body: Consumer(
             builder: (context, ref, _) => ref.watch(emailBannerVisibleProvider)
@@ -795,13 +942,13 @@ void main() {
         findsOneWidget,
       );
       expect(find.text("Link email address"), findsOneWidget);
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.verified_user), findsOneWidget);
     });
 
     testWidgets("waits for the first credential, so it is not there right "
         "after enrollment", (tester) async {
       await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
-      await pumpBanner(tester, hasCredentials: false);
+      await pumpBanner(tester, credentials: DataTabCredentials.none);
 
       expect(find.byType(EmailLinkBanner), findsNothing);
     });
@@ -901,7 +1048,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(EmailIssuanceScreen), findsOneWidget);
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
       expect(
         container.read(emailIssuerUrlProvider),
         "https://email-issuer.example",

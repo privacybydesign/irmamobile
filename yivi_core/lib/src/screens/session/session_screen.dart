@@ -29,6 +29,7 @@ import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
 import "widgets/disclosure_permission_confirm_dialog.dart";
 import "widgets/disclosure_permission_introduction_screen.dart";
+import "widgets/email_link_permission.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
@@ -338,6 +339,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           onChoicesConfirmed: (choices) {
             setState(() => _pendingDisclosureChoices = choices);
           },
+        );
+      }
+
+      final linkingIssuanceId = ref.watch(
+        emailLinkingProvider.select((state) => state.issuanceSessionId),
+      );
+      if (linkingIssuanceId == widget.sessionId) {
+        return EmailLinkPermission(
+          issuedCredentials: session.offeredCredentials!,
+          onDismiss: _dismissSession,
+          onGivePermission: () =>
+              _grantPermission(_pendingDisclosureChoices ?? []),
         );
       }
 
