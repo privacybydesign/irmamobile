@@ -539,9 +539,13 @@
       "title": "E-Mail-Adresse hinzufügen",
       "header": "Geben Sie Ihre E-Mail-Adresse ein",
       "body": "Wir senden Ihnen eine E-Mail mit einem Bestätigungscode. Sie müssen diesen Code im nächsten Schritt eingeben.",
+      "body_v2": "Wir senden Ihnen eine E-Mail mit einem Bestätigungscode. Diesen geben Sie im nächsten Schritt ein.",
       "error": "Beim Senden des Bestätigungscodes ist etwas schiefgelaufen.",
       "email_label": "E-Mail-Adresse",
       "email_hint": "Geben Sie Ihre E-Mail-Adresse ein...",
+      "email_placeholder": "name@beispiel.de",
+      "email_required": "E-Mail-Adresse ist erforderlich",
+      "email_invalid": "Ungültige E-Mail-Adresse",
       "next_button": "E-Mail senden",
       "back_button": "Abbrechen"
     },

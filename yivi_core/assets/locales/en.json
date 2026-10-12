@@ -510,9 +510,13 @@
       "title": "Add email address",
       "header": "Enter your email address",
       "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
+      "body_v2": "We'll send you an email with a verification code. You'll enter it in the next step.",
       "error": "Something went wrong while sending the verification code.",
       "email_label": "Email address",
       "email_hint": "Enter your email address...",
+      "email_placeholder": "name@example.com",
+      "email_required": "Email address is required",
+      "email_invalid": "Incorrect email address",
       "next_button": "Send email",
       "back_button": "Cancel"
     },

@@ -176,6 +176,13 @@ class IrmaThemeData {
     letterSpacing: 0,
   );
 
+  /// The heading of a form fields V2 screen: 18 px on a 26 px line.
+  TextStyle get fieldScreenHeading => textTheme.bodyLarge!.copyWith(
+    fontSize: 18,
+    height: 26 / 18,
+    color: neutralExtraDark,
+  );
+
   /// The message below a form fields V2 field.
   TextStyle get fieldMessageStyle => textTheme.bodyMedium!.copyWith(
     fontSize: 13,

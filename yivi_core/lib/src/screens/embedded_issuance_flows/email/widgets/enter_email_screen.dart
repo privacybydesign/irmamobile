@@ -45,6 +45,14 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   var _validEmail = false;
   var _showErrors = false;
 
+  bool get _formFieldsV2 =>
+      ref.read(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
+
+  // Translated with form fields V2 on; the old English text is kept without it.
+  String _message(String key, String legacy) => _formFieldsV2
+      ? FlutterI18n.translate(context, "email_issuance.enter_email.$key")
+      : legacy;
+
   @override
   void dispose() {
     _textController.dispose();
@@ -149,9 +157,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       },
       validator: (v) {
         final value = (v ?? "").trim();
-        if (value.isEmpty) return "Enter your email";
+        if (value.isEmpty) {
+          return _message("email_required", "Enter your email");
+        }
         if (!isValidEmail(value)) {
-          return "Enter a valid email";
+          return _message("email_invalid", "Enter a valid email");
         }
         return null;
       },
@@ -213,22 +223,34 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    SizedBox(height: theme.defaultSpacing),
+                    SizedBox(
+                      height: formFieldsV2
+                          ? theme.smallSpacing
+                          : theme.defaultSpacing,
+                    ),
                     TranslatedText(
                       linking
                           ? "email_linking.enter_email.header"
                           : "email_issuance.enter_email.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
+                      style: formFieldsV2
+                          ? theme.fieldScreenHeading
+                          : theme.textTheme.bodyLarge!.copyWith(
+                              color: theme.neutralExtraDark,
+                            ),
                     ),
                     SizedBox(height: theme.defaultSpacing),
                     TranslatedText(
                       linking
                           ? "email_linking.enter_email.body"
+                          : formFieldsV2
+                          ? "email_issuance.enter_email.body_v2"
                           : "email_issuance.enter_email.body",
                     ),
-                    SizedBox(height: theme.largeSpacing),
+                    SizedBox(
+                      height: formFieldsV2
+                          ? theme.mediumSpacing
+                          : theme.largeSpacing,
+                    ),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -245,7 +267,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                               ),
                               hint: FlutterI18n.translate(
                                 context,
-                                "email_issuance.enter_email.email_hint",
+                                "email_issuance.enter_email.email_placeholder",
                               ),
                               legacyDecoration: linking
                                   ? InputDecoration(

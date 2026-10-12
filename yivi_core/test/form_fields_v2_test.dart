@@ -1169,6 +1169,110 @@ void main() {
   });
 
   group("e-mail screen", () {
+    Rect appBarRect(WidgetTester tester) =>
+        tester.getRect(find.byKey(const Key("irma_app_bar")));
+
+    for (final (fields, top, gap, headingSize, body) in [
+      (
+        _Fields.v2,
+        24.0,
+        24.0,
+        18.0,
+        "We'll send you an email with a verification code. You'll enter it in "
+            "the next step.",
+      ),
+      (
+        _Fields.legacy,
+        32.0,
+        32.0,
+        16.0,
+        "We'll send you an email with a verification code. You'll need to "
+            "enter this code in the next step.",
+      ),
+    ]) {
+      testWidgets("is laid out as ${fields.name} board H1", (tester) async {
+        await pumpField(tester, const EnterEmailScreen(), fields: fields);
+        const headingText = "Enter your email address";
+        final heading = tester.getRect(find.text(headingText));
+        final bodyRect = tester.getRect(find.text(body));
+        final style = tester.widget<Text>(find.text(headingText)).style;
+
+        // Board H1: 24 px above the heading, 16 px to the text and 24 px from
+        // the text to the field. The heading is 18 px on a 26 px line.
+        expect(heading.top - appBarRect(tester).bottom, top);
+        expect(bodyRect.top - heading.bottom, 16);
+        expect(decoratorRect(tester).top - bodyRect.bottom, gap);
+        expect(style?.fontSize, headingSize);
+        expect(style?.fontWeight, FontWeight.w700);
+        expect(style?.color, theme.neutralExtraDark);
+        if (fields == _Fields.v2) {
+          expect(style?.height, 26 / 18);
+        }
+      });
+    }
+
+    for (final (locale, body, hint, required, invalid) in [
+      (
+        "nl",
+        "Wij sturen je een e-mail met een verificatiecode. Die vul je in bij "
+            "de volgende stap.",
+        "naam@voorbeeld.nl",
+        "E-mailadres is verplicht",
+        "Incorrect e-mailadres",
+      ),
+      (
+        "en",
+        "We'll send you an email with a verification code. You'll enter it in "
+            "the next step.",
+        "name@example.com",
+        "Email address is required",
+        "Incorrect email address",
+      ),
+      (
+        "de",
+        "Wir senden Ihnen eine E-Mail mit einem Bestätigungscode. Diesen "
+            "geben Sie im nächsten Schritt ein.",
+        "name@beispiel.de",
+        "E-Mail-Adresse ist erforderlich",
+        "Ungültige E-Mail-Adresse",
+      ),
+    ]) {
+      testWidgets("has the copy of board H1 in $locale with the flag on", (
+        tester,
+      ) async {
+        await pumpField(
+          tester,
+          const EnterEmailScreen(),
+          fields: _Fields.v2,
+          locale: locale,
+        );
+        final validator = tester
+            .widget<TextFormField>(find.byKey(const Key("email_input_field")))
+            .validator!;
+
+        expect(find.text(body), findsOneWidget);
+        expect(decorationOf(tester).hintText, hint);
+        expect(validator(""), required);
+        expect(validator("rosanne@voorbeeld"), invalid);
+        expect(validator("rosanne@voorbeeld.nl"), isNull);
+      });
+    }
+
+    testWidgets("keeps its English messages with the flag off", (tester) async {
+      await pumpField(
+        tester,
+        const EnterEmailScreen(),
+        fields: _Fields.legacy,
+        locale: "nl",
+      );
+      final validator = tester
+          .widget<TextFormField>(find.byKey(const Key("email_input_field")))
+          .validator!;
+
+      expect(validator(""), "Enter your email");
+      expect(validator("rosanne@voorbeeld"), "Enter a valid email");
+    });
+
     testWidgets("has its label inside the field with the flag on", (
       tester,
     ) async {
@@ -1176,7 +1280,7 @@ void main() {
 
       final decoration = decorationOf(tester);
       expect(labelText(decoration.label), "Email address");
-      expect(decoration.hintText, "Enter your email address...");
+      expect(decoration.hintText, "name@example.com");
       expect(decoration.filled, isTrue);
     });
 
