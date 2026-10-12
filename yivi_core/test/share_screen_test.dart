@@ -875,7 +875,7 @@ void main() {
       );
     });
 
-    testWidgets("a long link wraps at half the bar instead of overflowing", (
+    testWidgets("a long link drops under the text instead of overflowing", (
       tester,
     ) async {
       tester.platformDispatcher.textScaleFactorTestValue = 2;
@@ -890,9 +890,47 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
+      final bar = tester.getRect(find.byType(ShareTrustBar));
+      final link = tester.getRect(find.text("What does this mean?"));
+      final text = tester.getRect(find.byType(BoldMarkersText).last);
+      expect(link.top, greaterThanOrEqualTo(text.bottom));
+      expect(link.left, bar.left + 16);
+      expect(link.right, lessThanOrEqualTo(bar.right - 16));
+    });
+
+    testWidgets("large text and a long name keep the share button on screen", (
+      tester,
+    ) async {
+      const smallPhone = Size(360, 640);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpOverview(
+        tester,
+        session: _session(
+          requestor: _party("Gemeente Voorbeeldstad Noord-Holland Zuid"),
+          choices: [
+            _choice([_instance()]),
+          ],
+        ),
+      );
+      tester.view.physicalSize = smallPhone * tester.view.devicePixelRatio;
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
       expect(
-        tester.getSize(find.text("What does this mean?")).width,
-        lessThanOrEqualTo(358 / 2),
+        tester.getRect(_shareButton).bottom,
+        lessThanOrEqualTo(smallPhone.height),
+      );
+      expect(
+        tester
+            .getSize(
+              find.ancestor(
+                of: find.byType(ShareTrustBar),
+                matching: find.byType(SingleChildScrollView),
+              ),
+            )
+            .height,
+        lessThanOrEqualTo(smallPhone.height * 0.3),
       );
     });
 

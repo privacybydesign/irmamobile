@@ -10,7 +10,9 @@ import "requestor_host.dart";
 const _barRadius = 12.0;
 const _barGap = 12.0;
 const _linkMaxShare = 0.5;
-const _barTextHeight = 22 / 16;
+const _barTextSize = 16.0;
+const _barTextHeight = 22 / _barTextSize;
+const _stackFromTextScale = 1.3;
 
 /// Says whether Yivi knows the requestor, above the share button.
 class ShareTrustBar extends StatelessWidget {
@@ -25,6 +27,23 @@ class ShareTrustBar extends StatelessWidget {
         ? requestor.name
         : requestorHost(requestor);
 
+    final text = BoldMarkersText(
+      requestor.verified
+          ? "disclosure_permission.share_v2.trust_known"
+          : "disclosure_permission.share_v2.trust_unknown",
+      translationParams: {"requestorName": name},
+      style: theme.textTheme.bodyMedium?.copyWith(height: _barTextHeight),
+    );
+    final link = Link(
+      label:
+          "disclosure_permission.overview.requestor_verification.explanation",
+      onTap: () => showVerificationSheet(context),
+      style: const TextStyle(
+        fontWeight: FontWeight.w400,
+        height: _barTextHeight,
+      ),
+    );
+
     return Container(
       width: double.infinity,
       padding: .all(theme.defaultSpacing),
@@ -32,40 +51,33 @@ class ShareTrustBar extends StatelessWidget {
         color: requestor.verified ? theme.successSurface : theme.errorSurface,
         borderRadius: BorderRadius.circular(_barRadius),
       ),
-      // The link keeps its width until it takes half the bar, then wraps, so
-      // large text cannot push it out of the bar.
-      child: LayoutBuilder(
-        builder: (context, constraints) => Row(
-          spacing: _barGap,
-          children: [
-            Expanded(
-              child: BoldMarkersText(
-                requestor.verified
-                    ? "disclosure_permission.share_v2.trust_known"
-                    : "disclosure_permission.share_v2.trust_unknown",
-                translationParams: {"requestorName": name},
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  height: _barTextHeight,
-                ),
+      child: _stacked(context)
+          ? Column(
+              crossAxisAlignment: .start,
+              spacing: theme.tinySpacing,
+              children: [text, link],
+            )
+          // The link keeps its width until it takes half the bar, then wraps.
+          : LayoutBuilder(
+              builder: (context, constraints) => Row(
+                spacing: _barGap,
+                children: [
+                  Expanded(child: text),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth * _linkMaxShare,
+                    ),
+                    child: link,
+                  ),
+                ],
               ),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: constraints.maxWidth * _linkMaxShare,
-              ),
-              child: Link(
-                label:
-                    "disclosure_permission.overview.requestor_verification.explanation",
-                onTap: () => showVerificationSheet(context),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  height: _barTextHeight,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
+
+  // Beside large text the link gets a few characters per line, so it goes
+  // under the text instead.
+  bool _stacked(BuildContext context) =>
+      MediaQuery.textScalerOf(context).scale(_barTextSize) >
+      _barTextSize * _stackFromTextScale;
 }

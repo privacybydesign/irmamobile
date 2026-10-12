@@ -21,6 +21,7 @@ const _closeButtonInset = 8.0;
 const _contentTopPadding = 48.0;
 const _sectionGap = 20.0;
 const _footerGap = 12.0;
+const _trustBarMaxShare = 0.3;
 
 /// Whether [session] gets the share screen. Only a disclosure does: signing
 /// and issuance keep their own screens.
@@ -174,7 +175,17 @@ class ShareScreen extends StatelessWidget {
             crossAxisAlignment: .stretch,
             spacing: _footerGap,
             children: [
-              ShareTrustBar(requestor: requestor),
+              // Scrolls when large text makes the bar taller than this, so the
+              // share button never leaves the screen.
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight:
+                      MediaQuery.sizeOf(context).height * _trustBarMaxShare,
+                ),
+                child: SingleChildScrollView(
+                  child: ShareTrustBar(requestor: requestor),
+                ),
+              ),
               YiviThemedButton(
                 key: const Key("bottom_bar_primary"),
                 label: "disclosure_permission.share_v2.share",
