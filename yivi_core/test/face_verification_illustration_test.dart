@@ -15,14 +15,12 @@ import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_verification_animation.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
 import "support/pump_translated.dart";
-
-const _phone = Key("face_verification_phone");
-const _selfieCard = Key("face_verification_selfie_card");
 
 enum _Flag { on, off }
 
@@ -155,33 +153,6 @@ Widget _app(Widget home, {List<Override> overrides = const []}) =>
     );
 
 void main() {
-  group("the animation", () {
-    testWidgets("shows the selfie on an upright phone by default", (
-      tester,
-    ) async {
-      await pumpTranslated(tester, _app(const FaceVerificationAnimation()));
-
-      expect(find.byKey(_phone), findsOneWidget);
-      expect(find.byKey(_selfieCard), findsNothing);
-    });
-
-    testWidgets("neutral shows the selfie on a plain card, with no phone", (
-      tester,
-    ) async {
-      await pumpTranslated(
-        tester,
-        _app(
-          const FaceVerificationAnimation(
-            illustration: FaceVerificationIllustration.neutral,
-          ),
-        ),
-      );
-
-      expect(find.byKey(_selfieCard), findsOneWidget);
-      expect(find.byKey(_phone), findsNothing);
-    });
-  });
-
   group("the intro after reading a document", () {
     // One per time the screen watches the autoDispose provider anew.
     late List<_SucceedingReader> readers;
@@ -246,19 +217,23 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets("flag on: the selfie is on a plain card", (tester) async {
-      await pumpUntilIntro(tester, flag: .on);
-
-      expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
-      expect(find.byKey(_selfieCard), findsOneWidget);
-      expect(find.byKey(_phone), findsNothing);
-    }, variant: const TargetPlatformVariant({TargetPlatform.android}));
-
-    testWidgets("flag on: cancelling the intro starts a new read on Android", (
+    testWidgets("flag on: a still picture and a Start button, no animation", (
       tester,
     ) async {
       await pumpUntilIntro(tester, flag: .on);
-      await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+
+      expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
+      expect(find.byType(FaceFrameIllustration), findsOneWidget);
+      expect(find.byType(FaceVerificationAnimation), findsNothing);
+      expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
+    }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+
+    testWidgets("flag on: leaving the intro starts a new read on Android", (
+      tester,
+    ) async {
+      await pumpUntilIntro(tester, flag: .on);
+      await tester.tap(find.byKey(const Key("irma_app_bar_leading")));
 
       // Round one lets the screen see the cancel, round two the read it starts.
       for (var round = 0; round < 2; round++) {
@@ -273,14 +248,16 @@ void main() {
       expect(readers.map((reader) => reader.readCount), [1, 1]);
     }, variant: const TargetPlatformVariant({TargetPlatform.android}));
 
-    testWidgets("flag off: the selfie stays on the upright phone", (
+    testWidgets("flag off: the animation, with Start and Cancel", (
       tester,
     ) async {
       await pumpUntilIntro(tester, flag: .off);
 
       expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
-      expect(find.byKey(_phone), findsOneWidget);
-      expect(find.byKey(_selfieCard), findsNothing);
+      expect(find.byType(FaceVerificationAnimation), findsOneWidget);
+      expect(find.byType(FaceFrameIllustration), findsNothing);
+      expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsOneWidget);
     }, variant: const TargetPlatformVariant({TargetPlatform.android}));
   });
 }
