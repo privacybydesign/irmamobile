@@ -3,6 +3,15 @@ import "package:material_ui/material_ui.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/test_detection.dart";
 
+/// What the selfie is shown on in [FaceVerificationAnimation].
+enum FaceVerificationIllustration {
+  /// A phone held upright.
+  phone,
+
+  /// A plain card, so the picture does not suggest how to hold the phone.
+  neutral,
+}
+
 /// Code-drawn animation for the face-verification intro: it highlights the
 /// portrait photo inside a travel/ID document (MRTD) and the selfie on a phone,
 /// then "matches" the two with a green check.
@@ -11,7 +20,12 @@ import "../../../../util/test_detection.dart";
 /// disabled under integration tests so `pumpAndSettle` does not hang on the
 /// repeating loop.
 class FaceVerificationAnimation extends StatelessWidget {
-  const FaceVerificationAnimation({super.key});
+  const FaceVerificationAnimation({
+    this.illustration = FaceVerificationIllustration.phone,
+    super.key,
+  });
+
+  final FaceVerificationIllustration illustration;
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +36,16 @@ class FaceVerificationAnimation extends StatelessWidget {
     return ExcludeSemantics(
       child: TickerMode(
         enabled: !isIntegrationTest,
-        child: const _FaceMatchAnimation(),
+        child: _FaceMatchAnimation(illustration: illustration),
       ),
     );
   }
 }
 
 class _FaceMatchAnimation extends StatefulWidget {
-  const _FaceMatchAnimation();
+  const _FaceMatchAnimation({required this.illustration});
+
+  final FaceVerificationIllustration illustration;
 
   @override
   State<_FaceMatchAnimation> createState() => _FaceMatchAnimationState();
@@ -96,13 +112,24 @@ class _FaceMatchAnimationState extends State<_FaceMatchAnimation>
                     theme: theme,
                   ),
                   _Connector(progress: matchProgress, theme: theme),
-                  _PhoneCard(
-                    glow: selfieGlow < matchProgress
-                        ? matchProgress
-                        : selfieGlow,
-                    highlight: faceColor,
-                    theme: theme,
-                  ),
+                  switch (widget.illustration) {
+                    FaceVerificationIllustration.phone => _PhoneCard(
+                      key: const Key("face_verification_phone"),
+                      glow: selfieGlow < matchProgress
+                          ? matchProgress
+                          : selfieGlow,
+                      highlight: faceColor,
+                      theme: theme,
+                    ),
+                    FaceVerificationIllustration.neutral => _SelfieCard(
+                      key: const Key("face_verification_selfie_card"),
+                      glow: selfieGlow < matchProgress
+                          ? matchProgress
+                          : selfieGlow,
+                      highlight: faceColor,
+                      theme: theme,
+                    ),
+                  },
                 ],
               );
             },
@@ -213,6 +240,35 @@ class _DocumentCard extends StatelessWidget {
   }
 }
 
+/// A selfie on a card the size of the document, with no phone around it.
+class _SelfieCard extends StatelessWidget {
+  final double glow;
+  final Color highlight;
+  final IrmaThemeData theme;
+
+  const _SelfieCard({
+    super.key,
+    required this.glow,
+    required this.highlight,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 118,
+      height: 78,
+      decoration: BoxDecoration(
+        color: theme.backgroundTertiary,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: theme.tertiary),
+      ),
+      alignment: Alignment.center,
+      child: _FaceBox(size: 54, glow: glow, highlight: highlight, theme: theme),
+    );
+  }
+}
+
 /// A phone showing a highlighted selfie.
 class _PhoneCard extends StatelessWidget {
   final double glow;
@@ -220,6 +276,7 @@ class _PhoneCard extends StatelessWidget {
   final IrmaThemeData theme;
 
   const _PhoneCard({
+    super.key,
     required this.glow,
     required this.highlight,
     required this.theme,
