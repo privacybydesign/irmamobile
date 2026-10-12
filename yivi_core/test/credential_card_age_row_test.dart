@@ -124,33 +124,73 @@ void main() {
     expect(find.text("Older than 18, not older than 21"), findsOneWidget);
   });
 
-  testWidgets("Show all ages expands into one chip per age, in order", (
-    tester,
-  ) async {
+  testWidgets("Show all ages adds one chip per age under the summary, in "
+      "order", (tester) async {
     await _pumpList(tester, _mixedAges);
 
     await tester.tap(find.text("Show all ages"));
     await tester.pumpAndSettle();
 
-    for (final label in [
-      "Older than 12",
-      "Older than 16",
-      "Older than 18",
-      "Older than 21",
-      "Not older than 65",
-      "Not older than 75",
-    ]) {
+    for (final label in ["✓ 12", "✓ 16", "✓ 18", "✓ 21", "– 65", "– 75"]) {
       expect(find.text(label), findsOneWidget);
     }
-    expect(find.text("Older than 21, not older than 65"), findsNothing);
+    // The summary stays, and a label says what the chips are about.
+    expect(find.text("Older than 21, not older than 65"), findsOneWidget);
+    expect(find.text("Older than"), findsOneWidget);
     expect(
-      tester.getTopLeft(find.text("Older than 12")).dx,
-      lessThan(tester.getTopLeft(find.text("Older than 16")).dx),
+      tester.getTopLeft(find.text("✓ 12")).dx,
+      lessThan(tester.getTopLeft(find.text("✓ 16")).dx),
     );
 
     await tester.tap(find.text("Hide ages"));
     await tester.pumpAndSettle();
+    expect(find.text("✓ 12"), findsNothing);
     expect(find.text("Older than 21, not older than 65"), findsOneWidget);
+  });
+
+  testWidgets("a chip says in words whether the holder is over that age", (
+    tester,
+  ) async {
+    await _pumpList(tester, _mixedAges);
+    await tester.tap(find.text("Show all ages"));
+    await tester.pumpAndSettle();
+
+    expect(find.bySemanticsLabel("Older than 21: yes"), findsOneWidget);
+    expect(find.bySemanticsLabel("Older than 65: no"), findsOneWidget);
+  });
+
+  testWidgets("the toggle tells assistive technology whether it is open", (
+    tester,
+  ) async {
+    await _pumpList(tester, _mixedAges);
+
+    expect(
+      tester.getSemantics(find.text("Show all ages")),
+      matchesSemantics(
+        isButton: true,
+        hasExpandedState: true,
+        isExpanded: false,
+        hasTapAction: true,
+        isFocusable: true,
+        hasFocusAction: true,
+        label: "Show all ages",
+      ),
+    );
+
+    await tester.tap(find.text("Show all ages"));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSemantics(find.text("Hide ages")),
+      matchesSemantics(
+        isButton: true,
+        hasExpandedState: true,
+        isExpanded: true,
+        hasTapAction: true,
+        isFocusable: true,
+        hasFocusAction: true,
+        label: "Hide ages",
+      ),
+    );
   });
 
   testWidgets("a single age has nothing to expand into", (tester) async {

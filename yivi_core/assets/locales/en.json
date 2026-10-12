@@ -118,7 +118,10 @@
       "not_over": "Not older than {age}",
       "over_and_not_over": "Older than {over}, not older than {notOver}",
       "show_all": "Show all ages",
-      "hide_all": "Hide ages"
+      "hide_all": "Hide ages",
+      "over_label": "Older than",
+      "chip_yes": "Older than {age}: yes",
+      "chip_no": "Older than {age}: no"
     }
   },
   "data": {

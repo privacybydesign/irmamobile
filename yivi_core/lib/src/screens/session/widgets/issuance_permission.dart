@@ -1,15 +1,20 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/nfc_credentials.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/translated_text.dart";
+import "document_issuance_permission.dart";
 import "session_scaffold.dart";
 
-class IssuancePermission extends StatelessWidget {
+class IssuancePermission extends ConsumerWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
@@ -26,12 +31,29 @@ class IssuancePermission extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SessionScaffold(
-    appBarTitle: "issuance.title",
-    bottomNavigationBar: _buildNavigationBar(context),
-    body: _buildBody(context),
-    onDismiss: onDismiss,
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final documentFlowV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
+    final isDocument =
+        issuedCredentials.isNotEmpty &&
+        issuedCredentials.every((c) => credentialRequiresNfc(c.credentialId));
+    if (documentFlowV2 && isDocument) {
+      return DocumentIssuancePermission(
+        issuedCredentials: issuedCredentials,
+        returnedFromIssuer: returnedFromIssuer,
+        onDismiss: onDismiss,
+        onGivePermission: onGivePermission,
+      );
+    }
+
+    return SessionScaffold(
+      appBarTitle: "issuance.title",
+      bottomNavigationBar: _buildNavigationBar(context),
+      body: _buildBody(context),
+      onDismiss: onDismiss,
+    );
+  }
 
   Widget _buildNavigationBar(BuildContext context) {
     return onGivePermission != null

@@ -8,8 +8,8 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
-import "../link.dart";
 import "../translated_text.dart";
+import "models/credential_card_layout.dart";
 
 /// How `overNN` age attributes are listed.
 enum AgeDisplay {
@@ -28,12 +28,14 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
   final AgeDisplay ageDisplay;
+  final CredentialCardLayout layout;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
     this.showDividers = false,
     this.ageDisplay = AgeDisplay.perAttribute,
+    this.layout = CredentialCardLayout.standard,
   });
 
   @override
@@ -66,6 +68,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             item: items[i],
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
             showDivider: showDividers,
+            layout: layout,
           ),
       ],
     );
@@ -484,11 +487,16 @@ class _RenderItemView extends StatelessWidget {
   // When false, suppresses the horizontal divider line entirely — guide
   // lines and indent are unaffected.
   final bool showDivider;
+  final CredentialCardLayout layout;
   const _RenderItemView({
     required this.item,
     required this.nextDepth,
     required this.showDivider,
+    required this.layout,
   });
+
+  // Space above and below a row in the document layout.
+  static const _documentRowPadding = 6.0;
 
   @override
   Widget build(BuildContext context) {
@@ -503,7 +511,7 @@ class _RenderItemView extends StatelessWidget {
     // padding to 0 so the visible glyph top of the label aligns with the
     // top of the freshly-introduced vertical line (which itself is inset by
     // tinySpacing from the row top).
-    final double topPad;
+    double topPad;
     if (isEyebrow) {
       topPad = theme.smallSpacing;
     } else if (isFirstAtDepth) {
@@ -511,7 +519,11 @@ class _RenderItemView extends StatelessWidget {
     } else {
       topPad = theme.tinySpacing;
     }
-    final bottomPad = theme.tinySpacing;
+    var bottomPad = theme.tinySpacing;
+    if (layout == .document && !isEyebrow && !isFirstAtDepth) {
+      topPad = _documentRowPadding;
+      bottomPad = _documentRowPadding;
+    }
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
@@ -543,7 +555,7 @@ class _RenderItemView extends StatelessWidget {
               padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
               child: Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: _RowContent(node: node),
+                child: _RowContent(node: node, layout: layout),
               ),
             ),
             if (drawDivider)
@@ -580,13 +592,14 @@ class _RenderItemView extends StatelessWidget {
 
 class _RowContent extends StatelessWidget {
   final _Node node;
-  const _RowContent({required this.node});
+  final CredentialCardLayout layout;
+  const _RowContent({required this.node, required this.layout});
 
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n),
-      _AgeNode n => _AgeContent(node: n),
+      _RowNode n => _LeafContent(node: n, layout: layout),
+      _AgeNode n => _AgeContent(node: n, layout: layout),
       _PrimArrayNode n => _PrimArrayContent(node: n),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
@@ -595,17 +608,26 @@ class _RowContent extends StatelessWidget {
 }
 
 // Shared label / value text styles.
-TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
+TextStyle _labelStyle(
+  IrmaThemeData theme, {
+  CredentialCardLayout layout = CredentialCardLayout.standard,
+}) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
   fontSize: 14,
+  height: layout == .document ? 20 / 14 : null,
   fontWeight: FontWeight.w400,
   color: theme.neutralExtraDark,
 );
 
-TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
+TextStyle _valueStyle(
+  IrmaThemeData theme,
+  Color color, {
+  CredentialCardLayout layout = CredentialCardLayout.standard,
+}) => TextStyle(
   fontFamily: theme.primaryFontFamily,
   fontSize: 16,
-  fontWeight: FontWeight.w600,
+  height: layout == .document ? 22 / 16 : null,
+  fontWeight: layout == .document ? FontWeight.w700 : FontWeight.w600,
   color: color,
 );
 
@@ -624,7 +646,8 @@ String _formatBool(BuildContext context, bool? value) {
 
 class _LeafContent extends StatelessWidget {
   final _RowNode node;
-  const _LeafContent({required this.node});
+  final CredentialCardLayout layout;
+  const _LeafContent({required this.node, required this.layout});
 
   @override
   Widget build(BuildContext context) {
@@ -636,7 +659,10 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(attribute.effectiveDisplayName, style: _labelStyle(theme)),
+        Text(
+          attribute.effectiveDisplayName,
+          style: _labelStyle(theme, layout: layout),
+        ),
         _buildValue(context, theme),
       ],
     );
@@ -655,15 +681,15 @@ class _LeafContent extends StatelessWidget {
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: _valueStyle(theme, _valueColor(val, theme), layout: layout),
       ),
       schemaless.AttributeType.boolean => Text(
         _formatBool(context, val.boolValue),
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: _valueStyle(theme, _valueColor(val, theme), layout: layout),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: _valueStyle(theme, _valueColor(val, theme), layout: layout),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, theme),
@@ -709,13 +735,14 @@ class _LeafContent extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Age — the highest age that is true and the lowest that is false, or one chip
-// per age once expanded.
+// Age — the highest age that is true and the lowest that is false, with one
+// chip per age under it once expanded.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AgeContent extends StatefulWidget {
   final _AgeNode node;
-  const _AgeContent({required this.node});
+  final CredentialCardLayout layout;
+  const _AgeContent({required this.node, required this.layout});
 
   @override
   State<_AgeContent> createState() => _AgeContentState();
@@ -747,6 +774,7 @@ class _AgeContentState extends State<_AgeContent> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final layout = widget.layout;
     // Nothing to expand into when there is only one age.
     final canExpand = widget.node.ages.length > 1;
 
@@ -754,60 +782,163 @@ class _AgeContentState extends State<_AgeContent> {
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
-        TranslatedText("credential.age.label", style: _labelStyle(theme)),
-        if (_expanded)
+        TranslatedText(
+          "credential.age.label",
+          style: _labelStyle(theme, layout: layout),
+        ),
+        Text(
+          _summary(context),
+          style: _valueStyle(theme, theme.dark, layout: layout),
+        ),
+        if (_expanded) ...[
           Padding(
-            padding: EdgeInsets.only(top: theme.tinySpacing),
+            padding: .only(top: _AgeChip.gap),
+            child: TranslatedText(
+              "credential.age.over_label",
+              style: _labelStyle(theme, layout: layout),
+            ),
+          ),
+          Padding(
+            padding: .only(top: _AgeChip.gap / 3, bottom: _AgeChip.gap),
             child: Wrap(
-              spacing: theme.smallSpacing,
-              runSpacing: theme.smallSpacing,
+              spacing: _AgeChip.gap,
+              runSpacing: _AgeChip.gap,
               children: [
                 for (final entry in widget.node.ages) _AgeChip(entry: entry),
               ],
             ),
-          )
-        else
-          Text(_summary(context), style: _valueStyle(theme, theme.dark)),
+          ),
+        ],
         if (canExpand)
-          Padding(
-            padding: EdgeInsets.only(top: theme.tinySpacing),
-            child: Link(
-              label: _expanded
-                  ? "credential.age.hide_all"
-                  : "credential.age.show_all",
-              onTap: () => setState(() => _expanded = !_expanded),
-            ),
+          _AgeToggle(
+            expanded: _expanded,
+            onTap: () => setState(() => _expanded = !_expanded),
           ),
       ],
     );
   }
 }
 
+/// A pill that says whether the holder is over [_AgeEntry.age]. The mark and the
+/// colour repeat what the spoken label says.
 class _AgeChip extends StatelessWidget {
   final _AgeEntry entry;
   const _AgeChip({required this.entry});
 
+  static const double gap = 6;
+  static const double _height = 30;
+  static const _overText = Color(0xFF00602A);
+  static const _notOverSurface = Color(0xFFF2F0EE);
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    // The wording says which side of the age it is, so the colour is only a
-    // second cue.
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.smallSpacing,
-        vertical: theme.tinySpacing,
-      ),
-      decoration: BoxDecoration(
-        color: entry.over ? theme.successSurface : theme.neutralExtraLight,
-        borderRadius: theme.borderRadius,
-      ),
-      child: TranslatedText(
-        entry.over ? "credential.age.over" : "credential.age.not_over",
+    final textColor = entry.over ? _overText : theme.neutralDark;
+    return Semantics(
+      excludeSemantics: true,
+      label: FlutterI18n.translate(
+        context,
+        entry.over ? "credential.age.chip_yes" : "credential.age.chip_no",
         translationParams: {"age": "${entry.age}"},
-        style: _labelStyle(theme).copyWith(color: theme.dark),
+      ),
+      child: Container(
+        height: _height,
+        padding: .symmetric(
+          horizontal: theme.smallSpacing + theme.tinySpacing / 2,
+        ),
+        decoration: BoxDecoration(
+          color: entry.over ? theme.successSurface : _notOverSurface,
+          borderRadius: .circular(_height / 2),
+        ),
+        // Centers in the fixed height without stretching to the row's width.
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            "${entry.over ? "✓" : "–"} ${entry.age}",
+            style: _labelStyle(
+              theme,
+            ).copyWith(fontWeight: FontWeight.w600, color: textColor),
+          ),
+        ),
       ),
     );
   }
+}
+
+/// Shows or hides the chips under the age.
+class _AgeToggle extends StatelessWidget {
+  final bool expanded;
+  final VoidCallback onTap;
+  const _AgeToggle({required this.expanded, required this.onTap});
+
+  static const double _minHeight = 44;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Semantics(
+      button: true,
+      expanded: expanded,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: _minHeight),
+          child: Row(
+            mainAxisSize: .min,
+            spacing: theme.tinySpacing,
+            children: [
+              TranslatedText(
+                expanded
+                    ? "credential.age.hide_all"
+                    : "credential.age.show_all",
+                style: _labelStyle(
+                  theme,
+                ).copyWith(fontWeight: FontWeight.w600, color: theme.link),
+              ),
+              ExcludeSemantics(
+                child: RotatedBox(
+                  quarterTurns: expanded ? 2 : 0,
+                  child: SizedBox.square(
+                    dimension: 16,
+                    child: CustomPaint(
+                      painter: _ChevronPainter(color: theme.link),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChevronPainter extends CustomPainter {
+  final Color color;
+  _ChevronPainter({required this.color});
+
+  static const _grid = 24.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / _grid);
+    canvas.drawPath(
+      Path()
+        ..moveTo(6, 9)
+        ..lineTo(12, 15)
+        ..lineTo(18, 9),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_ChevronPainter oldDelegate) => oldDelegate.color != color;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

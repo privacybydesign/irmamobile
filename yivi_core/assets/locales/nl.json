@@ -118,7 +118,10 @@
       "not_over": "Niet ouder dan {age}",
       "over_and_not_over": "Ouder dan {over}, niet ouder dan {notOver}",
       "show_all": "Toon alle leeftijden",
-      "hide_all": "Verberg leeftijden"
+      "hide_all": "Verberg leeftijden",
+      "over_label": "Ouder dan",
+      "chip_yes": "Ouder dan {age}: ja",
+      "chip_no": "Ouder dan {age}: nee"
     }
   },
   "data": {

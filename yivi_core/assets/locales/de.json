@@ -118,7 +118,10 @@
       "not_over": "Nicht älter als {age}",
       "over_and_not_over": "Älter als {over}, nicht älter als {notOver}",
       "show_all": "Alle Alter anzeigen",
-      "hide_all": "Alter ausblenden"
+      "hide_all": "Alter ausblenden",
+      "over_label": "Älter als",
+      "chip_yes": "Älter als {age}: ja",
+      "chip_no": "Älter als {age}: nein"
     }
   },
   "data": {
