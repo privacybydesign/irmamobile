@@ -282,6 +282,9 @@ class _ExpiredBadge extends StatelessWidget {
       ),
       child: Text(
         "!",
+        // The circle is a fixed size, so the glyph must not outgrow it. The
+        // card's own text carries the expired state at any scale.
+        textScaler: TextScaler.noScaling,
         style: TextStyle(
           fontSize: 12,
           height: 16 / 12,
