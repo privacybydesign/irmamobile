@@ -56,14 +56,14 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
         floatingLabelAlignment: .start,
         floatingLabelBehavior: .always,
       ),
-      builder: (decoration, errorBuilder) => TextFormField(
+      builder: (decoration, errorBuilder, style) => TextFormField(
         key: const Key("driving_licence_mrz_input_field"),
         controller: controller,
         keyboardType: .text,
         textCapitalization: .characters,
         autofillHints: const [AutofillHints.creditCardNumber],
         cursorColor: theme.themeData.colorScheme.secondary,
-        style: baseTextStyle,
+        style: style ?? baseTextStyle,
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
         ],

@@ -1,8 +1,13 @@
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
+import "yivi_field_border.dart";
+
 /// Material scales a floating label to 75% of the size it is declared at.
 const _floatingLabelScale = 0.75;
+
+/// Material adds this to the sides of the content of a filled field.
+const _filledFieldGap = 4.0;
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -62,6 +67,39 @@ class IrmaThemeData {
   );
   final double fieldLineWidth = 2.0;
   final double fieldButtonSize = 44.0;
+  // The space between the edge of a single field and its text, which Material
+  // fills with [_filledFieldGap] and the content padding.
+  final double fieldInset = 14.0;
+  EdgeInsets get fieldContentPadding => EdgeInsets.fromLTRB(
+    fieldInset - _filledFieldGap,
+    8,
+    fieldInset - _filledFieldGap,
+    8,
+  );
+
+  // The negative bottom padding of a row pulls its message up under the value.
+  final EdgeInsets fieldRowContentPadding = const EdgeInsets.fromLTRB(
+    16,
+    15,
+    16,
+    -2,
+  );
+
+  // The space around the button at the end of a row, which the content
+  // padding does not apply to.
+  final EdgeInsets fieldRowButtonPadding = const EdgeInsets.only(
+    top: 12,
+    right: 8,
+  );
+
+  // Space below the content of a row, with its line in it.
+  final double fieldRowBottom = 15.0;
+  final double fieldLastRowBottom = 14.0;
+  final BoxShadow fieldShadow = BoxShadow(
+    color: Colors.grey.shade300,
+    offset: const Offset(0.0, 1.0),
+    blurRadius: 3.0,
+  );
 
   // Fonts
   final String primaryFontFamily = "Open Sans";
@@ -94,38 +132,50 @@ class IrmaThemeData {
   // A heading above body text, on screens that have no app bar title for it.
   TextStyle? get bodyHeading => textTheme.bodyLarge?.copyWith(fontSize: 20);
 
-  /// The label of a form fields V2 field, which renders at [renderedSize].
-  TextStyle _fieldLabelStyle(double renderedSize) => TextStyle(
-    fontSize: renderedSize / _floatingLabelScale,
-    fontWeight: FontWeight.w400,
-    color: neutralExtraDark,
-  );
+  /// The label of a form fields V2 field. Material scales the label to
+  /// [_floatingLabelScale], so it is declared larger than it renders at
+  /// [renderedSize] with a line of [renderedHeight].
+  TextStyle _fieldLabelStyle(double renderedSize, double renderedHeight) =>
+      TextStyle(
+        fontSize: renderedSize / _floatingLabelScale,
+        height: renderedHeight / renderedSize,
+        letterSpacing: 0,
+        fontWeight: FontWeight.w600,
+        color: neutralExtraDark,
+      );
 
   /// The label of a single form fields V2 field, for fields that are not
   /// decorated through [fieldDecorationTheme].
-  TextStyle get fieldLabelStyle => _fieldLabelStyle(12);
+  TextStyle get fieldLabelStyle => _fieldLabelStyle(12, 16);
 
-  InputDecorationThemeData _fieldDecorationTheme({
+  /// The value, and the hint, of a single form fields V2 field.
+  TextStyle get fieldValueStyle =>
+      textTheme.bodyMedium!.copyWith(height: 26 / 16, letterSpacing: 0);
+
+  /// The value, and the hint, of a row of a form fields V2 field group.
+  TextStyle get fieldRowValueStyle => textTheme.bodyMedium!.copyWith(
+    fontSize: 17,
+    height: 26 / 17,
+    letterSpacing: 0,
+  );
+
+  /// The message below a form fields V2 field.
+  TextStyle get fieldMessageStyle => textTheme.bodyMedium!.copyWith(
+    fontSize: 13,
+    height: 18 / 13,
+    letterSpacing: 0,
+    fontWeight: FontWeight.w600,
+    color: error,
+  );
+
+  InputDecorationThemeData _fieldDecorationBase({
     required TextStyle labelStyle,
-    required BorderRadius radius,
-    required Color lineColor,
-    required Color fillColor,
+    required TextStyle valueStyle,
+    required EdgeInsets contentPadding,
   }) {
-    UnderlineInputBorder line(Color color) {
-      return UnderlineInputBorder(
-        borderRadius: radius,
-        borderSide: BorderSide(color: color, width: fieldLineWidth),
-      );
-    }
-
     return InputDecorationThemeData(
-      filled: true,
-      fillColor: fillColor,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: defaultSpacing,
-        vertical: smallSpacing,
-      ),
+      contentPadding: contentPadding,
       suffixIconConstraints: BoxConstraints(
         minWidth: fieldButtonSize,
         minHeight: fieldButtonSize,
@@ -140,14 +190,7 @@ class IrmaThemeData {
         }
         return labelStyle;
       }),
-      hintStyle: textTheme.bodyMedium?.copyWith(color: neutralDark),
-      errorStyle: textTheme.bodyMedium?.copyWith(color: error),
-      border: line(lineColor),
-      enabledBorder: line(lineColor),
-      focusedBorder: line(link),
-      errorBorder: line(error),
-      focusedErrorBorder: line(error),
-      disabledBorder: line(neutralLight),
+      hintStyle: valueStyle.copyWith(color: neutralDark),
     );
   }
 
@@ -275,25 +318,53 @@ class IrmaThemeData {
       errorStyle: textTheme.bodyMedium?.copyWith(color: error),
     );
 
-    fieldDecorationTheme = _fieldDecorationTheme(
-      labelStyle: fieldLabelStyle,
-      radius: fieldBorderRadius,
-      lineColor: neutralDark,
-      fillColor: WidgetStateColor.resolveWith((states) {
-        if (states.contains(WidgetState.disabled)) return fieldDisabledSurface;
-        return light;
-      }),
-    );
-    fieldRowDecorationTheme = _fieldDecorationTheme(
-      labelStyle: _fieldLabelStyle(13),
-      radius: BorderRadius.zero,
-      lineColor: Colors.transparent,
-      fillColor: WidgetStateColor.resolveWith((states) {
-        if (states.contains(WidgetState.error)) return errorSurface;
-        if (states.contains(WidgetState.focused)) return surfaceSecondary;
-        return Colors.transparent;
-      }),
-    );
+    BorderSide fieldLine(Color color) =>
+        BorderSide(color: color, width: fieldLineWidth);
+    UnderlineInputBorder fieldBorder(Color color) {
+      return YiviFieldBorder(
+        shadow: fieldShadow,
+        borderRadius: fieldBorderRadius,
+        borderSide: fieldLine(color),
+      );
+    }
+
+    fieldDecorationTheme =
+        _fieldDecorationBase(
+          labelStyle: fieldLabelStyle,
+          valueStyle: fieldValueStyle,
+          contentPadding: fieldContentPadding,
+        ).copyWith(
+          filled: true,
+          fillColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? fieldDisabledSurface
+                : light,
+          ),
+          border: fieldBorder(neutralDark),
+          enabledBorder: fieldBorder(neutralDark),
+          focusedBorder: fieldBorder(link),
+          errorBorder: fieldBorder(error),
+          focusedErrorBorder: fieldBorder(error),
+          disabledBorder: UnderlineInputBorder(
+            borderRadius: fieldBorderRadius,
+            borderSide: fieldLine(neutralLight),
+          ),
+        );
+
+    // The line of a row is drawn by YiviTextField, below the message.
+    fieldRowDecorationTheme =
+        _fieldDecorationBase(
+          labelStyle: _fieldLabelStyle(13, 18),
+          valueStyle: fieldRowValueStyle,
+          contentPadding: fieldRowContentPadding,
+        ).copyWith(
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+        );
 
     //Init App Bar Theme
     final appBarTheme = AppBarTheme(

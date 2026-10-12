@@ -25,7 +25,6 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/sms/widgets/enter_
 import "package:yivi_core/src/screens/review/store_review_feedback_dialog.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/irma_divider.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/yivi_field_group.dart";
 import "package:yivi_core/src/widgets/yivi_text_field.dart";
@@ -152,9 +151,10 @@ void main() {
       label: label,
       hint: hint,
       legacyDecoration: const InputDecoration(hintText: "legacy hint"),
-      builder: (decoration, errorBuilder) => TextFormField(
+      builder: (decoration, errorBuilder, style) => TextFormField(
         controller: controller,
         focusNode: focusNode,
+        style: style,
         decoration: decoration,
         errorBuilder: errorBuilder,
         validator: validator,
@@ -174,17 +174,24 @@ void main() {
       .widget<InputDecorator>(find.byType(InputDecorator).first)
       .decoration;
 
-  Color labelColor(WidgetTester tester, String label) {
-    final style = tester.widget<AnimatedDefaultTextStyle>(
-      find
-          .ancestor(
-            of: find.text(label),
-            matching: find.byType(AnimatedDefaultTextStyle),
-          )
-          .first,
-    );
-    return style.style.color!;
+  TextStyle labelStyle(WidgetTester tester, String label) {
+    return tester
+        .widget<AnimatedDefaultTextStyle>(
+          find
+              .ancestor(
+                of: find.text(label),
+                matching: find.byType(AnimatedDefaultTextStyle),
+              )
+              .first,
+        )
+        .style;
   }
+
+  Color labelColor(WidgetTester tester, String label) =>
+      labelStyle(tester, label).color!;
+
+  Rect valueRect(WidgetTester tester, [int index = 0]) =>
+      tester.getRect(find.byType(EditableText).at(index));
 
   group("single field", () {
     testWidgets("is white with the label inside and a grey 2px line", (
@@ -203,17 +210,47 @@ void main() {
       expect(shot.at(rect.center.dx, rect.bottom - 2), theme.neutralDark);
       expect(shot.at(rect.center.dx, rect.bottom - 3), theme.light);
 
-      // The label is 12 px (Material scales it to 75% of the 16 px it is declared
-      // at) and sits inside the field, above the value.
+      // Board H1: 8 px above the 16 px label line, then the 26 px value line,
+      // 8 px above the bottom, with the line in it. The text is 14 px from the
+      // sides.
       final label = tester.getRect(find.text("Label"));
+      final value = valueRect(tester);
+      expect(rect.height, 58);
+      expect(label.left - rect.left, 14);
+      expect(label.top - rect.top, 8);
       expect(label.height, 12);
-      expect(label.top, greaterThanOrEqualTo(rect.top));
-      expect(label.bottom, lessThan(rect.bottom));
+      expect(value.left - rect.left, 14);
+      expect(value.top - rect.top, 24);
+      expect(value.height, 26);
       expect(labelColor(tester, "Label"), theme.neutralExtraDark);
+      expect(labelStyle(tester, "Label").fontWeight, FontWeight.w600);
 
       final hint = tester.widget<Text>(find.text("Hint"));
       expect(hint.style?.color, theme.neutralDark);
       expect(hint.style?.fontSize, 16);
+    });
+
+    testWidgets("casts a shadow below the field, not behind its message", (
+      tester,
+    ) async {
+      await pumpField(
+        tester,
+        onPage(textField(validator: (_) => "Enter a label")),
+        fields: _Fields.v2,
+      );
+      final shot = await screenshot(tester);
+      final rect = decoratorRect(tester);
+      final fieldBottom = rect.top + 58;
+      final message = tester.getRect(find.text("Enter a label"));
+
+      expect(shot.at(rect.center.dx, fieldBottom - 1), theme.error);
+      final shadow = shot.at(rect.center.dx, fieldBottom);
+      expect(shadow, isNot(theme.backgroundTertiary));
+      expect(shadow, isNot(theme.light));
+      expect(
+        shot.at(rect.center.dx, message.top - 2),
+        theme.backgroundTertiary,
+      );
     });
 
     testWidgets("has 8 px radius on the top corners only", (tester) async {
@@ -256,18 +293,24 @@ void main() {
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
       final message = tester.getRect(find.text("Enter a label"));
+      final icon = tester.getRect(find.byIcon(Icons.error));
 
-      // The red line is above the message, which is part of the decorator.
-      expect(
-        shot.columnHas(theme.error, rect.center.dx, rect.top, message.top),
-        isTrue,
-      );
+      // The red line closes the field, and the message is 4 px below it, from
+      // the edge of the field and not from its text.
+      expect(shot.at(rect.center.dx, rect.top + 57), theme.error);
+      expect(shot.at(rect.center.dx, rect.top + 56), theme.error);
+      expect(shot.at(rect.center.dx, rect.top + 55), theme.light);
+      expect(icon.left, rect.left);
+      expect(icon.size, const Size(14, 14));
+      expect(icon.right, lessThan(message.left));
+      expect(message.top - rect.top, 62);
+      expect(message.height, 18);
+
       expect(labelColor(tester, "Label"), theme.error);
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
-      expect(
-        tester.getRect(find.byIcon(Icons.error_outline)).right,
-        lessThan(message.left),
-      );
+      final style = tester.widget<Text>(find.text("Enter a label")).style;
+      expect(style?.fontSize, 13);
+      expect(style?.fontWeight, FontWeight.w600);
+      expect(style?.color, theme.error);
     });
 
     testWidgets("is greyed out when disabled", (tester) async {
@@ -277,8 +320,8 @@ void main() {
           YiviTextField(
             label: "Label",
             legacyDecoration: const InputDecoration(),
-            builder: (decoration, _) =>
-                TextField(enabled: false, decoration: decoration),
+            builder: (decoration, _, style) =>
+                TextField(enabled: false, style: style, decoration: decoration),
           ),
         ),
         fields: _Fields.v2,
@@ -288,6 +331,7 @@ void main() {
 
       expect(shot.at(rect.left + 20, rect.top + 4), theme.fieldDisabledSurface);
       expect(shot.at(rect.center.dx, rect.bottom - 1), theme.neutralLight);
+      expect(shot.at(rect.center.dx, rect.bottom), theme.backgroundTertiary);
     });
 
     testWidgets("keeps the decoration it was given with the flag off", (
@@ -304,7 +348,7 @@ void main() {
       expect(decoration.labelText, isNull);
       expect(decoration.filled, isNot(true));
       expect(find.text("Enter a label"), findsOneWidget);
-      expect(find.byIcon(Icons.error_outline), findsNothing);
+      expect(find.byIcon(Icons.error), findsNothing);
     });
 
     testWidgets("is not rebuilt when the flag value arrives", (tester) async {
@@ -339,8 +383,9 @@ void main() {
           YiviTextField(
             label: "First",
             legacyDecoration: const InputDecoration(),
-            builder: (decoration, errorBuilder) => TextFormField(
+            builder: (decoration, errorBuilder, style) => TextFormField(
               key: first,
+              style: style,
               decoration: decoration,
               errorBuilder: errorBuilder,
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -350,8 +395,9 @@ void main() {
           YiviTextField(
             label: "Second",
             legacyDecoration: const InputDecoration(),
-            builder: (decoration, errorBuilder) => TextFormField(
+            builder: (decoration, errorBuilder, style) => TextFormField(
               key: second,
+              style: style,
               decoration: decoration,
               errorBuilder: errorBuilder,
             ),
@@ -363,7 +409,10 @@ void main() {
     const first = Key("first");
     const second = Key("second");
 
-    testWidgets("is one white card with dividers between the rows", (
+    Rect rowRect(WidgetTester tester, int index) =>
+        tester.getRect(find.byType(YiviTextField).at(index));
+
+    testWidgets("is one white card with a divider between the rows", (
       tester,
     ) async {
       await pumpField(
@@ -372,16 +421,21 @@ void main() {
         fields: _Fields.v2,
       );
       final shot = await screenshot(tester);
-      final firstRow = tester.getRect(find.byType(InputDecorator).first);
-      final secondRow = tester.getRect(find.byType(InputDecorator).last);
+      final firstRow = rowRect(tester, 0);
+      final secondRow = rowRect(tester, 1);
 
-      expect(find.byType(IrmaDivider), findsOneWidget);
+      // Board H2: a row is 71 px with its 1 px divider, and the last row is
+      // 70 px without one.
+      expect(firstRow.height, 71);
+      expect(secondRow.height, 70);
       expect(shot.at(firstRow.center.dx, firstRow.center.dy), theme.light);
       expect(shot.at(secondRow.center.dx, secondRow.center.dy), theme.light);
       expect(
-        shot.at(firstRow.center.dx, firstRow.bottom + 0.5),
+        shot.at(firstRow.center.dx, firstRow.bottom - 1),
         theme.neutralExtraLight,
       );
+      expect(shot.at(firstRow.center.dx, firstRow.bottom - 2), theme.light);
+      expect(shot.at(secondRow.center.dx, secondRow.bottom - 1), theme.light);
 
       // 12 px radius, and a soft shadow around the card.
       final card = tester
@@ -398,7 +452,30 @@ void main() {
       );
     });
 
-    testWidgets("lights up the active row with a blue label and line", (
+    testWidgets("lays a row out as the board does", (tester) async {
+      await pumpField(
+        tester,
+        onPage(group(first: first, second: second)),
+        fields: _Fields.v2,
+      );
+      final row = rowRect(tester, 0);
+      final label = tester.getRect(find.text("First"));
+      final value = valueRect(tester);
+
+      // 16 px from the sides, a 17 px value on a 26 px line, 13 px label.
+      expect(label.left - row.left, 16);
+      expect(value.left - row.left, 16);
+      expect(value.top - row.top, 32);
+      expect(value.height, 26);
+      expect(labelStyle(tester, "First").fontWeight, FontWeight.w600);
+      final style = tester
+          .widget<EditableText>(find.byType(EditableText).first)
+          .style;
+      expect(style.fontSize, 17);
+      expect(style.letterSpacing, 0);
+    });
+
+    testWidgets("marks the active row with a blue label and line only", (
       tester,
     ) async {
       await pumpField(
@@ -407,37 +484,49 @@ void main() {
         fields: _Fields.v2,
       );
 
-      await tester.tap(find.byKey(second));
+      await tester.tap(find.byKey(first));
       await tester.pumpAndSettle();
-      final shot = await screenshot(tester);
-      final firstRow = tester.getRect(find.byType(InputDecorator).first);
-      final secondRow = tester.getRect(find.byType(InputDecorator).last);
+      var shot = await screenshot(tester);
+      final firstRow = rowRect(tester, 0);
+      final secondRow = rowRect(tester, 1);
 
-      expect(
-        shot.at(secondRow.center.dx, secondRow.top + 4),
-        theme.surfaceSecondary,
-      );
-      expect(shot.at(secondRow.center.dx, secondRow.bottom - 1), theme.link);
-      expect(shot.at(secondRow.center.dx, secondRow.bottom - 2), theme.link);
-      expect(
-        shot.at(secondRow.center.dx, secondRow.bottom - 3),
-        theme.surfaceSecondary,
-      );
-      expect(labelColor(tester, "Second"), theme.link);
-
+      // The line is 2 px and takes the place of the divider. The row is as
+      // high as before, and keeps the white of the card.
+      expect(firstRow.height, 71);
       expect(shot.at(firstRow.center.dx, firstRow.top + 4), theme.light);
+      expect(shot.at(firstRow.center.dx, firstRow.bottom - 1), theme.link);
+      expect(shot.at(firstRow.center.dx, firstRow.bottom - 2), theme.link);
+      expect(shot.at(firstRow.center.dx, firstRow.bottom - 3), theme.light);
+      expect(labelColor(tester, "First"), theme.link);
+      expect(labelColor(tester, "Second"), theme.neutralExtraDark);
       expect(
         shot.columnHas(
           theme.link,
-          firstRow.center.dx,
-          firstRow.top,
-          firstRow.bottom,
+          secondRow.center.dx,
+          secondRow.top,
+          secondRow.bottom,
         ),
         isFalse,
       );
+
+      await tester.tap(find.byKey(second));
+      await tester.pumpAndSettle();
+      shot = await screenshot(tester);
+
+      expect(secondRow.height, 70);
+      expect(shot.at(secondRow.center.dx, secondRow.top + 4), theme.light);
+      expect(shot.at(secondRow.center.dx, secondRow.bottom - 1), theme.link);
+      expect(shot.at(secondRow.center.dx, secondRow.bottom - 2), theme.link);
+      expect(shot.at(secondRow.center.dx, secondRow.bottom - 3), theme.light);
+      expect(labelColor(tester, "Second"), theme.link);
+      expect(
+        shot.at(firstRow.center.dx, firstRow.bottom - 1),
+        theme.neutralExtraLight,
+      );
+      expect(labelColor(tester, "First"), theme.neutralExtraDark);
     });
 
-    testWidgets("tints an invalid row red, with no coloured left border", (
+    testWidgets("puts the message of an invalid row above its red line", (
       tester,
     ) async {
       await pumpField(
@@ -451,25 +540,33 @@ void main() {
       await tester.tap(find.byKey(second));
       await tester.pumpAndSettle();
       final shot = await screenshot(tester);
-      final row = tester.getRect(find.byType(InputDecorator).first);
+      final row = rowRect(tester, 0);
+      final value = valueRect(tester);
+      final message = tester.getRect(find.text("First is bad"));
+      final icon = tester.getRect(find.byIcon(Icons.error));
 
-      expect(shot.at(row.center.dx, row.top + 4), theme.errorSurface);
+      // No tint and no coloured left border, as board H3: the row stays white.
+      expect(shot.at(row.left + 0.5, row.top + 28), theme.light);
+      expect(shot.at(row.center.dx, row.top + 4), theme.light);
+      expect(labelColor(tester, "First"), theme.error);
+
+      // The message is inside the row, 2 px below the value and left aligned
+      // with it, and the 2 px line is below it, at the bottom of the row.
+      expect(message.top - value.bottom, 2);
+      expect(message.height, 18);
+      expect(icon.left - row.left, 16);
+      expect(icon.size, const Size(14, 14));
+      expect(icon.right, lessThan(message.left));
+      expect(shot.at(row.center.dx, row.bottom - 1), theme.error);
+      expect(shot.at(row.center.dx, row.bottom - 2), theme.error);
+      expect(shot.at(row.center.dx, row.bottom - 3), theme.light);
+      expect(shot.at(row.left + 1, row.bottom - 1), theme.error);
+      expect(shot.at(row.right - 2, row.bottom - 1), theme.error);
+      expect(message.bottom, lessThan(row.bottom - 2));
       expect(
-        shot.columnHas(
-          theme.error,
-          row.center.dx,
-          row.top,
-          tester.getRect(find.text("First is bad")).top,
-        ),
+        shot.columnHas(theme.error, row.center.dx, value.bottom, row.bottom),
         isTrue,
       );
-      expect(labelColor(tester, "First"), theme.error);
-      expect(find.text("First is bad"), findsOneWidget);
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
-
-      // The row is tinted up to the card's edge, and no side is a coloured line.
-      expect(shot.at(row.left + 0.5, row.top + 28), theme.errorSurface);
-      expect(shot.at(row.left + 1.5, row.top + 28), theme.errorSurface);
     });
 
     testWidgets("is a plain stack with a gap with the flag off", (
@@ -488,7 +585,6 @@ void main() {
         fields: _Fields.legacy,
       );
 
-      expect(find.byType(IrmaDivider), findsNothing);
       expect(
         tester.getTopLeft(find.byKey(second)).dy -
             tester.getBottomLeft(find.byKey(first)).dy,
@@ -563,6 +659,38 @@ void main() {
 
       final year = DateTime.now().year - 25;
       expect(controller.text, "01-01-$year");
+    });
+
+    testWidgets("puts the calendar button 12 px from the top and 8 px from "
+        "the end of its row", (tester) async {
+      await pumpField(
+        tester,
+        onPage(
+          Form(
+            child: YiviFieldGroup(
+              children: [
+                DateInputField(
+                  controller: controller,
+                  labelText: "Date of birth",
+                  requiredText: "Date of birth is required",
+                  dateInvalidText: "Date is invalid",
+                ),
+              ],
+            ),
+          ),
+        ),
+        fields: _Fields.v2,
+      );
+      final row = tester.getRect(find.byType(YiviTextField));
+      final button = tester.getRect(find.byType(IconButton));
+      final icon = tester.getRect(find.byIcon(Icons.calendar_today));
+
+      expect(button.size, const Size(44, 44));
+      expect(button.top - row.top, 12);
+      expect(row.right - button.right, 8);
+      expect(icon.size, const Size(22, 22));
+      expect(icon.center, button.center);
+      expect(row.height, 70);
     });
 
     testWidgets("is typed as YYYY-MM-DD with the flag off", (tester) async {
@@ -651,8 +779,17 @@ void main() {
     ) async {
       await pumpField(tester, passportScreen((_) {}), fields: _Fields.v2);
 
-      expect(find.byType(IrmaDivider), findsNWidgets(2));
+      expect(find.byType(YiviFieldGroup), findsOneWidget);
+      expect(find.byType(YiviTextField), findsNWidgets(3));
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText).first)
+            .style
+            .letterSpacing,
+        1,
+      );
       expect(decorationOf(tester).labelText, "Document number");
+      expect(decorationOf(tester).filled, isNot(true));
       expect(find.text("Date of birth"), findsOneWidget);
       expect(find.text("Date of expiry"), findsOneWidget);
     });
@@ -662,7 +799,6 @@ void main() {
     ) async {
       await pumpField(tester, passportScreen((_) {}), fields: _Fields.legacy);
 
-      expect(find.byType(IrmaDivider), findsNothing);
       expect(decorationOf(tester).labelText, isNull);
       expect(decorationOf(tester).label, isA<Text>());
     });
@@ -676,9 +812,9 @@ void main() {
         fields: _Fields.v2,
       );
 
-      expect(find.byType(IrmaDivider), findsNothing);
+      expect(find.byType(YiviFieldGroup), findsOneWidget);
       expect(decorationOf(tester).labelText, "Machine readable zone (MRZ)");
-      expect(decorationOf(tester).filled, isTrue);
+      expect(decorationOf(tester).filled, isNot(true));
     });
 
     testWidgets("shows an invalid document number with an icon", (
@@ -693,7 +829,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Document number is invalid"), findsOneWidget);
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.byIcon(Icons.error), findsOneWidget);
     });
   });
 
@@ -830,7 +966,7 @@ void main() {
         find.text("Incorrect code. 2 attempts remaining."),
         findsOneWidget,
       );
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.byIcon(Icons.error), findsOneWidget);
       expect(tester.widget<TextField>(codeField).textAlign, TextAlign.start);
       expect(labelColor(tester, "Transaction code"), theme.error);
     });
@@ -845,7 +981,7 @@ void main() {
         overrides: [session()],
       );
 
-      expect(find.byIcon(Icons.error_outline), findsNothing);
+      expect(find.byIcon(Icons.error), findsNothing);
       expect(labelColor(tester, "Transaction code"), isNot(theme.error));
     });
 
@@ -864,7 +1000,7 @@ void main() {
           find.text("Incorrect code. 2 attempts remaining."),
           findsOneWidget,
         );
-        expect(find.byIcon(Icons.error_outline), findsNothing);
+        expect(find.byIcon(Icons.error), findsNothing);
         expect(tester.widget<TextField>(codeField).textAlign, TextAlign.center);
         expect(
           tester

@@ -117,10 +117,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   Widget _buildEmailField(
     InputDecoration decoration,
     FormFieldErrorBuilder? errorBuilder,
+    TextStyle? style,
   ) {
     return TextFormField(
       decoration: decoration,
       errorBuilder: errorBuilder,
+      style: style,
       controller: _textController,
       focusNode: _focusNode,
       key: const Key("email_input_field"),
