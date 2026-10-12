@@ -325,7 +325,11 @@
       "required": "required"
     },
     "onboarding_v2": {
-      "intro_explanation": "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app."
+      "intro_explanation": "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app.",
+      "point_1": "You decide what you store, what you share and with whom.",
+      "point_2": "Your data is only on your phone, which is safer.",
+      "point_3": "Nobody is watching along, not even Yivi!",
+      "error_reporting_explanation": "By sending the error messages to us automatically, we can fix problems faster. The app also periodically sends a message to say whether everything still works. Of course, we do all of this without having access to your personal data or transactions."
     },
     "error_reporting": {
       "accept": {
