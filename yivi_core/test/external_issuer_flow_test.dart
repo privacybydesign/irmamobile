@@ -14,20 +14,32 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/providers/external_issuer_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_route.dart";
 import "package:yivi_core/src/screens/add_data/external_issuer_heads_up_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_step_credential_card.dart";
+import "package:yivi_core/src/screens/session/widgets/external_issuer_return_notice.dart";
+import "package:yivi_core/src/screens/session/widgets/external_issuer_returned_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/missing_data_band.dart";
 import "support/pump_translated.dart";
 
 const _websiteCredential = "pbdf.gemeente.personalData";
 const _issueUrl = "https://gemeente.example/start";
 const _sessionId = 1;
+
+class _ActiveFlow extends MissingDataFlowNotifier {
+  @override
+  MissingDataFlow? build() => const MissingDataFlow(
+    sessionId: _sessionId,
+    credentialId: _websiteCredential,
+  );
+}
 
 class _RecordingBridge extends IrmaBridge {
   @override
@@ -45,9 +57,10 @@ TrustedParty _issuer() => TrustedParty(
 CredentialDescriptor _descriptor({
   String credentialId = _websiteCredential,
   String? issueUrl = _issueUrl,
+  String name = "Persoonsgegevens",
 }) => CredentialDescriptor(
   credentialId: credentialId,
-  name: "Persoonsgegevens",
+  name: name,
   issuer: _issuer(),
   category: null,
   attributes: const [],
@@ -104,33 +117,66 @@ Future<_Env> _env({required bool flagOn}) async {
   return _Env(prefs, repo);
 }
 
+Widget _app(
+  _Env env,
+  Widget home, {
+  List<dynamic> overrides = const [],
+  Locale locale = const Locale("en", "US"),
+}) => ProviderScope(
+  overrides: [...env.overrides, ...overrides].cast(),
+  child: IrmaTheme(
+    builder: (_) => MaterialApp(
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+          translationLoader: FileTranslationLoader(
+            basePath: "assets/locales",
+            forcedLocale: locale,
+          ),
+        ),
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      home: home,
+    ),
+  ),
+);
+
 Future<void> _pumpApp(
   WidgetTester tester,
   _Env env,
   Widget home, {
   List<dynamic> overrides = const [],
+  Locale locale = const Locale("en", "US"),
 }) async {
-  final app = ProviderScope(
-    overrides: [...env.overrides, ...overrides].cast(),
-    child: IrmaTheme(
-      builder: (_) => MaterialApp(
-        localizationsDelegates: [
-          FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
-              basePath: "assets/locales",
-              forcedLocale: const Locale("en", "US"),
-            ),
-          ),
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        home: home,
-      ),
-    ),
+  await pumpTranslated(
+    tester,
+    _app(env, home, overrides: overrides, locale: locale),
   );
-
-  await pumpTranslated(tester, app);
   await tester.pumpAndSettle();
 }
+
+Credential _offered() => Credential(
+  credentialId: _websiteCredential,
+  hash: "hash",
+  name: "Persoonsgegevens",
+  issuer: _issuer(),
+  credentialInstanceIds: const {},
+  batchInstanceCountsRemaining: const {},
+  attributes: [
+    Attribute(
+      claimPath: const ["firstnames"],
+      displayName: "First names",
+      value: AttributeValue(type: AttributeType.string, string: "Rosanne"),
+    ),
+    Attribute(
+      claimPath: const ["familyname"],
+      displayName: "Surname",
+      value: AttributeValue(type: AttributeType.string, string: "de Vries"),
+    ),
+  ],
+  revoked: false,
+  revocationSupported: false,
+  issueUrl: _issueUrl,
+);
 
 ExternalIssuerStatus _status(
   ProviderContainer container,
@@ -234,6 +280,9 @@ void main() {
   group("ExternalIssuerHeadsUpScreen", () {
     Future<void> pump(
       WidgetTester tester, {
+      String name = "Persoonsgegevens",
+      Locale locale = const Locale("en", "US"),
+      List<dynamic> overrides = const [],
       VoidCallback? onOpenWebsite,
       VoidCallback? onBack,
     }) async {
@@ -242,10 +291,12 @@ void main() {
         tester,
         env,
         ExternalIssuerHeadsUpScreen(
-          credential: _descriptor(),
+          credential: _descriptor(name: name),
           onOpenWebsite: onOpenWebsite ?? () {},
           onBack: onBack ?? () {},
         ),
+        locale: locale,
+        overrides: overrides,
       );
     }
 
@@ -254,15 +305,33 @@ void main() {
     ) async {
       await pump(tester);
 
+      expect(find.text("Obtain Persoonsgegevens"), findsOne);
       expect(find.text("You're about to go to another website"), findsOne);
       expect(find.text("Persoonsgegevens"), findsOne);
       expect(find.text("gemeente.example"), findsOne);
       expect(find.text("Follow the steps on that website."), findsOne);
       expect(
-        find.text("Yivi then opens by itself to add your Persoonsgegevens."),
+        find.text("Yivi then opens by itself to add your persoonsgegevens."),
         findsOne,
       );
       expect(find.text("You come back to this list."), findsOne);
+    });
+
+    testWidgets("keeps an acronym as it is in the sentence", (tester) async {
+      await pump(tester, name: "BSN");
+
+      expect(find.text("Yivi then opens by itself to add your BSN."), findsOne);
+    });
+
+    testWidgets("keeps a nouns capital in German", (tester) async {
+      await pump(tester, locale: const Locale("de", "DE"));
+
+      expect(
+        find.text(
+          "Danach öffnet sich Yivi von selbst, um Persoonsgegevens hinzuzufügen.",
+        ),
+        findsOne,
+      );
     });
 
     testWidgets("falls back to the credential id for a nameless credential", (
@@ -306,6 +375,17 @@ void main() {
 
       await tester.tap(find.text("Back to the list"));
       expect(wentBack, 1);
+
+      await tester.tap(find.byKey(const Key("irma_app_bar_leading")));
+      expect(wentBack, 2);
+    });
+
+    testWidgets("labels the back arrow for the list it leads to", (
+      tester,
+    ) async {
+      await pump(tester);
+
+      expect(find.bySemanticsLabel("Back to the list"), findsWidgets);
     });
 
     testWidgets("marks the website button with an external-link icon", (
@@ -315,11 +395,31 @@ void main() {
 
       expect(
         find.descendant(
-          of: find.byKey(const Key("bottom_bar_primary")),
+          of: find.byKey(const Key("action_footer_primary")),
           matching: find.byIcon(Icons.open_in_new),
         ),
         findsOne,
       );
+    });
+
+    testWidgets("shows no band without a missing data flow", (tester) async {
+      await pump(tester);
+
+      expect(find.byType(MissingDataBand), findsNothing);
+    });
+
+    testWidgets("shows the band while collecting data for a request", (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        overrides: [
+          missingDataFlowProvider.overrideWith(_ActiveFlow.new),
+          missingDataBandProvider.overrideWithValue(null),
+        ],
+      );
+
+      expect(find.byType(MissingDataBand), findsOne);
     });
   });
 
@@ -404,7 +504,7 @@ void main() {
 
       expect(find.text("Persoonsgegevens"), findsOne);
       expect(find.text(sourceLine), findsNothing);
-      expect(find.byIcon(Icons.schedule), findsNothing);
+      expect(find.text(waitingStatus), findsNothing);
     });
 
     testWidgets("says where the data comes from", (tester) async {
@@ -434,7 +534,8 @@ void main() {
 
       expect(find.text(waitingStatus), findsOne);
       expect(find.text(waitingBody), findsOne);
-      expect(find.byIcon(Icons.schedule), findsOne);
+      expect(find.text(sourceLine), findsNothing);
+      expect(find.byIcon(Icons.schedule), findsNothing);
     });
   });
 
@@ -494,22 +595,56 @@ void main() {
   });
 
   group("IssuancePermission", () {
-    Future<void> pump(WidgetTester tester, {String? returnedFromIssuer}) async {
+    Future<void> pump(
+      WidgetTester tester, {
+      Credential? returnedFrom,
+      VoidCallback? onGivePermission,
+      VoidCallback? onDismiss,
+    }) async {
       final env = (await tester.runAsync(() => _env(flagOn: true)))!;
       await _pumpApp(
         tester,
         env,
         IssuancePermission(
-          issuedCredentials: const [],
-          returnedFromIssuer: returnedFromIssuer,
+          issuedCredentials: [_offered()],
+          returnedFrom: returnedFrom,
+          onGivePermission: onGivePermission ?? () {},
+          onDismiss: onDismiss ?? () {},
         ),
       );
     }
 
-    testWidgets("welcomes the user back from the issuer's website", (
+    Finder notice() => find.descendant(
+      of: find.byType(ExternalIssuerReturnNotice),
+      matching: find.byType(FadeTransition),
+    );
+
+    double noticeOpacity(WidgetTester tester) =>
+        tester.widget<FadeTransition>(notice()).opacity.value;
+
+    testWidgets("looks as before without a website issuer", (tester) async {
+      await pump(tester);
+
+      expect(find.byType(ExternalIssuerReturnedScreen), findsNothing);
+      expect(find.textContaining("You're back from"), findsNothing);
+      expect(find.text("Add data"), findsWidgets);
+    });
+
+    testWidgets("titles the screen after the credential that was fetched", (
       tester,
     ) async {
-      await pump(tester, returnedFromIssuer: "Gemeente Voorbeeld");
+      await pump(tester, returnedFrom: _offered());
+
+      expect(find.text("Obtain Persoonsgegevens"), findsOne);
+      expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
+      expect(
+        find.text("Do you want to add this data to your Yivi app?"),
+        findsOne,
+      );
+    });
+
+    testWidgets("names the issuer's website in the notice", (tester) async {
+      await pump(tester, returnedFrom: _offered());
 
       expect(
         find.text("You're back from the website of Gemeente Voorbeeld"),
@@ -517,10 +652,76 @@ void main() {
       );
     });
 
-    testWidgets("says nothing extra without a website issuer", (tester) async {
-      await pump(tester);
+    testWidgets("shows the credential with all its attributes", (tester) async {
+      await pump(tester, returnedFrom: _offered());
 
-      expect(find.textContaining("You're back from"), findsNothing);
+      expect(find.text("Persoonsgegevens"), findsWidgets);
+      expect(find.text("Gemeente Voorbeeld"), findsOne);
+      expect(find.text("First names"), findsOne);
+      expect(find.text("Rosanne"), findsOne);
+      expect(find.text("Surname"), findsOne);
+      expect(find.text("de Vries"), findsOne);
+    });
+
+    testWidgets("adds the credential, or goes back to the list", (
+      tester,
+    ) async {
+      var added = 0;
+      var wentBack = 0;
+      await pump(
+        tester,
+        returnedFrom: _offered(),
+        onGivePermission: () => added++,
+        onDismiss: () => wentBack++,
+      );
+
+      await tester.tap(find.text("Add"));
+      expect(added, 1);
+      expect(wentBack, 0);
+
+      await tester.tap(find.text("Back to the list"));
+      expect(wentBack, 1);
+    });
+
+    testWidgets("slides the notice in, holds it and fades it out", (
+      tester,
+    ) async {
+      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      await pumpTranslated(
+        tester,
+        _app(
+          env,
+          IssuancePermission(
+            issuedCredentials: [_offered()],
+            returnedFrom: _offered(),
+          ),
+        ),
+      );
+      expect(noticeOpacity(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 700));
+      expect(noticeOpacity(tester), 1);
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(noticeOpacity(tester), 1);
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(noticeOpacity(tester), 0);
+    });
+
+    testWidgets("keeps the notice in view while animations are off", (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await pump(tester, returnedFrom: _offered());
+
+      expect(noticeOpacity(tester), 1);
+      await tester.pump(const Duration(seconds: 5));
+      expect(noticeOpacity(tester), 1);
     });
   });
 
@@ -533,20 +734,7 @@ void main() {
       type: SessionType.issuance,
       status: SessionStatus.requestPermission,
       requestor: _issuer(),
-      offeredCredentials: [
-        Credential(
-          credentialId: _websiteCredential,
-          hash: "hash",
-          name: "Persoonsgegevens",
-          issuer: _issuer(),
-          credentialInstanceIds: const {},
-          batchInstanceCountsRemaining: const {},
-          attributes: const [],
-          revoked: false,
-          revocationSupported: false,
-          issueUrl: _issueUrl,
-        ),
-      ],
+      offeredCredentials: [_offered()],
     );
 
     Future<_Env> pump(WidgetTester tester, {required bool flagOn}) async {
