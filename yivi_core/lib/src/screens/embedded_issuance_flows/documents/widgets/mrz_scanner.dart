@@ -7,6 +7,8 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../../routing.dart";
+import "../../../../data/feature_flags.dart";
+import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/ocr_processor_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/mrz_glare.dart";
@@ -329,12 +331,16 @@ class MrzScannerState extends ConsumerState<MrzScanner>
 
 /// Tells the user to tilt the document when a reflection washes out the MRZ, which
 /// stalls a scan until the reflection moves off it.
-class _GlareHintBanner extends StatelessWidget {
+class _GlareHintBanner extends ConsumerWidget {
   const _GlareHintBanner();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
+    final documentFlowV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
+
     return Align(
       alignment: Alignment.topCenter,
       child: Padding(
@@ -349,12 +355,17 @@ class _GlareHintBanner extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: theme.defaultSpacing,
-                vertical: theme.smallSpacing,
+                vertical: documentFlowV2
+                    ? theme.smallSpacing + theme.tinySpacing
+                    : theme.smallSpacing,
               ),
               child: TranslatedText(
                 "mrz_scanner.glare_hint",
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: Colors.white,
+                  height: documentFlowV2 ? 22 / 16 : null,
+                ),
               ),
             ),
           ),
