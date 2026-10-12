@@ -124,11 +124,8 @@ void main() {
       final next = find.byKey(const Key("enrollment_next_button"));
       final hero = findSvg("enrollment/introduction_1.svg");
 
-      Future<void> pumpPage(
-        WidgetTester tester, {
-        Size size = phoneScreen,
-      }) async {
-        usePhoneScreen(tester, size: size);
+      Future<void> pumpPage(WidgetTester tester, {Size? size}) async {
+        usePhoneScreen(tester, size: size ?? const Size(390, 844));
         await pumpIntro(tester, entry: IntroductionEntry.returning);
       }
 

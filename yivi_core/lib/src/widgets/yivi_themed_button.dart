@@ -31,6 +31,7 @@ class YiviLinkButton extends StatelessWidget {
   }
 }
 
+// Space between the leading widget of a button and its label.
 const _leadingGap = 10.0;
 
 class YiviButtonSize {
