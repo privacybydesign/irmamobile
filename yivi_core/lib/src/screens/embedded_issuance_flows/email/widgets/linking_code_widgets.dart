@@ -20,6 +20,9 @@ const _spinnerTrackOpacity = 0.4;
 // Where the arc of the spinner stops when the user asked for less motion.
 const _spinnerStillValue = 0.25;
 
+/// Whether the server turned the last code down.
+enum LinkingCodeStatus { unchecked, rejected }
+
 /// The boxes of the code field on the e-mail linking screens
 /// (`FeatureFlag.emailLinking`): white, with a line at the bottom that turns
 /// blue once a digit is in or the box has focus.
@@ -28,7 +31,8 @@ class LinkingPinThemes {
   final PinTheme focused;
   final PinTheme filled;
 
-  factory LinkingPinThemes(IrmaThemeData theme, {required bool invalid}) {
+  factory LinkingPinThemes(IrmaThemeData theme, LinkingCodeStatus status) {
+    final invalid = status == LinkingCodeStatus.rejected;
     final fill = invalid ? theme.errorSurface : theme.light;
     final line = invalid ? theme.error : theme.neutralDark;
     final activeLine = invalid ? theme.error : theme.link;

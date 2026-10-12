@@ -200,7 +200,12 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     );
 
     final linkingPinThemes = _linking
-        ? LinkingPinThemes(theme, invalid: codeInvalid)
+        ? LinkingPinThemes(
+            theme,
+            codeInvalid
+                ? LinkingCodeStatus.rejected
+                : LinkingCodeStatus.unchecked,
+          )
         : null;
 
     return PopScope(

@@ -738,7 +738,7 @@ void main() {
   });
 
   group("code boxes", () {
-    final themes = LinkingPinThemes(theme, invalid: false);
+    final themes = LinkingPinThemes(theme, LinkingCodeStatus.unchecked);
 
     test("are 46 by 58 px with 24 px bold digits", () {
       for (final pin in [themes.normal, themes.focused, themes.filled]) {
@@ -791,7 +791,7 @@ void main() {
     });
 
     test("turn red for a wrong code", () {
-      final invalid = LinkingPinThemes(theme, invalid: true);
+      final invalid = LinkingPinThemes(theme, LinkingCodeStatus.rejected);
 
       expect(gradientOf(invalid.normal).colors, [
         theme.errorSurface,
