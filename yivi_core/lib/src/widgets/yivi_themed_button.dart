@@ -31,14 +31,21 @@ class YiviLinkButton extends StatelessWidget {
   }
 }
 
+// Space between the leading widget of a button and its label.
+const _leadingGap = 10.0;
+
 class YiviButtonSize {
   final double _value;
-  const YiviButtonSize._internal(this._value);
+  final double outlineWidth;
+  const YiviButtonSize._internal(this._value, {this.outlineWidth = 1.7});
   double get value => _value;
 
   static const large = YiviButtonSize._internal(55);
   static const medium = YiviButtonSize._internal(50);
   static const small = YiviButtonSize._internal(37);
+
+  /// The button of the e-mail linking screens (`FeatureFlag.emailLinking`).
+  static const slim = YiviButtonSize._internal(48, outlineWidth: 1);
 }
 
 class YiviThemedButton extends StatelessWidget {
@@ -48,6 +55,9 @@ class YiviThemedButton extends StatelessWidget {
   final YiviButtonSize size;
   final bool isTransparent;
 
+  /// Shown before the label, as the progress indicator of a busy button.
+  final Widget? leading;
+
   const YiviThemedButton({
     super.key,
     required this.label,
@@ -55,6 +65,7 @@ class YiviThemedButton extends StatelessWidget {
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
+    this.leading,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
          "Fancy button cannot be transparent",
@@ -101,7 +112,7 @@ class YiviThemedButton extends StatelessWidget {
               : BoxDecoration(
                   borderRadius: borderRadius,
                   border: Border.all(
-                    width: 1.7,
+                    width: size.outlineWidth,
                     style: BorderStyle.solid,
                     color: theme.neutralExtraDark,
                   ),
@@ -132,16 +143,26 @@ class YiviThemedButton extends StatelessWidget {
       );
     }
 
-    final centeredTextWidget = Center(
-      child: TranslatedText(
-        label,
-        textAlign: TextAlign.center,
-        style: baseTextStyle.copyWith(
-          color: style == YiviButtonStyle.outlined
-              ? theme.neutralExtraDark
-              : theme.light,
-        ),
+    final labelWidget = TranslatedText(
+      label,
+      textAlign: TextAlign.center,
+      style: baseTextStyle.copyWith(
+        color: style == YiviButtonStyle.outlined
+            ? theme.neutralExtraDark
+            : theme.light,
       ),
+    );
+    final centeredTextWidget = Center(
+      child: leading == null
+          ? labelWidget
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                leading!,
+                const SizedBox(width: _leadingGap),
+                Flexible(child: labelWidget),
+              ],
+            ),
     );
 
     Widget buttonWidget = Semantics(
