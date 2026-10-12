@@ -13,13 +13,17 @@ const _rowRadius = 10.0;
 const _borderWidth = 2.0;
 const _rowPaddingVertical = 14.0;
 const _logoSize = 40.0;
-const _buttonHeight = 40.0;
+const _buttonMinHeight = 40.0;
 const _buttonPaddingHorizontal = 12.0;
 const _buttonRadius = 8.0;
 const _buttonIconSize = 14.0;
 const _buttonIconGap = 6.0;
 const _outlineWidth = 1.0;
 const _fontSize = 14.0;
+
+// Above this text scale the button no longer fits beside the credential, so
+// it moves below it.
+const _besideTextScaleLimit = 2.0;
 
 const _dashColor = Color(0xFFA3AEB9);
 const _rowFill = Color(0xFFF7FAFC);
@@ -93,33 +97,45 @@ class _ReadyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final spacing = theme.smallSpacing + theme.tinySpacing;
+    final textScale =
+        MediaQuery.textScalerOf(context).scale(_fontSize) / _fontSize;
+
+    final summary = CredentialSummary(
+      name: credential.name,
+      nameWeight: FontWeight.w600,
+      image: credential.image,
+      logoSize: _logoSize,
+      subtitle: TranslatedText(
+        "external_issuer.source",
+        translationParams: {"issuer": credential.issuer.name},
+        style: credentialSubtitleStyle(theme),
+      ),
+    );
+    final button = _SmallButton(
+      label: "missing_data.obtain",
+      semanticsLabel: FlutterI18n.translate(
+        context,
+        "external_issuer.obtain_named",
+        translationParams: {"credential": credential.name},
+      ),
+      style: _ButtonStyle.primary,
+      onPressed: onObtain,
+    );
+
+    if (textScale > _besideTextScaleLimit) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: spacing,
+        children: [summary, button],
+      );
+    }
 
     return Row(
-      spacing: theme.smallSpacing + theme.tinySpacing,
+      spacing: spacing,
       children: [
-        Expanded(
-          child: CredentialSummary(
-            name: credential.name,
-            nameWeight: FontWeight.w600,
-            image: credential.image,
-            logoSize: _logoSize,
-            subtitle: TranslatedText(
-              "external_issuer.source",
-              translationParams: {"issuer": credential.issuer.name},
-              style: credentialSubtitleStyle(theme),
-            ),
-          ),
-        ),
-        _SmallButton(
-          label: "missing_data.obtain",
-          semanticsLabel: FlutterI18n.translate(
-            context,
-            "external_issuer.obtain_named",
-            translationParams: {"credential": credential.name},
-          ),
-          style: _ButtonStyle.primary,
-          onPressed: onObtain,
-        ),
+        Expanded(child: summary),
+        button,
       ],
     );
   }
@@ -204,8 +220,8 @@ class _SmallButton extends StatelessWidget {
           customBorder: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_buttonRadius),
           ),
-          child: SizedBox(
-            height: _buttonHeight,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: _buttonMinHeight),
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: _buttonPaddingHorizontal,

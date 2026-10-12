@@ -618,6 +618,30 @@ void main() {
       );
     });
 
+    testWidgets("fits a narrow screen at a large text size", (tester) async {
+      // Tall, because no scroll view wraps the row here.
+      tester.view.physicalSize = const Size(390, 3000);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 3;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      final env = await pump(
+        tester,
+        flag: _Flag.on,
+        descriptor: _descriptor(name: "Persoonsgegevens uit de BRP"),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.text("Obtain"), findsOne);
+
+      env.repo.markInAppLaunched([_websiteCredential]);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text("Open the website again"), findsOne);
+    });
+
     testWidgets("waits for the website once it was opened", (tester) async {
       var obtained = 0;
       final env = await pump(
