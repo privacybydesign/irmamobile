@@ -2,6 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
+import "../age/age_row.dart";
+import "../attribute_chip.dart";
 import "../attribute_comparison.dart";
 import "../attribute_group.dart";
 import "../attribute_image.dart";
@@ -31,7 +33,9 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isLast = AttributeGroupScope.maybeOf(context)?.isLast ?? true;
+    final scope = AttributeGroupScope.maybeOf(context);
+    // Inside a card section the section draws the dividers.
+    final isLast = (scope?.isLast ?? true) || (scope?.inSection ?? false);
 
     String text(ProfileField field) =>
         field.text ?? FlutterI18n.translate(context, field.translationKey!);
@@ -45,6 +49,7 @@ class ProfileHeader extends StatelessWidget {
 
     final name = view.name;
     final photo = view.photo;
+    final ages = summaryAges(view.ages.entries);
 
     return Column(
       mainAxisSize: .min,
@@ -92,6 +97,26 @@ class ProfileHeader extends StatelessWidget {
                               ),
                               value: text(field!),
                               color: comparisonColor(theme, field.comparison),
+                            ),
+                        ],
+                      ),
+                    ),
+                  if (ages.isNotEmpty || view.euCitizen != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: theme.tinySpacing),
+                      child: Wrap(
+                        key: const Key("profile_header_chips"),
+                        spacing: theme.smallSpacing,
+                        runSpacing: theme.tinySpacing,
+                        children: [
+                          for (final entry in ages) AgeChip(entry),
+                          if (view.euCitizen != null)
+                            AttributeChip(
+                              text: FlutterI18n.translate(
+                                context,
+                                "$_prefix.eu_citizen",
+                              ),
+                              background: theme.backgroundTertiary,
                             ),
                         ],
                       ),

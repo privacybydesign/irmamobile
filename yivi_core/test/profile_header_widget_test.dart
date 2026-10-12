@@ -103,12 +103,20 @@ void main() {
       ),
       findsOneWidget,
     );
-    // Header above the remaining rows, with a divider between.
+    // Header in the Persoon section, above the Document section. The
+    // sections draw the dividers, so the header draws none of its own.
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("card_section_credential.sections.person")),
+        matching: _header,
+      ),
+      findsOneWidget,
+    );
     expect(
       tester.getTopLeft(_header).dy,
       lessThan(tester.getTopLeft(find.text("label-documentNumber")).dy),
     );
-    expect(_divider, findsOneWidget);
+    expect(_divider, findsNothing);
     // Claimed attributes are not repeated as rows.
     expect(find.text("label-firstName"), findsNothing);
     expect(find.text("label-nationality"), findsNothing);
@@ -208,7 +216,78 @@ void main() {
     expect(find.text("label-dateOfBirth"), findsOneWidget);
   });
 
-  testWidgets("driving licence: header first, categories last", (tester) async {
+  testWidgets("ages are chips in the header: highest yes, lowest no", (
+    tester,
+  ) async {
+    for (final id in [
+      "pbdf-staging.pbdf.passport",
+      "pbdf-staging.pbdf.drivinglicence",
+      "irma-demo.gemeente.personalData",
+    ]) {
+      await _pump(tester, [
+        _str("documentNumber", "X1"),
+        _str("firstName", "Anna"),
+        _str("lastName", "de Vries"),
+        _str("surname", "de Vries"),
+        _str("over12", "yes"),
+        _str("over18", "yes"),
+        _str("over65", "no"),
+        _str("over75", "no"),
+      ], id);
+
+      final chips = find.descendant(
+        of: _header,
+        matching: find.byKey(const Key("profile_header_chips")),
+      );
+      expect(chips, findsOneWidget, reason: id);
+      expect(
+        find.descendant(of: chips, matching: find.text("Older than 18")),
+        findsOneWidget,
+        reason: id,
+      );
+      expect(
+        find.descendant(of: chips, matching: find.text("Not older than 65")),
+        findsOneWidget,
+        reason: id,
+      );
+      expect(find.text("Older than 12"), findsNothing, reason: id);
+      expect(find.text("Not older than 75"), findsNothing, reason: id);
+      expect(
+        find.byKey(const Key("attribute_group_age_row")),
+        findsNothing,
+        reason: id,
+      );
+    }
+  });
+
+  testWidgets("without a header the age row stays", (tester) async {
+    await _pump(tester, [_str("over18", "yes")], "pbdf-staging.pbdf.passport");
+    expect(_header, findsNothing);
+    expect(find.byKey(const Key("attribute_group_age_row")), findsOneWidget);
+  });
+
+  testWidgets("ID card: an EU citizen chip when yes", (tester) async {
+    await _pump(tester, [
+      _str("lastName", "de Vries"),
+      _str("isEuCitizen", "yes"),
+    ], "pbdf-staging.pbdf.idcard");
+    expect(
+      find.descendant(of: _header, matching: find.text("EU citizen")),
+      findsOneWidget,
+    );
+    expect(find.text("label-isEuCitizen"), findsNothing);
+
+    await _pump(tester, [
+      _str("lastName", "de Vries"),
+      _str("isEuCitizen", "no"),
+    ], "pbdf-staging.pbdf.idcard");
+    expect(find.text("EU citizen"), findsNothing);
+    expect(find.text("label-isEuCitizen"), findsOneWidget);
+  });
+
+  testWidgets("driving licence: Persoon, Rijbevoegdheid, Document", (
+    tester,
+  ) async {
     await _pump(tester, [
       _str("firstName", "Anna"),
       _str("lastName", "de Vries"),
@@ -223,12 +302,16 @@ void main() {
     expect(categories, findsOneWidget);
     expect(
       tester.getTopLeft(_header).dy,
-      lessThan(tester.getTopLeft(find.text("label-documentNumber")).dy),
-    );
-    expect(
-      tester.getTopLeft(find.text("label-documentNumber")).dy,
       lessThan(tester.getTopLeft(categories).dy),
     );
+    expect(
+      tester.getTopLeft(categories).dy,
+      lessThan(tester.getTopLeft(find.text("label-documentNumber")).dy),
+    );
+    // Section titles, in that order.
+    final titles = ["PERSON", "DRIVING ENTITLEMENT", "DOCUMENT"];
+    final ys = [for (final t in titles) tester.getTopLeft(find.text(t)).dy];
+    expect(ys, orderedEquals([...ys]..sort()));
   });
 
   testWidgets("municipality: Dutch labels and nationality", (tester) async {

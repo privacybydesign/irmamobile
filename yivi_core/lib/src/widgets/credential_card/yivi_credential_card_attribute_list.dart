@@ -6,10 +6,14 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
+import "attribute_groups/attribute_comparison.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
 import "attribute_groups/attribute_image.dart";
 import "attribute_groups/attribute_value_formatting.dart";
+import "attribute_groups/requested_value.dart";
+import "attribute_groups/sections/card_layout.dart";
+import "attribute_groups/sections/card_sections.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -23,6 +27,8 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<AttributeGroupRenderer>? renderers;
   // The attributes are being shared (a disclosure), not the whole credential.
   final bool disclosure;
+  // Show every attribute as a plain row: no card layout, no attribute groups.
+  final bool rawList;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -31,14 +37,33 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.credentialId,
     this.renderers,
     this.disclosure = false,
+    this.rawList = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Identity credentials with a card layout render as titled sections.
+    final layout = renderers == null && !rawList
+        ? cardLayouts[credentialId]
+        : null;
+    if (layout != null) {
+      return CardSections(
+        attributes: attributes,
+        layout: layout,
+        compareTo: compareTo,
+        disclosure: disclosure,
+      );
+    }
+
     final groups = <_ClaimedGroup>[];
     var remaining = attributes;
     for (final renderer
-        in renderers ?? attributeGroupRenderers[credentialId] ?? const []) {
+        in renderers ??
+            (rawList ? const <AttributeGroupRenderer>[] : null) ??
+            [
+              ...?attributeGroupRenderers[credentialId],
+              ...anyCredentialRenderers,
+            ]) {
       final group = renderer.claim(remaining, compareTo: compareTo);
       if (group == null) continue;
       final claimedKeys = {
@@ -397,6 +422,7 @@ void _insertGroups(
         TopPlacement() => 0,
         BottomPlacement() => bottom,
         EndPlacement() => n,
+        InPlacePlacement() => min(bottom, fallback(g.firstIndex)),
         AfterPlacement(:final attributeId) => min(bottom, switch (children
             .indexWhere((c) => _topSegment(c) == attributeId)) {
           -1 => fallback(g.firstIndex),
@@ -670,20 +696,26 @@ class _LeafContent extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final attribute = node.attribute;
 
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      spacing: 0,
-      children: [
-        Text(attribute.effectiveDisplayName, style: attributeLabelStyle(theme)),
-        _buildValue(context, theme),
-      ],
+    return WithRequestedValueChip(
+      attributes: [attribute],
+      child: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .start,
+        spacing: 0,
+        children: [
+          Text(
+            attribute.effectiveDisplayName,
+            style: attributeLabelStyle(theme),
+          ),
+          _buildValue(context, theme),
+        ],
+      ),
     );
   }
 
   Color _valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
     if (!node.hasCompareTo) return theme.dark;
-    return val?.string == node.compareToValue?.string
+    return sameAttributeValue(val, node.compareToValue)
         ? theme.success
         : theme.error;
   }

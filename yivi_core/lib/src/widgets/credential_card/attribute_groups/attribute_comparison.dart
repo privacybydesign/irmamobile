@@ -21,13 +21,31 @@ AttributeComparison compareAttribute(
     (c) => listEquals(c.claimPath, attribute.claimPath),
   );
   if (other == null) return AttributeComparison.mismatch;
-  return _comparable(other.value) == _comparable(attribute.value)
+  return sameAttributeValue(other.value, attribute.value)
       ? AttributeComparison.match
       : AttributeComparison.mismatch;
 }
 
-Object? _comparable(schemaless.AttributeValue? v) =>
-    v?.string ?? v?.boolValue ?? v?.intValue;
+/// Whether two values say the same. IRMA sends requested values as strings,
+/// so a "yes" / "no" string equals the boolean true / false, and a number
+/// equals its digits.
+bool sameAttributeValue(
+  schemaless.AttributeValue? a,
+  schemaless.AttributeValue? b,
+) => comparableAttributeValue(a) == comparableAttributeValue(b);
+
+/// [v] as a bool, a string or null, for [sameAttributeValue].
+Object? comparableAttributeValue(schemaless.AttributeValue? v) {
+  if (v == null) return null;
+  if (v.boolValue != null) return v.boolValue;
+  if (v.intValue != null) return "${v.intValue}";
+  final s = v.string;
+  return switch (s?.trim().toLowerCase()) {
+    "yes" || "true" => true,
+    "no" || "false" => false,
+    _ => s,
+  };
+}
 
 /// Combines the comparisons of the attributes behind one displayed value:
 /// any mismatch wins, then any match.

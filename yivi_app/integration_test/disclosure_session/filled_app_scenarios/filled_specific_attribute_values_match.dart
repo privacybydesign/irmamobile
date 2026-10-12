@@ -50,7 +50,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "test.com")],
-    attributesCompareTo: [("Email domain name", "test.com")],
+    requestedValueChips: [("Email domain name", "Required")],
     style: IrmaCardStyle.highlighted,
   );
 
@@ -84,6 +84,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "demo.com")],
     attributesCompareTo: [("Email domain name", "test.com")],
+    requestedValueChips: [("Email domain name", "Required: test.com")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -92,7 +93,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "test.com")],
-    attributesCompareTo: [("Email domain name", "test.com")],
+    requestedValueChips: [("Email domain name", "Required")],
     style: IrmaCardStyle.normal,
   );
 
@@ -121,7 +122,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "test.com")],
-    attributesCompareTo: [("Email domain name", "test.com")],
+    requestedValueChips: [("Email domain name", "Required")],
     style: IrmaCardStyle.normal,
   );
 
@@ -141,6 +142,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
       ("House number", "501"),
       ("City", "Arnhem"),
     ],
+    requestedValueChips: [("City", "Satisfies")],
     style: IrmaCardStyle.normal,
   );
 

@@ -96,6 +96,7 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
           expires: expires == null
               ? null
               : CompareValue(expires, compareAttribute(c.expires!, compareTo)),
+          sources: [?c.held, ?c.issued, ?c.expires],
         ),
       );
     }
@@ -171,7 +172,16 @@ class CategoryRow {
   final CompareValue<String>? issued;
   final CompareValue<String>? expires;
 
-  const CategoryRow({required this.code, this.held, this.issued, this.expires});
+  /// The attributes behind the row, for requested-value chips.
+  final List<schemaless.Attribute> sources;
+
+  const CategoryRow({
+    required this.code,
+    this.held,
+    this.issued,
+    this.expires,
+    this.sources = const [],
+  });
 
   /// The licence says this category is not held: a "no" (or empty) held flag
   /// and no dates. Not the same as a row whose dates were simply not given.

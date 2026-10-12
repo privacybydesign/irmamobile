@@ -100,6 +100,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                           compact: true,
                           hideFooter: true,
                           compareTo: compareTo,
+                          requested: template.attributes,
                         ),
                         SizedBox(height: theme.defaultSpacing),
                         Align(

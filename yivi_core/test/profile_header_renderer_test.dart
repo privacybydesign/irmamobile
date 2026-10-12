@@ -81,8 +81,48 @@ void main() {
         "gender",
         "lastName",
         "nationality",
+        "over18",
         "photo",
       ]);
+    });
+
+    test("ages become chips, sorted; EU citizen only when yes", () {
+      final view = _view(const DocumentProfileAdapter(), [
+        _str("lastName", "de Vries"),
+        _bool("over65", false),
+        _str("over12", "yes"),
+        _bool("over21", true),
+        _bool("isEuCitizen", true),
+      ]);
+      expect(
+        [for (final e in view.ages.entries) (e.age, e.over)],
+        [(12, true), (21, true), (65, false)],
+      );
+      expect(_ids(view.ages.sources), ["over12", "over21", "over65"]);
+      expect(view.euCitizen?.claimPath, ["isEuCitizen"]);
+
+      final notEu = _view(const DocumentProfileAdapter(), [
+        _str("lastName", "de Vries"),
+        _str("isEuCitizen", "no"),
+      ]);
+      expect(notEu.euCitizen, isNull, reason: "a no stays a field");
+      expect(_ids(notEu.claimed), ["lastName"]);
+    });
+
+    test("comparing: no age or EU chips, each keeps its own row", () {
+      final attrs = [
+        _str("lastName", "de Vries"),
+        _bool("over18", true),
+        _bool("isEuCitizen", true),
+      ];
+      final view = _view(
+        const DocumentProfileAdapter(),
+        attrs,
+        compareTo: attrs,
+      );
+      expect(view.ages.entries, isEmpty);
+      expect(view.euCitizen, isNull);
+      expect(_ids(view.claimed), ["lastName"]);
     });
 
     test("driving licence: place of birth", () {

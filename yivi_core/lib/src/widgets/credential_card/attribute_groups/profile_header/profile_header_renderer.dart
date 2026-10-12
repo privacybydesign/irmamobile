@@ -1,7 +1,9 @@
 import "../../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../age/age_row_renderer.dart";
 import "../attribute_comparison.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
+import "../requested_value.dart";
 import "profile_header.dart";
 
 /// Draws the person's photo, name and basic details as a header at the top of
@@ -74,6 +76,13 @@ class ProfileHeaderView {
   final ProfileField? nationality;
   final ProfileField? gender;
 
+  /// The `overNN` attributes, shown as chips; empty when comparing.
+  final AgeChips ages;
+
+  /// `isEuCitizen` when it is yes (a no stays an ordinary field); null when
+  /// comparing.
+  final schemaless.Attribute? euCitizen;
+
   const ProfileHeaderView({
     this.photo,
     this.name,
@@ -81,6 +90,8 @@ class ProfileHeaderView {
     this.placeOfBirth,
     this.nationality,
     this.gender,
+    this.ages = const AgeChips([], []),
+    this.euCitizen,
   });
 
   /// Exactly the attributes the header shows.
@@ -88,7 +99,17 @@ class ProfileHeaderView {
     ?photo,
     for (final field in [name, dateOfBirth, placeOfBirth, nationality, gender])
       ...?field?.sources,
+    ...ages.sources,
+    ?euCitizen,
   ];
+}
+
+/// The holder's ages, sorted ascending, and the attributes they came from.
+class AgeChips {
+  final List<AgeEntry> entries;
+  final List<schemaless.Attribute> sources;
+
+  const AgeChips(this.entries, this.sources);
 }
 
 /// Maps one family of credential types onto the header's fields.
@@ -116,6 +137,8 @@ class DocumentProfileAdapter implements ProfileHeaderAdapter {
       placeOfBirth: a.single("placeOfBirth"),
       nationality: a.single("nationality"),
       gender: a.single("gender"),
+      ages: a.ages(),
+      euCitizen: a.yes("isEuCitizen"),
     );
   }
 }
@@ -140,6 +163,7 @@ class MunicipalityProfileAdapter implements ProfileHeaderAdapter {
       placeOfBirth: a.joined(["cityofbirth", "countryofbirth"], ", "),
       nationality: a.dutchNationality("nationality"),
       gender: a.single("gender"),
+      ages: a.ages(),
     );
   }
 }
@@ -194,6 +218,41 @@ class _Attributes {
     return ProfileField.translated("credential.profile_header.dutch", [
       a,
     ], compareTo);
+  }
+
+  /// The `overNN` attributes. When comparing, every age keeps its own row so
+  /// it can be coloured, so there are none; when the verifier asked for an
+  /// age, the age row shows it with its requested-value chip.
+  AgeChips ages() {
+    if (compareTo != null) return const AgeChips([], []);
+    if (_byId.values.any(
+      (a) => hasRequestedValue(a) && AgeRowRenderer.ageEntry(a) != null,
+    )) {
+      return const AgeChips([], []);
+    }
+    final entries = <AgeEntry>[];
+    final sources = <schemaless.Attribute>[];
+    for (final a in _byId.values) {
+      final entry = AgeRowRenderer.ageEntry(a);
+      if (entry == null) continue;
+      entries.add(entry);
+      sources.add(a);
+    }
+    entries.sort((x, y) => x.age.compareTo(y.age));
+    return AgeChips(entries, sources);
+  }
+
+  /// The attribute [id] when its value is yes, and not comparing.
+  schemaless.Attribute? yes(String id) {
+    final a = _byId[id];
+    final v = a?.value;
+    final yes =
+        v?.boolValue ??
+        switch (v?.string?.trim().toLowerCase()) {
+          "yes" || "ja" || "true" => true,
+          _ => false,
+        };
+    return compareTo == null && yes && !hasRequestedValue(a!) ? a : null;
   }
 
   static String? _text(schemaless.AttributeValue? v) {

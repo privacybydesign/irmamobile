@@ -90,17 +90,14 @@
   },
   "credential": {
     "no_data": "Keine Daten vorhanden",
-    "valid_until": "Gültig bis",
-    "indefinite_validity": "Unbestimmt",
     "expires_on": "Läuft ab am {date}",
     "expired_on": "Abgelaufen am {date}",
     "date_at_time": "{date} um {time}",
     "issued_by": "von {issuer}",
-    "sharable": "Teilbar",
-    "sharable_count": "Noch {count} Mal",
-    "sharable_unlimited": "Unbegrenzt",
     "options": {
       "title": "Optionen",
+      "show_as_list": "Als Liste anzeigen",
+      "show_as_card": "Als Karte anzeigen",
       "reobtain": "Erneut abrufen",
       "delete": "Daten löschen",
       "confirm_delete": "Sind Sie sicher, dass Sie diese Daten löschen möchten?",
@@ -112,7 +109,48 @@
     "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
     "boolean_yes": "Ja",
     "boolean_no": "Nein",
+    "sections": {
+      "person": "Person",
+      "driving_entitlement": "Fahrerlaubnis",
+      "document": "Dokument",
+      "name": "Name",
+      "registration": "Registrierung"
+    },
+    "status_line": {
+      "valid_until": "Gültig bis {date}",
+      "valid_indefinitely": "Unbegrenzt gültig",
+      "expired_on": "Abgelaufen am {date}",
+      "expires_in-0": "Läuft heute ab",
+      "expires_in-1": "Läuft in {count} Tag ab",
+      "expires_in-2": "Läuft in {count} Tagen ab",
+      "shares_left": "{count}× teilbar",
+      "shares_few": "Nur noch {count}× teilbar",
+      "shares_none": "Nicht mehr teilbar",
+      "shares_unlimited": "Unbegrenzt teilbar"
+    },
+    "age": {
+      "label": "Alter",
+      "over": "Älter als {age}",
+      "not_over": "Nicht älter als {age}",
+      "over_and_not_over": "Älter als {over}, nicht älter als {notOver}",
+      "show_all": "Alle Alter anzeigen",
+      "hide_all": "Alter ausblenden"
+    },
+    "requested_value": {
+      "satisfied": "Erfüllt",
+      "required": "Erforderlich",
+      "required_value": "Erforderlich: {value}"
+    },
+    "chip_check": {
+      "genuine": "Chip ist echt",
+      "signature_only": "Nur Signatur geprüft",
+      "info_label": "Was bedeutet das?",
+      "info_title": "Chipprüfung",
+      "info_genuine": "Beim Auslesen Ihres Dokuments hat der Chip nachgewiesen, dass er der Originalchip und keine Kopie ist (aktive Authentisierung). Außerdem wurden die Daten anhand der Signatur des Ausstellerlandes geprüft; sie wurden also nicht verändert.",
+      "info_signature_only": "Die Daten wurden anhand der Signatur des Ausstellerlandes geprüft; sie wurden also nicht verändert. Der Chip hat nicht nachgewiesen, dass er der Originalchip und keine Kopie ist (keine aktive Authentisierung). Nicht jedes Dokument unterstützt das."
+    },
     "profile_header": {
+      "eu_citizen": "EU-Bürger",
       "date_of_birth": "Geburtsdatum",
       "place_of_birth": "Geburtsort",
       "nationality": "Staatsangehörigkeit",
@@ -128,10 +166,10 @@
       "issued": "Ausgestellt",
       "expires": "Läuft ab",
       "no_information": "Keine Klasseninformationen",
-      "not_held_count-0": "{count} Klassen nicht vorhanden",
-      "not_held_count-1": "{count} Klasse nicht vorhanden",
-      "not_held_count-2": "{count} Klassen nicht vorhanden",
-      "show_less": "Weniger anzeigen"
+      "show_all": "Alle {count} Klassen anzeigen",
+      "only_mine": "Nur meine Klassen",
+      "show_details": "Ausstellungsdaten anzeigen",
+      "valid_until": "bis {date}"
     }
   },
   "data": {

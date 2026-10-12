@@ -3,11 +3,13 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
 import "../../util/date_formatter.dart";
-import "../irma_divider.dart";
-import "../translated_text.dart";
 import "models/card_expiry_date.dart";
 import "models/credential_card_status.dart";
+import "models/status_line.dart";
 
+/// The card's status line: how long the credential is valid and how often it
+/// can still be shared, in one quiet centred line. An item that needs
+/// attention (expiring soon, few shares left, expired) becomes a pill.
 class YiviCredentialCardFooter extends StatelessWidget {
   final CardExpiryDate? expiryDate;
   final int? instanceCount;
@@ -24,106 +26,90 @@ class YiviCredentialCardFooter extends StatelessWidget {
     this.instanceCount,
   });
 
-  Color _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
-    return switch (state) {
-      ExpireState.notExpired => theme.dark,
-      ExpireState.almostExpired => theme.warning,
-      ExpireState.expired => theme.error,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final items = statusLineItems(
+      expiryDate: expiryDate,
+      instanceCount: instanceCount,
+      timeState: timeBasedExpireState,
+      instanceState: instanceBasedExpireState,
+      formatDate: (d) => printableDate(d, lang),
+    );
+    final theme = IrmaTheme.of(context);
 
     return Padding(
       padding: padding,
       child: Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final fortyFivePercent = constraints.maxWidth * 0.45;
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: fortyFivePercent,
-                  child: Column(
-                    spacing: theme.tinySpacing,
-                    children: [
-                      TranslatedText(
-                        "credential.valid_until",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.neutralExtraDark,
-                        ),
-                      ),
-                      (expiryDate == null || expiryDate?.dateTime == null)
-                          ? TranslatedText(
-                              "credential.indefinite_validity",
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: theme.dark,
-                              ),
-                            )
-                          : Text(
-                              printableDate(expiryDate!.dateTime!, lang),
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: _getTextColorForExpireState(
-                                  timeBasedExpireState,
-                                  theme,
-                                ),
-                              ),
-                            ),
-                    ],
-                  ),
-                ),
-                IrmaDivider(vertical: true, height: 50),
-                SizedBox(
-                  width: fortyFivePercent,
-                  child: Column(
-                    spacing: theme.tinySpacing,
-                    children: [
-                      TranslatedText(
-                        "credential.sharable",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.neutralExtraDark,
-                        ),
-                      ),
-                      if (instanceCount != null)
-                        TranslatedText(
-                          "credential.sharable_count",
-                          translationParams: {"count": "${instanceCount!}"},
-                          style: theme.textTheme.bodyLarge!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: _getTextColorForExpireState(
-                              instanceBasedExpireState,
-                              theme,
-                            ),
-                          ),
-                        )
-                      else
-                        TranslatedText(
-                          "credential.sharable_unlimited",
-                          style: theme.textTheme.bodyLarge!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: theme.dark,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: theme.smallSpacing + theme.tinySpacing,
+          runSpacing: theme.tinySpacing,
+          children: [for (final item in items) _StatusItem(item)],
         ),
       ),
+    );
+  }
+}
+
+class _StatusItem extends StatelessWidget {
+  final StatusLineItem item;
+
+  const _StatusItem(this.item);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final text = item.pluralCount != null
+        ? FlutterI18n.plural(context, item.translationKey, item.pluralCount!)
+        : FlutterI18n.translate(
+            context,
+            item.translationKey,
+            translationParams: item.params,
+          );
+
+    final (foreground, background) = switch (item.tone) {
+      StatusTone.calm => (theme.neutralDark, null),
+      StatusTone.warning => (theme.onWarningSurface, theme.warningSurface),
+      StatusTone.error => (theme.error, theme.errorSurface),
+    };
+
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: theme.tinySpacing,
+      children: [
+        Icon(
+          item.kind == StatusKind.validity
+              ? Icons.calendar_today_outlined
+              : Icons.share_outlined,
+          size: 13,
+          color: foreground,
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            fontFamily: theme.secondaryFontFamily,
+            fontSize: 12,
+            fontWeight: background == null ? FontWeight.w400 : FontWeight.w600,
+            color: foreground,
+          ),
+        ),
+      ],
+    );
+
+    return Container(
+      key: Key("status_line_${item.kind.name}"),
+      padding: background == null
+          ? EdgeInsets.zero
+          : const EdgeInsets.fromLTRB(6, 2, 8, 2),
+      decoration: background == null
+          ? null
+          : BoxDecoration(
+              color: background,
+              borderRadius: BorderRadius.circular(999),
+            ),
+      child: content,
     );
   }
 }
