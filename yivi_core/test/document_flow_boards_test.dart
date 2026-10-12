@@ -451,6 +451,7 @@ void main() {
 
       final label = tester.getRect(find.text("Open NFC-instellingen"));
       final button = tester.getRect(find.byType(DocumentFlowButton));
+
       expect(button.height, greaterThan(DocumentFlowButton.height));
       expect(label.height, lessThanOrEqualTo(button.height));
     });
