@@ -344,7 +344,7 @@ void _stampItemTotals(_Node node) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Attribute groups — slot each claimed group in among the top-level rows.
+// Attribute groups: slot each claimed group in among the top-level rows.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _ClaimedGroup {
