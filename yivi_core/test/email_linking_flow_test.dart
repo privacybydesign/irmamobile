@@ -795,7 +795,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text("Link email address"), findsOneWidget);
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.verified_user), findsOneWidget);
     });
 
     testWidgets("waits for the first credential, so it is not there right "
