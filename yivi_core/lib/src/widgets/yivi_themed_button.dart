@@ -9,6 +9,10 @@ import "translated_text.dart";
 
 enum YiviButtonStyle { fancy, outlined, filled }
 
+const _defaultOutlineWidth = 1.7;
+const _defaultDisabledAlpha = 128;
+const _tallLabelSize = 17.0;
+
 class YiviLinkButton extends StatelessWidget {
   const YiviLinkButton({
     super.key,
@@ -39,6 +43,9 @@ class YiviButtonSize {
   static const large = YiviButtonSize._internal(55);
   static const medium = YiviButtonSize._internal(50);
   static const compact = YiviButtonSize._internal(48);
+
+  /// 52 px high with a 17 px label.
+  static const tall = YiviButtonSize._internal(52);
   static const small = YiviButtonSize._internal(37);
 }
 
@@ -50,6 +57,10 @@ class YiviThemedButton extends StatelessWidget {
   final YiviButtonSize size;
   final bool isTransparent;
   final IconData? trailingIcon;
+  final double outlineWidth;
+
+  /// The opacity of a disabled button, from 0 to 255.
+  final int disabledAlpha;
 
   const YiviThemedButton({
     super.key,
@@ -60,6 +71,8 @@ class YiviThemedButton extends StatelessWidget {
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
     this.trailingIcon,
+    this.outlineWidth = _defaultOutlineWidth,
+    this.disabledAlpha = _defaultDisabledAlpha,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
          "Fancy button cannot be transparent",
@@ -106,7 +119,7 @@ class YiviThemedButton extends StatelessWidget {
               : BoxDecoration(
                   borderRadius: borderRadius,
                   border: Border.all(
-                    width: 1.7,
+                    width: outlineWidth,
                     style: BorderStyle.solid,
                     color: theme.neutralExtraDark,
                   ),
@@ -135,6 +148,9 @@ class YiviThemedButton extends StatelessWidget {
         fontFamily: theme.secondaryFontFamily,
         fontSize: 14,
       );
+    }
+    if (size == YiviButtonSize.tall) {
+      baseTextStyle = baseTextStyle.copyWith(fontSize: _tallLabelSize);
     }
 
     final textColor = style == YiviButtonStyle.outlined
@@ -179,7 +195,7 @@ class YiviThemedButton extends StatelessWidget {
     if (onPressed == null) {
       buttonWidget = ColorFiltered(
         colorFilter: ColorFilter.mode(
-          Colors.white.withAlpha(128),
+          Colors.white.withAlpha(disabledAlpha),
           BlendMode.modulate,
         ),
         child: buttonWidget,
