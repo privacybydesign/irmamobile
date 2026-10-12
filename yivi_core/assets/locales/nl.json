@@ -214,7 +214,8 @@
       "certified_by": "Gewaarmerkt door {issuer}",
       "switch": "Wissel",
       "sheet_title": "Wat wil je delen?",
-      "sheet_explanation": "{requestor} accepteert: {options}. Tik op wat je wilt delen."
+      "sheet_explanation": "{requestor} accepteert: {options}. Tik op wat je wilt delen.",
+      "obtain_first": "Haal eerst je {options} op"
     },
     "introduction": {
       "continue": "Aan de slag",

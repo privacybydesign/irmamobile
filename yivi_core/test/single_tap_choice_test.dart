@@ -13,7 +13,11 @@ import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/providers/feature_flag_provider.dart";
+import "package:yivi_core/src/providers/issue_during_disclosure_provider.dart";
+import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/choice_option_row.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
@@ -23,6 +27,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart"
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 
+import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
 
 const _sessionId = 1;
@@ -642,6 +647,107 @@ void main() {
       expect(find.text("What do you want to share?"), findsNothing);
       expect(find.byType(RadioIndicator), findsNWidgets(2));
       expect(find.text("Done"), findsOneWidget);
+    });
+  });
+
+  group("choice in the missing data checklist", () {
+    late MissingDataHarness harness;
+    late GoRouter router;
+
+    final paspoort = testDescriptor("paspoort");
+    final idKaart = testDescriptor("idkaart");
+    final choiceStep = testStep([
+      [paspoort],
+      [idKaart],
+    ]);
+
+    Future<void> setUp(WidgetTester tester, _Flag flag) async {
+      router = GoRouter(
+        initialLocation: "/session",
+        routes: [
+          GoRoute(
+            path: "/session",
+            builder: (_, _) => const SessionScreen(sessionId: testSessionId),
+          ),
+          GoRoute(
+            path: _detailsPath,
+            builder: (_, _) => const Scaffold(body: Text("details screen")),
+          ),
+        ],
+      );
+      harness = await MissingDataHarness.pump(tester, router);
+      await tester.runAsync(
+        () => harness.container
+            .read(preferencesProvider)
+            .setFeatureFlag(FeatureFlag.singleTapChoice, flag == _Flag.on),
+      );
+    }
+
+    testWidgets("flag on: a dashed card with a row per option", (tester) async {
+      await setUp(tester, _Flag.on);
+      await harness.emit(tester, testSession(steps: [choiceStep]));
+
+      expect(find.text("Cred paspoort of Cred idkaart"), findsOneWidget);
+      expect(
+        find.text("Nog niet in je app. Tik op wat je wilt ophalen."),
+        findsOneWidget,
+      );
+      expect(find.byType(ChoiceOptionRow), findsNWidgets(2));
+      expect(find.byType(RadioIndicator), findsNothing);
+      expect(find.text("Maak een keuze"), findsNothing);
+      expect(
+        find.text("Haal eerst je cred paspoort of cred idkaart op"),
+        findsOne,
+      );
+    });
+
+    testWidgets("flag on: a tap on a row picks it and starts obtaining it", (
+      tester,
+    ) async {
+      await setUp(tester, _Flag.on);
+      await harness.emit(tester, testSession(steps: [choiceStep]));
+
+      await tester.tap(find.text("Cred idkaart"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("details screen"), findsOneWidget);
+      expect(
+        harness.container
+            .read(issueDuringDisclosureProvider(testSessionId))
+            .selectedOptionPerStep,
+        [1],
+      );
+      expect(
+        harness.container.read(missingDataFlowProvider)?.credentialId,
+        "idkaart",
+      );
+    });
+
+    testWidgets("flag on: the hint counts when more than the choice is "
+        "missing", (tester) async {
+      await setUp(tester, _Flag.on);
+      await harness.emit(
+        tester,
+        testSession(
+          steps: [
+            testStep([
+              [testDescriptor("email")],
+            ]),
+            choiceStep,
+          ],
+        ),
+      );
+
+      expect(find.text("Haal eerst de 2 ontbrekende gegevens op"), findsOne);
+    });
+
+    testWidgets("flag off: the radio choice and its hint stay", (tester) async {
+      await setUp(tester, _Flag.off);
+      await harness.emit(tester, testSession(steps: [choiceStep]));
+
+      expect(find.text("Maak een keuze"), findsOneWidget);
+      expect(find.byType(ChoiceOptionRow), findsNothing);
+      expect(find.text("Haal eerst het ontbrekende gegeven op"), findsOne);
     });
   });
 }

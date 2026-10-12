@@ -214,7 +214,8 @@
       "certified_by": "Certified by {issuer}",
       "switch": "Switch",
       "sheet_title": "What do you want to share?",
-      "sheet_explanation": "{requestor} accepts: {options}. Tap what you want to share."
+      "sheet_explanation": "{requestor} accepts: {options}. Tap what you want to share.",
+      "obtain_first": "Obtain your {options} first"
     },
     "introduction": {
       "title": "Get going",

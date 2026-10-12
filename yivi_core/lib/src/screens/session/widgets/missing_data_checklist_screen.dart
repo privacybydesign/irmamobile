@@ -2,8 +2,11 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../models/missing_data_checklist.dart";
 import "../../../models/schemaless/credential_store.dart";
+import "../../../models/schemaless/session_state.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../providers/missing_data_flow_provider.dart";
 import "../../../providers/session_state_provider.dart";
@@ -14,11 +17,13 @@ import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/yivi_themed_button.dart";
+import "choice_option_row.dart";
 import "disclosure_permission_choice.dart";
 import "disclosure_permission_wrong_credentials_obtained_dialog.dart";
 import "external_issuer_checklist_row.dart";
 import "missing_data_header.dart";
 import "session_scaffold.dart";
+import "single_tap_choice.dart";
 
 /// The list a user sees when a request needs data they do not have yet: one
 /// row per requested credential, with a button to obtain the missing ones.
@@ -55,6 +60,21 @@ class _MissingDataChecklistScreenState
     context.pushSchemalessDataDetailsScreen(
       AddDataDetailsRouteParams(credential: credential),
     );
+  }
+
+  /// Picks the tapped option of a choice and starts obtaining its first
+  /// credential that is not in the app yet.
+  void _obtainOption(ChecklistStep step, int option) {
+    final provider = issueDuringDisclosureProvider(widget.sessionId);
+    ref.read(provider.notifier).selectOption(step.index, option);
+
+    final issued = ref.read(provider).issuedCredentialIds;
+    final missing = step.step.options[option].credentials
+        .where((c) => !issued.contains(c.credentialId))
+        .firstOrNull;
+    if (missing == null) return;
+
+    _obtain(missing);
   }
 
   void _onWizardStateChanged(
@@ -119,6 +139,17 @@ class _MissingDataChecklistScreenState
         ?.requestor;
     final checklist = MissingDataChecklist.fromWizardState(wizardState);
     final next = checklist.next;
+    final singleTapChoice =
+        ref.watch(featureFlagProvider(FeatureFlag.singleTapChoice)).value ??
+        false;
+    final missingSteps = checklist.steps.where((s) => !s.isPresent).toList();
+    // With one choice left, the hint names its options.
+    final missingChoice =
+        singleTapChoice &&
+            missingSteps.length == 1 &&
+            missingSteps.single.isChoice
+        ? missingSteps.single
+        : null;
 
     ref.listen(
       issueDuringDisclosureProvider(widget.sessionId),
@@ -133,6 +164,7 @@ class _MissingDataChecklistScreenState
           : _ShareDisabledBar(
               requestorName: requestor.name,
               missingCount: checklist.missingCount,
+              missingChoice: missingChoice?.step,
             ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -150,7 +182,16 @@ class _MissingDataChecklistScreenState
                 SizedBox(height: theme.defaultSpacing),
               ],
               for (final step in checklist.steps)
-                if (step.isChoice)
+                if (step.isChoice && singleTapChoice)
+                  Padding(
+                    key: Key("missing_data_choice_${step.index}"),
+                    padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                    child: SingleTapChoice(
+                      options: step.step.options,
+                      onObtain: (option) => _obtainOption(step, option),
+                    ),
+                  )
+                else if (step.isChoice)
                   _ChoiceStepCard(
                     step: step,
                     state: next?.step.index == step.index
@@ -504,11 +545,35 @@ class _ChoiceStepCard extends StatelessWidget {
 class _ShareDisabledBar extends StatelessWidget {
   final String requestorName;
   final int missingCount;
+  final IssuanceStep? missingChoice;
 
   const _ShareDisabledBar({
     required this.requestorName,
     required this.missingCount,
+    this.missingChoice,
   });
+
+  String _hint(BuildContext context) {
+    final choice = missingChoice;
+    if (choice != null) {
+      return FlutterI18n.translate(
+        context,
+        "disclosure_permission.choice.obtain_first",
+        translationParams: {
+          "options": joinChoiceNamesInSentence(
+            context,
+            choice.options.map(issuanceBundleName),
+          ),
+        },
+      );
+    }
+
+    return FlutterI18n.translate(
+      context,
+      missingCount == 1 ? "missing_data.hint.one" : "missing_data.hint.other",
+      translationParams: {"n": "$missingCount"},
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -520,13 +585,7 @@ class _ShareDisabledBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            FlutterI18n.translate(
-              context,
-              missingCount == 1
-                  ? "missing_data.hint.one"
-                  : "missing_data.hint.other",
-              translationParams: {"n": "$missingCount"},
-            ),
+            _hint(context),
             textAlign: TextAlign.center,
             style: theme.themeData.textTheme.bodySmall!.copyWith(
               color: theme.neutralExtraDark,
