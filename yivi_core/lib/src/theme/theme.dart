@@ -326,6 +326,7 @@ class IrmaThemeData {
 
     BorderSide fieldLine(Color color) =>
         BorderSide(color: color, width: fieldLineWidth);
+
     UnderlineInputBorder fieldBorder(Color color) {
       return YiviFieldBorder(
         shadow: fieldShadow,
