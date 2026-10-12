@@ -84,6 +84,7 @@ void main() {
     );
 
     expect(view.noInformation, isFalse);
+    expect(view.complete, isTrue, reason: "all 48 attributes were given");
     // Every category gets a row, in licence-card order.
     expect(
       view.rows.map((r) => r.code),
@@ -117,6 +118,7 @@ void main() {
 
   test("disclosure of only the held flag", () {
     final view = _view([_bool("categoryB", true)]);
+    expect(view.complete, isFalse, reason: "a disclosure subset");
     final row = view.rows.single;
     expect(row.code, "B");
     expect(row.notHeld, isFalse);

@@ -117,7 +117,9 @@
       "category": "Klasse",
       "issued": "Ausgestellt",
       "expires": "Läuft ab",
-      "no_information": "Keine Klasseninformationen"
+      "no_information": "Keine Klasseninformationen",
+      "show_all": "Alle anzeigen",
+      "show_less": "Weniger anzeigen"
     }
   },
   "data": {

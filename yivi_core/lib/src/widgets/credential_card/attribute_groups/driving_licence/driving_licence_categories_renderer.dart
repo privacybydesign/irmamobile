@@ -99,7 +99,14 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
         ),
       );
     }
-    return DrivingLicenceCategoriesView(rows: rows);
+    final complete = codes.every((code) {
+      final c = byCode[code];
+      return c != null &&
+          c.held != null &&
+          c.issued != null &&
+          c.expires != null;
+    });
+    return DrivingLicenceCategoriesView(rows: rows, complete: complete);
   }
 
   static (String, _Field)? _match(schemaless.Attribute attribute) {
@@ -197,13 +204,21 @@ class DrivingLicenceCategoriesView {
   /// In licence-card order.
   final List<CategoryRow> rows;
 
+  /// Every category attribute was given, as on the credential detail screen.
+  /// False for a subset, such as a disclosure, where the user must see every
+  /// attribute being shared.
+  final bool complete;
+
   /// Every claimed attribute was empty: the licence chip held no category data.
   final bool noInformation;
 
-  const DrivingLicenceCategoriesView({required this.rows})
-    : noInformation = false;
+  const DrivingLicenceCategoriesView({
+    required this.rows,
+    required this.complete,
+  }) : noInformation = false;
 
   const DrivingLicenceCategoriesView.noInformation()
     : rows = const [],
+      complete = true,
       noInformation = true;
 }

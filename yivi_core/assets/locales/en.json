@@ -117,7 +117,9 @@
       "category": "Category",
       "issued": "Issued",
       "expires": "Expires",
-      "no_information": "No category information"
+      "no_information": "No category information",
+      "show_all": "Show all",
+      "show_less": "Show less"
     }
   },
   "data": {

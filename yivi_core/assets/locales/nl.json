@@ -117,7 +117,9 @@
       "category": "Categorie",
       "issued": "Afgegeven",
       "expires": "Verloopt",
-      "no_information": "Geen categorie-informatie"
+      "no_information": "Geen categorie-informatie",
+      "show_all": "Toon alles",
+      "show_less": "Toon minder"
     }
   },
   "data": {

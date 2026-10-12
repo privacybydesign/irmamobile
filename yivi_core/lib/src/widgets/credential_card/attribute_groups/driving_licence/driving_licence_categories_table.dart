@@ -5,19 +5,44 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../link.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
 
 /// Driving licence categories laid out like the back of the licence card: a
 /// Category / Issued / Expires table with one row per category, where a
 /// category that is not held shows "-" for its dates.
-class DrivingLicenceCategoriesTable extends StatelessWidget {
+///
+/// Collapsed by default to the categories held, with a "show all" toggle for
+/// the rest. A subset of the categories (a disclosure) starts expanded, so
+/// everything being shared is visible without a tap. When nothing or
+/// everything given is held there is nothing to hide, so the table shows
+/// every row and no toggle.
+class DrivingLicenceCategoriesTable extends StatefulWidget {
   final DrivingLicenceCategoriesView view;
 
   const DrivingLicenceCategoriesTable({required this.view})
     : super(key: const Key("attribute_group_driving_licence_categories"));
 
+  @override
+  State<DrivingLicenceCategoriesTable> createState() =>
+      _DrivingLicenceCategoriesTableState();
+}
+
+class _DrivingLicenceCategoriesTableState
+    extends State<DrivingLicenceCategoriesTable> {
   static const _prefix = "credential.driving_licence_categories";
+
+  late var _expanded = !widget.view.complete;
+
+  DrivingLicenceCategoriesView get view => widget.view;
+
+  bool get _collapsible =>
+      view.rows.any((r) => r.notHeld) && view.rows.any((r) => !r.notHeld);
+
+  List<CategoryRow> get _visibleRows => _expanded || !_collapsible
+      ? view.rows
+      : view.rows.where((r) => !r.notHeld).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +65,19 @@ class DrivingLicenceCategoriesTable extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(top: theme.tinySpacing),
             child: _table(theme, t),
+          ),
+        if (_collapsible)
+          Padding(
+            padding: EdgeInsets.only(top: theme.smallSpacing),
+            child: KeyedSubtree(
+              key: const Key("driving_licence_categories_toggle"),
+              child: Link(
+                label: "$_prefix.${_expanded ? "show_less" : "show_all"}",
+                // Regular weight: a quiet toggle, not a call to action.
+                style: const TextStyle(fontWeight: FontWeight.w400),
+                onTap: () => setState(() => _expanded = !_expanded),
+              ),
+            ),
           ),
       ],
     );
@@ -88,7 +126,7 @@ class DrivingLicenceCategoriesTable extends StatelessWidget {
             header(t("expires")),
           ],
         ),
-        for (final row in view.rows)
+        for (final row in _visibleRows)
           TableRow(
             key: ValueKey("driving_licence_category_${row.code}"),
             decoration: divider,

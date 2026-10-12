@@ -44,9 +44,11 @@ void main() {
         expires: _v("2030-03-01"),
       ),
       CategoryRow(code: "C", held: _v<bool?>(false)),
-      // A disclosure of only the expiry date.
+      // Only the expiry date was given.
       CategoryRow(code: "T", expires: _v("2029-01-01")),
     ],
+    // As on the credential detail screen, so the table starts collapsed.
+    complete: true,
   );
 
   testWidgets("lays categories out as a Category / Issued / Expires table", (
@@ -67,9 +69,66 @@ void main() {
     );
 
     expect(find.text("2029-01-01"), findsOneWidget);
-    // Not held: dashes, like the licence card. The T row's issue date was not
-    // given, so it stays blank rather than showing a dash.
+  });
+
+  testWidgets("collapsed shows only held categories; Show all expands", (
+    tester,
+  ) async {
+    await tester.pumpWidget(_wrap(DrivingLicenceCategoriesTable(view: view)));
+    await tester.pumpAndSettle();
+
+    // Collapsed: B, BE and T (its expiry date makes it a held row), not C.
+    expect(find.text("B"), findsOneWidget);
+    expect(find.text("BE"), findsOneWidget);
+    expect(find.text("T"), findsOneWidget);
+    expect(find.text("C"), findsNothing);
+    expect(find.text("-"), findsNothing);
+    expect(find.text("Show all"), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text("Show all")).style?.fontWeight,
+      FontWeight.w400,
+      reason: "the toggle is not bold",
+    );
+
+    await tester.tap(find.text("Show all"));
+    await tester.pumpAndSettle();
+
+    // Expanded: the not-held C row with dashes, like the licence card. The T
+    // row's issue date was not given, so it stays blank rather than a dash.
+    expect(find.text("C"), findsOneWidget);
     expect(find.text("-"), findsNWidgets(2));
+    expect(find.text("Show less"), findsOneWidget);
+
+    await tester.tap(find.text("Show less"));
+    await tester.pumpAndSettle();
+    expect(find.text("C"), findsNothing);
+    expect(find.text("Show all"), findsOneWidget);
+  });
+
+  testWidgets("a disclosure (subset) starts expanded", (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        DrivingLicenceCategoriesTable(
+          view: DrivingLicenceCategoriesView(rows: view.rows, complete: false),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // The not-held C being shared is visible without a tap.
+    expect(find.text("C"), findsOneWidget);
+    expect(find.text("Show less"), findsOneWidget);
+  });
+
+  testWidgets("Dutch toggle reads Toon alles", (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        DrivingLicenceCategoriesTable(view: view),
+        locale: const Locale("nl", "NL"),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text("Toon alles"), findsOneWidget);
   });
 
   testWidgets("prefixes rows with vehicle pictograms, trailers for E", (
@@ -82,14 +141,8 @@ void main() {
       for (final svg in tester.widgetList<SvgPicture>(find.byType(SvgPicture)))
         (svg.bytesLoader as SvgAssetLoader).assetName.split("/").last,
     ];
-    // B, BE (+ trailer), C, T — in row order.
-    expect(pictograms, [
-      "car.svg",
-      "car.svg",
-      "trailer.svg",
-      "truck.svg",
-      "tractor.svg",
-    ]);
+    // B, BE (+ trailer), T — in row order; C is collapsed away.
+    expect(pictograms, ["car.svg", "car.svg", "trailer.svg", "tractor.svg"]);
 
     // Pictograms are right-aligned against their code: a lone car and a
     // car + trailer both end the same distance before the code.
@@ -137,13 +190,16 @@ void main() {
               for (final code in DrivingLicenceCategoriesRenderer.codes)
                 CategoryRow(code: code, held: _v<bool?>(false)),
             ],
+            complete: true,
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
+    // Nothing held: nothing to collapse to, so every row and no toggle.
     expect(find.text("-"), findsNWidgets(32));
+    expect(find.text("Show all"), findsNothing);
   });
 
   testWidgets("fits a narrow phone card without overflowing", (tester) async {
@@ -156,6 +212,7 @@ void main() {
           expires: _v("2030-03-01"),
         ),
       ],
+      complete: true,
     );
     // Roughly the content width of a credential card on a 320pt-wide phone.
     await tester.pumpWidget(
