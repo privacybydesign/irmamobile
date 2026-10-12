@@ -24,7 +24,6 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 
 import "missing_data_fixtures.dart";
@@ -105,6 +104,7 @@ Widget _app({
   required Widget home,
   required List<Override> overrides,
   List<String>? obtained,
+  Locale locale = const Locale("en", "EN"),
 }) {
   final router = GoRouter(
     routes: [
@@ -128,7 +128,7 @@ Widget _app({
           FlutterI18nDelegate(
             translationLoader: FileTranslationLoader(
               basePath: "assets/locales",
-              forcedLocale: const Locale("en", "EN"),
+              forcedLocale: locale,
             ),
           ),
           ...GlobalMaterialLocalizations.delegates,
@@ -169,12 +169,25 @@ DisclosurePickOne _passportOrIdCard({
   obtainableOptions: obtainable,
 );
 
-List<IrmaCardStyle> _cardStyles(WidgetTester tester) => tester
-    .widgetList<YiviCredentialCard>(find.byType(YiviCredentialCard))
-    .map((c) => c.style)
-    .toList();
-
 final _footer = find.byKey(const Key("choice_card_footer"));
+
+Finder _sheetOption(int index) => find.byKey(Key("choice_sheet_option_$index"));
+
+/// Expects the owned option at [current] to be the only one of [count] owned
+/// options in the sheet that is marked as checked. Needs semantics on.
+void _expectCurrent(WidgetTester tester, int current, {required int count}) {
+  for (var i = 0; i < count; i++) {
+    expect(
+      tester.getSemantics(_sheetOption(i)),
+      isSemantics(
+        isInMutuallyExclusiveGroup: true,
+        hasCheckedState: true,
+        isChecked: i == current,
+        hasTapAction: true,
+      ),
+    );
+  }
+}
 
 void main() {
   final passport = _descriptor("passport", "Passport");
@@ -357,6 +370,7 @@ void main() {
       List<DisclosurePickOne>? choices,
       Stream<SessionState>? sessions,
       List<String>? obtained,
+      Locale locale = const Locale("en", "EN"),
     }) {
       final session = _session(choices: choices ?? [_passportOrIdCard()]);
 
@@ -369,6 +383,7 @@ void main() {
         ],
         home: const _ShareScreen(),
         obtained: obtained,
+        locale: locale,
       );
     }
 
@@ -468,41 +483,7 @@ void main() {
       expect(find.text("Certified by RvIG"), findsNothing);
     });
 
-    testWidgets("flag on: the band opens the sheet and a tap picks and closes", (
-      tester,
-    ) async {
-      await pumpTranslated(tester, app(_Flag.on));
-      await tester.pumpAndSettle();
-
-      await tester.tap(_footer);
-      await tester.pumpAndSettle();
-
-      expect(find.text("What do you want to share?"), findsOneWidget);
-      expect(
-        find.text(
-          "Gemeente accepts: Passport or ID card. Tap what you want to share.",
-        ),
-        findsOneWidget,
-      );
-      expect(find.byType(RadioIndicator), findsNothing);
-      expect(find.text("Done"), findsNothing);
-      // The share screen card behind the sheet plus the two options; only the
-      // current option is highlighted.
-      expect(_cardStyles(tester), [
-        IrmaCardStyle.normal,
-        IrmaCardStyle.highlighted,
-        IrmaCardStyle.normal,
-      ]);
-
-      await tester.tap(find.text("de Vries"));
-      await tester.pumpAndSettle();
-
-      expect(find.text("What do you want to share?"), findsNothing);
-      expect(find.text("de Vries"), findsOneWidget);
-      expect(find.text("Jansen"), findsNothing);
-    });
-
-    testWidgets("flag on: owned options in the sheet are buttons", (
+    testWidgets("flag on: the band opens the sheet and a tap picks", (
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
@@ -512,47 +493,154 @@ void main() {
       await tester.tap(_footer);
       await tester.pumpAndSettle();
 
-      // Index 0 is the share screen card behind the sheet.
-      final cards = find.byType(YiviCredentialCard);
+      expect(find.text("What do you want to share?"), findsOneWidget);
       expect(
-        tester.getSemantics(cards.at(1)),
-        isSemantics(
-          isButton: true,
-          hasSelectedState: true,
-          isSelected: true,
-          hasTapAction: true,
+        find.text(
+          "Gemeente accepts your passport or ID card. Tap what you want to "
+          "share.",
         ),
+        findsOneWidget,
       );
-      expect(
-        tester.getSemantics(cards.at(2)),
-        isSemantics(isButton: true, hasSelectedState: true, hasTapAction: true),
-      );
+      expect(find.text("Already in your app"), findsNWidgets(2));
+      expect(find.byType(RadioIndicator), findsNothing);
+      expect(find.text("Done"), findsNothing);
+      _expectCurrent(tester, 0, count: 2);
+
+      await tester.tap(find.text("ID card"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("What do you want to share?"), findsNothing);
+      expect(find.text("de Vries"), findsOneWidget);
+      expect(find.text("Jansen"), findsNothing);
       semantics.dispose();
     });
 
-    testWidgets("flag on: the sheet highlights the option picked earlier", (
+    testWidgets("flag on: the sheet text matches board F3 in Dutch", (
       tester,
     ) async {
+      await pumpTranslated(
+        tester,
+        app(
+          _Flag.on,
+          locale: const Locale("nl", "NL"),
+          choices: [
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: [_bundle(_instance("idcard", "ID-kaart", "Vries"))],
+              obtainableOptions: [_descriptor("passport", "Paspoort")],
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("ID-KAART OF PASPOORT"), findsOneWidget);
+      expect(find.text("Gewaarmerkt door RvIG"), findsOneWidget);
+
+      await tester.tap(_footer);
+      await tester.pumpAndSettle();
+
+      expect(find.text("Wat wil je delen?"), findsOneWidget);
+      expect(
+        find.text(
+          "Gemeente accepteert een ID-kaart of een paspoort. Tik op wat je "
+          "wilt delen.",
+        ),
+        findsOneWidget,
+      );
+      expect(find.text("Staat al in je app"), findsOneWidget);
+      expect(find.text("Nog niet in je app"), findsOneWidget);
+      expect(find.text("Ophalen"), findsOneWidget);
+    });
+
+    testWidgets("flag on: German names keep their capital in the sheet", (
+      tester,
+    ) async {
+      await pumpTranslated(
+        tester,
+        app(
+          _Flag.on,
+          locale: const Locale("de", "DE"),
+          choices: [
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: [
+                _bundle(_instance("passport", "Reisepass", "Jansen")),
+                _bundle(_instance("idcard", "Personalausweis", "Vries")),
+              ],
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(_footer);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          "Gemeente akzeptiert Reisepass oder Personalausweis. Tippen Sie auf "
+          "das, was Sie teilen möchten.",
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("flag on: options with the same name show their values", (
+      tester,
+    ) async {
+      await pumpTranslated(
+        tester,
+        app(
+          _Flag.on,
+          choices: [
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: [
+                _bundle(_instance("email", "E-mail", "a@example.com")),
+                _bundle(_instance("email", "E-mail", "b@example.com")),
+              ],
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(_footer);
+      await tester.pumpAndSettle();
+
+      final sheet = find.byType(BottomSheet);
+      for (final value in ["a@example.com", "b@example.com"]) {
+        expect(
+          find.descendant(of: sheet, matching: find.text(value)),
+          findsOneWidget,
+        );
+      }
+      expect(find.text("Already in your app"), findsNothing);
+    });
+
+    testWidgets("flag on: the sheet marks the option picked earlier", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
       await pumpTranslated(tester, app(_Flag.on));
       await tester.pumpAndSettle();
 
       await tester.tap(_footer);
       await tester.pumpAndSettle();
-      await tester.tap(find.text("de Vries"));
+      await tester.tap(find.text("ID card"));
       await tester.pumpAndSettle();
       await tester.tap(_footer);
       await tester.pumpAndSettle();
 
-      expect(_cardStyles(tester), [
-        IrmaCardStyle.normal,
-        IrmaCardStyle.normal,
-        IrmaCardStyle.highlighted,
-      ]);
+      _expectCurrent(tester, 1, count: 2);
+      semantics.dispose();
     });
 
     testWidgets("flag on: the sheet obtains an option not in the app", (
       tester,
     ) async {
+      final semantics = tester.ensureSemantics();
       final obtained = <String>[];
       final choice = DisclosurePickOne(
         optional: false,
@@ -568,14 +656,19 @@ void main() {
       await tester.tap(_footer);
       await tester.pumpAndSettle();
 
-      expect(find.text("ID card"), findsOneWidget);
-      expect(find.text("Obtain"), findsOneWidget);
+      expect(find.text("Not in your app yet"), findsOneWidget);
+      final obtain = find.byKey(const Key("choice_sheet_obtain_ID card"));
+      expect(
+        tester.getSemantics(obtain),
+        isSemantics(label: "Obtain: ID card", isButton: true),
+      );
 
-      await tester.tap(find.text("ID card"));
+      await tester.tap(obtain);
       await tester.pumpAndSettle();
 
       expect(find.text("details"), findsOneWidget);
       expect(obtained.single, contains('"credential_id":"idcard"'));
+      semantics.dispose();
     });
 
     testWidgets("flag on: adding optional data uses the sheet", (tester) async {
@@ -595,7 +688,7 @@ void main() {
 
       expect(find.text("What do you want to share?"), findsOneWidget);
 
-      await tester.tap(find.text("de Vries"));
+      await tester.tap(find.text("ID card"));
       await tester.pumpAndSettle();
 
       expect(find.text("What do you want to share?"), findsNothing);
@@ -606,6 +699,7 @@ void main() {
     testWidgets("flag on: optional data obtained from the sheet is added", (
       tester,
     ) async {
+      final semantics = tester.ensureSemantics();
       final sessions = StreamController<SessionState>();
       addTearDown(sessions.close);
       sessions.add(
@@ -643,14 +737,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // The new ID card is selected in the sheet and added to the share
-      // screen behind it.
-      expect(find.text("de Vries"), findsNWidgets(2));
-      expect(_cardStyles(tester), [
-        IrmaCardStyle.normal,
-        IrmaCardStyle.normal,
-        IrmaCardStyle.highlighted,
-      ]);
+      // The new ID card is marked in the sheet and added to the share screen
+      // behind it.
+      expect(find.text("de Vries"), findsOneWidget);
+      _expectCurrent(tester, 1, count: 2);
 
       final sheetTitle = find.text("What do you want to share?");
       Navigator.of(tester.element(sheetTitle)).pop();
@@ -659,6 +749,7 @@ void main() {
       expect(find.text("Optional data"), findsOneWidget);
       expect(find.text("de Vries"), findsOneWidget);
       expect(find.text("Jansen"), findsNothing);
+      semantics.dispose();
     });
 
     testWidgets("flag off: Change choice opens the old screen", (tester) async {

@@ -213,7 +213,8 @@
       "obtain": "Ophalen",
       "certified_by": "Gewaarmerkt door {issuer}",
       "sheet_title": "Wat wil je delen?",
-      "sheet_explanation": "{requestor} accepteert: {options}. Tik op wat je wilt delen.",
+      "sheet_explanation": "{requestor} accepteert {options}. Tik op wat je wilt delen.",
+      "accepted_option": "een {name}",
       "obtain_first": "Haal eerst je {options} op"
     },
     "introduction": {

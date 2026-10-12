@@ -213,7 +213,8 @@
       "obtain": "Abrufen",
       "certified_by": "Beglaubigt von {issuer}",
       "sheet_title": "Was möchten Sie teilen?",
-      "sheet_explanation": "{requestor} akzeptiert: {options}. Tippen Sie auf das, was Sie teilen möchten.",
+      "sheet_explanation": "{requestor} akzeptiert {options}. Tippen Sie auf das, was Sie teilen möchten.",
+      "accepted_option": "{name}",
       "obtain_first": "Rufen Sie zuerst {options} ab"
     },
     "introduction": {

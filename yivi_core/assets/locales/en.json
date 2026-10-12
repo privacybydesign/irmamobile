@@ -213,7 +213,8 @@
       "obtain": "Obtain",
       "certified_by": "Certified by {issuer}",
       "sheet_title": "What do you want to share?",
-      "sheet_explanation": "{requestor} accepts: {options}. Tap what you want to share.",
+      "sheet_explanation": "{requestor} accepts your {options}. Tap what you want to share.",
+      "accepted_option": "{name}",
       "obtain_first": "Obtain your {options} first"
     },
     "introduction": {
