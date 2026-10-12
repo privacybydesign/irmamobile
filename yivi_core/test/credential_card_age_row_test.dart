@@ -18,10 +18,13 @@ import "support/pump_translated.dart";
 // WCAG 1.4.3 AA for normal text.
 const _minTextContrast = 4.5;
 
+// Added to both luminances in the WCAG contrast ratio.
+const _luminanceOffset = 0.05;
+
 double _contrast(Color a, Color b) {
   final [lighter, darker] = [a, b].map((c) => c.computeLuminance()).toList()
     ..sort((x, y) => y.compareTo(x));
-  return (lighter + 0.05) / (darker + 0.05);
+  return (lighter + _luminanceOffset) / (darker + _luminanceOffset);
 }
 
 enum _Answer { yes, no }
