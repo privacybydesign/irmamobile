@@ -196,6 +196,15 @@ void main() {
   Rect valueRect(WidgetTester tester, [int index = 0]) =>
       tester.getRect(find.byType(EditableText).at(index));
 
+  /// The error icon of a form fields V2 message.
+  final errorIcon = find.descendant(
+    of: find.byType(YiviFieldError),
+    matching: find.byType(CustomPaint),
+  );
+
+  /// The text of the label of a form fields V2 field.
+  String? labelText(Widget? label) => (label as YiviFieldLabel?)?.text;
+
   /// The hint a screen reader gets with the field.
   String hintOf(WidgetTester tester, Finder field) =>
       tester.getSemantics(field).getSemanticsData().hint;
@@ -219,12 +228,12 @@ void main() {
 
       // Board H1: 8 px above the 16 px label line, then the 26 px value line,
       // 8 px above the bottom, with the line in it. The text is 14 px from the
-      // sides.
+      // sides, and the 12 px label text in the middle of its line.
       final label = tester.getRect(find.text("Label"));
       final value = valueRect(tester);
       expect(rect.height, 58);
       expect(label.left - rect.left, 14);
-      expect(label.top - rect.top, 8);
+      expect(label.top - rect.top, 10);
       expect(label.height, 12);
       expect(value.left - rect.left, 14);
       expect(value.top - rect.top, 24);
@@ -300,7 +309,7 @@ void main() {
       final shot = await screenshot(tester);
       final rect = decoratorRect(tester);
       final message = tester.getRect(find.text("Enter a label"));
-      final icon = tester.getRect(find.byIcon(Icons.error));
+      final icon = tester.getRect(errorIcon);
 
       // The red line closes the field, and the message is 4 px below it, from
       // the edge of the field and not from its text.
@@ -318,6 +327,41 @@ void main() {
       expect(style?.fontSize, 13);
       expect(style?.fontWeight, FontWeight.w600);
       expect(style?.color, theme.error);
+    });
+
+    testWidgets("draws the error icon as a white mark on a red disc", (
+      tester,
+    ) async {
+      await pumpField(
+        tester,
+        onPage(textField(validator: (_) => "Enter a label")),
+        fields: _Fields.v2,
+      );
+      final shot = await screenshot(tester);
+      final icon = tester.getRect(errorIcon);
+
+      // The board's 24 px icon at 14 px: a disc of 6.4 px radius with a mark
+      // and a dot on its middle line. They are thinner than a pixel and a
+      // half, so their pixels are blended with the disc.
+      expect(
+        shot.at(icon.left + 0.5, icon.top + 0.5),
+        theme.backgroundTertiary,
+      );
+      expect(shot.at(icon.left + 2.5, icon.top + 7.5), theme.error);
+      expect(shot.at(icon.right - 2.5, icon.top + 7.5), theme.error);
+      expect(shot.at(icon.left + 6.5, icon.top + 5.5).g, greaterThan(0.6));
+      expect(shot.at(icon.left + 6.5, icon.top + 9.5).g, greaterThan(0.5));
+    });
+
+    testWidgets("names the field by its label for a screen reader", (
+      tester,
+    ) async {
+      await pumpField(tester, onPage(textField()), fields: _Fields.v2);
+
+      expect(
+        tester.getSemantics(find.byType(TextField)).getSemanticsData().label,
+        contains("Label"),
+      );
     });
 
     testWidgets("is greyed out when disabled", (tester) async {
@@ -339,6 +383,7 @@ void main() {
       expect(shot.at(rect.left + 20, rect.top + 4), theme.fieldDisabledSurface);
       expect(shot.at(rect.center.dx, rect.bottom - 1), theme.neutralLight);
       expect(shot.at(rect.center.dx, rect.bottom), theme.backgroundTertiary);
+      expect(labelColor(tester, "Label"), theme.neutralDark);
     });
 
     testWidgets("keeps the decoration it was given with the flag off", (
@@ -355,7 +400,7 @@ void main() {
       expect(decoration.labelText, isNull);
       expect(decoration.filled, isNot(true));
       expect(find.text("Enter a label"), findsOneWidget);
-      expect(find.byIcon(Icons.error), findsNothing);
+      expect(errorIcon, findsNothing);
     });
 
     testWidgets("is not rebuilt when the flag value arrives", (tester) async {
@@ -376,7 +421,7 @@ void main() {
       await prefs.setFeatureFlag(FeatureFlag.formFieldsV2, true);
       await tester.pumpAndSettle();
 
-      expect(decorationOf(tester).labelText, "Label");
+      expect(labelText(decorationOf(tester).label), "Label");
       expect(tester.state(find.byType(TextFormField)), same(before));
       expect(focusNode.hasFocus, isTrue);
       expect(controller.text, "typed");
@@ -508,6 +553,8 @@ void main() {
       final value = valueRect(tester);
 
       expect(label.left - row.left, 16);
+      // The text engine rounds the height of the line, so only to a quarter.
+      expect(label.center.dy - row.top, closeTo(21, 0.25));
       expect(value.left - row.left, 16);
       expect(value.top - row.top, 32);
       expect(value.height, 26);
@@ -587,7 +634,7 @@ void main() {
       final row = rowRect(tester, 0);
       final value = valueRect(tester);
       final message = tester.getRect(find.text("First is bad"));
-      final icon = tester.getRect(find.byIcon(Icons.error));
+      final icon = tester.getRect(errorIcon);
 
       // No tint and no coloured left border, as board H3: the row stays white.
       expect(shot.at(row.left + 0.5, row.top + 28), theme.light);
@@ -604,7 +651,7 @@ void main() {
       expect(shot.at(row.center.dx, row.bottom - 3), theme.light);
       expect(shot.at(row.left + 1, row.bottom - 1), theme.error);
       expect(shot.at(row.right - 2, row.bottom - 1), theme.error);
-      expect(message.bottom, lessThan(row.bottom - 2));
+      expect(row.bottom - 2 - message.bottom, 8);
       expect(
         shot.columnHas(theme.error, row.center.dx, value.bottom, row.bottom),
         isTrue,
@@ -874,7 +921,7 @@ void main() {
             .letterSpacing,
         1,
       );
-      expect(decorationOf(tester).labelText, "Document number");
+      expect(labelText(decorationOf(tester).label), "Document number");
       expect(decorationOf(tester).filled, isNot(true));
       expect(find.text("Date of birth"), findsOneWidget);
       expect(find.text("Date of expiry"), findsOneWidget);
@@ -899,7 +946,10 @@ void main() {
       );
 
       expect(find.byType(YiviFieldGroup), findsOneWidget);
-      expect(decorationOf(tester).labelText, "Machine readable zone (MRZ)");
+      expect(
+        labelText(decorationOf(tester).label),
+        "Machine readable zone (MRZ)",
+      );
       expect(decorationOf(tester).filled, isNot(true));
     });
 
@@ -915,7 +965,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Document number is invalid"), findsOneWidget);
-      expect(find.byIcon(Icons.error), findsOneWidget);
+      expect(errorIcon, findsOneWidget);
     });
   });
 
@@ -963,7 +1013,7 @@ void main() {
     ) async {
       await openDialog(tester, fields: _Fields.v2);
 
-      expect(dialogDecoration(tester).labelText, "Your feedback");
+      expect(labelText(dialogDecoration(tester).label), "Your feedback");
       expect(dialogDecoration(tester).hint, isNull);
       expect(dialogDecoration(tester).filled, isTrue);
       expect(find.byWidgetPredicate(hasFeedbackSemantics), findsNothing);
@@ -1047,12 +1097,12 @@ void main() {
         overrides: [session(remainingAttempts: 2)],
       );
 
-      expect(decorationOf(tester).labelText, "Transaction code");
+      expect(labelText(decorationOf(tester).label), "Transaction code");
       expect(
         find.text("Incorrect code. 2 attempts remaining."),
         findsOneWidget,
       );
-      expect(find.byIcon(Icons.error), findsOneWidget);
+      expect(errorIcon, findsOneWidget);
       expect(tester.widget<TextField>(codeField).textAlign, TextAlign.start);
       expect(labelColor(tester, "Transaction code"), theme.error);
     });
@@ -1086,7 +1136,7 @@ void main() {
         overrides: [session()],
       );
 
-      expect(find.byIcon(Icons.error), findsNothing);
+      expect(errorIcon, findsNothing);
       expect(labelColor(tester, "Transaction code"), isNot(theme.error));
     });
 
@@ -1105,7 +1155,7 @@ void main() {
           find.text("Incorrect code. 2 attempts remaining."),
           findsOneWidget,
         );
-        expect(find.byIcon(Icons.error), findsNothing);
+        expect(errorIcon, findsNothing);
         expect(tester.widget<TextField>(codeField).textAlign, TextAlign.center);
         expect(
           tester
@@ -1125,7 +1175,7 @@ void main() {
       await pumpField(tester, const EnterEmailScreen(), fields: _Fields.v2);
 
       final decoration = decorationOf(tester);
-      expect(decoration.labelText, "Email address");
+      expect(labelText(decoration.label), "Email address");
       expect(decoration.hintText, "Enter your email address...");
       expect(decoration.filled, isTrue);
     });
@@ -1166,7 +1216,7 @@ void main() {
       await pumpField(tester, const EnterPhoneScreen(), fields: _Fields.v2);
 
       final decoration = phoneDecoration(tester);
-      expect(decoration.labelText, "Phone number");
+      expect(labelText(decoration.label), "Phone number");
       expect(decoration.hintText, "Enter your phone number...");
       expect(decoration.filled, isTrue);
 

@@ -92,9 +92,20 @@ class IrmaThemeData {
     right: 8,
   );
 
-  // Space below the content of a row, with its line in it.
-  final double fieldRowBottom = 15.0;
-  final double fieldLastRowBottom = 14.0;
+  // Space below the value of a row, with its line in it.
+  final double fieldRowBottom = 13.0;
+  final double fieldLastRowBottom = 12.0;
+
+  // Space below the message of an invalid row, with its red line in it.
+  final double fieldRowErrorBottom = 10.0;
+
+  // The boards centre a label on its line, 16 px high in a single field and
+  // 18 px in a row. Material draws it in a box as high as its text, which
+  // leaves it 2 px above the middle of that line in a single field and 0.5 px
+  // below it in a row. The label is scaled, so these are unscaled pixels.
+  final double fieldLabelShift = 2 / _floatingLabelScale;
+  final double fieldRowLabelShift = -0.5 / _floatingLabelScale;
+
   final BoxShadow fieldShadow = BoxShadow(
     color: Colors.grey.shade300,
     offset: const Offset(0.0, 1.0),
@@ -188,6 +199,9 @@ class IrmaThemeData {
       ),
       labelStyle: labelStyle,
       floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return labelStyle.copyWith(color: neutralDark);
+        }
         if (states.contains(WidgetState.error)) {
           return labelStyle.copyWith(color: error);
         }

@@ -19,6 +19,7 @@ import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_text_field.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -203,9 +204,9 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         }
         return theme.light;
       }),
-      labelText: FlutterI18n.translate(
-        context,
-        "sms_issuance.enter_phone.phone_label",
+      label: YiviFieldLabel(
+        FlutterI18n.translate(context, "sms_issuance.enter_phone.phone_label"),
+        shift: theme.fieldLabelShift,
       ),
       labelStyle: labelStyle,
       floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {

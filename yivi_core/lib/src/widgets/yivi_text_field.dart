@@ -18,6 +18,12 @@ typedef YiviTextFieldBuilder =
 
 const _dividerWidth = 1.0;
 
+/// Material puts the message of a field this far below its content.
+const _messageGap = 4.0;
+
+const _errorIconSize = 14.0;
+const _errorIconViewBox = 24.0;
+
 /// A text field that is white with its label inside when
 /// [FeatureFlag.formFieldsV2] is on, and keeps its old look when it is off.
 ///
@@ -97,29 +103,32 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
       onFocusChange: position == null ? null : _setFocused,
       child: DecoratedBox(
         decoration: frame.decoration,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: frame.bottom),
-          child: InputDecorationTheme(
-            data: frame.decorationTheme,
-            // Flutter sets an errorText as the hint of the field, but not an
-            // error widget.
-            child: Semantics(
-              hint: formFieldsV2 ? widget.errorText ?? _reportedMessage : null,
-              child: frame.field,
-            ),
+        child: InputDecorationTheme(
+          data: frame.decorationTheme,
+          // Flutter sets an errorText as the hint of the field, but not an
+          // error widget.
+          child: Semantics(
+            hint: formFieldsV2 ? widget.errorText ?? _reportedMessage : null,
+            child: frame.field,
           ),
         ),
       ),
     );
   }
 
-  InputDecoration _decoration(Widget Function(String) error) {
+  InputDecoration _decoration({
+    required double labelShift,
+    required Widget Function(String) error,
+    Widget? helper,
+  }) {
+    final label = widget.label;
     final errorText = widget.errorText;
 
     return InputDecoration(
-      labelText: widget.label,
+      label: label == null ? null : YiviFieldLabel(label, shift: labelShift),
       hintText: widget.hint,
       suffixIcon: widget.suffixIcon,
+      helper: helper,
       error: errorText == null ? null : error(errorText),
     );
   }
@@ -146,7 +155,7 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
     return _Frame(
       decorationTheme: theme.fieldDecorationTheme,
       field: widget.builder(
-        _decoration(error),
+        _decoration(labelShift: theme.fieldLabelShift, error: error),
         (_, message) => _reporting(message, error(message)),
         theme.fieldValueStyle,
       ),
@@ -158,7 +167,14 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
     final last = position == YiviFieldRowPosition.last;
     final bottom = last ? theme.fieldLastRowBottom : theme.fieldRowBottom;
 
-    Widget error(String message) => _RowError(message, bottom: bottom);
+    Widget error(String message) => _RowError(message);
+
+    // Keeps `bottom` of space below the value of a row without a message. The
+    // message of an invalid row takes its place, so that the space below the
+    // message can differ.
+    final spacer = SizedBox(
+      height: bottom - theme.fieldRowContentPadding.bottom - _messageGap,
+    );
 
     // A row that is last has no divider, as the card ends there. The line of a
     // row with an error is drawn by [_RowError].
@@ -171,9 +187,12 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
     return _Frame(
       decorationTheme: theme.fieldRowDecorationTheme,
       decoration: BoxDecoration(border: Border(bottom: line)),
-      bottom: bottom,
       field: widget.builder(
-        _decoration(error),
+        _decoration(
+          labelShift: theme.fieldRowLabelShift,
+          error: error,
+          helper: spacer,
+        ),
         (_, message) => _reporting(message, error(message)),
         theme.fieldRowValueStyle,
       ),
@@ -188,14 +207,10 @@ class _Frame {
   /// Behind the field, with the line of a row.
   final BoxDecoration decoration;
 
-  /// The space the line of a row is in, below the field.
-  final double bottom;
-
   const _Frame({
     required this.decorationTheme,
     required this.field,
     this.decoration = const BoxDecoration(),
-    this.bottom = 0,
   });
 }
 
@@ -247,6 +262,20 @@ class _ReportMessageState extends State<_ReportMessage> {
   Widget build(BuildContext context) => widget.child;
 }
 
+/// The label of a form fields V2 field. [shift] moves the text down by that
+/// many unscaled pixels, to the middle of the line the boards set it on.
+class YiviFieldLabel extends StatelessWidget {
+  final String text;
+  final double shift;
+
+  const YiviFieldLabel(this.text, {super.key, required this.shift});
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(offset: Offset(0, shift), child: Text(text));
+  }
+}
+
 /// An error message with an icon, shown below a field.
 class YiviFieldError extends StatelessWidget {
   final String message;
@@ -260,7 +289,10 @@ class YiviFieldError extends StatelessWidget {
     return Row(
       children: [
         ExcludeSemantics(
-          child: Icon(Icons.error, size: 14, color: theme.error),
+          child: CustomPaint(
+            size: const Size.square(_errorIconSize),
+            painter: _ErrorIconPainter(disc: theme.error, mark: theme.light),
+          ),
         ),
         const SizedBox(width: 6),
         Expanded(child: Text(message, style: theme.fieldMessageStyle)),
@@ -269,13 +301,40 @@ class YiviFieldError extends StatelessWidget {
   }
 }
 
-/// The message of a row. It is shown in the space of the row, with the red
-/// line below it drawn over the row's own line, [bottom] below the message.
+/// A white exclamation mark on a red disc, as drawn on the boards in a 24 px
+/// square. Unlike `Icons.error`, the mark is not cut out of the disc, so
+/// nothing behind the icon shows through it.
+class _ErrorIconPainter extends CustomPainter {
+  final Color disc;
+  final Color mark;
+
+  const _ErrorIconPainter({required this.disc, required this.mark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / _errorIconViewBox);
+    canvas.drawCircle(const Offset(12, 12), 11, Paint()..color = disc);
+
+    final markPaint = Paint()
+      ..color = mark
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(const Offset(12, 7), const Offset(12, 13), markPaint);
+    canvas.drawCircle(const Offset(12, 17), 1.5, markPaint);
+  }
+
+  @override
+  bool shouldRepaint(_ErrorIconPainter oldDelegate) =>
+      oldDelegate.disc != disc || oldDelegate.mark != mark;
+}
+
+/// The message of a row, with the red line below it that covers the row's own
+/// line. The space below the message, with the line in it, is
+/// [IrmaThemeData.fieldRowErrorBottom].
 class _RowError extends StatelessWidget {
   final String message;
-  final double bottom;
 
-  const _RowError(this.message, {required this.bottom});
+  const _RowError(this.message);
 
   @override
   Widget build(BuildContext context) {
@@ -285,11 +344,14 @@ class _RowError extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        YiviFieldError(message),
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.fieldRowErrorBottom),
+          child: YiviFieldError(message),
+        ),
         Positioned(
           left: -padding.left,
           right: -padding.right,
-          bottom: -bottom,
+          bottom: 0,
           height: theme.fieldLineWidth,
           child: ColoredBox(color: theme.error),
         ),
