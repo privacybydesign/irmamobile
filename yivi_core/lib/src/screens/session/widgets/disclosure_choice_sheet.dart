@@ -375,7 +375,9 @@ class _ObtainableOption extends StatelessWidget {
 
     return Semantics(
       container: true,
-      child: obtain != null ? tile : Opacity(opacity: 0.5, child: tile),
+      child: obtain != null
+          ? tile
+          : Opacity(opacity: choiceUnavailableOpacity, child: tile),
     );
   }
 }

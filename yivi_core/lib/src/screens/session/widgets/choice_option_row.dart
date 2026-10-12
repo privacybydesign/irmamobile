@@ -11,6 +11,9 @@ import "../../../widgets/translated_text.dart";
 /// Corner radius of the option rows and the card around them.
 const choiceOptionRadius = BorderRadius.all(Radius.circular(10));
 
+/// Opacity of an option that cannot be obtained from the app.
+const choiceUnavailableOpacity = 0.5;
+
 const _rowLogoSize = 32.0;
 const _rowMinHeight = 56.0;
 // 10 by 12 px inside a 1 px border, which takes no room in Flutter.
@@ -167,7 +170,9 @@ class ChoiceOptionRow extends StatelessWidget {
       container: true,
       button: true,
       enabled: onTap != null,
-      child: onTap != null ? row : Opacity(opacity: 0.5, child: row),
+      child: onTap != null
+          ? row
+          : Opacity(opacity: choiceUnavailableOpacity, child: row),
     );
   }
 }
