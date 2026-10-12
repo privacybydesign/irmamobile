@@ -4,13 +4,33 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
+import "../../../widgets/bold_markers_text.dart";
 import "../../../widgets/chevron.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/translated_text.dart";
 
-const _footerBandColor = Color(0xFFF5F3F1);
-const _valueFontSize = 17.0;
+const _bandColor = Color(0xFFF5F3F1);
+const _bandBorderColor = Color(0xFFE3DDD9);
+const _valuesShadowColor = Color(0x24000000);
+const _cardRadius = Radius.circular(12);
+
+// The band starts this far under the values card, so its corners show behind
+// the rounded bottom of the card.
+const _bandOverlap = 12.0;
+const _bandPadding = 12.0;
+const _bandBorderWidth = 1.0;
+const _valuesPadding = 14.0;
+const _rowPadding = 6.0;
+const _bandTextSize = 14.0;
+const _bandTextHeight = 20 / 14;
+const _chevronSize = 18.0;
+const _attributeMetrics = AttributeListMetrics(
+  valueFontSize: 17,
+  labelLineHeight: 20,
+  valueLineHeight: 24,
+  rowPadding: _rowPadding,
+);
 
 // Municipality credentials all have this one issuer. The municipality that
 // holds the data is an attribute of the credential, when it has one. The
@@ -73,49 +93,53 @@ class ShareCredentialCard extends StatelessWidget {
     );
     final statusKey = _statusKey(status);
     final danger = status.isExpired || status.revoked;
+    final bandBorder = danger ? theme.danger : _bandBorderColor;
 
-    // The band is the base of the card. The values sit on a white card with
-    // rounded corners on top of it, whose shadow falls on the band.
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: theme.borderRadius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            offset: const Offset(0, 1),
-            blurRadius: 6,
-          ),
-        ],
-      ),
-      child: Material(
-        color: _footerBandColor,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: theme.borderRadius,
-          side: danger ? BorderSide(color: theme.danger) : BorderSide.none,
-        ),
-        child: Column(
-          crossAxisAlignment: .stretch,
+    // Listed from the bottom up, so the band is painted first and the shadow
+    // of the values card falls on it.
+    return Column(
+      verticalDirection: VerticalDirection.up,
+      crossAxisAlignment: .stretch,
+      children: [
+        _issuerBand(context, theme, bandBorder),
+        Stack(
+          clipBehavior: Clip.none,
           children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: _bandOverlap,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: _bandColor,
+                  border: Border.symmetric(
+                    vertical: BorderSide(
+                      color: bandBorder,
+                      width: _bandBorderWidth,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             DecoratedBox(
               key: const Key("share_card_values"),
               decoration: BoxDecoration(
                 color: danger ? theme.surfaceTertiary : theme.light,
-                borderRadius: theme.borderRadius,
+                borderRadius: const BorderRadius.all(_cardRadius),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x1F000000),
+                    color: _valuesShadowColor,
                     offset: Offset(0, 2),
-                    blurRadius: 4,
+                    blurRadius: 6,
                   ),
                 ],
               ),
               child: _values(context, theme, status, statusKey),
             ),
-            _issuerBand(context, theme),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -126,7 +150,10 @@ class ShareCredentialCard extends StatelessWidget {
     String? statusKey,
   ) {
     return Padding(
-      padding: .all(theme.defaultSpacing),
+      padding: .symmetric(
+        horizontal: theme.defaultSpacing,
+        vertical: _valuesPadding - _rowPadding,
+      ),
       child: Row(
         crossAxisAlignment: .start,
         children: [
@@ -147,7 +174,7 @@ class ShareCredentialCard extends StatelessWidget {
                 ],
                 YiviCredentialCardAttributeList(
                   instance.attributes,
-                  valueFontSize: _valueFontSize,
+                  metrics: _attributeMetrics,
                 ),
               ],
             ),
@@ -158,46 +185,67 @@ class ShareCredentialCard extends StatelessWidget {
     );
   }
 
-  Widget _issuerBand(BuildContext context, IrmaThemeData theme) {
+  Widget _issuerBand(
+    BuildContext context,
+    IrmaThemeData theme,
+    Color borderColor,
+  ) {
     final text = Padding(
-      padding: .symmetric(
-        horizontal: theme.defaultSpacing,
-        vertical: theme.smallSpacing,
+      padding: .fromLTRB(
+        theme.defaultSpacing + _bandBorderWidth,
+        _bandPadding,
+        _bandPadding + _bandBorderWidth,
+        _bandPadding + _bandBorderWidth,
       ),
       child: Row(
+        spacing: theme.smallSpacing,
         children: [
           Expanded(
-            child: TranslatedText(
+            child: BoldMarkersText(
               "disclosure_permission.share_v2.certified_by",
               translationParams: {"issuerName": _issuerName(context)},
               style: theme.textTheme.bodyMedium!.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontSize: _bandTextSize,
+                height: _bandTextHeight,
+                color: theme.neutralExtraDark,
               ),
             ),
           ),
-          if (onChangeChoice != null) const Chevron(),
+          if (onChangeChoice != null)
+            Chevron(size: _chevronSize, color: theme.neutralExtraDark),
         ],
       ),
     );
+    const bandRadius = BorderRadius.vertical(bottom: _cardRadius);
 
-    if (onChangeChoice == null) {
-      return KeyedSubtree(
-        key: const Key("share_card_issuer_band"),
-        child: text,
-      );
-    }
-    return Semantics(
-      button: true,
-      hint: FlutterI18n.translate(
-        context,
-        "disclosure_permission.change_choice",
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: _bandColor,
+        borderRadius: bandRadius,
+        border: Border(
+          left: BorderSide(color: borderColor, width: _bandBorderWidth),
+          right: BorderSide(color: borderColor, width: _bandBorderWidth),
+          bottom: BorderSide(color: borderColor, width: _bandBorderWidth),
+        ),
       ),
-      child: InkWell(
-        key: const Key("share_card_issuer_band"),
-        onTap: onChangeChoice,
-        child: text,
-      ),
+      child: onChangeChoice == null
+          ? KeyedSubtree(key: const Key("share_card_issuer_band"), child: text)
+          : Semantics(
+              button: true,
+              hint: FlutterI18n.translate(
+                context,
+                "disclosure_permission.change_choice",
+              ),
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  key: const Key("share_card_issuer_band"),
+                  borderRadius: bandRadius,
+                  onTap: onChangeChoice,
+                  child: text,
+                ),
+              ),
+            ),
     );
   }
 }

@@ -276,7 +276,8 @@
       "share": "Teilen",
       "trust_known": "**{requestorName}** ist uns bekannt.",
       "trust_unknown": "Yivi kennt **{requestorName}** nicht.",
-      "certified_by": "Bestätigt von {issuerName}",
+      "certified_by": "Bestätigt von **{issuerName}**",
+      "close": "Nicht teilen und schließen",
       "check_sensitive": {
         "title": "Sie teilen Ihre BSN",
         "text": "Ihre Bürgerservicenummer ist sensibel. Teilen Sie sie nur, wenn Sie wissen, warum {requestorName} sie benötigt.",

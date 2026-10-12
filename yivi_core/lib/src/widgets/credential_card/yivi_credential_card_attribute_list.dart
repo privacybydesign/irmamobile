@@ -21,7 +21,25 @@ enum AgeDisplay {
   collapsed,
 }
 
-const _defaultValueFontSize = 16.0;
+/// The text sizes and row spacing of [YiviCredentialCardAttributeList]. The
+/// defaults are what the app has always used.
+class AttributeListMetrics {
+  final double valueFontSize;
+
+  /// Line heights in logical pixels, or null for the font's own.
+  final double? labelLineHeight;
+  final double? valueLineHeight;
+
+  /// The space above and below each row, or null for the tiny spacing.
+  final double? rowPadding;
+
+  const AttributeListMetrics({
+    this.valueFontSize = 16,
+    this.labelLineHeight,
+    this.valueLineHeight,
+    this.rowPadding,
+  });
+}
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -30,14 +48,14 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
   final AgeDisplay ageDisplay;
-  final double valueFontSize;
+  final AttributeListMetrics metrics;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
     this.showDividers = false,
     this.ageDisplay = AgeDisplay.perAttribute,
-    this.valueFontSize = _defaultValueFontSize,
+    this.metrics = const AttributeListMetrics(),
   });
 
   @override
@@ -70,7 +88,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             item: items[i],
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
             showDivider: showDividers,
-            valueFontSize: valueFontSize,
+            metrics: metrics,
           ),
       ],
     );
@@ -489,12 +507,12 @@ class _RenderItemView extends StatelessWidget {
   // When false, suppresses the horizontal divider line entirely — guide
   // lines and indent are unaffected.
   final bool showDivider;
-  final double valueFontSize;
+  final AttributeListMetrics metrics;
   const _RenderItemView({
     required this.item,
     required this.nextDepth,
     required this.showDivider,
-    required this.valueFontSize,
+    required this.metrics,
   });
 
   @override
@@ -506,6 +524,7 @@ class _RenderItemView extends StatelessWidget {
     final isEyebrow = _isEyebrow(node);
     final isFirstAtDepth =
         item.previousDepth >= 0 && item.depth > item.previousDepth;
+    final rowPadding = metrics.rowPadding ?? theme.tinySpacing;
     // Eyebrows get more breathing room above. First-at-depth claims drop top
     // padding to 0 so the visible glyph top of the label aligns with the
     // top of the freshly-introduced vertical line (which itself is inset by
@@ -516,9 +535,9 @@ class _RenderItemView extends StatelessWidget {
     } else if (isFirstAtDepth) {
       topPad = 0;
     } else {
-      topPad = theme.tinySpacing;
+      topPad = rowPadding;
     }
-    final bottomPad = theme.tinySpacing;
+    final bottomPad = rowPadding;
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
@@ -550,7 +569,7 @@ class _RenderItemView extends StatelessWidget {
               padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
               child: Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: _RowContent(node: node, valueFontSize: valueFontSize),
+                child: _RowContent(node: node, metrics: metrics),
               ),
             ),
             if (drawDivider)
@@ -587,18 +606,15 @@ class _RenderItemView extends StatelessWidget {
 
 class _RowContent extends StatelessWidget {
   final _Node node;
-  final double valueFontSize;
-  const _RowContent({required this.node, required this.valueFontSize});
+  final AttributeListMetrics metrics;
+  const _RowContent({required this.node, required this.metrics});
 
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n, valueFontSize: valueFontSize),
-      _AgeNode n => _AgeContent(node: n, valueFontSize: valueFontSize),
-      _PrimArrayNode n => _PrimArrayContent(
-        node: n,
-        valueFontSize: valueFontSize,
-      ),
+      _RowNode n => _LeafContent(node: n, metrics: metrics),
+      _AgeNode n => _AgeContent(node: n, metrics: metrics),
+      _PrimArrayNode n => _PrimArrayContent(node: n, metrics: metrics),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
     };
@@ -606,20 +622,33 @@ class _RowContent extends StatelessWidget {
 }
 
 // Shared label / value text styles.
-TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
+const _labelFontSize = 14.0;
+
+double? _heightFor(double? lineHeight, double fontSize) =>
+    lineHeight == null ? null : lineHeight / fontSize;
+
+TextStyle _labelStyle(
+  IrmaThemeData theme, [
+  AttributeListMetrics metrics = const AttributeListMetrics(),
+]) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 14,
+  fontSize: _labelFontSize,
+  height: _heightFor(metrics.labelLineHeight, _labelFontSize),
   fontWeight: FontWeight.w400,
   color: theme.neutralExtraDark,
 );
 
-TextStyle _valueStyle(IrmaThemeData theme, Color color, double fontSize) =>
-    TextStyle(
-      fontFamily: theme.primaryFontFamily,
-      fontSize: fontSize,
-      fontWeight: FontWeight.w600,
-      color: color,
-    );
+TextStyle _valueStyle(
+  IrmaThemeData theme,
+  Color color,
+  AttributeListMetrics metrics,
+) => TextStyle(
+  fontFamily: theme.primaryFontFamily,
+  fontSize: metrics.valueFontSize,
+  height: _heightFor(metrics.valueLineHeight, metrics.valueFontSize),
+  fontWeight: FontWeight.w600,
+  color: color,
+);
 
 String _formatBool(BuildContext context, bool? value) {
   if (value == null) return "";
@@ -636,8 +665,8 @@ String _formatBool(BuildContext context, bool? value) {
 
 class _LeafContent extends StatelessWidget {
   final _RowNode node;
-  final double valueFontSize;
-  const _LeafContent({required this.node, required this.valueFontSize});
+  final AttributeListMetrics metrics;
+  const _LeafContent({required this.node, required this.metrics});
 
   @override
   Widget build(BuildContext context) {
@@ -649,7 +678,10 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(attribute.effectiveDisplayName, style: _labelStyle(theme)),
+        Text(
+          attribute.effectiveDisplayName,
+          style: _labelStyle(theme, metrics),
+        ),
         _buildValue(context, theme),
       ],
     );
@@ -668,15 +700,15 @@ class _LeafContent extends StatelessWidget {
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme), valueFontSize),
+        style: _valueStyle(theme, _valueColor(val, theme), metrics),
       ),
       schemaless.AttributeType.boolean => Text(
         _formatBool(context, val.boolValue),
-        style: _valueStyle(theme, _valueColor(val, theme), valueFontSize),
+        style: _valueStyle(theme, _valueColor(val, theme), metrics),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme), valueFontSize),
+        style: _valueStyle(theme, _valueColor(val, theme), metrics),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, theme),
@@ -728,8 +760,8 @@ class _LeafContent extends StatelessWidget {
 
 class _AgeContent extends StatefulWidget {
   final _AgeNode node;
-  final double valueFontSize;
-  const _AgeContent({required this.node, required this.valueFontSize});
+  final AttributeListMetrics metrics;
+  const _AgeContent({required this.node, required this.metrics});
 
   @override
   State<_AgeContent> createState() => _AgeContentState();
@@ -768,7 +800,10 @@ class _AgeContentState extends State<_AgeContent> {
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
-        TranslatedText("credential.age.label", style: _labelStyle(theme)),
+        TranslatedText(
+          "credential.age.label",
+          style: _labelStyle(theme, widget.metrics),
+        ),
         if (_expanded)
           Padding(
             padding: EdgeInsets.only(top: theme.tinySpacing),
@@ -783,7 +818,7 @@ class _AgeContentState extends State<_AgeContent> {
         else
           Text(
             _summary(context),
-            style: _valueStyle(theme, theme.dark, widget.valueFontSize),
+            style: _valueStyle(theme, theme.dark, widget.metrics),
           ),
         if (canExpand)
           Padding(
@@ -833,8 +868,8 @@ class _AgeChip extends StatelessWidget {
 
 class _PrimArrayContent extends StatelessWidget {
   final _PrimArrayNode node;
-  final double valueFontSize;
-  const _PrimArrayContent({required this.node, required this.valueFontSize});
+  final AttributeListMetrics metrics;
+  const _PrimArrayContent({required this.node, required this.metrics});
 
   @override
   Widget build(BuildContext context) {
@@ -845,7 +880,7 @@ class _PrimArrayContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(node.label, style: _labelStyle(theme)),
+        Text(node.label, style: _labelStyle(theme, metrics)),
         for (final v in node.values) _bulletRow(context, theme, v),
       ],
     );
@@ -859,7 +894,7 @@ class _PrimArrayContent extends StatelessWidget {
     final valueStyle = _valueStyle(
       theme,
       theme.dark,
-      valueFontSize,
+      metrics,
     ).copyWith(height: 1.2);
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(

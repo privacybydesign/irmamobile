@@ -12,13 +12,23 @@ import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
 
+const _shareAvatarSize = 56.0;
+const _shareAvatarOverlap = 8.0;
+const _shareAvatarRing = 3.0;
+const _shareAvatarIconSize = 26.0;
+const _shareAvatarBorder = 2.0;
+const _shareHeaderGap = 20.0;
+const _shareTitleSize = 26.0;
+const _shareTitleHeight = 34 / _shareTitleSize;
+
 IrmaAvatar _buildRequestorAvatar({
   required String? title,
   Widget? image,
   String? imagePath,
+  double size = 48,
 }) {
   return IrmaAvatar(
-    size: 48,
+    size: size,
     logoImage: image,
     logoPath: imagePath,
     logoSemanticsLabel: title,
@@ -136,8 +146,9 @@ class RequestorHeader extends StatelessWidget {
   }
 }
 
-/// Header of the share screen: the requestor logo next to a share icon, above
-/// the sentence "Share your data with X".
+/// Header of the share screen: a share icon and the requestor logo side by
+/// side, above the sentence "Share your data with X". An unverified requestor
+/// gets a globe instead of its logo.
 class ShareRequestorHeader extends StatelessWidget {
   final TrustedParty requestor;
 
@@ -148,38 +159,107 @@ class ShareRequestorHeader extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Column(
-      crossAxisAlignment: .start,
+      spacing: _shareHeaderGap,
       children: [
-        Row(
-          spacing: theme.smallSpacing,
-          children: [
-            _buildRequestorAvatar(
-              title: requestor.name,
-              image: requestor.image != null
-                  ? Base64Image(
-                      base64: requestor.image!.base64,
-                      mimeType: requestor.image!.mimeType,
-                    )
-                  : null,
-              imagePath: requestor.imagePath,
-            ),
-            ExcludeSemantics(
-              child: Icon(Icons.share_outlined, color: theme.neutralDark),
-            ),
-          ],
-        ),
-        SizedBox(height: theme.defaultSpacing),
+        ExcludeSemantics(child: _ShareAvatars(requestor: requestor)),
         Semantics(
           header: true,
           child: BoldMarkersText(
             "disclosure_permission.share_v2.title",
             translationParams: {"requestorName": requestor.name},
-            style: theme.textTheme.displayMedium?.copyWith(
+            textAlign: TextAlign.center,
+            style: theme.textTheme.displayLarge?.copyWith(
               fontWeight: FontWeight.w400,
+              height: _shareTitleHeight,
+              color: theme.dark,
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ShareAvatars extends StatelessWidget {
+  final TrustedParty requestor;
+
+  const _ShareAvatars({required this.requestor});
+
+  Widget _requestorAvatar(IrmaThemeData theme) {
+    if (!requestor.verified) {
+      return Container(
+        width: _shareAvatarSize,
+        height: _shareAvatarSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: theme.light,
+          border: Border.all(
+            color: theme.neutralLight,
+            width: _shareAvatarBorder,
+          ),
+        ),
+        child: Icon(
+          Icons.language,
+          size: _shareAvatarIconSize,
+          color: theme.neutralDark,
+        ),
+      );
+    }
+
+    return _buildRequestorAvatar(
+      title: requestor.name,
+      size: _shareAvatarSize,
+      image: requestor.image != null
+          ? Base64Image(
+              base64: requestor.image!.base64,
+              mimeType: requestor.image!.mimeType,
+            )
+          : null,
+      imagePath: requestor.imagePath,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return SizedBox(
+      width: 2 * _shareAvatarSize - _shareAvatarOverlap,
+      height: _shareAvatarSize,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: _shareAvatarSize,
+            height: _shareAvatarSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: theme.tertiary,
+            ),
+            child: Icon(
+              Icons.ios_share,
+              size: _shareAvatarIconSize,
+              color: theme.link,
+            ),
+          ),
+          Positioned(
+            left: _shareAvatarSize - _shareAvatarOverlap,
+            // A ring in the colour of the page, where the circles overlap.
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.backgroundTertiary,
+                    spreadRadius: _shareAvatarRing,
+                  ),
+                ],
+              ),
+              child: _requestorAvatar(theme),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

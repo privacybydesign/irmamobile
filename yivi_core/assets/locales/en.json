@@ -276,7 +276,8 @@
       "share": "Share",
       "trust_known": "**{requestorName}** is known to us.",
       "trust_unknown": "Yivi does not know **{requestorName}**.",
-      "certified_by": "Certified by {issuerName}",
+      "certified_by": "Certified by **{issuerName}**",
+      "close": "Don't share and close",
       "check_sensitive": {
         "title": "You are sharing your BSN",
         "text": "Your citizen service number is sensitive. Only share it if you know why {requestorName} needs it.",

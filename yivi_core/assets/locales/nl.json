@@ -276,7 +276,8 @@
       "share": "Delen",
       "trust_known": "**{requestorName}** is bij ons bekend.",
       "trust_unknown": "Yivi kent **{requestorName}** niet.",
-      "certified_by": "Gewaarmerkt door {issuerName}",
+      "certified_by": "Gewaarmerkt door **{issuerName}**",
+      "close": "Niet delen en sluiten",
       "check_sensitive": {
         "title": "Je deelt je BSN",
         "text": "Je burgerservicenummer is gevoelig. Deel het alleen als je weet waarom {requestorName} het nodig heeft.",

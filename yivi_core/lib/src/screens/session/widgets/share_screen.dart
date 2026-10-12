@@ -8,14 +8,19 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_action_card.dart";
-import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "share_credential_card.dart";
 import "share_trust_bar.dart";
+
+const _closeButtonSize = 48.0;
+const _closeIconSize = 22.0;
+const _closeButtonInset = 8.0;
+const _contentTopPadding = 48.0;
+const _sectionGap = 20.0;
+const _footerGap = 12.0;
 
 /// Whether [session] gets the share screen. Only a disclosure does: signing
 /// and issuance keep their own screens.
@@ -73,60 +78,111 @@ class ShareScreen extends StatelessWidget {
       backgroundColor: theme.backgroundTertiary,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: .all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: .start,
+          child: Stack(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IrmaCloseButton(onTap: onDismiss),
+              Padding(
+                padding: .fromLTRB(
+                  theme.defaultSpacing,
+                  _contentTopPadding,
+                  theme.defaultSpacing,
+                  theme.defaultSpacing,
+                ),
+                child: Column(
+                  crossAxisAlignment: .stretch,
+                  spacing: _sectionGap,
+                  children: [
+                    ShareRequestorHeader(requestor: requestor),
+                    ?progressIndicator,
+                    for (final choice in requiredChoices)
+                      _ShareChoiceEntry(choice: choice),
+                    if (optionalChoices.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: .stretch,
+                        spacing: theme.smallSpacing,
+                        children: [
+                          TranslatedText(
+                            "disclosure_permission.optional_data",
+                            style: theme.textTheme.headlineMedium,
+                          ),
+                          Column(
+                            crossAxisAlignment: .stretch,
+                            spacing: _sectionGap,
+                            children: [
+                              for (final choice in optionalChoices)
+                                _ShareChoiceEntry(choice: choice),
+                            ],
+                          ),
+                        ],
+                      ),
+                    if (nothingToShare)
+                      TranslatedText(
+                        "disclosure_permission.no_data_selected",
+                        style: theme.textTheme.headlineMedium,
+                      ),
+                    if (onAddOptional != null)
+                      IrmaActionCard(
+                        titleKey: "disclosure_permission.add_optional_data",
+                        icon: Icons.add_circle,
+                        isFancy: false,
+                        onTap: onAddOptional,
+                      ),
+                  ],
+                ),
               ),
-              ShareRequestorHeader(requestor: requestor),
-              SizedBox(height: theme.mediumSpacing),
-              if (progressIndicator != null) ...[
-                progressIndicator!,
-                SizedBox(height: theme.defaultSpacing),
-              ],
-              for (final choice in requiredChoices)
-                _ShareChoiceEntry(choice: choice),
-              if (optionalChoices.isNotEmpty) ...[
-                TranslatedText(
-                  "disclosure_permission.optional_data",
-                  style: theme.textTheme.headlineMedium,
+              Positioned(
+                top: _closeButtonInset,
+                right: _closeButtonInset,
+                child: IrmaIconButton(
+                  key: const Key("share_close_button"),
+                  icon: Icons.close,
+                  size: _closeIconSize,
+                  padding: const EdgeInsets.all(
+                    (_closeButtonSize - _closeIconSize) / 2,
+                  ),
+                  color: theme.dark,
+                  semanticsLabelKey: "disclosure_permission.share_v2.close",
+                  onTap: onDismiss,
                 ),
-                SizedBox(height: theme.smallSpacing),
-                for (final choice in optionalChoices)
-                  _ShareChoiceEntry(choice: choice),
-              ],
-              if (nothingToShare)
-                TranslatedText(
-                  "disclosure_permission.no_data_selected",
-                  style: theme.textTheme.headlineMedium,
-                ),
-              if (onAddOptional != null)
-                IrmaActionCard(
-                  titleKey: "disclosure_permission.add_optional_data",
-                  icon: Icons.add_circle,
-                  isFancy: false,
-                  onTap: onAddOptional,
-                ),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: IrmaBottomBarBase(
-        child: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: .stretch,
-          spacing: theme.smallSpacing,
-          children: [
-            ShareTrustBar(requestor: requestor),
-            YiviThemedButton(
-              key: const Key("bottom_bar_primary"),
-              label: "disclosure_permission.share_v2.share",
-              onPressed: onShare,
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.light,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade300,
+              offset: const Offset(0.0, -1.0),
+              blurRadius: 6.0,
             ),
           ],
+        ),
+        // The board's 32 px below the button is the whole bottom edge, so the
+        // system inset counts towards it.
+        child: SafeArea(
+          top: false,
+          minimum: .fromLTRB(
+            theme.defaultSpacing,
+            theme.defaultSpacing,
+            theme.defaultSpacing,
+            theme.largeSpacing,
+          ),
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: .stretch,
+            spacing: _footerGap,
+            children: [
+              ShareTrustBar(requestor: requestor),
+              YiviThemedButton(
+                key: const Key("bottom_bar_primary"),
+                label: "disclosure_permission.share_v2.share",
+                size: YiviButtonSize.tall,
+                onPressed: onShare,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -146,29 +202,26 @@ class _ShareChoiceEntry extends StatelessWidget {
     if (owned != null && owned.isNotEmpty) {
       final credentials = owned[choice.selectedIndex].credentials;
 
-      return Padding(
-        padding: .only(bottom: theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: .stretch,
-          spacing: theme.smallSpacing,
-          children: [
-            // The issuer band of each card opens the choice, when there is one.
-            for (final (index, credential) in credentials.indexed)
-              ShareCredentialCard(
-                instance: credential,
-                onChangeChoice: choice.onChange,
-                trailing: index == 0 && choice.onRemove != null
-                    ? IrmaIconButton(
-                        key: const Key("remove_optional_data_button"),
-                        icon: Icons.close,
-                        size: 22,
-                        padding: .zero,
-                        onTap: choice.onRemove!,
-                      )
-                    : null,
-              ),
-          ],
-        ),
+      return Column(
+        crossAxisAlignment: .stretch,
+        spacing: _sectionGap,
+        children: [
+          // The issuer band of each card opens the choice, when there is one.
+          for (final (index, credential) in credentials.indexed)
+            ShareCredentialCard(
+              instance: credential,
+              onChangeChoice: choice.onChange,
+              trailing: index == 0 && choice.onRemove != null
+                  ? IrmaIconButton(
+                      key: const Key("remove_optional_data_button"),
+                      icon: Icons.close,
+                      size: 22,
+                      padding: .zero,
+                      onTap: choice.onRemove!,
+                    )
+                  : null,
+            ),
+        ],
       );
     }
 
@@ -178,7 +231,7 @@ class _ShareChoiceEntry extends StatelessWidget {
     }
 
     return Card(
-      margin: .only(bottom: theme.smallSpacing),
+      margin: .zero,
       child: Padding(
         padding: .all(theme.defaultSpacing),
         child: Column(
