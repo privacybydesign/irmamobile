@@ -480,7 +480,6 @@ void main() {
       expect(shot.at(firstRow.center.dx, firstRow.bottom - 2), theme.light);
       expect(shot.at(secondRow.center.dx, secondRow.bottom - 1), theme.light);
 
-      // 12 px radius, and a soft shadow around the card.
       final card = tester
           .widgetList<DecoratedBox>(find.byType(DecoratedBox))
           .map((box) => box.decoration)
@@ -505,7 +504,6 @@ void main() {
       final label = tester.getRect(find.text("First"));
       final value = valueRect(tester);
 
-      // 16 px from the sides, a 17 px value on a 26 px line, 13 px label.
       expect(label.left - row.left, 16);
       expect(value.left - row.left, 16);
       expect(value.top - row.top, 32);
@@ -593,8 +591,6 @@ void main() {
       expect(shot.at(row.center.dx, row.top + 4), theme.light);
       expect(labelColor(tester, "First"), theme.error);
 
-      // The message is inside the row, 2 px below the value and left aligned
-      // with it, and the 2 px line is below it, at the bottom of the row.
       expect(message.top - value.bottom, 2);
       expect(message.height, 18);
       expect(icon.left - row.left, 16);
