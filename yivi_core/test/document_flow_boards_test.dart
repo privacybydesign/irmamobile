@@ -36,6 +36,9 @@ enum _Flag { on, off }
 /// Whether the animations that loop on a timer run.
 enum _Ticker { stopped, running }
 
+/// What an age attribute says about the holder.
+enum _Over { yes, no }
+
 const _phone = Size(390, 844);
 const _dutch = Locale("nl", "NL");
 
@@ -184,8 +187,12 @@ void main() {
 
       expect(find.text("Start"), findsOneWidget);
       expect(find.text("Annuleer"), findsOneWidget);
-      _expectFooterButton(tester, _primary(), top: 844 - 32 - 48 - 8 - 48);
-      expect(tester.getRect(_secondary()).bottom, 844 - 32);
+      _expectFooterButton(
+        tester,
+        _primary(),
+        top: _phone.height - 32 - 48 - 8 - 48,
+      );
+      expect(tester.getRect(_secondary()).bottom, _phone.height - 32);
       expect(
         tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
         8,
@@ -280,7 +287,7 @@ void main() {
 
       expect(
         tester.getRect(find.byKey(const Key("nfc_stage_picture"))),
-        const Rect.fromLTWH(0, 56, 390, 380),
+        Rect.fromLTWH(0, 56, _phone.width, 380),
       );
       expect(
         tester.getSize(find.byType(NfcPhoneOnPassport)),
@@ -301,7 +308,7 @@ void main() {
         tester.getTopLeft(find.text("Je paspoort mag dicht blijven.")).dy,
         tester.getRect(find.text("Leg je telefoon op je paspoort")).bottom + 10,
       );
-      _expectFooterButton(tester, _secondary(), top: 844 - 32 - 48);
+      _expectFooterButton(tester, _secondary(), top: _phone.height - 32 - 48);
     });
 
     testWidgets("G4: a ring of 240 with the percentage at 44", (tester) async {
@@ -503,7 +510,7 @@ void main() {
 
       expect(find.text("Start verificatie"), findsOneWidget);
       expect(_secondary(), findsNothing);
-      _expectFooterButton(tester, _primary(), top: 844 - 32 - 48);
+      _expectFooterButton(tester, _primary(), top: _phone.height - 32 - 48);
     });
 
     testWidgets("the tips are 12 apart and start 34 in", (tester) async {
@@ -537,15 +544,14 @@ void main() {
           ),
         );
 
-    schemaless.Attribute age(int years, {required bool over}) =>
-        schemaless.Attribute(
-          claimPath: ["over$years"],
-          displayName: "Over $years",
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
-            string: over ? "yes" : "no",
-          ),
-        );
+    schemaless.Attribute age(int years, _Over answer) => schemaless.Attribute(
+      claimPath: ["over$years"],
+      displayName: "Over $years",
+      value: schemaless.AttributeValue(
+        type: schemaless.AttributeType.string,
+        string: answer.name,
+      ),
+    );
 
     schemaless.Credential credential(String id) {
       return schemaless.Credential(
@@ -558,9 +564,9 @@ void main() {
         attributes: [
           text("documentNumber", "Documentnummer", "SPECI2021"),
           text("firstName", "Voornaam", "Willeke Liselotte"),
-          age(12, over: true),
-          age(21, over: true),
-          age(65, over: false),
+          age(12, .yes),
+          age(21, .yes),
+          age(65, .no),
         ],
         revoked: false,
         revocationSupported: false,
@@ -640,6 +646,7 @@ void main() {
       final value = _styleOf(tester, "SPECI2021");
       expect(value.fontSize, 16);
       expect(value.fontWeight, FontWeight.w700);
+
       // A row is 6 + 20 + 22 + 6 high.
       final first = tester.getTopLeft(find.text("Documentnummer")).dy;
       final second = tester.getTopLeft(find.text("Voornaam")).dy;
@@ -685,7 +692,7 @@ void main() {
       expect(find.text("Annuleer"), findsOneWidget);
       expect(_styleOf(tester, "Annuleer").decoration, TextDecoration.underline);
       _expectFooterButton(tester, _primary());
-      _expectFooterButton(tester, _secondary(), top: 844 - 32 - 48);
+      _expectFooterButton(tester, _secondary(), top: _phone.height - 32 - 48);
     });
 
     testWidgets("the close button is on the right of the bar", (tester) async {
@@ -693,7 +700,7 @@ void main() {
 
       final close = tester.getRect(find.bySemanticsLabel("Sluiten"));
       expect(close.size, const Size(46, 46));
-      expect(close.right, 390 - 4);
+      expect(close.right, _phone.width - 4);
     });
   });
 }
