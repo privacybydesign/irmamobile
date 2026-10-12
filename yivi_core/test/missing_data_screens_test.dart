@@ -190,6 +190,51 @@ void main() {
     });
   });
 
+  group("MissingDataButton", () {
+    testWidgets("is a button, and a disabled one says so", (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: "/",
+            builder: (_, _) => Scaffold(
+              body: Column(
+                children: [
+                  MissingDataButton(
+                    label: "missing_data.share",
+                    onPressed: () {},
+                  ),
+                  const MissingDataButton(label: "missing_data.back_to_list"),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+      await MissingDataHarness.pump(tester, router);
+      final semantics = tester.ensureSemantics();
+
+      expect(
+        tester.getSemantics(find.text("Delen")),
+        containsSemantics(
+          label: "Delen",
+          isButton: true,
+          isEnabled: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(
+        tester.getSemantics(find.text("Terug naar de lijst")),
+        containsSemantics(
+          label: "Terug naar de lijst",
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: false,
+        ),
+      );
+      semantics.dispose();
+    });
+  });
+
   group("the step to confirm adding", () {
     late GoRouter router;
     var added = 0;
