@@ -32,6 +32,9 @@ import "package:yivi_core/src/widgets/yivi_text_field.dart";
 /// Which form fields a test runs with: V2 is `FeatureFlag.formFieldsV2` on.
 enum _Fields { v2, legacy }
 
+/// The bytes of one pixel in the raw RGBA image of a screenshot.
+const _bytesPerPixel = 4;
+
 /// A pixel read from a screenshot of the test app, at 1 logical px per pixel.
 class _Screenshot {
   final ByteData _bytes;
@@ -40,7 +43,7 @@ class _Screenshot {
   _Screenshot(this._bytes, this._width);
 
   Color at(num x, num y) {
-    final offset = (y.floor() * _width + x.floor()) * 4;
+    final offset = (y.floor() * _width + x.floor()) * _bytesPerPixel;
     return Color.fromARGB(
       _bytes.getUint8(offset + 3),
       _bytes.getUint8(offset),
@@ -672,6 +675,8 @@ void main() {
   });
 
   group("date field", () {
+    // The date picker opens this many years back unless told otherwise.
+    const defaultPickerAge = 25;
     late TextEditingController controller;
 
     setUp(() => controller = TextEditingController());
@@ -735,7 +740,7 @@ void main() {
       await tester.tap(find.text("OK"));
       await tester.pumpAndSettle();
 
-      final year = DateTime.now().year - 25;
+      final year = DateTime.now().year - defaultPickerAge;
       expect(controller.text, "01-01-$year");
     });
 
@@ -780,7 +785,10 @@ void main() {
       expect(controller.text, "2025-12-31");
       expect(find.text("Date is invalid"), findsNothing);
 
-      expect(tester.getSize(find.byType(IconButton)), const Size(48, 48));
+      expect(
+        tester.getSize(find.byType(IconButton)),
+        const Size.square(kMinInteractiveDimension),
+      );
       expect(find.byTooltip("Choose date"), findsNothing);
 
       await tester.tap(find.byType(IconButton));
@@ -788,7 +796,7 @@ void main() {
       await tester.tap(find.text("OK"));
       await tester.pumpAndSettle();
 
-      final year = DateTime.now().year - 25;
+      final year = DateTime.now().year - defaultPickerAge;
       expect(controller.text, "$year-01-01");
     });
   });
