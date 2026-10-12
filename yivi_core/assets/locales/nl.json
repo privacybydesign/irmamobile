@@ -516,7 +516,8 @@
     "banner": {
       "title": "Beveilig je Yivi-app",
       "body": "Koppel je e-mailadres. Dan kun je je app blokkeren als je telefoon kwijtraakt.",
-      "link": "E-mailadres koppelen"
+      "link": "E-mailadres koppelen",
+      "close": "Melding sluiten"
     },
     "later": {
       "title": "Later herinneren?",
@@ -526,7 +527,7 @@
     },
     "enter_email": {
       "title": "E-mailadres koppelen",
-      "header": "Koppel je e-mailadres",
+      "header": "Wat is je e-mailadres?",
       "body": "Dan kun je je Yivi-app blokkeren als je telefoon kwijtraakt. We sturen je een e-mail met een code om het te bevestigen.",
       "label": "E-mailadres"
     },
@@ -536,11 +537,20 @@
       "body": "We hebben een e-mail gestuurd naar {email}. Tik op deze telefoon op de link in de e-mail, of vul de code hier in.",
       "next_button": "Code controleren",
       "resend_button": "E-mail opnieuw sturen",
-      "filled_from_link": "Code ingevuld vanuit de link"
+      "filled_from_link": "Code ingevuld vanuit de link",
+      "label": "Code",
+      "checking": "Code controleren…"
+    },
+    "confirm": {
+      "title": "E-mailadres koppelen",
+      "header": "Wil je dit e-mailadres aan je Yivi-app toevoegen?",
+      "add": "Toevoegen",
+      "cancel": "Annuleer"
     },
     "done": {
-      "title": "E-mailadres gekoppeld",
-      "body": "Je kunt je Yivi-app nu blokkeren als je telefoon kwijtraakt."
+      "app_bar_title": "E-mailadres koppelen",
+      "title": "Gelukt",
+      "body": "Je e-mailadres is aan je Yivi-app toegevoegd. Je account is nu ook gekoppeld aan MijnYivi."
     }
   },
   "sms_issuance": {

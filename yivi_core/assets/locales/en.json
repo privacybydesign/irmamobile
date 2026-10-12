@@ -516,7 +516,8 @@
     "banner": {
       "title": "Secure your Yivi app",
       "body": "Link your email address. Then you can block your app if you lose your phone.",
-      "link": "Link email address"
+      "link": "Link email address",
+      "close": "Close notification"
     },
     "later": {
       "title": "Remind you later?",
@@ -526,7 +527,7 @@
     },
     "enter_email": {
       "title": "Link email address",
-      "header": "Link your email address",
+      "header": "What is your email address?",
       "body": "Then you can block your Yivi app if you lose your phone. We'll send you an email with a code to confirm it.",
       "label": "Email address"
     },
@@ -536,11 +537,20 @@
       "body": "We've sent an email to {email}. On this phone, tap the link in the email, or enter the code here.",
       "next_button": "Check code",
       "resend_button": "Send email again",
-      "filled_from_link": "Code filled in from the link"
+      "filled_from_link": "Code filled in from the link",
+      "label": "Code",
+      "checking": "Checking code…"
+    },
+    "confirm": {
+      "title": "Link email address",
+      "header": "Do you want to add this email address to your Yivi app?",
+      "add": "Add",
+      "cancel": "Cancel"
     },
     "done": {
-      "title": "Email address linked",
-      "body": "You can now block your Yivi app if you lose your phone."
+      "app_bar_title": "Link email address",
+      "title": "Success",
+      "body": "Your email address has been added to your Yivi app. Your account is now also linked to MijnYivi."
     }
   },
   "sms_issuance": {

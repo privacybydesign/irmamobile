@@ -290,7 +290,7 @@ void main() {
       await pumpApp(tester);
       await openLinkingFlow(tester);
 
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
       expect(
         find.textContaining("Then you can block your Yivi app"),
         findsOneWidget,
@@ -518,7 +518,7 @@ void main() {
 
       expect(issuerApi.verified, isEmpty);
       expect(container.read(emailLinkingProvider).link, isNull);
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
     });
 
     testWidgets("for another address waits for a tap on Check code", (
@@ -621,7 +621,7 @@ void main() {
       await settle(tester);
 
       expect(find.byType(EmailIssuanceScreen), findsOneWidget);
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
       expect(find.text("Enter the code"), findsNothing);
       expect(issuerApi.verified, isEmpty);
       expect(container.read(emailLinkingProvider).link, isNull);
@@ -704,7 +704,7 @@ void main() {
       );
       expect(openSessions(tester), [1]);
       expect(container.read(emailLinkingProvider).disclosureSessionId, 1);
-      expect(find.text("Email address linked"), findsOneWidget);
+      expect(find.textContaining("now also linked to MijnYivi"), findsOneWidget);
       expect(await stored(tester, prefs.getEmailLinked()), isTrue);
     });
 
@@ -726,7 +726,7 @@ void main() {
     ) async {
       await pumpSession(tester, 5);
 
-      expect(find.text("Email address linked"), findsNothing);
+      expect(find.textContaining("now also linked to MijnYivi"), findsNothing);
       expect(await stored(tester, prefs.getEmailLinked()), isFalse);
     });
 
@@ -901,7 +901,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(EmailIssuanceScreen), findsOneWidget);
-      expect(find.text("Link your email address"), findsOneWidget);
+      expect(find.text("What is your email address?"), findsOneWidget);
       expect(
         container.read(emailIssuerUrlProvider),
         "https://email-issuer.example",

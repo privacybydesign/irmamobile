@@ -516,7 +516,8 @@
     "banner": {
       "title": "Sichere deine Yivi-App",
       "body": "Verknüpfe deine E-Mail-Adresse. Dann kannst du deine App sperren, wenn dein Telefon verloren geht.",
-      "link": "E-Mail-Adresse verknüpfen"
+      "link": "E-Mail-Adresse verknüpfen",
+      "close": "Meldung schließen"
     },
     "later": {
       "title": "Später erinnern?",
@@ -526,7 +527,7 @@
     },
     "enter_email": {
       "title": "E-Mail-Adresse verknüpfen",
-      "header": "Verknüpfe deine E-Mail-Adresse",
+      "header": "Wie lautet deine E-Mail-Adresse?",
       "body": "Dann kannst du deine Yivi-App sperren, wenn dein Telefon verloren geht. Wir senden dir eine E-Mail mit einem Code zur Bestätigung.",
       "label": "E-Mail-Adresse"
     },
@@ -536,11 +537,20 @@
       "body": "Wir haben eine E-Mail an {email} gesendet. Tippe auf diesem Telefon auf den Link in der E-Mail oder gib den Code hier ein.",
       "next_button": "Code prüfen",
       "resend_button": "E-Mail erneut senden",
-      "filled_from_link": "Code aus dem Link eingetragen"
+      "filled_from_link": "Code aus dem Link eingetragen",
+      "label": "Code",
+      "checking": "Code wird geprüft…"
+    },
+    "confirm": {
+      "title": "E-Mail-Adresse verknüpfen",
+      "header": "Möchtest du diese E-Mail-Adresse zu deiner Yivi-App hinzufügen?",
+      "add": "Hinzufügen",
+      "cancel": "Abbrechen"
     },
     "done": {
-      "title": "E-Mail-Adresse verknüpft",
-      "body": "Du kannst deine Yivi-App jetzt sperren, wenn dein Telefon verloren geht."
+      "app_bar_title": "E-Mail-Adresse verknüpfen",
+      "title": "Erfolg",
+      "body": "Deine E-Mail-Adresse wurde zu deiner Yivi-App hinzugefügt. Dein Konto ist jetzt auch mit MijnYivi verknüpft."
     }
   },
   "sms_issuance": {
