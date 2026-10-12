@@ -81,13 +81,14 @@ class CalmSuccessFeedback extends StatelessWidget {
                   isHeader: true,
                   style: headingStyle.copyWith(
                     height: _headingLineHeight / headingStyle.fontSize!,
+                    letterSpacing: 0,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: theme.mediumSpacing),
                 TranslatedText(
                   textTranslationKey,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium!.copyWith(letterSpacing: 0),
                   textAlign: TextAlign.center,
                 ),
               ],

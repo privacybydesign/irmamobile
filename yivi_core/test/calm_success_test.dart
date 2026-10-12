@@ -382,6 +382,7 @@ void main() {
       final title = styleOf(tester, "Toegevoegd");
 
       expect(tester.getCenter(find.text("Toegevoegd")), const Offset(195, 28));
+      expect(tester.getSize(find.text("Toegevoegd")).width, closeTo(104, 0.1));
       expect(title.fontSize, 18);
       expect(title.fontWeight, FontWeight.w600);
       expect(title.color, theme.dark);
@@ -438,8 +439,11 @@ void main() {
       );
 
       expect(rect.top, 375);
-      expect(rect.height % 28, 0);
       expect(rect.center.dx, 195);
+      // 318 px of text fits the 326 px column on one line, if the letters are
+      // not spaced out.
+      expect(rect.height, 28);
+      expect(rect.width, closeTo(318.1, 0.1));
       expect(heading.fontSize, 20);
       expect(heading.height! * heading.fontSize!, 28);
       expect(heading.fontWeight, FontWeight.w700);
@@ -461,6 +465,7 @@ void main() {
 
       expect(text.top, heading.bottom + 24);
       expect(text.height, 24);
+      expect(text.width, closeTo(249.3, 0.1));
       expect(text.center.dx, 195);
       expect(style.fontSize, 16);
       expect(style.height! * style.fontSize!, 24);
