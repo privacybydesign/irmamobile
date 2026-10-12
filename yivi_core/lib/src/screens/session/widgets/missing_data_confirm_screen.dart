@@ -6,7 +6,6 @@ import "../../../theme/theme.dart";
 import "../../../util/missing_data_flow.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_divider.dart";
@@ -40,7 +39,7 @@ class MissingDataConfirmScreen extends StatelessWidget {
       backgroundColor: theme.backgroundTertiary,
       appBar: context.issuanceAppBar(
         titleKey: "issuance.title",
-        leading: YiviBackButton(onTap: onDismiss),
+        onBack: onDismiss,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

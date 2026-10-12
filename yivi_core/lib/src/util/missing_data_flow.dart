@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../providers/missing_data_flow_provider.dart";
 import "../theme/theme.dart";
 import "../widgets/irma_app_bar.dart";
+import "../widgets/missing_data_back_button.dart";
 import "../widgets/missing_data_band.dart";
 import "navigation.dart";
 
@@ -32,17 +33,15 @@ extension MissingDataFlowNavigation on BuildContext {
 
   /// The app bar of an issuance screen. While collecting data for a request
   /// it holds the band and says what is being obtained, "{credential}
-  /// ophalen"; otherwise it is the plain app bar for [titleKey].
-  IrmaAppBar issuanceAppBar({
-    required String titleKey,
-    Widget leading = const YiviBackButton(),
-  }) {
+  /// ophalen"; otherwise it is the plain app bar for [titleKey]. [onBack]
+  /// replaces going back one screen.
+  IrmaAppBar issuanceAppBar({required String titleKey, VoidCallback? onBack}) {
     final state = missingDataState;
     if (state == null) {
       return IrmaAppBar(
         bottom: missingDataBand,
         titleTranslationKey: titleKey,
-        leading: leading,
+        leading: YiviBackButton(onTap: onBack),
       );
     }
 
@@ -50,7 +49,7 @@ extension MissingDataFlowNavigation on BuildContext {
 
     return IrmaAppBar(
       bottom: missingDataBand,
-      leading: leading,
+      leading: MissingDataBackButton(onTap: onBack),
       title: Text(
         FlutterI18n.translate(
           this,

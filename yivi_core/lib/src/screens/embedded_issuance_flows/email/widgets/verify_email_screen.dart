@@ -11,7 +11,6 @@ import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../util/missing_data_flow.dart";
-import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
@@ -216,10 +215,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
         },
         child: Scaffold(
           backgroundColor: _collecting ? theme.backgroundTertiary : null,
-          appBar: context.issuanceAppBar(
-            titleKey: titleKey,
-            leading: YiviBackButton(onTap: _goBack),
-          ),
+          appBar: context.issuanceAppBar(titleKey: titleKey, onBack: _goBack),
           body: SafeArea(
             child: KeyboardAnimationListener(
               onKeyboardSettled: (context, inset, visible) {

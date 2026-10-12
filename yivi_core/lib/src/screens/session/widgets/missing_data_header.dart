@@ -6,6 +6,7 @@ import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/irma_avatar.dart";
+import "../../../widgets/missing_data_icon.dart";
 import "../../../widgets/missing_data_style.dart";
 
 enum MissingDataPhase { collecting, ready }
@@ -21,7 +22,6 @@ const _logoGap = 14.0;
 const _closeButtonSize = 48.0;
 const _closeButtonOffset = 4.0;
 const _closeIconSize = 22.0;
-const _closeIconBox = 24.0;
 const _titleEndPadding = 36.0;
 const _maxInitials = 2;
 const _halfway = 0.5;
@@ -299,35 +299,18 @@ class _CloseButton extends StatelessWidget {
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Center(
-            child: CustomPaint(
-              size: const Size.square(_closeIconSize),
-              painter: _CrossPainter(color),
+            child: MissingDataIcon(
+              size: _closeIconSize,
+              lines: const [
+                [Offset(6, 6), Offset(18, 18)],
+                [Offset(18, 6), Offset(6, 18)],
+              ],
+              strokeWidth: 2,
+              color: color,
             ),
           ),
         ),
       ),
     );
   }
-}
-
-class _CrossPainter extends CustomPainter {
-  final Color color;
-
-  const _CrossPainter(this.color);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final scale = size.width / _closeIconBox;
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2 * scale
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawLine(Offset(6, 6) * scale, Offset(18, 18) * scale, paint);
-    canvas.drawLine(Offset(18, 6) * scale, Offset(6, 18) * scale, paint);
-  }
-
-  @override
-  bool shouldRepaint(_CrossPainter oldDelegate) => oldDelegate.color != color;
 }

@@ -215,7 +215,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.text("Delen")),
-        containsSemantics(
+        isSemantics(
           label: "Delen",
           isButton: true,
           isEnabled: true,
@@ -224,7 +224,7 @@ void main() {
       );
       expect(
         tester.getSemantics(find.text("Terug naar de lijst")),
-        containsSemantics(
+        isSemantics(
           label: "Terug naar de lijst",
           isButton: true,
           hasEnabledState: true,
