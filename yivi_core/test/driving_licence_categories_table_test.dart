@@ -71,7 +71,7 @@ void main() {
     expect(find.text("2029-01-01"), findsOneWidget);
   });
 
-  testWidgets("collapsed shows only held categories; Show all expands", (
+  testWidgets("collapsed shows held categories and a summary row", (
     tester,
   ) async {
     await tester.pumpWidget(_wrap(DrivingLicenceCategoriesTable(view: view)));
@@ -83,14 +83,30 @@ void main() {
     expect(find.text("T"), findsOneWidget);
     expect(find.text("C"), findsNothing);
     expect(find.text("-"), findsNothing);
-    expect(find.text("Show all"), findsOneWidget);
-    expect(
-      tester.widget<Text>(find.text("Show all")).style?.fontWeight,
-      FontWeight.w400,
-      reason: "the toggle is not bold",
-    );
 
-    await tester.tap(find.text("Show all"));
+    // The summary row says how many are hidden, below the table, spanning
+    // its full width, with a chevron at the right.
+    final summary = find.text("+ 1 category not held");
+    expect(summary, findsOneWidget);
+    expect(
+      tester.widget<Text>(summary).style?.fontWeight,
+      FontWeight.w400,
+      reason: "not bold",
+    );
+    final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
+    final tableBox = find.byType(Table);
+    expect(
+      tester.getTopLeft(toggle).dy,
+      greaterThanOrEqualTo(tester.getBottomLeft(tableBox).dy),
+    );
+    expect(
+      tester.getSize(toggle).width,
+      closeTo(tester.getSize(tableBox).width, 1),
+    );
+    expect(find.byIcon(Icons.expand_more), findsOneWidget);
+
+    // The whole row is the tap target: tapping the chevron expands too.
+    await tester.tap(find.byIcon(Icons.expand_more));
     await tester.pumpAndSettle();
 
     // Expanded: the not-held C row with dashes, like the licence card. The T
@@ -102,7 +118,52 @@ void main() {
     await tester.tap(find.text("Show less"));
     await tester.pumpAndSettle();
     expect(find.text("C"), findsNothing);
-    expect(find.text("Show all"), findsOneWidget);
+    expect(summary, findsOneWidget);
+  });
+
+  testWidgets("summary row counts every hidden category", (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        DrivingLicenceCategoriesTable(
+          view: DrivingLicenceCategoriesView(
+            rows: [
+              for (final code in DrivingLicenceCategoriesRenderer.codes)
+                CategoryRow(
+                  code: code,
+                  held: _v<bool?>(code == "B"),
+                  issued: code == "B" ? _v("2015-03-01") : null,
+                  expires: code == "B" ? _v("2030-03-01") : null,
+                ),
+            ],
+            complete: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text("+ 15 categories not held"), findsOneWidget);
+  });
+
+  testWidgets("a divider with space above sets the section apart", (
+    tester,
+  ) async {
+    await tester.pumpWidget(_wrap(DrivingLicenceCategoriesTable(view: view)));
+    await tester.pumpAndSettle();
+
+    final table = find.byKey(
+      const Key("attribute_group_driving_licence_categories"),
+    );
+    final divider = find.byKey(const Key("driving_licence_categories_divider"));
+    expect(tester.getSize(divider).height, 1);
+    // Space above the divider, and the divider above the title.
+    expect(
+      tester.getTopLeft(divider).dy - tester.getTopLeft(table).dy,
+      greaterThanOrEqualTo(16),
+    );
+    expect(
+      tester.getTopLeft(divider).dy,
+      lessThan(tester.getTopLeft(find.text("Driving licence categories")).dy),
+    );
   });
 
   testWidgets("a disclosure (subset) starts expanded", (tester) async {
@@ -120,7 +181,7 @@ void main() {
     expect(find.text("Show less"), findsOneWidget);
   });
 
-  testWidgets("Dutch toggle reads Toon alles", (tester) async {
+  testWidgets("Dutch summary row", (tester) async {
     await tester.pumpWidget(
       _wrap(
         DrivingLicenceCategoriesTable(view: view),
@@ -128,7 +189,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text("Toon alles"), findsOneWidget);
+    expect(find.text("+ 1 categorie niet in bezit"), findsOneWidget);
   });
 
   testWidgets("prefixes rows with vehicle pictograms, trailers for E", (
@@ -199,7 +260,10 @@ void main() {
 
     // Nothing held: nothing to collapse to, so every row and no toggle.
     expect(find.text("-"), findsNWidgets(32));
-    expect(find.text("Show all"), findsNothing);
+    expect(
+      find.byKey(const Key("driving_licence_categories_toggle")),
+      findsNothing,
+    );
   });
 
   testWidgets("fits a narrow phone card without overflowing", (tester) async {

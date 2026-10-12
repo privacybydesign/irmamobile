@@ -118,7 +118,9 @@
       "issued": "Issued",
       "expires": "Expires",
       "no_information": "No category information",
-      "show_all": "Show all",
+      "not_held_count-0": "{count} categories not held",
+      "not_held_count-1": "{count} category not held",
+      "not_held_count-2": "{count} categories not held",
       "show_less": "Show less"
     }
   },

@@ -118,7 +118,9 @@
       "issued": "Ausgestellt",
       "expires": "Läuft ab",
       "no_information": "Keine Klasseninformationen",
-      "show_all": "Alle anzeigen",
+      "not_held_count-0": "{count} Klassen nicht vorhanden",
+      "not_held_count-1": "{count} Klasse nicht vorhanden",
+      "not_held_count-2": "{count} Klassen nicht vorhanden",
       "show_less": "Weniger anzeigen"
     }
   },

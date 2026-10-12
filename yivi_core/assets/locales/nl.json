@@ -118,7 +118,9 @@
       "issued": "Afgegeven",
       "expires": "Verloopt",
       "no_information": "Geen categorie-informatie",
-      "show_all": "Toon alles",
+      "not_held_count-0": "{count} categorieën niet in bezit",
+      "not_held_count-1": "{count} categorie niet in bezit",
+      "not_held_count-2": "{count} categorieën niet in bezit",
       "show_less": "Toon minder"
     }
   },

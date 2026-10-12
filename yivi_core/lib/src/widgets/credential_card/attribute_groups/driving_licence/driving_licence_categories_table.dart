@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
-import "../../../link.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
 
@@ -13,8 +12,8 @@ import "driving_licence_categories_renderer.dart";
 /// Category / Issued / Expires table with one row per category, where a
 /// category that is not held shows "-" for its dates.
 ///
-/// Collapsed by default to the categories held, with a "show all" toggle for
-/// the rest. A subset of the categories (a disclosure) starts expanded, so
+/// Collapsed by default to the categories held, ending in a summary row
+/// ("+ 14 categories not held") that expands the rest in place. A subset of the categories (a disclosure) starts expanded, so
 /// everything being shared is visible without a tap. When nothing or
 /// everything given is held there is nothing to hide, so the table shows
 /// every row and no toggle.
@@ -53,6 +52,14 @@ class _DrivingLicenceCategoriesTableState
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
+        // Sets the section apart from the attributes above it.
+        SizedBox(height: theme.defaultSpacing),
+        Container(
+          key: const Key("driving_licence_categories_divider"),
+          height: 1,
+          color: theme.neutralExtraLight,
+        ),
+        SizedBox(height: theme.smallSpacing),
         Text(t("title"), style: attributeLabelStyle(theme)),
         if (view.noInformation)
           Text(
@@ -64,22 +71,57 @@ class _DrivingLicenceCategoriesTableState
         if (view.rows.isNotEmpty)
           Padding(
             padding: EdgeInsets.only(top: theme.tinySpacing),
-            child: _table(theme, t),
-          ),
-        if (_collapsible)
-          Padding(
-            padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: KeyedSubtree(
-              key: const Key("driving_licence_categories_toggle"),
-              child: Link(
-                label: "$_prefix.${_expanded ? "show_less" : "show_all"}",
-                // Regular weight: a quiet toggle, not a call to action.
-                style: const TextStyle(fontWeight: FontWeight.w400),
-                onTap: () => setState(() => _expanded = !_expanded),
-              ),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: _table(theme, t),
             ),
           ),
+        if (_collapsible) _summaryRow(context, theme, t),
       ],
+    );
+  }
+
+  /// The last row of the section: says how many categories are hidden, or
+  /// offers to hide them again. The whole row is the tap target.
+  Widget _summaryRow(
+    BuildContext context,
+    IrmaThemeData theme,
+    String Function(String) t,
+  ) {
+    final hidden = view.rows.where((r) => r.notHeld).length;
+    final label = _expanded
+        ? t("show_less")
+        : "+ ${FlutterI18n.plural(context, "$_prefix.not_held_count", hidden)}";
+
+    return Semantics(
+      button: true,
+      expanded: _expanded,
+      child: InkWell(
+        key: const Key("driving_licence_categories_toggle"),
+        onTap: () => setState(() => _expanded = !_expanded),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: theme.neutralExtraLight)),
+          ),
+          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+          child: Row(
+            children: [
+              Expanded(child: Text(label, style: attributeLabelStyle(theme))),
+              AnimatedRotation(
+                turns: _expanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.expand_more,
+                  size: 20,
+                  color: theme.neutralDark,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
