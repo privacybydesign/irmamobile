@@ -16,6 +16,7 @@ import "../../../widgets/irma_card.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_permission_choice.dart";
 import "disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "external_issuer_checklist_row.dart";
 import "missing_data_header.dart";
 import "session_scaffold.dart";
 
@@ -165,12 +166,7 @@ class _MissingDataChecklistScreenState
                     onObtain: _obtain,
                   )
                 else
-                  for (final entry in step.entries)
-                    _ChecklistRow(
-                      entry: entry,
-                      state: _rowState(step, entry, next),
-                      onObtain: () => _obtain(entry.credential),
-                    ),
+                  for (final entry in step.entries) _row(step, entry, next),
             ],
           ),
         ),
@@ -181,6 +177,25 @@ class _MissingDataChecklistScreenState
       key: _navigatorKey,
       onDidRemovePage: (_) {},
       pages: [MaterialPage(child: scaffold)],
+    );
+  }
+
+  Widget _row(
+    ChecklistStep step,
+    ChecklistEntry entry,
+    ({ChecklistStep step, ChecklistEntry entry})? next,
+  ) {
+    final row = _ChecklistRow(
+      entry: entry,
+      state: _rowState(step, entry, next),
+      onObtain: () => _obtain(entry.credential),
+    );
+    if (entry.isPresent) return row;
+
+    return ExternalIssuerChecklistRow(
+      credential: entry.credential,
+      onObtain: row.onObtain,
+      fallback: row,
     );
   }
 
