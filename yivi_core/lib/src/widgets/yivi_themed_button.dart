@@ -38,6 +38,7 @@ class YiviButtonSize {
 
   static const large = YiviButtonSize._internal(55);
   static const medium = YiviButtonSize._internal(50);
+  static const standard = YiviButtonSize._internal(48);
   static const small = YiviButtonSize._internal(37);
 }
 
@@ -152,9 +153,9 @@ class YiviThemedButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(child: labelWidget),
-                SizedBox(width: theme.tinySpacing),
+                SizedBox(width: theme.smallSpacing),
                 ExcludeSemantics(
-                  child: Icon(trailingIcon, size: 20, color: textColor),
+                  child: Icon(trailingIcon, size: 18, color: textColor),
                 ),
               ],
             ),
