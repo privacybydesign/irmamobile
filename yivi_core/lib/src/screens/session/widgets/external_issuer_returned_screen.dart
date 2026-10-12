@@ -107,7 +107,10 @@ class _CredentialCard extends StatelessWidget {
             ),
             child: CredentialSummary(
               name: credential.name,
-              subtitle: credential.issuer.name,
+              subtitle: Text(
+                credential.issuer.name,
+                style: credentialSubtitleStyle(theme),
+              ),
               image: credential.image,
               logoSize: _logoSize,
             ),

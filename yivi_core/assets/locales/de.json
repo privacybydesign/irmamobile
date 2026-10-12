@@ -627,6 +627,7 @@
       "to_website": "Zur Website"
     },
     "back_to_list": "Zurück zur Liste",
+    "obtain_named": "Abrufen: {credential}, öffnet eine Website",
     "waiting": {
       "status": "Noch nicht erhalten",
       "body": "Sind Sie noch auf der Website von {issuer}? Machen Sie dort weiter. Wenn Sie fertig sind, öffnet sich Yivi von selbst.",

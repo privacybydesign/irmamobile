@@ -627,6 +627,7 @@
       "to_website": "Naar de website"
     },
     "back_to_list": "Terug naar de lijst",
+    "obtain_named": "Ophalen: {credential}, opent een website",
     "waiting": {
       "status": "Nog niet ontvangen",
       "body": "Ben je nog bezig op de website van {issuer}? Ga daar verder. Als je klaar bent, opent Yivi vanzelf.",

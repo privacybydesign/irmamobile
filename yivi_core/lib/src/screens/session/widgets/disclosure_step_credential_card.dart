@@ -5,11 +5,9 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../providers/external_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/credential_summary.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/translated_text.dart";
-
-const _waitingColor = Color(0xFF7A4B00);
-const _lineHeight = 20.0;
 
 /// The card for one credential in the issue-during-disclosure list.
 ///
@@ -44,10 +42,7 @@ class DisclosureStepCredentialCard extends ConsumerWidget {
     if (status == ExternalIssuerStatus.notExternal) return card;
 
     final issuer = {"issuer": descriptor.issuer.name};
-    final lineStyle = theme.textTheme.bodySmall!.copyWith(
-      height: _lineHeight / 14,
-      color: theme.neutralExtraDark,
-    );
+    final lineStyle = credentialSubtitleStyle(theme);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,16 +50,7 @@ class DisclosureStepCredentialCard extends ConsumerWidget {
       children: [
         card,
         if (status == ExternalIssuerStatus.waiting) ...[
-          Semantics(
-            liveRegion: true,
-            child: TranslatedText(
-              "external_issuer.waiting.status",
-              style: lineStyle.copyWith(
-                fontWeight: FontWeight.w600,
-                color: _waitingColor,
-              ),
-            ),
-          ),
+          const ExternalIssuerWaitingStatus(),
           TranslatedText(
             "external_issuer.waiting.body",
             translationParams: issuer,

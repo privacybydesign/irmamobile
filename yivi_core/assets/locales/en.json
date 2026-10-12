@@ -598,6 +598,7 @@
       "to_website": "Go to the website"
     },
     "back_to_list": "Back to the list",
+    "obtain_named": "Obtain: {credential}, opens a website",
     "waiting": {
       "status": "Not received yet",
       "body": "Still busy on the website of {issuer}? Continue there. When you're done, Yivi opens by itself.",

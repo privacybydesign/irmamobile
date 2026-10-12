@@ -126,6 +126,11 @@ class _CredentialCard extends StatelessWidget {
 
   const _CredentialCard({required this.credential, required this.name});
 
+  String? get _domain {
+    final host = Uri.tryParse(credential.issueURL ?? "")?.host;
+    return host == null || host.isEmpty ? null : host;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -148,7 +153,10 @@ class _CredentialCard extends StatelessWidget {
       ),
       child: CredentialSummary(
         name: name,
-        subtitle: Uri.tryParse(credential.issueURL ?? "")?.host,
+        subtitle: switch (_domain) {
+          final domain? => Text(domain, style: credentialSubtitleStyle(theme)),
+          null => null,
+        },
         image: credential.image,
         logoSize: _logoSize,
       ),
