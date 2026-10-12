@@ -1,5 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
+/// A blurred shadow fades out within this many blur radii of its edge.
+const _shadowReach = 3;
+
 /// The underline border of a form fields V2 field. It casts [shadow] around
 /// the field only, since an `InputDecorator` draws its message outside of the
 /// border, where a shadow from a widget around the field would reach too.
@@ -68,7 +71,7 @@ class YiviFieldBorder extends UnderlineInputBorder {
     // The fill is already painted, so the shadow is clipped to what is outside
     // the field instead of showing through it.
     final outer = getOuterPath(rect, textDirection: textDirection);
-    final reach = shadow.blurRadius * 3 + shadow.offset.distance;
+    final reach = shadow.blurRadius * _shadowReach + shadow.offset.distance;
     final outside = Path.combine(
       PathOperation.difference,
       Path()..addRect(rect.inflate(reach)),
