@@ -90,12 +90,12 @@ class DocumentIssuancePermission extends StatelessWidget {
         buttons: onGivePermission != null
             ? [
                 DocumentFlowButton(
-                  key: const Key("bottom_bar_primary"),
+                  key: DocumentFlowButton.primaryKey,
                   labelKey: "issuance.add",
                   onPressed: onGivePermission,
                 ),
                 DocumentFlowButton(
-                  key: const Key("bottom_bar_secondary"),
+                  key: DocumentFlowButton.secondaryKey,
                   labelKey: "document_flow.cancel",
                   onPressed: onDismiss,
                   style: .text,
@@ -103,7 +103,7 @@ class DocumentIssuancePermission extends StatelessWidget {
               ]
             : [
                 DocumentFlowButton(
-                  key: const Key("bottom_bar_primary"),
+                  key: DocumentFlowButton.primaryKey,
                   labelKey: "session.navigation_bar.back",
                   onPressed: onDismiss,
                 ),

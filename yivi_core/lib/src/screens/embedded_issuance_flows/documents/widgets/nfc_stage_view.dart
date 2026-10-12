@@ -156,9 +156,9 @@ class _ActionBar extends StatelessWidget {
   Widget _button(NfcStageAction? action) {
     final style = action?.style ?? DocumentFlowButtonStyle.outline;
     return DocumentFlowButton(
-      key: Key(
-        style == .primary ? "bottom_bar_primary" : "bottom_bar_secondary",
-      ),
+      key: style == .primary
+          ? DocumentFlowButton.primaryKey
+          : DocumentFlowButton.secondaryKey,
       labelKey: action?.labelKey ?? "document_flow.cancel",
       onPressed: action?.onPressed,
       style: style,

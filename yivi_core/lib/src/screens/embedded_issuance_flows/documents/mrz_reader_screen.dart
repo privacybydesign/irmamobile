@@ -147,12 +147,12 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
                 ? DocumentFlowFooter(
                     buttons: [
                       DocumentFlowButton(
-                        key: const Key("bottom_bar_primary"),
+                        key: DocumentFlowButton.primaryKey,
                         labelKey: widget.translationKeys.manualEntryButton,
                         onPressed: widget.onManualAdd,
                       ),
                       DocumentFlowButton(
-                        key: const Key("bottom_bar_secondary"),
+                        key: DocumentFlowButton.secondaryKey,
                         labelKey: context.missingDataBackLabel(
                           "document_flow.cancel",
                         ),

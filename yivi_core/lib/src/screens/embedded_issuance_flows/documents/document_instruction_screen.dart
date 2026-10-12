@@ -94,12 +94,12 @@ class DocumentInstructionScreen extends StatelessWidget {
       bottomNavigationBar: DocumentFlowFooter(
         buttons: [
           DocumentFlowButton(
-            key: const Key("bottom_bar_primary"),
+            key: DocumentFlowButton.primaryKey,
             labelKey: "document_flow.start",
             onPressed: onStart,
           ),
           DocumentFlowButton(
-            key: const Key("bottom_bar_secondary"),
+            key: DocumentFlowButton.secondaryKey,
             labelKey: "document_flow.cancel",
             onPressed: onCancel,
             style: .outline,

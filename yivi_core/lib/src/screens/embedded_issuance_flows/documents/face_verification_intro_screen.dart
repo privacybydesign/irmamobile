@@ -132,7 +132,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
       bottomNavigationBar: DocumentFlowFooter(
         buttons: [
           DocumentFlowButton(
-            key: const Key("bottom_bar_primary"),
+            key: DocumentFlowButton.primaryKey,
             labelKey: "face_verification.intro.start",
             onPressed: onStart,
           ),

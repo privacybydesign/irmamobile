@@ -29,6 +29,10 @@ class DocumentFlowButton extends StatelessWidget {
 
   static const double height = 48;
 
+  /// The keys of the two button positions, the same as IrmaBottomBar's.
+  static const primaryKey = Key("bottom_bar_primary");
+  static const secondaryKey = Key("bottom_bar_secondary");
+
   final String labelKey;
   final VoidCallback? onPressed;
   final DocumentFlowButtonStyle style;
