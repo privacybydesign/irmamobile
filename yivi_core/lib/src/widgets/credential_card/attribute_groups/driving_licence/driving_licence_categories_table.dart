@@ -1,5 +1,6 @@
 import "dart:math";
 
+import "package:flutter/rendering.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
@@ -36,6 +37,54 @@ class _DrivingLicenceCategoriesTableState
 
   late var _expanded = !widget.view.complete;
 
+  static const _resizeDuration = Duration(milliseconds: 200);
+
+  final _titleKey = GlobalKey();
+
+  // Set by a toggle; consumed when the table has finished resizing.
+  var _revealPending = false;
+
+  void _toggle() {
+    setState(() {
+      _expanded = !_expanded;
+      _revealPending = true;
+    });
+  }
+
+  void _onResized() {
+    if (!_revealPending) return;
+    _revealPending = false;
+    _reveal();
+  }
+
+  /// Scrolls the nearest vertical scroll view so the section title sits at
+  /// its top (right under the app bar), as far as the content allows.
+  void _reveal() {
+    if (!mounted) return;
+    final title = _titleKey.currentContext?.findRenderObject();
+    final scrollable = Scrollable.maybeOf(context, axis: Axis.vertical);
+    if (title == null || scrollable == null) return;
+    final viewport = RenderAbstractViewport.maybeOf(title);
+    if (viewport == null) return;
+
+    final position = scrollable.position;
+    final target = viewport
+        .getOffsetToReveal(title, 0)
+        .offset
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((target - position.pixels).abs() < 1) return;
+
+    if (MediaQuery.disableAnimationsOf(context)) {
+      position.jumpTo(target);
+    } else {
+      position.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   DrivingLicenceCategoriesView get view => widget.view;
 
   bool get _collapsible =>
@@ -62,7 +111,7 @@ class _DrivingLicenceCategoriesTableState
           color: theme.neutralExtraLight,
         ),
         SizedBox(height: theme.smallSpacing),
-        Text(t("title"), style: attributeLabelStyle(theme)),
+        Text(key: _titleKey, t("title"), style: attributeLabelStyle(theme)),
         if (view.noInformation)
           Text(
             t("no_information"),
@@ -74,8 +123,9 @@ class _DrivingLicenceCategoriesTableState
           Padding(
             padding: EdgeInsets.only(top: theme.tinySpacing),
             child: AnimatedSize(
-              duration: const Duration(milliseconds: 200),
+              duration: _resizeDuration,
               curve: Curves.easeInOut,
+              onEnd: _onResized,
               alignment: Alignment.topCenter,
               child: _table(context, theme, t),
             ),
@@ -102,7 +152,7 @@ class _DrivingLicenceCategoriesTableState
       expanded: _expanded,
       child: InkWell(
         key: const Key("driving_licence_categories_toggle"),
-        onTap: () => setState(() => _expanded = !_expanded),
+        onTap: _toggle,
         child: Container(
           decoration: BoxDecoration(
             border: Border(top: BorderSide(color: theme.neutralExtraLight)),
@@ -119,7 +169,7 @@ class _DrivingLicenceCategoriesTableState
               ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
-                duration: const Duration(milliseconds: 200),
+                duration: _resizeDuration,
                 child: Icon(Icons.expand_more, size: 20, color: theme.link),
               ),
             ],

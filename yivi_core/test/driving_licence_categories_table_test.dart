@@ -163,6 +163,91 @@ void main() {
     expect(tester.getTopLeft(find.text("ISSUED")).dx, headerBefore);
   });
 
+  group("scrolling on expand / collapse", () {
+    // B held, five more not held: expanding adds five rows.
+    final sixRows = DrivingLicenceCategoriesView(
+      rows: [
+        for (final code in ["AM", "A1", "A2", "A", "B1", "B"])
+          code == "B"
+              ? CategoryRow(
+                  code: code,
+                  held: _v<bool?>(true),
+                  issued: _v("2015-03-01"),
+                  expires: _v("2030-03-01"),
+                )
+              : CategoryRow(code: code, held: _v<bool?>(false)),
+      ],
+      complete: true,
+    );
+    final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
+    double offset(WidgetTester tester) =>
+        tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels;
+    Future<void> toggleAndSettle(WidgetTester tester) async {
+      await tester.tap(toggle);
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.pumpAndSettle();
+    }
+
+    final title = find.text("Driving licence categories");
+
+    Widget page({double above = 400, double below = 1000}) => _wrap(
+      Column(
+        children: [
+          SizedBox(height: above),
+          DrivingLicenceCategoriesTable(view: sixRows),
+          SizedBox(height: below),
+        ],
+      ),
+    );
+
+    testWidgets("expanding puts the title at the top of the scroll view", (
+      tester,
+    ) async {
+      await tester.pumpWidget(page());
+      await tester.pumpAndSettle();
+      expect(offset(tester), 0);
+
+      await toggleAndSettle(tester);
+
+      expect(find.text("AM"), findsOneWidget, reason: "expanded");
+      // The scroll view starts at y = 0 on this test screen (no app bar).
+      expect(tester.getTopLeft(title).dy, closeTo(0, 0.5));
+    });
+
+    testWidgets("collapsing puts the title at the top too", (tester) async {
+      await tester.pumpWidget(page(above: 100));
+      await tester.pumpAndSettle();
+      await toggleAndSettle(tester); // expand
+
+      final position = tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position;
+      position.jumpTo(0);
+      await tester.pumpAndSettle();
+
+      await toggleAndSettle(tester); // collapse
+
+      expect(find.text("AM"), findsNothing, reason: "collapsed");
+      expect(tester.getTopLeft(title).dy, closeTo(0, 0.5));
+    });
+
+    testWidgets("scrolls as far as it can when the content ends", (
+      tester,
+    ) async {
+      // Short page: not enough content below to bring the title to the top.
+      await tester.pumpWidget(page(above: 300, below: 0));
+      await tester.pumpAndSettle();
+
+      await toggleAndSettle(tester);
+
+      final position = tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position;
+      expect(position.pixels, position.maxScrollExtent);
+      expect(tester.getTopLeft(title).dy, greaterThan(0));
+    });
+  });
+
   testWidgets("summary row counts every hidden category", (tester) async {
     await tester.pumpWidget(
       _wrap(
