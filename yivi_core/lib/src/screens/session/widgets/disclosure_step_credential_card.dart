@@ -8,6 +8,9 @@ import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/translated_text.dart";
 
+const _waitingColor = Color(0xFF7A4B00);
+const _lineHeight = 20.0;
+
 /// The card for one credential in the issue-during-disclosure list.
 ///
 /// With the external issuer flow on, a credential issued on a website says
@@ -32,60 +35,47 @@ class DisclosureStepCredentialCard extends ConsumerWidget {
         issueUrl: descriptor.issueURL,
       )),
     );
-    final waiting = status == ExternalIssuerStatus.waiting;
 
     final card = YiviCredentialCard.fromDescriptor(
       descriptor: descriptor,
       compact: true,
-      style: isCurrent && !waiting
-          ? IrmaCardStyle.highlighted
-          : IrmaCardStyle.normal,
+      style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
     );
     if (status == ExternalIssuerStatus.notExternal) return card;
 
     final issuer = {"issuer": descriptor.issuer.name};
+    final lineStyle = theme.textTheme.bodySmall!.copyWith(
+      height: _lineHeight / 14,
+      color: theme.neutralExtraDark,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: theme.smallSpacing,
       children: [
-        if (waiting)
-          DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: BoxDecoration(
-              borderRadius: theme.borderRadius,
-              border: Border.all(color: theme.warning, width: 2),
+        card,
+        if (status == ExternalIssuerStatus.waiting) ...[
+          Semantics(
+            liveRegion: true,
+            child: TranslatedText(
+              "external_issuer.waiting.status",
+              style: lineStyle.copyWith(
+                fontWeight: FontWeight.w600,
+                color: _waitingColor,
+              ),
             ),
-            child: card,
-          )
-        else
-          card,
-        TranslatedText(
-          "external_issuer.source",
-          translationParams: issuer,
-          style: theme.textTheme.bodySmall,
-        ),
-        if (waiting) ...[
-          Row(
-            spacing: theme.tinySpacing,
-            children: [
-              ExcludeSemantics(
-                child: Icon(Icons.schedule, color: theme.warning, size: 24),
-              ),
-              Expanded(
-                child: TranslatedText(
-                  "external_issuer.waiting.status",
-                  style: theme.textTheme.headlineMedium,
-                ),
-              ),
-            ],
           ),
           TranslatedText(
             "external_issuer.waiting.body",
             translationParams: issuer,
-            style: theme.textTheme.bodyMedium,
+            style: lineStyle,
           ),
-        ],
+        ] else
+          TranslatedText(
+            "external_issuer.source",
+            translationParams: issuer,
+            style: lineStyle,
+          ),
       ],
     );
   }
