@@ -162,7 +162,7 @@ class _DateInputFieldState extends ConsumerState<DateInputField> {
           if (parsed == null) {
             return widget.dateInvalidText;
           }
-          // Round-trip to ensure canonical yyyy-MM-dd (no partials like 2025-13-40)
+          // Round-trip to ensure a canonical date (no partials like month 13)
           if (_format.format(parsed) != v) {
             return widget.dateInvalidText;
           }
