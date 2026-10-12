@@ -401,7 +401,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
   Future<void> _handleCode(String code) async {
     if (_checking) return;
-    if (_linking) setState(() => _checking = true);
+    setState(() => _checking = true);
 
     final session = await ref
         .read(emailIssuanceProvider.notifier)
@@ -409,14 +409,14 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
     if (!mounted) return;
     if (session == null) {
-      if (_linking) setState(() => _checking = false);
+      setState(() => _checking = false);
       return;
     }
 
     final sessionId = await handlePointer(context, session);
-    if (!_linking || !mounted) return;
+    if (!mounted) return;
 
-    if (sessionId != null) {
+    if (_linking && sessionId != null) {
       ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
     }
     setState(() => _checking = false);

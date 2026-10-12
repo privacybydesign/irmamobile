@@ -1,3 +1,6 @@
+import "dart:async";
+
+import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -5,6 +8,7 @@ import "package:pinput/pinput.dart";
 import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
+import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/issue_during_disclosure_provider.dart";
 import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
@@ -19,6 +23,30 @@ import "missing_data_fixtures.dart";
 const _issuanceSessionId = 2;
 
 enum _EmailEntry { fromChecklist, standalone }
+
+/// An issuer that holds every code check until [release] and then rejects it.
+class _SlowIssuerApi implements EmailIssuerApi {
+  final _gate = Completer<void>();
+  var checks = 0;
+
+  void release() => _gate.complete();
+
+  @override
+  Future<void> sendEmail({
+    required String emailAddress,
+    required String language,
+  }) async {}
+
+  @override
+  Future<SessionPointer> verifyCode({
+    required String email,
+    required String verificationCode,
+  }) async {
+    checks++;
+    await _gate.future;
+    throw EmailIssuanceInvalidCodeError();
+  }
+}
 
 Credential _emailCredential() => Credential(
   credentialId: "email",
@@ -106,8 +134,13 @@ void main() {
     Future<MissingDataHarness> openEmailScreen(
       WidgetTester tester, {
       required _EmailEntry entry,
+      List<Override> overrides = const [],
     }) async {
-      final harness = await MissingDataHarness.pump(tester, router);
+      final harness = await MissingDataHarness.pump(
+        tester,
+        router,
+        overrides: overrides,
+      );
       if (entry == _EmailEntry.fromChecklist) {
         await collectFor(harness, tester, credentialId: "email");
       }
@@ -180,6 +213,45 @@ void main() {
       await tester.pump();
 
       expect(check().onPressed, isNotNull);
+    });
+
+    testWidgets("check the code once when the button is tapped twice", (
+      tester,
+    ) async {
+      final issuer = _SlowIssuerApi();
+      final harness = await openEmailScreen(
+        tester,
+        entry: _EmailEntry.fromChecklist,
+        overrides: [emailIssuerApiProvider.overrideWithValue(issuer)],
+      );
+      harness.container
+          .read(emailIssuanceProvider.notifier)
+          .startVerification(email: "rosanne@voorbeeld.nl");
+      await tester.pump(const Duration(milliseconds: 800));
+      final field = find.byKey(
+        const Key("email_verification_code_input_field"),
+      );
+      final check = find.byKey(const Key("bottom_bar_primary"));
+      await tester.enterText(field, "A" * emailCodeLength);
+      await tester.pump();
+
+      await tester.tap(check);
+      await tester.pump();
+      await tester.tap(check);
+      await tester.pump();
+
+      expect(issuer.checks, 1);
+
+      // A wrong code clears the field and lets the user try again.
+      issuer.release();
+      await tester.pump();
+      await tester.pump();
+      await tester.enterText(field, "B" * emailCodeLength);
+      await tester.pump();
+      await tester.tap(check);
+      await tester.pump();
+
+      expect(issuer.checks, 2);
     });
 
     testWidgets("draw the code boxes white on the blue page", (tester) async {

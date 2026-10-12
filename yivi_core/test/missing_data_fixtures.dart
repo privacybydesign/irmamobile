@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -141,6 +142,7 @@ class MissingDataHarness {
     WidgetTester tester,
     GoRouter router, {
     ChecklistFlag flag = ChecklistFlag.on,
+    List<Override> overrides = const [],
   }) async {
     final bridge = _TestBridge();
 
@@ -166,6 +168,7 @@ class MissingDataHarness {
       overrides: [
         preferencesProvider.overrideWithValue(prefs),
         irmaRepositoryProvider.overrideWithValue(repo),
+        ...overrides,
       ],
     );
     addTearDown(container.dispose);
