@@ -14,8 +14,8 @@ const _closeButtonSize = 48.0;
 const _closeIconSize = 22.0;
 const _headingLineHeight = 28.0;
 
-/// The success screen of the calm success flag (J1, J2): a white page with the
-/// facts in the heading and a hint below it.
+/// Success screen of the calm success flag (boards J1 and J2). Kept apart from
+/// ActionFeedback, whose error and e-mail linked screens have other layouts.
 class CalmSuccessFeedback extends StatelessWidget {
   final String appBarTranslationKey;
   final String headingTranslationKey;
