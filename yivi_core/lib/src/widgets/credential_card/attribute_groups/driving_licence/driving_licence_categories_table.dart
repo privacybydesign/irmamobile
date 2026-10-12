@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
@@ -75,7 +77,7 @@ class _DrivingLicenceCategoriesTableState
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
               alignment: Alignment.topCenter,
-              child: _table(theme, t),
+              child: _table(context, theme, t),
             ),
           ),
         if (_collapsible) _summaryRow(context, theme, t),
@@ -125,7 +127,30 @@ class _DrivingLicenceCategoriesTableState
     );
   }
 
-  Widget _table(IrmaThemeData theme, String Function(String) t) {
+  /// The width of the widest category code in the whole table, hidden rows
+  /// included, so the columns do not shift when the table expands.
+  double _codeWidth(BuildContext context, IrmaThemeData theme) {
+    final style = attributeValueStyle(theme, theme.dark);
+    final scaler = MediaQuery.textScalerOf(context);
+    var widest = 0.0;
+    for (final row in view.rows) {
+      final painter = TextPainter(
+        text: TextSpan(text: row.code, style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+      )..layout();
+      widest = max(widest, painter.width);
+      painter.dispose();
+    }
+    return widest.ceilToDouble();
+  }
+
+  Widget _table(
+    BuildContext context,
+    IrmaThemeData theme,
+    String Function(String) t,
+  ) {
+    final codeWidth = _codeWidth(context, theme);
     final cellPadding = EdgeInsets.symmetric(vertical: theme.tinySpacing);
     final dateStyle = attributeValueStyle(
       theme,
@@ -175,7 +200,7 @@ class _DrivingLicenceCategoriesTableState
             children: [
               Padding(
                 padding: cellPadding.copyWith(right: theme.mediumSpacing),
-                child: _CategoryCell(row: row),
+                child: _CategoryCell(row: row, codeWidth: codeWidth),
               ),
               date(row, row.issued),
               date(row, row.expires),
@@ -190,7 +215,10 @@ class _DrivingLicenceCategoriesTableState
 class _CategoryCell extends StatelessWidget {
   final CategoryRow row;
 
-  const _CategoryCell({required this.row});
+  /// Fixed for every row, see [_DrivingLicenceCategoriesTableState._codeWidth].
+  final double codeWidth;
+
+  const _CategoryCell({required this.row, required this.codeWidth});
 
   // Fits a vehicle plus trailer, so codes line up across rows. Pictograms are
   // right-aligned in it, so they sit against the category code.
@@ -216,13 +244,16 @@ class _CategoryCell extends StatelessWidget {
           ),
         ),
         SizedBox(width: theme.smallSpacing),
-        Text(
-          row.code,
-          style: attributeValueStyle(
-            theme,
-            comparisonColor(
+        SizedBox(
+          width: codeWidth,
+          child: Text(
+            row.code,
+            style: attributeValueStyle(
               theme,
-              row.held?.comparison ?? AttributeComparison.none,
+              comparisonColor(
+                theme,
+                row.held?.comparison ?? AttributeComparison.none,
+              ),
             ),
           ),
         ),

@@ -121,6 +121,42 @@ void main() {
     expect(summary, findsOneWidget);
   });
 
+  testWidgets("columns do not shift when expanding to longer codes", (
+    tester,
+  ) async {
+    // Collapsed shows only "B"; expanding reveals the three-letter "C1E".
+    await tester.pumpWidget(
+      _wrap(
+        DrivingLicenceCategoriesTable(
+          view: DrivingLicenceCategoriesView(
+            rows: [
+              CategoryRow(
+                code: "B",
+                held: _v<bool?>(true),
+                issued: _v("2015-03-01"),
+                expires: _v("2030-03-01"),
+              ),
+              CategoryRow(code: "C1E", held: _v<bool?>(false)),
+            ],
+            complete: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final before = tester.getTopLeft(find.text("2015-03-01")).dx;
+    final headerBefore = tester.getTopLeft(find.text("ISSUED")).dx;
+
+    await tester.tap(
+      find.byKey(const Key("driving_licence_categories_toggle")),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text("C1E"), findsOneWidget);
+
+    expect(tester.getTopLeft(find.text("2015-03-01")).dx, before);
+    expect(tester.getTopLeft(find.text("ISSUED")).dx, headerBefore);
+  });
+
   testWidgets("summary row counts every hidden category", (tester) async {
     await tester.pumpWidget(
       _wrap(
