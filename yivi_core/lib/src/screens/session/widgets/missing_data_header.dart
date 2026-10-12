@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -23,6 +24,17 @@ const _closeIconSize = 22.0;
 const _closeIconBox = 24.0;
 const _titleEndPadding = 36.0;
 const _maxInitials = 2;
+const _halfway = 0.5;
+
+// The status bar sits on top of the header, which turns from white to blue.
+SystemUiOverlayStyle _darkIcons(IrmaThemeData theme) =>
+    theme.themeData.appBarTheme.systemOverlayStyle!;
+
+SystemUiOverlayStyle _lightIcons(IrmaThemeData theme) =>
+    _darkIcons(theme).copyWith(
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    );
 
 /// Header of the missing data checklist. While [MissingDataPhase.collecting]
 /// it is a white block with the requestor; in [MissingDataPhase.ready] it fades
@@ -70,39 +82,42 @@ class MissingDataHeader extends StatelessWidget {
         final background = Color.lerp(theme.light, theme.link, t)!;
         final foreground = Color.lerp(theme.neutralExtraDark, theme.light, t)!;
 
-        return Container(
-          key: const Key("missing_data_header"),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: background,
-            border: Border(
-              bottom: BorderSide(
-                color: Color.lerp(theme.neutralExtraLight, theme.link, t)!,
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: t < _halfway ? _darkIcons(theme) : _lightIcons(theme),
+          child: Container(
+            key: const Key("missing_data_header"),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: background,
+              border: Border(
+                bottom: BorderSide(
+                  color: Color.lerp(theme.neutralExtraLight, theme.link, t)!,
+                ),
               ),
             ),
-          ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  _sidePadding,
-                  inset + verticalPadding,
-                  _sidePadding,
-                  verticalPadding,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    _sidePadding,
+                    inset + verticalPadding,
+                    _sidePadding,
+                    verticalPadding,
+                  ),
+                  child: ready
+                      ? _buildReady(context, foreground)
+                      : _buildCollecting(context, foreground),
                 ),
-                child: ready
-                    ? _buildReady(context, foreground)
-                    : _buildCollecting(context, foreground),
-              ),
-              Positioned(
-                top: inset + _closeButtonOffset,
-                right: _closeButtonOffset,
-                child: _CloseButton(
-                  color: Color.lerp(theme.dark, missingDataCloseOnBlue, t)!,
-                  onTap: onDismiss,
+                Positioned(
+                  top: inset + _closeButtonOffset,
+                  right: _closeButtonOffset,
+                  child: _CloseButton(
+                    color: Color.lerp(theme.dark, missingDataCloseOnBlue, t)!,
+                    onTap: onDismiss,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

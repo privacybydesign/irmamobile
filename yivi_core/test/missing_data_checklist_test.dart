@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
@@ -476,6 +477,38 @@ void main() {
         find.byKey(const Key("missing_data_header")),
       );
       expect((header.decoration as BoxDecoration).color, IrmaThemeData().link);
+    });
+
+    testWidgets("lightens the status bar icons over the blue header", (
+      tester,
+    ) async {
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+
+      Brightness? icons() => tester
+          .widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+            find
+                .ancestor(
+                  of: find.byKey(const Key("missing_data_header")),
+                  matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+                )
+                .first,
+          )
+          .value
+          .statusBarIconBrightness;
+      expect(icons(), Brightness.dark);
+
+      await emit(
+        tester,
+        testSession(
+          steps: twoSteps,
+          issued: {"email", "phone"},
+          withChoices: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(icons(), Brightness.light);
     });
 
     testWidgets("fits a small screen at a large text size", (tester) async {
