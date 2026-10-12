@@ -324,6 +324,9 @@
       "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
       "required": "erforderlich"
     },
+    "onboarding_v2": {
+      "intro_explanation": "Ihr offizieller Name, Geburtsdatum, Adresse, Sozialversicherungsnummer und mehr. Sicher gespeichert in Ihrer Yivi-App."
+    },
     "error_reporting": {
       "accept": {
         "share_errors": "Fehlermeldungen und App-Status teilen",

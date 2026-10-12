@@ -4,6 +4,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -48,6 +49,20 @@ Future<IrmaPreferences> freshPreferences() async {
 
 Future<void> enableOnboardingV2(IrmaPreferences preferences) =>
     preferences.setFeatureFlag(FeatureFlag.onboardingV2, true);
+
+/// The [SvgPicture]s showing the asset called [name], like `ui/route_scan.svg`.
+Finder findSvg(String name) => find.byWidgetPredicate((widget) {
+  if (widget is! SvgPicture) return false;
+  final loader = widget.bytesLoader;
+  return loader is SvgAssetLoader && loader.assetName.endsWith(name);
+});
+
+/// Sizes the test screen like the phone of the design, 390 x 844 logical px.
+void usePhoneScreen(WidgetTester tester, {Size size = const Size(390, 844)}) {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}
 
 /// Lets writes to the preference store finish; they run on the real event loop
 /// rather than the test's fake clock.

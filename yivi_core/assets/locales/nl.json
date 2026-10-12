@@ -324,6 +324,9 @@
       "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})",
       "required": "verplicht"
     },
+    "onboarding_v2": {
+      "intro_explanation": "Jouw officiële naam, geboortedatum, adres, BSN en meer. Veilig opgeslagen in jouw Yivi-app."
+    },
     "error_reporting": {
       "accept": {
         "share_errors": "Foutmeldingen en app status delen",

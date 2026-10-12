@@ -324,6 +324,9 @@
       "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
       "required": "required"
     },
+    "onboarding_v2": {
+      "intro_explanation": "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app."
+    },
     "error_reporting": {
       "accept": {
         "share_errors": "Share error messages and app status",
