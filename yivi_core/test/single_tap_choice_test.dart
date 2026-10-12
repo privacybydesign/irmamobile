@@ -31,6 +31,8 @@ import "support/pump_translated.dart";
 
 const _sessionId = 1;
 const _detailsPath = "/home/add_data/details";
+const _defaultLocale = Locale("en", "EN");
+const _idCardCredential = '"credential_id":"idcard"';
 
 TrustedParty _party(String name) =>
     TrustedParty(id: name, name: name, url: null, parent: null, verified: true);
@@ -104,7 +106,7 @@ Widget _app({
   required Widget home,
   required List<Override> overrides,
   List<String>? obtained,
-  Locale locale = const Locale("en", "EN"),
+  Locale locale = _defaultLocale,
 }) {
   final router = GoRouter(
     routes: [
@@ -159,14 +161,12 @@ enum _Optionality { required, optional }
 
 DisclosurePickOne _passportOrIdCard({
   _Optionality optionality = _Optionality.required,
-  List<CredentialDescriptor> obtainable = const [],
 }) => DisclosurePickOne(
   optional: optionality == _Optionality.optional,
   ownedOptions: [
     _bundle(_instance("passport", "Passport", "Jansen")),
     _bundle(_instance("idcard", "ID card", "de Vries")),
   ],
-  obtainableOptions: obtainable,
 );
 
 final _footer = find.byKey(const Key("choice_card_footer"));
@@ -283,6 +283,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Obtain"), findsOneWidget);
+
       await tester.tap(find.text("ID card"));
 
       expect(obtained, isNull);
@@ -345,7 +346,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("details"), findsOneWidget);
-      expect(obtained.single, contains('"credential_id":"idcard"'));
+      expect(obtained.single, contains(_idCardCredential));
     });
 
     testWidgets("flag off: radio buttons and the obtain button stay", (
@@ -370,7 +371,7 @@ void main() {
       List<DisclosurePickOne>? choices,
       Stream<SessionState>? sessions,
       List<String>? obtained,
-      Locale locale = const Locale("en", "EN"),
+      Locale locale = _defaultLocale,
     }) {
       final session = _session(choices: choices ?? [_passportOrIdCard()]);
 
@@ -667,7 +668,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("details"), findsOneWidget);
-      expect(obtained.single, contains('"credential_id":"idcard"'));
+      expect(obtained.single, contains(_idCardCredential));
       semantics.dispose();
     });
 
@@ -790,6 +791,7 @@ void main() {
           ),
         ],
       );
+
       harness = await MissingDataHarness.pump(tester, router);
       await tester.runAsync(
         () => harness.container
