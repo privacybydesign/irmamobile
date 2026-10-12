@@ -101,13 +101,6 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     }
     return DrivingLicenceCategoriesView(
       rows: rows,
-      complete: codes.every((code) {
-        final c = byCode[code];
-        return c != null &&
-            c.held != null &&
-            c.issued != null &&
-            c.expires != null;
-      }),
       showsIssued: byCode.values.any((c) => c.issued != null),
       showsExpires: byCode.values.any((c) => c.expires != null),
     );
@@ -173,11 +166,14 @@ class _CategoryAttributes {
   schemaless.Attribute? issued;
   schemaless.Attribute? expires;
 
-  bool get isEmpty => [
-    held,
-    issued,
-    expires,
-  ].every((a) => !(a?.value?.hasConcreteValue ?? false));
+  /// No value in any of them. The issuer issues every category attribute,
+  /// empty ("") when there is nothing to say, so an empty string counts as
+  /// no value just like a missing one.
+  bool get isEmpty => [held, issued, expires].every((a) => _isBlank(a?.value));
+
+  static bool _isBlank(schemaless.AttributeValue? v) =>
+      v == null ||
+      (v.boolValue == null && v.intValue == null && (v.string ?? "").isEmpty);
 }
 
 enum AttributeComparison { none, match, mismatch }
@@ -217,21 +213,14 @@ class DrivingLicenceCategoriesView {
   final bool showsIssued;
   final bool showsExpires;
 
-  /// Every category attribute was given, as on the credential detail screen.
-  /// False for a subset, i.e. a disclosure, where every shared category must
-  /// be visible.
-  final bool complete;
-
   const DrivingLicenceCategoriesView({
     required this.rows,
-    required this.complete,
     required this.showsIssued,
     required this.showsExpires,
   }) : noInformation = false;
 
   const DrivingLicenceCategoriesView.noInformation()
     : rows = const [],
-      complete = true,
       showsIssued = false,
       showsExpires = false,
       noInformation = true;

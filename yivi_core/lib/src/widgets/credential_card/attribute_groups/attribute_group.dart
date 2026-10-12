@@ -72,5 +72,30 @@ abstract interface class AttributeGroupRenderer {
   });
 }
 
+/// What a group needs to know about where it is drawn.
+class AttributeGroupScope extends InheritedWidget {
+  /// No attribute row is drawn above the group.
+  final bool isFirst;
+
+  /// The card is on a disclosure screen (or a disclosure in the activity
+  /// log): the attributes are the ones being shared, not the whole
+  /// credential.
+  final bool isDisclosure;
+
+  const AttributeGroupScope({
+    super.key,
+    required this.isFirst,
+    required this.isDisclosure,
+    required super.child,
+  });
+
+  static AttributeGroupScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AttributeGroupScope>();
+
+  @override
+  bool updateShouldNotify(AttributeGroupScope oldWidget) =>
+      isFirst != oldWidget.isFirst || isDisclosure != oldWidget.isDisclosure;
+}
+
 /// Stable key for comparing claim paths.
 String claimPathKey(List<dynamic> claimPath) => jsonEncode(claimPath);

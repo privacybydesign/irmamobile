@@ -102,6 +102,111 @@ Future<void> _pumpWithTranslations(WidgetTester tester, Widget child) async {
 }
 
 void main() {
+  group("detail vs disclosure layout", () {
+    schemaless.Attribute attr(String id, {bool? flag, String? date}) =>
+        schemaless.Attribute(
+          claimPath: [id],
+          displayName: id,
+          value: flag != null
+              ? schemaless.AttributeValue(
+                  type: schemaless.AttributeType.boolean,
+                  boolValue: flag,
+                )
+              : schemaless.AttributeValue(
+                  type: schemaless.AttributeType.string,
+                  string: date,
+                ),
+        );
+    // A held credential as irmago sends it: no date attributes at all for
+    // the category not held.
+    final held = [
+      attr("categoryB", flag: true),
+      attr("categoryBDateOfIssue", date: "2015-03-01"),
+      attr("categoryBDateOfExpiry", date: "2030-03-01"),
+      attr("categoryC", flag: false),
+    ];
+    const id = "pbdf-staging.pbdf.drivinglicence";
+
+    testWidgets("credential detail: Issued / Expires, no status", (
+      tester,
+    ) async {
+      await _pumpWithTranslations(
+        tester,
+        YiviCredentialCardAttributeList(held, credentialId: id),
+      );
+      expect(find.text("ISSUED"), findsOneWidget);
+      expect(find.text("STATUS"), findsNothing);
+      expect(find.text("2015-03-01"), findsOneWidget);
+    });
+
+    testWidgets("disclosure with dates: date columns, no status", (
+      tester,
+    ) async {
+      await _pumpWithTranslations(
+        tester,
+        YiviCredentialCardAttributeList(
+          held,
+          credentialId: id,
+          disclosure: true,
+        ),
+      );
+      expect(find.text("STATUS"), findsNothing);
+      expect(find.text("ISSUED"), findsOneWidget);
+      expect(find.text("2015-03-01"), findsOneWidget);
+    });
+
+    testWidgets("disclosure of flags only: status column", (tester) async {
+      await _pumpWithTranslations(
+        tester,
+        YiviCredentialCardAttributeList(
+          [attr("categoryB", flag: true), attr("categoryC", flag: false)],
+          credentialId: id,
+          disclosure: true,
+        ),
+      );
+      expect(find.text("STATUS"), findsOneWidget);
+      expect(find.text("Held"), findsOneWidget);
+      expect(find.text("Not held"), findsOneWidget);
+      expect(find.text("ISSUED"), findsNothing);
+    });
+  });
+
+  group("section divider", () {
+    schemaless.Attribute flag(String code) => schemaless.Attribute(
+      claimPath: ["category$code"],
+      displayName: "Category $code",
+      value: schemaless.AttributeValue(
+        type: schemaless.AttributeType.boolean,
+        boolValue: true,
+      ),
+    );
+    const id = "pbdf-staging.pbdf.drivinglicence";
+    final divider = find.byKey(const Key("driving_licence_categories_divider"));
+
+    testWidgets("none when the categories are all there is", (tester) async {
+      await _pumpWithTranslations(
+        tester,
+        YiviCredentialCardAttributeList([flag("B")], credentialId: id),
+      );
+      expect(
+        find.byKey(const Key("attribute_group_driving_licence_categories")),
+        findsOneWidget,
+      );
+      expect(divider, findsNothing);
+    });
+
+    testWidgets("shown when attributes come before it", (tester) async {
+      await _pumpWithTranslations(
+        tester,
+        YiviCredentialCardAttributeList([
+          _attr("dateOfExpiry"),
+          flag("B"),
+        ], credentialId: id),
+      );
+      expect(divider, findsOneWidget);
+    });
+  });
+
   final abc = [_attr("a"), _attr("b"), _attr("c"), _attr("d")];
   const rows = ["label-a", "label-c", "label-d", "group-g"];
 

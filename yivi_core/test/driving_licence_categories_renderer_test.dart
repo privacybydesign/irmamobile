@@ -115,6 +115,44 @@ void main() {
     expect(view.rows, isEmpty);
   });
 
+  group("as the issuer now issues: every attribute, empty when unknown", () {
+    // irmago delivers an empty yes/no attribute as an empty string.
+    test("chip without category data: all empty strings", () {
+      final view = _view([
+        for (final code in DrivingLicenceCategoriesRenderer.codes) ...[
+          _str("category$code", ""),
+          _str("category${code}DateOfIssue", ""),
+          _str("category${code}DateOfExpiry", ""),
+        ],
+      ]);
+      expect(view.noInformation, isTrue);
+    });
+
+    test("not held: no, with empty dates", () {
+      final view = _view([
+        _bool("categoryD", false),
+        _str("categoryDDateOfIssue", ""),
+        _str("categoryDDateOfExpiry", ""),
+      ]);
+      final d = view.rows.single;
+      expect(d.notHeld, isTrue);
+      expect(d.issued, isNull);
+      expect(d.expires, isNull);
+    });
+
+    test("held with an empty issue date", () {
+      final view = _view([
+        _bool("categoryB", true),
+        _str("categoryBDateOfIssue", ""),
+        _str("categoryBDateOfExpiry", "2030-03-01"),
+      ]);
+      final b = view.rows.single;
+      expect(b.notHeld, isFalse);
+      expect(b.issued, isNull);
+      expect(b.expires?.value, "2030-03-01");
+    });
+  });
+
   test("disclosure of only the held flag", () {
     final view = _view([_bool("categoryB", true)]);
     final row = view.rows.single;

@@ -21,6 +21,8 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final String? credentialId;
   // Overrides the registry lookup for [credentialId] (tests).
   final List<AttributeGroupRenderer>? renderers;
+  // The attributes are being shared (a disclosure), not the whole credential.
+  final bool disclosure;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -28,6 +30,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.showDividers = false,
     this.credentialId,
     this.renderers,
+    this.disclosure = false,
   });
 
   @override
@@ -77,6 +80,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             item: items[i],
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
             showDivider: showDividers,
+            disclosure: disclosure,
           ),
       ],
     );
@@ -520,10 +524,12 @@ class _RenderItemView extends StatelessWidget {
   // When false, suppresses the horizontal divider line entirely — guide
   // lines and indent are unaffected.
   final bool showDivider;
+  final bool disclosure;
   const _RenderItemView({
     required this.item,
     required this.nextDepth,
     required this.showDivider,
+    required this.disclosure,
   });
 
   @override
@@ -579,7 +585,11 @@ class _RenderItemView extends StatelessWidget {
               padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
               child: Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: _RowContent(node: node),
+                child: _RowContent(
+                  node: node,
+                  isFirst: item.previousDepth < 0,
+                  disclosure: disclosure,
+                ),
               ),
             ),
             if (drawDivider)
@@ -616,7 +626,14 @@ class _RenderItemView extends StatelessWidget {
 
 class _RowContent extends StatelessWidget {
   final _Node node;
-  const _RowContent({required this.node});
+  // The first row of the list: nothing is drawn above it.
+  final bool isFirst;
+  final bool disclosure;
+  const _RowContent({
+    required this.node,
+    required this.isFirst,
+    required this.disclosure,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -625,7 +642,11 @@ class _RowContent extends StatelessWidget {
       _PrimArrayNode n => _PrimArrayContent(node: n),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
-      _AttributeGroupNode n => Builder(builder: n.group.build),
+      _AttributeGroupNode n => AttributeGroupScope(
+        isFirst: isFirst,
+        isDisclosure: disclosure,
+        child: Builder(builder: n.group.build),
+      ),
     };
   }
 }

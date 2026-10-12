@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
+import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
 
@@ -21,8 +22,9 @@ import "driving_licence_categories_renderer.dart";
 /// exactly the categories being shared. When nothing or everything given is
 /// held there is nothing to hide either.
 ///
-/// Ownership comes from the held flag, in a STATUS column; a date column only
-/// appears when that date was shared.
+/// The detail and issuance screens show a Category / Issued / Expires table.
+/// A disclosure shows only the date columns that were requested, or, when no
+/// date was requested, a STATUS column (from the held flag) instead.
 class DrivingLicenceCategoriesTable extends StatefulWidget {
   final DrivingLicenceCategoriesView view;
 
@@ -91,10 +93,13 @@ class _DrivingLicenceCategoriesTableState
 
   DrivingLicenceCategoriesView get view => widget.view;
 
-  // Only the full credential collapses. A disclosure (a subset) shows every
-  // category being shared, so nothing shared is hidden behind a toggle.
+  // A disclosure shows exactly the categories being shared; only the detail
+  // and issuance screens collapse.
+  bool get _disclosure =>
+      AttributeGroupScope.maybeOf(context)?.isDisclosure ?? false;
+
   bool get _collapsible =>
-      view.complete &&
+      !_disclosure &&
       view.rows.any((r) => r.notHeld) &&
       view.rows.any((r) => !r.notHeld);
 
@@ -111,14 +116,18 @@ class _DrivingLicenceCategoriesTableState
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
-        // Sets the section apart from the attributes above it.
-        SizedBox(height: theme.smallSpacing),
-        Container(
-          key: const Key("driving_licence_categories_divider"),
-          height: 1,
-          color: theme.neutralExtraLight,
-        ),
-        SizedBox(height: theme.smallSpacing),
+        // Sets the section apart from the attributes above it; when there
+        // are none (e.g. a disclosure of only categories), the card's own
+        // divider under its header already does.
+        if (!(AttributeGroupScope.maybeOf(context)?.isFirst ?? false)) ...[
+          SizedBox(height: theme.smallSpacing),
+          Container(
+            key: const Key("driving_licence_categories_divider"),
+            height: 1,
+            color: theme.neutralExtraLight,
+          ),
+          SizedBox(height: theme.smallSpacing),
+        ],
         Text(key: _titleKey, t("title"), style: attributeLabelStyle(theme)),
         if (view.noInformation)
           Text(
@@ -190,7 +199,11 @@ class _DrivingLicenceCategoriesTableState
   /// The width of the widest category code in the whole table, hidden rows
   /// included, so the columns do not shift when the table expands.
   double _codeWidth(BuildContext context, IrmaThemeData theme) {
-    final style = attributeValueStyle(theme, theme.dark);
+    // The style the code's Text actually renders with: the inherited default
+    // text style (font fallback, letter spacing, ...) merged with ours.
+    final style = DefaultTextStyle.of(
+      context,
+    ).style.merge(attributeValueStyle(theme, theme.dark));
     final scaler = MediaQuery.textScalerOf(context);
     var widest = 0.0;
     for (final row in view.rows) {
@@ -211,6 +224,7 @@ class _DrivingLicenceCategoriesTableState
     String Function(String) t,
   ) {
     final codeWidth = _codeWidth(context, theme);
+    final disclosure = _disclosure;
     final cellPadding = EdgeInsets.symmetric(vertical: theme.tinySpacing);
     final dateStyle = attributeValueStyle(
       theme,
@@ -225,7 +239,7 @@ class _DrivingLicenceCategoriesTableState
     Widget date(CategoryRow row, CompareValue<String>? value) => Padding(
       padding: cellPadding,
       child: Text(
-        row.notHeld ? "-" : cardDate(value?.value ?? ""),
+        row.notHeld ? "-" : value?.value ?? "",
         style: dateStyle.copyWith(
           color: value == null
               ? null
@@ -257,24 +271,27 @@ class _DrivingLicenceCategoriesTableState
       border: Border(top: BorderSide(color: theme.neutralExtraLight)),
     );
 
-    // Category and status always; a date column only when that date was
-    // shared, so a disclosure of just the held flags shows no dates.
-    final showsIssued = view.showsIssued;
-    final showsExpires = view.showsExpires;
+    // Detail / issuance: both date columns. Disclosure: only the date
+    // columns that were requested; when none were, a STATUS column instead,
+    // since then the dates cannot show whether a category is held.
+    final showsIssued = !disclosure || view.showsIssued;
+    final showsExpires = !disclosure || view.showsExpires;
+    final showsStatus = !showsIssued && !showsExpires;
+    final widths = <TableColumnWidth>[
+      const IntrinsicColumnWidth(),
+      if (showsStatus) const FlexColumnWidth(),
+      if (showsIssued) const FlexColumnWidth(),
+      if (showsExpires) const FlexColumnWidth(),
+    ];
 
     return Table(
-      columnWidths: {
-        0: const IntrinsicColumnWidth(),
-        1: const FlexColumnWidth(),
-        if (showsIssued) 2: const IntrinsicColumnWidth(),
-        if (showsExpires) (showsIssued ? 3 : 2): const IntrinsicColumnWidth(),
-      },
+      columnWidths: widths.asMap(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         TableRow(
           children: [
             header(t("category")),
-            header(t("status")),
+            if (showsStatus) header(t("status")),
             if (showsIssued) header(t("issued")),
             if (showsExpires) header(t("expires")),
           ],
@@ -288,7 +305,7 @@ class _DrivingLicenceCategoriesTableState
                 padding: cellPadding.copyWith(right: theme.mediumSpacing),
                 child: _CategoryCell(row: row, codeWidth: codeWidth),
               ),
-              status(row),
+              if (showsStatus) status(row),
               if (showsIssued) date(row, row.issued),
               if (showsExpires) date(row, row.expires),
             ],
@@ -335,6 +352,9 @@ class _CategoryCell extends StatelessWidget {
           width: codeWidth,
           child: Text(
             row.code,
+            // A code never wraps, even if the measurement is a hair short.
+            softWrap: false,
+            overflow: TextOverflow.visible,
             style: attributeValueStyle(
               theme,
               comparisonColor(
@@ -379,14 +399,6 @@ Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
   "T" => ("tractor", false),
   _ => ("car", false),
 };
-
-/// Formats an ISO date (2015-03-01) the way the licence card prints it
-/// (01.03.15), so the date columns stay narrow. Anything else is shown as is.
-String cardDate(String iso) {
-  final m = RegExp(r"^(\d{4})-(\d{2})-(\d{2})$").firstMatch(iso);
-  if (m == null) return iso;
-  return "${m[3]}.${m[2]}.${m[1]!.substring(2)}";
-}
 
 Color comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
     switch (comparison) {
