@@ -424,6 +424,7 @@
     }
   },
   "data_tab": {
+    "add": "Add data",
     "empty": {
       "title": "Obtain your personal data",
       "subtitle": "Tap on the plus icon to obtain your personal data."
@@ -434,6 +435,7 @@
       "add": "Add to favourites",
       "remove": "Remove from favourites"
     },
+    "search": "Search",
     "section_count-1": "{count} item",
     "section_count-2": "{count} items",
     "start": {

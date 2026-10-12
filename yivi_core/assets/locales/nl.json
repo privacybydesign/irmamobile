@@ -473,6 +473,7 @@
     }
   },
   "data_tab": {
+    "add": "Gegevens toevoegen",
     "empty": {
       "title": "Haal je gegevens op",
       "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
@@ -483,6 +484,7 @@
       "add": "Voeg toe aan favorieten",
       "remove": "Verwijder uit favorieten"
     },
+    "search": "Zoeken",
     "section_count-1": "{count} gegeven",
     "section_count-2": "{count} gegevens",
     "start": {
