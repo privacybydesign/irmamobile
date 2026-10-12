@@ -8,6 +8,7 @@ import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
+import "../../../../widgets/linking_heading.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
@@ -138,6 +139,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
+    final buttonSize = linking ? YiviButtonSize.slim : YiviButtonSize.medium;
+    final topSpacing = linking ? theme.smallSpacing : theme.defaultSpacing;
+    final fieldSpacing = linking ? theme.mediumSpacing : theme.largeSpacing;
 
     return GestureDetector(
       onTap: () {
@@ -145,7 +149,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
-        appBar: IrmaAppBar(titleTranslationKey: titleKey),
+        backgroundColor: linking ? theme.backgroundTertiary : null,
+        appBar: IrmaAppBar(
+          titleTranslationKey: titleKey,
+          hasBorder: !linking,
+          leading: YiviBackButton(color: linking ? theme.dark : null),
+        ),
         body: SafeArea(
           child: KeyboardAnimationListener(
             onKeyboardSettled: (context, inset, visible) {
@@ -159,22 +168,23 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    SizedBox(height: theme.defaultSpacing),
-                    TranslatedText(
-                      linking
-                          ? "email_linking.enter_email.header"
-                          : "email_issuance.enter_email.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
+                    SizedBox(height: topSpacing),
+                    if (linking)
+                      const LinkingHeading("email_linking.enter_email.header")
+                    else
+                      TranslatedText(
+                        "email_issuance.enter_email.header",
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          color: theme.neutralExtraDark,
+                        ),
                       ),
-                    ),
                     SizedBox(height: theme.defaultSpacing),
                     TranslatedText(
                       linking
                           ? "email_linking.enter_email.body"
                           : "email_issuance.enter_email.body",
                     ),
-                    SizedBox(height: theme.largeSpacing),
+                    SizedBox(height: fieldSpacing),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -258,6 +268,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 ),
                 child: YiviThemedButton(
                   label: "email_issuance.enter_email.next_button",
+                  size: buttonSize,
                   onPressed: _validEmail ? _submit : null,
                 ),
               )
@@ -267,6 +278,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         bottomNavigationBar: onScreenKeyboardShown
             ? null
             : IrmaBottomBar(
+                style: linking
+                    ? IrmaBottomBarStyle.flat
+                    : IrmaBottomBarStyle.standard,
                 primaryButtonLabel: "email_issuance.enter_email.next_button",
                 secondaryButtonLabel: "email_issuance.enter_email.back_button",
                 onPrimaryPressed: _validEmail ? _submit : null,

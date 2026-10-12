@@ -71,26 +71,36 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
     return switch (state.stage) {
       .enteringEmail => EnterEmailScreen(purpose: widget.purpose),
       .enteringVerificationCode => VerifyEmailScreen(purpose: widget.purpose),
-      .waiting => _WaitingScreen(),
+      .waiting => _WaitingScreen(purpose: widget.purpose),
     };
   }
 }
 
 class _WaitingScreen extends StatelessWidget {
-  const _WaitingScreen();
+  final EmailIssuancePurpose purpose;
+
+  const _WaitingScreen({required this.purpose});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final linking = purpose == EmailIssuancePurpose.linkKeyshare;
+
     return Scaffold(
+      backgroundColor: linking ? theme.backgroundTertiary : null,
       appBar: IrmaAppBar(
-        titleTranslationKey: "email_issuance.enter_email.title",
+        titleTranslationKey: linking
+            ? "email_linking.enter_email.title"
+            : "email_issuance.enter_email.title",
+        hasBorder: !linking,
+        leading: YiviBackButton(color: linking ? theme.dark : null),
       ),
       body: Padding(
         padding: .all(theme.defaultSpacing),
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(
+        style: linking ? IrmaBottomBarStyle.flat : IrmaBottomBarStyle.standard,
         secondaryButtonLabel: "email_issuance.enter_email.back_button",
         onSecondaryPressed: context.pop,
       ),
