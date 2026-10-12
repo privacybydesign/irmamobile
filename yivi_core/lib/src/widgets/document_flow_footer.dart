@@ -41,32 +41,36 @@ class DocumentFlowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final textColor = style == .primary ? theme.light : theme.neutralExtraDark;
-    final label = TranslatedText(
-      labelKey,
-      textAlign: .center,
-      style: theme.textTheme.labelLarge?.copyWith(
-        color: textColor,
-        decoration: style == .text ? TextDecoration.underline : null,
-        decorationColor: textColor,
+    final label = Center(
+      child: Padding(
+        padding: .symmetric(
+          horizontal: theme.smallSpacing,
+          vertical: theme.tinySpacing,
+        ),
+        child: TranslatedText(
+          labelKey,
+          textAlign: .center,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: textColor,
+            decoration: style == .text ? TextDecoration.underline : null,
+            decorationColor: textColor,
+          ),
+        ),
       ),
     );
 
     final button = switch (style) {
       .primary => Stack(
+        fit: .passthrough,
         children: [
           Positioned.fill(
             child: ExcludeSemantics(
               child: SvgPicture.asset(yiviAsset("ui/btn-bg.svg"), fit: .fill),
             ),
           ),
-          Positioned.fill(
-            child: Material(
-              type: .transparency,
-              child: InkWell(
-                onTap: onPressed,
-                child: Center(child: label),
-              ),
-            ),
+          Material(
+            type: .transparency,
+            child: InkWell(onTap: onPressed, child: label),
           ),
         ],
       ),
@@ -79,25 +83,26 @@ class DocumentFlowButton extends StatelessWidget {
               borderRadius: theme.borderRadius,
               border: Border.all(color: theme.neutralExtraDark),
             ),
-            child: Center(child: label),
+            child: label,
           ),
         ),
       ),
       .text => Material(
         type: .transparency,
-        child: InkWell(
-          onTap: onPressed,
-          child: Center(child: label),
-        ),
+        child: InkWell(onTap: onPressed, child: label),
       ),
     };
 
     return Semantics(
       button: true,
       enabled: onPressed != null,
-      child: SizedBox(
-        height: height,
-        width: double.infinity,
+      // [height] is the least: a label that wraps at a large text size makes
+      // the button taller instead of being cut off.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: double.infinity,
+          minHeight: height,
+        ),
         child: ClipRRect(borderRadius: theme.borderRadius, child: button),
       ),
     );

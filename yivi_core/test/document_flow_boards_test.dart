@@ -424,6 +424,38 @@ void main() {
     });
   });
 
+  group("footer buttons", () {
+    testWidgets("a label that wraps at a large text size makes the button "
+        "taller", (tester) async {
+      await _pump(
+        tester,
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: Scaffold(
+              bottomNavigationBar: DocumentFlowFooter(
+                buttons: [
+                  DocumentFlowButton(
+                    labelKey: "document_flow.nfc.open_settings",
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        locale: _dutch,
+      );
+
+      final label = tester.getRect(find.text("Open NFC-instellingen"));
+      final button = tester.getRect(find.byType(DocumentFlowButton));
+      expect(button.height, greaterThan(DocumentFlowButton.height));
+      expect(label.height, lessThanOrEqualTo(button.height));
+    });
+  });
+
   group("motion", () {
     testWidgets("G3: the phone loops, and rests when the system asks for "
         "less motion", (tester) async {
