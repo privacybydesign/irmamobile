@@ -263,7 +263,7 @@ class _DrivingLicenceCategoriesTableState
             fontWeight: isHeld ? FontWeight.w600 : FontWeight.w400,
             color: held == null || held.comparison == AttributeComparison.none
                 ? (isHeld ? theme.dark : theme.neutralDark)
-                : comparisonColor(theme, held.comparison),
+                : _comparisonColor(theme, held.comparison),
           ),
         ),
       );
