@@ -1,3 +1,6 @@
+import "dart:ui" show BoxHeightStyle;
+
+import "package:flutter/rendering.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
@@ -108,6 +111,25 @@ void main() {
       expect(faded, findsOneWidget);
       // The badge keeps its full colour.
       expect(find.descendant(of: faded, matching: badge), findsNothing);
+    });
+
+    testWidgets("keeps the badge glyph inside its circle at 2x text", (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpCard(tester, ExpireState.expired);
+
+      // The circle is 20 px with a 2 px ring, so 16 px inside. The Text box is
+      // clamped to that, so measure the line the glyph is laid out in.
+      final glyph = tester
+          .renderObject<RenderParagraph>(badge)
+          .getBoxesForSelection(
+            const TextSelection(baseOffset: 0, extentOffset: 1),
+            boxHeightStyle: BoxHeightStyle.max,
+          );
+      expect(glyph.single.toRect().height, 16);
+      expect(tester.getSize(find.text("Expired")).height, greaterThan(28));
     });
 
     testWidgets("is faded to 0.45 on a warm grey surface", (tester) async {

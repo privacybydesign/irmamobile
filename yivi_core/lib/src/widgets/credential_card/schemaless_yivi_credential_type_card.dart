@@ -37,6 +37,9 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
 
   final VoidCallback? onTap;
   final bool checked;
+
+  /// Shown in place of the chevron. The compact layout draws the board's plus
+  /// for any value.
   final IconData? trailingIcon;
 
   /// Whether the credential is shown greyed out (e.g. it requires onboard NFC
@@ -279,6 +282,9 @@ class _ExpiredBadge extends StatelessWidget {
       ),
       child: Text(
         "!",
+        // The circle is a fixed size, so the glyph must not outgrow it. The
+        // card's own text carries the expired state at any scale.
+        textScaler: TextScaler.noScaling,
         style: TextStyle(
           fontSize: 12,
           height: 16 / 12,
