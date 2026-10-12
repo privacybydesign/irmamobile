@@ -11,13 +11,25 @@ import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
+import "../../../widgets/missing_data_bottom_bar.dart";
+import "../../../widgets/missing_data_button.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/signature_message.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
+import "missing_data_header.dart";
 import "session_scaffold.dart";
+
+/// How the overview presents itself.
+enum DisclosureOverviewLayout {
+  standard,
+
+  /// The share screen the missing data checklist turns into
+  /// (`FeatureFlag.missingDataChecklist`).
+  missingData,
+}
 
 class DisclosureChoicesOverview extends ConsumerStatefulWidget {
   final SessionState sessionState;
@@ -25,10 +37,7 @@ class DisclosureChoicesOverview extends ConsumerStatefulWidget {
   final ValueChanged<List<DisclosureDisconSelection>> onChoicesConfirmed;
   final bool hasIssueDuringDisclosure;
 
-  /// Replaces the requestor header. Gets the number of credentials that are
-  /// about to be shared.
-  final Widget Function(BuildContext context, int itemCount)? headerBuilder;
-  final String? confirmLabelKey;
+  final DisclosureOverviewLayout layout;
 
   const DisclosureChoicesOverview({
     super.key,
@@ -36,8 +45,7 @@ class DisclosureChoicesOverview extends ConsumerStatefulWidget {
     required this.onDismiss,
     required this.onChoicesConfirmed,
     this.hasIssueDuringDisclosure = false,
-    this.headerBuilder,
-    this.confirmLabelKey,
+    this.layout = DisclosureOverviewLayout.standard,
   });
 
   @override
@@ -236,13 +244,11 @@ class _DisclosureChoicesOverviewState
     final isSignature = session.type == SessionType.signature;
     final requestorName = session.requestor.name;
 
-    final confirmButtonKey =
-        widget.confirmLabelKey ??
-        switch (session.type) {
-          .issuance => "ui.next",
-          .disclosure => "disclosure_permission.overview.confirm",
-          .signature => "disclosure_permission.overview.confirm_sign",
-        };
+    final confirmButtonKey = switch (session.type) {
+      .issuance => "ui.next",
+      .disclosure => "disclosure_permission.overview.confirm",
+      .signature => "disclosure_permission.overview.confirm_sign",
+    };
 
     // Watch the provider so we rebuild when choices change
     final userState = ref.watch(sessionUserChoicesProvider(_sessionId));
@@ -260,6 +266,83 @@ class _DisclosureChoicesOverviewState
     final hasUnaddedOptional =
         addedOptionalChoices.length < allOptionalChoices.length;
 
+    final entries = <Widget>[
+      if (isSignature && session.messageToSign != null) ...[
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText(
+          "disclosure_permission.overview.sign",
+          style: theme.themeData.textTheme.headlineMedium,
+        ),
+        Padding(
+          padding: .only(top: theme.smallSpacing, bottom: theme.defaultSpacing),
+          child: SignatureMessage(message: session.messageToSign!),
+        ),
+      ],
+
+      // Required choices
+      for (final (index, pickOne) in requiredChoices)
+        _DisclosureChoiceEntry(
+          pickOne: pickOne,
+          selectedIndex: _selectedIndexFor(index),
+          changeable: _hasMultipleOptions(pickOne),
+          onChangeChoice: () => _onChangeChoice(index),
+        ),
+
+      // Added optional choices
+      if (addedOptionalChoices.isNotEmpty) ...[
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText(
+          "disclosure_permission.optional_data",
+          style: theme.themeData.textTheme.headlineMedium,
+        ),
+        SizedBox(height: theme.smallSpacing),
+        for (final (index, pickOne) in addedOptionalChoices)
+          _DisclosureChoiceEntry(
+            pickOne: pickOne,
+            selectedIndex: _selectedIndexFor(index),
+            changeable: _hasMultipleOptions(pickOne),
+            optional: true,
+            onChangeChoice: () => _onChangeChoice(index),
+            onRemove: () => _onRemoveOptional(index),
+          ),
+      ],
+
+      if (choices.isEmpty ||
+          (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
+        TranslatedText(
+          "disclosure_permission.no_data_selected",
+          style: theme.themeData.textTheme.headlineMedium,
+        ),
+
+      // Add optional data button
+      if (hasUnaddedOptional) ...[
+        SizedBox(height: theme.defaultSpacing),
+        IrmaActionCard(
+          titleKey: "disclosure_permission.add_optional_data",
+          icon: Icons.add_circle,
+          isFancy: false,
+          onTap: () {
+            // Find the first unadded optional choice
+            final firstUnadded = allOptionalChoices.firstWhere(
+              (e) => !addedOptional.contains(e.$1),
+            );
+            _onChangeChoice(firstUnadded.$1, addOptional: true);
+          },
+        ),
+      ],
+    ];
+
+    if (widget.layout == DisclosureOverviewLayout.missingData) {
+      return _buildMissingDataLayout(
+        context,
+        entries,
+        itemCount: _sharedItemCount([
+          ...requiredChoices,
+          ...addedOptionalChoices,
+        ]),
+      );
+    }
+
     return SessionScaffold(
       appBarTitle: "disclosure_permission.overview.title",
       onDismiss: widget.onDismiss,
@@ -269,98 +352,23 @@ class _DisclosureChoicesOverviewState
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              if (widget.headerBuilder case final buildHeader?)
-                buildHeader(
-                  context,
-                  _sharedItemCount([
-                    ...requiredChoices,
-                    ...addedOptionalChoices,
-                  ]),
+              RequestorHeader(
+                requestor: session.requestor,
+                isVerified: session.requestor.verified,
+              ),
+
+              if (widget.hasIssueDuringDisclosure)
+                SessionProgressIndicator(
+                  step: 2,
+                  stepCount: 2,
+                  contentTranslationKey:
+                      "disclosure_permission.overview.explanation",
+                  contentTranslationParams: {"requestorName": requestorName},
                 )
-              else ...[
-                RequestorHeader(
-                  requestor: session.requestor,
-                  isVerified: session.requestor.verified,
-                ),
-
-                if (widget.hasIssueDuringDisclosure)
-                  SessionProgressIndicator(
-                    step: 2,
-                    stepCount: 2,
-                    contentTranslationKey:
-                        "disclosure_permission.overview.explanation",
-                    contentTranslationParams: {"requestorName": requestorName},
-                  )
-                else
-                  SizedBox(height: theme.defaultSpacing),
-              ],
-
-              if (isSignature && session.messageToSign != null) ...[
+              else
                 SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "disclosure_permission.overview.sign",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
-                Padding(
-                  padding: .only(
-                    top: theme.smallSpacing,
-                    bottom: theme.defaultSpacing,
-                  ),
-                  child: SignatureMessage(message: session.messageToSign!),
-                ),
-              ],
 
-              // Required choices
-              for (final (index, pickOne) in requiredChoices)
-                _DisclosureChoiceEntry(
-                  pickOne: pickOne,
-                  selectedIndex: _selectedIndexFor(index),
-                  changeable: _hasMultipleOptions(pickOne),
-                  onChangeChoice: () => _onChangeChoice(index),
-                ),
-
-              // Added optional choices
-              if (addedOptionalChoices.isNotEmpty) ...[
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "disclosure_permission.optional_data",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
-                SizedBox(height: theme.smallSpacing),
-                for (final (index, pickOne) in addedOptionalChoices)
-                  _DisclosureChoiceEntry(
-                    pickOne: pickOne,
-                    selectedIndex: _selectedIndexFor(index),
-                    changeable: _hasMultipleOptions(pickOne),
-                    optional: true,
-                    onChangeChoice: () => _onChangeChoice(index),
-                    onRemove: () => _onRemoveOptional(index),
-                  ),
-              ],
-
-              if (choices.isEmpty ||
-                  (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
-                TranslatedText(
-                  "disclosure_permission.no_data_selected",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
-
-              // Add optional data button
-              if (hasUnaddedOptional) ...[
-                SizedBox(height: theme.defaultSpacing),
-                IrmaActionCard(
-                  titleKey: "disclosure_permission.add_optional_data",
-                  icon: Icons.add_circle,
-                  isFancy: false,
-                  onTap: () {
-                    // Find the first unadded optional choice
-                    final firstUnadded = allOptionalChoices.firstWhere(
-                      (e) => !addedOptional.contains(e.$1),
-                    );
-                    _onChangeChoice(firstUnadded.$1, addOptional: true);
-                  },
-                ),
-              ],
+              ...entries,
             ],
           ),
         ),
@@ -368,6 +376,49 @@ class _DisclosureChoicesOverviewState
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: confirmButtonKey,
         onPrimaryPressed: _hasUnsharableSelection() ? null : _onApprove,
+      ),
+    );
+  }
+
+  /// The checklist, once nothing is missing anymore: the same screen, now
+  /// asking the user to share.
+  Widget _buildMissingDataLayout(
+    BuildContext context,
+    List<Widget> entries, {
+    required int itemCount,
+  }) {
+    final theme = IrmaTheme.of(context);
+
+    return Scaffold(
+      backgroundColor: theme.backgroundTertiary,
+      bottomNavigationBar: MissingDataBottomBar(
+        children: [
+          MissingDataButton(
+            label: "missing_data.share",
+            onPressed: _hasUnsharableSelection() ? null : _onApprove,
+          ),
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: .stretch,
+        children: [
+          MissingDataHeader(
+            requestor: widget.sessionState.requestor,
+            phase: MissingDataPhase.ready,
+            total: itemCount,
+            onDismiss: widget.onDismiss,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              bottom: false,
+              child: SingleChildScrollView(
+                padding: const .symmetric(horizontal: 16, vertical: 20),
+                child: Column(crossAxisAlignment: .start, children: entries),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

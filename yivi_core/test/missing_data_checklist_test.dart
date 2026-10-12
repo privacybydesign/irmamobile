@@ -9,8 +9,7 @@ import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/navigation.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
+import "package:yivi_core/src/widgets/missing_data_button.dart";
 
 import "missing_data_fixtures.dart";
 
@@ -23,6 +22,20 @@ IssueDuringDisclosureState _wizard(
   selectedOptionPerStep: selections ?? List.filled(steps.length, 0),
   issuedCredentialIds: issued,
 );
+
+/// The background of the white row of [credentialId].
+Color? _rowColor(WidgetTester tester, String credentialId) {
+  final box = tester.widget<Container>(
+    find
+        .descendant(
+          of: find.byKey(Key("missing_data_row_$credentialId")),
+          matching: find.byType(Container),
+        )
+        .first,
+  );
+
+  return (box.decoration as BoxDecoration).color;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +62,7 @@ void main() {
       expect(checklist.isComplete, isFalse);
     });
 
-    test("marks issued credentials as present and moves next", () {
+    test("marks issued credentials as present", () {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
@@ -65,8 +78,7 @@ void main() {
       );
 
       expect(checklist.presentCount, 1);
-      expect(checklist.next?.entry.credential.credentialId, "phone");
-      expect(checklist.next?.step.index, 1);
+      expect(checklist.missingCount, 1);
     });
 
     test("is complete when every credential is issued", () {
@@ -82,22 +94,6 @@ void main() {
       );
 
       expect(checklist.isComplete, isTrue);
-      expect(checklist.next, isNull);
-    });
-
-    test("next skips credentials that cannot be obtained in the app", () {
-      final checklist = MissingDataChecklist.fromWizardState(
-        _wizard([
-          testStep([
-            [testDescriptor("elsewhere", issueURL: null)],
-          ]),
-          testStep([
-            [phone],
-          ]),
-        ]),
-      );
-
-      expect(checklist.next?.entry.credential.credentialId, "phone");
     });
 
     test("a multi-credential bundle counts every credential", () {
@@ -221,7 +217,7 @@ void main() {
       ]),
     ];
 
-    testWidgets("lists the missing credentials, the first one ringed", (
+    testWidgets("lists the missing credentials with what to do about them", (
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
@@ -230,17 +226,44 @@ void main() {
       expect(find.text("Test Verifier vraagt om 2 gegevens"), findsOneWidget);
       expect(find.text("Bekende partij"), findsOneWidget);
       expect(find.text("0 van 2 klaar"), findsOneWidget);
+      expect(
+        find.text(
+          "Twee gegevens staan nog niet in je Yivi-app. "
+          "Haal ze op, daarna kun je alles delen.",
+        ),
+        findsOneWidget,
+      );
       expect(find.text("Nog niet in je app"), findsNWidgets(2));
       expect(find.text("Ophalen"), findsNWidgets(2));
+    });
 
-      final first = tester.widget<Container>(
-        find.byKey(const Key("missing_data_row_email")),
+    testWidgets("puts the header at the top, with its own close button", (
+      tester,
+    ) async {
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+
+      expect(find.byKey(const Key("irma_app_bar")), findsNothing);
+      expect(
+        tester.getTopLeft(find.byKey(const Key("missing_data_header"))),
+        Offset.zero,
       );
-      final second = tester.widget<Container>(
-        find.byKey(const Key("missing_data_row_phone")),
+      expect(
+        tester.getSize(find.byKey(const Key("missing_data_header"))).width,
+        tester.view.physicalSize.width / tester.view.devicePixelRatio,
       );
-      expect(first.foregroundDecoration, isNotNull);
-      expect(second.foregroundDecoration, isNull);
+      expect(find.bySemanticsLabel("Sluiten"), findsOneWidget);
+    });
+
+    testWidgets("asks for the missing credentials in words", (tester) async {
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
+
+      expect(
+        find.text("Nog één gegeven, daarna kun je alles delen."),
+        findsOneWidget,
+      );
     });
 
     testWidgets("keeps sharing disabled and says what is missing", (
@@ -252,7 +275,7 @@ void main() {
       expect(find.text("Stap 1 van 2"), findsNothing);
       expect(find.text("Delen met Test Verifier"), findsOneWidget);
       expect(find.text("Haal eerst de 2 ontbrekende gegevens op"), findsOne);
-      final share = tester.widget<YiviThemedButton>(
+      final share = tester.widget<MissingDataButton>(
         find.byKey(const Key("missing_data_share_disabled")),
       );
       expect(share.onPressed, isNull);
@@ -265,7 +288,7 @@ void main() {
       await emit(tester, testSession(steps: [twoSteps.first]));
 
       expect(find.text("Test Verifier vraagt om 1 gegeven"), findsOneWidget);
-      expect(find.text("Haal eerst het ontbrekende gegeven op"), findsOne);
+      expect(find.text("Nog 1 gegeven ophalen"), findsOne);
     });
 
     testWidgets("flags an unknown requestor", (tester) async {
@@ -275,9 +298,7 @@ void main() {
       expect(find.text("Onbekende partij"), findsOneWidget);
     });
 
-    testWidgets("counts up, flashes the new row and moves the ring", (
-      tester,
-    ) async {
+    testWidgets("counts up and flashes the new row", (tester) async {
       await setUpScreen(tester, flagOn: true);
       await emit(tester, testSession(steps: twoSteps));
       await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
@@ -288,29 +309,13 @@ void main() {
       expect(find.text("Ophalen"), findsOneWidget);
 
       final theme = IrmaThemeData();
-      Color? rowColor() => tester
-          .widget<IrmaCard>(
-            find.descendant(
-              of: find.byKey(const Key("missing_data_row_email")),
-              matching: find.byType(IrmaCard),
-            ),
-          )
-          .color;
+      Color? rowColor() => _rowColor(tester, "email");
 
       // Green right after it is added, white again once the flash is over.
       await tester.pump();
       expect(rowColor(), theme.successSurface);
       await tester.pump(const Duration(seconds: 2));
       expect(rowColor(), theme.light);
-
-      final first = tester.widget<Container>(
-        find.byKey(const Key("missing_data_row_email")),
-      );
-      final second = tester.widget<Container>(
-        find.byKey(const Key("missing_data_row_phone")),
-      );
-      expect(first.foregroundDecoration, isNull);
-      expect(second.foregroundDecoration, isNotNull);
     });
 
     testWidgets("shows no flash when animations are disabled", (tester) async {
@@ -325,15 +330,7 @@ void main() {
       await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
       await tester.pump();
 
-      final color = tester
-          .widget<IrmaCard>(
-            find.descendant(
-              of: find.byKey(const Key("missing_data_row_email")),
-              matching: find.byType(IrmaCard),
-            ),
-          )
-          .color;
-      expect(color, IrmaThemeData().light);
+      expect(_rowColor(tester, "email"), IrmaThemeData().light);
       expect(find.text("Zojuist toegevoegd"), findsOneWidget);
     });
 

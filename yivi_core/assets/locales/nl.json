@@ -282,6 +282,11 @@
     "known_party": "Bekende partij",
     "unknown_party": "Onbekende partij",
     "progress": "{x} van {n} klaar",
+    "intro": {
+      "one": "Nog één gegeven, daarna kun je alles delen.",
+      "two": "Twee gegevens staan nog niet in je Yivi-app. Haal ze op, daarna kun je alles delen.",
+      "other": "Er staan nog {n} gegevens niet in je Yivi-app. Haal ze op, daarna kun je alles delen."
+    },
     "status": {
       "present": "Staat al in je app",
       "missing": "Nog niet in je app",
@@ -291,7 +296,7 @@
     "obtain_named": "Ophalen: {credential}",
     "share_with": "Delen met {requestor}",
     "hint": {
-      "one": "Haal eerst het ontbrekende gegeven op",
+      "one": "Nog 1 gegeven ophalen",
       "other": "Haal eerst de {n} ontbrekende gegevens op"
     },
     "band": "Voor {requestor} · {x} van {n} klaar",

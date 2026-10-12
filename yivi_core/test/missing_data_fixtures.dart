@@ -17,6 +17,7 @@ import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 const testSessionId = 1;
 
@@ -161,7 +162,9 @@ class MissingDataHarness {
         UncontrolledProviderScope(
           container: container,
           child: IrmaTheme(
-            builder: (_) => MaterialApp.router(
+            builder: (context) => MaterialApp.router(
+              theme: IrmaTheme.of(context).themeData,
+              builder: (context, child) => LegacyMaterialBridge(child: child!),
               routerConfig: router,
               localizationsDelegates: [
                 FlutterI18nDelegate(

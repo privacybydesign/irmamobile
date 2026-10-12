@@ -282,6 +282,11 @@
     "known_party": "Bekannte Partei",
     "unknown_party": "Unbekannte Partei",
     "progress": "{x} von {n} bereit",
+    "intro": {
+      "one": "Noch eine Angabe, dann können Sie alles teilen.",
+      "two": "Zwei Angaben sind noch nicht in Ihrer Yivi-App. Rufen Sie sie ab, dann können Sie alles teilen.",
+      "other": "Es fehlen noch {n} Angaben in Ihrer Yivi-App. Rufen Sie sie ab, dann können Sie alles teilen."
+    },
     "status": {
       "present": "Bereits in Ihrer App",
       "missing": "Noch nicht in Ihrer App",
@@ -291,7 +296,7 @@
     "obtain_named": "Abrufen: {credential}",
     "share_with": "Mit {requestor} teilen",
     "hint": {
-      "one": "Rufen Sie zuerst die fehlende Angabe ab",
+      "one": "Noch 1 Angabe abrufen",
       "other": "Rufen Sie zuerst die {n} fehlenden Angaben ab"
     },
     "band": "Für {requestor} · {x} von {n} bereit",
