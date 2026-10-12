@@ -3,9 +3,9 @@ import "dart:math" as math;
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../../package_name.dart";
-import "../../../../theme/theme.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../package_name.dart";
+import "../theme/theme.dart";
+import "translated_text.dart";
 
 /// Button look in the document flow screens: 48 high, 16 bold.
 enum DocumentFlowButtonStyle {

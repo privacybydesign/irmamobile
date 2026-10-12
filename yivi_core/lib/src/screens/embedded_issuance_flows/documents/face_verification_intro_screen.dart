@@ -1,10 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
-import "widgets/document_flow_footer.dart";
 import "widgets/face_frame_illustration.dart";
 import "widgets/face_verification_animation.dart";
 

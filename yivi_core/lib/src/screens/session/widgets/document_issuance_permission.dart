@@ -4,10 +4,10 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/translated_text.dart";
-import "../../embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 
 /// The permission screen for a document read from its chip, with
 /// FeatureFlag.documentFlowV2 on: the document's card on the light blue page,

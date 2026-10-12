@@ -11,10 +11,10 @@ import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/missing_data_flow.dart";
 import "../../../util/test_detection.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
-import "widgets/document_flow_footer.dart";
 import "widgets/mrz_scanner.dart";
 
 typedef MrzController = GlobalKey<MrzScannerState>;

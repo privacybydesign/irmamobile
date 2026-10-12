@@ -15,7 +15,6 @@ import "package:yivi_core/src/providers/feature_flag_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_instruction_animation.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_pictures.dart";
@@ -26,6 +25,7 @@ import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "package:yivi_core/src/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 

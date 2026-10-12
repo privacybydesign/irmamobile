@@ -3,10 +3,10 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/theme.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_translation_keys.dart";
-import "widgets/document_flow_footer.dart";
 import "widgets/document_instruction_animation.dart";
 
 /// Shown before the MRZ camera: how to hold the document. [onStart] opens the
