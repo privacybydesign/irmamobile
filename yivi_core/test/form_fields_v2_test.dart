@@ -193,6 +193,10 @@ void main() {
   Rect valueRect(WidgetTester tester, [int index = 0]) =>
       tester.getRect(find.byType(EditableText).at(index));
 
+  /// The hint a screen reader gets with the field.
+  String hintOf(WidgetTester tester, Finder field) =>
+      tester.getSemantics(field).getSemanticsData().hint;
+
   group("single field", () {
     testWidgets("is white with the label inside and a grey 2px line", (
       tester,
@@ -373,6 +377,45 @@ void main() {
       expect(tester.state(find.byType(TextFormField)), same(before));
       expect(focusNode.hasFocus, isTrue);
       expect(controller.text, "typed");
+    });
+
+    testWidgets("gives the field its message as the hint with the flag on", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController(text: "bad");
+      addTearDown(controller.dispose);
+
+      await pumpField(
+        tester,
+        onPage(
+          textField(
+            controller: controller,
+            validator: (value) => value == "bad" ? "Enter a label" : null,
+          ),
+        ),
+        fields: _Fields.v2,
+      );
+      expect(hintOf(tester, find.byType(TextField)), "Enter a label");
+
+      controller.text = "good";
+      await tester.pumpAndSettle();
+      expect(find.text("Enter a label"), findsNothing);
+      expect(hintOf(tester, find.byType(TextField)), isEmpty);
+      handle.dispose();
+    });
+
+    testWidgets("gives the field one hint with the flag off", (tester) async {
+      final handle = tester.ensureSemantics();
+
+      await pumpField(
+        tester,
+        onPage(textField(validator: (_) => "Enter a label")),
+        fields: _Fields.legacy,
+      );
+
+      expect(hintOf(tester, find.byType(TextField)), "Enter a label");
+      handle.dispose();
     });
   });
 
@@ -590,6 +633,24 @@ void main() {
             tester.getBottomLeft(find.byKey(first)).dy,
         theme.mediumSpacing,
       );
+    });
+
+    testWidgets("gives the field of an invalid row its message as the hint", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+
+      await pumpField(
+        tester,
+        onPage(group(first: first, second: second)),
+        fields: _Fields.v2,
+      );
+      await tester.enterText(find.byKey(first), "bad");
+      await tester.pumpAndSettle();
+
+      expect(hintOf(tester, find.byType(TextField).at(0)), "First is bad");
+      expect(hintOf(tester, find.byType(TextField).at(1)), isEmpty);
+      handle.dispose();
     });
 
     testWidgets("does not rebuild its fields when the flag value arrives", (
@@ -990,6 +1051,25 @@ void main() {
       expect(find.byIcon(Icons.error), findsOneWidget);
       expect(tester.widget<TextField>(codeField).textAlign, TextAlign.start);
       expect(labelColor(tester, "Transaction code"), theme.error);
+    });
+
+    testWidgets("gives the wrong code error as the hint with the flag on", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+
+      await pumpField(
+        tester,
+        txCodeScreen(),
+        fields: _Fields.v2,
+        overrides: [session(remainingAttempts: 2)],
+      );
+
+      expect(
+        hintOf(tester, codeField),
+        "Incorrect code. 2 attempts remaining.",
+      );
+      handle.dispose();
     });
 
     testWidgets("shows no error before a wrong code with the flag on", (

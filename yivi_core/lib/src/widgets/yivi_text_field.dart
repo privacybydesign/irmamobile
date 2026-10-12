@@ -54,7 +54,26 @@ class YiviTextField extends ConsumerStatefulWidget {
 class _YiviTextFieldState extends ConsumerState<YiviTextField> {
   var _focused = false;
 
+  // The message of a TextFormField's validator reaches only its errorBuilder,
+  // so the _ReportMessage in there tells this state, to set it as the hint of
+  // the field.
+  String? _reportedMessage;
+  Object? _reporter;
+
   void _setFocused(bool focused) => setState(() => _focused = focused);
+
+  void _report(Object reporter, String? message) {
+    // A message that replaces another is reported before the old one is
+    // withdrawn, and the withdrawal must not clear it.
+    if (!mounted || (message == null && _reporter != reporter)) {
+      return;
+    }
+
+    setState(() {
+      _reportedMessage = message;
+      _reporter = message == null ? null : reporter;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +101,12 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
           padding: EdgeInsets.only(bottom: frame.bottom),
           child: InputDecorationTheme(
             data: frame.decorationTheme,
-            child: frame.field,
+            // Flutter sets an errorText as the hint of the field, but not an
+            // error widget.
+            child: Semantics(
+              hint: formFieldsV2 ? widget.errorText ?? _reportedMessage : null,
+              child: frame.field,
+            ),
           ),
         ),
       ),
@@ -99,6 +123,9 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
       error: errorText == null ? null : error(errorText),
     );
   }
+
+  Widget _reporting(String message, Widget child) =>
+      _ReportMessage(message: message, report: _report, child: child);
 
   _Frame _legacyFrame(BuildContext context) {
     return _Frame(
@@ -120,7 +147,7 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
       decorationTheme: theme.fieldDecorationTheme,
       field: widget.builder(
         _decoration(error),
-        (_, message) => error(message),
+        (_, message) => _reporting(message, error(message)),
         theme.fieldValueStyle,
       ),
     );
@@ -147,7 +174,7 @@ class _YiviTextFieldState extends ConsumerState<YiviTextField> {
       bottom: bottom,
       field: widget.builder(
         _decoration(error),
-        (_, message) => error(message),
+        (_, message) => _reporting(message, error(message)),
         theme.fieldRowValueStyle,
       ),
     );
@@ -170,6 +197,54 @@ class _Frame {
     this.decoration = const BoxDecoration(),
     this.bottom = 0,
   });
+}
+
+/// Passes [message] to [report] once the frame is built, as the field that
+/// uses it cannot change while the tree is being built, and withdraws it when
+/// this widget goes.
+class _ReportMessage extends StatefulWidget {
+  final String message;
+  final void Function(Object reporter, String? message) report;
+  final Widget child;
+
+  const _ReportMessage({
+    required this.message,
+    required this.report,
+    required this.child,
+  });
+
+  @override
+  State<_ReportMessage> createState() => _ReportMessageState();
+}
+
+class _ReportMessageState extends State<_ReportMessage> {
+  @override
+  void initState() {
+    super.initState();
+    _report(widget.message);
+  }
+
+  @override
+  void didUpdateWidget(_ReportMessage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.message != oldWidget.message) {
+      _report(widget.message);
+    }
+  }
+
+  @override
+  void dispose() {
+    _report(null);
+    super.dispose();
+  }
+
+  void _report(String? message) {
+    final report = widget.report;
+    WidgetsBinding.instance.addPostFrameCallback((_) => report(this, message));
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// An error message with an icon, shown below a field.
