@@ -294,6 +294,7 @@
     },
     "obtain": "Abrufen",
     "obtain_named": "Abrufen: {credential}",
+    "obtain_title": "{credential} abrufen",
     "share_with": "Mit {requestor} teilen",
     "hint": {
       "one": "Noch 1 Angabe abrufen",
@@ -305,6 +306,20 @@
     "share_question": {
       "one": "Möchten Sie diese Angabe mit {requestor} teilen?",
       "other": "Möchten Sie diese {n} Angaben mit {requestor} teilen?"
+    },
+    "email": {
+      "header": "Wie lautet Ihre E-Mail-Adresse?",
+      "body": "Wir senden Ihnen eine E-Mail mit einem Code. Damit zeigen Sie, dass die E-Mail-Adresse Ihnen gehört.",
+      "code_header": "Code eingeben",
+      "code_body": "Wir haben eine E-Mail an {email} gesendet. Geben Sie den Code aus der E-Mail hier ein.",
+      "check_code": "Code prüfen",
+      "resend": "E-Mail erneut senden"
+    },
+    "confirm": {
+      "one": "Möchten Sie diese Angabe zu Ihrer Yivi-App hinzufügen?",
+      "other": "Möchten Sie diese Daten zu Ihrer Yivi-App hinzufügen?",
+      "after": "Danach kehren Sie zur Liste von {requestor} zurück.",
+      "add": "Hinzufügen"
     },
     "share": "Teilen"
   },

@@ -294,6 +294,7 @@
     },
     "obtain": "Ophalen",
     "obtain_named": "Ophalen: {credential}",
+    "obtain_title": "{credential} ophalen",
     "share_with": "Delen met {requestor}",
     "hint": {
       "one": "Nog 1 gegeven ophalen",
@@ -305,6 +306,20 @@
     "share_question": {
       "one": "Wil je dit gegeven delen met {requestor}?",
       "other": "Wil je deze {n} gegevens delen met {requestor}?"
+    },
+    "email": {
+      "header": "Wat is je e-mailadres?",
+      "body": "We sturen je een e-mail met een code. Daarmee laat je zien dat het jouw e-mailadres is.",
+      "code_header": "Vul de code in",
+      "code_body": "We hebben een e-mail gestuurd naar {email}. Vul de code uit de e-mail hier in.",
+      "check_code": "Code controleren",
+      "resend": "E-mail opnieuw sturen"
+    },
+    "confirm": {
+      "one": "Wil je dit gegeven aan je Yivi-app toevoegen?",
+      "other": "Wil je deze gegevens aan je Yivi-app toevoegen?",
+      "after": "Daarna ga je terug naar de lijst van {requestor}.",
+      "add": "Toevoegen"
     },
     "share": "Delen"
   },

@@ -1147,6 +1147,7 @@
     },
     "obtain": "Obtain",
     "obtain_named": "Obtain: {credential}",
+    "obtain_title": "Obtain {credential}",
     "share_with": "Share with {requestor}",
     "hint": {
       "one": "Obtain 1 more item of data",
@@ -1158,6 +1159,20 @@
     "share_question": {
       "one": "Do you want to share this item of data with {requestor}?",
       "other": "Do you want to share these {n} items of data with {requestor}?"
+    },
+    "email": {
+      "header": "What is your email address?",
+      "body": "We'll send you an email with a code. This shows that the email address is yours.",
+      "code_header": "Enter the code",
+      "code_body": "We've sent an email to {email}. Enter the code from the email here.",
+      "check_code": "Check code",
+      "resend": "Send email again"
+    },
+    "confirm": {
+      "one": "Do you want to add this item of data to your Yivi app?",
+      "other": "Do you want to add this data to your Yivi app?",
+      "after": "After that you go back to the list of {requestor}.",
+      "add": "Add"
     },
     "share": "Share"
   }

@@ -17,6 +17,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/email_linking.dart";
+import "../../util/missing_data_flow.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -33,6 +34,7 @@ import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/missing_data_checklist_screen.dart";
+import "widgets/missing_data_confirm_screen.dart";
 import "widgets/missing_data_flow_reset.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
@@ -335,6 +337,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           onDismiss: _showDismissDialog,
           onChoicesConfirmed: (choices) {
             setState(() => _pendingDisclosureChoices = choices);
+          },
+        );
+      }
+
+      if (context.isCollectingMissingData) {
+        return MissingDataConfirmScreen(
+          issuedCredentials: session.offeredCredentials!,
+          onDismiss: _dismissSession,
+          onGivePermission: () {
+            _grantPermission(_pendingDisclosureChoices ?? []);
           },
         );
       }

@@ -47,6 +47,15 @@ class MissingDataBandState {
     required this.checklist,
     required this.currentCredentialId,
   });
+
+  /// The name of the credential the user is obtaining.
+  String get currentName =>
+      checklist.entries
+          .where((e) => e.credential.credentialId == currentCredentialId)
+          .firstOrNull
+          ?.credential
+          .name ??
+      "";
 }
 
 /// What the band shows, or null when no checklist flow is active.

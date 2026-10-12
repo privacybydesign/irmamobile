@@ -6,9 +6,10 @@ import "package:material_ui/material_ui.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/missing_data_flow.dart";
-import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
+import "../../../../widgets/missing_data_bottom_bar.dart";
+import "../../../../widgets/missing_data_style.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
@@ -139,6 +140,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
+    final collecting = !linking && context.isCollectingMissingData;
 
     return GestureDetector(
       onTap: () {
@@ -146,10 +148,8 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
-        appBar: IrmaAppBar(
-          bottom: context.missingDataBand,
-          titleTranslationKey: titleKey,
-        ),
+        backgroundColor: collecting ? theme.backgroundTertiary : null,
+        appBar: context.issuanceAppBar(titleKey: titleKey),
         body: SafeArea(
           child: KeyboardAnimationListener(
             onKeyboardSettled: (context, inset, visible) {
@@ -163,22 +163,36 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    SizedBox(height: theme.defaultSpacing),
+                    SizedBox(
+                      height: collecting
+                          ? theme.smallSpacing
+                          : theme.defaultSpacing,
+                    ),
                     TranslatedText(
-                      linking
+                      collecting
+                          ? "missing_data.email.header"
+                          : linking
                           ? "email_linking.enter_email.header"
                           : "email_issuance.enter_email.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
+                      style: collecting
+                          ? missingDataHeadingStyle(theme)
+                          : theme.textTheme.bodyLarge!.copyWith(
+                              color: theme.neutralExtraDark,
+                            ),
                     ),
                     SizedBox(height: theme.defaultSpacing),
                     TranslatedText(
-                      linking
+                      collecting
+                          ? "missing_data.email.body"
+                          : linking
                           ? "email_linking.enter_email.body"
                           : "email_issuance.enter_email.body",
                     ),
-                    SizedBox(height: theme.largeSpacing),
+                    SizedBox(
+                      height: collecting
+                          ? theme.mediumSpacing
+                          : theme.largeSpacing,
+                    ),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -270,13 +284,18 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         resizeToAvoidBottomInset: true,
         bottomNavigationBar: onScreenKeyboardShown
             ? null
-            : IrmaBottomBar(
+            : collecting
+            ? MissingDataBottomBar.buttons(
                 primaryButtonLabel: "email_issuance.enter_email.next_button",
-                secondaryButtonLabel: context.missingDataBackLabel(
-                  "email_issuance.enter_email.back_button",
-                ),
+                secondaryButtonLabel: "missing_data.back_to_list",
                 onPrimaryPressed: _validEmail ? _submit : null,
                 onSecondaryPressed: context.missingDataBack(context.pop),
+              )
+            : IrmaBottomBar(
+                primaryButtonLabel: "email_issuance.enter_email.next_button",
+                secondaryButtonLabel: "email_issuance.enter_email.back_button",
+                onPrimaryPressed: _validEmail ? _submit : null,
+                onSecondaryPressed: context.pop,
               ),
       ),
     );
