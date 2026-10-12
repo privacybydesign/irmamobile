@@ -341,7 +341,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         );
       }
 
-      if (context.isCollectingMissingData) {
+      if (context.missingDataState != null) {
         return MissingDataConfirmScreen(
           issuedCredentials: session.offeredCredentials!,
           onDismiss: _dismissSession,

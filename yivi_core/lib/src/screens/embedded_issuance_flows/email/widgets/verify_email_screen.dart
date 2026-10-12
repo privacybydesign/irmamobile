@@ -45,7 +45,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
   /// Whether the user is adding the address for a request, from the missing
   /// data checklist.
-  bool get _collecting => !_linking && context.isCollectingMissingData;
+  bool get _collecting => !_linking && context.missingDataState != null;
 
   @override
   void initState() {

@@ -83,7 +83,7 @@ class _WaitingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final collecting = context.isCollectingMissingData;
+    final collecting = context.missingDataState != null;
 
     return Scaffold(
       backgroundColor: collecting ? theme.backgroundTertiary : null,

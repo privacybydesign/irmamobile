@@ -140,7 +140,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
-    final collecting = !linking && context.isCollectingMissingData;
+    final collecting = !linking && context.missingDataState != null;
 
     return GestureDetector(
       onTap: () {
