@@ -1597,6 +1597,47 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets("array values follow the value line height when given", (
+      tester,
+    ) async {
+      _usePhoneScreen(tester);
+      final languages = [
+        Attribute(claimPath: ["languages"], displayName: "Languages"),
+        for (final (i, language) in ["Dutch", "English"].indexed)
+          Attribute(
+            claimPath: ["languages", i],
+            displayName: null,
+            value: AttributeValue(type: AttributeType.string, string: language),
+          ),
+      ];
+      await pumpTranslated(
+        tester,
+        _app(
+          home: Scaffold(
+            body: Column(
+              children: [
+                YiviCredentialCardAttributeList(languages),
+                YiviCredentialCardAttributeList(
+                  languages,
+                  metrics: const AttributeListMetrics(
+                    valueFontSize: 17,
+                    valueLineHeight: 24,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          overrides: const [],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final dutch = tester.widgetList<Text>(find.text("Dutch")).toList();
+      expect(dutch.first.style!.height, 1.2);
+      expect(dutch.last.style!.fontSize, 17);
+      expect(dutch.last.style!.height, 24 / 17);
+    });
   });
 
   group("session screen", () {

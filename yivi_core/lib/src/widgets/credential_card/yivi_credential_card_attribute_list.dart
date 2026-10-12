@@ -623,6 +623,7 @@ class _RowContent extends StatelessWidget {
 
 // Shared label / value text styles.
 const _labelFontSize = 14.0;
+const _bulletHeightFactor = 1.2;
 
 double? _heightFor(double? lineHeight, double fontSize) =>
     lineHeight == null ? null : lineHeight / fontSize;
@@ -891,12 +892,15 @@ class _PrimArrayContent extends StatelessWidget {
     IrmaThemeData theme,
     schemaless.AttributeValue v,
   ) {
+    final heightFactor =
+        _heightFor(metrics.valueLineHeight, metrics.valueFontSize) ??
+        _bulletHeightFactor;
     final valueStyle = _valueStyle(
       theme,
       theme.dark,
       metrics,
-    ).copyWith(height: 1.2);
-    final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
+    ).copyWith(height: heightFactor);
+    final lineHeight = metrics.valueFontSize * heightFactor;
     return Padding(
       padding: EdgeInsets.only(top: theme.tinySpacing / 2),
       child: Row(
