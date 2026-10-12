@@ -3,8 +3,8 @@ import "dart:ui" as ui;
 import "package:material_ui/material_ui.dart";
 
 /// Draws a dashed rounded border on top of [child], inside its bounds. Dash
-/// and gap follow the browser's rule for a thin border: 3 and 2 times the
-/// width.
+/// and gap are 3 and 2 times the width, which approximates CSS
+/// `border: dashed`.
 class DashedBorder extends StatelessWidget {
   final Widget child;
   final Color color;
