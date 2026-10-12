@@ -187,7 +187,8 @@ void main() {
       _str("firstnames", "Anna"),
       _str("prefix", "de"),
       _str("familyname", "Vries"),
-      _str("surname", "Vries-Jansen"),
+      // As the municipality issues it: the surname with its prefix.
+      _str("surname", "de Vries-Jansen"),
       _str("gender", "V"),
       _bool("nationality", true),
       _str("dateofbirth", "17-12-1996"),
@@ -196,7 +197,7 @@ void main() {
       _str("bsn", "999999990"),
     ];
 
-    test("without fullname: firstnames + prefix + surname", () {
+    test("first names + surname (Voornamen + Achternaam)", () {
       final view = _view(const MunicipalityProfileAdapter(), personalData);
       expect(view.name?.text, "Anna de Vries-Jansen");
       expect(view.placeOfBirth?.text, "Meppel, Nederland");
@@ -212,24 +213,27 @@ void main() {
       expect(claimed, isNot(contains("initials")));
       expect(claimed, isNot(contains("familyname")));
       expect(claimed, isNot(contains("bsn")));
-      expect(claimed, containsAll(["firstnames", "prefix", "surname"]));
+      expect(claimed, isNot(contains("prefix")), reason: "in the surname");
+      expect(claimed, containsAll(["firstnames", "surname"]));
     });
 
-    test("with fullname: only fullname for the name", () {
-      final view = _view(const MunicipalityProfileAdapter(), [
-        _str("fullname", "Anna de Vries-Jansen"),
-        ...personalData,
-      ]);
+    test("with fullname: the parts shown, the full name taken unshown", () {
+      final attrs = [_str("fullname", "A. de Vries-Jansen"), ...personalData];
+      final view = _view(const MunicipalityProfileAdapter(), attrs);
       expect(view.name?.text, "Anna de Vries-Jansen");
-      final claimed = _ids(
-        _municipality.claim([
-          _str("fullname", "Anna de Vries-Jansen"),
-          ...personalData,
-        ])!.claimed,
-      );
-      expect(claimed, contains("fullname"));
-      expect(claimed, isNot(contains("firstnames")));
-      expect(claimed, isNot(contains("surname")));
+      expect(_ids(view.redundant), ["fullname"]);
+      final claimed = _ids(_municipality.claim(attrs)!.claimed);
+      expect(claimed, containsAll(["fullname", "firstnames", "surname"]));
+    });
+
+    test("only the full name (a disclosure): the full name shown", () {
+      final view = _view(const MunicipalityProfileAdapter(), [
+        _str("fullname", "A. de Vries-Jansen"),
+        _str("surname", "de Vries-Jansen"),
+      ]);
+      expect(view.name?.text, "A. de Vries-Jansen");
+      expect(view.redundant, isEmpty);
+      expect(_ids(view.claimed), ["fullname"]);
     });
 
     test("Dutch nationality: yes shown, no stays a row", () {

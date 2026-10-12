@@ -320,7 +320,7 @@ void main() {
       [
         _str("firstnames", "Anna"),
         _str("prefix", "de"),
-        _str("surname", "Vries"),
+        _str("surname", "de Vries"),
         _str("initials", "A."),
         schemaless.Attribute(
           claimPath: ["nationality"],

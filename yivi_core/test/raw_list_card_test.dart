@@ -115,6 +115,48 @@ void main() {
       expect(find.text("2030-03-01"), findsOneWidget);
     });
 
+    testWidgets("raw list: what the card hides as redundant is shown", (
+      tester,
+    ) async {
+      final municipality = [
+        _str("fullname", "A. de Vries"),
+        _str("firstnames", "Anna"),
+        _str("surname", "de Vries"),
+      ];
+      final licence = [
+        _str("dateOfBirth", "1996-12-17"),
+        _str("yearOfBirth", "1996"),
+      ];
+      for (final (attrs, id) in [
+        (municipality, "irma-demo.gemeente.personalData"),
+        (licence, _dl),
+      ]) {
+        await tester.pumpWidget(
+          _wrap(
+            YiviCredentialCardAttributeList(
+              attrs,
+              credentialId: id,
+              rawList: true,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        // Every attribute, in the order given, as in production.
+        final labels = [
+          for (final a in attrs) find.text(a.effectiveDisplayName),
+        ];
+        for (final (i, label) in labels.indexed) {
+          expect(label, findsOneWidget);
+          if (i > 0) {
+            expect(
+              tester.getTopLeft(label).dy,
+              greaterThan(tester.getTopLeft(labels[i - 1]).dy),
+            );
+          }
+        }
+      }
+    });
+
     testWidgets("default: the card layout", (tester) async {
       await tester.pumpWidget(
         _wrap(YiviCredentialCardAttributeList(attributes, credentialId: _dl)),

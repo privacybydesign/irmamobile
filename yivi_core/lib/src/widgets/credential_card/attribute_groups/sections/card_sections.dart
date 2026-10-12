@@ -47,6 +47,10 @@ List<AssembledSection> assembleSections(
 }) {
   var remaining = attributes;
   final result = <AssembledSection>[];
+  final givenIds = {
+    for (final a in attributes)
+      if (a.claimPath.length == 1) "${a.claimPath.first}",
+  };
 
   List<AttributeGroup> claimAll(List<AttributeGroupRenderer> renderers) {
     final groups = <AttributeGroup>[];
@@ -75,7 +79,14 @@ List<AssembledSection> assembleSections(
           a.claimPath.first as String: a,
     };
     final fields = [for (final id in section.fieldIds) ?byId[id]];
-    final taken = {for (final a in fields) claimPathKey(a.claimPath)};
+    final redundant = [
+      for (final MapEntry(key: id, value: shownBy)
+          in section.redundantIds.entries)
+        if (givenIds.contains(shownBy)) ?byId[id],
+    ];
+    final taken = {
+      for (final a in [...fields, ...redundant]) claimPathKey(a.claimPath),
+    };
     remaining = [
       for (final a in remaining)
         if (!taken.contains(claimPathKey(a.claimPath))) a,

@@ -92,10 +92,16 @@ class ProfileHeaderView {
     this.gender,
     this.ages = const AgeChips([], []),
     this.euCitizen,
+    this.redundant = const [],
   });
 
-  /// Exactly the attributes the header shows.
+  /// Attributes the header takes without showing, because what it shows
+  /// already says the same (the full name next to the name parts).
+  final List<schemaless.Attribute> redundant;
+
+  /// Exactly the attributes the header shows, and the redundant ones.
   List<schemaless.Attribute> get claimed => [
+    ...redundant,
     ?photo,
     for (final field in [name, dateOfBirth, placeOfBirth, nationality, gender])
       ...?field?.sources,
@@ -153,12 +159,15 @@ class MunicipalityProfileAdapter implements ProfileHeaderAdapter {
     List<schemaless.Attribute>? compareTo,
   }) {
     final a = _Attributes(available, compareTo);
+    // First names and surname (Voornamen, Achternaam), the name as the
+    // municipality uses it, partner name and prefix included; the full name
+    // then says nothing more. Without both parts, the full name if given.
+    final parts = a.joined(["firstnames", "surname"], " ");
+    final fullname = a.single("fullname");
+    final useParts = parts != null && parts.sources.length == 2;
     return ProfileHeaderView(
-      // The full name when issued; otherwise the name as the municipality
-      // uses it, partner name included (`surname`, not the birth name).
-      name:
-          a.single("fullname") ??
-          a.joined(["firstnames", "prefix", "surname"], " "),
+      name: useParts ? parts : fullname ?? parts,
+      redundant: useParts && fullname != null ? fullname.sources : const [],
       dateOfBirth: a.single("dateofbirth"),
       placeOfBirth: a.joined(["cityofbirth", "countryofbirth"], ", "),
       nationality: a.dutchNationality("nationality"),

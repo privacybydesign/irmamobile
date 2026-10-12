@@ -88,7 +88,12 @@ void main() {
           hasLength(1),
           reason: "the header, ages as its chips",
         );
-        expect(_fieldIds(sections[0]), ["yearOfBirth"]);
+        expect(
+          _fieldIds(sections[0]),
+          isEmpty,
+          reason: "the year of birth is in the date of birth",
+        );
+        expect(sections.last.rest, isEmpty, reason: "taken, not left over");
         expect(sections[1].groups, hasLength(1), reason: "categories");
         expect(_fieldIds(sections[2]), [
           "documentNumber",
@@ -121,6 +126,17 @@ void main() {
       expect(sections.single.fields, isEmpty);
     });
 
+    test("a year of birth shared without the date of birth stays", () {
+      final sections = assembleSections(cardLayouts[_dl]!, [
+        _str("yearOfBirth", "1996"),
+      ]);
+      expect(sections.single.titleKey, isNull);
+      expect(
+        [for (final a in sections.single.rest) a.claimPath.first],
+        ["yearOfBirth"],
+      );
+    });
+
     test("a disclosure subset drops the empty sections", () {
       final sections = assembleSections(cardLayouts[_dl]!, [
         _bool("over18", true),
@@ -146,7 +162,7 @@ void main() {
         _str("firstnames", "Anna"),
         _str("prefix", "de"),
         _str("familyname", "Vries"),
-        _str("surname", "Vries-Jansen"),
+        _str("surname", "de Vries-Jansen"),
         _str("bsn", "999999990"),
         _str("digidlevel", "Substantieel"),
       ]);
@@ -155,17 +171,20 @@ void main() {
         "credential.sections.name",
         "credential.sections.registration",
       ]);
-      expect(_fieldIds(sections[1]), ["initials", "familyname"]);
+      // The prefix is in the surname the header shows, but belongs to the
+      // birth name (Geslachtsnaam) too, so it stays.
+      expect(_fieldIds(sections[1]), ["initials", "familyname", "prefix"]);
       expect(_fieldIds(sections[2]), ["bsn", "digidlevel"]);
     });
 
-    test("municipality with a full name: the name parts stay visible", () {
+    test("municipality with a full name: taken by the header, not shown", () {
       final sections = assembleSections(cardLayouts[_municipality]!, [
-        _str("fullname", "Anna de Vries-Jansen"),
+        _str("fullname", "A. de Vries-Jansen"),
         _str("firstnames", "Anna"),
-        _str("surname", "Vries-Jansen"),
+        _str("surname", "de Vries-Jansen"),
       ]);
-      expect(_fieldIds(sections[1]), ["firstnames", "surname"]);
+      expect(_titles(sections), ["credential.sections.person"]);
+      expect(sections.single.fields, isEmpty);
     });
   });
 

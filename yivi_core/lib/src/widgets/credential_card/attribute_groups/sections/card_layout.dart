@@ -22,11 +22,18 @@ class CardSection {
   /// fields, so a field id can catch an attribute a renderer declines.
   final List<AttributeGroupRenderer> trailingGroups;
 
+  /// Attribute ids the section takes and does not show, because another
+  /// attribute on the card already says the same: id → that attribute's id.
+  /// Only hidden when that attribute is given too, so a disclosure of just
+  /// the hidden one still shows it.
+  final Map<String, String> redundantIds;
+
   const CardSection({
     required this.titleKey,
     this.groups = const [],
     this.fieldIds = const [],
     this.trailingGroups = const [],
+    this.redundantIds = const {},
   });
 }
 
@@ -71,7 +78,8 @@ const _drivingLicenceCard = CardLayout([
   CardSection(
     titleKey: "$_prefix.person",
     groups: [_documentHeader, _ages],
-    fieldIds: ["yearOfBirth"],
+    // The year is in the date of birth the header shows.
+    redundantIds: {"yearOfBirth": "dateOfBirth"},
   ),
   CardSection(
     titleKey: "$_prefix.driving_entitlement",

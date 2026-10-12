@@ -73,8 +73,10 @@ void main() {
         tester,
         activityCardFinder,
         titles: ["PERSON", "NAME", "REGISTRATION"],
+        // The header's name is First names + Surname; the full name is
+        // taken by the header and not shown.
         texts: [
-          "W.L. de Bruijn",
+          "Willeke Liselotte de Bruijn",
           "10-04-1965",
           "Arnhem, Arnhem",
           "Dutch",
@@ -85,12 +87,17 @@ void main() {
         fields: {
           "initials": ("Initials", "W.L."),
           "familyname": ("Family name", "Bruijn"),
-          "firstnames": ("First names", "Willeke Liselotte"),
           "prefix": ("Prefix", "de"),
-          "surname": ("Surname", "de Bruijn"),
           "bsn": ("BSN", "999999990"),
           "digidlevel": ("Assurance level", "Substantieel"),
         },
+      );
+      expect(
+        find.descendant(
+          of: activityCardFinder,
+          matching: find.text("W.L. de Bruijn"),
+        ),
+        findsNothing,
       );
     });
   });
