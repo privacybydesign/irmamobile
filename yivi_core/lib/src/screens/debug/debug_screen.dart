@@ -15,6 +15,7 @@ import "debug_helper.dart";
 import "scheme_management/scheme_management_screen.dart";
 import "scheme_management/widgets/scheme_management_warning_dialog.dart";
 import "session/session_helper_screen.dart";
+import "test_flows_screen.dart";
 import "util/snackbar.dart";
 import "widgets/delete_all_credentials_confirmation_dialog.dart";
 import "widgets/local_backends_tile.dart";
@@ -132,6 +133,14 @@ class _DebugScreenState extends State<DebugScreen> {
             onTap: context.pushFeatureFlagsScreen,
           ),
           const LocalBackendsTile(),
+          ListTile(
+            key: const Key("test_flows_tile"),
+            leading: const Icon(Icons.science_outlined),
+            title: const Text("Test flows"),
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const TestFlowsScreen())),
+          ),
           _buildListTile(
             Icons.badge,
             "debug.issue_digid",

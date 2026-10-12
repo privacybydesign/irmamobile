@@ -112,6 +112,14 @@ class IrmaPreferences {
          _localBackendHostKey,
          defaultValue: "",
        ),
+       _issueDemoCredentialsInApp = preferences.getBool(
+         _issueDemoCredentialsInAppKey,
+         defaultValue: false,
+       ),
+       _trustDemoServer = preferences.getBool(
+         _trustDemoServerKey,
+         defaultValue: false,
+       ),
        _featureFlags = {
          for (final flag in FeatureFlag.values)
            flag: preferences.getBool(flag.prefKey, defaultValue: false),
@@ -277,6 +285,18 @@ class IrmaPreferences {
   static const String _localBackendHostKey = "preference.local_backend_host";
   final Preference<String> _localBackendHost;
 
+  /// Debug menu: get an irma-demo credential in the app, from the demo IRMA
+  /// server, instead of opening its website.
+  static const String _issueDemoCredentialsInAppKey =
+      "preference.issue_demo_credentials_in_app";
+  final Preference<bool> _issueDemoCredentialsInApp;
+
+  /// Debug menu: show sessions of the demo IRMA server as coming from a party
+  /// Yivi knows. The server is not in a requestor scheme, so they would come
+  /// from an unknown party.
+  static const String _trustDemoServerKey = "preference.trust_demo_server";
+  final Preference<bool> _trustDemoServer;
+
   /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
   final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
@@ -437,6 +457,16 @@ class IrmaPreferences {
 
   Future<bool> setLocalBackendHost(String host) =>
       _localBackendHost.setValue(host);
+
+  Stream<bool> getIssueDemoCredentialsInApp() => _issueDemoCredentialsInApp;
+
+  Future<bool> setIssueDemoCredentialsInApp(bool value) =>
+      _issueDemoCredentialsInApp.setValue(value);
+
+  Stream<bool> getTrustDemoServer() => _trustDemoServer;
+
+  Future<bool> setTrustDemoServer(bool value) =>
+      _trustDemoServer.setValue(value);
 
   // --- Feature flags --------------------------------------------------------
 

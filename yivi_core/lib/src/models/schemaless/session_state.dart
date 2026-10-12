@@ -84,6 +84,29 @@ class SessionState {
       _$SessionStateFromJson(json);
 
   ReturnURL? get parsedClientReturnUrl => ReturnURL.parse(clientReturnUrl);
+
+  /// This state with another requestor.
+  SessionState withRequestor(TrustedParty requestor) => SessionState(
+    id: id,
+    protocol: protocol,
+    type: type,
+    status: status,
+    requestor: requestor,
+    pairingCode: pairingCode,
+    offeredCredentials: offeredCredentials,
+    offeredCredentialTypes: offeredCredentialTypes,
+    disclosurePlan: disclosurePlan,
+    messageToSign: messageToSign,
+    error: error,
+    clientReturnUrl: clientReturnUrl,
+    continueOnSecondDevice: continueOnSecondDevice,
+    remainingPinAttempts: remainingPinAttempts,
+    pinBlockedTimeSeconds: pinBlockedTimeSeconds,
+    openID4VCIState: openID4VCIState,
+    authorizationRequestUrl: authorizationRequestUrl,
+    transactionCodeParameters: transactionCodeParameters,
+    remainingTxCodeAttempts: remainingTxCodeAttempts,
+  );
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

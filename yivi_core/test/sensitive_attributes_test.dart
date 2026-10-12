@@ -22,6 +22,16 @@ void main() {
       expect(sharesSensitiveAttribute(credentials), isTrue);
     });
 
+    test("is true for the BSN of the demo scheme, to try the check", () {
+      final credentials = [
+        _credential("irma-demo.gemeente.personalData", [
+          ["bsn"],
+        ]),
+      ];
+
+      expect(sharesSensitiveAttribute(credentials), isTrue);
+    });
+
     test("is true when the BSN is in the second credential", () {
       final credentials = [
         _credential("pbdf.sidn-pbdf.email", [
@@ -48,7 +58,7 @@ void main() {
 
     test("is false for an attribute id that only ends the same way", () {
       final credentials = [
-        _credential("irma-demo.gemeente.personalData", [
+        _credential("example.gemeente.personalData", [
           ["bsn"],
         ]),
       ];
