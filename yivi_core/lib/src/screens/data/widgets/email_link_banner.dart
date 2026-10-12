@@ -135,6 +135,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
 
   return showModalBottomSheet<void>(
     context: context,
+    isScrollControlled: true,
     backgroundColor: Colors.transparent,
     elevation: 0,
     barrierColor: Colors.black.withValues(alpha: _sheetScrimOpacity),
@@ -164,65 +165,68 @@ class _LaterSheet extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(
-        theme.mediumSpacing,
-        gap,
-        theme.mediumSpacing,
-        max(_sheetBottomPadding, MediaQuery.paddingOf(context).bottom),
-      ),
       decoration: BoxDecoration(
         color: theme.surfacePrimary,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(_sheetRadius),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: _sheetHandleWidth,
-              height: _sheetHandleHeight,
-              decoration: BoxDecoration(
-                color: theme.neutralLight,
-                borderRadius: BorderRadius.circular(_sheetHandleHeight / 2),
+      // Scrolls for a landscape screen or a large text size.
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          theme.mediumSpacing,
+          gap,
+          theme.mediumSpacing,
+          max(_sheetBottomPadding, MediaQuery.paddingOf(context).bottom),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: _sheetHandleWidth,
+                height: _sheetHandleHeight,
+                decoration: BoxDecoration(
+                  color: theme.neutralLight,
+                  borderRadius: BorderRadius.circular(_sheetHandleHeight / 2),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: gap + theme.smallSpacing),
-          Semantics(
-            header: true,
-            child: TranslatedText(
-              "email_linking.later.title",
-              style: theme.textTheme.bodyLarge!.copyWith(
-                fontSize: 18,
-                height: 26 / 18,
-                color: theme.neutralExtraDark,
+            SizedBox(height: gap + theme.smallSpacing),
+            Semantics(
+              header: true,
+              child: TranslatedText(
+                "email_linking.later.title",
+                style: theme.textTheme.bodyLarge!.copyWith(
+                  fontSize: 18,
+                  height: 26 / 18,
+                  color: theme.neutralExtraDark,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: gap),
-          TranslatedText(
-            "email_linking.later.body",
-            style: theme.textTheme.bodyMedium,
-          ),
-          SizedBox(height: gap + theme.smallSpacing),
-          YiviThemedButton(
-            key: const Key("email_link_later_remind"),
-            label: "email_linking.later.remind_me",
-            size: YiviButtonSize.slim,
-            onPressed: onRemindMe,
-          ),
-          SizedBox(height: theme.smallSpacing),
-          YiviThemedButton(
-            key: const Key("email_link_later_dismiss"),
-            label: "email_linking.later.dismiss",
-            style: YiviButtonStyle.outlined,
-            size: YiviButtonSize.slim,
-            onPressed: onDismiss,
-          ),
-        ],
+            SizedBox(height: gap),
+            TranslatedText(
+              "email_linking.later.body",
+              style: theme.textTheme.bodyMedium,
+            ),
+            SizedBox(height: gap + theme.smallSpacing),
+            YiviThemedButton(
+              key: const Key("email_link_later_remind"),
+              label: "email_linking.later.remind_me",
+              size: YiviButtonSize.slim,
+              onPressed: onRemindMe,
+            ),
+            SizedBox(height: theme.smallSpacing),
+            YiviThemedButton(
+              key: const Key("email_link_later_dismiss"),
+              label: "email_linking.later.dismiss",
+              style: YiviButtonStyle.outlined,
+              size: YiviButtonSize.slim,
+              onPressed: onDismiss,
+            ),
+          ],
+        ),
       ),
     );
   }

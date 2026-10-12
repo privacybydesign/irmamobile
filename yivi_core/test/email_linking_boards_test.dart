@@ -465,6 +465,28 @@ void main() {
       expect(rectOf(tester, title).left, 24);
     });
 
+    testWidgets("scrolls instead of overflowing on a landscape screen", (
+      tester,
+    ) async {
+      await pumpSheet(tester);
+      tester.view.physicalSize = Size(_screen.height, _screen.width / 2);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key("email_link_later_dismiss")),
+        100,
+        scrollable: find.descendant(
+          of: find.byType(BottomSheet),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      expect(
+        find.byKey(const Key("email_link_later_dismiss")).hitTestable(),
+        findsOneWidget,
+      );
+    });
+
     testWidgets("ends in two 48 px buttons, 32 px above the bottom", (
       tester,
     ) async {
