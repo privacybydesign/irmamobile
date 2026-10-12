@@ -7,6 +7,7 @@ import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/translated_text.dart";
+import "onboarding_checkbox.dart";
 
 /// Rewrites `[text](url)` to `text`. The accept label is markdown so it can
 /// link to the terms, but a screen reader label has to be plain text. Deriving
@@ -64,7 +65,9 @@ class TermsCheckBox extends ConsumerWidget {
     );
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: onboardingV2
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         // The label lives in a sibling widget, so the checkbox itself has no
@@ -75,15 +78,23 @@ class TermsCheckBox extends ConsumerWidget {
         MergeSemantics(
           child: Semantics(
             label: semanticsLabel,
-            child: Checkbox(
-              key: const Key("accept_terms_checkbox"),
-              value: isAccepted,
-              activeColor: theme.themeData.colorScheme.secondary,
-              onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
-            ),
+            child: onboardingV2
+                ? OnboardingCheckbox(
+                    checkboxKey: const Key("accept_terms_checkbox"),
+                    value: isAccepted,
+                    onChanged: (isAccepted) =>
+                        onToggleAccepted(isAccepted ?? false),
+                  )
+                : Checkbox(
+                    key: const Key("accept_terms_checkbox"),
+                    value: isAccepted,
+                    activeColor: theme.themeData.colorScheme.secondary,
+                    onChanged: (isAccepted) =>
+                        onToggleAccepted(isAccepted ?? false),
+                  ),
           ),
         ),
-        SizedBox(width: theme.smallSpacing),
+        if (!onboardingV2) SizedBox(width: theme.smallSpacing),
         Flexible(
           child: onboardingV2
               ? Row(
@@ -94,6 +105,7 @@ class TermsCheckBox extends ConsumerWidget {
                         "*",
                         style: theme.textTheme.bodyMedium!.copyWith(
                           color: theme.error,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

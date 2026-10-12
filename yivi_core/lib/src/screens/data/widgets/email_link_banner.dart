@@ -25,6 +25,7 @@ const _sheetRadius = 16.0;
 const _sheetHandleWidth = 40.0;
 const _sheetHandleHeight = 4.0;
 const _sheetScrimOpacity = 0.45;
+const _sheetOutlineWidth = 1.0;
 // Bottom padding of the sheet, which also has to clear the gesture area.
 const _sheetBottomPadding = 32.0;
 
@@ -214,7 +215,7 @@ class _LaterSheet extends StatelessWidget {
             YiviThemedButton(
               key: const Key("email_link_later_remind"),
               label: "email_linking.later.remind_me",
-              size: YiviButtonSize.slim,
+              size: YiviButtonSize.compact,
               onPressed: onRemindMe,
             ),
             SizedBox(height: theme.smallSpacing),
@@ -222,7 +223,8 @@ class _LaterSheet extends StatelessWidget {
               key: const Key("email_link_later_dismiss"),
               label: "email_linking.later.dismiss",
               style: YiviButtonStyle.outlined,
-              size: YiviButtonSize.slim,
+              size: YiviButtonSize.compact,
+              outlineWidth: _sheetOutlineWidth,
               onPressed: onDismiss,
             ),
           ],

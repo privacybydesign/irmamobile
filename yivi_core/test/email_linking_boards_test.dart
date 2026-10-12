@@ -170,6 +170,14 @@ void main() {
       expect(rect.height, _footerButton);
       expect(rect.bottom, bottom);
       bottom = rect.top - _footerGap;
+
+      final outline = tester.widget<Ink>(
+        find.descendant(of: secondary, matching: find.byType(Ink)),
+      );
+      expect(
+        ((outline.decoration! as BoxDecoration).border! as Border).top.width,
+        1,
+      );
     }
 
     final rect = rectOf(tester, primary);
@@ -240,20 +248,21 @@ void main() {
   });
 
   group("button", () {
-    testWidgets("draws a 1 px outline when it is slim", (tester) async {
+    testWidgets("draws the outline in the width it is given", (tester) async {
       await pumpScreen(
         tester,
         const Scaffold(
           body: Column(
             children: [
               YiviThemedButton(
-                key: Key("slim"),
+                key: Key("thin"),
                 label: "email_linking.confirm.cancel",
                 style: YiviButtonStyle.outlined,
-                size: YiviButtonSize.slim,
+                size: YiviButtonSize.compact,
+                outlineWidth: 1,
               ),
               YiviThemedButton(
-                key: Key("medium"),
+                key: Key("default"),
                 label: "email_linking.confirm.cancel",
                 style: YiviButtonStyle.outlined,
               ),
@@ -269,8 +278,8 @@ void main() {
         return ((ink.decoration! as BoxDecoration).border! as Border).top.width;
       }
 
-      expect(outline(const Key("slim")), 1);
-      expect(outline(const Key("medium")), 1.7);
+      expect(outline(const Key("thin")), 1);
+      expect(outline(const Key("default")), 1.7);
     });
 
     testWidgets("shows the leading widget 10 px before the label", (

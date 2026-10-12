@@ -140,7 +140,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
-    final buttonSize = linking ? YiviButtonSize.slim : YiviButtonSize.medium;
+    final buttonSize = linking ? YiviButtonSize.compact : YiviButtonSize.medium;
     final topSpacing = linking ? theme.smallSpacing : theme.defaultSpacing;
     final fieldSpacing = linking ? theme.mediumSpacing : theme.largeSpacing;
 

@@ -36,17 +36,16 @@ const _leadingGap = 10.0;
 
 class YiviButtonSize {
   final double _value;
-  final double outlineWidth;
-  const YiviButtonSize._internal(this._value, {this.outlineWidth = 1.7});
+  const YiviButtonSize._internal(this._value);
   double get value => _value;
 
   static const large = YiviButtonSize._internal(55);
+  static const compact = YiviButtonSize._internal(48);
   static const medium = YiviButtonSize._internal(50);
   static const small = YiviButtonSize._internal(37);
-
-  /// The button of the e-mail linking screens (`FeatureFlag.emailLinking`).
-  static const slim = YiviButtonSize._internal(48, outlineWidth: 1);
 }
+
+const double _defaultOutlineWidth = 1.7;
 
 class YiviThemedButton extends StatelessWidget {
   final String label;
@@ -54,6 +53,7 @@ class YiviThemedButton extends StatelessWidget {
   final YiviButtonStyle style;
   final YiviButtonSize size;
   final bool isTransparent;
+  final double outlineWidth;
 
   /// Shown before the label, as the progress indicator of a busy button.
   final Widget? leading;
@@ -65,6 +65,7 @@ class YiviThemedButton extends StatelessWidget {
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
+    this.outlineWidth = _defaultOutlineWidth,
     this.leading,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
@@ -112,7 +113,7 @@ class YiviThemedButton extends StatelessWidget {
               : BoxDecoration(
                   borderRadius: borderRadius,
                   border: Border.all(
-                    width: size.outlineWidth,
+                    width: outlineWidth,
                     style: BorderStyle.solid,
                     color: theme.neutralExtraDark,
                   ),

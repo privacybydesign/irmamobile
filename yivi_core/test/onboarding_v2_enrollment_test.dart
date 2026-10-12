@@ -6,6 +6,7 @@ import "package:yivi_core/src/screens/enrollment/bloc/enrollment_bloc.dart";
 import "package:yivi_core/src/screens/enrollment/introduction/introduction_screen.dart";
 import "package:yivi_core/src/screens/enrollment/introduction/models/introduction_entry.dart";
 import "package:yivi_core/src/screens/enrollment/introduction/widgets/introduction_animation_wrapper.dart";
+import "package:yivi_core/src/screens/enrollment/widgets/enrollment_layout.dart";
 import "package:yivi_core/src/widgets/yivi_progress_indicator.dart";
 
 import "support/onboarding_v2_harness.dart";
@@ -116,6 +117,111 @@ void main() {
         findsOneWidget,
       );
       await unmount(tester);
+    });
+
+    group("page of the design", () {
+      const title = "Yivi is an app for your digital identity";
+      final next = find.byKey(const Key("enrollment_next_button"));
+      final hero = findSvg("enrollment/introduction_1.svg");
+
+      Future<void> pumpPage(WidgetTester tester, {Size? size}) async {
+        usePhoneScreen(tester, size: size ?? const Size(390, 844));
+        await pumpIntro(tester, entry: IntroductionEntry.returning);
+      }
+
+      testWidgets("flag on: a 300 px picture 48 px from the top", (
+        tester,
+      ) async {
+        await enableOnboardingV2(prefs);
+        await pumpPage(tester);
+
+        expect(tester.getRect(hero), const Rect.fromLTWH(45, 48, 300, 300));
+        expect(find.byType(EnrollmentLayout), findsNothing);
+      });
+
+      testWidgets("flag on: the title 32 px below, the text 12 px below that", (
+        tester,
+      ) async {
+        await enableOnboardingV2(prefs);
+        await pumpPage(tester);
+
+        final titleRect = tester.getRect(find.text(title));
+        expect(titleRect.left, 24);
+        expect(titleRect.top, 48 + 300 + 32);
+        final style = tester.widget<Text>(find.text(title)).style!;
+        expect(style.fontSize, 26);
+        expect(style.fontWeight, FontWeight.w700);
+        expect(style.height, 36 / 26);
+        expect(
+          tester.getTopLeft(find.textContaining("Your official name")).dy,
+          titleRect.bottom + 12,
+        );
+      });
+
+      testWidgets("flag on: the text ends with a full stop", (tester) async {
+        await enableOnboardingV2(prefs);
+        await pumpPage(tester);
+
+        expect(
+          find.text(
+            "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app.",
+          ),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets("flag on: a 160 px wide, 48 px high button at the right", (
+        tester,
+      ) async {
+        await enableOnboardingV2(prefs);
+        await pumpPage(tester);
+
+        expect(tester.getRect(next), const Rect.fromLTWH(206, 764, 160, 48));
+        expect(
+          find.byKey(const Key("enrollment_previous_button")),
+          findsNothing,
+        );
+      });
+
+      testWidgets("flag on: scrolls on a small screen instead of overflowing", (
+        tester,
+      ) async {
+        await enableOnboardingV2(prefs);
+        await pumpPage(tester, size: const Size(320, 480));
+        final text = find.textContaining("Your official name");
+        expect(tester.getTopLeft(text).dy, greaterThan(480 - 96));
+
+        await tester.drag(
+          find.byType(SingleChildScrollView),
+          const Offset(0, -300),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(tester.getTopLeft(text).dy, lessThan(480 - 96));
+        expect(tester.getRect(next).bottom, 480 - 32);
+      });
+
+      testWidgets("flag on: landscape keeps the hero beside the text", (
+        tester,
+      ) async {
+        await enableOnboardingV2(prefs);
+        await pumpPage(tester, size: const Size(844, 390));
+
+        expect(find.byType(EnrollmentLayout), findsOneWidget);
+        expect(find.byType(YiviProgressIndicator), findsNothing);
+        expect(tester.getSize(next).height, 48);
+      });
+
+      testWidgets("flag off: the hero fills the top half, buttons are 50 px", (
+        tester,
+      ) async {
+        await pumpPage(tester);
+
+        expect(find.byType(EnrollmentLayout), findsOneWidget);
+        expect(tester.getSize(hero).height, greaterThan(300));
+        expect(tester.getSize(next).height, 50);
+      });
     });
 
     testWidgets("plays the intro animation on first entry", (tester) async {

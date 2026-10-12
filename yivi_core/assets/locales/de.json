@@ -324,6 +324,13 @@
       "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
       "required": "erforderlich"
     },
+    "onboarding_v2": {
+      "intro_explanation": "Ihr offizieller Name, Geburtsdatum, Adresse, Sozialversicherungsnummer und mehr. Sicher gespeichert in Ihrer Yivi-App.",
+      "point_1": "Sie entscheiden, was Sie speichern, was Sie teilen und mit wem.",
+      "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, das ist sicherer.",
+      "point_3": "Niemand schaut zu, auch Yivi nicht!",
+      "error_reporting_explanation": "Indem Sie die Fehlermeldungen automatisch an uns senden, können wir Probleme schneller beheben. Außerdem sendet die App regelmäßig eine Meldung, ob noch alles funktioniert. Natürlich tun wir das alles, ohne Zugriff auf Ihre persönlichen Daten oder Transaktionen zu haben."
+    },
     "error_reporting": {
       "accept": {
         "share_errors": "Fehlermeldungen und App-Status teilen",
@@ -440,6 +447,7 @@
   "back_to_website": {
     "title": "Ihre Yivi-App ist bereit. Gehen Sie zurück zur Website.",
     "text": "Sie kamen von einer Website hierher. Gehen Sie zurück zu Ihrem Browser und tippen Sie dort noch einmal auf 'Yivi-App öffnen'. Yivi öffnet sich dann automatisch und macht dort weiter, wo Sie waren.",
+    "sketch_label": "Weiter mit Yivi",
     "sketch_button": "Yivi-App öffnen",
     "hint": "Funktioniert es nicht mehr? Laden Sie die Seite auf der Website neu und versuchen Sie es noch einmal.",
     "other": "Ich möchte etwas anderes tun"

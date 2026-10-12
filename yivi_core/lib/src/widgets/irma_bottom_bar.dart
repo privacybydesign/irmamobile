@@ -6,6 +6,9 @@ import "yivi_themed_button.dart";
 
 export "irma_bottom_bar_base.dart" show IrmaBottomBarStyle;
 
+// The outline of the secondary button of the flat bar.
+const _flatOutlineWidth = 1.0;
+
 enum IrmaBottomBarAlignment { horizontal, vertical, automatic }
 
 class IrmaBottomBar extends StatelessWidget {
@@ -33,7 +36,7 @@ class IrmaBottomBar extends StatelessWidget {
   bool get _flat => style == IrmaBottomBarStyle.flat;
 
   YiviButtonSize get _buttonSize =>
-      _flat ? YiviButtonSize.slim : YiviButtonSize.medium;
+      _flat ? YiviButtonSize.compact : YiviButtonSize.medium;
 
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(
@@ -53,6 +56,19 @@ class IrmaBottomBar extends StatelessWidget {
   }
 
   Widget _buildSecondaryButton(BuildContext context) {
+    if (_flat) {
+      return Expanded(
+        child: YiviThemedButton(
+          key: const Key("bottom_bar_secondary"),
+          onPressed: onSecondaryPressed,
+          label: secondaryButtonLabel!,
+          style: YiviButtonStyle.outlined,
+          size: _buttonSize,
+          outlineWidth: _flatOutlineWidth,
+        ),
+      );
+    }
+
     return Expanded(
       child: YiviThemedButton(
         key: const Key("bottom_bar_secondary"),
