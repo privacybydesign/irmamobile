@@ -115,8 +115,11 @@
     "driving_licence_categories": {
       "title": "Driving licence categories",
       "category": "Category",
-      "issued": "Issued",
-      "expires": "Expires",
+      "status": "Status",
+      "held": "Held",
+      "not_held": "Not held",
+      "issued": "From",
+      "expires": "Until",
       "no_information": "No category information",
       "not_held_count-0": "{count} categories not held",
       "not_held_count-1": "{count} category not held",

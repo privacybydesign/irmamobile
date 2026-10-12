@@ -115,8 +115,11 @@
     "driving_licence_categories": {
       "title": "Rijbewijscategorieën",
       "category": "Categorie",
-      "issued": "Afgegeven",
-      "expires": "Verloopt",
+      "status": "Status",
+      "held": "In bezit",
+      "not_held": "Niet in bezit",
+      "issued": "Vanaf",
+      "expires": "Tot",
       "no_information": "Geen categorie-informatie",
       "not_held_count-0": "{count} categorieën niet in bezit",
       "not_held_count-1": "{count} categorie niet in bezit",

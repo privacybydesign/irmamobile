@@ -28,8 +28,29 @@ Widget _wrap(Widget child, {Locale locale = const Locale("en", "US")}) =>
 
 CompareValue<T> _v<T>(T value) => CompareValue(value, AttributeComparison.none);
 
+/// As on the credential detail screen: every attribute given.
+DrivingLicenceCategoriesView _full({required List<CategoryRow> rows}) =>
+    DrivingLicenceCategoriesView(
+      rows: rows,
+      complete: true,
+      showsIssued: true,
+      showsExpires: true,
+    );
+
+/// A disclosure: the held flags, plus whichever dates were requested.
+DrivingLicenceCategoriesView _shared(
+  List<CategoryRow> rows, {
+  bool issued = false,
+  bool expires = false,
+}) => DrivingLicenceCategoriesView(
+  rows: rows,
+  complete: false,
+  showsIssued: issued,
+  showsExpires: expires,
+);
+
 void main() {
-  final view = DrivingLicenceCategoriesView(
+  final view = _full(
     rows: [
       CategoryRow(
         code: "B",
@@ -56,17 +77,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("CATEGORY"), findsOneWidget);
-    expect(find.text("ISSUED"), findsOneWidget);
-    expect(find.text("EXPIRES"), findsOneWidget);
+    expect(find.text("STATUS"), findsOneWidget);
+    expect(find.text("FROM"), findsOneWidget);
+    expect(find.text("UNTIL"), findsOneWidget);
 
-    expect(find.text("2015-03-01"), findsOneWidget);
+    expect(find.text("01.03.15"), findsOneWidget);
     // Issued sits left of expires on the B row.
     expect(
-      tester.getTopLeft(find.text("2015-03-01")).dx,
-      lessThan(tester.getTopLeft(find.text("2030-03-01").first).dx),
+      tester.getTopLeft(find.text("01.03.15")).dx,
+      lessThan(tester.getTopLeft(find.text("01.03.30").first).dx),
     );
 
-    expect(find.text("2029-01-01"), findsOneWidget);
+    expect(find.text("01.01.29"), findsOneWidget);
   });
 
   testWidgets("collapsed shows held categories and a summary row", (
@@ -132,7 +154,7 @@ void main() {
     await tester.pumpWidget(
       _wrap(
         DrivingLicenceCategoriesTable(
-          view: DrivingLicenceCategoriesView(
+          view: _full(
             rows: [
               CategoryRow(
                 code: "B",
@@ -147,8 +169,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final before = tester.getTopLeft(find.text("2015-03-01")).dx;
-    final headerBefore = tester.getTopLeft(find.text("ISSUED")).dx;
+    final before = tester.getTopLeft(find.text("01.03.15")).dx;
+    final headerBefore = tester.getTopLeft(find.text("FROM")).dx;
 
     await tester.tap(
       find.byKey(const Key("driving_licence_categories_toggle")),
@@ -156,13 +178,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text("C1E"), findsOneWidget);
 
-    expect(tester.getTopLeft(find.text("2015-03-01")).dx, before);
-    expect(tester.getTopLeft(find.text("ISSUED")).dx, headerBefore);
+    expect(tester.getTopLeft(find.text("01.03.15")).dx, before);
+    expect(tester.getTopLeft(find.text("FROM")).dx, headerBefore);
   });
 
   group("scrolling on expand / collapse", () {
     // B held, five more not held: expanding adds five rows.
-    final sixRows = DrivingLicenceCategoriesView(
+    final sixRows = _full(
       rows: [
         for (final code in ["AM", "A1", "A2", "A", "B1", "B"])
           code == "B"
@@ -248,7 +270,7 @@ void main() {
     await tester.pumpWidget(
       _wrap(
         DrivingLicenceCategoriesTable(
-          view: DrivingLicenceCategoriesView(
+          view: _full(
             rows: [
               for (final code in DrivingLicenceCategoriesRenderer.codes)
                 CategoryRow(
@@ -283,6 +305,85 @@ void main() {
       tester.getTopLeft(divider).dy,
       lessThan(tester.getTopLeft(find.text("Driving licence categories")).dy),
     );
+  });
+
+  group("status column", () {
+    final b = CategoryRow(code: "B", held: _v<bool?>(true));
+    final d = CategoryRow(code: "D", held: _v<bool?>(false));
+
+    testWidgets("shows ownership from the held flag", (tester) async {
+      await tester.pumpWidget(
+        _wrap(DrivingLicenceCategoriesTable(view: _shared([b, d]))),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text("Held"), findsOneWidget);
+      expect(find.text("Not held"), findsOneWidget);
+    });
+
+    testWidgets("Dutch: In bezit / Niet in bezit", (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          DrivingLicenceCategoriesTable(view: _shared([b, d])),
+          locale: const Locale("nl", "NL"),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text("In bezit"), findsOneWidget);
+      expect(find.text("Niet in bezit"), findsOneWidget);
+    });
+  });
+
+  group("disclosure", () {
+    final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
+
+    testWidgets("flags only: every shared category, no dates, no toggle", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          DrivingLicenceCategoriesTable(
+            view: _shared([
+              CategoryRow(code: "B", held: _v<bool?>(true)),
+              CategoryRow(code: "D", held: _v<bool?>(false)),
+            ]),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Both shared categories, the not-held D included, without a tap.
+      expect(find.text("B"), findsOneWidget);
+      expect(find.text("D"), findsOneWidget);
+      expect(toggle, findsNothing);
+      // No dates were shared, so no date columns.
+      expect(find.text("FROM"), findsNothing);
+      expect(find.text("UNTIL"), findsNothing);
+      expect(find.text("-"), findsNothing);
+    });
+
+    testWidgets("flags + expiry: only the expiry column", (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          DrivingLicenceCategoriesTable(
+            view: _shared([
+              CategoryRow(
+                code: "B",
+                held: _v<bool?>(true),
+                expires: _v("2030-03-01"),
+              ),
+              CategoryRow(code: "D", held: _v<bool?>(false)),
+            ], expires: true),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("FROM"), findsNothing);
+      expect(find.text("UNTIL"), findsOneWidget);
+      expect(find.text("01.03.30"), findsOneWidget);
+      expect(find.text("-"), findsOneWidget, reason: "D has no expiry date");
+      expect(toggle, findsNothing);
+    });
   });
 
   testWidgets("Dutch summary row", (tester) async {
@@ -340,8 +441,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("CATEGORIE"), findsOneWidget);
-    expect(find.text("AFGEGEVEN"), findsOneWidget);
-    expect(find.text("VERLOOPT"), findsOneWidget);
+    expect(find.text("STATUS"), findsOneWidget);
+    expect(find.text("VANAF"), findsOneWidget);
+    expect(find.text("TOT"), findsOneWidget);
   });
 
   testWidgets("a licence holding nothing still lists every category", (
@@ -350,7 +452,7 @@ void main() {
     await tester.pumpWidget(
       _wrap(
         DrivingLicenceCategoriesTable(
-          view: DrivingLicenceCategoriesView(
+          view: _full(
             rows: [
               for (final code in DrivingLicenceCategoriesRenderer.codes)
                 CategoryRow(code: code, held: _v<bool?>(false)),
@@ -370,7 +472,7 @@ void main() {
   });
 
   testWidgets("fits a narrow phone card without overflowing", (tester) async {
-    final wide = DrivingLicenceCategoriesView(
+    final wide = _full(
       rows: [
         CategoryRow(
           code: "D1E",
@@ -394,6 +496,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  test("dates are shown the way the card prints them", () {
+    expect(cardDate("2015-03-01"), "01.03.15");
+    expect(cardDate("not a date"), "not a date");
   });
 
   test("every pictogram exists as an asset", () {

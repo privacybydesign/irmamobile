@@ -99,7 +99,18 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
         ),
       );
     }
-    return DrivingLicenceCategoriesView(rows: rows);
+    return DrivingLicenceCategoriesView(
+      rows: rows,
+      complete: codes.every((code) {
+        final c = byCode[code];
+        return c != null &&
+            c.held != null &&
+            c.issued != null &&
+            c.expires != null;
+      }),
+      showsIssued: byCode.values.any((c) => c.issued != null),
+      showsExpires: byCode.values.any((c) => c.expires != null),
+    );
   }
 
   static (String, _Field)? _match(schemaless.Attribute attribute) {
@@ -200,10 +211,28 @@ class DrivingLicenceCategoriesView {
   /// Every claimed attribute was empty: the licence chip held no category data.
   final bool noInformation;
 
-  const DrivingLicenceCategoriesView({required this.rows})
-    : noInformation = false;
+  /// Whether any issue date / expiry date attribute was given (even empty), so
+  /// the table shows that column. A disclosure of just the held flags shows
+  /// neither.
+  final bool showsIssued;
+  final bool showsExpires;
+
+  /// Every category attribute was given, as on the credential detail screen.
+  /// False for a subset, i.e. a disclosure, where every shared category must
+  /// be visible.
+  final bool complete;
+
+  const DrivingLicenceCategoriesView({
+    required this.rows,
+    required this.complete,
+    required this.showsIssued,
+    required this.showsExpires,
+  }) : noInformation = false;
 
   const DrivingLicenceCategoriesView.noInformation()
     : rows = const [],
+      complete = true,
+      showsIssued = false,
+      showsExpires = false,
       noInformation = true;
 }
