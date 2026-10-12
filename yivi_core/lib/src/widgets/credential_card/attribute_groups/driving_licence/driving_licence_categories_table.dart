@@ -15,10 +15,9 @@ import "driving_licence_categories_renderer.dart";
 /// Category / Issued / Expires table with one row per category, where a
 /// category that is not held shows "-" for its dates.
 ///
-/// Collapsed by default to the categories held, ending in a summary row
-/// ("+ 14 categories not held") that expands the rest in place. A subset of the categories (a disclosure) starts expanded, so
-/// everything being shared is visible without a tap. When nothing or
-/// everything given is held there is nothing to hide, so the table shows
+/// Always starts collapsed to the categories held, ending in a summary row
+/// ("+ 14 categories not held") that expands the rest in place. When nothing
+/// or everything given is held there is nothing to hide, so the table shows
 /// every row and no toggle.
 class DrivingLicenceCategoriesTable extends StatefulWidget {
   final DrivingLicenceCategoriesView view;
@@ -35,7 +34,8 @@ class _DrivingLicenceCategoriesTableState
     extends State<DrivingLicenceCategoriesTable> {
   static const _prefix = "credential.driving_licence_categories";
 
-  late var _expanded = !widget.view.complete;
+  // Always starts collapsed.
+  var _expanded = false;
 
   static const _resizeDuration = Duration(milliseconds: 200);
 
@@ -104,7 +104,7 @@ class _DrivingLicenceCategoriesTableState
       crossAxisAlignment: .start,
       children: [
         // Sets the section apart from the attributes above it.
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: theme.smallSpacing),
         Container(
           key: const Key("driving_licence_categories_divider"),
           height: 1,

@@ -47,8 +47,6 @@ void main() {
       // Only the expiry date was given.
       CategoryRow(code: "T", expires: _v("2029-01-01")),
     ],
-    // As on the credential detail screen, so the table starts collapsed.
-    complete: true,
   );
 
   testWidgets("lays categories out as a Category / Issued / Expires table", (
@@ -144,7 +142,6 @@ void main() {
               ),
               CategoryRow(code: "C1E", held: _v<bool?>(false)),
             ],
-            complete: true,
           ),
         ),
       ),
@@ -177,7 +174,6 @@ void main() {
                 )
               : CategoryRow(code: code, held: _v<bool?>(false)),
       ],
-      complete: true,
     );
     final toggle = find.byKey(const Key("driving_licence_categories_toggle"));
     double offset(WidgetTester tester) =>
@@ -262,7 +258,6 @@ void main() {
                   expires: code == "B" ? _v("2030-03-01") : null,
                 ),
             ],
-            complete: true,
           ),
         ),
       ),
@@ -283,29 +278,11 @@ void main() {
     final divider = find.byKey(const Key("driving_licence_categories_divider"));
     expect(tester.getSize(divider).height, 1);
     // Space above the divider, and the divider above the title.
-    expect(
-      tester.getTopLeft(divider).dy - tester.getTopLeft(table).dy,
-      greaterThanOrEqualTo(16),
-    );
+    expect(tester.getTopLeft(divider).dy - tester.getTopLeft(table).dy, 8);
     expect(
       tester.getTopLeft(divider).dy,
       lessThan(tester.getTopLeft(find.text("Driving licence categories")).dy),
     );
-  });
-
-  testWidgets("a disclosure (subset) starts expanded", (tester) async {
-    await tester.pumpWidget(
-      _wrap(
-        DrivingLicenceCategoriesTable(
-          view: DrivingLicenceCategoriesView(rows: view.rows, complete: false),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    // The not-held C being shared is visible without a tap.
-    expect(find.text("C"), findsOneWidget);
-    expect(find.text("Show less"), findsOneWidget);
   });
 
   testWidgets("Dutch summary row", (tester) async {
@@ -378,7 +355,6 @@ void main() {
               for (final code in DrivingLicenceCategoriesRenderer.codes)
                 CategoryRow(code: code, held: _v<bool?>(false)),
             ],
-            complete: true,
           ),
         ),
       ),
@@ -403,7 +379,6 @@ void main() {
           expires: _v("2030-03-01"),
         ),
       ],
-      complete: true,
     );
     // Roughly the content width of a credential card on a 320pt-wide phone.
     await tester.pumpWidget(
