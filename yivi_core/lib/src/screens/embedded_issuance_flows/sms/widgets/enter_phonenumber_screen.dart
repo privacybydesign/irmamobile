@@ -219,11 +219,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         context,
         "sms_issuance.enter_phone.phone_hint",
       ),
-      hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.neutralDark),
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: theme.defaultSpacing,
-        vertical: theme.smallSpacing,
-      ),
+      hintStyle: theme.fieldValueStyle.copyWith(color: theme.neutralDark),
+      contentPadding: theme.fieldContentPadding,
       border: line(theme.neutralDark),
       enabledBorder: line(theme.neutralDark),
       focusedBorder: line(theme.link),
@@ -299,8 +296,20 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                         children: [
                           Container(
                             key: _phoneFieldPositionKey,
+                            // The shadow of the field. Also there with the
+                            // flag off, so that the field keeps its state when
+                            // the flag value arrives.
+                            decoration: BoxDecoration(
+                              borderRadius: theme.fieldBorderRadius,
+                              boxShadow: formFieldsV2
+                                  ? [theme.fieldShadow]
+                                  : null,
+                            ),
                             child: InternationalPhoneNumberInput(
                               key: const Key("phone_number_input_field"),
+                              textStyle: formFieldsV2
+                                  ? theme.fieldValueStyle
+                                  : null,
                               spaceBetweenSelectorAndTextField:
                                   theme.smallSpacing,
                               focusNode: _focusNode,

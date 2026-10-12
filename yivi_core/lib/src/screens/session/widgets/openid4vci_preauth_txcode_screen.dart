@@ -250,7 +250,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
             ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
             : null,
       ),
-      builder: (decoration, _) => TextField(
+      builder: (decoration, _, style) => TextField(
         controller: _textController,
         key: const Key("openid4vci_tx_code_input_field"),
         focusNode: _focusNode,
@@ -259,6 +259,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         textAlign: formFieldsV2 ? TextAlign.start : TextAlign.center,
         keyboardType: _keyboardType,
         inputFormatters: _inputFormatters,
+        style: style,
         decoration: decoration,
         onChanged: (_) => setState(() {}),
         onSubmitted: (value) {

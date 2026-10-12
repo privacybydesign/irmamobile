@@ -4,23 +4,27 @@ import "package:material_ui/material_ui.dart";
 import "../data/feature_flags.dart";
 import "../providers/feature_flag_provider.dart";
 import "../theme/theme.dart";
-import "irma_divider.dart";
 
 const _groupRadius = 12.0;
 
+/// Where a [YiviTextField] is as a row of a [YiviFieldGroup].
+enum YiviFieldRowPosition { inner, last }
+
 /// Fields that belong together, such as the rows of a document's manual entry.
 ///
-/// With [FeatureFlag.formFieldsV2] on they are the rows of one white card,
-/// separated by dividers, and a [YiviTextField] inside renders as a row. With
+/// With [FeatureFlag.formFieldsV2] on they are the rows of one white card, and
+/// a [YiviTextField] inside renders as a row that draws its own divider. With
 /// the flag off they are stacked with a gap, as before.
 class YiviFieldGroup extends ConsumerWidget {
   final List<Widget> children;
 
   const YiviFieldGroup({super.key, required this.children});
 
-  /// Whether [context] is below a [YiviFieldGroup] that renders as a card.
-  static bool contains(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<_YiviFieldGroupScope>() != null;
+  /// The position of the row that [context] is in, or null when [context] is
+  /// not below a [YiviFieldGroup] that renders as a card.
+  static YiviFieldRowPosition? rowPosition(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<_YiviFieldRowScope>()
+      ?.position;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,39 +32,46 @@ class YiviFieldGroup extends ConsumerWidget {
     final formFieldsV2 =
         ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
-    if (!formFieldsV2) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final (i, child) in children.indexed) ...[
-            if (i > 0) SizedBox(height: theme.mediumSpacing),
-            child,
-          ],
-        ],
-      );
+    final radius = formFieldsV2
+        ? BorderRadius.circular(_groupRadius)
+        : BorderRadius.zero;
+    final gap = formFieldsV2 ? 0.0 : theme.mediumSpacing;
+
+    YiviFieldRowPosition? positionOf(int i) {
+      if (!formFieldsV2) {
+        return null;
+      }
+
+      return i == children.length - 1
+          ? YiviFieldRowPosition.last
+          : YiviFieldRowPosition.inner;
     }
 
-    return _YiviFieldGroupScope(
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: theme.light,
-          borderRadius: BorderRadius.circular(_groupRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade300,
-              offset: const Offset(0.0, 1.0),
-              blurRadius: 6.0,
-            ),
-          ],
-        ),
+    // The same widgets with the flag off and on, so that a field is not
+    // rebuilt from scratch, losing its focus, when the flag value arrives a
+    // frame after the screen opens.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: formFieldsV2 ? theme.light : null,
+        borderRadius: radius,
+        boxShadow: formFieldsV2 ? [theme.fieldGroupShadow] : null,
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        clipBehavior: formFieldsV2 ? Clip.antiAlias : Clip.none,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: formFieldsV2
+              ? CrossAxisAlignment.stretch
+              : CrossAxisAlignment.start,
           children: [
-            for (final (i, child) in children.indexed) ...[
-              if (i > 0) const IrmaDivider(),
-              child,
-            ],
+            for (final (i, child) in children.indexed)
+              _YiviFieldRowScope(
+                position: positionOf(i),
+                child: Padding(
+                  padding: EdgeInsets.only(top: i == 0 ? 0 : gap),
+                  child: child,
+                ),
+              ),
           ],
         ),
       ),
@@ -68,9 +79,12 @@ class YiviFieldGroup extends ConsumerWidget {
   }
 }
 
-class _YiviFieldGroupScope extends InheritedWidget {
-  const _YiviFieldGroupScope({required super.child});
+class _YiviFieldRowScope extends InheritedWidget {
+  final YiviFieldRowPosition? position;
+
+  const _YiviFieldRowScope({required this.position, required super.child});
 
   @override
-  bool updateShouldNotify(_YiviFieldGroupScope oldWidget) => false;
+  bool updateShouldNotify(_YiviFieldRowScope oldWidget) =>
+      position != oldWidget.position;
 }

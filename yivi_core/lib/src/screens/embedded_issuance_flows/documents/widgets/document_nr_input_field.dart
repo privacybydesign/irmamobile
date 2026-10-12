@@ -4,6 +4,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/yivi_text_field.dart";
 
+/// The characters of a document number are spaced out with form fields V2.
+const _letterSpacing = 1.0;
+
 class DocumentNrInputField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
@@ -51,13 +54,13 @@ class DocumentNrInputField extends StatelessWidget {
         floatingLabelAlignment: .start,
         floatingLabelBehavior: .always,
       ),
-      builder: (decoration, errorBuilder) => TextFormField(
+      builder: (decoration, errorBuilder, style) => TextFormField(
         key: const Key("document_nr_input_field"),
         controller: controller,
         keyboardType: .text,
         textCapitalization: .characters,
         cursorColor: theme.themeData.colorScheme.secondary,
-        style: baseTextStyle,
+        style: style?.copyWith(letterSpacing: _letterSpacing) ?? baseTextStyle,
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
         ],

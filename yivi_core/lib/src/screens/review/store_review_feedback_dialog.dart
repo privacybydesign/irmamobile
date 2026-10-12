@@ -102,7 +102,7 @@ class _StoreReviewFeedbackDialogState
                   ),
                 ),
               ),
-              builder: (decoration, _) => TextField(
+              builder: (decoration, _, style) => TextField(
                 key: const Key("review_feedback_input"),
                 controller: _controller,
                 minLines: 3,
@@ -113,7 +113,7 @@ class _StoreReviewFeedbackDialogState
                 // the global underline InputDecorationTheme, a bodyMedium style, a
                 // secondary-coloured cursor and a 50%-opacity hint.
                 cursorColor: theme.themeData.colorScheme.secondary,
-                style: theme.textTheme.bodyMedium,
+                style: style ?? theme.textTheme.bodyMedium,
                 decoration: decoration,
               ),
             ),

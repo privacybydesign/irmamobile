@@ -38,13 +38,13 @@ class EmailInputField extends StatelessWidget {
           "enrollment.email.provide.input.hint",
         ),
       ),
-      builder: (decoration, errorBuilder) => TextFormField(
+      builder: (decoration, errorBuilder, style) => TextFormField(
         key: const Key("email_input_field"),
         controller: controller,
         keyboardType: TextInputType.emailAddress,
         autofillHints: const [AutofillHints.email],
         cursorColor: theme.themeData.colorScheme.secondary,
-        style: baseTextStyle,
+        style: style ?? baseTextStyle,
         decoration: decoration,
         errorBuilder: errorBuilder,
         autovalidateMode: AutovalidateMode.onUserInteraction,
