@@ -29,7 +29,7 @@ class _FakeLinkApi implements KeyshareEmailLinkApi {
   }
 }
 
-enum DataTabCredentials { some, none }
+enum _DataTabCredentials { some, none }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -50,13 +50,13 @@ void main() {
   // the banner may show.
   ProviderContainer newContainer([
     List<Override> overrides = const [],
-    DataTabCredentials credentials = DataTabCredentials.some,
+    _DataTabCredentials credentials = _DataTabCredentials.some,
   ]) {
     final container = ProviderContainer(
       overrides: [
         preferencesProvider.overrideWithValue(prefs),
         hasCredentialsProvider.overrideWithValue(
-          credentials == DataTabCredentials.some,
+          credentials == _DataTabCredentials.some,
         ),
         ...overrides,
       ],
@@ -93,7 +93,7 @@ void main() {
       await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
 
       expect(
-        await readVisible(newContainer(const [], DataTabCredentials.none)),
+        await readVisible(newContainer(const [], _DataTabCredentials.none)),
         isFalse,
       );
     });

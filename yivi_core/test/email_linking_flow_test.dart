@@ -113,7 +113,7 @@ SessionState _successState(int id, SessionType type) => SessionState(
   continueOnSecondDevice: true,
 );
 
-enum DataTabCredentials { some, none }
+enum _DataTabCredentials { some, none }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -908,13 +908,13 @@ void main() {
   group("banner", () {
     Future<void> pumpBanner(
       WidgetTester tester, {
-      DataTabCredentials credentials = DataTabCredentials.some,
+      _DataTabCredentials credentials = _DataTabCredentials.some,
     }) async {
       await pumpApp(
         tester,
         overrides: [
           hasCredentialsProvider.overrideWithValue(
-            credentials == DataTabCredentials.some,
+            credentials == _DataTabCredentials.some,
           ),
         ],
         home: Scaffold(
@@ -948,7 +948,7 @@ void main() {
     testWidgets("waits for the first credential, so it is not there right "
         "after enrollment", (tester) async {
       await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
-      await pumpBanner(tester, credentials: DataTabCredentials.none);
+      await pumpBanner(tester, credentials: _DataTabCredentials.none);
 
       expect(find.byType(EmailLinkBanner), findsNothing);
     });
