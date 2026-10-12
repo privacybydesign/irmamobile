@@ -94,6 +94,7 @@ class DocumentFlowButton extends StatelessWidget {
 
     return Semantics(
       button: true,
+      enabled: onPressed != null,
       child: SizedBox(
         height: height,
         width: double.infinity,
