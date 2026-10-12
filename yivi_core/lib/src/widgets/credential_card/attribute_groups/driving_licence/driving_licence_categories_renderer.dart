@@ -46,7 +46,7 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     final view = viewOf(claimed, compareTo: compareTo);
     return AttributeGroup(
       claimed: claimed,
-      placement: const AttributeGroupPlacement.after("dateOfExpiry"),
+      placement: const AttributeGroupPlacement.end(),
       build: (_) => DrivingLicenceCategoriesTable(view: view),
     );
   }
@@ -74,36 +74,32 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     final allEmpty = byCode.values.every((c) => c.isEmpty);
     if (allEmpty) return const DrivingLicenceCategoriesView.noInformation();
 
-    final held = <CategoryRow>[];
-    final notHeld = <CompareValue<String>>[];
+    final rows = <CategoryRow>[];
     for (final code in codes) {
       final c = byCode[code];
       if (c == null) continue;
-      final heldFlag = _bool(c.held?.value);
+      // An empty held flag is read as not held.
+      final heldFlag = _bool(c.held?.value) ?? (c.held == null ? null : false);
       final issued = _string(c.issued?.value);
       final expires = _string(c.expires?.value);
+      if (c.held == null && issued == null && expires == null) continue;
 
-      if (heldFlag == true || issued != null || expires != null) {
-        held.add(
-          CategoryRow(
-            code: code,
-            held: c.held == null
-                ? null
-                : CompareValue(heldFlag, _compare(c.held!, compareTo)),
-            issued: issued == null
-                ? null
-                : CompareValue(issued, _compare(c.issued!, compareTo)),
-            expires: expires == null
-                ? null
-                : CompareValue(expires, _compare(c.expires!, compareTo)),
-          ),
-        );
-      } else if (c.held != null) {
-        // An explicit "no", or an empty held flag, which we read as not held.
-        notHeld.add(CompareValue(code, _compare(c.held!, compareTo)));
-      }
+      rows.add(
+        CategoryRow(
+          code: code,
+          held: c.held == null
+              ? null
+              : CompareValue(heldFlag, _compare(c.held!, compareTo)),
+          issued: issued == null
+              ? null
+              : CompareValue(issued, _compare(c.issued!, compareTo)),
+          expires: expires == null
+              ? null
+              : CompareValue(expires, _compare(c.expires!, compareTo)),
+        ),
+      );
     }
-    return DrivingLicenceCategoriesView(held: held, notHeld: notHeld);
+    return DrivingLicenceCategoriesView(rows: rows);
   }
 
   static (String, _Field)? _match(schemaless.Attribute attribute) {
@@ -181,8 +177,8 @@ class CompareValue<T> {
   const CompareValue(this.value, this.comparison);
 }
 
-/// One held category. Fields are null when that attribute was not given,
-/// e.g. a disclosure of only the expiry date.
+/// One category. Fields are null when that attribute was not given, e.g. a
+/// disclosure of only the expiry date.
 class CategoryRow {
   final String code;
   final CompareValue<bool?>? held;
@@ -190,22 +186,24 @@ class CategoryRow {
   final CompareValue<String>? expires;
 
   const CategoryRow({required this.code, this.held, this.issued, this.expires});
+
+  /// The licence says this category is not held: a "no" (or empty) held flag
+  /// and no dates. Not the same as a row whose dates were simply not given.
+  bool get notHeld =>
+      held != null && held!.value != true && issued == null && expires == null;
 }
 
 class DrivingLicenceCategoriesView {
-  final List<CategoryRow> held;
-  final List<CompareValue<String>> notHeld;
+  /// In licence-card order.
+  final List<CategoryRow> rows;
 
   /// Every claimed attribute was empty: the licence chip held no category data.
   final bool noInformation;
 
-  const DrivingLicenceCategoriesView({
-    required this.held,
-    required this.notHeld,
-  }) : noInformation = false;
+  const DrivingLicenceCategoriesView({required this.rows})
+    : noInformation = false;
 
   const DrivingLicenceCategoriesView.noInformation()
-    : held = const [],
-      notHeld = const [],
+    : rows = const [],
       noInformation = true;
 }

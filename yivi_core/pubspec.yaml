@@ -117,6 +117,7 @@ flutter:
     - assets/disclosure/
     - assets/ui/
     - assets/success/
+    - assets/vehicles/
 
   fonts:
     - family: Alexandria

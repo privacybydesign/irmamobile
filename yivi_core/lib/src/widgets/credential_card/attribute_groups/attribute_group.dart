@@ -5,7 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 
 /// Where an attribute group appears among a credential's ordinary attribute
-/// rows. Image attributes always stay below every group.
+/// rows. Image attributes stay below every group except an [EndPlacement] one.
 sealed class AttributeGroupPlacement {
   const AttributeGroupPlacement();
 
@@ -14,6 +14,9 @@ sealed class AttributeGroupPlacement {
 
   /// After all ordinary rows, above images.
   const factory AttributeGroupPlacement.bottom() = BottomPlacement;
+
+  /// After everything, images included.
+  const factory AttributeGroupPlacement.end() = EndPlacement;
 
   /// Directly after the top-level attribute [attributeId]. When that
   /// attribute is not in the list (e.g. a disclosure subset), the group takes
@@ -28,6 +31,10 @@ class TopPlacement extends AttributeGroupPlacement {
 
 class BottomPlacement extends AttributeGroupPlacement {
   const BottomPlacement();
+}
+
+class EndPlacement extends AttributeGroupPlacement {
+  const EndPlacement();
 }
 
 class AfterPlacement extends AttributeGroupPlacement {

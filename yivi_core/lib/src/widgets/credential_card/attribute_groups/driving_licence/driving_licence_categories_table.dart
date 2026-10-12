@@ -1,12 +1,16 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
+
+import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
 
-/// Plain presentation of driving licence categories: one row per held
-/// category, one line listing the categories not held.
+/// Driving licence categories laid out like the back of the licence card: a
+/// Category / Issued / Expires table with one row per category, where a
+/// category that is not held shows "-" for its dates.
 class DrivingLicenceCategoriesTable extends StatelessWidget {
   final DrivingLicenceCategoriesView view;
 
@@ -32,89 +36,151 @@ class DrivingLicenceCategoriesTable extends StatelessWidget {
               theme,
             ).copyWith(color: theme.neutral, fontStyle: FontStyle.italic),
           ),
-        for (final row in view.held)
+        if (view.rows.isNotEmpty)
           Padding(
             padding: EdgeInsets.only(top: theme.tinySpacing),
-            child: _CategoryRowView(row: row, t: t),
+            child: _table(theme, t),
           ),
-        if (view.notHeld.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: theme.tinySpacing),
-            child: Text.rich(
-              TextSpan(
-                style: attributeLabelStyle(theme),
-                children: [
-                  TextSpan(text: "${t("not_held")}: "),
-                  for (final (i, code) in view.notHeld.indexed) ...[
-                    if (i > 0) const TextSpan(text: ", "),
-                    TextSpan(
-                      text: code.value,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: comparisonColor(theme, code.comparison),
-                      ),
-                    ),
-                  ],
-                ],
+      ],
+    );
+  }
+
+  Widget _table(IrmaThemeData theme, String Function(String) t) {
+    final cellPadding = EdgeInsets.symmetric(vertical: theme.tinySpacing);
+    final dateStyle = attributeValueStyle(
+      theme,
+      theme.dark,
+    ).copyWith(fontSize: 14);
+
+    Widget header(String text) => Padding(
+      padding: cellPadding,
+      child: Text(text.toUpperCase(), style: attributeEyebrowStyle(theme)),
+    );
+
+    Widget date(CategoryRow row, CompareValue<String>? value) => Padding(
+      padding: cellPadding,
+      child: Text(
+        row.notHeld ? "-" : value?.value ?? "",
+        style: dateStyle.copyWith(
+          color: value == null
+              ? null
+              : comparisonColor(theme, value.comparison),
+        ),
+      ),
+    );
+
+    final divider = BoxDecoration(
+      border: Border(top: BorderSide(color: theme.neutralExtraLight)),
+    );
+
+    return Table(
+      columnWidths: const {
+        0: IntrinsicColumnWidth(),
+        1: FlexColumnWidth(),
+        2: FlexColumnWidth(),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        TableRow(
+          children: [
+            header(t("category")),
+            header(t("issued")),
+            header(t("expires")),
+          ],
+        ),
+        for (final row in view.rows)
+          TableRow(
+            key: ValueKey("driving_licence_category_${row.code}"),
+            decoration: divider,
+            children: [
+              Padding(
+                padding: cellPadding.copyWith(right: theme.mediumSpacing),
+                child: _CategoryCell(row: row),
               ),
-            ),
+              date(row, row.issued),
+              date(row, row.expires),
+            ],
           ),
       ],
     );
   }
 }
 
-class _CategoryRowView extends StatelessWidget {
+/// Vehicle icon(s) followed by the category code.
+class _CategoryCell extends StatelessWidget {
   final CategoryRow row;
-  final String Function(String) t;
 
-  const _CategoryRowView({required this.row, required this.t});
+  const _CategoryCell({required this.row});
+
+  // Fits a vehicle plus trailer, so codes line up across rows. Pictograms are
+  // right-aligned in it, so they sit against the category code.
+  static const _iconSlotWidth = 44.0;
+  static const _iconSize = 20.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final codeColor = comparisonColor(
-      theme,
-      row.held?.comparison ?? AttributeComparison.none,
-    );
-
-    Widget date(String label, CompareValue<String> value) => Text.rich(
-      TextSpan(
-        style: attributeLabelStyle(theme),
-        children: [
-          TextSpan(text: "$label "),
-          TextSpan(
-            text: value.value,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: comparisonColor(theme, value.comparison),
-            ),
-          ),
-        ],
-      ),
-    );
+    final (vehicle, trailer) = vehicleIcons(row.code);
 
     return Row(
-      crossAxisAlignment: .start,
+      mainAxisSize: .min,
       children: [
         SizedBox(
-          width: 48,
-          child: Text(row.code, style: attributeValueStyle(theme, codeColor)),
-        ),
-        Expanded(
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .start,
+          width: _iconSlotWidth,
+          child: Row(
+            mainAxisAlignment: .end,
             children: [
-              if (row.issued != null) date(t("issued"), row.issued!),
-              if (row.expires != null) date(t("expires"), row.expires!),
+              _icon(vehicle, theme),
+              if (trailer) _icon("trailer", theme),
             ],
+          ),
+        ),
+        SizedBox(width: theme.smallSpacing),
+        Text(
+          row.code,
+          style: attributeValueStyle(
+            theme,
+            comparisonColor(
+              theme,
+              row.held?.comparison ?? AttributeComparison.none,
+            ),
           ),
         ),
       ],
     );
   }
 }
+
+Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
+  yiviAsset("vehicles/$asset.svg"),
+  width: _CategoryCell._iconSize,
+  height: _CategoryCell._iconSize,
+  colorFilter: ColorFilter.mode(theme.neutralDark, BlendMode.srcIn),
+);
+
+/// The vehicle pictogram for a category, and whether a trailer follows it.
+/// Filled side profiles facing left, distinguished per row like the
+/// pictograms on the Dutch licence card (EC specimen NL8): CE is one
+/// articulated lorry, the other E categories add a separate trailer.
+(String, bool) vehicleIcons(String code) => switch (code) {
+  "AM" => ("moped", false),
+  "A1" => ("motorcycle_light", false),
+  "A2" => ("motorcycle_medium", false),
+  "A" => ("motorcycle", false),
+  "B1" => ("van", false),
+  "B" => ("car", false),
+  "BE" => ("car", true),
+  "C1" => ("truck_small", false),
+  "C1E" => ("truck_small", true),
+  "C" => ("truck", false),
+  "CE" => ("articulated", false),
+  "D1" => ("minibus", false),
+  "D1E" => ("minibus", true),
+  "D" => ("bus", false),
+  "DE" => ("bus", true),
+  "T" => ("tractor", false),
+  _ => ("car", false),
+};
 
 Color comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
     switch (comparison) {

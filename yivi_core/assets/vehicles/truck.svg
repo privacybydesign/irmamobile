@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- C: heavy lorry, tall cab and box, side profile facing left -->
+  <path d="M1.2 17H3a2.6 2.6 0 0 1 5.2 0H15a2.6 2.6 0 0 1 5.2 0H23V4.5H8.6V6.8H4.3L1.2 10.6Z M4.7 7.8H7.6V10.8H2.9Z M7.8 7.8h.8V15.3h-.8Z"/>
+  <circle cx="5.6" cy="17" r="2.1"/>
+  <circle cx="17.6" cy="17" r="2.1"/>
+</svg>

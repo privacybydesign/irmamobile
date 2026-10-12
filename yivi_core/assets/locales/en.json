@@ -114,9 +114,9 @@
     "boolean_no": "No",
     "driving_licence_categories": {
       "title": "Driving licence categories",
+      "category": "Category",
       "issued": "Issued",
       "expires": "Expires",
-      "not_held": "Not held",
       "no_information": "No category information"
     }
   },

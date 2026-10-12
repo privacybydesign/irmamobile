@@ -68,8 +68,7 @@ void main() {
     expect(group.claimed, hasLength(48));
     expect(group.claimed, containsAll(categories));
     expect(group.claimed.where(others.contains), isEmpty);
-    expect(group.placement, isA<AfterPlacement>());
-    expect((group.placement as AfterPlacement).attributeId, "dateOfExpiry");
+    expect(group.placement, isA<EndPlacement>());
   });
 
   test("claims nothing when there are no category attributes", () {
@@ -85,60 +84,68 @@ void main() {
     );
 
     expect(view.noInformation, isFalse);
-    expect(view.held.map((r) => r.code), ["AM", "B"]);
-    final b = view.held[1];
+    // Every category gets a row, in licence-card order.
+    expect(
+      view.rows.map((r) => r.code),
+      DrivingLicenceCategoriesRenderer.codes,
+    );
+    final held = view.rows.where((r) => !r.notHeld).toList();
+    expect(held.map((r) => r.code), ["AM", "B"]);
+    final b = held[1];
     expect(b.held?.value, isTrue);
     expect(b.issued?.value, "2015-03-01");
     expect(b.expires?.value, "2030-03-01");
     expect(b.held?.comparison, AttributeComparison.none);
-    expect(
-      view.notHeld.map((c) => c.value),
-      DrivingLicenceCategoriesRenderer.codes.where(
-        (c) => c != "AM" && c != "B",
-      ),
-    );
+    final c = view.rows.firstWhere((r) => r.code == "C");
+    expect(c.notHeld, isTrue);
+    expect(c.held?.value, isFalse);
+    expect(c.issued, isNull);
+    expect(c.expires, isNull);
   });
 
   test("all categories explicitly not held", () {
     final view = _view(_all({}));
-    expect(view.held, isEmpty);
-    expect(view.notHeld, hasLength(16));
+    expect(view.rows, hasLength(16));
+    expect(view.rows.every((r) => r.notHeld), isTrue);
   });
 
   test("chip without category data shows no information", () {
     final view = _view(_allEmpty());
     expect(view.noInformation, isTrue);
-    expect(view.held, isEmpty);
-    expect(view.notHeld, isEmpty);
+    expect(view.rows, isEmpty);
   });
 
   test("disclosure of only the held flag", () {
     final view = _view([_bool("categoryB", true)]);
-    expect(view.held.single.code, "B");
-    expect(view.held.single.issued, isNull);
-    expect(view.held.single.expires, isNull);
-    expect(view.notHeld, isEmpty);
+    final row = view.rows.single;
+    expect(row.code, "B");
+    expect(row.notHeld, isFalse);
+    expect(row.issued, isNull);
+    expect(row.expires, isNull);
   });
 
   test("disclosure of only an expiry date: row without held marker", () {
     final view = _view([_str("categoryBDateOfExpiry", "2030-03-01")]);
-    final row = view.held.single;
+    final row = view.rows.single;
     expect(row.code, "B");
     expect(row.held, isNull);
     expect(row.issued, isNull);
     expect(row.expires?.value, "2030-03-01");
+    expect(row.notHeld, isFalse, reason: "dates not given, not 'not held'");
   });
 
   test("disclosure of a single not-held category", () {
     final view = _view([_bool("categoryC", false)]);
-    expect(view.held, isEmpty);
-    expect(view.notHeld.single.value, "C");
+    expect(view.rows.single.code, "C");
+    expect(view.rows.single.notHeld, isTrue);
   });
 
   test("yes/no that irmago left as a string is understood", () {
     final view = _view([_str("categoryB", "yes"), _str("categoryC", "no")]);
-    expect(view.held.single.code, "B");
-    expect(view.notHeld.single.value, "C");
+    expect(view.rows.map((r) => (r.code, r.notHeld)), [
+      ("B", false),
+      ("C", true),
+    ]);
   });
 
   group("compareTo", () {
@@ -147,7 +154,7 @@ void main() {
         _bool("categoryB", true),
         _str("categoryBDateOfExpiry", "2030-03-01"),
       ];
-      final row = _view(attrs, compareTo: attrs).held.single;
+      final row = _view(attrs, compareTo: attrs).rows.single;
       expect(row.held?.comparison, AttributeComparison.match);
       expect(row.expires?.comparison, AttributeComparison.match);
     });
@@ -156,7 +163,7 @@ void main() {
       final row = _view(
         [_bool("categoryB", true)],
         compareTo: [_bool("categoryB", false)],
-      ).held.single;
+      ).rows.single;
       expect(row.held?.comparison, AttributeComparison.mismatch);
     });
 
@@ -165,8 +172,8 @@ void main() {
         [_bool("categoryB", true), _bool("categoryC", false)],
         compareTo: [_bool("categoryB", true)],
       );
-      expect(view.held.single.held?.comparison, AttributeComparison.match);
-      expect(view.notHeld.single.comparison, AttributeComparison.mismatch);
+      expect(view.rows[0].held?.comparison, AttributeComparison.match);
+      expect(view.rows[1].held?.comparison, AttributeComparison.mismatch);
     });
   });
 }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- C1: light lorry, cab in front, side profile facing left -->
+  <path d="M2 17H3.5a2.5 2.5 0 0 1 5 0H15.5a2.5 2.5 0 0 1 5 0H22.5V7.5H9.3V9.3H5.4L2 12.8Z M5.7 10.3H7.6V12.6H3.9Z M8.6 10.3h.7V15h-.7Z"/>
+  <circle cx="6" cy="17" r="1.9"/>
+  <circle cx="18" cy="17" r="1.9"/>
+</svg>

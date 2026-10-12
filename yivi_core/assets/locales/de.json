@@ -114,9 +114,9 @@
     "boolean_no": "Nein",
     "driving_licence_categories": {
       "title": "Führerscheinklassen",
+      "category": "Klasse",
       "issued": "Ausgestellt",
       "expires": "Läuft ab",
-      "not_held": "Nicht vorhanden",
       "no_information": "Keine Klasseninformationen"
     }
   },

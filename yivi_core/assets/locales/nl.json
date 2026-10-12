@@ -114,9 +114,9 @@
     "boolean_no": "Nee",
     "driving_licence_categories": {
       "title": "Rijbewijscategorieën",
+      "category": "Categorie",
       "issued": "Afgegeven",
       "expires": "Verloopt",
-      "not_held": "Niet in bezit",
       "no_information": "Geen categorie-informatie"
     }
   },

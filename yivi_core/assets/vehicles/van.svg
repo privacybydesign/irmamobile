@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- B1: small van / quadricycle, side profile facing left -->
+  <path d="M2 17H3.5a2.5 2.5 0 0 1 5 0H15.5a2.5 2.5 0 0 1 5 0H22V6.5H8L4.5 10 2 11Z M8.4 7.6H11.2V10.4H5.8Z"/>
+  <circle cx="6" cy="17" r="1.9"/>
+  <circle cx="18" cy="17" r="1.9"/>
+</svg>

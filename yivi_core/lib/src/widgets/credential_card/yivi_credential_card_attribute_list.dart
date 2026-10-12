@@ -364,7 +364,8 @@ Object? _topSegment(_Node node) => switch (node) {
 };
 
 /// Inserts [groups] into the top-level [children]. Groups resolving to the
-/// same slot keep their registry order; no group goes below the images.
+/// same slot keep their registry order; only an `end` group goes below the
+/// images.
 void _insertGroups(
   List<_Node> children,
   List<_ClaimedGroup> groups,
@@ -388,16 +389,16 @@ void _insertGroups(
 
   final slots = [
     for (final g in groups)
-      min(bottom, switch (g.group.placement) {
+      switch (g.group.placement) {
         TopPlacement() => 0,
         BottomPlacement() => bottom,
-        AfterPlacement(:final attributeId) => switch (children.indexWhere(
-          (c) => _topSegment(c) == attributeId,
-        )) {
+        EndPlacement() => n,
+        AfterPlacement(:final attributeId) => min(bottom, switch (children
+            .indexWhere((c) => _topSegment(c) == attributeId)) {
           -1 => fallback(g.firstIndex),
           final i => i + 1,
-        },
-      }),
+        }),
+      },
   ];
 
   final placed = <_Node>[];

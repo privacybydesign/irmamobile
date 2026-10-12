@@ -139,6 +139,23 @@ void main() {
     ]);
   });
 
+  testWidgets("end placement goes below images", (tester) async {
+    await _pump(
+      tester,
+      [_photo(), ...abc],
+      [
+        _FakeRenderer("g", {"b"}, const AttributeGroupPlacement.end()),
+      ],
+    );
+    expect(_order(tester, [...rows, "label-photo"]), [
+      "label-a",
+      "label-c",
+      "label-d",
+      "label-photo",
+      "group-g",
+    ]);
+  });
+
   testWidgets("after placement", (tester) async {
     await _pump(tester, abc, [
       _FakeRenderer("g", {"b"}, const AttributeGroupPlacement.after("c")),
@@ -224,6 +241,7 @@ void main() {
       YiviCredentialCardAttributeList([
         _attr("dateOfExpiry"),
         _attr("over18"),
+        _photo(),
         flag("B", true),
         flag("C", false),
       ], credentialId: "pbdf-staging.pbdf.drivinglicence"),
@@ -235,13 +253,10 @@ void main() {
     expect(table, findsOneWidget);
     expect(find.text("Category B"), findsNothing);
     expect(find.text("B"), findsOneWidget);
+    // At the very end, below the photo.
     expect(
-      tester.getTopLeft(find.text("label-dateOfExpiry")).dy,
+      tester.getTopLeft(find.text("label-photo")).dy,
       lessThan(tester.getTopLeft(table).dy),
-    );
-    expect(
-      tester.getTopLeft(table).dy,
-      lessThan(tester.getTopLeft(find.text("label-over18")).dy),
     );
   });
 }
