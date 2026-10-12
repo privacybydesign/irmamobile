@@ -6,6 +6,7 @@ import "../../../models/email_code_pointer.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "widgets/enter_email_screen.dart";
@@ -84,6 +85,7 @@ class _WaitingScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(
+        bottom: context.missingDataBand,
         titleTranslationKey: "email_issuance.enter_email.title",
       ),
       body: Padding(
@@ -91,8 +93,10 @@ class _WaitingScreen extends StatelessWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: "email_issuance.enter_email.back_button",
-        onSecondaryPressed: context.pop,
+        secondaryButtonLabel: context.missingDataBackLabel(
+          "email_issuance.enter_email.back_button",
+        ),
+        onSecondaryPressed: context.missingDataBack(context.pop),
       ),
     );
   }

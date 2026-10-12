@@ -6,6 +6,7 @@ import "package:permission_handler/permission_handler.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -130,13 +131,14 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
           return Scaffold(
             backgroundColor: theme.backgroundTertiary,
             appBar: IrmaAppBar(
+              bottom: context.missingDataBand,
               titleTranslationKey: widget.translationKeys.title,
             ),
             body: body,
             bottomNavigationBar: IrmaBottomBar(
               primaryButtonLabel: widget.translationKeys.manualEntryButton,
               onPrimaryPressed: widget.onManualAdd,
-              secondaryButtonLabel: "ui.cancel",
+              secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
               onSecondaryPressed: widget.onCancel,
               alignment: .vertical,
             ),
@@ -146,6 +148,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
         return Scaffold(
           backgroundColor: theme.backgroundTertiary,
           appBar: IrmaAppBar(
+            bottom: context.missingDataBand,
             titleTranslationKey: widget.translationKeys.title,
             leading: YiviBackButton(
               key: const Key("bottom_bar_secondary"),
