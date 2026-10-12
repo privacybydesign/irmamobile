@@ -7,23 +7,39 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
-import "../../widgets/irma_card.dart";
 import "../../widgets/translated_text.dart";
 
-const double _illustrationHeight = 132;
+const double _illustrationSize = 132;
 const double _maxContentWidth = 480;
-const double _routeIconSize = 32;
-const double _chipRadius = 16;
+const double _topSpacing = 24;
+const double _headerSpacing = 10;
+const double _chipRadius = 14;
+const double _chipIconSpacing = 6;
+const double _chipHorizontalSpacing = 12;
+const double _routeRadius = 12;
+const double _routeVerticalSpacing = 14;
+const double _routeIconSpacing = 14;
+const double _routeIconCircleSize = 40;
+const double _routeIconSize = 22;
+const double _chipIconSize = 16;
+const double _routeTextSpacing = 2;
+const Color _chipTextColor = Color(0xFF00602A);
 
-// The scan button floats over the bottom of the tab: its top edge is 23 px
-// above the tab's bottom edge, so the arrow stops a little above that.
-const double _qrButtonClearance = 32;
-const double _arrowMinHeight = 96;
-const double _arrowStrokeWidth = 3;
-const double _arrowHeadSize = 12;
+// The scan button floats over the bottom of the tab and its top edge is about
+// 33 px above the tab's bottom edge, so the arrow's tip stops above that.
+const double _arrowTipClearance = 40;
+const double _arrowStrokeWidth = 4;
+const double _arrowHeadStrokeWidth = 2;
 
-// The arrow starts three quarters across, under the second card.
-const double _arrowStartFraction = 0.75;
+// The arrow is drawn from its tip: these are offsets from the tip.
+const Offset _arrowStart = Offset(67, -142);
+const Offset _arrowStartControl = Offset(97, -90);
+const Offset _arrowTipControl = Offset(1, -78);
+const Offset _arrowShaftEnd = Offset(0, -22);
+const Offset _arrowHeadLeft = Offset(-14, -28);
+const Offset _arrowHeadRight = Offset(14, -28);
+const Offset _arrowHeadCurve = Offset(0, -21);
+const double _arrowHeight = 142;
 
 /// Empty state of the data tab with onboarding v2: the two ways to add the
 /// first data. Shown until the first credential is added.
@@ -72,41 +88,44 @@ class _EmptyDataRoutesState extends ConsumerState<EmptyDataRoutes> {
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: sidePadding,
-              vertical: theme.defaultSpacing,
+            padding: EdgeInsets.fromLTRB(
+              sidePadding,
+              _topSpacing,
+              sidePadding,
+              0,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: theme.defaultSpacing,
               children: [
-                Center(
-                  child: ExcludeSemantics(
-                    child: SvgPicture.asset(
-                      yiviAsset("enrollment/introduction_1.svg"),
-                      height: _illustrationHeight,
+                Column(
+                  spacing: _headerSpacing,
+                  children: [
+                    ExcludeSemantics(
+                      child: SvgPicture.asset(
+                        yiviAsset("enrollment/introduction_1.svg"),
+                        width: _illustrationSize,
+                        height: _illustrationSize,
+                      ),
                     ),
-                  ),
+                    if (_showReadyChip) _ReadyChip(),
+                    TranslatedText(
+                      "data_tab.start.title",
+                      style: theme.textTheme.displayMedium!.copyWith(
+                        height: 32 / 24,
+                      ),
+                      textAlign: TextAlign.center,
+                      isHeader: true,
+                    ),
+                  ],
                 ),
-                SizedBox(height: theme.defaultSpacing),
-                if (_showReadyChip) ...[
-                  Center(child: _ReadyChip()),
-                  SizedBox(height: theme.smallSpacing),
-                ],
-                TranslatedText(
-                  "data_tab.start.title",
-                  style: theme.textTheme.displayLarge,
-                  textAlign: TextAlign.center,
-                  isHeader: true,
-                ),
-                SizedBox(height: theme.defaultSpacing),
                 const _RouteCard(
-                  icon: Icons.smartphone_rounded,
+                  iconAsset: "ui/route_phone.svg",
                   titleKey: "data_tab.start.website_title",
                   textKey: "data_tab.start.website_text",
                 ),
-                SizedBox(height: theme.smallSpacing),
                 const _RouteCard(
-                  icon: Icons.qr_code_scanner_rounded,
+                  iconAsset: "ui/route_scan.svg",
                   titleKey: "data_tab.start.qr_title",
                   textKey: "data_tab.start.qr_text",
                 ),
@@ -132,12 +151,32 @@ class _ReadyChip extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: theme.defaultSpacing,
+          horizontal: _chipHorizontalSpacing,
           vertical: theme.tinySpacing,
         ),
-        child: TranslatedText(
-          "data_tab.start.ready",
-          style: theme.textTheme.headlineMedium,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: _chipIconSpacing,
+          children: [
+            ExcludeSemantics(
+              child: SvgPicture.asset(
+                yiviAsset("ui/ready_check.svg"),
+                width: _chipIconSize,
+                height: _chipIconSize,
+              ),
+            ),
+            Flexible(
+              child: TranslatedText(
+                "data_tab.start.ready",
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                  height: 20 / 14,
+                  fontWeight: FontWeight.w700,
+                  color: _chipTextColor,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -145,12 +184,12 @@ class _ReadyChip extends StatelessWidget {
 }
 
 class _RouteCard extends StatelessWidget {
-  final IconData icon;
+  final String iconAsset;
   final String titleKey;
   final String textKey;
 
   const _RouteCard({
-    required this.icon,
+    required this.iconAsset,
     required this.titleKey,
     required this.textKey,
   });
@@ -159,25 +198,71 @@ class _RouteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return IrmaCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ExcludeSemantics(
-            child: Icon(icon, size: _routeIconSize, color: theme.primary),
-          ),
-          SizedBox(width: theme.defaultSpacing),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TranslatedText(titleKey, style: theme.textTheme.headlineMedium),
-                SizedBox(height: theme.tinySpacing),
-                TranslatedText(textKey, style: theme.textTheme.bodyMedium),
-              ],
-            ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.light,
+        borderRadius: BorderRadius.circular(_routeRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: const Offset(0, 1),
+            blurRadius: 6,
           ),
         ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.defaultSpacing,
+          vertical: _routeVerticalSpacing,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: _routeIconSpacing,
+          children: [
+            ExcludeSemantics(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: theme.surfaceSecondary,
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox.square(
+                  dimension: _routeIconCircleSize,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      yiviAsset(iconAsset),
+                      width: _routeIconSize,
+                      height: _routeIconSize,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: _routeTextSpacing,
+                children: [
+                  TranslatedText(
+                    titleKey,
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.w700,
+                      height: 22 / 16,
+                    ),
+                    isHeader: true,
+                  ),
+                  TranslatedText(
+                    textKey,
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      fontSize: 15,
+                      height: 21 / 15,
+                      color: theme.neutralExtraDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -194,7 +279,9 @@ class _ArrowToScanButton extends StatelessWidget {
 
     return ExcludeSemantics(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: _arrowMinHeight),
+        constraints: const BoxConstraints(
+          minHeight: _arrowHeight + _arrowTipClearance,
+        ),
         child: CustomPaint(painter: _ArrowPainter(color: theme.primary)),
       ),
     );
@@ -208,35 +295,46 @@ class _ArrowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final start = Offset(size.width * _arrowStartFraction, 0);
-    final tip = Offset(size.width / 2, size.height - _qrButtonClearance);
-    final halfHeight = (tip.dy - start.dy) / 2;
-
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _arrowStrokeWidth
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    // Leaves the card and arrives at the button both pointing straight down.
     final shaft = Path()
-      ..moveTo(start.dx, start.dy)
+      ..moveTo(_arrowStart.dx, _arrowStart.dy)
       ..cubicTo(
-        start.dx,
-        start.dy + halfHeight,
-        tip.dx,
-        tip.dy - halfHeight,
-        tip.dx,
-        tip.dy,
+        _arrowStartControl.dx,
+        _arrowStartControl.dy,
+        _arrowTipControl.dx,
+        _arrowTipControl.dy,
+        _arrowShaftEnd.dx,
+        _arrowShaftEnd.dy,
       );
     final head = Path()
-      ..moveTo(tip.dx - _arrowHeadSize, tip.dy - _arrowHeadSize)
-      ..lineTo(tip.dx, tip.dy)
-      ..lineTo(tip.dx + _arrowHeadSize, tip.dy - _arrowHeadSize);
+      ..moveTo(_arrowHeadLeft.dx, _arrowHeadLeft.dy)
+      ..lineTo(0, 0)
+      ..lineTo(_arrowHeadRight.dx, _arrowHeadRight.dy)
+      ..quadraticBezierTo(
+        _arrowHeadCurve.dx,
+        _arrowHeadCurve.dy,
+        _arrowHeadLeft.dx,
+        _arrowHeadLeft.dy,
+      )
+      ..close();
 
-    canvas.drawPath(shaft, paint);
-    canvas.drawPath(head, paint);
+    canvas.translate(size.width / 2, size.height - _arrowTipClearance);
+    canvas.drawPath(
+      shaft,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _arrowStrokeWidth
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawPath(head, Paint()..color = color);
+    canvas.drawPath(
+      head,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _arrowHeadStrokeWidth
+        ..strokeJoin = StrokeJoin.round,
+    );
   }
 
   @override
