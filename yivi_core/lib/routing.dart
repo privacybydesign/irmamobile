@@ -17,6 +17,7 @@ import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
+import "src/screens/add_data/add_data_details_route.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
@@ -154,18 +155,27 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     state.uri.queryParameters,
                   );
 
-                  return SchemalessAddDataDetailsScreen(
-                    credential: params.credential,
-                    faq: params.faq,
-                    onCancel: context.pop,
-                    onAdd: () {
+                  Future<void> openIssueURL() =>
                       IrmaRepositoryProvider.of(context).openIssueURL(
                         context,
                         params.credential.credentialId,
                         params.credential.issueURL,
                         ref,
                       );
+
+                  return AddDataDetailsRoute(
+                    credential: params.credential,
+                    onBack: context.pop,
+                    onOpenWebsite: () async {
+                      await openIssueURL();
+                      if (context.mounted) context.pop();
                     },
+                    details: SchemalessAddDataDetailsScreen(
+                      credential: params.credential,
+                      faq: params.faq,
+                      onCancel: context.pop,
+                      onAdd: openIssueURL,
+                    ),
                   );
                 },
               ),

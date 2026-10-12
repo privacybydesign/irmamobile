@@ -38,6 +38,7 @@ class YiviButtonSize {
 
   static const large = YiviButtonSize._internal(55);
   static const medium = YiviButtonSize._internal(50);
+  static const standard = YiviButtonSize._internal(48);
   static const small = YiviButtonSize._internal(37);
 }
 
@@ -48,6 +49,7 @@ class YiviThemedButton extends StatelessWidget {
   final YiviButtonStyle style;
   final YiviButtonSize size;
   final bool isTransparent;
+  final IconData? trailingIcon;
 
   const YiviThemedButton({
     super.key,
@@ -57,6 +59,7 @@ class YiviThemedButton extends StatelessWidget {
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
+    this.trailingIcon,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
          "Fancy button cannot be transparent",
@@ -134,17 +137,28 @@ class YiviThemedButton extends StatelessWidget {
       );
     }
 
+    final textColor = style == YiviButtonStyle.outlined
+        ? theme.neutralExtraDark
+        : theme.light;
+    final labelWidget = TranslatedText(
+      label,
+      translationParams: labelParams,
+      textAlign: TextAlign.center,
+      style: baseTextStyle.copyWith(color: textColor),
+    );
     final centeredTextWidget = Center(
-      child: TranslatedText(
-        label,
-        translationParams: labelParams,
-        textAlign: TextAlign.center,
-        style: baseTextStyle.copyWith(
-          color: style == YiviButtonStyle.outlined
-              ? theme.neutralExtraDark
-              : theme.light,
-        ),
-      ),
+      child: trailingIcon == null
+          ? labelWidget
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: labelWidget),
+                SizedBox(width: theme.smallSpacing),
+                ExcludeSemantics(
+                  child: Icon(trailingIcon, size: 18, color: textColor),
+                ),
+              ],
+            ),
     );
 
     Widget buttonWidget = Semantics(

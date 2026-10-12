@@ -8,6 +8,7 @@ enum IrmaBottomBarAlignment { horizontal, vertical, automatic }
 
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
+  final IconData? primaryButtonTrailingIcon;
   final VoidCallback? onPrimaryPressed;
   final bool showTooltipOnPrimary;
   final String? secondaryButtonLabel;
@@ -17,6 +18,7 @@ class IrmaBottomBar extends StatelessWidget {
   const IrmaBottomBar({
     super.key,
     this.primaryButtonLabel,
+    this.primaryButtonTrailingIcon,
     this.onPrimaryPressed,
     this.showTooltipOnPrimary = false,
     this.secondaryButtonLabel,
@@ -34,6 +36,7 @@ class IrmaBottomBar extends StatelessWidget {
           key: const Key("bottom_bar_primary"),
           onPressed: onPrimaryPressed,
           label: primaryButtonLabel!,
+          trailingIcon: primaryButtonTrailingIcon,
         ),
       ),
     );
