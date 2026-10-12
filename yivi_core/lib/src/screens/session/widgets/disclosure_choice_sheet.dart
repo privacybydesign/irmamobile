@@ -100,9 +100,6 @@ class _DisclosureChoiceSheet extends ConsumerWidget {
     return index < 0 ? 0 : index;
   }
 
-  static String _bundleName(DisclosureBundle bundle) =>
-      bundle.credentials.map((c) => c.name).join(", ");
-
   /// The values of a bundle, which tell apart options with the same name,
   /// such as two e-mail addresses.
   static String _bundleValues(DisclosureBundle bundle) => [
@@ -136,7 +133,7 @@ class _DisclosureChoiceSheet extends ConsumerWidget {
     final obtainable = live.obtainableOptions ?? [];
 
     final currentIndex = _currentIndex(owned, ref.watch(selectedBundle));
-    final ownedNames = owned.map(_bundleName).toList();
+    final ownedNames = owned.map(disclosureBundleName).toList();
 
     void pick(int index) {
       onChoiceMade(index);

@@ -69,12 +69,16 @@ String _lowerFirstLetter(String name, String? language) {
 String issuanceBundleName(IssuanceBundle bundle) =>
     bundle.credentials.map((c) => c.name).join(", ");
 
+/// The name of an option in the app, named like [issuanceBundleName].
+String disclosureBundleName(DisclosureBundle bundle) =>
+    bundle.credentials.map((c) => c.name).join(", ");
+
 /// The distinct names of everything a [DisclosurePickOne] accepts, owned
 /// options first. A bundle of several credentials is named after all of them.
 List<String> pickOneNames(DisclosurePickOne pickOne) {
   return {
     for (final bundle in pickOne.ownedOptions ?? <DisclosureBundle>[])
-      bundle.credentials.map((c) => c.name).join(", "),
+      disclosureBundleName(bundle),
     for (final descriptor
         in pickOne.obtainableOptions ?? <CredentialDescriptor>[])
       descriptor.name,
