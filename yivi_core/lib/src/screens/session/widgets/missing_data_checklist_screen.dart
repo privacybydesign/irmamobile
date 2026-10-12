@@ -392,10 +392,8 @@ class _ChecklistRowState extends State<_ChecklistRow>
       animation: _flash,
       builder: (context, child) => _RowBox(
         key: Key("missing_data_row_${credential.credentialId}"),
-        dashed: !isPresent,
-        color: widget.state == _RowState.justAdded
-            ? background.value ?? theme.light
-            : theme.light,
+        state: widget.state,
+        color: widget.state == _RowState.justAdded ? background.value : null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.smallSpacing,
@@ -408,13 +406,7 @@ class _ChecklistRowState extends State<_ChecklistRow>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        credential.name,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          height: 22 / 16,
-                        ),
-                      ),
+                      Text(credential.name, style: missingDataNameStyle(theme)),
                       _RowStatus(state: widget.state),
                     ],
                   ),
@@ -437,24 +429,26 @@ class _ChecklistRowState extends State<_ChecklistRow>
 /// A row of the list: white with a shadow when the credential is in the app,
 /// a dashed outline when it is not.
 class _RowBox extends StatelessWidget {
-  final bool dashed;
-  final Color color;
+  final _RowState state;
+
+  /// The background of a row that is in the app, white when null.
+  final Color? color;
   final Widget child;
 
   const _RowBox({
     super.key,
-    required this.dashed,
-    required this.color,
+    required this.state,
+    this.color,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (!dashed) {
+    if (state != _RowState.missing) {
       return Container(
         padding: _rowPadding,
         decoration: BoxDecoration(
-          color: color,
+          color: color ?? IrmaTheme.of(context).light,
           borderRadius: missingDataRowRadius,
           boxShadow: [
             BoxShadow(
@@ -527,7 +521,7 @@ class _RowStatus extends StatelessWidget {
       _RowState.justAdded => "missing_data.status.just_added",
       _RowState.missing => "missing_data.status.missing",
     };
-    final style = theme.textTheme.bodySmall!.copyWith(height: 20 / 14);
+    final style = missingDataCaptionStyle(theme);
 
     return Text(
       FlutterI18n.translate(context, key),
@@ -540,7 +534,7 @@ class _RowStatus extends StatelessWidget {
           color: missingDataSuccessText,
           fontWeight: FontWeight.w700,
         ),
-        _RowState.missing => style.copyWith(color: theme.neutralExtraDark),
+        _RowState.missing => style,
       },
     );
   }
@@ -616,18 +610,14 @@ class _ChoiceStepCard extends StatelessWidget {
 
     return _RowBox(
       key: Key("missing_data_choice_${step.index}"),
-      dashed: true,
-      color: theme.light,
+      state: _RowState.missing,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: theme.smallSpacing,
         children: [
           Text(
             FlutterI18n.translate(context, "disclosure_permission.choose"),
-            style: theme.textTheme.bodyMedium!.copyWith(
-              fontWeight: FontWeight.w600,
-              height: 22 / 16,
-            ),
+            style: missingDataNameStyle(theme),
           ),
           DisclosurePermissionChoice.fromIssuanceBundles(
             options: step.step.options,
@@ -674,10 +664,7 @@ class _ShareDisabledBar extends StatelessWidget {
             translationParams: {"n": "$missingCount"},
           ),
           textAlign: TextAlign.center,
-          style: theme.textTheme.bodySmall!.copyWith(
-            height: 20 / 14,
-            color: theme.neutralExtraDark,
-          ),
+          style: missingDataCaptionStyle(theme),
         ),
         MissingDataButton(
           key: const Key("missing_data_share_disabled"),

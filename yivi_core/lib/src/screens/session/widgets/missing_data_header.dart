@@ -157,13 +157,9 @@ class MissingDataHeader extends StatelessWidget {
                 ),
                 Text(
                   FlutterI18n.translate(context, partyKey),
-                  style: theme.textTheme.labelSmall!.copyWith(
-                    fontSize: 13,
-                    height: 18 / 13,
-                    color: verified
-                        ? missingDataSuccessText
-                        : theme.neutralExtraDark,
-                  ),
+                  style: missingDataLabelStyle(
+                    theme,
+                  ).copyWith(color: verified ? missingDataSuccessText : null),
                 ),
               ],
             ),

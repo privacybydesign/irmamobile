@@ -11,6 +11,7 @@ import "../theme/theme.dart";
 import "base64_image.dart";
 import "irma_avatar.dart";
 import "missing_data_check.dart";
+import "missing_data_style.dart";
 
 const _iconSize = 32.0;
 const _ringWidth = 2.0;
@@ -18,7 +19,6 @@ const _iconGap = 6.0;
 const _dimmedOpacity = 0.4;
 const _progressBarHeight = 6.0;
 const _labelBarGap = 6.0;
-const _labelFontSize = 13.0;
 const _labelLineHeight = 18.0;
 const _maxLabelLines = 2;
 const _borderWidth = 1.0;
@@ -36,13 +36,6 @@ const _iconBoxSize = _iconSize + 2 * _ringRoom;
 
 // Where the icons run out of room, they scroll.
 const _maxIconsShare = 0.5;
-
-TextStyle _labelStyle(IrmaThemeData theme) =>
-    theme.textTheme.labelSmall!.copyWith(
-      fontSize: _labelFontSize,
-      height: _labelLineHeight / _labelFontSize,
-      color: theme.neutralExtraDark,
-    );
 
 String _label(BuildContext context, MissingDataBandState band) {
   return FlutterI18n.translate(
@@ -95,7 +88,10 @@ class MissingDataBand extends ConsumerWidget implements PreferredSizeWidget {
           _iconsGap -
           _iconsWidth(width, count);
       final painter = TextPainter(
-        text: TextSpan(text: _label(context, band), style: _labelStyle(theme)),
+        text: TextSpan(
+          text: _label(context, band),
+          style: missingDataLabelStyle(theme),
+        ),
         textDirection: Directionality.of(context),
         textScaler: MediaQuery.textScalerOf(context),
         maxLines: _maxLabelLines,
@@ -164,7 +160,7 @@ class MissingDataBand extends ConsumerWidget implements PreferredSizeWidget {
                     _label(context, band),
                     maxLines: _maxLabelLines,
                     overflow: TextOverflow.ellipsis,
-                    style: _labelStyle(theme),
+                    style: missingDataLabelStyle(theme),
                   ),
                   ExcludeSemantics(
                     child: ClipRRect(

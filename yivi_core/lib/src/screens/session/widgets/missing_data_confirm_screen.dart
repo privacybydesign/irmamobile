@@ -72,10 +72,7 @@ class MissingDataConfirmScreen extends StatelessWidget {
                     "missing_data.confirm.after",
                     translationParams: {"requestor": missingData.requestorName},
                   ),
-                  style: theme.textTheme.bodySmall!.copyWith(
-                    height: 20 / 14,
-                    color: theme.neutralExtraDark,
-                  ),
+                  style: missingDataCaptionStyle(theme),
                 ),
             ],
           ),
@@ -132,17 +129,13 @@ class _ConfirmCard extends StatelessWidget {
                     children: [
                       Text(
                         credential.name,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w700,
-                          height: 22 / 16,
-                        ),
+                        style: missingDataNameStyle(
+                          theme,
+                        ).copyWith(fontWeight: FontWeight.w700),
                       ),
                       Text(
                         credential.issuer.name,
-                        style: theme.textTheme.bodySmall!.copyWith(
-                          height: 20 / 14,
-                          color: theme.neutralExtraDark,
-                        ),
+                        style: missingDataCaptionStyle(theme),
                       ),
                     ],
                   ),
