@@ -301,6 +301,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           await Future<void>.delayed(ref.read(nfcDoneHoldProvider));
           if (!mounted) return;
         }
+
         final (pdr, rawDocData) = result;
         var toIssue = rawDocData;
         final faceVerification = faceService != null;

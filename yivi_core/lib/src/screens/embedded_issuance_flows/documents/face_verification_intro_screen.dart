@@ -8,7 +8,6 @@ import "../../../widgets/translated_text.dart";
 import "widgets/face_frame_illustration.dart";
 import "widgets/face_verification_animation.dart";
 
-/// Which layout the intro uses.
 enum FaceVerificationIntroStyle {
   classic,
 
