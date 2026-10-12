@@ -1,6 +1,9 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -13,6 +16,9 @@ import "widgets/document_nr_input_field.dart";
 class PassportMrzManualEntryTranslationKeys {
   final String title;
   final String explanation;
+
+  /// The explanation with form fields V2 on.
+  final String explanationV2;
   final String dateOfBirth;
   final String dateOfBirthRequired;
   final String dateOfExpiry;
@@ -25,6 +31,7 @@ class PassportMrzManualEntryTranslationKeys {
   PassportMrzManualEntryTranslationKeys({
     required this.title,
     required this.explanation,
+    required this.explanationV2,
     required this.dateOfBirth,
     required this.dateOfBirthRequired,
     required this.dateOfExpiry,
@@ -50,7 +57,7 @@ class PassportMrzManualEntryData {
 }
 
 /// This screen is for when the camera doesn't work(?)
-class PassportMrzManualEntryScreen extends StatefulWidget {
+class PassportMrzManualEntryScreen extends ConsumerStatefulWidget {
   /// Now receives the collected data from the 3 fields.
   final void Function(PassportMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
@@ -64,12 +71,12 @@ class PassportMrzManualEntryScreen extends StatefulWidget {
   });
 
   @override
-  State<PassportMrzManualEntryScreen> createState() =>
+  ConsumerState<PassportMrzManualEntryScreen> createState() =>
       _PassportMrzManualEntryScreenState();
 }
 
 class _PassportMrzManualEntryScreenState
-    extends State<PassportMrzManualEntryScreen> {
+    extends ConsumerState<PassportMrzManualEntryScreen> {
   final _manualEntryFormKey = GlobalKey<FormState>();
 
   final _documentNrCtrl = TextEditingController();
@@ -118,6 +125,8 @@ class _PassportMrzManualEntryScreenState
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -138,12 +147,25 @@ class _PassportMrzManualEntryScreenState
               },
               child: SafeArea(
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
+                  padding: .fromLTRB(
+                    theme.defaultSpacing,
+                    formFieldsV2 ? theme.mediumSpacing : theme.defaultSpacing,
+                    theme.defaultSpacing,
+                    theme.defaultSpacing,
+                  ),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
-                      TranslatedText(widget.translationKeys.explanation),
-                      SizedBox(height: theme.mediumSpacing),
+                      TranslatedText(
+                        formFieldsV2
+                            ? widget.translationKeys.explanationV2
+                            : widget.translationKeys.explanation,
+                      ),
+                      SizedBox(
+                        height: formFieldsV2
+                            ? theme.fieldGroupGap
+                            : theme.mediumSpacing,
+                      ),
                       YiviFieldGroup(
                         children: [
                           DocumentNrInputField(

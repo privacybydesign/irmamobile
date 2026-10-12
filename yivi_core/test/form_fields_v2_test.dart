@@ -850,25 +850,101 @@ void main() {
 
   group("manual entry", () {
     PassportMrzManualEntryScreen passportScreen(
-      void Function(PassportMrzManualEntryData) onContinue,
-    ) {
+      void Function(PassportMrzManualEntryData) onContinue, {
+      String document = "passport",
+    }) {
       return PassportMrzManualEntryScreen(
         onContinue: onContinue,
         onCancel: () {},
         translationKeys: PassportMrzManualEntryTranslationKeys(
-          title: "passport.manual.title",
-          explanation: "passport.manual.explanation",
-          dateOfBirth: "passport.manual.fields.date_of_birth",
-          dateOfBirthRequired: "passport.manual.fields.date_of_birth_required",
-          dateOfExpiry: "passport.manual.fields.date_of_expiry",
+          title: "$document.manual.title",
+          explanation: "$document.manual.explanation",
+          explanationV2: "$document.manual.explanation_v2",
+          dateOfBirth: "$document.manual.fields.date_of_birth",
+          dateOfBirthRequired: "$document.manual.fields.date_of_birth_required",
+          dateOfExpiry: "$document.manual.fields.date_of_expiry",
           dateOfExpiryRequired:
-              "passport.manual.fields.date_of_expiry_required",
-          documentNumber: "passport.manual.fields.document_nr",
-          documentNumberRequired: "passport.manual.fields.document_nr_required",
-          documentNumberInvalid: "passport.manual.fields.document_nr_invalid",
-          dateInvalid: "passport.manual.fields.date_invalid",
+              "$document.manual.fields.date_of_expiry_required",
+          documentNumber: "$document.manual.fields.document_nr",
+          documentNumberRequired:
+              "$document.manual.fields.document_nr_required",
+          documentNumberInvalid: "$document.manual.fields.document_nr_invalid",
+          dateInvalid: "$document.manual.fields.date_invalid",
         ),
       );
+    }
+
+    Rect appBarRect(WidgetTester tester) =>
+        tester.getRect(find.byKey(const Key("irma_app_bar")));
+
+    for (final (fields, top, gap, copy) in [
+      (
+        _Fields.v2,
+        24.0,
+        20.0,
+        "We need the document number, your date of birth and the expiry date "
+            "to read the chip in your passport.",
+      ),
+      (
+        _Fields.legacy,
+        16.0,
+        24.0,
+        "We need the document number, date of birth and date of expiry of "
+            "your passport to access the NFC-chip of the passport.",
+      ),
+    ]) {
+      testWidgets(
+        "spaces the passport explanation with ${fields.name} fields",
+        (tester) async {
+          await pumpField(tester, passportScreen((_) {}), fields: fields);
+          final explanation = tester.getRect(find.text(copy));
+          final group = tester.getRect(find.byType(YiviFieldGroup));
+
+          // Board H2: 24 px above the text and 20 px between it and the card.
+          expect(explanation.top - appBarRect(tester).bottom, top);
+          expect(group.top - explanation.bottom, gap);
+        },
+      );
+    }
+
+    for (final (document, locale, copy) in [
+      (
+        "passport",
+        "nl",
+        "We hebben het documentnummer, je geboortedatum en de vervaldatum "
+            "nodig om de chip in je paspoort te lezen.",
+      ),
+      (
+        "id_card",
+        "nl",
+        "We hebben het documentnummer, je geboortedatum en de vervaldatum "
+            "nodig om de chip in je identiteitskaart te lezen.",
+      ),
+      (
+        "passport",
+        "de",
+        "Wir benötigen die Dokumentennummer, Ihr Geburtsdatum und das "
+            "Ablaufdatum, um den Chip in Ihrem Reisepass zu lesen.",
+      ),
+      (
+        "id_card",
+        "en",
+        "We need the document number, your date of birth and the expiry date "
+            "to read the chip in your ID-card.",
+      ),
+    ]) {
+      testWidgets("explains the $document screen in $locale as board H2", (
+        tester,
+      ) async {
+        await pumpField(
+          tester,
+          passportScreen((_) {}, document: document),
+          fields: _Fields.v2,
+          locale: locale,
+        );
+
+        expect(find.text(copy), findsOneWidget);
+      });
     }
 
     for (final (fields, birth, expiry) in [
@@ -952,6 +1028,35 @@ void main() {
       );
       expect(decorationOf(tester).filled, isNot(true));
     });
+
+    for (final (fields, top, gap) in [
+      (_Fields.v2, 24.0, 20.0),
+      (_Fields.legacy, 16.0, 24.0),
+    ]) {
+      testWidgets(
+        "spaces the driving licence text with ${fields.name} fields",
+        (tester) async {
+          await pumpField(
+            tester,
+            DrivingLicenceMrzManualEntryScreen(
+              onContinue: (_) {},
+              onCancel: () {},
+            ),
+            fields: fields,
+          );
+          final explanation = tester.getRect(
+            find.text(
+              "We need the machine readable zone (MRZ) of your driving licence "
+              "to access the NFC-chip of the document.",
+            ),
+          );
+          final group = tester.getRect(find.byType(YiviFieldGroup));
+
+          expect(explanation.top - appBarRect(tester).bottom, top);
+          expect(group.top - explanation.bottom, gap);
+        },
+      );
+    }
 
     testWidgets("shows an invalid document number with an icon", (
       tester,

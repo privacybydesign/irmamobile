@@ -1039,6 +1039,7 @@
     "manual": {
       "title": "Personalausweisdaten eingeben",
       "explanation": "Wir benötigen die Dokumentennummer, das Geburtsdatum und das Ablaufdatum Ihres Personalausweises, um auf den NFC-Chip zuzugreifen.",
+      "explanation_v2": "Wir benötigen die Dokumentennummer, Ihr Geburtsdatum und das Ablaufdatum, um den Chip in Ihrem Personalausweis zu lesen.",
       "fields": {
         "document_nr": "Dokumentennummer",
         "document_nr_required": "Dokumentennummer ist erforderlich",
@@ -1101,6 +1102,7 @@
     "manual": {
       "title": "Reisepassdaten eingeben",
       "explanation": "Wir benötigen die Dokumentennummer, das Geburtsdatum und das Ablaufdatum Ihres Reisepasses, um auf den NFC-Chip des Reisepasses zuzugreifen.",
+      "explanation_v2": "Wir benötigen die Dokumentennummer, Ihr Geburtsdatum und das Ablaufdatum, um den Chip in Ihrem Reisepass zu lesen.",
       "fields": {
         "document_nr": "Dokumentennummer",
         "document_nr_required": "Dokumentennummer ist erforderlich",

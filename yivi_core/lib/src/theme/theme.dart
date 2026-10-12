@@ -99,6 +99,9 @@ class IrmaThemeData {
   // Space below the message of an invalid row, with its red line in it.
   final double fieldRowErrorBottom = 10.0;
 
+  // The space between the text above a field group and the group.
+  final double fieldGroupGap = 20.0;
+
   // The boards centre a label on its line, 16 px high in a single field and
   // 18 px in a row. Material draws it in a box as high as its text, which
   // leaves it 2 px above the middle of that line in a single field and 0.5 px

@@ -342,6 +342,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     translationKeys: PassportMrzManualEntryTranslationKeys(
                       title: "passport.manual.title",
                       explanation: "passport.manual.explanation",
+                      explanationV2: "passport.manual.explanation_v2",
                       dateOfBirth: "passport.manual.fields.date_of_birth",
                       dateOfBirthRequired:
                           "passport.manual.fields.date_of_birth_required",
@@ -375,6 +376,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     translationKeys: PassportMrzManualEntryTranslationKeys(
                       title: "id_card.manual.title",
                       explanation: "id_card.manual.explanation",
+                      explanationV2: "id_card.manual.explanation_v2",
                       dateOfBirth: "id_card.manual.fields.date_of_birth",
                       dateOfBirthRequired:
                           "id_card.manual.fields.date_of_birth_required",

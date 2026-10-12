@@ -1039,6 +1039,7 @@
     "manual": {
       "title": "Voer ID-kaartgegevens in",
       "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw identiteitskaart nodig om toegang te krijgen tot de NFC-chip van het document.",
+      "explanation_v2": "We hebben het documentnummer, je geboortedatum en de vervaldatum nodig om de chip in je identiteitskaart te lezen.",
       "fields": {
         "document_nr": "Documentnummer",
         "document_nr_required": "Documentnummer is verplicht",
@@ -1101,6 +1102,7 @@
     "manual": {
       "title": "Voer paspoortgegevens in",
       "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw paspoort nodig om toegang te krijgen tot de NFC-chip van het paspoort.",
+      "explanation_v2": "We hebben het documentnummer, je geboortedatum en de vervaldatum nodig om de chip in je paspoort te lezen.",
       "fields": {
         "document_nr": "Documentnummer",
         "document_nr_required": "Documentnummer is verplicht",

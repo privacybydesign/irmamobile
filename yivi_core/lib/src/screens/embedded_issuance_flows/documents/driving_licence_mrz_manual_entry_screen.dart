@@ -1,6 +1,9 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
+import "../../../data/feature_flags.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -27,7 +30,7 @@ class DrivingLicenceMrzManualEntryData {
 }
 
 /// This screen is for when the camera doesn't work(?)
-class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
+class DrivingLicenceMrzManualEntryScreen extends ConsumerStatefulWidget {
   /// Now receives the collected data from the 3 fields.
   final void Function(DrivingLicenceMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
@@ -39,12 +42,12 @@ class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
   });
 
   @override
-  State<DrivingLicenceMrzManualEntryScreen> createState() =>
+  ConsumerState<DrivingLicenceMrzManualEntryScreen> createState() =>
       _DrivingLicencetMrzManualEntryScreenState();
 }
 
 class _DrivingLicencetMrzManualEntryScreenState
-    extends State<DrivingLicenceMrzManualEntryScreen> {
+    extends ConsumerState<DrivingLicenceMrzManualEntryScreen> {
   final _manualEntryFormKey = GlobalKey<FormState>();
   final _documentNrCtrl = TextEditingController();
 
@@ -79,6 +82,8 @@ class _DrivingLicencetMrzManualEntryScreenState
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final formFieldsV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -97,14 +102,23 @@ class _DrivingLicencetMrzManualEntryScreenState
               onChanged: _recomputeCanContinue,
               child: SafeArea(
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
+                  padding: .fromLTRB(
+                    theme.defaultSpacing,
+                    formFieldsV2 ? theme.mediumSpacing : theme.defaultSpacing,
+                    theme.defaultSpacing,
+                    theme.defaultSpacing,
+                  ),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
                       const TranslatedText(
                         "driving_licence.manual.explanation",
                       ),
-                      SizedBox(height: theme.mediumSpacing),
+                      SizedBox(
+                        height: formFieldsV2
+                            ? theme.fieldGroupGap
+                            : theme.mediumSpacing,
+                      ),
                       YiviFieldGroup(
                         children: [
                           DrivingLicenceMrzInputField(
