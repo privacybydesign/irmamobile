@@ -196,16 +196,13 @@ void main() {
   Rect valueRect(WidgetTester tester, [int index = 0]) =>
       tester.getRect(find.byType(EditableText).at(index));
 
-  /// The error icon of a form fields V2 message.
   final errorIcon = find.descendant(
     of: find.byType(YiviFieldError),
     matching: find.byType(CustomPaint),
   );
 
-  /// The text of the label of a form fields V2 field.
   String? labelText(Widget? label) => (label as YiviFieldLabel?)?.text;
 
-  /// The hint a screen reader gets with the field.
   String hintOf(WidgetTester tester, Finder field) =>
       tester.getSemantics(field).getSemanticsData().hint;
 
@@ -444,10 +441,12 @@ void main() {
         ),
         fields: _Fields.v2,
       );
+
       expect(hintOf(tester, find.byType(TextField)), "Enter a label");
 
       controller.text = "good";
       await tester.pumpAndSettle();
+
       expect(find.text("Enter a label"), findsNothing);
       expect(hintOf(tester, find.byType(TextField)), isEmpty);
       handle.dispose();

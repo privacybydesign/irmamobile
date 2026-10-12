@@ -16,8 +16,6 @@ import "widgets/document_nr_input_field.dart";
 class PassportMrzManualEntryTranslationKeys {
   final String title;
   final String explanation;
-
-  /// The explanation with form fields V2 on.
   final String explanationV2;
   final String dateOfBirth;
   final String dateOfBirthRequired;

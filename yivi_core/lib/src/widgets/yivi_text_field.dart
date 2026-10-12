@@ -312,15 +312,21 @@ class _ErrorIconPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    const middle = _errorIconViewBox / 2;
+
     canvas.scale(size.width / _errorIconViewBox);
-    canvas.drawCircle(const Offset(12, 12), 11, Paint()..color = disc);
+    canvas.drawCircle(const Offset(middle, middle), 11, Paint()..color = disc);
 
     final markPaint = Paint()
       ..color = mark
       ..strokeWidth = 2.4
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(const Offset(12, 7), const Offset(12, 13), markPaint);
-    canvas.drawCircle(const Offset(12, 17), 1.5, markPaint);
+    canvas.drawLine(
+      const Offset(middle, 7),
+      const Offset(middle, 13),
+      markPaint,
+    );
+    canvas.drawCircle(const Offset(middle, 17), 1.5, markPaint);
   }
 
   @override
