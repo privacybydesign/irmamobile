@@ -76,7 +76,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text("Start"), findsOneWidget);
-    expect(find.text("Annuleren"), findsOneWidget);
+    expect(find.text("Annuleer"), findsOneWidget);
   });
 
   for (final (documentType, title) in [

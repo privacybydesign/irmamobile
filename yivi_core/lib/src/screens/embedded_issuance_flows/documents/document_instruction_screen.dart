@@ -1,11 +1,12 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_translation_keys.dart";
+import "widgets/document_flow_footer.dart";
 import "widgets/document_instruction_animation.dart";
 
 /// Shown before the MRZ camera: how to hold the document. [onStart] opens the
@@ -18,6 +19,9 @@ class DocumentInstructionScreen extends StatelessWidget {
     super.key,
   });
 
+  static const double _pictureWidth = 320;
+  static const double _pictureHeight = 256;
+
   final DocumentType documentType;
   final VoidCallback onStart;
   final VoidCallback onCancel;
@@ -28,44 +32,79 @@ class DocumentInstructionScreen extends StatelessWidget {
     final keys = documentType.instructionKey;
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
-      appBar: IrmaAppBar(titleTranslationKey: documentType.scanTitleKey),
+      backgroundColor: theme.backgroundPrimary,
+      appBar: IrmaAppBar(
+        titleTranslationKey: documentType.scanTitleKey,
+        hasBorder: false,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: .all(theme.defaultSpacing),
+          padding: .all(theme.mediumSpacing),
           child: Column(
             crossAxisAlignment: .stretch,
+            spacing: theme.mediumSpacing,
             children: [
               Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
-                  child: DocumentInstructionAnimation(
-                    documentType: documentType,
+                  constraints: const BoxConstraints(maxWidth: _pictureWidth),
+                  child: AspectRatio(
+                    aspectRatio: _pictureWidth / _pictureHeight,
+                    child: Semantics(
+                      image: true,
+                      label: FlutterI18n.translate(context, "$keys.image_alt"),
+                      child: DocumentInstructionAnimation(
+                        documentType: documentType,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              SizedBox(height: theme.largeSpacing),
-              TranslatedText("$keys.title", style: theme.bodyHeading),
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText("$keys.body"),
-              SizedBox(height: theme.defaultSpacing),
-              Container(
-                padding: .all(theme.defaultSpacing),
-                decoration: BoxDecoration(
-                  color: theme.surfaceSecondary,
-                  borderRadius: theme.borderRadius,
-                ),
-                child: TranslatedText("$keys.tip"),
+              Column(
+                spacing: theme.smallSpacing + theme.tinySpacing,
+                children: [
+                  TranslatedText(
+                    "$keys.title",
+                    textAlign: .center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontSize: 18,
+                      height: 26 / 18,
+                    ),
+                  ),
+                  TranslatedText("$keys.body", textAlign: .center),
+                  Padding(
+                    padding: .symmetric(
+                      horizontal: theme.tinySpacing,
+                      vertical: theme.tinySpacing / 2,
+                    ),
+                    child: TranslatedText(
+                      "$keys.tip",
+                      textAlign: .center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        height: 20 / 14,
+                        color: theme.neutralExtraDark,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "document_flow.start",
-        onPrimaryPressed: onStart,
-        secondaryButtonLabel: "ui.cancel",
-        onSecondaryPressed: onCancel,
+      bottomNavigationBar: DocumentFlowFooter(
+        buttons: [
+          DocumentFlowButton(
+            key: const Key("bottom_bar_primary"),
+            labelKey: "document_flow.start",
+            onPressed: onStart,
+          ),
+          DocumentFlowButton(
+            key: const Key("bottom_bar_secondary"),
+            labelKey: "document_flow.cancel",
+            onPressed: onCancel,
+            style: .outline,
+          ),
+        ],
       ),
     );
   }
