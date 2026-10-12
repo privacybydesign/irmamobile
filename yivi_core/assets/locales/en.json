@@ -111,7 +111,14 @@
     "revoked": "Revoked",
     "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data.",
     "boolean_yes": "Yes",
-    "boolean_no": "No"
+    "boolean_no": "No",
+    "driving_licence_categories": {
+      "title": "Driving licence categories",
+      "issued": "Issued",
+      "expires": "Expires",
+      "not_held": "Not held",
+      "no_information": "No category information"
+    }
   },
   "data": {
     "tab": {

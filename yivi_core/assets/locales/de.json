@@ -111,7 +111,14 @@
     "revoked": "Widerrufen",
     "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
     "boolean_yes": "Ja",
-    "boolean_no": "Nein"
+    "boolean_no": "Nein",
+    "driving_licence_categories": {
+      "title": "Führerscheinklassen",
+      "issued": "Ausgestellt",
+      "expires": "Läuft ab",
+      "not_held": "Nicht vorhanden",
+      "no_information": "Keine Klasseninformationen"
+    }
   },
   "data": {
     "tab": {

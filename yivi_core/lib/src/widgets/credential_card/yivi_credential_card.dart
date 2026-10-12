@@ -312,7 +312,11 @@ class YiviCredentialCard extends ConsumerWidget {
                 bottom: theme.smallSpacing,
               ),
             ),
-            YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
+            YiviCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
+              credentialId: status.credentialId,
+            ),
           ],
           if (!hideFooter && !status.revoked)
             Column(
