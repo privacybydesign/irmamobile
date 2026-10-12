@@ -424,6 +424,7 @@
     }
   },
   "data_tab": {
+    "add": "Daten hinzufügen",
     "empty": {
       "title": "Holen Sie sich Ihre persönlichen Daten",
       "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
@@ -434,6 +435,7 @@
       "add": "Zu Favoriten hinzufügen",
       "remove": "Aus Favoriten entfernen"
     },
+    "search": "Suchen",
     "section_count-1": "{count} Eintrag",
     "section_count-2": "{count} Einträge",
     "start": {
