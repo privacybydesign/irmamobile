@@ -18,8 +18,8 @@ import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
-import "../../theme/theme.dart";
 import "../../util/email_linking.dart";
+import "../../util/missing_data_flow.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -31,13 +31,14 @@ import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
 import "widgets/disclosure_permission_confirm_dialog.dart";
 import "widgets/disclosure_permission_introduction_screen.dart";
+import "widgets/email_link_permission.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/missing_data_checklist_screen.dart";
+import "widgets/missing_data_confirm_screen.dart";
 import "widgets/missing_data_flow_reset.dart";
-import "widgets/missing_data_header.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
@@ -343,6 +344,28 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         );
       }
 
+      final linkingIssuanceId = ref.watch(
+        emailLinkingProvider.select((state) => state.issuanceSessionId),
+      );
+      if (linkingIssuanceId == widget.sessionId) {
+        return EmailLinkPermission(
+          issuedCredentials: session.offeredCredentials!,
+          onDismiss: _dismissSession,
+          onGivePermission: () =>
+              _grantPermission(_pendingDisclosureChoices ?? []),
+        );
+      }
+
+      if (context.missingDataState != null) {
+        return MissingDataConfirmScreen(
+          issuedCredentials: session.offeredCredentials!,
+          onDismiss: _dismissSession,
+          onGivePermission: () {
+            _grantPermission(_pendingDisclosureChoices ?? []);
+          },
+        );
+      }
+
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
         returnedFrom: _returnedFrom(session),
@@ -370,16 +393,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _buildMissingDataShareScreen(SessionState session) {
     return DisclosureChoicesOverview(
       sessionState: session,
-      confirmLabelKey: "missing_data.share",
-      headerBuilder: (context, itemCount) => Padding(
-        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
-        child: MissingDataHeader(
-          requestor: session.requestor,
-          phase: MissingDataPhase.ready,
-          total: itemCount,
-          presentCount: itemCount,
-        ),
-      ),
+      layout: DisclosureOverviewLayout.missingData,
       onDismiss: _showDismissDialog,
       onChoicesConfirmed: _grantPermission,
     );

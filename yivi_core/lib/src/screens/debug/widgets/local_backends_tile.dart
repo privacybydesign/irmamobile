@@ -12,34 +12,11 @@ class LocalBackendsTile extends ConsumerWidget {
 
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
     final current = ref.read(localBackendsProvider)?.host ?? "";
-    final controller = TextEditingController(text: current);
 
     final host = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Local backends"),
-        content: TextField(
-          key: const Key("local_backend_host_field"),
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: "Host",
-            hintText: "localhost",
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(""),
-            child: const Text("Off"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text("Save"),
-          ),
-        ],
-      ),
+      builder: (context) => _HostDialog(initialHost: current),
     );
-    controller.dispose();
 
     if (host != null) {
       await ref.read(preferencesProvider).setLocalBackendHost(host);
@@ -61,6 +38,52 @@ class LocalBackendsTile extends ConsumerWidget {
                   "E-mail link ${backends.keyshareEmailLink}",
       ),
       onTap: () => _edit(context, ref),
+    );
+  }
+}
+
+// Owns the controller so it is disposed after the dialog has animated out.
+class _HostDialog extends StatefulWidget {
+  final String initialHost;
+
+  const _HostDialog({required this.initialHost});
+
+  @override
+  State<_HostDialog> createState() => _HostDialogState();
+}
+
+class _HostDialogState extends State<_HostDialog> {
+  late final _controller = TextEditingController(text: widget.initialHost);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Local backends"),
+      content: TextField(
+        key: const Key("local_backend_host_field"),
+        controller: _controller,
+        autofocus: true,
+        decoration: const InputDecoration(
+          labelText: "Host",
+          hintText: "localhost",
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(""),
+          child: const Text("Off"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
+          child: const Text("Save"),
+        ),
+      ],
     );
   }
 }

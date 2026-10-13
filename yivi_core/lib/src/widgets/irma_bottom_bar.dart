@@ -4,51 +4,81 @@ import "../theme/theme.dart";
 import "irma_bottom_bar_base.dart";
 import "yivi_themed_button.dart";
 
+export "irma_bottom_bar_base.dart" show IrmaBottomBarStyle;
+
+// The outline of the secondary button of the flat bar.
+const _flatOutlineWidth = 1.0;
+
 enum IrmaBottomBarAlignment { horizontal, vertical, automatic }
 
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
+  final Widget? primaryButtonLeading;
   final IconData? primaryButtonTrailingIcon;
   final VoidCallback? onPrimaryPressed;
   final bool showTooltipOnPrimary;
   final String? secondaryButtonLabel;
   final VoidCallback? onSecondaryPressed;
   final IrmaBottomBarAlignment alignment;
+  final IrmaBottomBarStyle style;
 
   const IrmaBottomBar({
     super.key,
     this.primaryButtonLabel,
+    this.primaryButtonLeading,
     this.primaryButtonTrailingIcon,
     this.onPrimaryPressed,
     this.showTooltipOnPrimary = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
     this.alignment = IrmaBottomBarAlignment.automatic,
+    this.style = IrmaBottomBarStyle.standard,
   });
+
+  bool get _flat => style == IrmaBottomBarStyle.flat;
+
+  YiviButtonSize get _buttonSize =>
+      _flat ? YiviButtonSize.compact : YiviButtonSize.medium;
 
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: IrmaTheme.of(context).tinySpacing,
+          vertical: _flat ? 0 : IrmaTheme.of(context).tinySpacing,
         ),
         child: YiviThemedButton(
           key: const Key("bottom_bar_primary"),
           onPressed: onPrimaryPressed,
           label: primaryButtonLabel!,
+          leading: primaryButtonLeading,
           trailingIcon: primaryButtonTrailingIcon,
+          size: _buttonSize,
         ),
       ),
     );
   }
 
   Widget _buildSecondaryButton(BuildContext context) {
+    if (_flat) {
+      return Expanded(
+        child: YiviThemedButton(
+          key: const Key("bottom_bar_secondary"),
+          onPressed: onSecondaryPressed,
+          label: secondaryButtonLabel!,
+          style: YiviButtonStyle.outlined,
+          size: _buttonSize,
+          outlineWidth: _flatOutlineWidth,
+        ),
+      );
+    }
+
     return Expanded(
       child: YiviThemedButton(
         key: const Key("bottom_bar_secondary"),
         onPressed: onSecondaryPressed,
         label: secondaryButtonLabel!,
         style: YiviButtonStyle.outlined,
+        size: _buttonSize,
       ),
     );
   }
@@ -59,6 +89,7 @@ class IrmaBottomBar extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
 
     return IrmaBottomBarBase(
+      style: style,
       // Change layout according to limited height (i.e. landscape mode) and alignment setting.
       child:
           alignment == IrmaBottomBarAlignment.vertical ||
@@ -70,7 +101,9 @@ class IrmaBottomBar extends StatelessWidget {
                 if (primaryButtonLabel != null)
                   Row(children: [_buildPrimaryButton(context)]),
                 if (secondaryButtonLabel != null) ...[
-                  SizedBox(height: theme.tinySpacing),
+                  SizedBox(
+                    height: _flat ? theme.smallSpacing : theme.tinySpacing,
+                  ),
                   Row(children: [_buildSecondaryButton(context)]),
                 ],
               ],

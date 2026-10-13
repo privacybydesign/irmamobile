@@ -31,34 +31,44 @@ class YiviLinkButton extends StatelessWidget {
   }
 }
 
+// Space between the leading widget of a button and its label.
+const _leadingGap = 10.0;
+
 class YiviButtonSize {
   final double _value;
   const YiviButtonSize._internal(this._value);
   double get value => _value;
 
   static const large = YiviButtonSize._internal(55);
+  static const compact = YiviButtonSize._internal(48);
   static const medium = YiviButtonSize._internal(50);
   static const standard = YiviButtonSize._internal(48);
   static const small = YiviButtonSize._internal(37);
 }
 
+const double _defaultOutlineWidth = 1.7;
+
 class YiviThemedButton extends StatelessWidget {
   final String label;
-  final Map<String, String>? labelParams;
   final VoidCallback? onPressed;
   final YiviButtonStyle style;
   final YiviButtonSize size;
   final bool isTransparent;
+  final double outlineWidth;
+
+  /// Shown before the label, as the progress indicator of a busy button.
+  final Widget? leading;
   final IconData? trailingIcon;
 
   const YiviThemedButton({
     super.key,
     required this.label,
-    this.labelParams,
     this.onPressed,
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
+    this.outlineWidth = _defaultOutlineWidth,
+    this.leading,
     this.trailingIcon,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
@@ -106,7 +116,7 @@ class YiviThemedButton extends StatelessWidget {
               : BoxDecoration(
                   borderRadius: borderRadius,
                   border: Border.all(
-                    width: 1.7,
+                    width: outlineWidth,
                     style: BorderStyle.solid,
                     color: theme.neutralExtraDark,
                   ),
@@ -142,21 +152,26 @@ class YiviThemedButton extends StatelessWidget {
         : theme.light;
     final labelWidget = TranslatedText(
       label,
-      translationParams: labelParams,
       textAlign: TextAlign.center,
       style: baseTextStyle.copyWith(color: textColor),
     );
     final centeredTextWidget = Center(
-      child: trailingIcon == null
+      child: leading == null && trailingIcon == null
           ? labelWidget
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (leading != null) ...[
+                  leading!,
+                  const SizedBox(width: _leadingGap),
+                ],
                 Flexible(child: labelWidget),
-                SizedBox(width: theme.smallSpacing),
-                ExcludeSemantics(
-                  child: Icon(trailingIcon, size: 18, color: textColor),
-                ),
+                if (trailingIcon != null) ...[
+                  SizedBox(width: theme.smallSpacing),
+                  ExcludeSemantics(
+                    child: Icon(trailingIcon, size: 18, color: textColor),
+                  ),
+                ],
               ],
             ),
     );

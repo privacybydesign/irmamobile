@@ -23,6 +23,7 @@ import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/models/credential_card_status.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "../../widgets/data_tab_icon.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
@@ -33,6 +34,13 @@ import "empty_data_routes.dart";
 import "widgets/email_link_banner.dart";
 
 const _listFooterHeight = 50.0;
+const _searchIconSize = 24.0;
+const _addIconSize = 26.0;
+const _sectionHeaderHeight = 44.0;
+const _sectionHeaderIconSize = 20.0;
+const _favouriteIconSize = 18.0;
+const _categorySectionGap = 12.0;
+const _categoryTopPadding = 8.0;
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -72,26 +80,48 @@ class _DataTabState extends ConsumerState<DataTab> {
       );
     }
 
+    final redesign = ref.watch(dataTabLayoutProvider) != DataTabLayout.classic;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: "home.nav_bar.data",
         leading: null,
-        actions: [
-          IrmaIconButton(
-            key: const Key("search_button"),
-            icon: CupertinoIcons.search,
-            size: 28,
-            onTap: _openSearch,
-          ),
-          IrmaIconButton(
-            key: _addDataButtonKey,
-            icon: CupertinoIcons.add_circled_solid,
-            size: 28,
-            onTap: context.pushAddDataScreen,
-          ),
-        ],
+        hasBorder: !redesign,
+        actions: redesign
+            ? [
+                DataTabIconButton(
+                  DataTabGlyph.search,
+                  key: const Key("search_button"),
+                  iconSize: _searchIconSize,
+                  labelKey: "data_tab.search",
+                  onTap: _openSearch,
+                ),
+                DataTabIconButton(
+                  DataTabGlyph.plusCircle,
+                  key: _addDataButtonKey,
+                  iconSize: _addIconSize,
+                  labelKey: "data_tab.add",
+                  onTap: context.pushAddDataScreen,
+                ),
+                // The board leaves 4 px between the last button and the edge.
+                SizedBox(width: theme.tinySpacing),
+              ]
+            : [
+                IrmaIconButton(
+                  key: const Key("search_button"),
+                  icon: CupertinoIcons.search,
+                  size: 28,
+                  onTap: _openSearch,
+                ),
+                IrmaIconButton(
+                  key: _addDataButtonKey,
+                  icon: CupertinoIcons.add_circled_solid,
+                  size: 28,
+                  onTap: context.pushAddDataScreen,
+                ),
+              ],
       ),
       body: SafeArea(
         child: Column(
@@ -459,6 +489,7 @@ class _CredentialTypeCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showExpiry =
         ref.watch(featureFlagProvider(FeatureFlag.dataTabV2)).value ?? false;
+    final redesign = ref.watch(dataTabLayoutProvider) != DataTabLayout.classic;
     final sameType = !showExpiry
         ? null
         : ref
@@ -474,6 +505,9 @@ class _CredentialTypeCard extends ConsumerWidget {
       credentialName: credential.name,
       issuerName: credential.issuer.name,
       expireState: expired ? ExpireState.expired : ExpireState.notExpired,
+      layout: redesign
+          ? CredentialCardLayout.compact
+          : CredentialCardLayout.standard,
       credentialImageBase64: credential.image != null
           ? Base64Image(
               base64: credential.image!.base64,
@@ -528,6 +562,9 @@ class _SectionedCredentialList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final sections = ref.watch(dataTabSectionsProvider);
+    final categories =
+        ref.watch(dataTabLayoutProvider) == DataTabLayout.categories;
+    final sectionGap = categories ? _categorySectionGap : theme.largeSpacing;
     final problematic =
         ref.watch(schemalessCredentialsProvider).value?.problematic ??
         const <schemaless.ProblematicCredential>[];
@@ -544,18 +581,26 @@ class _SectionedCredentialList extends ConsumerWidget {
         key: const Key("credential_sections_list"),
         slivers: [
           SliverPadding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            padding: EdgeInsets.fromLTRB(
+              theme.defaultSpacing,
+              categories ? _categoryTopPadding : theme.defaultSpacing,
+              theme.defaultSpacing,
+              theme.defaultSpacing,
+            ),
             sliver: SliverMainAxisGroup(
               slivers: [
                 if (problematic.isNotEmpty)
                   SliverToBoxAdapter(
                     child: _ProblematicCredentialsSection(problematic),
                   ),
-                for (final section in sections)
+                for (final (i, section) in sections.indexed) ...[
+                  if (i > 0)
+                    SliverToBoxAdapter(child: SizedBox(height: sectionGap)),
                   _CredentialSection(
                     key: ValueKey(section.key),
                     section: section,
                   ),
+                ],
                 const SliverToBoxAdapter(
                   child: SizedBox(height: _listFooterHeight),
                 ),
@@ -569,7 +614,7 @@ class _SectionedCredentialList extends ConsumerWidget {
 }
 
 enum _SectionState {
-  /// No chevron: favourites, and every section while `dataTabCategories` is off.
+  /// No chevron: every section while `dataTabCategories` is off.
   fixed,
   expanded,
   collapsed,
@@ -587,8 +632,7 @@ class _CredentialSection extends ConsumerWidget {
       schemalessCredentialOrderControllerProvider.notifier,
     );
     final collapsible =
-        ref.watch(dataTabLayoutProvider) == DataTabLayout.categories &&
-        section.kind != DataTabSectionKind.favourites;
+        ref.watch(dataTabLayoutProvider) == DataTabLayout.categories;
     final state = !collapsible
         ? _SectionState.fixed
         : ref.watch(collapsedDataTabSectionsProvider).contains(section.key)
@@ -601,6 +645,9 @@ class _CredentialSection extends ConsumerWidget {
           SliverToBoxAdapter(
             child: _SectionTitle(section: section, state: state),
           ),
+        if (section.kind != DataTabSectionKind.ungrouped &&
+            state != _SectionState.collapsed)
+          SliverToBoxAdapter(child: SizedBox(height: theme.smallSpacing)),
         if (state != _SectionState.collapsed)
           SliverReorderableList(
             onReorderStart: (index) {
@@ -621,10 +668,11 @@ class _CredentialSection extends ConsumerWidget {
             itemCount: section.credentials.length,
             itemBuilder: (_, i) {
               final credential = section.credentials[i];
+              final last = i == section.credentials.length - 1;
 
               return Padding(
                 key: ValueKey(credential.credentialId),
-                padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                padding: EdgeInsets.only(bottom: last ? 0 : theme.smallSpacing),
                 child: ReorderableDelayedDragStartListener(
                   index: i,
                   child: _CredentialTypeCard(credential),
@@ -632,7 +680,6 @@ class _CredentialSection extends ConsumerWidget {
               );
             },
           ),
-        SliverToBoxAdapter(child: SizedBox(height: theme.smallSpacing)),
       ],
     );
   }
@@ -662,24 +709,7 @@ class _SectionTitle extends ConsumerWidget {
     final title = _title(context);
 
     if (state == _SectionState.fixed) {
-      return Padding(
-        padding: EdgeInsets.only(bottom: theme.smallSpacing),
-        child: Row(
-          children: [
-            Flexible(child: SectionHeader.text(title)),
-            if (section.kind == DataTabSectionKind.favourites) ...[
-              SizedBox(width: theme.tinySpacing),
-              ExcludeSemantics(
-                child: Icon(
-                  Icons.star,
-                  size: 20,
-                  color: theme.neutralExtraDark,
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
+      return SectionHeader.text(title, indent: SectionHeaderIndent.cardEdge);
     }
 
     final collapsed = state == _SectionState.collapsed;
@@ -706,38 +736,49 @@ class _SectionTitle extends ConsumerWidget {
         onTap: toggle,
         borderRadius: theme.borderRadius,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: kMinInteractiveDimension,
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: theme.defaultSpacing,
-              right: theme.smallSpacing,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.themeData.textTheme.headlineMedium?.copyWith(
-                      color: theme.neutralExtraDark,
+          constraints: const BoxConstraints(minHeight: _sectionHeaderHeight),
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    if (section.kind == DataTabSectionKind.favourites) ...[
+                      ExcludeSemantics(
+                        child: DataTabIcon(
+                          DataTabGlyph.star,
+                          size: _favouriteIconSize,
+                          color: theme.warning,
+                        ),
+                      ),
+                      SizedBox(width: theme.smallSpacing),
+                    ],
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: theme.themeData.textTheme.headlineMedium
+                            ?.copyWith(color: theme.neutralExtraDark),
+                      ),
                     ),
-                  ),
+                    if (collapsed) ...[
+                      SizedBox(width: theme.smallSpacing),
+                      Text(
+                        "($count)",
+                        style: theme.themeData.textTheme.headlineSmall
+                            ?.copyWith(color: theme.neutralDark),
+                      ),
+                    ],
+                  ],
                 ),
-                if (collapsed)
-                  Text(
-                    "$count",
-                    style: theme.themeData.textTheme.bodyMedium?.copyWith(
-                      color: theme.neutralExtraDark,
-                    ),
-                  ),
-                SizedBox(width: theme.tinySpacing),
-                Icon(
-                  collapsed ? Icons.expand_more : Icons.expand_less,
+              ),
+              RotatedBox(
+                quarterTurns: collapsed ? 3 : 0,
+                child: DataTabIcon(
+                  DataTabGlyph.chevronDown,
+                  size: _sectionHeaderIconSize,
                   color: theme.neutralExtraDark,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

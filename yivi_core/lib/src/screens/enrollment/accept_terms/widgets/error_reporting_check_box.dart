@@ -9,17 +9,23 @@ import "../../../../providers/irma_repository_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/yivi_bottom_sheet.dart";
 import "error_reporting_info_bottom_sheet.dart";
+import "onboarding_checkbox.dart";
+import "onboarding_info_sheet.dart";
 
 class ErrorReportingCheckBox extends ConsumerWidget {
-  Future<void> _showErrorReportingInfoBottomSheet(
-    BuildContext context, {
-    double? sidePadding,
-  }) => showYiviBottomSheet(
-    context: context,
-    titleKey: "enrollment.error_reporting.dialog.title",
-    sidePadding: sidePadding,
-    child: ErrorReportingInfoBottomSheet(sidePadding: sidePadding),
-  );
+  Future<void> _showErrorReportingInfoBottomSheet(BuildContext context) =>
+      showYiviBottomSheet(
+        context: context,
+        titleKey: "enrollment.error_reporting.dialog.title",
+        child: ErrorReportingInfoBottomSheet(),
+      );
+
+  Future<void> _showOnboardingInfoSheet(BuildContext context) =>
+      showOnboardingInfoSheet(
+        context: context,
+        titleKey: "enrollment.error_reporting.accept.share_errors",
+        textKey: "enrollment.onboarding_v2.error_reporting_explanation",
+      );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,7 +33,9 @@ class ErrorReportingCheckBox extends ConsumerWidget {
     final repo = IrmaRepositoryProvider.of(context);
     final onboardingV2 =
         ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
-    final sheetSidePadding = onboardingV2 ? theme.mediumSpacing : null;
+    final showInfo = onboardingV2
+        ? _showOnboardingInfoSheet
+        : _showErrorReportingInfoBottomSheet;
 
     // The visible label is assembled from three spans so the middle one can
     // open the info sheet. Translating each part once and sharing it with the
@@ -52,6 +60,9 @@ class ErrorReportingCheckBox extends ConsumerWidget {
         : "$optional: $shareErrors $withYivi";
 
     return Row(
+      crossAxisAlignment: onboardingV2
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         // The label lives in a sibling widget, so the checkbox itself has no
@@ -67,21 +78,31 @@ class ErrorReportingCheckBox extends ConsumerWidget {
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 final value = snapshot.hasData && snapshot.data!;
 
+                void onChanged(bool? isAccepted) {
+                  if (isAccepted != null) {
+                    repo.preferences.setReportErrors(isAccepted);
+                  }
+                }
+
+                if (onboardingV2) {
+                  return OnboardingCheckbox(
+                    checkboxKey: const Key("error_reporting_checkbox"),
+                    value: value,
+                    onChanged: onChanged,
+                  );
+                }
+
                 return Checkbox(
                   key: const Key("error_reporting_checkbox"),
                   value: value,
-                  onChanged: (isAccepted) {
-                    if (isAccepted != null) {
-                      repo.preferences.setReportErrors(isAccepted);
-                    }
-                  },
+                  onChanged: onChanged,
                   activeColor: theme.themeData.colorScheme.secondary,
                 );
               },
             ),
           ),
         ),
-        SizedBox(width: theme.smallSpacing),
+        if (!onboardingV2) SizedBox(width: theme.smallSpacing),
         // RenderParagraph gives every span carrying a gesture recognizer its
         // own semantics node, which split this one sentence into three: the
         // "Optional:" prefix, the tappable share-errors span and "with Yivi".
@@ -97,10 +118,7 @@ class ErrorReportingCheckBox extends ConsumerWidget {
           child: Semantics(
             container: true,
             label: label,
-            onTap: () => _showErrorReportingInfoBottomSheet(
-              context,
-              sidePadding: sheetSidePadding,
-            ),
+            onTap: () => showInfo(context),
             excludeSemantics: true,
             child: Text.rich(
               TextSpan(
@@ -115,10 +133,7 @@ class ErrorReportingCheckBox extends ConsumerWidget {
                   TextSpan(
                     style: theme.hyperlinkTextStyle,
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => _showErrorReportingInfoBottomSheet(
-                        context,
-                        sidePadding: sheetSidePadding,
-                      ),
+                      ..onTap = () => showInfo(context),
                     text: shareErrors,
                   ),
                   TextSpan(

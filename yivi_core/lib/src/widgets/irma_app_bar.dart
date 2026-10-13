@@ -35,14 +35,14 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
 
 class YiviBackButton extends StatelessWidget {
   final Function()? onTap;
-  final String semanticsLabelKey;
   final Color? color;
+  final String semanticsLabelKey;
 
   const YiviBackButton({
     super.key,
     this.onTap,
-    this.semanticsLabelKey = "ui.go_back",
     this.color,
+    this.semanticsLabelKey = "ui.go_back",
   });
 
   @override
@@ -92,7 +92,8 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       key: const Key("irma_app_bar"),
       backgroundColor: theme.light,
-      shape: hasBorder
+      // A bottom brings its own borders.
+      shape: hasBorder && bottom == null
           ? Border(bottom: BorderSide(color: theme.tertiary))
           : null,
       centerTitle: true,

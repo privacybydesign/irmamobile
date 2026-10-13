@@ -75,6 +75,25 @@ void main() {
       expect(find.text("Voor Test Verifier · 0 van 3 klaar"), findsOneWidget);
     });
 
+    testWidgets("reads as one line with what is being obtained", (
+      tester,
+    ) async {
+      final harness = await MissingDataHarness.pump(tester, router);
+      watchSession(harness);
+      await harness.emit(tester, testSession(steps: steps, issued: {"email"}));
+      startFlow(harness, "phone");
+      await tester.pump();
+      final semantics = tester.ensureSemantics();
+
+      expect(
+        find.bySemanticsLabel(
+          "Voor Test Verifier, 1 van 3 klaar, nu: Cred phone",
+        ),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
     testWidgets("is hidden again when the flow is cleared", (tester) async {
       final harness = await MissingDataHarness.pump(tester, router);
       watchSession(harness);
@@ -124,23 +143,62 @@ void main() {
         findsNothing,
       );
 
-      final ring = IrmaThemeData().primary;
-      final rings = tester.widgetList<Container>(
-        find.byWidgetPredicate((widget) {
-          if (widget is! Container) return false;
-          final decoration = widget.decoration;
-          return decoration is BoxDecoration &&
-              decoration.shape == BoxShape.circle &&
-              decoration.border?.top.color == ring;
-        }),
+      // Only the current one has a ring, in the primary colour.
+      final ring = tester.widget<DecoratedBox>(
+        find.byKey(const Key("missing_data_band_ring")),
       );
-      expect(rings, hasLength(1));
+      expect(
+        (ring.decoration as BoxDecoration).boxShadow?.first.color,
+        IrmaThemeData().primary,
+      );
 
       // Done and current at full strength, the one still to do dimmed.
       final opacities = tester
           .widgetList<Opacity>(find.byType(Opacity))
           .map((o) => o.opacity);
       expect(opacities, [1, 1, 0.4]);
+    });
+  });
+
+  group("MissingDataBand height", () {
+    Future<double> bandHeight(WidgetTester tester, double width) async {
+      tester.view.physicalSize = Size(width, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      late double height;
+      final router = GoRouter(
+        routes: [
+          GoRoute(path: "/", builder: (_, _) => const Scaffold()),
+          GoRoute(
+            path: "/bar",
+            builder: (context, _) {
+              height = context.missingDataBand!.preferredSize.height;
+              return const Scaffold();
+            },
+          ),
+        ],
+      );
+      final harness = await MissingDataHarness.pump(tester, router);
+      watchSession(harness);
+      await harness.emit(tester, testSession(steps: steps));
+      startFlow(harness, "phone");
+      router.push("/bar");
+      await tester.pumpAndSettle();
+
+      return height;
+    }
+
+    testWidgets("is one line of label tall where the label fits", (
+      tester,
+    ) async {
+      expect(await bandHeight(tester, 800), 54);
+    });
+
+    testWidgets("grows by a line where the icons leave less room", (
+      tester,
+    ) async {
+      expect(await bandHeight(tester, 390), 70);
     });
   });
 
@@ -172,6 +230,43 @@ void main() {
 
       expect(find.byKey(const Key("missing_data_band")), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("leaves the borders to the band", (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(path: "/", builder: (_, _) => const Scaffold()),
+          GoRoute(
+            path: "/bar",
+            builder: (context, _) => Scaffold(
+              appBar: IrmaAppBar(
+                titleTranslationKey: "missing_data.back_to_list",
+                bottom: context.missingDataBand,
+              ),
+            ),
+          ),
+        ],
+      );
+      final harness = await MissingDataHarness.pump(tester, router);
+      watchSession(harness);
+      await harness.emit(tester, testSession(steps: steps));
+      router.push("/bar");
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<AppBar>(find.byKey(const Key("irma_app_bar"))).shape,
+        isNotNull,
+      );
+
+      startFlow(harness, "phone");
+      router.pop();
+      router.push("/bar");
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key("missing_data_band")), findsOneWidget);
+      expect(
+        tester.widget<AppBar>(find.byKey(const Key("irma_app_bar"))).shape,
+        isNull,
+      );
     });
 
     testWidgets("adds nothing to the app bar outside the checklist", (

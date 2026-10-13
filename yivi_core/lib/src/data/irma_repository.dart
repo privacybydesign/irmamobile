@@ -902,6 +902,7 @@ class IrmaRepository {
         "Credential type $credentialId does not have a suitable issue url",
       );
     }
+
     if (!context.mounted) return;
 
     _startEmailIssuance(

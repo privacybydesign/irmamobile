@@ -9,6 +9,8 @@ class IrmaIconButton extends StatelessWidget {
   final double size;
   final EdgeInsets? padding;
   final String? semanticsLabelKey;
+
+  /// The theme's dark grey when null.
   final Color? color;
 
   const IrmaIconButton({

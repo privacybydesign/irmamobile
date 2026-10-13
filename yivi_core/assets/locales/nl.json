@@ -282,6 +282,11 @@
     "known_party": "Bekende partij",
     "unknown_party": "Onbekende partij",
     "progress": "{x} van {n} klaar",
+    "intro": {
+      "one": "Nog één gegeven, daarna kun je alles delen.",
+      "two": "Twee gegevens staan nog niet in je Yivi-app. Haal ze op, daarna kun je alles delen.",
+      "other": "Er staan nog {n} gegevens niet in je Yivi-app. Haal ze op, daarna kun je alles delen."
+    },
     "status": {
       "present": "Staat al in je app",
       "missing": "Nog niet in je app",
@@ -289,17 +294,34 @@
     },
     "obtain": "Ophalen",
     "obtain_named": "Ophalen: {credential}",
+    "obtain_title": "{credential} ophalen",
     "share_with": "Delen met {requestor}",
     "hint": {
-      "one": "Haal eerst het ontbrekende gegeven op",
+      "one": "Nog 1 gegeven ophalen",
       "other": "Haal eerst de {n} ontbrekende gegevens op"
     },
     "band": "Voor {requestor} · {x} van {n} klaar",
+    "band_semantics": "Voor {requestor}, {x} van {n} klaar, nu: {credential}",
     "back_to_list": "Terug naar de lijst",
     "ready_title": "Alles staat klaar",
     "share_question": {
       "one": "Wil je dit gegeven delen met {requestor}?",
       "other": "Wil je deze {n} gegevens delen met {requestor}?"
+    },
+    "email": {
+      "header": "Wat is je e-mailadres?",
+      "body": "We sturen je een e-mail met een code. Daarmee laat je zien dat het jouw e-mailadres is.",
+      "code_header": "Vul de code in",
+      "code_body": "We hebben een e-mail gestuurd naar {email}. Vul de code uit de e-mail hier in.",
+      "code_label": "Code",
+      "check_code": "Code controleren",
+      "resend": "E-mail opnieuw sturen"
+    },
+    "confirm": {
+      "one": "Wil je dit gegeven aan je Yivi-app toevoegen?",
+      "other": "Wil je deze gegevens aan je Yivi-app toevoegen?",
+      "after": "Daarna ga je terug naar de lijst van {requestor}.",
+      "add": "Toevoegen"
     },
     "share": "Delen"
   },
@@ -352,6 +374,13 @@
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
       "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})",
       "required": "verplicht"
+    },
+    "onboarding_v2": {
+      "intro_explanation": "Jouw officiële naam, geboortedatum, adres, BSN en meer. Veilig opgeslagen in jouw Yivi-app.",
+      "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
+      "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
+      "point_3": "Niemand kijkt mee, ook Yivi niet!",
+      "error_reporting_explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
     },
     "error_reporting": {
       "accept": {
@@ -453,6 +482,7 @@
     }
   },
   "data_tab": {
+    "add": "Gegevens toevoegen",
     "empty": {
       "title": "Haal je gegevens op",
       "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
@@ -463,6 +493,7 @@
       "add": "Voeg toe aan favorieten",
       "remove": "Verwijder uit favorieten"
     },
+    "search": "Zoeken",
     "section_count-1": "{count} gegeven",
     "section_count-2": "{count} gegevens",
     "start": {
@@ -477,6 +508,7 @@
   "back_to_website": {
     "title": "Je Yivi-app is klaar. Ga terug naar de website.",
     "text": "Je kwam hier vanaf een website. Ga terug naar je browser en tik daar nog een keer op 'Open Yivi-app'. Yivi opent dan vanzelf en gaat verder waar je was.",
+    "sketch_label": "Ga verder met Yivi",
     "sketch_button": "Open Yivi-app",
     "hint": "Werkt het niet meer? Laad de pagina op de website opnieuw en probeer het nog een keer.",
     "other": "Ik wil iets anders doen"
@@ -553,7 +585,8 @@
     "banner": {
       "title": "Beveilig je Yivi-app",
       "body": "Koppel je e-mailadres. Dan kun je je app blokkeren als je telefoon kwijtraakt.",
-      "link": "E-mailadres koppelen"
+      "link": "E-mailadres koppelen",
+      "close": "Melding sluiten"
     },
     "later": {
       "title": "Later herinneren?",
@@ -561,9 +594,10 @@
       "remind_me": "Vraag het me later",
       "dismiss": "Negeren"
     },
+    "go_back": "Terug",
     "enter_email": {
       "title": "E-mailadres koppelen",
-      "header": "Koppel je e-mailadres",
+      "header": "Wat is je e-mailadres?",
       "body": "Dan kun je je Yivi-app blokkeren als je telefoon kwijtraakt. We sturen je een e-mail met een code om het te bevestigen.",
       "label": "E-mailadres"
     },
@@ -573,11 +607,20 @@
       "body": "We hebben een e-mail gestuurd naar {email}. Tik op deze telefoon op de link in de e-mail, of vul de code hier in.",
       "next_button": "Code controleren",
       "resend_button": "E-mail opnieuw sturen",
-      "filled_from_link": "Code ingevuld vanuit de link"
+      "filled_from_link": "Code ingevuld vanuit de link",
+      "label": "Code",
+      "checking": "Code controleren…"
+    },
+    "confirm": {
+      "title": "E-mailadres koppelen",
+      "header": "Wil je dit e-mailadres aan je Yivi-app toevoegen?",
+      "add": "Toevoegen",
+      "cancel": "Annuleer"
     },
     "done": {
-      "title": "E-mailadres gekoppeld",
-      "body": "Je kunt je Yivi-app nu blokkeren als je telefoon kwijtraakt."
+      "app_bar_title": "E-mailadres koppelen",
+      "title": "Gelukt",
+      "body": "Je e-mailadres is aan je Yivi-app toegevoegd. Je account is nu ook gekoppeld aan MijnYivi."
     }
   },
   "sms_issuance": {

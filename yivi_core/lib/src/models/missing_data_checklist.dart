@@ -60,21 +60,6 @@ class MissingDataChecklist {
 
   int get missingCount => total - presentCount;
 
-  bool get isComplete => total > 0 && missingCount == 0;
-
-  /// The first missing credential the user can obtain in the app, with the
-  /// step it belongs to.
-  ({ChecklistStep step, ChecklistEntry entry})? get next {
-    for (final step in steps) {
-      for (final entry in step.entries) {
-        if (!entry.isPresent && entry.credential.issueURL != null) {
-          return (step: step, entry: entry);
-        }
-      }
-    }
-    return null;
-  }
-
   static ChecklistStep _buildStep(
     int index,
     IssuanceStep step,

@@ -1,5 +1,6 @@
 import "dart:ui" as ui;
 
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/gestures.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -8,6 +9,7 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "package:yivi_core/src/widgets/data_tab_icon.dart";
 
 import "helpers/data_tab_fixtures.dart";
 
@@ -95,7 +97,18 @@ void main() {
     expect(find.text(_stagingHeader), findsNothing);
     expect(find.text(_demoHeader), findsNothing);
     expect(find.text("Expired"), findsNothing);
-    expect(find.byIcon(Icons.error), findsNothing);
+    expect(find.text("!"), findsNothing);
+  });
+
+  testWidgets("flags off: the cards and app bar look as before", (
+    tester,
+  ) async {
+    await pumpTab(tester);
+
+    expect(tester.getSize(_tile("pbdf.sidn-pbdf.email")).height, 84);
+    expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNotNull);
+    expect(_glyph(DataTabGlyph.chevronRight), findsNothing);
+    expect(find.byIcon(CupertinoIcons.search), findsOneWidget);
   });
 
   group("dataTabV2", () {
@@ -150,7 +163,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: expired, matching: find.byIcon(Icons.error)),
+        find.descendant(of: expired, matching: find.text("!")),
         findsOneWidget,
       );
       expect(find.bySemanticsLabel("Passport, expired"), findsOneWidget);
@@ -161,11 +174,70 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: valid, matching: find.byIcon(Icons.error)),
+        find.descendant(of: valid, matching: find.text("!")),
         findsNothing,
       );
 
       semantics.dispose();
+    });
+
+    testWidgets("the cards are 72 high and the sections 32 apart", (
+      tester,
+    ) async {
+      await pumpTab(tester, flags: flags);
+
+      expect(tester.getSize(_tile("pbdf.sidn-pbdf.email")).height, 72);
+      // A header lines up with the edge of the cards, 8 above them. Sections
+      // are 32 apart.
+      final staging = find.text(_stagingHeader);
+      expect(
+        tester.getTopLeft(staging).dx,
+        tester.getTopLeft(_card("Staging card")).dx,
+      );
+      expect(
+        _top(tester, _card("Staging card")) - tester.getBottomLeft(staging).dy,
+        8,
+      );
+      expect(
+        _top(tester, staging) - tester.getBottomLeft(_card("Mobile number")).dy,
+        32,
+      );
+      expect(
+        _top(tester, find.text(_demoHeader)) -
+            tester.getBottomLeft(_card("Staging card")).dy,
+        32,
+      );
+    });
+
+    testWidgets("the app bar has no border and 44 px buttons", (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpTab(tester, flags: flags);
+
+      expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNull);
+      expect(
+        tester.getSize(find.byKey(const Key("search_button"))),
+        const Size(44, 44),
+      );
+      for (final label in ["Search", "Add data"]) {
+        expect(
+          tester.getSemantics(find.bySemanticsLabel(label)),
+          isSemantics(isButton: true, hasTapAction: true),
+        );
+      }
+
+      expect(_glyph(DataTabGlyph.search), findsOneWidget);
+      expect(_glyph(DataTabGlyph.plusCircle), findsOneWidget);
+
+      semantics.dispose();
+    });
+
+    testWidgets("the search button opens the search bar", (tester) async {
+      await pumpTab(tester, flags: flags);
+
+      await tester.tap(find.byKey(const Key("search_button")));
+      await tester.pump();
+
+      expect(find.byKey(const Key("search_bar")), findsOneWidget);
     });
 
     testWidgets("a credential with no instances left is expired", (
@@ -216,7 +288,7 @@ void main() {
       await pumpTab(tester, flags: flags);
 
       expect(find.text("Contact"), findsNothing);
-      expect(find.byIcon(Icons.expand_less), findsNothing);
+      expect(_glyph(DataTabGlyph.chevronDown), findsNothing);
     });
 
     testWidgets("dragging moves a credential within its section only", (
@@ -361,7 +433,8 @@ void main() {
       tester,
     ) async {
       await pumpTab(tester, flags: flags);
-      expect(find.text("2"), findsNothing);
+      expect(find.text("(2)"), findsNothing);
+      expect(_chevronTurns(tester, "category:Contact"), 0);
 
       await tester.tap(find.byKey(const Key("category:Contact_header")));
       await tester.pump();
@@ -369,14 +442,47 @@ void main() {
       expect(_card("E-mail"), findsNothing);
       expect(_card("Mobile number"), findsNothing);
       expect(_card("Passport"), findsOneWidget);
-      expect(find.text("2"), findsOneWidget);
-      expect(find.byIcon(Icons.expand_more), findsOneWidget);
+      expect(find.text("(2)"), findsOneWidget);
+      // The chevron points down when open and right when collapsed.
+      expect(_chevronTurns(tester, "category:Contact"), 3);
 
       await tester.tap(find.byKey(const Key("category:Contact_header")));
       await tester.pump();
 
       expect(_card("E-mail"), findsOneWidget);
-      expect(find.text("2"), findsNothing);
+      expect(find.text("(2)"), findsNothing);
+    });
+
+    testWidgets("the headers are 44 high and the sections 12 apart", (
+      tester,
+    ) async {
+      await pumpTab(tester, flags: flags);
+
+      final personal = find.byKey(const Key("category:Personal_header"));
+      final contact = find.byKey(const Key("category:Contact_header"));
+      expect(tester.getSize(contact).height, 44);
+      expect(
+        tester.getTopLeft(contact).dx,
+        tester.getTopLeft(_card("E-mail")).dx,
+      );
+      expect(
+        _top(tester, _card("E-mail")) - tester.getBottomLeft(contact).dy,
+        8,
+      );
+      expect(
+        _top(tester, _card("Mobile number")) -
+            tester.getBottomLeft(_card("E-mail")).dy,
+        8,
+      );
+      expect(
+        _top(tester, contact) - tester.getBottomLeft(_card("Passport")).dy,
+        12,
+      );
+
+      await tester.tap(personal);
+      await tester.pump();
+
+      expect(_top(tester, contact) - tester.getBottomLeft(personal).dy, 12);
     });
 
     testWidgets("a collapsed header tells a screen reader its state", (
@@ -421,14 +527,26 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(_glyph(DataTabGlyph.star), findsOneWidget);
     });
 
-    testWidgets("the favourites header does not collapse", (tester) async {
-      await pumpTab(tester, flags: flags, favourites: ["pbdf.pbdf.passport"]);
+    testWidgets("the favourites header collapses like the others", (
+      tester,
+    ) async {
+      await pumpTab(
+        tester,
+        flags: flags,
+        favourites: ["pbdf.pbdf.passport", "pbdf.sidn-pbdf.email"],
+      );
+      expect(_glyph(DataTabGlyph.star), findsOneWidget);
+      expect(_card("Passport"), findsOneWidget);
 
-      expect(find.byKey(const Key("favourites_header")), findsNothing);
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      await tester.tap(find.byKey(const Key("favourites_header")));
+      await tester.pump();
+
+      expect(_card("Passport"), findsNothing);
+      expect(_card("E-mail"), findsNothing);
+      expect(find.text("(2)"), findsOneWidget);
     });
 
     testWidgets("dragging moves a credential within its category only", (
@@ -466,6 +584,22 @@ void main() {
 
 Finder _card(String name) =>
     find.widgetWithText(SchemalessYiviCredentialTypeCard, name);
+
+Finder _tile(String credentialId) => find.byKey(Key("${credentialId}_tile"));
+
+Finder _glyph(DataTabGlyph glyph) => find.byWidgetPredicate(
+  (widget) => widget is DataTabIcon && widget.glyph == glyph,
+);
+
+/// How many quarter turns the chevron of the header [section] has.
+int _chevronTurns(WidgetTester tester, String section) => tester
+    .widget<RotatedBox>(
+      find.descendant(
+        of: find.byKey(Key("${section}_header")),
+        matching: find.byType(RotatedBox),
+      ),
+    )
+    .quarterTurns;
 
 /// The names of the cards on screen, from top to bottom.
 List<String> _cardNames(WidgetTester tester) {

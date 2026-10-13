@@ -15,9 +15,15 @@ import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
+import "../../../../widgets/linking_back_button.dart";
+import "../../../../widgets/linking_heading.dart";
+import "../../../../widgets/missing_data_bottom_bar.dart";
+import "../../../../widgets/missing_data_style.dart";
+import "../../../../widgets/translated_rich_text.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
+import "linking_code_widgets.dart";
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   final EmailIssuancePurpose purpose;
@@ -39,8 +45,13 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
   var _codeComplete = false;
   var _codeFromLink = false;
+  var _checking = false;
 
   bool get _linking => widget.purpose == EmailIssuancePurpose.linkKeyshare;
+
+  /// Whether the user is adding the address for a request, from the missing
+  /// data checklist.
+  bool get _collecting => !_linking && context.missingDataState != null;
 
   @override
   void initState() {
@@ -170,6 +181,9 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
     final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is EmailIssuanceInvalidCodeError;
+    // Linking and collecting data for a request follow the newer boards:
+    // the code goes in boxes of the design and is sent with a button.
+    final redesigned = _linking || _collecting;
 
     final defaultPinTheme = PinTheme(
       width: 50,
@@ -195,6 +209,15 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
       ),
     );
 
+    final linkingPinThemes = redesigned
+        ? LinkingPinThemes(
+            theme,
+            codeInvalid
+                ? LinkingCodeStatus.rejected
+                : LinkingCodeStatus.unchecked,
+          )
+        : null;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -207,11 +230,14 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           _focusNode.unfocus();
         },
         child: Scaffold(
-          appBar: IrmaAppBar(
-            bottom: context.missingDataBand,
-            titleTranslationKey: titleKey,
-            leading: YiviBackButton(onTap: _goBack),
-          ),
+          backgroundColor: redesigned ? theme.backgroundTertiary : null,
+          appBar: _linking
+              ? IrmaAppBar(
+                  titleTranslationKey: titleKey,
+                  hasBorder: false,
+                  leading: LinkingBackButton(onTap: _goBack),
+                )
+              : context.issuanceAppBar(titleKey: titleKey, onBack: _goBack),
           body: SafeArea(
             child: KeyboardAnimationListener(
               onKeyboardSettled: (context, inset, visible) {
@@ -224,23 +250,62 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
-                      SizedBox(height: theme.defaultSpacing),
-                      TranslatedText(
-                        _linking
-                            ? "email_linking.verify_code.header"
-                            : "email_issuance.verify_code.header",
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          color: theme.neutralExtraDark,
+                      SizedBox(
+                        height: redesigned
+                            ? theme.smallSpacing
+                            : theme.defaultSpacing,
+                      ),
+                      if (_linking)
+                        const LinkingHeading("email_linking.verify_code.header")
+                      else if (_collecting)
+                        TranslatedText(
+                          "missing_data.email.code_header",
+                          isHeader: true,
+                          style: missingDataHeadingStyle(theme),
+                        )
+                      else
+                        TranslatedText(
+                          "email_issuance.verify_code.header",
+                          style: theme.textTheme.bodyLarge!.copyWith(
+                            color: theme.neutralExtraDark,
+                          ),
                         ),
-                      ),
                       SizedBox(height: theme.defaultSpacing),
-                      TranslatedText(
-                        _linking
-                            ? "email_linking.verify_code.body"
-                            : "email_issuance.verify_code.body",
-                        translationParams: {"email": state.email},
+                      if (redesigned)
+                        TranslatedRichText(
+                          _linking
+                              ? "email_linking.verify_code.body"
+                              : "missing_data.email.code_body",
+                          translationParams: {
+                            "email": TextSpan(
+                              text: state.email,
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                          },
+                          semanticsParams: {"email": state.email},
+                          style: theme.textTheme.bodyMedium,
+                        )
+                      else
+                        TranslatedText(
+                          "email_issuance.verify_code.body",
+                          translationParams: {"email": state.email},
+                        ),
+                      SizedBox(
+                        height: redesigned
+                            ? theme.mediumSpacing
+                            : theme.largeSpacing,
                       ),
-                      SizedBox(height: theme.largeSpacing),
+                      if (redesigned) ...[
+                        TranslatedText(
+                          _collecting
+                              ? "missing_data.email.code_label"
+                              : "email_linking.verify_code.label",
+                          style: theme.textTheme.labelSmall!.copyWith(
+                            color: theme.neutralExtraDark,
+                          ),
+                        ),
+                        SizedBox(height: theme.smallSpacing),
+                      ],
                       Container(
                         key: _codeFieldPositionKey,
                         child: Pinput(
@@ -250,12 +315,17 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                           textCapitalization: .characters,
                           focusNode: _focusNode,
                           autofocus: true,
-                          mainAxisAlignment: .start,
-                          defaultPinTheme: defaultPinTheme,
-                          focusedPinTheme: focussedPinTheme,
+                          mainAxisAlignment: redesigned
+                              ? .spaceBetween
+                              : .start,
+                          defaultPinTheme:
+                              linkingPinThemes?.normal ?? defaultPinTheme,
+                          focusedPinTheme:
+                              linkingPinThemes?.focused ?? focussedPinTheme,
+                          submittedPinTheme: linkingPinThemes?.filled,
                           length: emailCodeLength,
-                          onChanged: _linking ? _codeChanged : null,
-                          onCompleted: _linking ? null : _handleCode,
+                          onChanged: redesigned ? _codeChanged : null,
+                          onCompleted: redesigned ? null : _handleCode,
                           pinAnimationType: .scale,
                           hapticFeedbackType: .lightImpact,
                         ),
@@ -265,17 +335,14 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                           "email_issuance.verify_code.invalid_code_error",
                           style: TextStyle(color: theme.error),
                         ),
-                      if (_codeFromLink)
-                        Semantics(
-                          liveRegion: true,
-                          child: TranslatedText(
-                            "email_linking.verify_code.filled_from_link",
-                            key: const Key("code_filled_from_link"),
-                            style: TextStyle(color: theme.neutralExtraDark),
-                          ),
+                      if (_codeFromLink) ...[
+                        SizedBox(height: theme.defaultSpacing),
+                        const CodeFromLinkStatus(
+                          key: Key("code_filled_from_link"),
                         ),
+                      ],
                       SizedBox(height: theme.largeSpacing),
-                      if (!_linking)
+                      if (!redesigned)
                         Row(
                           mainAxisAlignment: .start,
                           mainAxisSize: .max,
@@ -297,9 +364,24 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
               ),
             ),
           ),
-          bottomNavigationBar: _linking
+          bottomNavigationBar: _collecting
+              ? MissingDataBottomBar.buttons(
+                  primaryButtonLabel: "missing_data.email.check_code",
+                  onPrimaryPressed: _codeComplete
+                      ? () => _handleCode(_textController.text)
+                      : null,
+                  secondaryButtonLabel: "missing_data.email.resend",
+                  onSecondaryPressed: () => showResendSmsDialog(state.email),
+                )
+              : _linking
               ? IrmaBottomBar(
-                  primaryButtonLabel: "email_linking.verify_code.next_button",
+                  style: IrmaBottomBarStyle.flat,
+                  primaryButtonLabel: _checking
+                      ? "email_linking.verify_code.checking"
+                      : "email_linking.verify_code.next_button",
+                  primaryButtonLeading: _checking
+                      ? const LinkingButtonSpinner()
+                      : null,
                   onPrimaryPressed: _codeComplete
                       ? () => _handleCode(_textController.text)
                       : null,
@@ -308,10 +390,9 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                   onSecondaryPressed: () => showResendSmsDialog(state.email),
                 )
               : IrmaBottomBar(
-                  secondaryButtonLabel: context.missingDataBackLabel(
-                    "email_issuance.verify_code.back_button",
-                  ),
-                  onSecondaryPressed: context.missingDataBack(context.pop),
+                  secondaryButtonLabel:
+                      "email_issuance.verify_code.back_button",
+                  onSecondaryPressed: context.pop,
                 ),
         ),
       ),
@@ -319,16 +400,26 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   }
 
   Future<void> _handleCode(String code) async {
+    if (_checking) return;
+    setState(() => _checking = true);
+
     final session = await ref
         .read(emailIssuanceProvider.notifier)
         .verifyCode(code: code.toUpperCase());
 
-    if (session == null || !mounted) return;
+    if (!mounted) return;
+    if (session == null) {
+      setState(() => _checking = false);
+      return;
+    }
 
     final sessionId = await handlePointer(context, session);
-    if (_linking && sessionId != null && mounted) {
+    if (!mounted) return;
+
+    if (_linking && sessionId != null) {
       ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
     }
+    setState(() => _checking = false);
   }
 
   Future<void> _goBack() async {

@@ -1,8 +1,13 @@
+import "dart:ui" show BoxHeightStyle;
+
+import "package:flutter/rendering.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "package:yivi_core/src/widgets/data_tab_icon.dart";
+import "package:yivi_core/src/widgets/irma_avatar.dart";
 
 import "helpers/data_tab_fixtures.dart";
 
@@ -54,7 +59,11 @@ void main() {
   });
 
   group("expired", () {
-    Future<void> pumpCard(WidgetTester tester, ExpireState state) async {
+    Future<void> pumpCard(
+      WidgetTester tester,
+      ExpireState state, {
+      CredentialCardLayout layout = CredentialCardLayout.standard,
+    }) async {
       // FileTranslationLoader reads the locale JSON with real IO, which the
       // test framework's fake clock does not drive.
       await tester.runAsync(() async {
@@ -67,6 +76,7 @@ void main() {
                 credentialName: "Passport",
                 issuerName: "Issuer",
                 expireState: state,
+                layout: layout,
               ),
             ),
           ),
@@ -79,6 +89,15 @@ void main() {
     final faded = find.byWidgetPredicate(
       (widget) => widget is Opacity && widget.opacity < 1,
     );
+    final badge = find.text("!");
+    const w600 = FontWeight.w600;
+
+    Color? badgeColor(WidgetTester tester) {
+      final box = tester.widget<Container>(
+        find.ancestor(of: badge, matching: find.byType(Container)).first,
+      );
+      return (box.decoration as BoxDecoration).color;
+    }
 
     testWidgets("is faded, badged, and says Expired in red", (tester) async {
       await pumpCard(tester, ExpireState.expired);
@@ -86,14 +105,46 @@ void main() {
       final card = find.byType(SchemalessYiviCredentialTypeCard);
       final red = IrmaTheme.of(tester.element(card)).error;
       expect(tester.widget<Text>(find.text("Expired")).style?.color, red);
-      expect(tester.widget<Icon>(find.byIcon(Icons.error)).color, red);
+      expect(tester.widget<Text>(find.text("Expired")).style?.fontWeight, w600);
+      expect(badgeColor(tester), red);
       expect(find.text("Issuer"), findsNothing);
       expect(faded, findsOneWidget);
       // The badge keeps its full colour.
-      expect(
-        find.descendant(of: faded, matching: find.byIcon(Icons.error)),
-        findsNothing,
+      expect(find.descendant(of: faded, matching: badge), findsNothing);
+    });
+
+    testWidgets("keeps the badge glyph inside its circle at 2x text", (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpCard(tester, ExpireState.expired);
+
+      // The circle is 20 px with a 2 px ring, so 16 px inside. The Text box is
+      // clamped to that, so measure the line the glyph is laid out in.
+      final glyph = tester
+          .renderObject<RenderParagraph>(badge)
+          .getBoxesForSelection(
+            const TextSelection(baseOffset: 0, extentOffset: 1),
+            boxHeightStyle: BoxHeightStyle.max,
+          );
+      expect(glyph.single.toRect().height, 16);
+      expect(tester.getSize(find.text("Expired")).height, greaterThan(28));
+    });
+
+    testWidgets("is faded to 0.45 on a warm grey surface", (tester) async {
+      await pumpCard(tester, ExpireState.expired);
+
+      expect(tester.widget<Opacity>(faded).opacity, 0.45);
+      final surface = tester.widget<Material>(
+        find
+            .descendant(
+              of: find.byType(SchemalessYiviCredentialTypeCard),
+              matching: find.byType(Material),
+            )
+            .first,
       );
+      expect(surface.color, const Color(0xFFF7F5F4));
     });
 
     testWidgets("reads as the name followed by expired", (tester) async {
@@ -113,12 +164,84 @@ void main() {
 
         expect(find.text("Issuer"), findsOneWidget);
         expect(find.text("Expired"), findsNothing);
-        expect(find.byIcon(Icons.error), findsNothing);
+        expect(badge, findsNothing);
         expect(faded, findsNothing);
         expect(find.bySemanticsLabel("Passport, expired"), findsNothing);
 
         semantics.dispose();
       });
     }
+  });
+
+  group("compact layout", () {
+    Future<void> pumpCompact(
+      WidgetTester tester, {
+      CredentialCardLayout layout = CredentialCardLayout.compact,
+      IconData? trailingIcon,
+      String issuerName = "Issuer",
+    }) async {
+      await tester.pumpWidget(
+        _wrap(
+          // A Column, as the card has the height of its content in the lists.
+          Column(
+            children: [
+              SizedBox(
+                width: 390,
+                child: SchemalessYiviCredentialTypeCard(
+                  credentialId: "pbdf.pbdf.passport",
+                  credentialName: "Passport",
+                  issuerName: issuerName,
+                  layout: layout,
+                  trailingIcon: trailingIcon,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    final tile = find.byKey(const Key("pbdf.pbdf.passport_tile"));
+
+    testWidgets("is 72 high with a 44 logo", (tester) async {
+      await pumpCompact(tester);
+
+      expect(tester.getSize(tile).height, 72);
+      expect(tester.getSize(find.byType(IrmaAvatar)), const Size(44, 44));
+    });
+
+    testWidgets("stays 72 high when the issuer wraps to a second line", (
+      tester,
+    ) async {
+      await pumpCompact(tester, issuerName: "Stichting Privacy by Design");
+
+      expect(tester.getSize(tile).height, 72);
+    });
+
+    testWidgets("the standard layout keeps its 52 logo and 84 height", (
+      tester,
+    ) async {
+      await pumpCompact(tester, layout: CredentialCardLayout.standard);
+
+      expect(tester.getSize(tile).height, 84);
+      expect(tester.getSize(find.byType(IrmaAvatar)), const Size(52, 52));
+    });
+
+    testWidgets("ends in a 20 px chevron", (tester) async {
+      await pumpCompact(tester);
+
+      final chevron = tester.widget<DataTabIcon>(find.byType(DataTabIcon));
+      expect(chevron.glyph, DataTabGlyph.chevronRight);
+      expect(chevron.size, 20);
+    });
+
+    testWidgets("ends in a 26 px plus when it adds", (tester) async {
+      await pumpCompact(tester, trailingIcon: Icons.add_circle_sharp);
+
+      final plus = tester.widget<DataTabIcon>(find.byType(DataTabIcon));
+      expect(plus.glyph, DataTabGlyph.plusCircle);
+      expect(plus.size, 26);
+    });
   });
 }
