@@ -81,10 +81,9 @@ for (const file of inputs) {
     const merged = new Set([...(dependencies.get(d.ref)?.dependsOn ?? []), ...(d.dependsOn ?? [])]);
     dependencies.set(d.ref, { ref: d.ref, dependsOn: [...merged] });
   }
-  if (scanRoot) {
-    for (const ref of dependencies.get(scanRoot)?.dependsOn ?? []) appDependsOn.add(ref);
-    dependencies.delete(scanRoot);
-  }
+  if (!scanRoot) continue;
+  for (const ref of dependencies.get(scanRoot)?.dependsOn ?? []) appDependsOn.add(ref);
+  dependencies.delete(scanRoot);
 }
 
 addAndroidNativeLibraries();
@@ -123,11 +122,12 @@ function keepComponent(c) {
   const purl = c.purl ?? "";
   if (purl.startsWith("pkg:golang/")) {
     // cdxgen marks indirect modules as optional, even though they are compiled into the bridge.
-    // go-linked holds the modules irmagobridge really links, so use that instead.
+    // go-linked holds the modules irmagobridge links, so use that instead.
     const module = decodeURIComponent(purl.slice("pkg:golang/".length).split("?")[0]);
     if (!goLinked.has(module)) return false;
     c.scope = "required";
   }
+
   // pubspec.lock cannot tell dev and runtime dependencies apart: transitive dev dependencies look
   // like any other, and packages that yivi_core needs at runtime but yivi_app also lists under
   // dev_dependencies are marked "direct dev". So the pub dependency graph decides instead. Flutter
@@ -257,7 +257,7 @@ async function pubLicense(c) {
   // pub.dev detects the licence of every package and exposes it as a tag, e.g. "license:mit".
   const score = await fetchText(`https://pub.dev/api/packages/${encodeURIComponent(c.name)}/score`);
   const tags = score ? JSON.parse(score).tags : [];
-  const fromTags = tags.filter((t) => t.startsWith("license:")).map((t) => spdxLicense(t.slice(8))).find(Boolean);
+  const fromTags = tags.filter((t) => t.startsWith("license:")).map((t) => spdxLicense(t.slice("license:".length))).find(Boolean);
   if (fromTags) return fromTags;
   const info = await fetchText(`https://pub.dev/api/packages/${encodeURIComponent(c.name)}`);
   const pubspec = info ? JSON.parse(info).latest.pubspec : {};

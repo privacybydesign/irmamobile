@@ -26,6 +26,9 @@ CDXGEN_VERSION="12.8.5"
 CDX_SPEC_VERSION="1.6"
 # Both Play Store flavors have the same dependencies; beta is the one we publish.
 ANDROID_CONFIGURATION="betaReleaseRuntimeClasspath"
+# The OpenSSL version is the one the yivi-sqlcipher-prebuilt release used by bind_go.sh was built
+# with; update it together with SQLCIPHER_VERSION there.
+OPENSSL_VERSION="3.6.1"
 
 root="$(cd "$(dirname "$0")" && pwd)"
 out="${1:-$root/build/sbom/yivi-app.cdx.json}"
@@ -78,8 +81,6 @@ GRADLE_ARGS_DEPENDENCIES="--configuration $ANDROID_CONFIGURATION" \
 echo "Merging..."
 # Used to leave out the Dart packages (and their plugin pods) that only dev dependencies pull in.
 (cd "$root/yivi_app" && flutter pub deps --json) > "$tmp/pub-deps.json"
-# The OpenSSL version is the one the yivi-sqlcipher-prebuilt release used by bind_go.sh was built
-# with; update it together with SQLCIPHER_VERSION there.
 node "$root/generate_sbom.mjs" \
   --out "$out" \
   --version "$app_version" \
@@ -89,5 +90,5 @@ node "$root/generate_sbom.mjs" \
   --podfile-lock "$root/yivi_app/ios/Podfile.lock" \
   --sqlcipher-version "$(sed -n -E 's/^SQLCIPHER_VERSION="(.*)"/\1/p' "$root/bind_go.sh")" \
   --sqlcipher-sha256 "$(sed -n -E 's/^ANDROID_SHA256="(.*)"/\1/p' "$root/bind_go.sh")" \
-  --openssl-version "3.6.1" \
+  --openssl-version "$OPENSSL_VERSION" \
   "$tmp"/{dart,go,cocoapods,gradle}.cdx.json
