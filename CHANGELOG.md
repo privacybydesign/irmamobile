@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
 - On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
+- Two feature flags in the debug menu change the Data tab. Both are off by default and the tab looks the same while they are off. `dataTabV2` lists staging and demo credentials in sections of their own below the rest, and shows an expired credential faded, with a red badge and "Expired" under its name. `dataTabCategories` groups the tab by category like the add data screen, adds a Favourites section that you fill with the star on the credential screen, and lets you collapse a section. With either flag the Data tab follows the design boards: 72 px cards, section headers in line with the cards, and an app bar without a border. `dataTabV2` gives the add data screen the same cards, headers and app bar
 
 ### Changed
 - The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way

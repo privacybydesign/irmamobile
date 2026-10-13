@@ -11,6 +11,7 @@ import "../../../package_name.dart";
 import "../../data/feature_flags.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/data_tab_sections_provider.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
@@ -20,14 +21,26 @@ import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
+import "../../widgets/credential_card/models/credential_card_status.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "../../widgets/data_tab_icon.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
 import "empty_data_routes.dart";
 import "widgets/email_link_banner.dart";
+
+const _listFooterHeight = 50.0;
+const _searchIconSize = 24.0;
+const _addIconSize = 26.0;
+const _sectionHeaderHeight = 44.0;
+const _sectionHeaderIconSize = 20.0;
+const _favouriteIconSize = 18.0;
+const _categorySectionGap = 12.0;
+const _categoryTopPadding = 8.0;
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -67,26 +80,48 @@ class _DataTabState extends ConsumerState<DataTab> {
       );
     }
 
+    final redesign = ref.watch(dataTabLayoutProvider) != DataTabLayout.classic;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: "home.nav_bar.data",
         leading: null,
-        actions: [
-          IrmaIconButton(
-            key: const Key("search_button"),
-            icon: CupertinoIcons.search,
-            size: 28,
-            onTap: _openSearch,
-          ),
-          IrmaIconButton(
-            key: _addDataButtonKey,
-            icon: CupertinoIcons.add_circled_solid,
-            size: 28,
-            onTap: context.pushAddDataScreen,
-          ),
-        ],
+        hasBorder: !redesign,
+        actions: redesign
+            ? [
+                DataTabIconButton(
+                  DataTabGlyph.search,
+                  key: const Key("search_button"),
+                  iconSize: _searchIconSize,
+                  labelKey: "data_tab.search",
+                  onTap: _openSearch,
+                ),
+                DataTabIconButton(
+                  DataTabGlyph.plusCircle,
+                  key: _addDataButtonKey,
+                  iconSize: _addIconSize,
+                  labelKey: "data_tab.add",
+                  onTap: context.pushAddDataScreen,
+                ),
+                // The board leaves 4 px between the last button and the edge.
+                SizedBox(width: theme.tinySpacing),
+              ]
+            : [
+                IrmaIconButton(
+                  key: const Key("search_button"),
+                  icon: CupertinoIcons.search,
+                  size: 28,
+                  onTap: _openSearch,
+                ),
+                IrmaIconButton(
+                  key: _addDataButtonKey,
+                  icon: CupertinoIcons.add_circled_solid,
+                  size: 28,
+                  onTap: context.pushAddDataScreen,
+                ),
+              ],
       ),
       body: SafeArea(
         child: Column(
@@ -296,7 +331,9 @@ class _AllCredentialsList extends ConsumerWidget {
             ? (onboardingV2
                   ? const EmptyDataRoutes()
                   : _NoCredentialsYet(addDataButtonKey: addDataButtonKey))
-            : _ReorderableCredentialList(),
+            : ref.watch(dataTabLayoutProvider) == DataTabLayout.classic
+            ? _ReorderableCredentialList()
+            : const _SectionedCredentialList(),
       AsyncError() => Center(
         child: Padding(
           padding: EdgeInsets.all(theme.defaultSpacing),
@@ -327,20 +364,7 @@ class _CredentialsTypeList extends StatelessWidget {
               left: theme.defaultSpacing,
               right: theme.defaultSpacing,
             ),
-            child: SchemalessYiviCredentialTypeCard(
-              credentialId: c.credentialId,
-              credentialName: c.name,
-              issuerName: c.issuer.name,
-              credentialImageBase64: c.image != null
-                  ? Base64Image(
-                      base64: c.image!.base64,
-                      mimeType: c.image!.mimeType,
-                    )
-                  : null,
-              onTap: () => context.pushCredentialsDetailsScreen(
-                CredentialsDetailsRouteParams(credentialTypeId: c.credentialId),
-              ),
-            ),
+            child: _CredentialTypeCard(c),
           );
         }),
       ],
@@ -433,18 +457,8 @@ class _ReorderableCredentialList extends ConsumerWidget {
           // ones, so the user sees what needs attention first.
           header: problematic.isEmpty
               ? null
-              : Column(
-                  key: const Key("problematic_credentials_section"),
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final pc in problematic)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: theme.smallSpacing),
-                        child: _ProblematicCredentialCard(credential: pc),
-                      ),
-                  ],
-                ),
-          footer: const SizedBox(height: 50),
+              : _ProblematicCredentialsSection(problematic),
+          footer: const SizedBox(height: _listFooterHeight),
           itemBuilder: (_, i) {
             final cred = items[i];
 
@@ -453,27 +467,321 @@ class _ReorderableCredentialList extends ConsumerWidget {
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: ReorderableDelayedDragStartListener(
                 index: i,
-                child: SchemalessYiviCredentialTypeCard(
-                  credentialId: cred.credentialId,
-                  credentialName: cred.name,
-                  issuerName: cred.issuer.name,
-                  credentialImageBase64: cred.image != null
-                      ? Base64Image(
-                          base64: cred.image!.base64,
-                          mimeType: cred.image!.mimeType,
-                        )
-                      : null,
-                  onTap: () => context.pushCredentialsDetailsScreen(
-                    CredentialsDetailsRouteParams(
-                      credentialTypeId: cred.credentialId,
-                    ),
-                  ),
-                ),
+                child: _CredentialTypeCard(cred),
               ),
             );
           },
         );
       },
+    );
+  }
+}
+
+/// The card of a credential type. With `dataTabV2` on it shows the type as
+/// expired when every credential of it is, so a valid credential next to an
+/// expired one does not make the type look unusable.
+class _CredentialTypeCard extends ConsumerWidget {
+  const _CredentialTypeCard(this.credential);
+
+  final schemaless.Credential credential;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final showExpiry =
+        ref.watch(featureFlagProvider(FeatureFlag.dataTabV2)).value ?? false;
+    final redesign = ref.watch(dataTabLayoutProvider) != DataTabLayout.classic;
+    final sameType = !showExpiry
+        ? null
+        : ref
+              .watch(
+                schemalessCredentialsWithIdProvider(credential.credentialId),
+              )
+              .value;
+    final expired =
+        sameType != null && sameType.isNotEmpty && sameType.every(_isExpired);
+
+    return SchemalessYiviCredentialTypeCard(
+      credentialId: credential.credentialId,
+      credentialName: credential.name,
+      issuerName: credential.issuer.name,
+      expireState: expired ? ExpireState.expired : ExpireState.notExpired,
+      layout: redesign
+          ? CredentialCardLayout.compact
+          : CredentialCardLayout.standard,
+      credentialImageBase64: credential.image != null
+          ? Base64Image(
+              base64: credential.image!.base64,
+              mimeType: credential.image!.mimeType,
+            )
+          : null,
+      onTap: () => context.pushCredentialsDetailsScreen(
+        CredentialsDetailsRouteParams(
+          credentialTypeId: credential.credentialId,
+        ),
+      ),
+    );
+  }
+}
+
+bool _isExpired(schemaless.Credential credential) => CredentialCardStatus(
+  expiryDateUnix: credential.expiryDate,
+  revoked: credential.revoked,
+  batchInstanceCountsRemaining: credential.batchInstanceCountsRemaining,
+).isExpired;
+
+class _ProblematicCredentialsSection extends StatelessWidget {
+  const _ProblematicCredentialsSection(this.problematic);
+
+  final List<schemaless.ProblematicCredential> problematic;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return Column(
+      key: const Key("problematic_credentials_section"),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final pc in problematic)
+          Padding(
+            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+            child: _ProblematicCredentialCard(credential: pc),
+          ),
+      ],
+    );
+  }
+}
+
+/// The data tab behind `dataTabV2` and `dataTabCategories`: the credentials in
+/// sections, each in the user's own order. All sections share one scroll view,
+/// so dragging a card to the edge of the screen scrolls the whole list.
+class _SectionedCredentialList extends ConsumerWidget {
+  const _SectionedCredentialList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final sections = ref.watch(dataTabSectionsProvider);
+    final categories =
+        ref.watch(dataTabLayoutProvider) == DataTabLayout.categories;
+    final sectionGap = categories ? _categorySectionGap : theme.largeSpacing;
+    final problematic =
+        ref.watch(schemalessCredentialsProvider).value?.problematic ??
+        const <schemaless.ProblematicCredential>[];
+
+    return sections.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          child: TranslatedText("error.title", textAlign: TextAlign.center),
+        ),
+      ),
+      data: (sections) => CustomScrollView(
+        key: const Key("credential_sections_list"),
+        slivers: [
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              theme.defaultSpacing,
+              categories ? _categoryTopPadding : theme.defaultSpacing,
+              theme.defaultSpacing,
+              theme.defaultSpacing,
+            ),
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                if (problematic.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _ProblematicCredentialsSection(problematic),
+                  ),
+                for (final (i, section) in sections.indexed) ...[
+                  if (i > 0)
+                    SliverToBoxAdapter(child: SizedBox(height: sectionGap)),
+                  _CredentialSection(
+                    key: ValueKey(section.key),
+                    section: section,
+                  ),
+                ],
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: _listFooterHeight),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+enum _SectionState {
+  /// No chevron: every section while `dataTabCategories` is off.
+  fixed,
+  expanded,
+  collapsed,
+}
+
+class _CredentialSection extends ConsumerWidget {
+  const _CredentialSection({super.key, required this.section});
+
+  final DataTabSection section;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final controller = ref.read(
+      schemalessCredentialOrderControllerProvider.notifier,
+    );
+    final collapsible =
+        ref.watch(dataTabLayoutProvider) == DataTabLayout.categories;
+    final state = !collapsible
+        ? _SectionState.fixed
+        : ref.watch(collapsedDataTabSectionsProvider).contains(section.key)
+        ? _SectionState.collapsed
+        : _SectionState.expanded;
+
+    return SliverMainAxisGroup(
+      slivers: [
+        if (section.kind != DataTabSectionKind.ungrouped)
+          SliverToBoxAdapter(
+            child: _SectionTitle(section: section, state: state),
+          ),
+        if (section.kind != DataTabSectionKind.ungrouped &&
+            state != _SectionState.collapsed)
+          SliverToBoxAdapter(child: SizedBox(height: theme.smallSpacing)),
+        if (state != _SectionState.collapsed)
+          SliverReorderableList(
+            onReorderStart: (index) {
+              HapticFeedback.mediumImpact();
+            },
+            onReorderEnd: (index) {
+              HapticFeedback.mediumImpact();
+            },
+            onReorderItem: (oldIndex, newIndex) => controller.reorderWithin(
+              section.credentials,
+              oldIndex,
+              newIndex,
+            ),
+            proxyDecorator: (child, index, animation) {
+              // See _ReorderableCredentialList: no shadow around the padding.
+              return Material(type: .transparency, child: child);
+            },
+            itemCount: section.credentials.length,
+            itemBuilder: (_, i) {
+              final credential = section.credentials[i];
+              final last = i == section.credentials.length - 1;
+
+              return Padding(
+                key: ValueKey(credential.credentialId),
+                padding: EdgeInsets.only(bottom: last ? 0 : theme.smallSpacing),
+                child: ReorderableDelayedDragStartListener(
+                  index: i,
+                  child: _CredentialTypeCard(credential),
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+}
+
+class _SectionTitle extends ConsumerWidget {
+  const _SectionTitle({required this.section, required this.state});
+
+  final DataTabSection section;
+  final _SectionState state;
+
+  String _title(BuildContext context) => switch (section.kind) {
+    .favourites => FlutterI18n.translate(context, "data_tab.favourites.title"),
+    .category when section.category.isEmpty => FlutterI18n.translate(
+      context,
+      "data.category_other",
+    ),
+    .category => section.category,
+    .staging => FlutterI18n.translate(context, "data.add.staging"),
+    .demo => FlutterI18n.translate(context, "data.add.demo"),
+    .ungrouped => "",
+  };
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final title = _title(context);
+
+    if (state == _SectionState.fixed) {
+      return SectionHeader.text(title, indent: SectionHeaderIndent.cardEdge);
+    }
+
+    final collapsed = state == _SectionState.collapsed;
+    final count = section.credentials.length;
+    void toggle() =>
+        ref.read(collapsedDataTabSectionsProvider.notifier).toggle(section.key);
+
+    return Semantics(
+      container: true,
+      header: true,
+      button: true,
+      expanded: !collapsed,
+      label: collapsed
+          ? "$title, ${FlutterI18n.plural(context, "data_tab.section_count", count)}"
+          : title,
+      hint: FlutterI18n.translate(
+        context,
+        collapsed ? "accessibility.expand_hint" : "accessibility.collapse_hint",
+      ),
+      onTap: toggle,
+      excludeSemantics: true,
+      child: InkWell(
+        key: Key("${section.key}_header"),
+        onTap: toggle,
+        borderRadius: theme.borderRadius,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: _sectionHeaderHeight),
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    if (section.kind == DataTabSectionKind.favourites) ...[
+                      ExcludeSemantics(
+                        child: DataTabIcon(
+                          DataTabGlyph.star,
+                          size: _favouriteIconSize,
+                          color: theme.warning,
+                        ),
+                      ),
+                      SizedBox(width: theme.smallSpacing),
+                    ],
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: theme.themeData.textTheme.headlineMedium
+                            ?.copyWith(color: theme.neutralExtraDark),
+                      ),
+                    ),
+                    if (collapsed) ...[
+                      SizedBox(width: theme.smallSpacing),
+                      Text(
+                        "($count)",
+                        style: theme.themeData.textTheme.headlineSmall
+                            ?.copyWith(color: theme.neutralDark),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              RotatedBox(
+                quarterTurns: collapsed ? 3 : 0,
+                child: DataTabIcon(
+                  DataTabGlyph.chevronDown,
+                  size: _sectionHeaderIconSize,
+                  color: theme.neutralExtraDark,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
