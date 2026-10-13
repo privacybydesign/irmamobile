@@ -23,5 +23,9 @@ public class MainActivity extends FlutterFragmentActivity {
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
+    new MethodChannel(
+        flutterEngine.getDartExecutor().getBinaryMessenger(),
+        InstallReferrerHandler.CHANNEL)
+        .setMethodCallHandler(new InstallReferrerHandler(getApplicationContext()));
   }
 }

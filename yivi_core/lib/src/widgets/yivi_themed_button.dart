@@ -37,9 +37,12 @@ class YiviButtonSize {
   double get value => _value;
 
   static const large = YiviButtonSize._internal(55);
+  static const compact = YiviButtonSize._internal(48);
   static const medium = YiviButtonSize._internal(50);
   static const small = YiviButtonSize._internal(37);
 }
+
+const double _defaultOutlineWidth = 1.7;
 
 class YiviThemedButton extends StatelessWidget {
   final String label;
@@ -47,6 +50,7 @@ class YiviThemedButton extends StatelessWidget {
   final YiviButtonStyle style;
   final YiviButtonSize size;
   final bool isTransparent;
+  final double outlineWidth;
 
   const YiviThemedButton({
     super.key,
@@ -55,6 +59,7 @@ class YiviThemedButton extends StatelessWidget {
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
+    this.outlineWidth = _defaultOutlineWidth,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
          "Fancy button cannot be transparent",
@@ -101,7 +106,7 @@ class YiviThemedButton extends StatelessWidget {
               : BoxDecoration(
                   borderRadius: borderRadius,
                   border: Border.all(
-                    width: 1.7,
+                    width: outlineWidth,
                     style: BorderStyle.solid,
                     color: theme.neutralExtraDark,
                   ),

@@ -2,9 +2,12 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../data/feature_flags.dart";
+import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/translated_text.dart";
+import "onboarding_checkbox.dart";
 
 /// Rewrites `[text](url)` to `text`. The accept label is markdown so it can
 /// link to the terms, but a screen reader label has to be plain text. Deriving
@@ -47,8 +50,24 @@ class TermsCheckBox extends ConsumerWidget {
       "enrollment.terms_and_conditions.accept_markdown",
     );
 
+    // Onboarding v2 marks this checkbox as required with a red asterisk. The
+    // asterisk is read as "asterisk" or skipped by screen readers, so the word
+    // goes into the checkbox's label instead.
+    final onboardingV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
+    final semanticsLabel = onboardingV2
+        ? "${_withoutMarkdownLinks(acceptLabel)}, ${FlutterI18n.translate(context, "enrollment.terms_and_conditions.required")}"
+        : _withoutMarkdownLinks(acceptLabel);
+
+    final acceptText = TranslatedText(
+      "enrollment.terms_and_conditions.accept_markdown",
+      translationParams: {"terms_url": termsUrl},
+    );
+
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: onboardingV2
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         // The label lives in a sibling widget, so the checkbox itself has no
@@ -58,21 +77,43 @@ class TermsCheckBox extends ConsumerWidget {
         // link reachable.
         MergeSemantics(
           child: Semantics(
-            label: _withoutMarkdownLinks(acceptLabel),
-            child: Checkbox(
-              key: const Key("accept_terms_checkbox"),
-              value: isAccepted,
-              activeColor: theme.themeData.colorScheme.secondary,
-              onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
-            ),
+            label: semanticsLabel,
+            child: onboardingV2
+                ? OnboardingCheckbox(
+                    checkboxKey: const Key("accept_terms_checkbox"),
+                    value: isAccepted,
+                    onChanged: (isAccepted) =>
+                        onToggleAccepted(isAccepted ?? false),
+                  )
+                : Checkbox(
+                    key: const Key("accept_terms_checkbox"),
+                    value: isAccepted,
+                    activeColor: theme.themeData.colorScheme.secondary,
+                    onChanged: (isAccepted) =>
+                        onToggleAccepted(isAccepted ?? false),
+                  ),
           ),
         ),
-        SizedBox(width: theme.smallSpacing),
+        if (!onboardingV2) SizedBox(width: theme.smallSpacing),
         Flexible(
-          child: TranslatedText(
-            "enrollment.terms_and_conditions.accept_markdown",
-            translationParams: {"terms_url": termsUrl},
-          ),
+          child: onboardingV2
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ExcludeSemantics(
+                      child: Text(
+                        "*",
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: theme.error,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: theme.tinySpacing),
+                    Expanded(child: acceptText),
+                  ],
+                )
+              : acceptText,
         ),
       ],
     );
