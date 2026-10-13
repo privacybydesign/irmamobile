@@ -33,6 +33,22 @@ jobs:
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/irmagobridge.aar
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Generate CycloneDX SBOM
+        run: ./generate_sbom.sh ./build/sbom/yivi-app.cdx.json
+        env:
+          # Raises the GitHub API rate limit for the licence lookups.
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: ./build/sbom/yivi-app.cdx.json
   build-app-ios-alpha:
     # Ad Hoc builds do not require unique build numbers, so we can build this on every push.
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
@@ -120,7 +136,12 @@ jobs:
     needs:
       - build-app-ios-alpha
       - build-app-android-alpha
+      - generate-sbom
     steps:
+      - name: Download sbom artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom
       - name: Download app-alpha-ios artifact
         uses: actions/download-artifact@v4
         with:
@@ -245,7 +266,12 @@ jobs:
     needs:
       - build-app-ios-beta
       - build-app-android-beta
+      - generate-sbom
     steps:
+      - name: Download sbom artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom
       - name: Download app-beta-ios artifact
         uses: actions/download-artifact@v4
         with:

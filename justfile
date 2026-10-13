@@ -79,5 +79,9 @@ fix:
     cd yivi_app && dart fix --apply
     cd yivi_fdroid && dart fix --apply
 
+# Generates a CycloneDX SBOM for the App Store/Play Store app (build/sbom/yivi-app.cdx.json)
+sbom *args:
+    ./generate_sbom.sh {{args}}
+
 # Fetches or updates all Go and Flutter dependencies and generates go bindings
 setup: get bind
