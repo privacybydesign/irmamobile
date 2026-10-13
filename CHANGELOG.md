@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 - The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
 - On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
 

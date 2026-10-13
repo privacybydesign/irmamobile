@@ -45,14 +45,16 @@ cdxgen() {
   npx --yes "@cyclonedx/cdxgen@$CDXGEN_VERSION" --spec-version "$CDX_SPEC_VERSION" --no-auto-compositions --fail-on-error "$@"
 }
 
-# The Gradle build and the Podfile.lock plugin paths depend on the generated Flutter plugin files.
-(cd "$root/yivi_app" && flutter pub get)
+# The Gradle wrapper is gitignored and only a Flutter Android build creates it. --config-only does
+# that (and runs pub get) without compiling. The Gradle scan and the Podfile.lock plugin paths need both.
+(cd "$root/yivi_app" && flutter build apk --config-only --flavor beta)
 
 echo "Scanning Dart packages..."
 cdxgen --type dart -o "$tmp/dart.cdx.json" "$root/yivi_app"
 
 echo "Scanning Go modules..."
-cdxgen --type go -o "$tmp/go.cdx.json" "$root/yivi_core"
+# Without the tag cdxgen misses the es256k modules that bind_go.sh links in.
+GOFLAGS="-tags=jwx_es256k" cdxgen --type go -o "$tmp/go.cdx.json" "$root/yivi_core"
 # cdxgen marks indirect modules as optional, even though they are compiled into the bridge.
 # Ask Go which modules irmagobridge really links (with the build tags from bind_go.sh).
 (cd "$root/yivi_core" && go list -deps -tags jwx_es256k \

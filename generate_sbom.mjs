@@ -21,6 +21,10 @@ const { values: args, positionals: inputs } = parseArgs({
 
 // SPDX licence identifiers we recognise in package metadata (matched case-insensitively), and other
 // spellings of them. GPL-3.0 is what GitHub reports for a plain GPLv3 licence file.
+const PURL_GOLANG = "pkg:golang/";
+const PURL_PUB = "pkg:pub/";
+const PURL_COCOAPODS = "pkg:cocoapods/";
+
 const SPDX_IDS = [
   "0BSD", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "BSL-1.0", "CC0-1.0", "GPL-2.0-only", "GPL-3.0",
   "GPL-3.0-only", "GPL-3.0-or-later", "ISC", "LGPL-2.1-only", "LGPL-3.0-only", "MIT", "MPL-2.0", "Unlicense", "Zlib",
@@ -120,10 +124,10 @@ if (unlicensed.length) console.log(`No licence found for ${unlicensed.length} co
 
 function keepComponent(c) {
   const purl = c.purl ?? "";
-  if (purl.startsWith("pkg:golang/")) {
+  if (purl.startsWith(PURL_GOLANG)) {
     // cdxgen marks indirect modules as optional, even though they are compiled into the bridge.
     // go-linked holds the modules irmagobridge links, so use that instead.
-    const module = decodeURIComponent(purl.slice("pkg:golang/".length).split("?")[0]);
+    const module = decodeURIComponent(purl.slice(PURL_GOLANG.length).split("?")[0]);
     if (!goLinked.has(module)) return false;
     c.scope = "required";
   }
@@ -132,9 +136,9 @@ function keepComponent(c) {
   // like any other, and packages that yivi_core needs at runtime but yivi_app also lists under
   // dev_dependencies are marked "direct dev". So the pub dependency graph decides instead. Flutter
   // plugins also show up as pods with the same name, and dev-only plugins are not part of the release.
-  if (purl.startsWith("pkg:pub/") || purl.startsWith("pkg:cocoapods/")) {
+  if (purl.startsWith(PURL_PUB) || purl.startsWith(PURL_COCOAPODS)) {
     if (devOnlyPubPackages.has(c.name)) return false;
-    if (purl.startsWith("pkg:pub/")) c.scope = "required";
+    if (purl.startsWith(PURL_PUB)) c.scope = "required";
   }
   return true;
 }
@@ -214,11 +218,11 @@ async function addLicenses() {
     if (known && !c.licenses?.length) c.licenses = [{ license: known[1] }];
   }
   const missing = (prefix) => all.filter((c) => c.purl?.startsWith(prefix) && !c.licenses?.length);
-  await Promise.all(missing("pkg:golang/").map(async (c) => setLicense(c, await goLicense(c))));
-  await Promise.all(missing("pkg:pub/").map(async (c) => setLicense(c, await pubLicense(c))));
+  await Promise.all(missing(PURL_GOLANG).map(async (c) => setLicense(c, await goLicense(c))));
+  await Promise.all(missing(PURL_PUB).map(async (c) => setLicense(c, await pubLicense(c))));
   // Flutter plugin pods have the licence of their pub package, so these go after the pub packages.
-  const pubLicenses = new Map(all.filter((c) => c.purl?.startsWith("pkg:pub/")).map((c) => [c.name, c.licenses]));
-  await Promise.all(missing("pkg:cocoapods/").map(async (c) => {
+  const pubLicenses = new Map(all.filter((c) => c.purl?.startsWith(PURL_PUB)).map((c) => [c.name, c.licenses]));
+  await Promise.all(missing(PURL_COCOAPODS).map(async (c) => {
     const repo = podSpecRepos.get(c.name);
     if (!repo) c.licenses = pubLicenses.get(c.name);
     else setLicense(c, await podLicense(repo, c.name, c.version));
@@ -239,7 +243,7 @@ function spdxLicense(id) {
 // deps.dev knows the licences of Go modules. Modules that contain code under several licences
 // (e.g. vendored code) get an SPDX "AND" expression.
 async function goLicense(c) {
-  const module = decodeURIComponent(c.purl.slice("pkg:golang/".length).split(/[@?]/)[0]);
+  const module = decodeURIComponent(c.purl.slice(PURL_GOLANG.length).split(/[@?]/)[0]);
   const json = await fetchText(
     `https://api.deps.dev/v3/systems/go/packages/${encodeURIComponent(module)}/versions/${encodeURIComponent(c.version)}`,
   );
@@ -303,7 +307,10 @@ function parsePubGitUrls(pubspecLock) {
 }
 
 async function fetchText(url, options) {
-  const response = await fetch(url, options);
+  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(30_000) }).catch((error) => {
+    console.warn(`Could not fetch ${url}: ${error.message}`);
+  });
+  if (!response) return undefined;
   if (!response.ok) {
     console.warn(`Could not fetch ${url}: HTTP ${response.status}`);
     return undefined;

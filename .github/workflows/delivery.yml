@@ -35,6 +35,8 @@ jobs:
           path: yivi_core/android/irmagobridge/irmagobridge.aar
   generate-sbom:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
