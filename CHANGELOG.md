@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A camera frame that arrived after the MRZ scanner had released the camera no longer raises an unhandled exception
 - The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from the staging scheme (`pbdf-staging`) and the demo scheme (`irma-demo`) are listed separately at the bottom, under "Staging (test environment)" and "Demo (example data)"
 
+### Internal
+- A pull request now has to update this changelog or carry the `skip-changelog` label, which a CI check enforces
+
 ## [8.3.1] - 2026-10-05
 ### Fixed
 - An image attribute whose value is not a decodable image, such as the single space some issuers send for an empty photo, now shows an empty value under its label instead of turning the credential card into a grey error box
