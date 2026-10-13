@@ -7,4 +7,5 @@ import "driving_licence/driving_licence_categories_renderer.dart";
 const Map<String, List<AttributeGroupRenderer>> attributeGroupRenderers = {
   "pbdf.pbdf.drivinglicence": [DrivingLicenceCategoriesRenderer()],
   "pbdf-staging.pbdf.drivinglicence": [DrivingLicenceCategoriesRenderer()],
+  "irma-demo.pbdf.drivinglicence": [DrivingLicenceCategoriesRenderer()],
 };
