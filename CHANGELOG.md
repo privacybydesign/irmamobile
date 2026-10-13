@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration tests for the driving licence categories table in `integration_test/driving_licence_card_test.dart`, against the demo driving licence: the issuance screen, collapsing and expanding on the detail screen, a licence with no category, every category or no category data at all, the Status and date columns on a disclosure, and the activity log entry of that disclosure. `issueCredentials` and `evaluateCredentialCard` skip the texts inside an attribute group when they read a card's attribute rows
 - Attribute groups: a credential type can register a renderer (in `attribute_group_registry.dart`) that takes a set of its attributes out of the ordinary attribute rows and draws them as one widget, placed at the top, after a given attribute, at the bottom, or below the images. A renderer is handed only the attributes being shown, so on a disclosure it draws just what is shared, and it does its own comparison colouring
 - Widget tests load the locale files through a `TestTranslationLoader` that decodes them on the test isolate. The locale files are now past the 50 KB at which `rootBundle.loadString` decodes on a background isolate, which never completes under the widget tester's fake async
+- A pull request now has to update this changelog or carry the `skip-changelog` label, which a CI check enforces
 
 ## [8.3.1] - 2026-10-05
 ### Fixed
