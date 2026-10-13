@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_dialog.dart";
@@ -29,7 +30,10 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
-      appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
+      appBar: IrmaAppBar(
+        bottom: context.missingDataBand,
+        titleTranslationKey: titleTranslationKey,
+      ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -104,9 +108,11 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "error.button_retry",
-        secondaryButtonLabel: "email_issuance.enter_email.back_button",
+        secondaryButtonLabel: context.missingDataBackLabel(
+          "email_issuance.enter_email.back_button",
+        ),
         onPrimaryPressed: onTryAgain,
-        onSecondaryPressed: context.pop,
+        onSecondaryPressed: context.missingDataBack(context.pop),
       ),
     );
   }

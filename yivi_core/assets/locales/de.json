@@ -274,6 +274,57 @@
       "extra_explanation_android": "Sie hören einige Pieptöne und werden verbunden."
     }
   },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} fragt nach {n} Angabe",
+      "other": "{requestor} fragt nach {n} Angaben"
+    },
+    "known_party": "Bekannte Partei",
+    "unknown_party": "Unbekannte Partei",
+    "progress": "{x} von {n} bereit",
+    "intro": {
+      "one": "Noch eine Angabe, dann können Sie alles teilen.",
+      "two": "Zwei Angaben sind noch nicht in Ihrer Yivi-App. Rufen Sie sie ab, dann können Sie alles teilen.",
+      "other": "Es fehlen noch {n} Angaben in Ihrer Yivi-App. Rufen Sie sie ab, dann können Sie alles teilen."
+    },
+    "status": {
+      "present": "Bereits in Ihrer App",
+      "missing": "Noch nicht in Ihrer App",
+      "just_added": "Gerade hinzugefügt"
+    },
+    "obtain": "Abrufen",
+    "obtain_named": "Abrufen: {credential}",
+    "obtain_title": "{credential} abrufen",
+    "share_with": "Mit {requestor} teilen",
+    "hint": {
+      "one": "Noch 1 Angabe abrufen",
+      "other": "Rufen Sie zuerst die {n} fehlenden Angaben ab"
+    },
+    "band": "Für {requestor} · {x} von {n} bereit",
+    "band_semantics": "Für {requestor}, {x} von {n} bereit, jetzt: {credential}",
+    "back_to_list": "Zurück zur Liste",
+    "ready_title": "Alles ist bereit",
+    "share_question": {
+      "one": "Möchten Sie diese Angabe mit {requestor} teilen?",
+      "other": "Möchten Sie diese {n} Angaben mit {requestor} teilen?"
+    },
+    "email": {
+      "header": "Wie lautet Ihre E-Mail-Adresse?",
+      "body": "Wir senden Ihnen eine E-Mail mit einem Code. Damit zeigen Sie, dass die E-Mail-Adresse Ihnen gehört.",
+      "code_header": "Code eingeben",
+      "code_body": "Wir haben eine E-Mail an {email} gesendet. Geben Sie den Code aus der E-Mail hier ein.",
+      "code_label": "Code",
+      "check_code": "Code prüfen",
+      "resend": "E-Mail erneut senden"
+    },
+    "confirm": {
+      "one": "Möchten Sie diese Angabe zu Ihrer Yivi-App hinzufügen?",
+      "other": "Möchten Sie diese Daten zu Ihrer Yivi-App hinzufügen?",
+      "after": "Danach kehren Sie zur Liste von {requestor} zurück.",
+      "add": "Hinzufügen"
+    },
+    "share": "Teilen"
+  },
   "enrollment": {
     "introduction": {
       "step_1": {

@@ -274,6 +274,57 @@
       "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
     }
   },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} vraagt om {n} gegeven",
+      "other": "{requestor} vraagt om {n} gegevens"
+    },
+    "known_party": "Bekende partij",
+    "unknown_party": "Onbekende partij",
+    "progress": "{x} van {n} klaar",
+    "intro": {
+      "one": "Nog één gegeven, daarna kun je alles delen.",
+      "two": "Twee gegevens staan nog niet in je Yivi-app. Haal ze op, daarna kun je alles delen.",
+      "other": "Er staan nog {n} gegevens niet in je Yivi-app. Haal ze op, daarna kun je alles delen."
+    },
+    "status": {
+      "present": "Staat al in je app",
+      "missing": "Nog niet in je app",
+      "just_added": "Zojuist toegevoegd"
+    },
+    "obtain": "Ophalen",
+    "obtain_named": "Ophalen: {credential}",
+    "obtain_title": "{credential} ophalen",
+    "share_with": "Delen met {requestor}",
+    "hint": {
+      "one": "Nog 1 gegeven ophalen",
+      "other": "Haal eerst de {n} ontbrekende gegevens op"
+    },
+    "band": "Voor {requestor} · {x} van {n} klaar",
+    "band_semantics": "Voor {requestor}, {x} van {n} klaar, nu: {credential}",
+    "back_to_list": "Terug naar de lijst",
+    "ready_title": "Alles staat klaar",
+    "share_question": {
+      "one": "Wil je dit gegeven delen met {requestor}?",
+      "other": "Wil je deze {n} gegevens delen met {requestor}?"
+    },
+    "email": {
+      "header": "Wat is je e-mailadres?",
+      "body": "We sturen je een e-mail met een code. Daarmee laat je zien dat het jouw e-mailadres is.",
+      "code_header": "Vul de code in",
+      "code_body": "We hebben een e-mail gestuurd naar {email}. Vul de code uit de e-mail hier in.",
+      "code_label": "Code",
+      "check_code": "Code controleren",
+      "resend": "E-mail opnieuw sturen"
+    },
+    "confirm": {
+      "one": "Wil je dit gegeven aan je Yivi-app toevoegen?",
+      "other": "Wil je deze gegevens aan je Yivi-app toevoegen?",
+      "after": "Daarna ga je terug naar de lijst van {requestor}.",
+      "add": "Toevoegen"
+    },
+    "share": "Delen"
+  },
   "enrollment": {
     "introduction": {
       "step_1": {
