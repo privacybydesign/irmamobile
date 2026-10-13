@@ -4,6 +4,7 @@ import "data_search_test.dart" as search_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
     as disclosure_session;
+import "driving_licence_card_test.dart" as driving_licence_card_test;
 import "embedded_issuance_flows/driving_licence_test.dart"
     as driving_licence_test;
 import "embedded_issuance_flows/email_issuance_test.dart"
@@ -62,6 +63,7 @@ void main() {
   issuance_test.main();
   more_tab_test.main();
   activity_test.main();
+  driving_licence_card_test.main();
   store_review_test.main();
   disclosure_session.main();
   // issue_wizard_test.main();

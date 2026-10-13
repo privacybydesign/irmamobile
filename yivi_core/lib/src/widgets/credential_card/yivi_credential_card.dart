@@ -35,6 +35,10 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool hideFooter;
   final bool hideNotObtainable;
 
+  /// The card shows attributes being shared (a disclosure) rather than the
+  /// whole credential; attribute groups lay themselves out accordingly.
+  final bool disclosure;
+
   const YiviCredentialCard({
     super.key,
     required this.credentialName,
@@ -51,6 +55,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
+    this.disclosure = false,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -135,6 +140,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         disclosure: true,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -200,6 +206,7 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: true,
          hideNotObtainable: hideNotObtainable,
+         disclosure: true,
        );
 
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
@@ -235,6 +242,7 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: true,
          hideNotObtainable: true,
+         disclosure: true,
        );
 
   YiviCredentialCard.fromLogCredential({
@@ -248,6 +256,7 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+    bool disclosure = false,
   }) : this(
          key: key,
          credentialName: logCredential.name,
@@ -273,6 +282,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         disclosure: disclosure,
        );
 
   @override
@@ -312,7 +322,12 @@ class YiviCredentialCard extends ConsumerWidget {
                 bottom: theme.smallSpacing,
               ),
             ),
-            YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
+            YiviCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
+              credentialId: status.credentialId,
+              disclosure: disclosure,
+            ),
           ],
           if (!hideFooter && !status.revoked)
             Column(

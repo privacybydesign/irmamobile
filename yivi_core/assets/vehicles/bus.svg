@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- D: bus, flat front with large windscreen, side profile facing left -->
+  <path d="M1 17H2.5a2.5 2.5 0 0 1 5 0H16.5a2.5 2.5 0 0 1 5 0H23V5H2.6A1.6 1.6 0 0 0 1 6.6Z M2.2 6.2H4.9V12.4H2.2Z M6 6.2h3.2v3.4H6Z M10.3 6.2h3.2v3.4h-3.2Z M14.6 6.2h3.2v3.4h-3.2Z M18.9 6.2h3v3.4h-3Z"/>
+  <circle cx="5" cy="17" r="1.9"/>
+  <circle cx="19" cy="17" r="1.9"/>
+</svg>
