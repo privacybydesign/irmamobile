@@ -31,6 +31,9 @@ class YiviLinkButton extends StatelessWidget {
   }
 }
 
+// Space between the leading widget of a button and its label.
+const _leadingGap = 10.0;
+
 class YiviButtonSize {
   final double _value;
   const YiviButtonSize._internal(this._value);
@@ -52,6 +55,9 @@ class YiviThemedButton extends StatelessWidget {
   final bool isTransparent;
   final double outlineWidth;
 
+  /// Shown before the label, as the progress indicator of a busy button.
+  final Widget? leading;
+
   const YiviThemedButton({
     super.key,
     required this.label,
@@ -60,6 +66,7 @@ class YiviThemedButton extends StatelessWidget {
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
     this.outlineWidth = _defaultOutlineWidth,
+    this.leading,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
          "Fancy button cannot be transparent",
@@ -137,16 +144,26 @@ class YiviThemedButton extends StatelessWidget {
       );
     }
 
-    final centeredTextWidget = Center(
-      child: TranslatedText(
-        label,
-        textAlign: TextAlign.center,
-        style: baseTextStyle.copyWith(
-          color: style == YiviButtonStyle.outlined
-              ? theme.neutralExtraDark
-              : theme.light,
-        ),
+    final labelWidget = TranslatedText(
+      label,
+      textAlign: TextAlign.center,
+      style: baseTextStyle.copyWith(
+        color: style == YiviButtonStyle.outlined
+            ? theme.neutralExtraDark
+            : theme.light,
       ),
+    );
+    final centeredTextWidget = Center(
+      child: leading == null
+          ? labelWidget
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                leading!,
+                const SizedBox(width: _leadingGap),
+                Flexible(child: labelWidget),
+              ],
+            ),
     );
 
     Widget buttonWidget = Semantics(

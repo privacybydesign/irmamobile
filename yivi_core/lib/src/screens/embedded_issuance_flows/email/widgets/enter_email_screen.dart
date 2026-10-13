@@ -8,6 +8,8 @@ import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
+import "../../../../widgets/linking_back_button.dart";
+import "../../../../widgets/linking_heading.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
@@ -20,7 +22,9 @@ bool isValidEmail(String value) {
 }
 
 class EnterEmailScreen extends ConsumerStatefulWidget {
-  const EnterEmailScreen();
+  final EmailIssuancePurpose purpose;
+
+  const EnterEmailScreen({this.purpose = EmailIssuancePurpose.addCredential});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -111,10 +115,14 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(emailIssuanceProvider);
+    final linking = widget.purpose == EmailIssuancePurpose.linkKeyshare;
+    final titleKey = linking
+        ? "email_linking.enter_email.title"
+        : "email_issuance.enter_email.title";
 
     if (state.error is! EmailIssuanceNoError) {
       return EmbeddedIssuanceErrorScreen(
-        titleTranslationKey: "email_issuance.enter_email.title",
+        titleTranslationKey: titleKey,
         contentTranslationKey: "email_issuance.enter_email.error",
         errorMessage: state.error.toString(),
         onTryAgain: () {
@@ -132,6 +140,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
+    final buttonSize = linking ? YiviButtonSize.compact : YiviButtonSize.medium;
+    final topSpacing = linking ? theme.smallSpacing : theme.defaultSpacing;
+    final fieldSpacing = linking ? theme.mediumSpacing : theme.largeSpacing;
 
     return GestureDetector(
       onTap: () {
@@ -139,8 +150,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
+        backgroundColor: linking ? theme.backgroundTertiary : null,
         appBar: IrmaAppBar(
-          titleTranslationKey: "email_issuance.enter_email.title",
+          titleTranslationKey: titleKey,
+          hasBorder: !linking,
+          leading: linking ? const LinkingBackButton() : const YiviBackButton(),
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(
@@ -155,16 +169,23 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
+                    SizedBox(height: topSpacing),
+                    if (linking)
+                      const LinkingHeading("email_linking.enter_email.header")
+                    else
+                      TranslatedText(
+                        "email_issuance.enter_email.header",
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          color: theme.neutralExtraDark,
+                        ),
+                      ),
                     SizedBox(height: theme.defaultSpacing),
                     TranslatedText(
-                      "email_issuance.enter_email.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
+                      linking
+                          ? "email_linking.enter_email.body"
+                          : "email_issuance.enter_email.body",
                     ),
-                    SizedBox(height: theme.defaultSpacing),
-                    TranslatedText("email_issuance.enter_email.body"),
-                    SizedBox(height: theme.largeSpacing),
+                    SizedBox(height: fieldSpacing),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -173,12 +194,19 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                           Container(
                             key: _emailFieldPositionKey,
                             child: TextFormField(
-                              decoration: InputDecoration(
-                                hint: TranslatedText(
-                                  "email_issuance.enter_email.email_hint",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ),
+                              decoration: linking
+                                  ? InputDecoration(
+                                      labelText: FlutterI18n.translate(
+                                        context,
+                                        "email_linking.enter_email.label",
+                                      ),
+                                    )
+                                  : InputDecoration(
+                                      hint: TranslatedText(
+                                        "email_issuance.enter_email.email_hint",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
                               controller: _textController,
                               focusNode: _focusNode,
                               key: const Key("email_input_field"),
@@ -241,6 +269,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 ),
                 child: YiviThemedButton(
                   label: "email_issuance.enter_email.next_button",
+                  size: buttonSize,
                   onPressed: _validEmail ? _submit : null,
                 ),
               )
@@ -250,6 +279,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         bottomNavigationBar: onScreenKeyboardShown
             ? null
             : IrmaBottomBar(
+                style: linking
+                    ? IrmaBottomBarStyle.flat
+                    : IrmaBottomBarStyle.standard,
                 primaryButtonLabel: "email_issuance.enter_email.next_button",
                 secondaryButtonLabel: "email_issuance.enter_email.back_button",
                 onPrimaryPressed: _validEmail ? _submit : null,

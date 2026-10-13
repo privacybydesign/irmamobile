@@ -520,6 +520,48 @@
       }
     }
   },
+  "email_linking": {
+    "banner": {
+      "title": "Secure your Yivi app",
+      "body": "Link your email address. Then you can block your app if you lose your phone.",
+      "link": "Link email address",
+      "close": "Close notification"
+    },
+    "later": {
+      "title": "Remind you later?",
+      "body": "Without a linked email address you can't block your app remotely. You can always link it later under More › Settings.",
+      "remind_me": "Ask me later",
+      "dismiss": "Dismiss"
+    },
+    "go_back": "Back",
+    "enter_email": {
+      "title": "Link email address",
+      "header": "What is your email address?",
+      "body": "Then you can block your Yivi app if you lose your phone. We'll send you an email with a code to confirm it.",
+      "label": "Email address"
+    },
+    "verify_code": {
+      "title": "Link email address",
+      "header": "Enter the code",
+      "body": "We've sent an email to {email}. On this phone, tap the link in the email, or enter the code here.",
+      "next_button": "Check code",
+      "resend_button": "Send email again",
+      "filled_from_link": "Code filled in from the link",
+      "label": "Code",
+      "checking": "Checking code…"
+    },
+    "confirm": {
+      "title": "Link email address",
+      "header": "Do you want to add this email address to your Yivi app?",
+      "add": "Add",
+      "cancel": "Cancel"
+    },
+    "done": {
+      "app_bar_title": "Link email address",
+      "title": "Success",
+      "body": "Your email address has been added to your Yivi app. Your account is now also linked to MijnYivi."
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Add phone number",
@@ -733,6 +775,7 @@
     "language": "Language",
     "use_system_language": "Use system language",
     "change_pin": "Change PIN",
+    "link_email": "Link email address",
     "biometric_unlock": "Unlock with biometrics",
     "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN to receive or share data.",
     "biometric_immediate": "Unlock automatically",

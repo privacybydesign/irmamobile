@@ -520,6 +520,48 @@
       }
     }
   },
+  "email_linking": {
+    "banner": {
+      "title": "Beveilig je Yivi-app",
+      "body": "Koppel je e-mailadres. Dan kun je je app blokkeren als je telefoon kwijtraakt.",
+      "link": "E-mailadres koppelen",
+      "close": "Melding sluiten"
+    },
+    "later": {
+      "title": "Later herinneren?",
+      "body": "Zonder gekoppeld e-mailadres kun je je app niet op afstand blokkeren. Je kunt het altijd nog koppelen via Meer › Instellingen.",
+      "remind_me": "Vraag het me later",
+      "dismiss": "Negeren"
+    },
+    "go_back": "Terug",
+    "enter_email": {
+      "title": "E-mailadres koppelen",
+      "header": "Wat is je e-mailadres?",
+      "body": "Dan kun je je Yivi-app blokkeren als je telefoon kwijtraakt. We sturen je een e-mail met een code om het te bevestigen.",
+      "label": "E-mailadres"
+    },
+    "verify_code": {
+      "title": "E-mailadres koppelen",
+      "header": "Vul de code in",
+      "body": "We hebben een e-mail gestuurd naar {email}. Tik op deze telefoon op de link in de e-mail, of vul de code hier in.",
+      "next_button": "Code controleren",
+      "resend_button": "E-mail opnieuw sturen",
+      "filled_from_link": "Code ingevuld vanuit de link",
+      "label": "Code",
+      "checking": "Code controleren…"
+    },
+    "confirm": {
+      "title": "E-mailadres koppelen",
+      "header": "Wil je dit e-mailadres aan je Yivi-app toevoegen?",
+      "add": "Toevoegen",
+      "cancel": "Annuleer"
+    },
+    "done": {
+      "app_bar_title": "E-mailadres koppelen",
+      "title": "Gelukt",
+      "body": "Je e-mailadres is aan je Yivi-app toegevoegd. Je account is nu ook gekoppeld aan MijnYivi."
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Telefoonnummer toevoegen",
@@ -733,6 +775,7 @@
     "language": "Taal",
     "use_system_language": "Gebruik systeemtaal",
     "change_pin": "Pincode veranderen",
+    "link_email": "E-mailadres koppelen",
     "biometric_unlock": "Ontgrendelen met biometrie",
     "biometric_unlock_explanation": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor het ophalen of delen van gegevens heb je nog steeds je pincode nodig.",
     "biometric_immediate": "Automatisch ontgrendelen",
