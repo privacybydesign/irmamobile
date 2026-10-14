@@ -156,11 +156,13 @@ Future<void> issueMunicipalityPersonalData(
   int? sdJwtBatchSize,
 }) async {
   final attributes = createMunicipalityPersonalDataAttributes(locale);
+
   // The age row only reads Yes/No, so the Dutch Ja/Nee flags stay rows.
   final inGroups = {
     ..._municipalityInHeader,
     if (locale.languageCode == "en") ..._municipalityAges,
   };
+
   await issueCredentials(
     tester,
     irmaBinding,
