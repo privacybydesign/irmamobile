@@ -35,6 +35,22 @@ const _codes = [
   "T",
 ];
 
+/// Drawn by the profile header, the age row or the chip check, or left out
+/// because the header's date of birth says the same, instead of as rows.
+const _inGroups = {
+  "firstName",
+  "lastName",
+  "dateOfBirth",
+  "placeOfBirth",
+  "yearOfBirth",
+  "over12",
+  "over16",
+  "over18",
+  "over21",
+  "over65",
+  "activeAuthentication",
+};
+
 /// One category as the issuer sends it: a Yes/No flag and two dates, each
 /// empty ("") when there is nothing to say.
 typedef _Category = ({String held, String issued, String expires});
@@ -78,25 +94,33 @@ void main() {
         findsNothing,
       );
 
-      // Like the detail screen: collapsed to the categories held.
-      _expectHeaders(["CATEGORY", "ISSUED", "EXPIRES"]);
+      // Like the detail screen: tiles of the categories held.
+      expect(_tiles, findsOneWidget);
+      _expectHeaders([]);
       _expectCodes(["AM", "B", "BE"]);
-      expect(find.text("2016-05-20"), findsOneWidget);
+      expect(_inTable(find.text("until 2030-03-02")), findsOneWidget);
       expect(_toggle, findsOneWidget);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
       await tester.waitUntilDisappeared(find.byType(IssuancePermission));
     });
 
-    testWidgets("detail screen collapses and expands the not held categories", (
+    testWidgets("detail screen swaps the tiles for the full table", (
       tester,
     ) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await _issueDrivingLicence(tester, irmaBinding);
       await _openDetails(tester);
 
+      _expectTiles(["AM", "B", "BE"]);
+      expect(_inTable(find.text("until 2030-03-02")), findsOneWidget);
+      expect(_inTable(find.text("until 2031-05-20")), findsNWidgets(2));
+      expect(_inTable(find.text("View all 16 categories")), findsOneWidget);
+
+      await _tapToggle(tester);
       _expectHeaders(["CATEGORY", "ISSUED", "EXPIRES"]);
-      _expectCodes(["AM", "B", "BE"]);
+      _expectCodes(_codes);
+      expect(_tiles, findsNothing);
       for (final date in [
         "2015-03-02",
         "2030-03-02",
@@ -106,33 +130,30 @@ void main() {
         expect(_inTable(find.text(date)), findsOneWidget);
       }
       expect(_inTable(find.text("2031-05-20")), findsNWidgets(2));
-      expect(_inTable(find.text("-")), findsNothing);
-      expect(_inTable(find.text("+ 13 categories not held")), findsOneWidget);
-
-      await _tapToggle(tester);
-      _expectCodes(_codes);
       // Both dates of the 13 categories not held.
       expect(_inTable(find.text("-")), findsNWidgets(26));
-      expect(_inTable(find.text("Show less")), findsOneWidget);
+      expect(_inTable(find.text("Only my categories")), findsOneWidget);
 
       await _tapToggle(tester);
-      _expectCodes(["AM", "B", "BE"]);
-      expect(_inTable(find.text("+ 13 categories not held")), findsOneWidget);
+      _expectTiles(["AM", "B", "BE"]);
+      expect(_inTable(find.text("View all 16 categories")), findsOneWidget);
     });
 
-    testWidgets("detail screen does not collapse when no category is held", (
+    testWidgets("detail screen shows only the table when none is held", (
       tester,
     ) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await _issueDrivingLicence(tester, irmaBinding, categories: {});
       await _openDetails(tester);
 
+      _expectHeaders(["CATEGORY", "ISSUED", "EXPIRES"]);
       _expectCodes(_codes);
+      expect(_tiles, findsNothing);
       expect(_inTable(find.text("-")), findsNWidgets(32));
       expect(_toggle, findsNothing);
     });
 
-    testWidgets("detail screen does not collapse when every category is held", (
+    testWidgets("detail screen offers the dates when every category is held", (
       tester,
     ) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -146,9 +167,14 @@ void main() {
       );
       await _openDetails(tester);
 
+      _expectTiles(_codes);
+      expect(_inTable(find.text("Show issue dates")), findsOneWidget);
+
+      await _tapToggle(tester);
+      _expectHeaders(["CATEGORY", "ISSUED", "EXPIRES"]);
       _expectCodes(_codes);
       expect(_inTable(find.text("-")), findsNothing);
-      expect(_toggle, findsNothing);
+      expect(_inTable(find.text("Only my categories")), findsOneWidget);
     });
 
     testWidgets("detail screen without category data", (tester) async {
@@ -269,6 +295,7 @@ final _table = find.byKey(
   const Key("attribute_group_driving_licence_categories"),
 );
 final _toggle = find.byKey(const Key("driving_licence_categories_toggle"));
+final _tiles = find.byKey(const Key("driving_licence_categories_tiles"));
 
 Finder _inTable(Finder matching) =>
     find.descendant(of: _table, matching: matching);
@@ -291,6 +318,13 @@ void _expectCodes(List<String> codes) {
       .where(_codes.contains)
       .toList();
   expect(shown, codes);
+}
+
+/// The categories held as tiles, in this order, without the table's headers.
+void _expectTiles(List<String> codes) {
+  expect(_tiles, findsOneWidget);
+  _expectHeaders([]);
+  _expectCodes(codes);
 }
 
 Future<void> _tapToggle(WidgetTester tester) async {
@@ -342,7 +376,9 @@ Future<void> _issueDrivingLicence(
     attributes,
     attributesInGroups: {
       for (final id in attributes.keys)
-        if (id.startsWith("$_credentialId.category")) id,
+        if (id.startsWith("$_credentialId.category") ||
+            _inGroups.contains(id.substring(_credentialId.length + 1)))
+          id,
     },
   );
 }

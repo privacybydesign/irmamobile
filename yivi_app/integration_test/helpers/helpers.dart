@@ -321,9 +321,10 @@ Future<void> issueCredentials(
   }
 
   // Check whether all attributes are displayed (order-independent).
+  // Section titles and group headings (12) are not label/value pairs.
   final attributeTexts = attributeRowTexts(
     find.byType(YiviCredentialCardAttributeList),
-  ).map((t) => t.data!).toList();
+  ).where((t) => t.style?.fontSize != 12).map((t) => t.data!).toList();
 
   // Build a map of displayed attribute name -> value pairs.
   final displayedAttributes = <String, String>{};
