@@ -1,8 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -14,16 +13,23 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
+  // The data tab lists one card per credential instance and stores their
+  // order as instance hashes (preference.card_order). Every credential type
+  // below is issued once, so the order is compared as credential type ids.
+  // Only the List view can be reordered (long press, then drag).
   group("card-reordering", () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets("reorder-cards-behavior", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
+      await showWalletView(tester, WalletView.list);
+      // Let the debounced order save land.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
-      final beforeOrderOnDisk = irmaBinding.repository.preferences
-          .getCredentialOrder();
-      final beforeOrderOnScreen = getCredentialOrderOnScreen(tester);
+      final beforeOrderOnDisk = await getCardOrderOnDisk(tester, irmaBinding);
+      final beforeOrderOnScreen = walletCardCredentialIds(tester);
 
       expect(beforeOrderOnScreen, equals(beforeOrderOnDisk));
       expect(
@@ -37,18 +43,18 @@ void main() {
         ]),
       );
 
-      final firstCard = find.byType(SchemalessYiviCredentialTypeCard).first;
-      final secondCard = find.byType(SchemalessYiviCredentialTypeCard).at(1);
+      final firstCard = findAllWalletCards().first;
+      final secondCard = findAllWalletCards().at(1);
       final firstCenter = tester.getCenter(firstCard);
       final dragDistance = tester.getCenter(secondCard).dy - firstCenter.dy;
 
       final gesture = await tester.startGesture(firstCenter, kind: .touch);
 
-      // long press
+      // long press (ReorderableDelayedDragStartListener)
       await tester.pump(const Duration(milliseconds: 600));
       // Drag down just past the second card's midpoint, in small increments so
-      // the ReorderableListView can track the drag across intermediate frames.
-      // A single large moveBy doesn't commit the reorder.
+      // the SliverReorderableList can track the drag across intermediate
+      // frames. A single large moveBy doesn't commit the reorder.
       const dragSteps = 10;
       for (var i = 0; i < dragSteps; i++) {
         await gesture.moveBy(Offset(0, (dragDistance + 10) / dragSteps));
@@ -60,13 +66,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // let the reorder ghost/lift animation fully clear from the overlay
-      // and give shared preferences time to update
+      // and give shared preferences time to update (the save is debounced)
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
 
-      final orderAfterDragOnDisk = irmaBinding.repository.preferences
-          .getCredentialOrder();
-      final orderAfterDragOnScreen = getCredentialOrderOnScreen(tester);
+      final orderAfterDragOnDisk = await getCardOrderOnDisk(
+        tester,
+        irmaBinding,
+      );
+      final orderAfterDragOnScreen = walletCardCredentialIds(tester);
 
       expect(orderAfterDragOnScreen, equals(orderAfterDragOnDisk));
       expect(
@@ -83,9 +91,11 @@ void main() {
       // now delete a card and make sure the order is updated correctly
       await deletePersonalDataCard(tester);
 
-      final orderAfterDeleteOnDisk = irmaBinding.repository.preferences
-          .getCredentialOrder();
-      final orderAfterDeleteOnScreen = getCredentialOrderOnScreen(tester);
+      final orderAfterDeleteOnDisk = await getCardOrderOnDisk(
+        tester,
+        irmaBinding,
+      );
+      final orderAfterDeleteOnScreen = walletCardCredentialIds(tester);
 
       expect(orderAfterDeleteOnScreen, equals(orderAfterDeleteOnDisk));
       expect(
@@ -102,10 +112,12 @@ void main() {
       await issueMunicipalityPersonalData(tester, irmaBinding);
       await tester.tapAndSettle(find.byKey(const Key("ok_button")));
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+      // Let the debounced order save land.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
-      final finalOrderOnDisk = irmaBinding.repository.preferences
-          .getCredentialOrder();
-      final finalOrderOnScreen = getCredentialOrderOnScreen(tester);
+      final finalOrderOnDisk = await getCardOrderOnDisk(tester, irmaBinding);
+      final finalOrderOnScreen = walletCardCredentialIds(tester);
 
       expect(finalOrderOnScreen, equals(finalOrderOnDisk));
       expect(
@@ -123,45 +135,28 @@ void main() {
 }
 
 Future<void> deletePersonalDataCard(WidgetTester tester) async {
-  final cardFinder = find.byKey(
-    const ValueKey("irma-demo.gemeente.personalData"),
+  await navigateToCredentialDetailsPage(
+    tester,
+    "irma-demo.gemeente.personalData",
   );
-  await tester.scrollUntilVisible(cardFinder, 100);
-  // Tap on the left side of the card: in landscape, the central raised
-  // scanner FAB in the bottom nav covers the card's geometric center.
-  final cardRect = tester.getRect(cardFinder);
-  await tester.tapAt(Offset(cardRect.left + 100, cardRect.top + 30));
-  await tester.pumpAndSettle();
+  await deleteCredentialFromDetail(tester);
 
-  // Open the bottom sheet
-  final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);
-  await tester.tapAndSettle(bottomSheetButtonFinder);
-
-  // Press the delete button
-  final deleteButtonFinder = find.text("Delete data");
-  await tester.tapAndSettle(deleteButtonFinder);
-
-  // Expect the delete confirmation dialog
-  final deleteConfirmationDialogFinder = find.byType(
-    DeleteCredentialConfirmationDialog,
-  );
-  expect(deleteConfirmationDialogFinder, findsOneWidget);
-
-  // Press the delete button in the dialog
-  final dialogDeleteButtonFinder = find.text("Delete");
-  await tester.tapAndSettle(dialogDeleteButtonFinder);
-
-  // wait for snackbar to disappear
+  // wait for snackbar to disappear, and for the debounced order save
   await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
-List<String> getCredentialOrderOnScreen(WidgetTester tester) {
-  return tester
-      .widgetList<SchemalessYiviCredentialTypeCard>(
-        find.byType(SchemalessYiviCredentialTypeCard, skipOffstage: false),
-      )
-      .map((c) => c.credentialId)
-      .toList();
+/// The stored card order (instance hashes), as credential type ids. Every
+/// stored hash must belong to a card in the wallet.
+Future<List<String>> getCardOrderOnDisk(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  final hashes = irmaBinding.repository.preferences.getCardOrder();
+  final idByHash = {for (final c in walletCards(tester)) c.hash: c.credentialId};
+  for (final hash in hashes) {
+    expect(idByHash, contains(hash), reason: "stored hash not in wallet");
+  }
+  return hashes.map((h) => idByHash[h]!).toList();
 }
 
 Future<void> pumpFilledAppOnDataPage(

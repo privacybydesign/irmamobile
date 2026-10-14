@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -32,7 +31,7 @@ Future<void> lowInstanceCountNoReobtainTest(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     instancesRemaining: 2,
     isExpiringSoon: true,
     expectReobtainButton: false,

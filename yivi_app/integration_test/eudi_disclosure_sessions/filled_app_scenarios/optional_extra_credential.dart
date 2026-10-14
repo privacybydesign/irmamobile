@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -77,7 +76,7 @@ Future<void> optionalExtraCredentialTest(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
   // Default selection is the required cred (phone).
@@ -98,7 +97,7 @@ Future<void> optionalExtraCredentialTest(
 
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 

@@ -64,6 +64,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// the issuance confirmation screen.
   List<DisclosureDisconSelection>? _pendingDisclosureChoices;
 
+  /// The cards the user agreed to share, for "What you shared" on the
+  /// success screen.
+  List<SelectableCredentialInstance> _sharedInstances = const [];
+
   bool _hasLongPin = false;
 
   /// Whether the disclosure introduction screen should be shown.
@@ -411,6 +415,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
+    _sharedInstances = _instancesFor(disclosureChoices);
     final repo = ref.read(irmaRepositoryProvider);
     repo.bridgedDispatch(
       SessionUserInteractionEvent.permission(
@@ -453,7 +458,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // URL the issuer set, and skip the iOS ArrowBack / Android background
     // fallbacks.
     if (_inAppLaunchedSuccess!) {
-      return IssuanceSuccessScreen(onDismiss: (_) => pop());
+      return IssuanceSuccessScreen(
+        credentials: session.offeredCredentials ?? const [],
+        onDismiss: (_) => pop(),
+      );
     }
 
     final returnUrl = session.parsedClientReturnUrl;
@@ -477,13 +485,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // (tel: is handled above; it stays device-agnostic.)
     if (session.continueOnSecondDevice) {
       if (session.type == .issuance) {
-        return IssuanceSuccessScreen(onDismiss: (_) => pop());
+        return IssuanceSuccessScreen(
+          credentials: session.offeredCredentials ?? const [],
+          onDismiss: (_) => pop(),
+        );
       }
       return DisclosureFeedbackScreen(
         feedbackType: .success,
         isSignatureSession: session.type == .signature,
         otherParty: session.requestor.name,
         onDismiss: (_) => pop(),
+        shared: _sharedInstances,
       );
     }
 
@@ -536,6 +548,25 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       pop();
     });
     return _buildLoadingScreen(session);
+  }
+
+  /// The candidate instances of the last disclosure plan the user picked in
+  /// [choices], each carrying only the attributes that are disclosed.
+  List<SelectableCredentialInstance> _instancesFor(
+    List<DisclosureDisconSelection> choices,
+  ) {
+    final candidates = <String, SelectableCredentialInstance>{
+      for (final pickOne
+          in _lastSession?.value?.disclosurePlan?.disclosureChoicesOverview ??
+              const <DisclosurePickOne>[])
+        for (final bundle in pickOne.ownedOptions ?? const <DisclosureBundle>[])
+          for (final instance in bundle.credentials) instance.hash: instance,
+    };
+    return [
+      for (final choice in choices)
+        for (final selected in choice.credentials)
+          ?candidates[selected.credentialHash],
+    ];
   }
 
   Future<void> _closeSession() async {

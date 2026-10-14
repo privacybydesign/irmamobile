@@ -30,12 +30,9 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
@@ -176,11 +173,11 @@ Future<void> testIssueAvMdocHappyPath(
   // the issuer's published metadata, with every claim labelled.
   await tester.pumpUntilFound(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findIssuanceCards(), findsOneWidget);
   expect(find.text(eudiIssuerDisplayName), findsWidgets);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findIssuanceCards().first,
     credentialName: avCredentialName,
     isExpired: false,
     attributes: _avDefaultExpectedAttributes,
@@ -193,10 +190,10 @@ Future<void> testIssueAvMdocHappyPath(
   // Data tab: one tile for the docType, and on its details the card with the
   // wallet's batch cap as remaining copies.
   await _openCredentialDetails(tester, avDocType);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
     instancesRemaining: mdocBatchSize,
@@ -236,7 +233,7 @@ Future<void> testWrongThenCorrectTxCode(
   await tester.tapAndSettle(find.text("OK"));
 
   await _openCredentialDetails(tester, avDocType);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
 }
 
 /// Test 3: declining on the permission screen stores nothing and logs nothing.
@@ -260,7 +257,7 @@ Future<void> testDeclineAtPermissionScreen(
   await tester.waitFor(find.byType(DataTab));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   expect(find.byKey(Key("${avDocType}_tile")), findsNothing);
-  expect(find.byType(SchemalessYiviCredentialTypeCard), findsNothing);
+  expect(findAllWalletCards(skipOffstage: false), findsNothing);
 
   await verifyEmptyActivityLog(tester);
 }
@@ -278,21 +275,21 @@ Future<void> testReissueSameAvMdocKeepsOneCard(
   await issueAvMdoc(tester, irmaBinding);
 
   await _openCredentialDetails(tester, avDocType);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
     instancesRemaining: mdocBatchSize,
     attributes: _avDefaultExpectedAttributes,
   );
 
-  // The details screen is a pushed route, and the shell's nav bar behind it is
-  // parallaxed off-screen, so pop back to the data tab before the activity tab
-  // can be tapped.
-  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  // The detail view covers the tab bar, so close it before the activity tab
+  // can be tapped. The data tab lists a single card for the docType.
+  await closeCredentialDetail(tester);
   await tester.waitFor(find.byType(DataTab));
+  expect(findWalletCards(avDocType, skipOffstage: false), findsOneWidget);
 
   await verifyActivityLogCount(tester, 2);
 }
@@ -308,18 +305,15 @@ Future<void> testDeleteAvMdoc(
   await issueAvMdoc(tester, irmaBinding);
 
   await _openCredentialDetails(tester, avDocType);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
 
-  await tester.tapAndSettle(find.byIcon(Icons.more_horiz_sharp));
-  await tester.tapAndSettle(find.text("Delete data"));
-  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text("Delete"));
+  await deleteCredentialFromDetail(tester);
 
-  // The last credential of the type is gone, so the details screen pops back
-  // to the data tab, which no longer lists the type.
+  // The card is gone, so the detail view closes back to the data tab, which
+  // no longer lists the docType.
   await tester.waitFor(find.byType(DataTab));
   expect(find.byKey(Key("${avDocType}_tile")), findsNothing);
-  expect(find.byType(SchemalessYiviCredentialTypeCard), findsNothing);
+  expect(findAllWalletCards(skipOffstage: false), findsNothing);
 
   // Activity: the removal on top, the issuance below it.
   await tester.tap(
@@ -388,7 +382,7 @@ Future<void> testIssuePidMdocRichValues(
   await issuePidMdoc(tester, irmaBinding);
 
   await _openCredentialDetails(tester, pidMdocDocType);
-  final card = find.byType(YiviCredentialCard);
+  final card = findCredentialDetail();
   expect(card, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -441,7 +435,7 @@ Future<void> testIssueMdlPortraitAndPrivileges(
   await issueMdlMdoc(tester, irmaBinding);
 
   await _openCredentialDetails(tester, mdlDocType);
-  final card = find.byType(YiviCredentialCard);
+  final card = findCredentialDetail();
   expect(card, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -527,11 +521,12 @@ Future<void> testDutchAppLanguageKeepsEnglishLabels(
   // The tile and the card still carry the English text the issuer publishes.
   expect(find.text(avCredentialName), findsWidgets);
   await navigateToCredentialDetailsPage(tester, avDocType);
-  final card = find.byType(YiviCredentialCard);
+  final card = findCredentialDetail();
   expect(card, findsOneWidget);
+  // The heading and the card picture both show the name.
   expect(
     find.descendant(of: card, matching: find.text(avCredentialName)),
-    findsOneWidget,
+    findsWidgets,
   );
   expect(
     find.descendant(of: card, matching: find.text(avLabel(18))),
@@ -556,22 +551,20 @@ Future<void> testSearchFindsAvMdoc(
   await issueAvMdoc(tester, irmaBinding);
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-  await _searchCredentials(tester, "proof");
-  expect(_countCredentialTypeCards(tester), 1);
+  // The search field filters the cards as you type.
+  await searchWallet(tester, "proof");
+  expect(_countWalletCards(tester), 1);
   expect(find.text(avCredentialName), findsWidgets);
-  await _exitSearchMode(tester);
 
-  await _searchCredentials(tester, "digital");
-  expect(_countCredentialTypeCards(tester), 1);
-  await _exitSearchMode(tester);
+  await searchWallet(tester, "digital");
+  expect(_countWalletCards(tester), 1);
 
-  await _searchCredentials(tester, "passport");
-  expect(_countCredentialTypeCards(tester), 0);
-  await _exitSearchMode(tester);
+  await searchWallet(tester, "passport");
+  expect(_countWalletCards(tester), 0);
 
-  // Outside search mode the data tab renders the reorderable list, which does
-  // not carry the `credentials_type_list` key, so count the cards themselves.
-  expect(find.byType(SchemalessYiviCredentialTypeCard), findsOneWidget);
+  // An empty query shows every card again.
+  await searchWallet(tester, "");
+  expect(findWalletCards(avDocType, skipOffstage: false), findsOneWidget);
 }
 
 // =============================================================================
@@ -608,7 +601,7 @@ Future<void> _openCredentialDetails(WidgetTester tester, String credId) async {
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await tester.waitFor(find.byKey(Key("${credId}_tile")));
   await navigateToCredentialDetailsPage(tester, credId);
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
   await tester.pumpAndSettle();
 }
 
@@ -668,23 +661,6 @@ void _expectLabelIgnoringCase(WidgetTester tester, Finder card, String label) {
   expect(matches, isNotEmpty, reason: "no header '$label' rendered");
 }
 
-Future<void> _searchCredentials(WidgetTester tester, String query) async {
-  await tester.tapAndSettle(find.byKey(const Key("search_button")));
-  await tester.pumpAndSettle(const Duration(seconds: 1));
-  await tester.enterText(find.byKey(const Key("search_bar")), query);
-  await tester.pumpAndSettle(const Duration(seconds: 1));
-}
-
-Future<void> _exitSearchMode(WidgetTester tester) async {
-  await tester.tapAndSettle(find.byKey(const Key("cancel_search_button")));
-  await tester.pumpAndSettle();
-}
-
-int _countCredentialTypeCards(WidgetTester tester) {
-  final list =
-      tester
-              .widgetList(find.byKey(const Key("credentials_type_list")))
-              .firstOrNull
-          as ListView?;
-  return list?.childrenDelegate.estimatedChildCount ?? 0;
-}
+/// The number of cards the data tab shows.
+int _countWalletCards(WidgetTester tester) =>
+    findAllWalletCards(skipOffstage: false).evaluate().length;

@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -72,17 +71,27 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
   // We don't want to show a re-obtain button during issuance...
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findIssuanceCards(),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [
       ("Email address", "test@example.com"),
       ("Email domain name", "example.com"),
     ],
-    isRevoked: false,
-    isExpired: false,
     instancesRemaining: 1,
   );
+  // The permission screen shows no status and no Reobtain button at all.
+  for (final text in ["Reobtain", "About to expire", "Expired", "Revoked"]) {
+    expect(
+      find.descendant(
+        of: issuancePageFinder,
+        matching: find.text(text, skipOffstage: false),
+        skipOffstage: false,
+      ),
+      findsNothing,
+      reason: "'$text' on the issuance permission",
+    );
+  }
 
   // continue with issuance request
   final buttonFinder = find.byKey(const Key("bottom_bar_primary"));
@@ -110,16 +119,21 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
 
   await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
 
-  // Expect to find a card
-  final cardFinder = find.byType(YiviCredentialCard);
-  final credentialCards = tester
-      .widgetList<YiviCredentialCard>(cardFinder)
-      .toList();
+  // Expect one card of this type, carrying the batch as remaining instances
+  final credentialCards = walletCards(
+    tester,
+  ).where((c) => c.credentialId == "irma-demo.sidn-pbdf.email").toList();
   expect(credentialCards.length, equals(1));
-  expect(credentialCards[0].status.instanceCount, equals(credentialCount));
+  expect(
+    credentialCards[0].batchInstanceCountsRemaining.values.nonNulls.first,
+    equals(credentialCount),
+  );
 
   expect(
-    find.text("$credentialCount times left", skipOffstage: false),
+    find.descendant(
+      of: findCredentialDetail(),
+      matching: find.text("$credentialCount times left"),
+    ),
     findsOneWidget,
   );
 }
@@ -162,22 +176,30 @@ Future<void> testIssueEmailWithSdJwt(
 
   await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
 
-  // Expect to find a card
-  final cardFinder = find.byType(YiviCredentialCard);
-  final credentialCards = tester
-      .widgetList<YiviCredentialCard>(cardFinder)
-      .toList();
+  // Expect one card of this type, carrying the batch as remaining instances
+  final credentialCards = walletCards(
+    tester,
+  ).where((c) => c.credentialId == "irma-demo.sidn-pbdf.email").toList();
   expect(credentialCards.length, equals(1));
-  expect(credentialCards[0].status.instanceCount, equals(credentialCount));
+  expect(
+    credentialCards[0].batchInstanceCountsRemaining.values.nonNulls.first,
+    equals(credentialCount),
+  );
 
   if (locale == Locale("nl", "NL")) {
     expect(
-      find.text("Nog $credentialCount keer", skipOffstage: false),
+      find.descendant(
+        of: findCredentialDetail(),
+        matching: find.text("Nog $credentialCount keer"),
+      ),
       findsOneWidget,
     );
   } else {
     expect(
-      find.text("$credentialCount times left", skipOffstage: false),
+      find.descendant(
+        of: findCredentialDetail(),
+        matching: find.text("$credentialCount times left"),
+      ),
       findsOneWidget,
     );
   }

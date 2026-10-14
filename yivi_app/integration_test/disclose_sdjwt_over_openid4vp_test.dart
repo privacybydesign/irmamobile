@@ -288,7 +288,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   await tester.pumpAndSettle();
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(tester, cardsFinder);
 
@@ -404,7 +404,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   await tester.pumpAndSettle();
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
   await tapChangeChoicesButton(tester);
@@ -412,7 +412,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -509,7 +509,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
   await evaluateCredentialCard(
@@ -529,7 +529,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -615,7 +615,7 @@ Future<void> testClaimValueOnePresentOneNot(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
   await evaluateCredentialCard(
@@ -634,7 +634,7 @@ Future<void> testClaimValueOnePresentOneNot(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
   expect(choiceCardsFinder, findsNWidgets(2));
@@ -729,7 +729,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
@@ -751,7 +751,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -905,7 +905,7 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final cardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -1029,7 +1029,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -1060,7 +1060,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final phoneChoiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -1188,7 +1188,7 @@ Future<void> testOneCredentialTwoChoices(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final cardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
 
@@ -1227,10 +1227,7 @@ Future<void> testOneCredentialTwoChoices(
 
   // after issuance, expect to be back on the disclosure overview with the newly issued credential
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final overviewCardsFinder = find.byType(
-    YiviCredentialCard,
-    skipOffstage: false,
-  );
+  final overviewCardsFinder = findCredentialCards(skipOffstage: false);
   expect(overviewCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -1246,7 +1243,7 @@ Future<void> testOneCredentialTwoChoices(
 
   final updatedCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
   expect(updatedCardsFinder, findsNWidgets(4));
@@ -1335,14 +1332,14 @@ Future<void> testOneMissingOnePresent(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false).at(0),
+    findCredentialCards(skipOffstage: false).at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [("Email address", "test@example.com")],
   );
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false).at(1),
+    findCredentialCards(skipOffstage: false).at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
     attributes: [("Mobile phone number", "0612345678")],
@@ -1445,7 +1442,7 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
   await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     instancesRemaining: 0,
     style: IrmaCardStyle.danger,
     isExpired: true,
@@ -1496,7 +1493,7 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false),
+    findCredentialCards(skipOffstage: false),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [("Email address", "test@example.com")],
@@ -1508,7 +1505,7 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
   await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     instancesRemaining: credentialCount - 1,
     isExpiringSoon: true,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
@@ -1576,7 +1573,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false).at(0),
+    findCredentialCards(skipOffstage: false).at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [
@@ -1586,7 +1583,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
   );
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false).at(1),
+    findCredentialCards(skipOffstage: false).at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
     attributes: [("Mobile phone number", "0612345678")],
@@ -1598,7 +1595,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
   await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [
@@ -1608,14 +1605,14 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
     instancesRemaining: credentialCount - 1,
   );
 
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
   await navigateToCredentialDetailsPage(
     tester,
     "irma-demo.sidn-pbdf.mobilenumber",
   );
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
     attributes: [("Mobile phone number", "0612345678")],
@@ -1683,7 +1680,7 @@ Future<void> testDiscloseSdJwtWithChoices(
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // expect one card, namely the email credential
-  final cardFinder = find.byType(YiviCredentialCard);
+  final cardFinder = findCredentialCards();
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -1700,7 +1697,7 @@ Future<void> testDiscloseSdJwtWithChoices(
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final cardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
   // 2 existing + 2 obtainable
@@ -1731,7 +1728,7 @@ Future<void> testDiscloseSdJwtWithChoices(
   await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [
@@ -1741,14 +1738,14 @@ Future<void> testDiscloseSdJwtWithChoices(
     instancesRemaining: credentialCount,
   );
 
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
   await navigateToCredentialDetailsPage(
     tester,
     "irma-demo.sidn-pbdf.mobilenumber",
   );
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
     attributes: [("Mobile phone number", "0612345678")],

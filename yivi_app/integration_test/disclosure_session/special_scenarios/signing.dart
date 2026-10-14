@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -55,7 +54,7 @@ Future<void> signingTest(
 
   expect(find.byType(RequestorHeader), findsOneWidget);
 
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

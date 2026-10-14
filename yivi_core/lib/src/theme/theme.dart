@@ -1,6 +1,8 @@
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
+import "yivi_palette.dart";
+
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
@@ -263,6 +265,34 @@ class IrmaThemeData {
       appBarTheme: appBarTheme,
       inputDecorationTheme: inputDecorationTheme,
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
+    );
+  }
+}
+
+extension IrmaDarkTheme on IrmaThemeData {
+  /// The dark variant used by the dark mode preview: the redesigned screens
+  /// take their colours from [YiviPalette.dark]; this sets the Material
+  /// defaults around them (scaffold, surfaces, status bar icons).
+  ThemeData get darkThemeData {
+    const palette = YiviPalette.dark;
+    return themeData.copyWith(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: palette.background,
+      colorScheme: themeData.colorScheme.copyWith(
+        brightness: Brightness.dark,
+        surface: palette.surface,
+        onSurface: palette.text,
+      ),
+      appBarTheme: themeData.appBarTheme.copyWith(
+        iconTheme: IconThemeData(color: palette.text),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarColor: Color(0xFF0E1116),
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
+      ),
     );
   }
 }

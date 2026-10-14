@@ -1,15 +1,17 @@
 import "dart:async";
 
 import "package:flutter/semantics.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/irma_repository_provider.dart";
-import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
-import "../../widgets/irma_app_bar.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/lock_gate.dart";
-import "../../widgets/section_header.dart";
-import "../../widgets/yivi_themed_button.dart";
+import "../../widgets/translated_text.dart";
+import "../../widgets/two_pane.dart";
 import "../home/widgets/irma_nav_bar.dart";
 import "widgets/tiles.dart";
 import "widgets/tiles_card.dart";
@@ -50,105 +52,155 @@ class _MoreTabState extends State<MoreTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    final spacerWidget = SizedBox(height: theme.mediumSpacing);
+    final palette = YiviPalette.of(context);
+    final padding = MediaQuery.paddingOf(context);
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: SectionHeader(translationKey),
+      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+      child: Semantics(
+        header: true,
+        child: TranslatedText(translationKey, style: palette.display(16)),
+      ),
     );
 
-    return Scaffold(
-      backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "home.nav_bar.more",
-        leading: null,
+    // In the tablet layout the sections sit in two columns.
+    final expanded = isExpandedLayout(context);
+    final appManagement = <Widget>[
+      Semantics(
+        sortKey: const OrdinalSortKey(0),
+        child: buildHeaderText("more_tab.app_management"),
       ),
+      TilesCard(
+        children: [
+          InternalLinkTile(
+            key: Key("open_settings_screen_button"),
+            labelTranslationKey: "more_tab.settings",
+            iconData: Icons.settings_outlined,
+            onTap: context.goSettingsScreen,
+          ),
+          InternalLinkTile(
+            labelTranslationKey: "more_tab.faq",
+            iconData: Icons.help_outline_rounded,
+            onTap: context.goHelpScreen,
+          ),
+          if (showDebugging)
+            InternalLinkTile(
+              labelTranslationKey: "more_tab.debugging",
+              iconData: Icons.code_rounded,
+              onTap: context.goDebugScreen,
+            ),
+        ],
+      ),
+    ];
+    final about = <Widget>[
+      buildHeaderText("help.about_irma"),
+      const TilesCard(
+        children: [
+          ExternalLinkTile(
+            labelTranslationKey: "more_tab.website",
+            iconData: Icons.info_outline_rounded,
+            urlLinkKey: "more_tab.irma_website_link",
+          ),
+          ContactLinkTile(
+            labelTranslationKey: "more_tab.contact",
+            iconData: Icons.mail_outline_rounded,
+          ),
+        ],
+      ),
+      buildHeaderText("more_tab.slogan"),
+      const TilesCard(
+        children: [
+          ShareLinkTile(
+            iconData: Icons.share_outlined,
+            labelTranslationKey: "more_tab.share",
+            shareTextKey: "more_tab.share_text",
+          ),
+          ExternalLinkTile(
+            iconData: Icons.description_outlined,
+            labelTranslationKey: "more_tab.privacy_policy",
+            urlLinkKey: "more_tab.privacy_policy_link",
+          ),
+        ],
+      ),
+    ];
+
+    return Scaffold(
+      backgroundColor: palette.background,
       body: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Semantics(
-              sortKey: const OrdinalSortKey(0),
-              child: buildHeaderText("more_tab.app_management"),
-            ),
-            TilesCard(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          padding.top + 24,
+          16,
+          padding.bottom + bottomBarSpace(context),
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: expanded ? 960 : 640),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                InternalLinkTile(
-                  key: Key("open_settings_screen_button"),
-                  labelTranslationKey: "more_tab.settings",
-                  iconData: Icons.settings_outlined,
-                  onTap: context.goSettingsScreen,
-                ),
-                InternalLinkTile(
-                  labelTranslationKey: "more_tab.faq",
-                  iconData: Icons.help_outline_rounded,
-                  onTap: context.goHelpScreen,
-                ),
-                if (showDebugging)
-                  InternalLinkTile(
-                    labelTranslationKey: "more_tab.debugging",
-                    iconData: Icons.code_rounded,
-                    onTap: context.goDebugScreen,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                  child: Semantics(
+                    header: true,
+                    child: TranslatedText(
+                      "home.nav_bar.more",
+                      style: palette.display(26, weight: FontWeight.w700),
+                    ),
                   ),
+                ),
+                if (expanded)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 24,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: appManagement,
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: about,
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  ...appManagement,
+                  ...about,
+                ],
+                const SizedBox(height: 32),
+                PillButton(
+                  key: const Key("log_out_button"),
+                  style: PillStyle.neutral,
+                  label: FlutterI18n.translate(context, "more_tab.log_out"),
+                  onPressed: () {
+                    // Confirm the deliberate logout so the user understands they
+                    // were logged out and the PIN screen is not asking for a PIN in
+                    // order to log out. Shown by the lock overlay rather than from
+                    // here: on this tab's ScaffoldMessenger the snackbar also paints
+                    // in this Scaffold, which stays mounted under the overlay.
+                    confirmLogoutOnNextLock = true;
+                    // userInitiated: skip the "scan on launch" auto-biometric on
+                    // the lock screen that follows an explicit logout.
+                    IrmaRepositoryProvider.of(
+                      context,
+                    ).lock(userInitiated: true);
+                    widget.onChangeTab(IrmaNavBarTab.data);
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: VersionButton(),
+                ),
               ],
             ),
-            spacerWidget,
-            buildHeaderText("help.about_irma"),
-            const TilesCard(
-              children: [
-                ExternalLinkTile(
-                  labelTranslationKey: "more_tab.website",
-                  iconData: Icons.info_outline_rounded,
-                  urlLinkKey: "more_tab.irma_website_link",
-                ),
-                ContactLinkTile(
-                  labelTranslationKey: "more_tab.contact",
-                  iconData: Icons.mail_outline_rounded,
-                ),
-              ],
-            ),
-            spacerWidget,
-            buildHeaderText("more_tab.slogan"),
-            const TilesCard(
-              children: [
-                ShareLinkTile(
-                  iconData: Icons.share_outlined,
-                  labelTranslationKey: "more_tab.share",
-                  shareTextKey: "more_tab.share_text",
-                ),
-                ExternalLinkTile(
-                  iconData: Icons.description_outlined,
-                  labelTranslationKey: "more_tab.privacy_policy",
-                  urlLinkKey: "more_tab.privacy_policy_link",
-                ),
-              ],
-            ),
-            spacerWidget,
-            YiviThemedButton(
-              key: const Key("log_out_button"),
-              style: YiviButtonStyle.filled,
-              label: "more_tab.log_out",
-              onPressed: () {
-                // Confirm the deliberate logout so the user understands they
-                // were logged out and the PIN screen is not asking for a PIN in
-                // order to log out. Shown by the lock overlay rather than from
-                // here: on this tab's ScaffoldMessenger the snackbar also paints
-                // in this Scaffold, which stays mounted under the overlay.
-                confirmLogoutOnNextLock = true;
-                // userInitiated: skip the "scan on launch" auto-biometric on
-                // the lock screen that follows an explicit logout.
-                IrmaRepositoryProvider.of(context).lock(userInitiated: true);
-                widget.onChangeTab(IrmaNavBarTab.data);
-              },
-            ),
-            spacerWidget,
-            const VersionButton(),
-            const SizedBox(height: 50),
-          ],
+          ),
         ),
       ),
     );

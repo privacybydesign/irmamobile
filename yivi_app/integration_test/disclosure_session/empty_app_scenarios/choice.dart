@@ -3,7 +3,6 @@ import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_scree
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_choice.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -52,7 +51,7 @@ Future<void> choiceTest(
   // The choice should consist of two options/cards
   final cardsFinder = find.descendant(
     of: disconChoiceFinder,
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   expect(cardsFinder, findsNWidgets(2));
 

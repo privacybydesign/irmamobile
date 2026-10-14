@@ -3,10 +3,10 @@ import "package:material_ui/material_ui.dart";
 
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "base64_image.dart";
 import "credential_card/yivi_credential_card_header.dart";
 import "irma_avatar.dart";
-import "irma_card.dart";
 import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
@@ -197,10 +197,15 @@ class _RequestorHeaderBase extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return IrmaCard(
-      color: backgroundColor,
-      padding: EdgeInsets.zero,
-      margin: EdgeInsets.all(theme.defaultSpacing),
+    return Container(
+      margin: EdgeInsets.only(bottom: theme.smallSpacing),
+      padding: EdgeInsets.all(theme.defaultSpacing),
+      decoration: ShapeDecoration(
+        color: backgroundColor ?? YiviPalette.of(context).surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+      ),
       child: Row(
         crossAxisAlignment: subtitleText != null
             ? CrossAxisAlignment.start

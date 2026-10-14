@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -47,7 +46,7 @@ Future<void> noChoiceMultipleCredsTest(
   // The discon stepper should consist of two cards
   final cardsFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   expect(cardsFinder, findsNWidgets(2));
 

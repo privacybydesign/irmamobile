@@ -49,13 +49,16 @@ Future<void> pidAndMdlTwoDoctypesTest(
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsNWidgets(2));
 
-  final pidCard = find.ancestor(
-    of: find.text(pidMdocCredentialName, skipOffstage: false),
-    matching: find.byType(YiviCredentialCard),
-  );
+  final pidCard = find
+      .ancestor(
+        of: find.text(pidMdocCredentialName, skipOffstage: false),
+        matching: findCredentialCards(),
+      )
+      // The card picture in the tile shows the name as well: one tile.
+      .first;
   await evaluateCredentialCard(
     tester,
     pidCard,
@@ -63,10 +66,13 @@ Future<void> pidAndMdlTwoDoctypesTest(
     issuerName: eudiIssuerDisplayName,
     attributes: [("Family Name(s)", presetFamilyName)],
   );
-  final mdlCard = find.ancestor(
-    of: find.text(mdlCredentialName, skipOffstage: false),
-    matching: find.byType(YiviCredentialCard),
-  );
+  final mdlCard = find
+      .ancestor(
+        of: find.text(mdlCredentialName, skipOffstage: false),
+        matching: findCredentialCards(),
+      )
+      // The card picture in the tile shows the name as well: one tile.
+      .first;
   await tester.scrollUntilVisible(mdlCard, 100);
   await evaluateCredentialCard(
     tester,

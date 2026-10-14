@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_icon_button.dart";
 
 import "../../helpers/helpers.dart";
@@ -78,12 +77,9 @@ Future<void> optionalsTest(
   expect(optionalDataHeaderFinder, findsOneWidget);
 
   // The last card should contain text Demo E-mail address
-  final optionalCardFinder = find.byType(YiviCredentialCard).last;
+  final optionalCardFinder = findCredentialCards().last;
   expect(
-    find.descendant(
-      of: optionalCardFinder,
-      matching: find.text("Demo Email address"),
-    ),
+    findCardText(optionalCardFinder, "Demo Email address"),
     findsOneWidget,
   );
 
@@ -125,10 +121,7 @@ Future<void> optionalsTest(
 
   // Last (optional) card should be phone number now
   expect(
-    find.descendant(
-      of: optionalCardFinder,
-      matching: find.text("Demo Mobile phone number"),
-    ),
+    findCardText(optionalCardFinder, "Demo Mobile phone number"),
     findsOneWidget,
   );
 

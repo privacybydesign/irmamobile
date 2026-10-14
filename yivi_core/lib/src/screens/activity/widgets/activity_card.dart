@@ -1,170 +1,198 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../theme/theme.dart";
+import "../../../providers/pane_selection_provider.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
 import "../../../util/string.dart";
 import "../../../widgets/base64_image.dart";
-import "../../../widgets/chevron.dart";
 import "../../../widgets/irma_avatar.dart";
-import "../../../widgets/irma_card.dart";
-import "../../../widgets/translated_text.dart";
 
+/// What a log entry is about: who the other party is and what happened.
+class ActivitySummary {
+  final String title;
+  final String subtitleKey;
+  final String semanticsKey;
+  final IconData icon;
+  final LogoImageRef? logo;
+
+  const ActivitySummary({
+    required this.title,
+    required this.subtitleKey,
+    required this.semanticsKey,
+    required this.icon,
+    this.logo,
+  });
+}
+
+/// A logo as it comes from the log, without depending on its model class.
+class LogoImageRef {
+  final String base64;
+  final String? mimeType;
+
+  const LogoImageRef(this.base64, this.mimeType);
+}
+
+ActivitySummary activitySummary(LogInfo logEntry) {
+  switch (logEntry.type) {
+    case LogType.removal:
+      final first = logEntry.removalLog!.credentials.first;
+      return ActivitySummary(
+        title: first.issuer.name,
+        subtitleKey: "activity.data_deleted",
+        semanticsKey: "activity.data_deleted_semantics",
+        icon: Icons.delete_outline,
+        logo: first.image == null
+            ? null
+            : LogoImageRef(first.image!.base64, first.image!.mimeType),
+      );
+    case LogType.issuance:
+      final issuer = logEntry.issuanceLog!.issuer;
+      return ActivitySummary(
+        title: (issuer?.name ?? "").replaceBreakingHyphens(),
+        subtitleKey: "activity.data_received",
+        semanticsKey: "activity.data_received_semantics",
+        icon: Icons.arrow_downward,
+        logo: issuer?.image == null
+            ? null
+            : LogoImageRef(issuer!.image!.base64, issuer.image!.mimeType),
+      );
+    case LogType.disclosure:
+      final verifier = logEntry.disclosureLog!.verifier;
+      return ActivitySummary(
+        title: (verifier?.name ?? "").replaceBreakingHyphens(),
+        subtitleKey: "activity.data_shared",
+        semanticsKey: "activity.data_shared_semantics",
+        icon: Icons.arrow_upward,
+        logo: verifier?.image == null
+            ? null
+            : LogoImageRef(verifier!.image!.base64, verifier.image!.mimeType),
+      );
+    case LogType.signature:
+      final verifier = logEntry.signedMessageLog!.verifier;
+      return ActivitySummary(
+        title: (verifier?.name ?? "").replaceBreakingHyphens(),
+        subtitleKey: "activity.message_signed",
+        semanticsKey: "activity.signed_message_semantics",
+        icon: Icons.edit_outlined,
+        logo: verifier?.image == null
+            ? null
+            : LogoImageRef(verifier!.image!.base64, verifier.image!.mimeType),
+      );
+  }
+}
+
+/// One log entry, as a row inside a month group of the Activity tab.
 class ActivityCard extends StatelessWidget {
   final LogInfo logEntry;
 
-  const ActivityCard({required this.logEntry});
+  /// Draws a divider above the row (all rows but the first of a group).
+  final bool showDivider;
+
+  const ActivityCard({required this.logEntry, this.showDivider = false});
 
   @override
   Widget build(BuildContext context) {
-    final String lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final theme = IrmaTheme.of(context);
-
-    String title = "";
-    String subtitleTranslationKey = "";
-    String semanticLabel = "";
-    Widget? logoImage;
-
-    final localizedTimeStamp = _formatActivityTimestamp(
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final palette = YiviPalette.of(context);
+    final summary = activitySummary(logEntry);
+    final timestamp = formatActivityTimestamp(
       context,
       logEntry.time.toLocal(),
       lang,
     );
-
-    if (logEntry.type == LogType.removal) {
-      final firstCred = logEntry.removalLog!.credentials.first;
-      title = firstCred.issuer.name;
-      subtitleTranslationKey = "activity.data_deleted";
-      semanticLabel = FlutterI18n.translate(
-        context,
-        "activity.data_deleted_semantics",
-        translationParams: {"issuerName": title, "date": localizedTimeStamp},
-      );
-
-      logoImage = firstCred.image != null
-          ? Base64Image(
-              base64: firstCred.image!.base64,
-              mimeType: firstCred.image!.mimeType,
-            )
-          : null;
-    } else {
-      if (logEntry.type == LogType.issuance) {
-        final serverName = logEntry.issuanceLog!.issuer?.name ?? "";
-        title = serverName;
-        final issuerImage = logEntry.issuanceLog!.issuer?.image;
-        logoImage = issuerImage != null
-            ? Base64Image(
-                base64: issuerImage.base64,
-                mimeType: issuerImage.mimeType,
-              )
-            : null;
-        subtitleTranslationKey = "activity.data_received";
-        semanticLabel = FlutterI18n.translate(
-          context,
-          "activity.data_received_semantics",
-          translationParams: {"otherParty": title, "date": localizedTimeStamp},
-        );
-      } else if (logEntry.type == LogType.disclosure) {
-        final serverName = logEntry.disclosureLog!.verifier?.name ?? "";
-        title = serverName;
-        final verifierImage = logEntry.disclosureLog!.verifier?.image;
-        logoImage = verifierImage != null
-            ? Base64Image(
-                base64: verifierImage.base64,
-                mimeType: verifierImage.mimeType,
-              )
-            : null;
-
-        subtitleTranslationKey = "activity.data_shared";
-        semanticLabel = FlutterI18n.translate(
-          context,
-          "activity.data_shared_semantics",
-          translationParams: {"otherParty": title, "date": localizedTimeStamp},
-        );
-      } else if (logEntry.type == LogType.signature) {
-        final serverName = logEntry.signedMessageLog!.verifier?.name ?? "";
-        title = serverName;
-        final verifierImage = logEntry.signedMessageLog!.verifier?.image;
-        logoImage = verifierImage != null
-            ? Base64Image(
-                base64: verifierImage.base64,
-                mimeType: verifierImage.mimeType,
-              )
-            : null;
-        subtitleTranslationKey = "activity.message_signed";
-        semanticLabel = FlutterI18n.translate(
-          context,
-          "activity.signed_message_semantics",
-          translationParams: {"otherParty": title, "date": localizedTimeStamp},
-        );
-      }
-
-      title = title.replaceBreakingHyphens();
-    }
+    final semanticLabel = FlutterI18n.translate(
+      context,
+      summary.semanticsKey,
+      translationParams: {
+        "otherParty": summary.title,
+        "issuerName": summary.title,
+        "date": timestamp,
+      },
+    );
+    final iconColor = switch (logEntry.type) {
+      LogType.disclosure => palette.link,
+      LogType.issuance => palette.successText,
+      LogType.removal => palette.danger,
+      LogType.signature => palette.heading,
+    };
 
     return Semantics(
       label: semanticLabel,
       button: true,
-      child: IrmaCard(
-        margin: EdgeInsets.zero,
-        child: Material(
-          child: InkWell(
-            onTap: () => context.pushActivityDetailsScreen(logInfo: logEntry),
-            child: Semantics(
-              excludeSemantics: true,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  theme.defaultSpacing,
-                  theme.defaultSpacing,
-                  theme.smallSpacing,
-                  theme.defaultSpacing,
+      excludeSemantics: true,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: () => openActivity(context, logEntry),
+          child: Container(
+            decoration: BoxDecoration(
+              border: showDivider
+                  ? Border(top: BorderSide(color: palette.divider))
+                  : null,
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+            child: Row(
+              spacing: 12,
+              children: [
+                IrmaAvatar(
+                  size: 48,
+                  logoImage: summary.logo == null
+                      ? null
+                      : Base64Image(
+                          base64: summary.logo!.base64,
+                          mimeType: summary.logo!.mimeType,
+                        ),
+                  initials: summary.title.isNotEmpty ? summary.title[0] : "?",
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    IrmaAvatar(
-                      size: 52,
-                      logoImage: logoImage,
-                      initials: title != "" ? title[0] : null,
-                    ),
-                    SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        summary.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .display(16)
+                            .copyWith(color: palette.text),
+                      ),
+                      Row(
+                        spacing: 4,
                         children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.themeData.textTheme.headlineMedium!
-                                .copyWith(fontSize: 16, color: theme.dark),
-                          ),
-                          TranslatedText(
-                            subtitleTranslationKey,
-                            style: theme.themeData.textTheme.bodyMedium!
-                                .copyWith(
-                                  fontSize: 14,
-                                  color: theme.neutralExtraDark,
-                                ),
+                          Icon(summary.icon, size: 14, color: iconColor),
+                          Flexible(
+                            child: Text(
+                              FlutterI18n.translate(
+                                context,
+                                summary.subtitleKey,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: palette
+                                  .body(14)
+                                  .copyWith(color: palette.heading),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(width: theme.smallSpacing),
-                    Text(
-                      localizedTimeStamp,
-                      style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                        fontSize: 14,
-                        color: theme.neutralExtraDark,
-                      ),
-                    ),
-                    SizedBox(width: theme.tinySpacing),
-                    const Chevron(),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 104),
+                  child: Text(
+                    timestamp,
+                    textAlign: TextAlign.right,
+                    style: palette.body(12).copyWith(color: palette.heading),
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 20, color: palette.faint),
+              ],
             ),
           ),
         ),
@@ -173,7 +201,7 @@ class ActivityCard extends StatelessWidget {
   }
 }
 
-String _formatActivityTimestamp(
+String formatActivityTimestamp(
   BuildContext context,
   DateTime time,
   String lang,
@@ -186,4 +214,17 @@ String _formatActivityTimestamp(
   if (daysAgo == 0) return DateFormat.jm(lang).format(time);
   if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
   return DateFormat.yMMMMd(lang).format(time);
+}
+
+/// Opens the details of [logEntry]: in the detail pane in the tablet layout,
+/// else on a screen of its own.
+void openActivity(BuildContext context, LogInfo logEntry) {
+  if (isExpandedLayout(context)) {
+    ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(selectedActivityProvider.notifier).select(logEntry);
+    return;
+  }
+  context.pushActivityDetailsScreen(logInfo: logEntry);
 }

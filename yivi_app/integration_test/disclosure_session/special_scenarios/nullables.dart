@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -41,7 +40,7 @@ Future<void> nullablesTest(
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);
 
   // One Credential card should be visible
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

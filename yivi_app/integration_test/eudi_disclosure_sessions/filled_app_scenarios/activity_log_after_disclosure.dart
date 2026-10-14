@@ -68,14 +68,14 @@ Future<void> activityLogAfterDisclosureTest(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false).at(0),
+    findCredentialCards(skipOffstage: false).at(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
     attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard, skipOffstage: false).at(1),
+    findCredentialCards(skipOffstage: false).at(1),
     issuerName: "Test Issuer",
     credentialName: "Phone Credential (SD-JWT)",
     attributes: [("Phone Number", "0612345678")],

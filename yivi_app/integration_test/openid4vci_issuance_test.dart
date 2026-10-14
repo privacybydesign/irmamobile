@@ -6,16 +6,12 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
@@ -182,7 +178,7 @@ Future<void> testIssueEmailOpenID4VCI(
   await tester.waitFor(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findIssuanceCards().first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
     attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
@@ -232,7 +228,7 @@ Future<void> testIssueEmailOpenID4VCIWithTxCode(
   await tester.pumpUntilFound(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findIssuanceCards().first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
     attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
@@ -302,11 +298,11 @@ Future<void> testIssueOrganizationOpenID4VCI(
   // No tx code: lands directly on IssuancePermission with filled values.
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findIssuanceCards(), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findIssuanceCards().first,
     credentialName: "Organization Credential (SD-JWT)",
     isExpired: false,
     attributes: _organizationExpectedAttributes,
@@ -657,49 +653,51 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     email: "other@example.com",
   );
 
-  // Open the email category details screen. We tap the only credential type
-  // card on the data tab rather than a key built from a guessed credential ID.
+  // The data tab shows one card per credential instance: one merged card
+  // (test@) for both identical instances, one unique card (other@).
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  await tester.waitFor(find.byType(SchemalessYiviCredentialTypeCard));
-  final emailTypeCard = find.byType(SchemalessYiviCredentialTypeCard);
-  expect(emailTypeCard, findsOneWidget);
-  await tester.tapAndSettle(emailTypeCard);
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-
-  // Two cards: one merged (test@) representing both identical instances,
-  // one unique (other@).
-  expect(find.byType(YiviCredentialCard), findsExactly(2));
+  await tester.waitFor(findWalletCards(_emailCredentialTileKey));
+  expect(
+    findWalletCards(_emailCredentialTileKey, skipOffstage: false),
+    findsExactly(2),
+  );
 
   // Delete the merged card first
-  final mergedCard = find.ancestor(
-    of: find.text("test@example.com"),
-    matching: find.byType(YiviCredentialCard),
+  await navigateToCredentialDetailsPage(
+    tester,
+    _emailCredentialTileKey,
+    index: _walletCardIndexWithEmail(tester, "test@example.com"),
   );
-  expect(mergedCard, findsOneWidget);
-  await tester.tapAndSettle(
-    find.descendant(
-      of: mergedCard,
-      matching: find.byIcon(Icons.more_horiz_sharp),
-    ),
+  await evaluateCredentialCard(
+    tester,
+    findCredentialDetail(),
+    credentialName: "Email Credential (SD-JWT)",
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
-  await tester.tapAndSettle(find.text("Delete data"));
-  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text("Delete"));
+  await deleteCredentialFromDetail(tester);
 
   // Only the unique card remains
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  expect(find.text("other@example.com"), findsOneWidget);
+  expect(
+    findWalletCards(_emailCredentialTileKey, skipOffstage: false),
+    findsOneWidget,
+  );
 
   // Delete the remaining (unique) card
-  await tester.tapAndSettle(find.byIcon(Icons.more_horiz_sharp));
-  await tester.tapAndSettle(find.text("Delete data"));
-  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text("Delete"));
+  await navigateToCredentialDetailsPage(tester, _emailCredentialTileKey);
+  await evaluateCredentialCard(
+    tester,
+    findCredentialDetail(),
+    credentialName: "Email Credential (SD-JWT)",
+    attributes: [("Email", "other@example.com"), ("Domain", "example.com")],
+  );
+  await deleteCredentialFromDetail(tester);
 
-  // After deleting the last credential of this type, the details screen pops
-  // back to the data tab and no credential type card should remain.
+  // No card of this type should remain on the data tab.
   await tester.waitFor(find.byType(DataTab));
-  expect(find.byType(SchemalessYiviCredentialTypeCard), findsNothing);
+  expect(
+    findWalletCards(_emailCredentialTileKey, skipOffstage: false),
+    findsNothing,
+  );
 
   // Activity tab: two removal entries, drilled into in turn.
   await tester.tap(
@@ -759,67 +757,37 @@ Future<void> testIssueNonExpiringCredentialShowsUnlimitedValidity(
     ttlSeconds: null,
   );
 
-  // Open the email category details screen. We tap the only credential type
-  // card on the data tab rather than a key built from a guessed credential ID.
+  // Open the card's detail view.
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  await tester.waitFor(find.byType(SchemalessYiviCredentialTypeCard));
-  final emailTypeCard = find.byType(SchemalessYiviCredentialTypeCard);
-  expect(emailTypeCard, findsOneWidget);
-  await tester.tapAndSettle(emailTypeCard);
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-
-  // Expect one card: with "Valid indefinitely" or similar wording, not a date.
-  expect(find.byType(YiviCredentialCard), findsExactly(1));
-
-  final card = find.ancestor(
-    of: find.text("test@example.com"),
-    matching: find.byType(YiviCredentialCard),
+  await tester.waitFor(findWalletCards(_emailCredentialTileKey));
+  expect(
+    findWalletCards(_emailCredentialTileKey, skipOffstage: false),
+    findsOneWidget,
   );
-  expect(card, findsOneWidget);
-  await tester.tapAndSettle(
-    find.descendant(of: card, matching: find.byIcon(Icons.more_horiz_sharp)),
+  await navigateToCredentialDetailsPage(tester, _emailCredentialTileKey);
+  await evaluateCredentialCard(
+    tester,
+    findCredentialDetail(),
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
+    isExpired: false,
+    isExpiringSoon: false,
   );
 
-  // Assert the validity text contains "indefinite" or similar wording, not a date.
-  final footer = find.descendant(
-    of: card,
-    matching: find.byType(YiviCredentialCardFooter),
-  );
-
-  // In the footer, the left side contains the validity text.
-  final validityText = find.descendant(
-    of: footer,
-    matching: find.byWidgetPredicate(
-      (widget) =>
-          widget is Text &&
-          widget.data != null &&
-          widget.data!.toLowerCase().contains("valid until"),
+  // The validity chip says "Valid indefinitely", not a date.
+  expect(
+    find.descendant(
+      of: findCredentialDetail(),
+      matching: find.text("Valid indefinitely"),
     ),
+    findsOneWidget,
   );
-
-  // Find the parent and assert it contains a text box with "indefinite" or similar wording.
-  final validityContainer = find.ancestor(
-    of: validityText,
-    matching: find.byWidgetPredicate(
-      (widget) =>
-          widget is Row &&
-          find
-              .descendant(
-                of: find.byWidget(widget),
-                matching: find.byWidgetPredicate(
-                  (child) =>
-                      child is Text &&
-                      child.data != null &&
-                      child.data!.toLowerCase().contains("indefinite"),
-                ),
-              )
-              .evaluate()
-              .isNotEmpty,
+  expect(
+    find.descendant(
+      of: findCredentialDetail(),
+      matching: find.textContaining("Valid until"),
     ),
+    findsNothing,
   );
-
-  // Only the unique card remains
-  expect(validityContainer, findsOneWidget);
 }
 
 // =============================================================================
@@ -847,6 +815,19 @@ Future<void> _issueEmailCredViaPreAuth(
 
   await tester.waitFor(find.byType(IssuanceSuccessScreen));
   await tester.tapAndSettle(find.text("OK"));
+}
+
+/// The index, among the data tab's cards of the email type, of the card whose
+/// email address is [email].
+int _walletCardIndexWithEmail(WidgetTester tester, String email) {
+  final cards = walletCards(
+    tester,
+  ).where((c) => c.credentialId == _emailCredentialTileKey).toList();
+  final index = cards.indexWhere(
+    (c) => c.attributes.any((a) => a.value?.string == email),
+  );
+  expect(index, isNot(-1), reason: "No email card with $email");
+  return index;
 }
 
 /// Navigates to the Activity tab and opens the most recent activity entry.

@@ -135,6 +135,13 @@ extension RoutingHelpers on BuildContext {
     push("/home/activity_details", extra: logInfo);
   }
 
+  /// Opens the full-screen detail view of one card (credential instance).
+  /// Call [WalletTransition.begin] first when it opens from a card on screen.
+  void pushCredentialDetailScreen(String hash) {
+    final uri = Uri(path: "/home/credential", queryParameters: {"hash": hash});
+    push(uri.toString());
+  }
+
   void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {
     final uri = Uri(
       path: "/home/credentials_details",

@@ -2,31 +2,40 @@ import "dart:async";
 
 import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
 import "../../models/schemaless/session_state.dart";
+import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../theme/theme.dart";
+import "../../providers/pane_selection_provider.dart";
+import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
 import "../../util/string.dart";
 import "../../widgets/end_of_list_indicator.dart";
-import "../../widgets/irma_app_bar.dart";
+import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/loading_indicator.dart";
-import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/two_pane.dart";
+import "activity_detail_screen.dart";
 import "history_repository.dart";
 import "widgets/activity_card.dart";
 
-class ActivityTab extends StatefulWidget {
+class ActivityTab extends ConsumerStatefulWidget {
   @override
-  State<ActivityTab> createState() => _ActivityTabState();
+  ConsumerState<ActivityTab> createState() => _ActivityTabState();
 }
 
-class _ActivityTabState extends State<ActivityTab> {
+class _ActivityTabState extends ConsumerState<ActivityTab> {
   late final HistoryRepository _historyRepo;
   final _scrollController = ScrollController();
   late StreamSubscription _repoStateSubscription;
+  String _query = "";
+
+  /// The entries shown last, for the default of the tablet detail pane.
+  List<LogInfo> _latestEntries = const [];
 
   @override
   void initState() {
@@ -109,88 +118,193 @@ class _ActivityTabState extends State<ActivityTab> {
     bool moreLogsAvailable,
   ) {
     _addPostFrameCallback();
+    _latestEntries = logEntries;
     final local = FlutterI18n.currentLocale(context).toString();
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
+    final padding = MediaQuery.paddingOf(context);
 
-    final groupedItems = List.generate(logEntries.length, (index) {
-      final logEntry = logEntries[index];
-      final insertMonthSeparator =
-          index == 0 ||
-          index > 0 &&
-              logEntries[index - 1].time.toLocal().month !=
-                  logEntry.time.toLocal().month;
-      return [
-        if (insertMonthSeparator)
+    final query = normaliseForSearch(_query);
+    final shown = query.isEmpty
+        ? logEntries
+        : logEntries.where((entry) {
+            final summary = activitySummary(entry);
+            final text = normaliseForSearch(
+              "${summary.title} ${FlutterI18n.translate(context, summary.subtitleKey)}",
+            );
+            return text.contains(query);
+          }).toList();
+
+    // One rounded group per month.
+    final groups = <List<LogInfo>>[];
+    for (final entry in shown) {
+      final last = groups.lastOrNull;
+      if (last == null ||
+          last.last.time.toLocal().month != entry.time.toLocal().month ||
+          last.last.time.toLocal().year != entry.time.toLocal().year) {
+        groups.add([entry]);
+      } else {
+        last.add(entry);
+      }
+    }
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      controller: _scrollController,
+      padding: EdgeInsets.fromLTRB(
+        16,
+        padding.top + 76,
+        16,
+        padding.bottom + bottomBarSpace(context),
+      ),
+      children: [
+        if (logEntries.isEmpty)
           Padding(
-            padding: EdgeInsets.only(
-              // If is not first add padding to top.
-              top: index > 0 ? theme.defaultSpacing : 0,
-              right: theme.tinySpacing,
-              bottom: theme.tinySpacing,
+            padding: const EdgeInsets.only(top: 32),
+            child: TranslatedText(
+              "activity.empty_placeholder",
+              textAlign: TextAlign.center,
+              style: palette.body(16).copyWith(color: palette.heading),
             ),
-            child: SectionHeader.text(
-              DateFormat(
-                "MMMM",
-                local,
-              ).format(logEntry.time.toLocal()).toCapitalized(),
+          )
+        else if (shown.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 32),
+            child: TranslatedText(
+              "activity.no_results",
+              textAlign: TextAlign.center,
+              style: palette.body(16).copyWith(color: palette.heading),
             ),
-          ),
-        Padding(
-          padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: ActivityCard(logEntry: logEntry),
-        ),
-      ];
-    }).flattened.toList();
-
-    return SafeArea(
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(
-          vertical: theme.smallSpacing,
-          horizontal: theme.defaultSpacing,
-        ),
-        children: [
-          if (groupedItems.isEmpty)
-            const Center(child: TranslatedText("activity.empty_placeholder"))
-          else ...[
-            ...groupedItems,
+          )
+        else ...[
+          for (final group in groups) ...[
             Padding(
-              padding: EdgeInsets.only(
-                top: theme.defaultSpacing,
-                bottom: theme.hugeSpacing,
+              padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+              child: Semantics(
+                header: true,
+                child: Text(
+                  DateFormat(
+                    "MMMM",
+                    local,
+                  ).format(group.first.time.toLocal()).toCapitalized(),
+                  style: palette.display(18),
+                ),
               ),
-              child: EndOfListIndicator(isLoading: moreLogsAvailable),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: palette.surface,
+                  shape: const RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                  ),
+                  shadows: const [
+                    BoxShadow(
+                      color: Color(0x17000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: ClipRSuperellipse(
+                  borderRadius: const BorderRadius.all(Radius.circular(24)),
+                  child: Column(
+                    children: [
+                      for (final (i, entry) in group.indexed)
+                        ActivityCard(logEntry: entry, showDivider: i > 0),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
+          Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 16),
+            child: EndOfListIndicator(isLoading: moreLogsAvailable),
+          ),
         ],
-      ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
+    final palette = YiviPalette.of(context);
+    final padding = MediaQuery.paddingOf(context);
+    final list = Stack(
+      children: [
+        Positioned.fill(
+          child: StreamBuilder<HistoryState>(
+            stream: _historyRepo.getHistoryState(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: LoadingIndicator());
+              }
+              final historyState = snapshot.data!;
+              return _buildLogEntries(
+                context,
+                historyState.logEntries,
+                historyState.moreLogsAvailable,
+              );
+            },
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          height: padding.top + 72,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    palette.background,
+                    palette.background.withValues(alpha: 0),
+                  ],
+                  stops: const [0.4, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 16,
+          right: 16,
+          top: padding.top + 16,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: GlassSearchField(
+                fieldKey: const Key("activity_search_field"),
+                hintKey: "activity.search_placeholder",
+                onChanged: (q) => setState(() => _query = q),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
     return Scaffold(
-      backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "home.nav_bar.activity",
-        leading: null,
-      ),
-      body: StreamBuilder<HistoryState>(
-        stream: _historyRepo.getHistoryState(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: LoadingIndicator());
-          }
-          final historyState = snapshot.data!;
-          return _buildLogEntries(
-            context,
-            historyState.logEntries,
-            historyState.moreLogsAvailable,
-          );
-        },
-      ),
+      backgroundColor: palette.background,
+      body: isExpandedLayout(context) ? _withDetailPane(list) : list,
+    );
+  }
+
+  /// The tablet layout: the activity next to the details of the picked
+  /// entry (the newest until the user picks one).
+  Widget _withDetailPane(Widget list) {
+    final entry =
+        ref.watch(selectedActivityProvider) ?? _latestEntries.firstOrNull;
+    return TwoPane(
+      list: list,
+      detail: entry == null
+          ? null
+          : ActivityDetailPane(key: ValueKey(entry.time), logEntry: entry),
     );
   }
 }

@@ -20,7 +20,9 @@ import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
+import "src/screens/data/credential_detail/credential_detail_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
+import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
@@ -114,6 +116,23 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           return MaterialPage(name: "/home", child: HomeScreen());
         },
         routes: [
+          GoRoute(
+            path: "credential",
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              name: "/home/credential",
+              // Not opaque, so the data tab stays painted while its cards
+              // move out of the way (see WalletTransition).
+              opaque: false,
+              transitionDuration: WalletTransition.duration,
+              reverseTransitionDuration: WalletTransition.reverseDuration,
+              transitionsBuilder: (context, animation, secondary, child) =>
+                  child,
+              child: CredentialDetailScreen(
+                hash: state.uri.queryParameters["hash"] ?? "",
+              ),
+            ),
+          ),
           GoRoute(
             path: "credentials_details",
             builder: (context, state) {

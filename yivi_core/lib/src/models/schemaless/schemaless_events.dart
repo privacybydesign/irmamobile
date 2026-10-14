@@ -109,6 +109,11 @@ class Attribute {
   /// the permission screen does not show it yet.
   final bool? intentToRetain;
 
+  /// The `svg_id` this claim has in the SD-JWT VC type metadata: the name of
+  /// the `{{placeholder}}` in the issuer's SVG card template that shows its
+  /// value. Null for formats and claims without one.
+  final String? svgId;
+
   Attribute({
     required this.claimPath,
     required this.displayName,
@@ -116,6 +121,7 @@ class Attribute {
     this.value,
     this.requestedValue,
     this.intentToRetain,
+    this.svgId,
   });
 
   /// The display name to render in the UI. Falls back to the last non-int
@@ -133,6 +139,13 @@ class Attribute {
     }
     return claimPath.join(".");
   }
+
+  /// A string key for a claim path, so paths can be compared and used in
+  /// maps. Whole numbers (array indices, which JSON may decode as doubles)
+  /// get the same key whether they arrive as int or double.
+  static String pathKey(List<dynamic> path) => path
+      .map((e) => e is num && e == e.truncate() ? "i${e.toInt()}" : "s$e")
+      .join("|");
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
       _$AttributeFromJson(json);
@@ -179,11 +192,76 @@ class LogoImage {
   Map<String, dynamic> toJson() => _$LogoImageToJson(this);
 }
 
+/// One issuer SVG card template from SD-JWT VC type metadata
+/// (`display[].rendering.svg_templates[]`), already fetched, integrity-checked
+/// and sanitised by irmago.
+@JsonSerializable(fieldRename: .snake)
+class SvgCardTemplate {
+  final String svg;
+
+  /// `portrait` or `landscape`; null when the issuer did not say.
+  final String? orientation;
+
+  /// `light` or `dark`; null when the issuer did not say.
+  final String? colorScheme;
+
+  /// `normal` or `high`; null when the issuer did not say.
+  final String? contrast;
+
+  SvgCardTemplate({
+    required this.svg,
+    this.orientation,
+    this.colorScheme,
+    this.contrast,
+  });
+
+  factory SvgCardTemplate.fromJson(Map<String, dynamic> json) =>
+      _$SvgCardTemplateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SvgCardTemplateToJson(this);
+}
+
+/// How the issuer wants the credential to look. Every field is optional:
+/// IRMA credentials only get [logoTint]; SD-JWT VC credentials get whatever
+/// their type metadata and issuer metadata provide.
+@JsonSerializable(fieldRename: .snake)
+class CredentialDisplay {
+  /// CSS colour, e.g. `#1E5B46`.
+  final String? backgroundColor;
+
+  /// CSS colour, e.g. `#FFFFFF`.
+  final String? textColor;
+
+  final LogoImage? backgroundImage;
+
+  /// Dominant colour of the credential logo (`#RRGGBB`), worked out by
+  /// irmago. Used to tint the Yivi card for credentials without colours.
+  final String? logoTint;
+
+  final List<SvgCardTemplate> svgTemplates;
+
+  CredentialDisplay({
+    this.backgroundColor,
+    this.textColor,
+    this.backgroundImage,
+    this.logoTint,
+    this.svgTemplates = const [],
+  });
+
+  factory CredentialDisplay.fromJson(Map<String, dynamic> json) =>
+      _$CredentialDisplayFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialDisplayToJson(this);
+}
+
 @JsonSerializable(fieldRename: .snake)
 class Credential {
   final String credentialId;
   final String hash;
   final LogoImage? image;
+
+  /// Card rendering hints; null when irmago sent none.
+  final CredentialDisplay? display;
   final String name;
   final TrustedParty issuer;
   final Map<CredentialFormat, String> credentialInstanceIds;
@@ -207,6 +285,7 @@ class Credential {
     required this.revocationSupported,
     required this.issueUrl,
     this.image,
+    this.display,
     this.issuanceDate,
     this.expiryDate,
   });

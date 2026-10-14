@@ -5,7 +5,6 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/irma_empty_credential_card.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -56,7 +55,7 @@ Future<void> completelyOptionalTest(
 
   // Delete optional data from selection again.
   final deleteOptionalDataButton = find.descendant(
-    of: find.byType(YiviCredentialCard),
+    of: findCredentialCards(),
     matching: find.byIcon(Icons.close).hitTestable(),
   );
   await tester.scrollUntilVisible(deleteOptionalDataButton.hitTestable(), 50);
@@ -87,7 +86,11 @@ Future<void> completelyOptionalTest(
       .byType(ActivityCard)
       .at(1)
       .hitTestable();
-  await tester.scrollUntilVisible(secondActivityCardFinder, 50);
+  await tester.scrollUntilVisible(
+    secondActivityCardFinder,
+    50,
+    scrollable: activityScrollable(),
+  );
   await tester.tapAndSettle(secondActivityCardFinder);
 
   // Expect the no data card

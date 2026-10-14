@@ -4,17 +4,12 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
-import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -35,7 +30,11 @@ const _expiredTitle = "Data expired";
 const _expiredContent = "This data has expired: Email Credential (SD-JWT)";
 
 final _notificationsScreenFinder = find.byType(NotificationsTab);
-final _notificationBellFinder = find.byType(NotificationBell);
+// The notifications are a tab of their own now; its tab button replaces the
+// bell and shows the unread dot (see notificationsIndicatorShown).
+final _notificationBellFinder = find.byKey(
+  const Key("nav_button_notifications"),
+);
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -215,7 +214,7 @@ Future<void> testEmptyState(
   expect(_notificationsScreenFinder, findsOneWidget);
 
   final screenTitleFinder = find.descendant(
-    of: find.byType(IrmaAppBar),
+    of: _notificationsScreenFinder,
     matching: find.text("Notifications"),
   );
   expect(screenTitleFinder, findsOneWidget);
@@ -266,7 +265,7 @@ Future<void> testReadAllNotifications(
 
   // Bell should still indicate unread (we haven't left the tab yet).
   expect(
-    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    notificationsIndicatorShown(tester),
     true,
   );
 
@@ -285,7 +284,7 @@ Future<void> testReadAllNotifications(
   await tester.pumpAndSettle();
 
   expect(
-    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    notificationsIndicatorShown(tester),
     false,
   );
 
@@ -359,18 +358,18 @@ Future<void> testNotificationAction(
 
   await tester.tapAndSettle(notificationCardFinder);
 
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-  final credentialCardFinder = find.byType(YiviCredentialCard);
+  // The card is still in the wallet, so its detail view opens.
+  expect(findCredentialDetail(), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    credentialCardFinder.first,
+    findCredentialDetail(),
     credentialName: "Demo Root",
     issuerName: "Demo MijnOverheid.nl",
     attributes: [("BSN", "12345")],
     isRevoked: true,
   );
 
-  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  await closeCredentialDetail(tester);
   expect(_notificationsScreenFinder, findsOneWidget);
 
   final notificationCardFinder2 = find.byType(NotificationCard);
@@ -423,13 +422,13 @@ Future<void> testMultipleNotificationsAndPerCardNavigation(
 
   // Tap the revoked card → MijnOverheid.root details. Back.
   await tester.tapAndSettle(_cardWithContent(_revokedRevokedContent));
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findCredentialDetail(),
     credentialName: "Demo Root",
   );
-  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  await closeCredentialDetail(tester);
   expect(_notificationsScreenFinder, findsOneWidget);
 
   // Revoked card now read; expiring card still unread; bell still on.
@@ -444,19 +443,19 @@ Future<void> testMultipleNotificationsAndPerCardNavigation(
     read: false,
   );
   expect(
-    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    notificationsIndicatorShown(tester),
     true,
   );
 
   // Tap the expiring card → SD-JWT email details. Back.
   await tester.tapAndSettle(_cardWithContent(_expiringSoonContent));
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findCredentialDetail(),
     credentialName: "Email Credential (SD-JWT)",
   );
-  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  await closeCredentialDetail(tester);
   expect(_notificationsScreenFinder, findsOneWidget);
 
   // Both cards read now.
@@ -475,7 +474,7 @@ Future<void> testMultipleNotificationsAndPerCardNavigation(
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await tester.pumpAndSettle();
   expect(
-    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    notificationsIndicatorShown(tester),
     false,
   );
 }
@@ -495,19 +494,9 @@ Future<void> testOrphanRecordCleanupOnCredentialDelete(
   // Delete the credential from the data tab.
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await navigateToCredentialDetailsPage(tester, _revokableCredId);
+  await deleteCredentialFromDetail(tester);
 
-  final credentialCardFinder = find.byType(YiviCredentialCard).first;
-  await tester.tapAndSettle(
-    find.descendant(
-      of: credentialCardFinder,
-      matching: find.byIcon(Icons.more_horiz_sharp),
-    ),
-  );
-  await tester.tapAndSettle(find.text("Delete data"));
-  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text("Delete"));
-
-  // After deleting the last instance, the screen pops back to DataTab.
+  // After deleting the card, the detail view closes back to DataTab.
   await tester.waitFor(find.byType(DataTab));
   // Wait for the post-delete snackbar to disappear so it doesn't overlap
   // the RefreshIndicator hit area on the notifications tab.
@@ -530,7 +519,7 @@ Future<void> testLifecycleResumeTriggersLoadNotifications(
   // Pre-condition: Initialize ran with 0 creds before issuance, and no event
   // has retriggered LoadNotifications since. Bell is off.
   expect(
-    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    notificationsIndicatorShown(tester),
     false,
   );
 
@@ -542,7 +531,7 @@ Future<void> testLifecycleResumeTriggersLoadNotifications(
   await tester.pumpAndSettle();
 
   expect(
-    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    notificationsIndicatorShown(tester),
     true,
   );
 
@@ -739,7 +728,15 @@ Future<void> testExpiredCredentialShowsExpirationNotification(
     read: false,
   );
 
-  // Tapping the notification opens the credential detail screen.
+  // Tapping the notification opens the credential detail screen (the
+  // expired card is still in the wallet).
   await tester.tapAndSettle(notificationCardFinder);
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    findCredentialDetail(),
+    credentialName: "Email Credential (SD-JWT)",
+    isExpired: true,
+    expectReobtainButton: false,
+  );
 }

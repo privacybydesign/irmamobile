@@ -6,7 +6,6 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_disclosure.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";
@@ -68,7 +67,7 @@ void main() {
       await tester.waitFor(find.byType(IssuancePermission));
 
       // The ordinary attributes are still rows; the categories are not.
-      final card = find.byType(YiviCredentialCard);
+      final card = find.byType(IssuancePermission);
       expect(
         find.descendant(of: card, matching: find.text("Document number")),
         findsOneWidget,
@@ -235,7 +234,8 @@ void main() {
 
 /// The shared AM, B and C of the last test, wherever the card is shown.
 Future<void> _expectSharedCategories(WidgetTester tester) async {
-  final card = find.byType(YiviCredentialCard);
+  // A tile in the disclosure overview, a card in the activity details.
+  final card = findCredentialCards();
   expect(
     find.descendant(of: card, matching: find.text("Document number")),
     findsOneWidget,

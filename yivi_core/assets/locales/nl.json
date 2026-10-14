@@ -43,7 +43,9 @@
     "received_data": "Ontvangen gegevens",
     "deleted_data": "Verwijderde gegevens",
     "empty_placeholder": "Er zijn momenteel geen activiteiten",
-    "yesterday": "Gisteren"
+    "yesterday": "Gisteren",
+    "search_placeholder": "Zoek in activiteit",
+    "no_results": "Geen activiteit gevonden voor je zoekopdracht"
   },
   "arrow_back": {
     "no_success": "Afgebroken",
@@ -207,7 +209,10 @@
         "not_satisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij.",
         "not_satisfiable_signature": "Je hebt het bericht niet ondertekend, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij."
       }
-    }
+    },
+    "requested_data": "Gevraagde gegevens",
+    "only_this_shared": "Alleen dit wordt gedeeld",
+    "what_you_shared": "Wat je hebt gedeeld"
   },
   "disclosure_permission": {
     "title": "Gegevens delen",
@@ -475,7 +480,8 @@
         "open_browser": "Browser openen",
         "cancel": "Annuleren"
       }
-    }
+    },
+    "you_will_receive": "Je ontvangt"
   },
   "email_issuance": {
     "enter_email": {
@@ -733,7 +739,9 @@
       "explanation": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
       "confirm": "Verwijder alles",
       "deny": "Annuleer"
-    }
+    },
+    "dark_mode_preview": "Donkere modus (voorproef)",
+    "dark_mode_preview_explanation": "Toont Yivi in donkere kleuren. Sommige schermen ondersteunen de donkere modus nog niet."
   },
   "ui": {
     "loading": "Laden…",
@@ -788,7 +796,9 @@
     "bell": {
       "new_notifications": "Notificatie Bel, Nieuwe notificaties",
       "no_new_notifications": "Notificatie Bel, Geen nieuwe notificaties"
-    }
+    },
+    "new_count": "{count} nieuw",
+    "swipe_hint": "Veeg een melding naar links om hem te verwijderen."
   },
   "switch": {
     "describe_state_on": "Schakelaar die aanstaat",
@@ -1083,6 +1093,48 @@
       "cancel": "Annuleren",
       "thanks": "Bedankt, hiermee maken we Yivi beter.",
       "close": "Sluiten"
+    }
+  },
+  "credential_card": {
+    "issued_by": "Uitgegeven door",
+    "added_on": "Toegevoegd {date}",
+    "source": {
+      "issuer_design": "Kaart ontworpen door uitgever",
+      "issuer_colours": "Kaart in kleuren van uitgever",
+      "yivi": "Yivi-kaart"
+    }
+  },
+  "wallet": {
+    "search_placeholder": "Zoek in je gegevens",
+    "clear_search": "Zoekopdracht wissen",
+    "add_data": "Gegevens toevoegen",
+    "view": {
+      "label": "Weergave",
+      "stack": "Stapel",
+      "list": "Lijst",
+      "grid": "Raster"
+    },
+    "count_one": "1 kaart",
+    "count_many": "{count} kaarten",
+    "no_results": {
+      "title": "Geen gegevens gevonden",
+      "body": "Probeer een andere zoekopdracht."
+    },
+    "detail": {
+      "done": "Klaar",
+      "back_to_cards": "Terug naar alle kaarten",
+      "details": "Gegevens",
+      "activity": "Activiteit",
+      "activity_empty": "Nog geen activiteit voor deze kaart",
+      "siblings": "Je {count} kaarten van dit type",
+      "valid_until": "Geldig tot {date}",
+      "valid_indefinitely": "Onbeperkt geldig",
+      "sharable_explanation": "Bij elke keer delen wordt een nieuwe kopie gebruikt, zodat verifiers je deelacties niet aan elkaar kunnen koppelen.",
+      "issued_by": "Uitgegeven door",
+      "format": "Formaat",
+      "card_design": "Kaartontwerp",
+      "added": "Toegevoegd",
+      "added_to_yivi": "Toegevoegd aan Yivi"
     }
   }
 }

@@ -124,17 +124,18 @@ class _DrivingLicenceCategoriesTableState
           Container(
             key: const Key("driving_licence_categories_divider"),
             height: 1,
-            color: theme.neutralExtraLight,
+            color: AttributeColors.of(context).divider,
           ),
           SizedBox(height: theme.smallSpacing),
         ],
-        Text(key: _titleKey, t("title"), style: attributeLabelStyle(theme)),
+        Text(key: _titleKey, t("title"), style: attributeLabelStyle(context)),
         if (view.noInformation)
           Text(
             t("no_information"),
-            style: attributeLabelStyle(
-              theme,
-            ).copyWith(color: theme.neutral, fontStyle: FontStyle.italic),
+            style: attributeLabelStyle(context).copyWith(
+              color: AttributeColors.of(context).muted,
+              fontStyle: FontStyle.italic,
+            ),
           ),
         if (view.rows.isNotEmpty)
           Padding(
@@ -172,7 +173,9 @@ class _DrivingLicenceCategoriesTableState
         onTap: _toggle,
         child: Container(
           decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: theme.neutralExtraLight)),
+            border: Border(
+              top: BorderSide(color: AttributeColors.of(context).divider),
+            ),
           ),
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: Row(
@@ -181,7 +184,9 @@ class _DrivingLicenceCategoriesTableState
               Expanded(
                 child: Text(
                   label,
-                  style: attributeLabelStyle(theme).copyWith(color: theme.link),
+                  style: attributeLabelStyle(
+                    context,
+                  ).copyWith(color: theme.link),
                 ),
               ),
               AnimatedRotation(
@@ -203,9 +208,9 @@ class _DrivingLicenceCategoriesTableState
   double _codeWidth(BuildContext context, IrmaThemeData theme) {
     // The style the code's Text actually renders with: the inherited default
     // text style (font fallback, letter spacing, ...) merged with ours.
-    final style = DefaultTextStyle.of(
-      context,
-    ).style.merge(attributeValueStyle(theme, theme.dark));
+    final style = DefaultTextStyle.of(context).style.merge(
+      attributeValueStyle(context, AttributeColors.of(context).value),
+    );
     final scaler = MediaQuery.textScalerOf(context);
     var widest = 0.0;
     for (final row in view.rows) {
@@ -229,13 +234,13 @@ class _DrivingLicenceCategoriesTableState
     final disclosure = _disclosure;
     final cellPadding = EdgeInsets.symmetric(vertical: theme.tinySpacing);
     final dateStyle = attributeValueStyle(
-      theme,
-      theme.dark,
+      context,
+      AttributeColors.of(context).value,
     ).copyWith(fontSize: 14);
 
     Widget header(String text) => Padding(
       padding: cellPadding,
-      child: Text(text.toUpperCase(), style: attributeEyebrowStyle(theme)),
+      child: Text(text.toUpperCase(), style: attributeEyebrowStyle(context)),
     );
 
     Widget date(CategoryRow row, CompareValue<String>? value) => Padding(
@@ -245,7 +250,7 @@ class _DrivingLicenceCategoriesTableState
         style: dateStyle.copyWith(
           color: value == null
               ? null
-              : _comparisonColor(theme, value.comparison),
+              : _comparisonColor(context, theme, value.comparison),
         ),
       ),
     );
@@ -262,15 +267,19 @@ class _DrivingLicenceCategoriesTableState
           style: dateStyle.copyWith(
             fontWeight: isHeld ? FontWeight.w600 : FontWeight.w400,
             color: held == null || held.comparison == AttributeComparison.none
-                ? (isHeld ? theme.dark : theme.neutralDark)
-                : _comparisonColor(theme, held.comparison),
+                ? (isHeld
+                      ? AttributeColors.of(context).value
+                      : AttributeColors.of(context).eyebrow)
+                : _comparisonColor(context, theme, held.comparison),
           ),
         ),
       );
     }
 
     final divider = BoxDecoration(
-      border: Border(top: BorderSide(color: theme.neutralExtraLight)),
+      border: Border(
+        top: BorderSide(color: AttributeColors.of(context).divider),
+      ),
     );
 
     // Detail / issuance: both date columns. Disclosure: only the date
@@ -344,8 +353,8 @@ class _CategoryCell extends StatelessWidget {
           child: Row(
             mainAxisAlignment: .end,
             children: [
-              _icon(vehicle, theme),
-              if (trailer) _icon("trailer", theme),
+              _icon(vehicle, context),
+              if (trailer) _icon("trailer", context),
             ],
           ),
         ),
@@ -358,8 +367,9 @@ class _CategoryCell extends StatelessWidget {
             softWrap: false,
             overflow: TextOverflow.visible,
             style: attributeValueStyle(
-              theme,
+              context,
               _comparisonColor(
+                context,
                 theme,
                 row.held?.comparison ?? AttributeComparison.none,
               ),
@@ -371,11 +381,14 @@ class _CategoryCell extends StatelessWidget {
   }
 }
 
-Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
+Widget _icon(String asset, BuildContext context) => SvgPicture.asset(
   yiviAsset("vehicles/$asset.svg"),
   width: _CategoryCell._iconSize,
   height: _CategoryCell._iconSize,
-  colorFilter: ColorFilter.mode(theme.neutralDark, BlendMode.srcIn),
+  colorFilter: ColorFilter.mode(
+    AttributeColors.of(context).eyebrow,
+    BlendMode.srcIn,
+  ),
 );
 
 /// The vehicle pictogram for a category, and whether a trailer follows it.
@@ -402,9 +415,12 @@ Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
   _ => ("car", false),
 };
 
-Color _comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
-    switch (comparison) {
-      AttributeComparison.none => theme.dark,
-      AttributeComparison.match => theme.success,
-      AttributeComparison.mismatch => theme.error,
-    };
+Color _comparisonColor(
+  BuildContext context,
+  IrmaThemeData theme,
+  AttributeComparison comparison,
+) => switch (comparison) {
+  AttributeComparison.none => AttributeColors.of(context).value,
+  AttributeComparison.match => theme.success,
+  AttributeComparison.mismatch => theme.error,
+};

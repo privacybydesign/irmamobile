@@ -1,9 +1,7 @@
-import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -19,6 +17,10 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
+  // The data tab shows one card per credential instance; each test below
+  // issues every credential type once, so cards and types coincide. The
+  // search field is always visible and filters as you type (there is no
+  // separate search mode any more).
   group("search-credentials", () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
@@ -35,92 +37,83 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      await enterSearchMode(tester);
-      await exitSearchMode(tester);
+      expect(countCredentialCards(tester), equals(0));
 
-      // there's always at least one credential: the keyshare app id
-      expect(countCredentialTypeCards(tester), equals(0));
+      await searchWallet(tester, "hello");
+      expect(countCredentialCards(tester), equals(0));
+      // The empty wallet keeps showing its explanation while searching.
+      expect(
+        find.byKey(const Key("to_add_data_button_pointing_image")),
+        findsOneWidget,
+      );
 
-      await searchCredentials(tester, "hello");
-      expect(countCredentialTypeCards(tester), equals(0));
-
-      await exitSearchMode(tester);
-      expect(countCredentialTypeCards(tester), equals(0));
+      await searchWallet(tester, "");
+      expect(countCredentialCards(tester), equals(0));
     });
 
     testWidgets("no-query-all-cards", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
-      await enterSearchMode(tester);
 
-      final numCredentials = countCredentialTypeCards(tester);
+      final numCredentials = countCredentialCards(tester);
       expect(numCredentials, equals(5));
 
-      await pressCredentialTypeCard(tester);
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+      await pressFirstCredentialCard(tester);
+      expect(findCredentialDetail(), findsOneWidget);
     });
 
     testWidgets("query-for-single", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
-      await searchCredentials(tester, "tube");
+      await searchWallet(tester, "tube");
 
       final expectedNumResults = 1;
-      expect(countCredentialTypeCards(tester), equals(expectedNumResults));
+      expect(countCredentialCards(tester), equals(expectedNumResults));
+      expect(
+        walletCardCredentialIds(tester),
+        equals(["irma-demo.IRMATube.member"]),
+      );
 
-      await pressCredentialTypeCard(tester);
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+      await pressFirstCredentialCard(tester);
+      expect(findCredentialDetail(), findsOneWidget);
 
-      final backButton = find.byType(YiviBackButton);
-      await tester.tapAndSettle(backButton);
+      await closeCredentialDetail(tester);
 
-      // expect the search mode to still be active
-      expect(countCredentialTypeCards(tester), equals(expectedNumResults));
+      // expect the search query to still be applied
+      expect(countCredentialCards(tester), equals(expectedNumResults));
     });
 
     testWidgets("query-for-two", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
-      await searchCredentials(tester, "adres");
+      await searchWallet(tester, "adres");
 
-      final numCreds = countCredentialTypeCards(tester);
+      final numCreds = countCredentialCards(tester);
       expect(numCreds, equals(2));
 
-      await pressCredentialTypeCard(tester);
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+      await pressFirstCredentialCard(tester);
+      expect(findCredentialDetail(), findsOneWidget);
+    });
+
+    testWidgets("clearing-query-shows-all-cards", (tester) async {
+      await pumpFilledAppOnDataPage(tester, irmaBinding);
+      await searchWallet(tester, "tube");
+      expect(countCredentialCards(tester), equals(1));
+
+      await searchWallet(tester, "");
+      expect(countCredentialCards(tester), equals(5));
     });
   });
 }
 
-Future<void> pressCredentialTypeCard(WidgetTester tester) async {
-  final firstCred = find.byType(SchemalessYiviCredentialTypeCard);
-  await tester.tapAndSettle(firstCred.first);
+/// Opens the detail view of the first card on the data tab. Uses the list
+/// view, as the stack view overlaps the cards.
+Future<void> pressFirstCredentialCard(WidgetTester tester) async {
+  await showWalletView(tester, WalletView.list);
+  await tester.tapAndSettle(findAllWalletCards().first);
+  await tester.waitFor(findCredentialDetail());
 }
 
-Future<void> enterSearchMode(WidgetTester tester) async {
-  final searchButton = find.byKey(const Key("search_button"));
-  await tester.tapAndSettle(searchButton);
-}
-
-Future<void> exitSearchMode(WidgetTester tester) async {
-  final cancelButton = find.byKey(const Key("cancel_search_button"));
-  await tester.tapAndSettle(cancelButton);
-  await tester.pumpAndSettle();
-}
-
-Future<void> searchCredentials(WidgetTester tester, String query) async {
-  await enterSearchMode(tester);
-  await tester.pumpAndSettle(Duration(seconds: 1));
-  final searchBar = find.byKey(const Key("search_bar"));
-  await tester.enterText(searchBar, query);
-  await tester.pumpAndSettle(Duration(seconds: 1));
-}
-
-int countCredentialTypeCards(WidgetTester tester) {
-  final list =
-      tester
-              .widgetList(find.byKey(const Key("credentials_type_list")))
-              .firstOrNull
-          as ListView?;
-  return list?.childrenDelegate.estimatedChildCount ?? 0;
-}
+/// The number of cards the data tab shows.
+int countCredentialCards(WidgetTester tester) =>
+    walletCardCredentialIds(tester).length;
 
 Future<void> pumpFilledAppOnDataPage(
   WidgetTester tester,

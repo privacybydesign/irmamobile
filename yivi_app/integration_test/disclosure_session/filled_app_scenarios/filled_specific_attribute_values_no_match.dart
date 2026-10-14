@@ -3,7 +3,6 @@ import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_scree
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -43,7 +42,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     findsOneWidget,
   );
 
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -73,7 +72,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   // Dialog should show two credential cards
   final dialogCardsFinder = find.descendant(
     of: wrongCredAddedDialogFinder,
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   expect(dialogCardsFinder, findsNWidgets(2));
 

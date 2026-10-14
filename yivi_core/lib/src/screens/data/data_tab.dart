@@ -1,6 +1,6 @@
 import "dart:math";
 
-import "package:cupertino_ui/cupertino_ui.dart";
+import "package:collection/collection.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -10,19 +10,28 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
+import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
-import "../../widgets/base64_image.dart";
+import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_card.dart";
-import "../../widgets/irma_icon_button.dart";
+import "../../widgets/glass/glass_search_field.dart";
+import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/translated_text.dart";
-import "../../widgets/yivi_search_bar.dart";
+import "../../widgets/two_pane.dart";
+import "credential_detail/credential_detail_screen.dart";
+import "wallet/card_hero.dart";
+import "wallet/wallet_transition.dart";
+
+/// Height of the floating search row at the top of the tab.
+const double _topBarHeight = 48;
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -30,8 +39,7 @@ class DataTab extends ConsumerStatefulWidget {
 }
 
 class _DataTabState extends ConsumerState<DataTab> {
-  bool _searchActive = false;
-  final _focusNode = FocusNode();
+  String _query = "";
 
   // We use the global key of the add_data button to provide the 'pointing man' image with the
   // global location of the button, so it can calculate the correct angle to point to.
@@ -40,74 +48,720 @@ class _DataTabState extends ConsumerState<DataTab> {
   final _addDataButtonKey = GlobalKey(debugLabel: "add_data_button_key");
 
   @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
+    final padding = MediaQuery.paddingOf(context);
 
-    if (_searchActive) {
-      return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: theme.backgroundTertiary,
-        appBar: YiviSearchBar(
-          focusNode: _focusNode,
-          onCancel: _closeSearch,
-          onQueryChanged: _searchQueryChanged,
+    final list = Stack(
+      children: [
+        Positioned.fill(
+          child: _Content(
+            query: _query,
+            addDataButtonKey: _addDataButtonKey,
+            topInset: padding.top + 16 + _topBarHeight + 8,
+          ),
         ),
-        body: _CredentialsSearchResults(),
-      );
-    }
+        // Fades the cards out under the floating search row.
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          height: padding.top + 72,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    palette.background,
+                    palette.background.withValues(alpha: 0),
+                  ],
+                  stops: const [0.4, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 16,
+          right: 16,
+          top: padding.top + 16,
+          child: PushAway(
+            direction: PushAwayDirection.up,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: GlassSearchField(
+                        fieldKey: const Key("search_field"),
+                        hintKey: "wallet.search_placeholder",
+                        onChanged: (q) => setState(() => _query = q),
+                      ),
+                    ),
+                    GlassIconButton(
+                      key: _addDataButtonKey,
+                      size: 48,
+                      semanticsLabel: FlutterI18n.translate(
+                        context,
+                        "wallet.add_data",
+                      ),
+                      icon: Icon(Icons.add, size: 26, color: palette.text),
+                      onTap: context.pushAddDataScreen,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "home.nav_bar.data",
-        leading: null,
-        actions: [
-          IrmaIconButton(
-            key: const Key("search_button"),
-            icon: CupertinoIcons.search,
-            size: 28,
-            onTap: _openSearch,
+      backgroundColor: palette.background,
+      body: isExpandedLayout(context) ? _withDetailPane(list) : list,
+    );
+  }
+
+  /// The tablet layout: the cards next to the details of the open card
+  /// (the first card until the user picks one).
+  Widget _withDetailPane(Widget list) {
+    final cards =
+        ref.watch(schemalessCredentialOrderControllerProvider).value ??
+        const <schemaless.Credential>[];
+    final selected = ref.watch(selectedCardProvider);
+    final hash = cards.any((c) => c.hash == selected)
+        ? selected
+        : cards.firstOrNull?.hash;
+    final selection = ref.read(selectedCardProvider.notifier);
+    return TwoPane(
+      list: list,
+      detail: hash == null
+          ? null
+          : CredentialDetailPane(
+              key: ValueKey(hash),
+              hash: hash,
+              onSwitch: selection.select,
+              onDeleted: () => selection.select(null),
+            ),
+    );
+  }
+}
+
+class _Content extends ConsumerWidget {
+  final String query;
+  final GlobalKey addDataButtonKey;
+  final double topInset;
+
+  const _Content({
+    required this.query,
+    required this.addDataButtonKey,
+    required this.topInset,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = YiviPalette.of(context);
+    final snapshot = ref.watch(schemalessCredentialsProvider);
+    final ordered = ref.watch(schemalessCredentialOrderControllerProvider);
+
+    return switch ((snapshot, ordered)) {
+      (AsyncError(), _) || (_, AsyncError()) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: TranslatedText(
+            "error.title",
+            textAlign: TextAlign.center,
+            style: palette.body(16),
           ),
-          IrmaIconButton(
-            key: _addDataButtonKey,
-            icon: CupertinoIcons.add_circled_solid,
-            size: 28,
-            onTap: context.pushAddDataScreen,
+        ),
+      ),
+      (AsyncData(value: final snap), AsyncData(value: final cards)) =>
+        // Problematic credentials keep the overview non-empty even when every
+        // loadable credential is gone, so the user can still see and delete them.
+        cards.isEmpty && snap.problematic.isEmpty
+            ? Padding(
+                padding: EdgeInsets.only(top: topInset),
+                child: _NoCredentialsYet(addDataButtonKey: addDataButtonKey),
+              )
+            : _CardList(
+                cards: cards,
+                problematic: snap.problematic,
+                query: query,
+                topInset: topInset,
+              ),
+      _ => const Center(child: CircularProgressIndicator()),
+    };
+  }
+}
+
+/// The cards, in the view the user picked.
+class _CardList extends ConsumerWidget {
+  final List<schemaless.Credential> cards;
+  final List<schemaless.ProblematicCredential> problematic;
+  final String query;
+  final double topInset;
+
+  const _CardList({
+    required this.cards,
+    required this.problematic,
+    required this.query,
+    required this.topInset,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = YiviPalette.of(context);
+    final hints = ref.watch(instanceHintsProvider);
+    final view = ref.watch(walletViewProvider) ?? WalletView.stack;
+    final hintTexts = {
+      for (final c in cards)
+        c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
+    };
+
+    final visible = query.trim().isEmpty
+        ? cards
+        : _search(cards, hintTexts, query);
+    // Reordering only makes sense for the full list, in List view.
+    final reorderable =
+        view == WalletView.list && visible.length == cards.length;
+    final bottom =
+        MediaQuery.paddingOf(context).bottom + bottomBarSpace(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final contentWidth = min(constraints.maxWidth - 32, 640.0);
+        final side = (constraints.maxWidth - contentWidth) / 2;
+
+        Widget box(Widget child) => SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: side),
+          sliver: SliverToBoxAdapter(child: child),
+        );
+
+        return CustomScrollView(
+          key: const Key("wallet_scroll"),
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: topInset)),
+            box(
+              PushAway(
+                direction: PushAwayDirection.up,
+                child: _Header(count: visible.length, view: view),
+              ),
+            ),
+            for (final pc in problematic)
+              box(
+                PushAway(
+                  direction: PushAwayDirection.up,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _ProblematicCredentialCard(credential: pc),
+                  ),
+                ),
+              ),
+            if (visible.isEmpty)
+              box(_NoResults(palette: palette))
+            else
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: side),
+                sliver: switch (view) {
+                  WalletView.stack => SliverToBoxAdapter(
+                    child: _StackView(
+                      cards: visible,
+                      hintTexts: hintTexts,
+                      width: contentWidth,
+                    ),
+                  ),
+                  WalletView.list => _ListView(
+                    cards: visible,
+                    hintTexts: hintTexts,
+                    reorderable: reorderable,
+                  ),
+                  WalletView.grid => _GridView(
+                    cards: visible,
+                    hintTexts: hintTexts,
+                    width: contentWidth,
+                  ),
+                },
+              ),
+            SliverToBoxAdapter(child: SizedBox(height: bottom)),
+          ],
+        );
+      },
+    );
+  }
+
+  static List<schemaless.Credential> _search(
+    List<schemaless.Credential> cards,
+    Map<String, String> hintTexts,
+    String query,
+  ) {
+    final entries = cards
+        .map(
+          (c) => SearchEntry(
+            hash: c.hash,
+            credentialType: normaliseForSearch(
+              "${c.name} ${hintTexts[c.hash]}",
+            ),
+            issuerName: normaliseForSearch(c.issuer.name),
+          ),
+        )
+        .toList();
+    final byHash = {for (final c in cards) c.hash: c};
+    return searchCredentials(
+      entries,
+      query,
+    ).map((e) => byHash[e.hash]!).toList();
+  }
+}
+
+/// Opens the detail view of [credential], starting the Wallet-style
+/// transition from [cardContext] (the tapped card).
+void openCard(BuildContext cardContext, schemaless.Credential credential) {
+  if (isExpandedLayout(cardContext)) {
+    // The tablet layout shows the card in the detail pane next to the list.
+    ProviderScope.containerOf(
+      cardContext,
+      listen: false,
+    ).read(selectedCardProvider.notifier).select(credential.hash);
+    return;
+  }
+  WalletTransition.begin(cardContext, credential.hash);
+  cardContext.pushCredentialDetailScreen(credential.hash);
+}
+
+class _Header extends ConsumerWidget {
+  final int count;
+  final WalletView view;
+
+  const _Header({required this.count, required this.view});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = YiviPalette.of(context);
+    final countText = count == 1
+        ? FlutterI18n.translate(context, "wallet.count_one")
+        : FlutterI18n.translate(
+            context,
+            "wallet.count_many",
+            translationParams: {"count": "$count"},
+          );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              countText,
+              style: palette.body(14).copyWith(color: palette.heading),
+            ),
+          ),
+          ViewSwitcher(
+            view: view,
+            onChanged: (v) => ref.read(walletViewProvider.notifier).set(v),
           ),
         ],
       ),
-      body: SafeArea(
-        child: SizedBox(
-          height: double.infinity,
-          child: _AllCredentialsList(addDataButtonKey: _addDataButtonKey),
+    );
+  }
+}
+
+/// The Stack / List / Grid switch.
+class ViewSwitcher extends StatelessWidget {
+  final WalletView view;
+  final ValueChanged<WalletView> onChanged;
+
+  const ViewSwitcher({super.key, required this.view, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    const icons = {
+      WalletView.stack: Icons.view_agenda_outlined,
+      WalletView.list: Icons.view_list_rounded,
+      WalletView.grid: Icons.grid_view_rounded,
+    };
+    return Semantics(
+      container: true,
+      label: FlutterI18n.translate(context, "wallet.view.label"),
+      child: Container(
+        padding: const EdgeInsets.all(3),
+        decoration: ShapeDecoration(
+          shape: StadiumBorder(side: BorderSide(color: palette.outline)),
+          color: palette.surface,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final v in WalletView.values)
+              _Segment(
+                key: Key("wallet_view_${v.name}"),
+                label: FlutterI18n.translate(context, "wallet.view.${v.name}"),
+                icon: icons[v]!,
+                selected: v == view,
+                onTap: () => onChanged(v),
+              ),
+          ],
         ),
       ),
     );
   }
+}
 
-  void _openSearch() {
-    _searchQueryChanged("");
-    setState(() {
-      _searchActive = true;
-      _focusNode.requestFocus();
-    });
+class _Segment extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _Segment({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final fg = selected ? palette.surface : palette.heading;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: selected ? palette.heading : Colors.transparent,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 36, minWidth: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 6,
+                children: [
+                  Icon(icon, size: 16, color: fg),
+                  Text(label, style: palette.display(12).copyWith(color: fg)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
+}
 
-  void _closeSearch() {
-    setState(() {
-      _searchActive = false;
-    });
+/// The cards overlap, each showing a strip of [_stripHeight]; the last one is
+/// shown in full.
+class _StackView extends StatelessWidget {
+  static const double _stripHeight = 64;
+
+  final List<schemaless.Credential> cards;
+  final Map<String, String> hintTexts;
+  final double width;
+
+  const _StackView({
+    required this.cards,
+    required this.hintTexts,
+    required this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cardHeight = width / CredentialCardArt.aspectRatio;
+    return SizedBox(
+      height: (cards.length - 1) * _stripHeight + cardHeight,
+      child: Stack(
+        children: [
+          for (final (i, c) in cards.indexed)
+            Positioned(
+              top: i * _stripHeight,
+              left: 0,
+              right: 0,
+              child: PushAway(
+                hash: c.hash,
+                child: _CardButton(
+                  credential: c,
+                  hintText: hintTexts[c.hash],
+                  child: CardHero(
+                    credential: c,
+                    width: width,
+                    hintText: hintTexts[c.hash],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
+}
 
-  void _searchQueryChanged(String query) {
-    ref.read(credentialsSearchQueryProvider.notifier).set(query);
+class _ListView extends ConsumerWidget {
+  final List<schemaless.Credential> cards;
+  final Map<String, String> hintTexts;
+  final bool reorderable;
+
+  const _ListView({
+    required this.cards,
+    required this.hintTexts,
+    required this.reorderable,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(
+      schemalessCredentialOrderControllerProvider.notifier,
+    );
+    return SliverReorderableList(
+      itemCount: cards.length,
+      onReorderStart: (_) => HapticFeedback.mediumImpact(),
+      onReorderEnd: (_) => HapticFeedback.mediumImpact(),
+      onReorderItem: controller.reorder,
+      proxyDecorator: (child, index, animation) =>
+          Material(type: MaterialType.transparency, child: child),
+      itemBuilder: (context, i) {
+        final c = cards[i];
+        final row = Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: PushAway(
+            hash: c.hash,
+            fadeWhenOpening: true,
+            child: _ListRow(credential: c, hintText: hintTexts[c.hash]),
+          ),
+        );
+        return KeyedSubtree(
+          key: ValueKey(c.hash),
+          child: reorderable
+              ? ReorderableDelayedDragStartListener(index: i, child: row)
+              : row,
+        );
+      },
+    );
+  }
+}
+
+/// Whether [credential] is the card shown in the tablet detail pane.
+bool _isOpenInPane(BuildContext context, schemaless.Credential credential) {
+  if (!isExpandedLayout(context)) return false;
+  final container = ProviderScope.containerOf(context);
+  final selected = container.read(selectedCardProvider);
+  final cards =
+      container.read(schemalessCredentialOrderControllerProvider).value ??
+      const <schemaless.Credential>[];
+  final open = cards.any((c) => c.hash == selected)
+      ? selected
+      : cards.firstOrNull?.hash;
+  return open == credential.hash;
+}
+
+class _ListRow extends StatelessWidget {
+  final schemaless.Credential credential;
+  final String? hintText;
+
+  const _ListRow({required this.credential, this.hintText});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final selected = _isOpenInPane(context, credential);
+    return _CardButton(
+      credential: credential,
+      hintText: hintText,
+      child: Material(
+        color: palette.surface,
+        shape: RoundedSuperellipseBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          side: BorderSide(
+            width: 2,
+            color: selected ? palette.primary : Colors.transparent,
+          ),
+        ),
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            spacing: 16,
+            children: [
+              CardHero(credential: credential, width: 88, hintText: hintText),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      credential.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette.display(16).copyWith(color: palette.text),
+                    ),
+                    if ((hintText ?? "").isNotEmpty)
+                      Text(
+                        hintText!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette.body(14),
+                      ),
+                    Text(
+                      credential.issuer.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette.body(12).copyWith(color: palette.heading),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: palette.faint),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GridView extends StatelessWidget {
+  final List<schemaless.Credential> cards;
+  final Map<String, String> hintTexts;
+  final double width;
+
+  const _GridView({
+    required this.cards,
+    required this.hintTexts,
+    required this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    const gap = 16.0;
+    final cardWidth = (width - gap) / 2;
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final captionHeight = 8 + 40 * textScale;
+    return SliverGrid(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: gap,
+        mainAxisSpacing: gap,
+        mainAxisExtent:
+            cardWidth / CredentialCardArt.aspectRatio + captionHeight,
+      ),
+      delegate: SliverChildBuilderDelegate(childCount: cards.length, (
+        context,
+        i,
+      ) {
+        final c = cards[i];
+        return PushAway(
+          hash: c.hash,
+          fadeWhenOpening: true,
+          child: _CardButton(
+            credential: c,
+            hintText: hintTexts[c.hash],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CardHero(
+                  credential: c,
+                  width: cardWidth,
+                  hintText: hintTexts[c.hash],
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    c.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette.display(14).copyWith(color: palette.text),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    hintTexts[c.hash] ?? "",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette.body(12).copyWith(color: palette.heading),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+/// Makes a card tappable and gives it one clear screen reader label:
+/// "{name}, {hint}, {issuer}".
+class _CardButton extends StatelessWidget {
+  final schemaless.Credential credential;
+  final String? hintText;
+  final Widget child;
+
+  const _CardButton({
+    required this.credential,
+    required this.child,
+    this.hintText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final label = [
+      credential.name,
+      if ((hintText ?? "").isNotEmpty) hintText,
+      credential.issuer.name,
+    ].join(", ");
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        key: Key("${credential.credentialId}_tile"),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => openCard(context, credential),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _NoResults extends StatelessWidget {
+  final YiviPalette palette;
+
+  const _NoResults({required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 32),
+      child: Column(
+        children: [
+          TranslatedText(
+            "wallet.no_results.title",
+            textAlign: TextAlign.center,
+            style: palette.display(16),
+          ),
+          const SizedBox(height: 4),
+          TranslatedText(
+            "wallet.no_results.body",
+            textAlign: TextAlign.center,
+            style: palette.body(14).copyWith(color: palette.secondaryText),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -200,28 +854,29 @@ class _NoCredentialsYet extends StatelessWidget {
   }
 
   Padding _buildLandscapeOrientation(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     return Padding(
-      padding: EdgeInsets.all(theme.screenPadding),
+      padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 300),
+            constraints: const BoxConstraints(maxWidth: 300),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TranslatedText(
                   "data_tab.empty.title",
-                  style: theme.textTheme.displayLarge,
+                  style: palette.display(26, weight: FontWeight.w700),
                   textAlign: TextAlign.start,
                 ),
-                SizedBox(height: theme.defaultSpacing),
+                const SizedBox(height: 16),
                 TranslatedText(
                   "data_tab.empty.subtitle",
                   textAlign: TextAlign.start,
+                  style: palette.body(16),
                 ),
               ],
             ),
@@ -233,31 +888,27 @@ class _NoCredentialsYet extends StatelessWidget {
   }
 
   Padding _buildPortraitOrientation(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: const EdgeInsets.all(16),
       child: Align(
         alignment: Alignment.topCenter,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: theme.defaultSpacing),
+            const SizedBox(height: 16),
             _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
-            SizedBox(height: theme.largeSpacing),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TranslatedText(
-                  "data_tab.empty.title",
-                  style: theme.textTheme.displayLarge,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "data_tab.empty.subtitle",
-                  textAlign: TextAlign.center,
-                ),
-              ],
+            const SizedBox(height: 32),
+            TranslatedText(
+              "data_tab.empty.title",
+              style: palette.display(26, weight: FontWeight.w700),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            TranslatedText(
+              "data_tab.empty.subtitle",
+              textAlign: TextAlign.center,
+              style: palette.body(16),
             ),
           ],
         ),
@@ -266,208 +917,10 @@ class _NoCredentialsYet extends StatelessWidget {
   }
 }
 
-class _AllCredentialsList extends ConsumerWidget {
-  const _AllCredentialsList({required this.addDataButtonKey});
-
-  final GlobalKey addDataButtonKey;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
-    final credentials = ref.watch(schemalessCredentialsProvider);
-
-    return switch (credentials) {
-      // Problematic credentials keep the overview non-empty even when every
-      // loadable credential is gone, so the user can still see and delete them.
-      AsyncData(:final value) =>
-        value.credentials.isEmpty && value.problematic.isEmpty
-            ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-            : _ReorderableCredentialList(),
-      AsyncError() => Center(
-        child: Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: TranslatedText("error.title", textAlign: TextAlign.center),
-        ),
-      ),
-      _ => const Center(child: CircularProgressIndicator()),
-    };
-  }
-}
-
-class _CredentialsTypeList extends StatelessWidget {
-  const _CredentialsTypeList({required this.credentials});
-
-  final List<schemaless.Credential> credentials;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return ListView(
-      key: const Key("credentials_type_list"),
-      padding: EdgeInsets.only(top: theme.defaultSpacing),
-      children: [
-        ...credentials.map((c) {
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: theme.smallSpacing,
-              left: theme.defaultSpacing,
-              right: theme.defaultSpacing,
-            ),
-            child: SchemalessYiviCredentialTypeCard(
-              credentialId: c.credentialId,
-              credentialName: c.name,
-              issuerName: c.issuer.name,
-              credentialImageBase64: c.image != null
-                  ? Base64Image(
-                      base64: c.image!.base64,
-                      mimeType: c.image!.mimeType,
-                    )
-                  : null,
-              onTap: () => context.pushCredentialsDetailsScreen(
-                CredentialsDetailsRouteParams(credentialTypeId: c.credentialId),
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-}
-
-class _CredentialsSearchResults extends ConsumerWidget {
-  Center _buildNoCredentialsFound(BuildContext context, String query) {
-    final theme = IrmaTheme.of(context);
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: TranslatedText(
-          "data.search.no_results",
-          translationParams: {"query": query},
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final locale = FlutterI18n.currentLocale(context)!;
-    final credentials = ref.watch(
-      schemalessCredentialsSearchResultsProvider(locale),
-    );
-    final searchQuery = ref.watch(credentialsSearchQueryProvider);
-
-    return credentials.when(
-      skipLoadingOnReload: true,
-      data: (credentials) => credentials.isEmpty && searchQuery.isNotEmpty
-          ? _buildNoCredentialsFound(context, searchQuery)
-          : _CredentialsTypeList(credentials: credentials),
-      loading: () => CircularProgressIndicator(),
-      error: (error, trace) => Center(
-        child: Padding(
-          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-          child: TranslatedText("error.title", textAlign: TextAlign.center),
-        ),
-      ),
-    );
-  }
-}
-
-// ================================================================================
-
-class _ReorderableCredentialList extends ConsumerWidget {
-  const _ReorderableCredentialList();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(schemalessCredentialOrderControllerProvider);
-    final controller = ref.read(
-      schemalessCredentialOrderControllerProvider.notifier,
-    );
-    final problematic =
-        ref.watch(schemalessCredentialsProvider).value?.problematic ??
-        const <schemaless.ProblematicCredential>[];
-
-    final theme = IrmaTheme.of(context);
-
-    return credentials.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(
-        child: Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: TranslatedText("error.title", textAlign: TextAlign.center),
-        ),
-      ),
-      data: (items) {
-        return ReorderableListView.builder(
-          onReorderStart: (index) {
-            HapticFeedback.mediumImpact();
-          },
-          onReorderEnd: (index) {
-            HapticFeedback.mediumImpact();
-          },
-          onReorderItem: controller.reorder,
-          proxyDecorator: (child, index, animation) {
-            // ReorderableListView is a bit wanky when using padding to create space between cards.
-            // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
-            return Material(type: .transparency, child: child);
-          },
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          itemCount: items.length,
-          buildDefaultDragHandles: false,
-          // Problematic credentials are shown at the top, above the loadable
-          // ones, so the user sees what needs attention first.
-          header: problematic.isEmpty
-              ? null
-              : Column(
-                  key: const Key("problematic_credentials_section"),
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final pc in problematic)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: theme.smallSpacing),
-                        child: _ProblematicCredentialCard(credential: pc),
-                      ),
-                  ],
-                ),
-          footer: const SizedBox(height: 50),
-          itemBuilder: (_, i) {
-            final cred = items[i];
-
-            return Padding(
-              key: ValueKey(cred.credentialId),
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: ReorderableDelayedDragStartListener(
-                index: i,
-                child: SchemalessYiviCredentialTypeCard(
-                  credentialId: cred.credentialId,
-                  credentialName: cred.name,
-                  issuerName: cred.issuer.name,
-                  credentialImageBase64: cred.image != null
-                      ? Base64Image(
-                          base64: cred.image!.base64,
-                          mimeType: cred.image!.mimeType,
-                        )
-                      : null,
-                  onTap: () => context.pushCredentialsDetailsScreen(
-                    CredentialsDetailsRouteParams(
-                      credentialTypeId: cred.credentialId,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
 /// A card for a credential the wallet stored but cannot render (see
 /// [schemaless.ProblematicCredential]). Shown in a danger style with the failure
 /// reason and a trashcan to remove a credential that would otherwise be stuck in
-/// storage — it has no type/detail screen to route to, so deletion is inline.
+/// storage — it has no detail screen to route to, so deletion is inline.
 class _ProblematicCredentialCard extends ConsumerWidget {
   const _ProblematicCredentialCard({required this.credential});
 
@@ -476,46 +929,40 @@ class _ProblematicCredentialCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final title = FlutterI18n.translate(context, "data.problematic.title");
 
-    return IrmaCard(
-      style: IrmaCardStyle.danger,
-      margin: EdgeInsets.zero,
+    return Material(
+      color: palette.errorSurface,
+      shape: const RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
       child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: theme.error, size: 28),
-            SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+            Icon(Icons.warning_amber_rounded, color: palette.danger, size: 28),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                      fontSize: 16,
-                      color: theme.dark,
-                    ),
+                    style: palette.display(16).copyWith(color: palette.text),
                   ),
-                  SizedBox(height: theme.tinySpacing),
+                  const SizedBox(height: 4),
                   Text(
                     FlutterI18n.translate(
                       context,
                       "data.problematic.explanation",
                     ),
-                    style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                      fontSize: 14,
-                      color: theme.neutralExtraDark,
-                    ),
+                    style: palette.body(14).copyWith(color: palette.heading),
                   ),
-                  SizedBox(height: theme.tinySpacing),
+                  const SizedBox(height: 4),
                   Text(
                     credential.reason,
-                    style: theme.themeData.textTheme.bodySmall!.copyWith(
-                      fontSize: 12,
-                      color: theme.neutralExtraDark,
-                    ),
+                    style: palette.body(12).copyWith(color: palette.heading),
                   ),
                 ],
               ),
@@ -523,7 +970,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
             SizedBox(width: theme.smallSpacing),
             IconButton(
               key: Key("${credential.credentialId ?? "problematic"}_delete"),
-              icon: Icon(Icons.delete_outline, color: theme.error),
+              icon: Icon(Icons.delete_outline, color: palette.danger),
               tooltip: FlutterI18n.translate(context, "accessibility.remove"),
               onPressed: () => _confirmDelete(context, ref),
             ),
@@ -551,3 +998,12 @@ class _ProblematicCredentialCard extends ConsumerWidget {
     }
   }
 }
+
+/// The cards of the same type as [credential] (including itself), in the
+/// user's order.
+List<schemaless.Credential> sameTypeCards(
+  List<schemaless.Credential> cards,
+  schemaless.Credential credential,
+) => cards
+    .where((c) => c.credentialId == credential.credentialId)
+    .sortedBy<num>((c) => cards.indexOf(c));

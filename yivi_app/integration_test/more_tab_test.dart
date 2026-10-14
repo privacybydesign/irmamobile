@@ -3,7 +3,7 @@ import "package:flutter/widgets.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:package_info_plus/package_info_plus.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/screens/more/more_tab.dart";
 import "package:yivi_core/src/widgets/link.dart";
 
 import "helpers/helpers.dart";
@@ -25,14 +25,12 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
-      await tester.tapAndSettle(find.text("More"));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
 
-      // Check screen header title
+      // Check screen header title (the tab has no app bar any more; its
+      // title is the first text on the page)
       expect(
-        find.descendant(
-          of: find.byType(IrmaAppBar),
-          matching: find.text("More"),
-        ),
+        find.descendant(of: find.byType(MoreTab), matching: find.text("More")),
         findsOneWidget,
       );
 
@@ -71,7 +69,7 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
-      await tester.tapAndSettle(find.text("More"));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
 
       // Disable developer mode such that we can test below that it is enabled again.
       irmaBinding.repository.setDeveloperMode(false);
@@ -117,7 +115,7 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
-      await tester.tapAndSettle(find.text("More"));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
 
       // Try to log out
       await tester.scrollUntilVisible(find.text("Log out").hitTestable(), 100);
@@ -132,7 +130,7 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
-      await tester.tapAndSettle(find.text("More"));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
 
       // Open help
       final faqFinder = find.text("Frequently asked questions");

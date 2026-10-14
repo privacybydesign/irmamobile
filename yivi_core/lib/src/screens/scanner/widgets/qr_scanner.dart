@@ -79,32 +79,12 @@ class QRScannerState extends State<QRScanner>
         SafeArea(
           child: FractionallySizedBox(
             heightFactor: _qrInstructionHeightFactor,
-            child: QRInstruction(found: found, error: error),
-          ),
-        ),
-        if (isLandscape)
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: CircleAvatar(
-                  backgroundColor: Colors.grey.shade300,
-                  radius: 24,
-                  child: IconButton(
-                    tooltip: FlutterI18n.translate(context, "ui.close"),
-                    padding: EdgeInsets.zero,
-                    onPressed: Navigator.of(context).pop,
-                    icon: Icon(
-                      Icons.close,
-                      size: 24,
-                      color: Colors.grey.shade800,
-                    ),
-                  ),
-                ),
-              ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 60),
+              child: QRInstruction(found: found, error: error),
             ),
           ),
+        ),
       ],
     );
   }

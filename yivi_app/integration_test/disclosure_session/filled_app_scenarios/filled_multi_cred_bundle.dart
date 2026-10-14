@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -47,7 +46,7 @@ Future<void> filledMultiCredBundleTest(
   await tester.waitFor(find.byType(RequestorHeader));
 
   // Three cards on the overview: root + fullName (bundle), and email.
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(3));
 
   await evaluateCredentialCard(

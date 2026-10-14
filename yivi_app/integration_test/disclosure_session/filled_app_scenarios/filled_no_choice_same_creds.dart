@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -47,7 +46,7 @@ Future<void> filledNoChoiceSameCredsTest(
   await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
   await tester.tapAndSettle(changeChoiceFinder);
 
-  final credentialCardsFinder = find.byType(YiviCredentialCard);
+  final credentialCardsFinder = findCredentialCards();
   const demoEmailCredentialName = "Demo Email address";
   const demoEmailIssuerName = "Demo Privacy by Design Foundation via SIDN";
 

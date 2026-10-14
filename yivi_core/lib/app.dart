@@ -45,8 +45,10 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription<Pointer?>? _pointerSubscription;
   StreamSubscription<Event>? _dataClearSubscription;
   StreamSubscription<bool>? _screenshotPrefSubscription;
+  StreamSubscription<bool>? _darkModeSubscription;
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _privacyScreenLoaded = false;
+  bool _darkModePreview = false;
 
   // TODO: When switching to Riverpod we should add a provider for the
   // router, as that will automatically preserve its state during rebuilds.
@@ -79,6 +81,14 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _listenScreenshotPref();
+    _darkModeSubscription = ref
+        .read(preferencesProvider)
+        .getDarkModePreview()
+        .listen((enabled) {
+          if (mounted && enabled != _darkModePreview) {
+            setState(() => _darkModePreview = enabled);
+          }
+        });
     _handleUpdateSchemes();
     _listenShowNameChangedNotification();
   }
@@ -89,6 +99,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
+    _darkModeSubscription?.cancel();
     _enrollmentStatusSubscription?.cancel();
     super.dispose();
   }
@@ -180,6 +191,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             key: const Key("app"),
             title: "Yivi",
             theme: IrmaTheme.of(context).themeData,
+            darkTheme: IrmaTheme.of(context).darkThemeData,
+            themeMode: _darkModePreview ? ThemeMode.dark : ThemeMode.light,
             localizationsDelegates: defaultLocalizationsDelegates(
               widget.forcedLocale,
             ),

@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
+import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/radio_indicator.dart";
@@ -110,17 +111,12 @@ class DisclosurePermissionChoice extends StatelessWidget {
       cardBuilder: (context, index, isSelected) {
         final theme = IrmaTheme.of(context);
         final credentials = options[index].credentials;
-        final style = isSelected
-            ? IrmaCardStyle.highlighted
-            : IrmaCardStyle.normal;
 
         if (credentials.length == 1) {
-          return YiviCredentialCard.fromSelectableInstance(
+          return DisclosedCardTile(
             instance: credentials[0],
-            compact: true,
-            hideFooter: true,
-            style: style,
-            headerTrailing: RadioIndicator(isSelected: isSelected),
+            selected: isSelected,
+            trailing: RadioIndicator(isSelected: isSelected),
           );
         }
 
@@ -132,12 +128,10 @@ class DisclosurePermissionChoice extends StatelessWidget {
                 padding: EdgeInsets.only(
                   bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
                 ),
-                child: YiviCredentialCard.fromSelectableInstance(
+                child: DisclosedCardTile(
                   instance: credentials[i],
-                  compact: true,
-                  hideFooter: true,
-                  style: style,
-                  headerTrailing: i == 0
+                  selected: isSelected,
+                  trailing: i == 0
                       ? RadioIndicator(isSelected: isSelected)
                       : null,
                 ),

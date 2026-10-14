@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "irma_icon_button.dart";
 import "translated_text.dart";
 
@@ -69,7 +70,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.leading = const YiviBackButton(),
     this.actions = const [],
-    this.hasBorder = true,
+    this.hasBorder = false,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -79,9 +80,15 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    final palette = YiviPalette.of(context);
+
     return AppBar(
       key: const Key("irma_app_bar"),
-      backgroundColor: theme.light,
+      // The title sits directly on the page background (glass redesign).
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       shape: hasBorder
           ? Border(bottom: BorderSide(color: theme.tertiary))
           : null,
@@ -91,7 +98,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           title ??
           TranslatedText(
             titleTranslationKey ?? (titleString ?? ""),
-            style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
+            style: palette.display(18).copyWith(color: palette.text),
           ),
       actions: actions,
       automaticallyImplyLeading: false,

@@ -87,7 +87,7 @@ class YiviThemedButton extends StatelessWidget {
     BorderRadiusGeometry borderRadius,
   ) {
     return Material(
-      color: isTransparent ? Colors.transparent : theme.light,
+      color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
         child: Ink(
@@ -116,7 +116,8 @@ class YiviThemedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    const borderRadius = BorderRadius.all(Radius.circular(8));
+    // Pills: the glass redesign rounds every button.
+    const borderRadius = BorderRadius.all(Radius.circular(999));
 
     double buttonHeight = size.value;
     double? buttonWidth;
@@ -146,14 +147,30 @@ class YiviThemedButton extends StatelessWidget {
 
     Widget buttonWidget = Semantics(
       button: true,
-      child: SizedBox(
+      child: Container(
+        decoration: style == YiviButtonStyle.fancy && onPressed != null
+            ? const ShapeDecoration(
+                shape: StadiumBorder(),
+                shadows: [
+                  BoxShadow(
+                    color: Color(0x59E12747),
+                    blurRadius: 24,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              )
+            : null,
         height: buttonHeight,
         width: buttonWidth,
-        child: ClipRRect(
-          borderRadius: borderRadius,
-          child: style == YiviButtonStyle.fancy
-              ? _buildFancyButton(centeredTextWidget)
-              : _buildNormalButton(centeredTextWidget, theme, borderRadius),
+        child: SizedBox(
+          height: buttonHeight,
+          width: buttonWidth,
+          child: ClipRRect(
+            borderRadius: borderRadius,
+            child: style == YiviButtonStyle.fancy
+                ? _buildFancyButton(centeredTextWidget)
+                : _buildNormalButton(centeredTextWidget, theme, borderRadius),
+          ),
         ),
       ),
     );

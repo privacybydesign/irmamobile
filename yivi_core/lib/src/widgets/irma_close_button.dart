@@ -1,7 +1,8 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
+import "glass/glass_surface.dart";
 import "irma_icon_button.dart";
 
 class IrmaCloseButton extends StatelessWidget {
@@ -22,38 +23,10 @@ class IrmaCloseButton extends StatelessWidget {
       );
     }
 
-    final theme = IrmaTheme.of(context);
-    final effectiveOnTap = onTap ?? Navigator.of(context).pop;
-    const size = 44.0;
-
-    return Semantics(
-      button: true,
-      label: FlutterI18n.translate(context, "accessibility.close"),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade300,
-              offset: const Offset(0.0, 1.0),
-              blurRadius: 6.0,
-            ),
-          ],
-        ),
-        child: Material(
-          color: theme.light,
-          shape: const CircleBorder(),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: effectiveOnTap,
-            customBorder: const CircleBorder(),
-            child: SizedBox.square(
-              dimension: size,
-              child: Icon(Icons.close, size: 24, color: theme.dark),
-            ),
-          ),
-        ),
-      ),
+    return GlassIconButton(
+      semanticsLabel: FlutterI18n.translate(context, "accessibility.close"),
+      onTap: onTap ?? Navigator.of(context).pop,
+      icon: Icon(Icons.close, size: 22, color: YiviPalette.of(context).text),
     );
   }
 }

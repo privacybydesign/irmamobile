@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -47,7 +46,7 @@ Future<void> ageSingleClaimTest(
     isVerified: true,
   );
 
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

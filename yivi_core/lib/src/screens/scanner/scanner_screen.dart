@@ -1,11 +1,13 @@
 import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/test_detection.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_icon_button.dart";
+import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/translated_text.dart";
 import "widgets/qr_scanner.dart";
 
 /// Modal-sheet QR scanner.
@@ -57,26 +59,59 @@ class ScannerScreenState extends State<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     final isLandscape = MediaQuery.of(context).orientation == .landscape;
+    final palette = YiviPalette.of(context);
 
     return Scaffold(
-      appBar: isLandscape
-          ? null
-          : IrmaAppBar(
-              titleTranslationKey: "qr_scanner.title",
-              // No leading — the sheet is dismissed via the close
-              // button in the top-right, matching the bottom-sheet
-              // convention.
-              leading: null,
-              actions: [
-                IrmaIconButton(
-                  key: const Key("irma_app_bar_close"),
-                  icon: Icons.close,
-                  semanticsLabelKey: "ui.close",
-                  onTap: () => Navigator.of(context).pop(),
+      backgroundColor: const Color(0xFF23262A),
+      body: Stack(
+        children: [
+          Positioned.fill(child: _buildBody(isLandscape)),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                height: 44,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: TranslatedText(
+                        "qr_scanner.title",
+                        style: palette
+                            .display(18)
+                            .copyWith(
+                              color: Colors.white,
+                              shadows: const [
+                                Shadow(color: Color(0x73000000), blurRadius: 8),
+                              ],
+                            ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GlassIconButton(
+                        key: const Key("irma_app_bar_close"),
+                        semanticsLabel: FlutterI18n.translate(
+                          context,
+                          "ui.close",
+                        ),
+                        fill: const Color(0x6B1C1C1E),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                        onTap: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-      body: _buildBody(isLandscape),
+          ),
+        ],
+      ),
     );
   }
 
@@ -88,12 +123,6 @@ class ScannerScreenState extends State<ScannerScreen> {
       // when in landscape, the back button is rendered on the qr scanner widget
       // so we'll add a close button manually here, since the scanner is not
       // rendered in the tests and we still need a way to dismiss the sheet
-      if (landscape) {
-        return IrmaIconButton(
-          icon: Icons.close,
-          onTap: () => Navigator.of(context).pop(),
-        );
-      }
       return Container();
     }
 

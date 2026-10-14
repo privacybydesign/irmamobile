@@ -7,7 +7,7 @@ import "package:share_plus/share_plus.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
-import "../../../widgets/chevron.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -220,32 +220,44 @@ class Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final iconColor = theme.secondary;
+    final palette = YiviPalette.of(context);
 
     return Semantics(
       link: isLink,
       child: Material(
-        child: ListTile(
+        type: MaterialType.transparency,
+        child: InkWell(
           onTap: onTap,
-          minLeadingWidth: theme.mediumSpacing,
-          contentPadding: EdgeInsets.fromLTRB(
-            theme.defaultSpacing,
-            0,
-            theme.smallSpacing,
-            0,
-          ),
-          leading: iconData != null
-              ? Icon(iconData, size: 28, color: iconColor)
-              : null,
-          title: TranslatedText(
-            labelTranslationKey,
-            style: theme.textButtonTextStyle.copyWith(
-              fontWeight: FontWeight.w400,
-              color: theme.dark,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 60),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
+              child: Row(
+                spacing: 16,
+                children: [
+                  if (iconData != null)
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: ShapeDecoration(
+                        color: palette.tint,
+                        shape: const RoundedSuperellipseBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                      ),
+                      child: Icon(iconData, size: 22, color: palette.heading),
+                    ),
+                  Expanded(
+                    child: TranslatedText(
+                      labelTranslationKey,
+                      style: palette.body(16),
+                    ),
+                  ),
+                  trailing ?? Icon(Icons.chevron_right, color: palette.faint),
+                ],
+              ),
             ),
           ),
-          trailing: trailing ?? const Chevron(),
         ),
       ),
     );

@@ -1,10 +1,12 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_introduction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -141,3 +143,28 @@ Future<void> evaluateRequestorHeader(
     expect(requestorHeaderText, expectedUnverifiedText);
   }
 }
+
+/// Finds [text] in [card], leaving out the card picture. A [DisclosedCardTile]
+/// draws the credential name twice: next to the picture and on it.
+Finder findCardText(Finder card, String text) => find.descendant(
+  of: card,
+  matching: find.byElementPredicate((element) {
+    final widget = element.widget;
+    if (widget is! Text || widget.data != text) return false;
+    var onPicture = false;
+    element.visitAncestorElements((ancestor) {
+      if (ancestor.widget is CredentialCardArt) {
+        onPicture = true;
+        return false;
+      }
+      return true;
+    });
+    return !onPicture;
+  }),
+);
+
+/// The scroll view of the activity tab's entries. The tab has a search field
+/// as well, which has a [Scrollable] of its own.
+Finder activityScrollable() => find
+    .descendant(of: find.byType(ActivityTab), matching: find.byType(Scrollable))
+    .first;

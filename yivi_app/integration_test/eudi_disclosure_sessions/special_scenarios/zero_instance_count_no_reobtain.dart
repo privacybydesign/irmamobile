@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -72,7 +71,7 @@ Future<void> zeroInstanceCountNoReobtainTest(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     instancesRemaining: 0,
     style: IrmaCardStyle.danger,
     isExpired: true,
@@ -82,10 +81,10 @@ Future<void> zeroInstanceCountNoReobtainTest(
     attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 
-  // Pop the credential-details sub-route so the bottom nav bar is visible
+  // Close the credential detail view so the tab bar is reachable
   // again — `verifyActivityLogCount` taps `nav_button_activity` which only
   // renders inside the home scaffold.
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
 
   // 1 issuance + 2 disclosures = 3 activity log entries.
   await verifyActivityLogCount(tester, 3);

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/translated_text.dart";
 import "../../scanner/scanner_screen.dart";
@@ -22,12 +23,41 @@ Future<void> openQrCodeScanner(BuildContext context) async {
 
   if (!hasCameraPermission || !context.mounted) return;
 
+  // On tablets the scanner is a centred dialog instead of a sheet.
+  if (isExpandedLayout(context)) {
+    await showDialog<void>(
+      context: context,
+      barrierColor: const Color(0x8C000000),
+      builder: (dialogCtx) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 700),
+          child: ClipRSuperellipse(
+            borderRadius: const BorderRadius.all(Radius.circular(38)),
+            // The scanner lays itself out for the dialog, not the screen
+            // (e.g. portrait in a landscape window).
+            child: LayoutBuilder(
+              builder: (context, constraints) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  size: constraints.biggest,
+                  padding: EdgeInsets.zero,
+                  viewPadding: EdgeInsets.zero,
+                ),
+                child: const ScannerScreen(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    return;
+  }
+
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(38)),
     ),
     clipBehavior: Clip.antiAlias,
     builder: (sheetCtx) => SizedBox(

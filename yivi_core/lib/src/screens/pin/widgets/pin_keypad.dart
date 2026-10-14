@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/haptics.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
@@ -148,6 +149,7 @@ class _PinKeypadKey extends StatelessWidget {
       label: number.toString(),
       button: true,
       child: _PressableCircle(
+        resting: true,
         hapticOnDown: true,
         onPressDown: () => onDigitPressed(number),
         onPressCancel: onDigitCancelled,
@@ -237,12 +239,16 @@ class _PressableCircle extends StatefulWidget {
   final VoidCallback? onPressCancel;
   final bool hapticOnDown;
 
+  /// Shows the key as a round glass button even when not pressed (digits).
+  final bool resting;
+
   const _PressableCircle({
     required this.child,
     required this.onTap,
     this.onPressDown,
     this.onPressCancel,
     this.hapticOnDown = false,
+    this.resting = false,
   });
 
   @override
@@ -292,6 +298,7 @@ class _PressableCircleState extends State<_PressableCircle>
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _down(),
@@ -317,6 +324,27 @@ class _PressableCircleState extends State<_PressableCircle>
                   alignment: Alignment.center,
                   clipBehavior: Clip.none,
                   children: [
+                    if (widget.resting)
+                      OverflowBox(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                        child: Container(
+                          width: diameter,
+                          height: diameter,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: palette.surface.withValues(alpha: 0.7),
+                            border: Border.all(color: palette.glassBorder),
+                            boxShadow: [
+                              BoxShadow(
+                                color: palette.glassShadow,
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     OverflowBox(
                       maxWidth: double.infinity,
                       maxHeight: double.infinity,

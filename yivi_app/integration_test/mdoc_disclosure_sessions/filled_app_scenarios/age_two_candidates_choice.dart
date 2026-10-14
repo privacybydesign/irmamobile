@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../eudi_disclosure_sessions/eudi_choice_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -52,7 +51,7 @@ Future<void> ageTwoCandidatesChoiceTest(
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final overviewCard = find.byType(YiviCredentialCard, skipOffstage: false);
+  final overviewCard = findCredentialCards(skipOffstage: false);
   expect(overviewCard, findsOneWidget);
 
   // Default choice: the first (oldest) candidate.
@@ -69,7 +68,7 @@ Future<void> ageTwoCandidatesChoiceTest(
 
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
   expect(choiceCardsFinder, findsNWidgets(2));

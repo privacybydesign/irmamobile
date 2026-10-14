@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
@@ -35,7 +34,7 @@ Future<void> noChoiceTest(
 
   // First, the missing required disjunctions should be obtained using an issue wizard.
   expect(find.text("Collect data"), findsOneWidget);
-  expect(tester.widgetList(find.byType(YiviCredentialCard)).length, 1);
+  expect(tester.widgetList(findCredentialCards()).length, 1);
 
   // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));

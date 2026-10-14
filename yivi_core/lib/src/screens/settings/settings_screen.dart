@@ -188,6 +188,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
               buildExplanationText("settings.report_errors_explanation"),
+              spacerWidget,
+              TilesCard(
+                children: [
+                  ToggleTile(
+                    key: const Key("dark_mode_toggle"),
+                    labelTranslationKey: "settings.dark_mode_preview",
+                    onChanged: repo.preferences.setDarkModePreview,
+                    stream: repo.preferences.getDarkModePreview(),
+                  ),
+                ],
+              ),
+              buildExplanationText("settings.dark_mode_preview_explanation"),
               if (Platform.isAndroid) ...[
                 spacerWidget,
                 TilesCard(

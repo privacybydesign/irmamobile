@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -42,7 +41,7 @@ Future<void> filledOptionalDisjunctionTest(
   // First, the missing required disjunctions should be obtained using an issue wizard.
   expect(find.text("Collect data"), findsOneWidget);
 
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

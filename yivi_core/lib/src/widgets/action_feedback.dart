@@ -6,6 +6,7 @@ import "../screens/session/widgets/dynamic_layout.dart";
 import "../screens/session/widgets/session_scaffold.dart";
 import "../screens/session/widgets/success_graphic.dart";
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "translated_text.dart";
 import "yivi_themed_button.dart";
 
@@ -17,7 +18,11 @@ class ActionFeedback extends StatelessWidget {
   final String explanationTranslationKey;
   final Map<String, String>? explanationTranslationParams;
 
+  /// Replaces the success illustration, e.g. with the card just received.
+  final Widget? hero;
+
   const ActionFeedback({
+    this.hero,
     super.key,
     required this.success,
     required this.titleTranslationKey,
@@ -40,7 +45,7 @@ class ActionFeedback extends StatelessWidget {
         onDismiss: onDismiss,
         body: DynamicLayout(
           hero: success
-              ? SuccessGraphic()
+              ? (hero ?? SuccessGraphic())
               : SvgPicture.asset(
                   yiviAsset("error/general_error_illustration.svg"),
                 ),
@@ -48,15 +53,15 @@ class ActionFeedback extends StatelessWidget {
             children: [
               TranslatedText(
                 titleTranslationKey,
-                style: theme.themeData.textTheme.displaySmall!.copyWith(
-                  color: theme.dark,
-                ),
+                style: YiviPalette.of(
+                  context,
+                ).display(26, weight: FontWeight.w700),
               ),
               SizedBox(height: theme.tinySpacing),
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,
-                style: theme.themeData.textTheme.bodyMedium,
+                style: YiviPalette.of(context).body(16),
                 textAlign: TextAlign.center,
               ),
             ],

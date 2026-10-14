@@ -90,6 +90,7 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
           json['requested_value'] as Map<String, dynamic>,
         ),
   intentToRetain: json['intent_to_retain'] as bool?,
+  svgId: json['svg_id'] as String?,
 );
 
 Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
@@ -99,6 +100,7 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
   'value': instance.value,
   'requested_value': instance.requestedValue,
   'intent_to_retain': instance.intentToRetain,
+  'svg_id': instance.svgId,
 };
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
@@ -136,6 +138,48 @@ Map<String, dynamic> _$LogoImageToJson(LogoImage instance) => <String, dynamic>{
   'mime_type': instance.mimeType,
 };
 
+SvgCardTemplate _$SvgCardTemplateFromJson(Map<String, dynamic> json) =>
+    SvgCardTemplate(
+      svg: json['svg'] as String,
+      orientation: json['orientation'] as String?,
+      colorScheme: json['color_scheme'] as String?,
+      contrast: json['contrast'] as String?,
+    );
+
+Map<String, dynamic> _$SvgCardTemplateToJson(SvgCardTemplate instance) =>
+    <String, dynamic>{
+      'svg': instance.svg,
+      'orientation': instance.orientation,
+      'color_scheme': instance.colorScheme,
+      'contrast': instance.contrast,
+    };
+
+CredentialDisplay _$CredentialDisplayFromJson(Map<String, dynamic> json) =>
+    CredentialDisplay(
+      backgroundColor: json['background_color'] as String?,
+      textColor: json['text_color'] as String?,
+      backgroundImage: json['background_image'] == null
+          ? null
+          : LogoImage.fromJson(
+              json['background_image'] as Map<String, dynamic>,
+            ),
+      logoTint: json['logo_tint'] as String?,
+      svgTemplates:
+          (json['svg_templates'] as List<dynamic>?)
+              ?.map((e) => SvgCardTemplate.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$CredentialDisplayToJson(CredentialDisplay instance) =>
+    <String, dynamic>{
+      'background_color': instance.backgroundColor,
+      'text_color': instance.textColor,
+      'background_image': instance.backgroundImage,
+      'logo_tint': instance.logoTint,
+      'svg_templates': instance.svgTemplates,
+    };
+
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   credentialId: json['credential_id'] as String,
   hash: json['hash'] as String,
@@ -162,6 +206,9 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  display: json['display'] == null
+      ? null
+      : CredentialDisplay.fromJson(json['display'] as Map<String, dynamic>),
   issuanceDate: (json['issuance_date'] as num?)?.toInt(),
   expiryDate: (json['expiry_date'] as num?)?.toInt(),
 );
@@ -171,6 +218,7 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
       'credential_id': instance.credentialId,
       'hash': instance.hash,
       'image': instance.image,
+      'display': instance.display,
       'name': instance.name,
       'issuer': instance.issuer,
       'credential_instance_ids': instance.credentialInstanceIds.map(

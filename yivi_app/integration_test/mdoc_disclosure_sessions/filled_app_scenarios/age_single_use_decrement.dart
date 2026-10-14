@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
@@ -23,12 +22,12 @@ Future<void> ageSingleUseDecrementTest(
   await navigateToCredentialDetailsPage(tester, avDocType);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
     instancesRemaining: mdocBatchSize,
   );
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
 
   const dcql = """
 {
@@ -52,7 +51,7 @@ Future<void> ageSingleUseDecrementTest(
   await navigateToCredentialDetailsPage(tester, avDocType);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
     instancesRemaining: mdocBatchSize - 1,

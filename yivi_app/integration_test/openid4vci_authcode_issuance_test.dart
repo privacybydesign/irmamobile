@@ -158,7 +158,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   await tester.waitFor(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findIssuanceCards().first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
     attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
@@ -250,7 +250,7 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
   // Permission screen — spot-check all key values by scrolling to each
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findIssuanceCards(), findsOneWidget);
 
   final scrollable = find.byType(Scrollable).first;
   for (final value in _organizationExpectedValues) {

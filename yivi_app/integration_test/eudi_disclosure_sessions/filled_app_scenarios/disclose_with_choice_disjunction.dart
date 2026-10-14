@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -73,7 +72,7 @@ Future<void> discloseWithChoiceDisjunctionTest(
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Default selection is the email cred.
-  final cardFinder = find.byType(YiviCredentialCard);
+  final cardFinder = findCredentialCards();
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -88,7 +87,7 @@ Future<void> discloseWithChoiceDisjunctionTest(
 
   final cardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
   // 2 owned options; no obtainable templates for OID4VCI (the irmago

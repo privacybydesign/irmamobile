@@ -1,11 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
-import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -67,7 +63,7 @@ Future<void> revocationTest(
   expect(find.byType(RequestorHeader), findsOneWidget);
 
   // Find all credential cards
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);
 
   // Close the session
@@ -76,10 +72,12 @@ Future<void> revocationTest(
   // Confirm the close dialog
   await tester.tapAndSettle(find.text("Yes"));
 
-  // The NotificationBell should be findable in the app bar
-  final notificationBellFinder = find.byType(NotificationBell);
-  expect(notificationBellFinder, findsOneWidget);
-  await tester.tapAndSettle(notificationBellFinder);
+  // The notifications tab button should be findable in the tab bar
+  final notificationsTabFinder = find.byKey(
+    const Key("nav_button_notifications"),
+  );
+  expect(notificationsTabFinder, findsOneWidget);
+  await tester.tapAndSettle(notificationsTabFinder);
 
   // Now pull to refresh and expect a notification card
   await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
@@ -97,43 +95,34 @@ Future<void> revocationTest(
     read: false,
   );
 
-  // Tap the notification card to open the credential detail screen
+  // Tap the notification card to open the credential detail screen. The card
+  // is still in the wallet, so this is the card's detail view.
   await tester.tapAndSettle(notificationCardFinder);
+  final credentialDetailFinder = findCredentialDetail();
+  expect(credentialDetailFinder, findsOneWidget);
 
-  // Expect the credential detail screen
-  final credentialDetailScreenFinder = find.byType(
-    SchemalessCredentialsDetailsScreen,
-  );
-  expect(credentialDetailScreenFinder, findsOneWidget);
-
-  // Expect the actual credential card
-  final credentialCardsFinder = find.byType(YiviCredentialCard);
-  expect(credentialCardsFinder, findsOneWidget);
-
-  final credentialCardFinder = credentialCardsFinder.first;
-
+  // The detail view shows the revoked card (Revoked chip, Reobtain button).
   await evaluateCredentialCard(
     tester,
-    credentialCardFinder,
+    credentialDetailFinder,
     credentialName: "Demo Root",
     issuerName: "Demo MijnOverheid.nl",
     attributes: [("BSN", "12345")],
     isRevoked: true,
   );
 
-  // Find the (more options) icon button in the credential card
-  final iconButtonFinder = find.descendant(
-    of: credentialCardFinder,
-    matching: find.byType(IconButton),
+  // The card's actions are on the detail view itself now (the old options
+  // bottom sheet is gone): the revoked card can still be deleted.
+  expect(
+    find.descendant(
+      of: credentialDetailFinder,
+      matching: find.byKey(const Key("credential_detail_delete")),
+    ),
+    findsOneWidget,
   );
-  expect(iconButtonFinder, findsOneWidget);
-  await tester.tapAndSettle(iconButtonFinder);
 
-  // Expect the options bottom sheet.
-  expect(find.byType(IrmaCredentialCardOptionsBottomSheet), findsOneWidget);
-
-  // Close the bottom sheet
-  await tester.tapAndSettle(find.byType(IrmaCloseButton));
+  // Close the detail view
+  await closeCredentialDetail(tester);
 
   // Start the disclosure session again
   await irmaBinding.repository.startTestSession('''

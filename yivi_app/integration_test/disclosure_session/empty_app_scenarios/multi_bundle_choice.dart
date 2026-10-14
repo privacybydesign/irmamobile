@@ -4,7 +4,6 @@ import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_scree
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_choice.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -69,7 +68,7 @@ Future<void> multiBundleChoiceTest(
   // are rendered side-by-side: Bundle A has 2 cards, Bundle B has 2 cards.
   final choiceCardsFinder = find.descendant(
     of: choiceFinder,
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   expect(choiceCardsFinder, findsNWidgets(4));
   await evaluateCredentialCard(
@@ -95,7 +94,7 @@ Future<void> multiBundleChoiceTest(
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   await tester.waitFor(find.byType(RequestorHeader));
 
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));
 
   await evaluateCredentialCard(

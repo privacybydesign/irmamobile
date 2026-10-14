@@ -68,6 +68,12 @@ class IrmaPreferences {
          _credentialOrderKey,
          defaultValue: [],
        ),
+       _cardOrder = preferences.getStringList(_cardOrderKey, defaultValue: []),
+       _walletView = preferences.getString(_walletViewKey, defaultValue: ""),
+       _darkModePreview = preferences.getBool(
+         _darkModePreviewKey,
+         defaultValue: false,
+       ),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -171,6 +177,21 @@ class IrmaPreferences {
   static const String _credentialOrderKey = "preference.credential_order";
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
+
+  // The order of the cards (credential instances, by hash) in the data tab.
+  // Replaces the per-type order above, which is read once to seed it.
+  static const String _cardOrderKey = "preference.card_order";
+  final Preference<List<String>> _cardOrder;
+
+  // How the data tab shows the cards: "stack", "list" or "grid"; empty means
+  // the default for the screen size.
+  static const String _walletViewKey = "preference.wallet_view";
+  final Preference<String> _walletView;
+
+  // Shows the app in dark mode. A preview until every screen has moved to the
+  // light/dark palette; then the app should follow the system setting.
+  static const String _darkModePreviewKey = "preference.dark_mode_preview";
+  final Preference<bool> _darkModePreview;
 
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
   // All wiped by clearAll(), so a logout/reset restarts the whole flow.
@@ -282,6 +303,21 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  List<String> getCardOrder() => _cardOrder.getValue();
+
+  Future<bool> setCardOrder(List<String> hashes) => _cardOrder.setValue(hashes);
+
+  Stream<String> getWalletView() => _walletView;
+
+  String getWalletViewNow() => _walletView.getValue();
+
+  Future<bool> setWalletView(String view) => _walletView.setValue(view);
+
+  Stream<bool> getDarkModePreview() => _darkModePreview;
+
+  Future<bool> setDarkModePreview(bool enabled) =>
+      _darkModePreview.setValue(enabled);
 
   // --- App-store review prompt ----------------------------------------------
 

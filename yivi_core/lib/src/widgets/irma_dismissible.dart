@@ -7,10 +7,14 @@ class IrmaDismissible extends StatelessWidget {
   final Widget child;
   final VoidCallback onDismissed;
 
+  /// Corners of the red "Delete" background; defaults to the theme's.
+  final BorderRadius? borderRadius;
+
   const IrmaDismissible({
     required super.key,
     required this.child,
     required this.onDismissed,
+    this.borderRadius,
   });
 
   @override
@@ -25,7 +29,7 @@ class IrmaDismissible extends StatelessWidget {
     final background = Container(
       decoration: BoxDecoration(
         color: theme.error,
-        borderRadius: theme.borderRadius,
+        borderRadius: borderRadius ?? theme.borderRadius,
       ),
       padding: EdgeInsets.all(theme.defaultSpacing),
       alignment: Alignment.centerRight,

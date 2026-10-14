@@ -2,11 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
-import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -54,19 +52,24 @@ void main() {
       // Go to data tab
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      // Expect CredentialTypeTile and tap it
-      var categoryTileFinder = find
-          .byKey(const Key("irma-demo.gemeente.personalData_tile"))
-          .hitTestable();
-      await tester.scrollUntilVisible(categoryTileFinder, 75);
-      await tester.tapAndSettle(categoryTileFinder);
+      // Expect one card for the credential and open its detail view
+      expect(
+        findWalletCards("irma-demo.gemeente.personalData"),
+        findsOneWidget,
+      );
+      await navigateToCredentialDetailsPage(
+        tester,
+        "irma-demo.gemeente.personalData",
+      );
 
-      // Expect detail page
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-
-      // Expect to find a card
-      final credentialCardFinder = find.byType(YiviCredentialCard);
-      expect(credentialCardFinder, findsOneWidget);
+      // Expect the card's details
+      expect(
+        find.descendant(
+          of: findCredentialDetail(),
+          matching: find.byType(YiviCredentialCardAttributeList),
+        ),
+        findsOneWidget,
+      );
     }
 
     testWidgets(
@@ -114,26 +117,15 @@ void main() {
       // Go to data tab.
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      // Press the email tile.
-      final emailTileFinder = find.byKey(
-        const Key("irma-demo.sidn-pbdf.email_tile"),
-      );
-      await tester.scrollUntilVisible(emailTileFinder, 75);
-      await tester.tapAndSettle(emailTileFinder);
-
-      // Expect the detail screen
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-
-      // Expect that it has one card.
-      final credentialCardsFinder = find.byType(YiviCredentialCard);
-      expect(credentialCardsFinder, findsOneWidget);
+      // Expect one email card, and open it.
+      const emailCredId = "irma-demo.sidn-pbdf.email";
+      expect(findWalletCards(emailCredId), findsOneWidget);
+      await navigateToCredentialDetailsPage(tester, emailCredId);
 
       // Expect the card to have the correct content
-      final credentialCardFinder = credentialCardsFinder.first;
-
       Future<void> evaluateIssuedEmailAddressCard() => evaluateCredentialCard(
         tester,
-        credentialCardFinder,
+        findCredentialDetail(),
         credentialName: "Demo Email address",
         issuerName: "Demo Privacy by Design Foundation via SIDN",
         attributes: [
@@ -148,10 +140,17 @@ void main() {
       await issueEmailAddress(tester, irmaBinding);
       await tester.tapAndSettle(okButtonFinder);
 
-      // Expect the detail screen with one card again
-      await tester.tapAndSettle(emailTileFinder);
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-      expect(credentialCardsFinder, findsOneWidget);
+      // The reissued card replaces the old one: still one email card.
+      if (tester.any(findCredentialDetail())) {
+        await closeCredentialDetail(tester);
+      }
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+      expect(findWalletCards(emailCredId), findsOneWidget);
+      expect(
+        walletCardCredentialIds(tester).where((id) => id == emailCredId),
+        hasLength(1),
+      );
+      await navigateToCredentialDetailsPage(tester, emailCredId);
 
       // Expect the card to have the correct content again
       await evaluateIssuedEmailAddressCard();
@@ -168,30 +167,13 @@ void main() {
       // Go to data tab.
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      // Press the email tile.
-      final emailTileFinder = find.byKey(
-        const Key("irma-demo.sidn-pbdf.email_tile"),
-      );
-      await tester.scrollUntilVisible(emailTileFinder, 75);
-      await tester.tapAndSettle(emailTileFinder);
+      // Open the email card.
+      const emailCredId = "irma-demo.sidn-pbdf.email";
+      final emailTileFinder = findWalletCards(emailCredId);
+      await navigateToCredentialDetailsPage(tester, emailCredId);
 
-      // Open the bottom sheet
-      final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);
-      await tester.tapAndSettle(bottomSheetButtonFinder);
-
-      // Press the delete button
-      final deleteButtonFinder = find.text("Delete data");
-      await tester.tapAndSettle(deleteButtonFinder);
-
-      // Expect the delete confirmation dialog
-      final deleteConfirmationDialogFinder = find.byType(
-        DeleteCredentialConfirmationDialog,
-      );
-      expect(deleteConfirmationDialogFinder, findsOneWidget);
-
-      // Press the delete button in the dialog
-      final dialogDeleteButtonFinder = find.text("Delete");
-      await tester.tapAndSettle(dialogDeleteButtonFinder);
+      // Press Delete in the detail view and confirm the dialog.
+      await deleteCredentialFromDetail(tester);
 
       // Expect snackbar
       final snackbarFinder = find.byType(SnackBar);

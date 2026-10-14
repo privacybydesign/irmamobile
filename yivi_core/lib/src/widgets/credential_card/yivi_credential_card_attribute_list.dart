@@ -575,7 +575,7 @@ class _RenderItemView extends StatelessWidget {
             top: i >= item.previousDepth ? theme.tinySpacing : 0,
             bottom: i >= nextDepth ? endingLineBottom : 0,
             width: 1,
-            child: Container(color: theme.neutralExtraLight),
+            child: Container(color: AttributeColors.of(context).divider),
           ),
         Column(
           mainAxisSize: .min,
@@ -595,7 +595,10 @@ class _RenderItemView extends StatelessWidget {
             if (drawDivider)
               Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: Container(height: 1, color: theme.neutralExtraLight),
+                child: Container(
+                  height: 1,
+                  color: AttributeColors.of(context).divider,
+                ),
               ),
           ],
         ),
@@ -670,14 +673,21 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(attribute.effectiveDisplayName, style: attributeLabelStyle(theme)),
+        Text(
+          attribute.effectiveDisplayName,
+          style: attributeLabelStyle(context),
+        ),
         _buildValue(context, theme),
       ],
     );
   }
 
-  Color _valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
-    if (!node.hasCompareTo) return theme.dark;
+  Color _valueColor(
+    BuildContext context,
+    schemaless.AttributeValue? val,
+    IrmaThemeData theme,
+  ) {
+    if (!node.hasCompareTo) return AttributeColors.of(context).value;
     return val?.string == node.compareToValue?.string
         ? theme.success
         : theme.error;
@@ -689,15 +699,15 @@ class _LeafContent extends StatelessWidget {
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: attributeValueStyle(theme, _valueColor(val, theme)),
+        style: attributeValueStyle(context, _valueColor(context, val, theme)),
       ),
       schemaless.AttributeType.boolean => Text(
         formatAttributeBool(context, val.boolValue),
-        style: attributeValueStyle(theme, _valueColor(val, theme)),
+        style: attributeValueStyle(context, _valueColor(context, val, theme)),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: attributeValueStyle(theme, _valueColor(val, theme)),
+        style: attributeValueStyle(context, _valueColor(context, val, theme)),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, theme),
@@ -750,7 +760,7 @@ class _PrimArrayContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(node.label, style: attributeLabelStyle(theme)),
+        Text(node.label, style: attributeLabelStyle(context)),
         for (final v in node.values) _bulletRow(context, theme, v),
       ],
     );
@@ -762,8 +772,8 @@ class _PrimArrayContent extends StatelessWidget {
     schemaless.AttributeValue v,
   ) {
     final valueStyle = attributeValueStyle(
-      theme,
-      theme.dark,
+      context,
+      AttributeColors.of(context).value,
     ).copyWith(height: 1.2);
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
@@ -779,7 +789,7 @@ class _PrimArrayContent extends StatelessWidget {
                 width: 4,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.neutral,
+                  color: AttributeColors.of(context).muted,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -816,16 +826,15 @@ class _EyebrowContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     // Empty groups (header without descendants) fall through here when they
     // were rendered as labelled rows by the flatten step. Render as a plain
     // bodyMedium-like label.
     if (node.children.isEmpty) {
-      return Text(node.label ?? "", style: attributeLabelStyle(theme));
+      return Text(node.label ?? "", style: attributeLabelStyle(context));
     }
     return Text(
       (node.label ?? "").toUpperCase(),
-      style: attributeEyebrowStyle(theme),
+      style: attributeEyebrowStyle(context),
     );
   }
 }
@@ -836,11 +845,10 @@ class _ItemEyebrowContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final parentLabel = node.parentLabel?.toUpperCase() ?? "ITEM";
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : parentLabel;
-    return Text(text, style: attributeEyebrowStyle(theme));
+    return Text(text, style: attributeEyebrowStyle(context));
   }
 }

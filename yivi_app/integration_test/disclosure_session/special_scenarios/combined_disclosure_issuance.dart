@@ -3,7 +3,6 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -49,7 +48,8 @@ Future<void> combinedDisclosureIssuanceSessionTest(
   // Expect add data screen
   expect(find.byType(IssuancePermission), findsOneWidget);
 
-  final cardsFinder = find.byType(YiviCredentialCard);
+  // One credential is offered: its card picture and the attributes it holds.
+  final cardsFinder = findIssuanceCards();
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../eudi_disclosure_sessions/eudi_choice_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -28,7 +27,7 @@ Future<void> credentialSetAgeOrPidTest(
   // Only the age mdoc owned: it is the selection.
   await startMdocDisclosure(tester, irmaBinding, _ageOrPidDcql);
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final overviewCards = find.byType(YiviCredentialCard, skipOffstage: false);
+  final overviewCards = findCredentialCards(skipOffstage: false);
   expect(overviewCards, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -70,14 +69,14 @@ Future<void> credentialSetAgeOrPidTest(
   expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
   final choiceCardsFinder = find.descendant(
     of: find.byType(DisclosureMakeChoiceScreen),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
     skipOffstage: false,
   );
   expect(choiceCardsFinder, findsAtLeast(2));
 
   final pidCard = find.ancestor(
     of: find.text("Birth Date", skipOffstage: false),
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   await tester.scrollUntilVisible(pidCard, 100);
   await tester.tapAndSettle(pidCard);

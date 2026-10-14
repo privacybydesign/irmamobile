@@ -4,7 +4,10 @@ import "../../../theme/theme.dart";
 
 class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
-  static const _widthFactor = 0.9;
+  static const _widthFactor = 0.78;
+
+  // the view box never gets wider than this
+  static const _maxWindowSize = 320.0;
 
   // minimum offset to the bottom of the screen as a ratio of the total height
   static const _minBottomOffsetFactor = 0.05;
@@ -32,6 +35,7 @@ class QROverlay extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // hole size
     double windowSize = size.width * _widthFactor;
+    if (windowSize > _maxWindowSize) windowSize = _maxWindowSize;
     final maxWindowHeight =
         size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
     if (windowSize > maxWindowHeight) {
@@ -43,21 +47,29 @@ class QROverlay extends CustomPainter {
     final right = left + windowSize;
     final top = size.height * topOffsetFactor;
     final bottom = top + windowSize;
-    final cornerSize = windowSize * 0.15;
+    final cornerSize = windowSize * 0.19;
+    final radius = windowSize * 0.13;
+    final window = RRect.fromLTRBR(
+      left,
+      top,
+      right,
+      bottom,
+      Radius.circular(radius),
+    );
 
     // colors
     final Color green = theme.success;
     final Color red = theme.error;
 
-    Color overlayColor = Colors.grey.shade800;
+    Color overlayColor = const Color(0xFF121417);
     Color cornerColor = Colors.white;
 
     if (error) {
-      overlayColor = red;
-      cornerColor = red;
+      overlayColor = const Color(0xFF961414);
+      cornerColor = const Color(0xFFFF6B6B);
     } else if (found) {
-      overlayColor = green;
-      cornerColor = green;
+      overlayColor = const Color(0xFF006E2A);
+      cornerColor = const Color(0xFF3DDC84);
     }
 
     // Punch the scan window out of the dimming overlay using BlendMode.clear.
@@ -72,7 +84,7 @@ class QROverlay extends CustomPainter {
 
     // transparent overlay
     final paint = Paint()
-      ..color = overlayColor.withAlpha(128)
+      ..color = overlayColor.withAlpha(140)
       ..style = PaintingStyle.fill;
     final Path path = Path();
     path.lineTo(0, 0);
@@ -87,36 +99,35 @@ class QROverlay extends CustomPainter {
       ..color = const Color(0x00000000)
       ..style = PaintingStyle.fill
       ..blendMode = BlendMode.clear;
-    final Path hole = Path();
-    hole.moveTo(left, top);
-    hole.lineTo(right, top);
-    hole.lineTo(right, bottom);
-    hole.lineTo(left, bottom);
-    hole.close();
-    canvas.drawPath(hole, clearPaint);
+    canvas.drawRRect(window, clearPaint);
 
     canvas.restore();
 
-    // add decorative corners to the hole
+    // add rounded corner brackets that follow the window's corners
     final cornerPaint = Paint()
       ..color = cornerColor
-      ..strokeWidth = 2
+      ..strokeWidth = 4
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
-    final Path corners = Path();
-    corners.moveTo(left, top + cornerSize);
-    corners.lineTo(left, top);
-    corners.lineTo(left + cornerSize, top);
-    corners.moveTo(right - cornerSize, top);
-    corners.lineTo(right, top);
-    corners.lineTo(right, top + cornerSize);
-    corners.moveTo(right, bottom - cornerSize);
-    corners.lineTo(right, bottom);
-    corners.lineTo(right - cornerSize, bottom);
-    corners.moveTo(left + cornerSize, bottom);
-    corners.lineTo(left, bottom);
-    corners.lineTo(left, bottom - cornerSize);
+    final r = Radius.circular(radius);
+    final Path corners = Path()
+      ..moveTo(left, top + cornerSize)
+      ..lineTo(left, top + radius)
+      ..arcToPoint(Offset(left + radius, top), radius: r)
+      ..lineTo(left + cornerSize, top)
+      ..moveTo(right - cornerSize, top)
+      ..lineTo(right - radius, top)
+      ..arcToPoint(Offset(right, top + radius), radius: r)
+      ..lineTo(right, top + cornerSize)
+      ..moveTo(right, bottom - cornerSize)
+      ..lineTo(right, bottom - radius)
+      ..arcToPoint(Offset(right - radius, bottom), radius: r)
+      ..lineTo(right - cornerSize, bottom)
+      ..moveTo(left + cornerSize, bottom)
+      ..lineTo(left + radius, bottom)
+      ..arcToPoint(Offset(left, bottom - radius), radius: r)
+      ..lineTo(left, bottom - cornerSize);
     canvas.drawPath(corners, cornerPaint);
 
     if (error) {

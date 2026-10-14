@@ -66,14 +66,17 @@ Future<void> mixedSdJwtEmailAndAgeTest(
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsNWidgets(2));
   expect(find.text(email, skipOffstage: false), findsOneWidget);
 
-  final ageCard = find.ancestor(
-    of: find.text(avCredentialName, skipOffstage: false),
-    matching: find.byType(YiviCredentialCard),
-  );
+  final ageCard = find
+      .ancestor(
+        of: find.text(avCredentialName, skipOffstage: false),
+        matching: findCredentialCards(),
+      )
+      // The card picture in the tile shows the name as well: one tile.
+      .first;
   await tester.scrollUntilVisible(ageCard, 100);
   await evaluateCredentialCard(
     tester,

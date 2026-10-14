@@ -52,7 +52,7 @@ Future<void> specificAttributeValuesTest(
   // The discon stepper should two cards
   final choiceCardsFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   expect(choiceCardsFinder, findsNWidgets(2));
 
@@ -183,7 +183,7 @@ Future<void> specificAttributeValuesTest(
   // Dialog should show two credential cards
   final dialogCardsFinder = find.descendant(
     of: wrongCredAddedDialogFinder,
-    matching: find.byType(YiviCredentialCard),
+    matching: findCredentialCards(),
   );
   expect(dialogCardsFinder, findsNWidgets(2));
 

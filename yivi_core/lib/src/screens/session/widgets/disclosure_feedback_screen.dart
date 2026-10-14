@@ -1,6 +1,14 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/schemaless/session_state.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/action_feedback.dart";
+import "../../../widgets/credential_card/disclosed_card_tile.dart";
+import "../../../widgets/irma_bottom_bar_base.dart";
+import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_themed_button.dart";
+import "session_scaffold.dart";
+import "success_graphic.dart";
 
 enum DisclosureFeedbackType { success, canceled, notSatisfiable }
 
@@ -16,6 +24,10 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   final Function(BuildContext) onDismiss;
   final bool isSignatureSession;
 
+  /// The cards (with only the shared attributes) the user just shared,
+  /// listed under "What you shared" on success.
+  final List<SelectableCredentialInstance> shared;
+
   final String? _translationKey;
 
   DisclosureFeedbackScreen({
@@ -23,6 +35,7 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     required this.otherParty,
     required this.onDismiss,
     bool? isSignatureSession,
+    this.shared = const [],
   }) : isSignatureSession = isSignatureSession ?? false,
        _translationKey = _translationKeys[feedbackType];
 
@@ -49,16 +62,84 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
   @override
   Widget build(BuildContext context) {
     final otherPartyTranslationParam = {"otherParty": widget.otherParty};
+    final explanationKey =
+        'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}';
+
+    if (widget.feedbackType == DisclosureFeedbackType.success &&
+        widget.shared.isNotEmpty) {
+      return _buildSuccessWithShared(
+        context,
+        otherPartyTranslationParam,
+        explanationKey,
+      );
+    }
 
     return ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
       titleTranslationKey:
           "disclosure.feedback.header.${widget._translationKey}",
       titleTranslationParams: otherPartyTranslationParam,
-      explanationTranslationKey:
-          'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}',
+      explanationTranslationKey: explanationKey,
       explanationTranslationParams: otherPartyTranslationParam,
       onDismiss: () => widget.onDismiss(context),
+    );
+  }
+
+  /// The success feedback followed by the cards the user shared.
+  Widget _buildSuccessWithShared(
+    BuildContext context,
+    Map<String, String> params,
+    String explanationKey,
+  ) {
+    final palette = YiviPalette.of(context);
+    return PopScope(
+      canPop: false,
+      child: SessionScaffold(
+        appBarTitle: "disclosure.feedback.header.success",
+        onDismiss: () => widget.onDismiss(context),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          children: [
+            const SizedBox(height: 160, child: SuccessGraphic()),
+            const SizedBox(height: 16),
+            TranslatedText(
+              "disclosure.feedback.header.success",
+              translationParams: params,
+              style: palette.display(26, weight: FontWeight.w700),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            TranslatedText(
+              explanationKey,
+              translationParams: params,
+              style: palette.body(16),
+              textAlign: TextAlign.center,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 32, 4, 8),
+              child: Semantics(
+                header: true,
+                child: TranslatedText(
+                  "disclosure.what_you_shared",
+                  style: palette.display(16),
+                ),
+              ),
+            ),
+            for (final instance in widget.shared)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: DisclosedCardTile(instance: instance),
+              ),
+          ],
+        ),
+        bottomNavigationBar: IrmaBottomBarBase(
+          child: YiviThemedButton(
+            key: const Key("ok_button"),
+            label: "action_feedback.ok",
+            onPressed: () => widget.onDismiss(context),
+          ),
+        ),
+      ),
     );
   }
 

@@ -7,7 +7,9 @@ import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../widgets/credential_card/disclosed_card_tile.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
@@ -15,7 +17,6 @@ import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/signature_message.dart";
 import "../../../widgets/translated_text.dart";
-import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
 import "session_scaffold.dart";
 
@@ -281,6 +282,34 @@ class _DisclosureChoicesOverviewState
                 ),
               ],
 
+              if (requiredChoices.isNotEmpty)
+                Padding(
+                  padding: const .fromLTRB(4, 8, 4, 8),
+                  child: Row(
+                    crossAxisAlignment: .baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Expanded(
+                        child: Semantics(
+                          header: true,
+                          child: TranslatedText(
+                            "disclosure.requested_data",
+                            style: YiviPalette.of(context).display(16),
+                          ),
+                        ),
+                      ),
+                      TranslatedText(
+                        "disclosure.only_this_shared",
+                        style: YiviPalette.of(context)
+                            .body(12)
+                            .copyWith(
+                              color: YiviPalette.of(context).secondaryText,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+
               // Required choices
               for (final (index, pickOne) in requiredChoices)
                 _DisclosureChoiceEntry(
@@ -385,14 +414,16 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: .end,
                   children: [
-                    Flexible(
-                      child: YiviThemedButton(
-                        label: "disclosure_permission.change_choice",
-                        style: .outlined,
-                        size: .small,
-                        isTransparent: true,
-                        onPressed: onChangeChoice,
+                    PillButton(
+                      key: const Key("change_choice_button"),
+                      label: FlutterI18n.translate(
+                        context,
+                        "disclosure_permission.change_choice",
                       ),
+                      style: PillStyle.outlined,
+                      height: 40,
+                      expand: false,
+                      onPressed: onChangeChoice,
                     ),
                   ],
                 ),
@@ -402,11 +433,9 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                 padding: EdgeInsets.only(
                   bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
                 ),
-                child: YiviCredentialCard.fromSelectableInstance(
+                child: DisclosedCardTile(
                   instance: credentials[i],
-                  compact: true,
-                  hideFooter: true,
-                  headerTrailing: i == 0 && optional && onRemove != null
+                  trailing: i == 0 && optional && onRemove != null
                       ? IrmaIconButton(
                           key: const Key("remove_optional_data_button"),
                           icon: Icons.close,

@@ -2,10 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/refresh_credential_statuses_event.dart";
-import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
@@ -47,6 +46,12 @@ const _credentialName = "Status List Credential (SD-JWT)";
 const _issuerName = "Test Issuer";
 const _revokedLabel = "Revoked";
 
+/// The "Revoked" validity chip of the open credential detail view.
+final _revokedChip = find.descendant(
+  of: findCredentialDetail(),
+  matching: find.text(_revokedLabel),
+);
+
 /// Room for a live status list fetch from staging, round-tripped over the bridge.
 const _refreshTimeout = Duration(seconds: 30);
 
@@ -63,13 +68,13 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   // check read VALID at the allocated index.
   await _openStatusListCredential(tester);
   expect(
-    find.text(_revokedLabel),
+    _revokedChip,
     findsNothing,
     reason: "a freshly issued credential must not be flagged revoked",
   );
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     credentialName: _credentialName,
     issuerName: _issuerName,
     isRevoked: false,
@@ -77,20 +82,26 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   );
   // Confirms this is our run's credential. Labels aren't asserted: the staging
   // vct document declares no claim display names.
-  expect(find.text(marker), findsOneWidget);
-  await navigateBack(tester);
+  expect(
+    find.descendant(
+      of: find.descendant(
+        of: findCredentialDetail(),
+        matching: find.byType(YiviCredentialCardAttributeList),
+      ),
+      matching: find.text(marker),
+    ),
+    findsOneWidget,
+  );
+  await closeCredentialDetail(tester);
 
   await setStatusListRevocation(marker, revoke: true);
   _refreshStatuses(irmaBinding);
 
   await _openStatusListCredential(tester);
-  await tester.pumpUntilFound(
-    find.text(_revokedLabel),
-    timeout: _refreshTimeout,
-  );
+  await tester.pumpUntilFound(_revokedChip, timeout: _refreshTimeout);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    findCredentialDetail(),
     credentialName: _credentialName,
     issuerName: _issuerName,
     isRevoked: true,
@@ -98,11 +109,11 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
     // OID4VCI credentials carry no IssueURL, so there is nothing to reobtain.
     expectReobtainButton: false,
   );
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
 
-  // The bell loads notifications when opened and on pull-to-refresh; nothing
-  // pushes into it.
-  await tester.tapAndSettle(find.byType(NotificationBell));
+  // The notifications tab loads notifications when opened and on
+  // pull-to-refresh; nothing pushes into it.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_notifications")));
   await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
   await tester.pumpAndSettle();
 
@@ -118,20 +129,27 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
 
   // Tapping the notification opens the credential it is about.
   await tester.tapAndSettle(notificationCardsFinder.first);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(findCredentialDetail(), findsOneWidget);
   // Pins the starting state, so the wait for the label to go away below cannot
   // pass on a card that never had it.
-  expect(find.text(_revokedLabel), findsOneWidget);
+  expect(_revokedChip, findsOneWidget);
 
   await setStatusListRevocation(marker, revoke: false);
   _refreshStatuses(irmaBinding);
 
-  // Wait for the card back *and* unflagged: every refresh briefly swaps the card
-  // for a spinner (FutureProvider over the credentials stream), which on its own
-  // already makes the label vanish.
-  final cardFinder = find.byType(YiviCredentialCard);
+  // Wait for the card back *and* unflagged: the detail view draws nothing
+  // while the card is missing from the wallet list, which on its own already
+  // makes the label vanish, so wait for its attributes as well.
+  final cardFinder = findCredentialDetail();
   await tester.pumpUntil(
-    () => tester.any(cardFinder) && !tester.any(find.text(_revokedLabel)),
+    () =>
+        tester.any(
+          find.descendant(
+            of: cardFinder,
+            matching: find.byType(YiviCredentialCardAttributeList),
+          ),
+        ) &&
+        !tester.any(_revokedChip),
     timeout: _refreshTimeout,
   );
   await evaluateCredentialCard(
@@ -183,7 +201,7 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
   await evaluateIntroduction(tester);
   await tester.pumpUntilFound(find.byType(DisclosureChoicesOverview));
 
-  final cardsFinder = find.byType(YiviCredentialCard);
+  final cardsFinder = findCredentialCards();
   expect(
     cardsFinder,
     findsOneWidget,
@@ -217,9 +235,6 @@ Future<void> _openStatusListCredential(WidgetTester tester) async {
 /// that already knows about the revocation.
 Future<void> _awaitRevokedInCredentialList(WidgetTester tester) async {
   await _openStatusListCredential(tester);
-  await tester.pumpUntilFound(
-    find.text(_revokedLabel),
-    timeout: _refreshTimeout,
-  );
-  await navigateBack(tester);
+  await tester.pumpUntilFound(_revokedChip, timeout: _refreshTimeout);
+  await closeCredentialDetail(tester);
 }

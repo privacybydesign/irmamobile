@@ -4,26 +4,37 @@ import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:cupertino_ui/cupertino_ui.dart";
+// ignore: depend_on_referenced_packages
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:local_auth/local_auth.dart";
+import "package:material_ui/material_ui.dart" show Icons;
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
+import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
+    as schemaless;
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
+import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/loading/loading_screen.dart";
+import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
+import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
+import "package:yivi_core/src/widgets/credential_card/disclosed_card_tile.dart";
+import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
@@ -294,22 +305,18 @@ Future<void> issueCredentials(
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
 
-  // Check whether all credentials are displayed.
-  expect(
-    find.byType(YiviCredentialCard),
-    findsNWidgets(groupedAttributes.length),
-  );
+  // Check whether all credentials are displayed: one card picture each.
+  final issuanceCards = findIssuanceCards();
+  expect(issuanceCards, findsNWidgets(groupedAttributes.length));
 
   if (sdJwtBatchSize != null) {
-    if (locale == Locale("nl", "NL")) {
+    // The permission screen no longer prints the instance count ("N times
+    // left"); check the count the offered credentials carry instead.
+    for (final art in tester.widgetList<CredentialCardArt>(issuanceCards)) {
       expect(
-        find.text("Nog $sdJwtBatchSize keer", skipOffstage: false),
-        findsNWidgets(groupedAttributes.length),
-      );
-    } else {
-      expect(
-        find.text("$sdJwtBatchSize times left", skipOffstage: false),
-        findsNWidgets(groupedAttributes.length),
+        art.credential.batchInstanceCountsRemaining.values.nonNulls,
+        contains(sdJwtBatchSize),
+        reason: "batch instance count of ${art.credential.credentialId}",
       );
     }
   }
@@ -430,6 +437,86 @@ typedef AttrRow = (String label, Object value);
 /// Ordered list of rows, used for nested groups and as item children.
 typedef Block = List<AttrRow>;
 
+/// Finds the credential cards shown in a session: the owned candidates of a
+/// disclosure ([DisclosedCardTile]) and the cards that are still drawn as a
+/// [YiviCredentialCard] (obtainable options in a choice, the activity detail
+/// screen). Tree order is kept, so `.at(i)` follows the screen order.
+Finder findCredentialCards({bool skipOffstage = true}) =>
+    find.byWidgetPredicate(
+      (w) => w is YiviCredentialCard || w is DisclosedCardTile,
+      skipOffstage: skipOffstage,
+    );
+
+/// Finds the card pictures of the credentials offered on the issuance
+/// permission screen, one per credential, in screen order. Pass one of them
+/// to [evaluateCredentialCard] to check that credential's name, issuer and
+/// attributes ("You will receive").
+Finder findIssuanceCards({bool skipOffstage = false}) => find.descendant(
+  of: find.byType(IssuancePermission, skipOffstage: skipOffstage),
+  matching: find.byType(CredentialCardArt, skipOffstage: skipOffstage),
+  skipOffstage: skipOffstage,
+);
+
+/// Finds the open credential detail view (the data tab's card detail).
+Finder findCredentialDetail() => find.byType(CredentialDetailScreen);
+
+bool _isCardRoot(Widget w) =>
+    w is YiviCredentialCard ||
+    w is DisclosedCardTile ||
+    w is CredentialDetailScreen ||
+    w is CredentialCardArt;
+
+/// The card [finder] points at: the widget itself when it is a card, or else
+/// the outermost card below it.
+Element _cardRoot(Finder finder) {
+  final elements = finder.evaluate().toList();
+  expect(
+    elements.length,
+    1,
+    reason: "evaluateCredentialCard needs exactly one card, found $elements",
+  );
+  final element = elements.single;
+  if (_isCardRoot(element.widget)) return element;
+  final below = find
+      .descendant(
+        of: finder,
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is YiviCredentialCard ||
+              w is DisclosedCardTile ||
+              w is CredentialDetailScreen,
+        ),
+      )
+      .evaluate();
+  if (below.isNotEmpty) return below.first;
+  final art = find
+      .descendant(of: finder, matching: find.byType(CredentialCardArt))
+      .evaluate();
+  expect(art, isNotEmpty, reason: "No credential card found below $finder");
+  return art.first;
+}
+
+/// The status a [YiviCredentialCard] header would show for [status]:
+/// revoked over expired over expiring soon.
+String? _statusName(CredentialCardStatus status) => status.revoked
+    ? "revoked"
+    : status.isExpired
+    ? "expired"
+    : status.hasWarning
+    ? "expiring"
+    : null;
+
+/// Checks a credential card. Works on every way the app draws a credential:
+/// - [YiviCredentialCard] (activity details, obtainable options in a choice);
+/// - [DisclosedCardTile] (owned candidates in a disclosure);
+/// - [CredentialDetailScreen] (the data tab's card detail; see
+///   [navigateToCredentialDetailsPage] and [findCredentialDetail]);
+/// - [CredentialCardArt] on the issuance permission (see [findIssuanceCards]).
+///
+/// Not every check applies to every kind; the redesigned widgets no longer
+/// show a status header or instance-count footer everywhere, so for those the
+/// state is checked on the credential the widget draws instead (see the
+/// per-kind helpers below). Checks that cannot apply fail loudly.
 Future<void> evaluateCredentialCard(
   WidgetTester tester,
   Finder credentialCardFinder, {
@@ -458,6 +545,415 @@ Future<void> evaluateCredentialCard(
   /// expects a Reobtain button when the cred is expired/revoked/expiring. Pass
   /// `false` for OID4VCI creds (no IssueURL → button never rendered, even when
   /// in a warning state).
+  bool? expectReobtainButton,
+}) async {
+  final root = _cardRoot(credentialCardFinder);
+  final rootFinder = find.byElementPredicate((e) => e == root);
+  final widget = root.widget;
+
+  if (widget is YiviCredentialCard) {
+    return _evaluateYiviCredentialCard(
+      tester,
+      rootFinder,
+      credentialName: credentialName,
+      issuerName: issuerName,
+      instancesRemaining: instancesRemaining,
+      attributes: attributes,
+      attributesCompareTo: attributesCompareTo,
+      isSelected: isSelected,
+      footerText: footerText,
+      style: style,
+      isRevoked: isRevoked,
+      isExpired: isExpired,
+      isExpiringSoon: isExpiringSoon,
+      expectReobtainButton: expectReobtainButton,
+    );
+  }
+
+  if (footerText != null) {
+    throw ArgumentError(
+      "footerText only applies to a YiviCredentialCard, not ${widget.runtimeType}",
+    );
+  }
+
+  // The header (name + issuer), the selection and the style.
+  final CredentialCardStatus status;
+  final Finder attributeListFinder;
+  switch (widget) {
+    case DisclosedCardTile():
+      final instance = widget.instance;
+      status = CredentialCardStatus(
+        expiryDateUnix: instance.expiryDate,
+        revoked: instance.revoked,
+        batchInstanceCountsRemaining: {
+          instance.format: instance.batchInstanceCountRemaining,
+        },
+        credentialId: instance.credentialId,
+        issueUrl: instance.issueUrl,
+      );
+      attributeListFinder = find.descendant(
+        of: rootFinder,
+        matching: find.byType(YiviCredentialCardAttributeList),
+      );
+
+      // The tile's own texts, without the card picture and the attributes:
+      // the credential name, then the issuer name.
+      if (credentialName != null || issuerName != null) {
+        final ownTexts = _textsOutside(rootFinder, [
+          find.descendant(
+            of: rootFinder,
+            matching: find.byType(CredentialCardArt),
+          ),
+          attributeListFinder,
+        ]);
+        if (credentialName != null) {
+          expect(ownTexts.firstOrNull, credentialName);
+        }
+        if (issuerName != null) {
+          expect(ownTexts.elementAtOrNull(1), issuerName);
+        }
+      }
+
+      if (isSelected != null) {
+        final radio = find.descendant(
+          of: rootFinder,
+          matching: find.byType(RadioIndicator),
+        );
+        expect(radio, findsOneWidget);
+        expect(tester.widget<RadioIndicator>(radio).isSelected, isSelected);
+      }
+
+      if (style != null) {
+        switch (style) {
+          case IrmaCardStyle.highlighted:
+            expect(widget.selected, isTrue, reason: "style highlighted");
+          case IrmaCardStyle.danger:
+            expect(
+              status.isExpired || status.revoked,
+              isTrue,
+              reason: "style danger: the credential should be unusable",
+            );
+          case IrmaCardStyle.normal || IrmaCardStyle.outlined:
+            expect(widget.selected, isFalse, reason: "style $style");
+            expect(
+              status.isExpired || status.revoked,
+              isFalse,
+              reason: "style $style: the credential should be usable",
+            );
+        }
+      }
+
+      if (instancesRemaining != null) {
+        // The tile has no instance-count footer: check what it draws.
+        expect(instance.batchInstanceCountRemaining, instancesRemaining);
+      }
+
+    case CredentialDetailScreen():
+      final credential = _walletCredential(tester, root, widget.hash);
+      status = CredentialCardStatus(
+        expiryDateUnix: credential.expiryDate,
+        revoked: credential.revoked,
+        batchInstanceCountsRemaining: credential.batchInstanceCountsRemaining,
+        credentialId: credential.credentialId,
+        issueUrl: credential.issueUrl,
+      );
+      attributeListFinder = find.descendant(
+        of: rootFinder,
+        matching: find.byType(YiviCredentialCardAttributeList),
+      );
+
+      if (credentialName != null) {
+        // The page heading (the card picture shows the name as well).
+        expect(
+          find.descendant(
+            of: rootFinder,
+            matching: find.byWidgetPredicate(
+              (w) =>
+                  w is Text &&
+                  w.data == credentialName &&
+                  w.style?.fontSize == 24,
+            ),
+          ),
+          findsOneWidget,
+          reason: "credential name heading '$credentialName'",
+        );
+      }
+      if (issuerName != null) {
+        // The "Issued by" row of the About section.
+        expect(
+          find.descendant(of: rootFinder, matching: find.text(issuerName)),
+          findsWidgets,
+        );
+      }
+      if (isSelected != null) {
+        throw ArgumentError("isSelected does not apply to the detail screen");
+      }
+      if (style != null) {
+        switch (style) {
+          case IrmaCardStyle.danger:
+            expect(status.isExpired || status.revoked, isTrue);
+          case IrmaCardStyle.normal || IrmaCardStyle.outlined:
+            expect(status.isExpired || status.revoked, isFalse);
+          case IrmaCardStyle.highlighted:
+            throw ArgumentError(
+              "style highlighted does not apply to the detail screen",
+            );
+        }
+      }
+      if (instancesRemaining != null) {
+        // The "Sharable" section.
+        expect(
+          find.descendant(
+            of: rootFinder,
+            matching: find.text("$instancesRemaining times left"),
+          ),
+          findsOneWidget,
+        );
+      }
+
+      // The validity chip follows the credential's status.
+      final chipIcon = status.revoked
+          ? Icons.block
+          : status.timeExpireState == ExpireState.expired
+          ? Icons.warning_amber_rounded
+          : status.timeExpireState == ExpireState.almostExpired
+          ? Icons.schedule
+          : Icons.check;
+      expect(
+        find.descendant(of: rootFinder, matching: find.byIcon(chipIcon)),
+        findsWidgets,
+        reason: "validity chip icon $chipIcon",
+      );
+
+    case CredentialCardArt():
+      final credential = widget.credential;
+      status = CredentialCardStatus(
+        expiryDateUnix: credential.expiryDate,
+        revoked: credential.revoked,
+        batchInstanceCountsRemaining: credential.batchInstanceCountsRemaining,
+        credentialId: credential.credentialId,
+        issueUrl: credential.issueUrl,
+      );
+
+      // On the issuance permission every card picture is followed by the
+      // attributes of that credential, in the same order.
+      final permission = find.ancestor(
+        of: rootFinder,
+        matching: find.byType(IssuancePermission),
+      );
+      if (permission.evaluate().isNotEmpty) {
+        final arts = find
+            .descendant(
+              of: permission,
+              matching: find.byType(CredentialCardArt, skipOffstage: false),
+              skipOffstage: false,
+            )
+            .evaluate()
+            .toList();
+        final lists = find.descendant(
+          of: permission,
+          matching: find.byType(
+            YiviCredentialCardAttributeList,
+            skipOffstage: false,
+          ),
+          skipOffstage: false,
+        );
+        attributeListFinder = lists.at(arts.indexOf(root));
+      } else {
+        attributeListFinder = find.byWidgetPredicate((_) => false);
+        if (attributes != null && attributes.isNotEmpty) {
+          throw ArgumentError(
+            "A card picture outside the issuance permission has no attributes",
+          );
+        }
+      }
+
+      // The name and issuer drawn on the card (unless the issuer's own SVG
+      // design is used, which draws them in its own way).
+      if (credentialName != null) {
+        expect(credential.name, credentialName);
+        if (credential.display?.svgTemplates.isEmpty ?? true) {
+          expect(
+            find.descendant(
+              of: rootFinder,
+              matching: find.text(credentialName),
+            ),
+            findsOneWidget,
+          );
+        }
+      }
+      if (issuerName != null) {
+        expect(credential.issuer.name, issuerName);
+      }
+      if (isSelected != null) {
+        throw ArgumentError("isSelected does not apply to a card picture");
+      }
+      if (style != null) {
+        expect(
+          status.isExpired || status.revoked,
+          style == IrmaCardStyle.danger,
+          reason: "style $style",
+        );
+      }
+      if (instancesRemaining != null) {
+        expect(
+          credential.batchInstanceCountsRemaining.values.nonNulls.firstOrNull,
+          instancesRemaining,
+        );
+      }
+
+    default:
+      throw StateError("Unexpected card root ${widget.runtimeType}");
+  }
+
+  // The status. The redesigned widgets show it as a chip on the detail
+  // screen only, so it is compared on the credential they draw, the same
+  // way the old card header picked its status text.
+  final statusName = _statusName(status);
+  if (isRevoked != null) {
+    expect(statusName == "revoked", isRevoked, reason: "isRevoked");
+  }
+  if (isExpired != null) {
+    expect(statusName == "expired", isExpired, reason: "isExpired");
+  }
+  if (isExpiringSoon != null) {
+    expect(statusName == "expiring", isExpiringSoon, reason: "isExpiringSoon");
+  }
+
+  // The Reobtain button. Only the detail screen has one; it shows it whenever
+  // the credential has an issue URL, not only when it needs reobtaining.
+  final shouldCheckCardStatus =
+      isRevoked != null || isExpired != null || isExpiringSoon != null;
+  if (shouldCheckCardStatus || expectReobtainButton != null) {
+    final isReobtainable =
+        expectReobtainButton ??
+        ((isExpired ?? false) ||
+            (isRevoked ?? false) ||
+            (isExpiringSoon ?? false));
+    if (widget is CredentialDetailScreen) {
+      final reobtain = find.descendant(
+        of: rootFinder,
+        matching: find.byKey(const Key("credential_detail_reobtain")),
+      );
+      if (isReobtainable) {
+        expect(reobtain, findsOneWidget);
+      } else if (expectReobtainButton == false) {
+        expect(reobtain, findsNothing);
+      }
+    } else if (widget is DisclosedCardTile) {
+      // No button on the tile: check the credential would offer one.
+      expect(status.showReobtain, isReobtainable, reason: "reobtainable");
+    }
+    // A card picture on the issuance permission: nothing to reobtain there.
+  }
+
+  if (attributes != null) {
+    _evaluateAttributes(
+      tester,
+      attributeListFinder,
+      attributes,
+      attributesCompareTo,
+    );
+  }
+}
+
+/// The credential with [hash] in the wallet, as the detail screen shows it.
+schemaless.Credential _walletCredential(
+  WidgetTester tester,
+  Element context,
+  String hash,
+) {
+  final cards = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(schemalessCredentialOrderControllerProvider).value;
+  final credential = cards?.firstWhereOrNull((c) => c.hash == hash);
+  expect(credential, isNotNull, reason: "No card with hash $hash in wallet");
+  return credential!;
+}
+
+/// The texts under [root] that are not under any of [exclude], in tree order.
+List<String> _textsOutside(Finder root, List<Finder> exclude) {
+  final excluded = {
+    for (final f in exclude)
+      ...find
+          .descendant(of: f, matching: find.byType(Text), matchRoot: true)
+          .evaluate(),
+  };
+  return find
+      .descendant(of: root, matching: find.byType(Text))
+      .evaluate()
+      .where((e) => !excluded.contains(e))
+      .map((e) => (e.widget as Text).data)
+      .nonNulls
+      .toList();
+}
+
+void _evaluateAttributes(
+  WidgetTester tester,
+  Finder cardAttList,
+  List<AttrRow> attributes,
+  List<AttrRow>? attributesCompareTo,
+) {
+  if (attributes.isEmpty) {
+    // Expect no attribute list
+    expect(cardAttList, findsNothing);
+    return;
+  }
+
+  _matchAttributes(tester, cardAttList, attributes);
+
+  if (attributesCompareTo == null) return;
+  final renderedMap = _renderedLabelValues(tester, cardAttList);
+  for (final (label, expected) in attributesCompareTo) {
+    if (expected is! String) {
+      throw ArgumentError(
+        "attributesCompareTo only supports String values; got ${expected.runtimeType} for '$label'",
+      );
+    }
+    final renderedValues = renderedMap[label];
+    expect(
+      renderedValues,
+      isNotNull,
+      reason: "attributesCompareTo: label '$label' not rendered",
+    );
+    expect(
+      renderedValues!.length,
+      1,
+      reason:
+          "attributesCompareTo: label '$label' must be a leaf, got ${renderedValues.length} values",
+    );
+    final renderedValue = renderedValues.single;
+    final textFinder = find.descendant(
+      of: cardAttList,
+      matching: find.text(renderedValue),
+    );
+    expect(textFinder, findsOneWidget);
+
+    final expectedTextColor = renderedValue == expected
+        ? const Color(0xff00973a)
+        : const Color(0xffbd1919);
+    expect(
+      (textFinder.evaluate().first.widget as Text).style?.color,
+      expectedTextColor,
+    );
+  }
+}
+
+Future<void> _evaluateYiviCredentialCard(
+  WidgetTester tester,
+  Finder credentialCardFinder, {
+  String? credentialName,
+  String? issuerName,
+  int? instancesRemaining,
+  List<AttrRow>? attributes,
+  List<AttrRow>? attributesCompareTo,
+  bool? isSelected,
+  String? footerText,
+  IrmaCardStyle? style,
+  bool? isRevoked,
+  bool? isExpired,
+  bool? isExpiringSoon,
   bool? expectReobtainButton,
 }) async {
   expect(
@@ -560,55 +1056,11 @@ Future<void> evaluateCredentialCard(
   }
 
   if (attributes != null) {
-    // Card should have an attribute list
     final cardAttList = find.descendant(
       of: credentialCardFinder,
       matching: find.byType(YiviCredentialCardAttributeList),
     );
-
-    if (attributes.isNotEmpty) {
-      _matchAttributes(tester, cardAttList, attributes);
-
-      if (attributesCompareTo != null) {
-        final renderedMap = _renderedLabelValues(tester, cardAttList);
-        for (final (label, expected) in attributesCompareTo) {
-          if (expected is! String) {
-            throw ArgumentError(
-              "attributesCompareTo only supports String values; got ${expected.runtimeType} for '$label'",
-            );
-          }
-          final renderedValues = renderedMap[label];
-          expect(
-            renderedValues,
-            isNotNull,
-            reason: "attributesCompareTo: label '$label' not rendered",
-          );
-          expect(
-            renderedValues!.length,
-            1,
-            reason:
-                "attributesCompareTo: label '$label' must be a leaf, got ${renderedValues.length} values",
-          );
-          final renderedValue = renderedValues.single;
-          final textFinder = find.descendant(
-            of: cardAttList,
-            matching: find.text(renderedValue),
-          );
-          expect(textFinder, findsOneWidget);
-
-          final expectedTextColor = renderedValue == expected
-              ? const Color(0xff00973a)
-              : const Color(0xffbd1919);
-          expect(
-            (textFinder.evaluate().first.widget as Text).style?.color,
-            expectedTextColor,
-          );
-        }
-      }
-    } else {
-      // Expect no attribute list
-      expect(cardAttList, findsNothing);
-    }
+    _evaluateAttributes(tester, cardAttList, attributes, attributesCompareTo);
   }
 
   if (isSelected != null) {
@@ -856,16 +1308,130 @@ Future<void> navigateBack(WidgetTester tester) async {
   await tester.tapAndSettle(find.byType(YiviBackButton));
 }
 
+/// The scroll view of the data tab's cards. The data tab has more than one
+/// [Scrollable] (the search field has one too), so scrolling there needs it.
+Finder walletScrollable() => find
+    .descendant(
+      of: find.byKey(const Key("wallet_scroll")),
+      matching: find.byType(Scrollable),
+    )
+    .first;
+
+/// The scroll view of the open credential detail view.
+Finder credentialDetailScrollable() => find
+    .descendant(of: findCredentialDetail(), matching: find.byType(Scrollable))
+    .first;
+
+/// The tappable cards on the data tab of the credential type [credId], one per
+/// credential instance, in the user's order. Several instances of one type
+/// share the key, so use `.at(i)` to pick one.
+Finder findWalletCards(String credId, {bool skipOffstage = true}) =>
+    find.byKey(Key("${credId}_tile"), skipOffstage: skipOffstage);
+
+/// All tappable cards on the data tab, in screen order.
+Finder findAllWalletCards({bool skipOffstage = true}) => find.byWidgetPredicate(
+  (w) =>
+      w is GestureDetector &&
+      w.key is ValueKey<String> &&
+      (w.key as ValueKey<String>).value.endsWith("_tile"),
+  skipOffstage: skipOffstage,
+);
+
+/// The credential type ids of the cards on the data tab, in screen order
+/// (one entry per card, so per credential instance).
+List<String> walletCardCredentialIds(WidgetTester tester) =>
+    findAllWalletCards(skipOffstage: false).evaluate().map((e) {
+      final key = (e.widget.key as ValueKey<String>).value;
+      return key.substring(0, key.length - "_tile".length);
+    }).toList();
+
+/// The cards in the wallet (credential instances), in the user's order, as
+/// the data tab gets them.
+List<schemaless.Credential> walletCards(WidgetTester tester) =>
+    ProviderScope.containerOf(
+      tester.element(find.byType(App)),
+      listen: false,
+    ).read(schemalessCredentialOrderControllerProvider).value ??
+    const [];
+
+/// Switches the data tab to [view] (stack is the default on phones). In the
+/// stack view the cards overlap, so tapping one in the middle hits the next
+/// one; the list view (the only one that can be reordered) avoids that.
+Future<void> showWalletView(WidgetTester tester, WalletView view) async {
+  final button = find.byKey(Key("wallet_view_${view.name}"));
+  await tester.waitFor(button);
+  if (!tester.any(button.hitTestable())) {
+    await tester.scrollUntilVisible(
+      button.hitTestable(),
+      -200,
+      scrollable: walletScrollable(),
+    );
+  }
+  await tester.tapAndSettle(button);
+}
+
+/// Types [query] into the data tab's search field. The cards are filtered as
+/// you type; an empty query shows all cards again.
+Future<void> searchWallet(WidgetTester tester, String query) async {
+  final field = find.byKey(const Key("search_field"));
+  await tester.tapAndSettle(field);
+  await tester.enterText(field, query);
+  await tester.pumpAndSettle(const Duration(milliseconds: 500));
+}
+
+/// Opens the detail view of a card of credential type [credId] on the data
+/// tab ([index] picks one of several cards of that type).
 Future<void> navigateToCredentialDetailsPage(
   WidgetTester tester,
-  String credId,
-) async {
-  var categoryTileFinder = find.byKey(Key("${credId}_tile")).hitTestable();
-  await tester.scrollUntilVisible(categoryTileFinder, 75);
-  await tester.tapAndSettle(categoryTileFinder);
+  String credId, {
+  int index = 0,
+}) async {
+  await showWalletView(tester, WalletView.list);
+  final cardFinder = findWalletCards(credId).at(index).hitTestable();
+  await tester.scrollUntilVisible(
+    cardFinder,
+    75,
+    scrollable: walletScrollable(),
+  );
+  await tester.tapAndSettle(cardFinder);
 
   // Expect detail page
-  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  await tester.waitFor(findCredentialDetail());
+  expect(findCredentialDetail(), findsOneWidget);
+}
+
+/// Closes the credential detail view with its Done button.
+Future<void> closeCredentialDetail(WidgetTester tester) async {
+  await tester.tapAndSettle(find.byKey(const Key("credential_detail_done")));
+  await tester.waitUntilDisappeared(findCredentialDetail());
+}
+
+/// Deletes the card shown in the open credential detail view, confirming the
+/// dialog. The detail view closes afterwards.
+Future<void> deleteCredentialFromDetail(WidgetTester tester) async {
+  final deleteButton = find.byKey(const Key("credential_detail_delete"));
+  await tester.scrollUntilVisible(
+    deleteButton.hitTestable(),
+    200,
+    scrollable: credentialDetailScrollable(),
+  );
+  await tester.tapAndSettle(deleteButton);
+
+  final dialog = find.byType(DeleteCredentialConfirmationDialog);
+  expect(dialog, findsOneWidget);
+  await tester.tapAndSettle(
+    find.descendant(of: dialog, matching: find.text("Delete")),
+  );
+  await tester.waitUntilDisappeared(findCredentialDetail());
+}
+
+/// Whether the notifications tab button shows its unread dot. The dot has no
+/// key; it is drawn exactly when the notifications bloc has unread ones.
+bool notificationsIndicatorShown(WidgetTester tester) {
+  final state = BlocProvider.of<NotificationsBloc>(
+    tester.element(find.byKey(const Key("nav_button_notifications"))),
+  ).state;
+  return state is NotificationsLoaded && state.hasUnreadNotifications;
 }
 
 Future<void> openAddCredentialDetailsScreen(
@@ -880,7 +1446,11 @@ Future<void> openAddCredentialDetailsScreen(
     providerOverrides: overrides.isEmpty ? null : overrides,
   );
 
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
+  // The round plus button next to the data tab's search field.
+  final addDataButton = find.descendant(
+    of: find.byType(DataTab),
+    matching: find.byIcon(Icons.add),
+  );
   await tester.tapAndSettle(addDataButton);
 
   final addCredentialTile = find.byKey(Key("${fullCredentialId}_tile"));
