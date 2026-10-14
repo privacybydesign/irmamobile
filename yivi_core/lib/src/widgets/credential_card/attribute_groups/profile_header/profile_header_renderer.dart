@@ -7,7 +7,7 @@ import "../requested_value.dart";
 import "profile_header.dart";
 
 /// Draws the person's photo, name and basic details as a header at the top of
-/// an identity credential. See _Profile Header_ in CONTEXT.md.
+/// an identity credential.
 ///
 /// The header only appears when the name or the photo is among the given
 /// attributes; otherwise it claims nothing and the details stay ordinary rows.

@@ -172,7 +172,7 @@ class RequestedValueChip extends StatelessWidget {
   }
 }
 
-/// [value] with the requested-value chip of [attributes] on its right, if
+/// [child] with the requested-value chip of [attributes] on its right, if
 /// any.
 class WithRequestedValueChip extends StatelessWidget {
   final List<schemaless.Attribute> attributes;

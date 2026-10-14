@@ -4,10 +4,9 @@ import "../chip_check/chip_check_renderer.dart";
 import "../driving_licence/driving_licence_categories_renderer.dart";
 import "../profile_header/profile_header_renderer.dart";
 
-/// A titled part of an identity credential's card. See _Card Section_ in
-/// CONTEXT.md. It shows its groups first, then its fields in a two-column
-/// grid, then its trailing groups; it is not drawn when none of them has
-/// anything to show.
+/// A titled part of an identity credential's card. It shows its groups
+/// first, then its fields in a two-column grid, then its trailing groups;
+/// it is not drawn when none of them has anything to show.
 class CardSection {
   /// Translation key of the small uppercase title.
   final String titleKey;
@@ -123,8 +122,7 @@ const _municipalityCard = CardLayout([
   ),
 ]);
 
-/// The card layout per exact credential type id (see ADR 0011 for why this is
-/// keyed by id in the app).
+/// The card layout per exact credential type id.
 const Map<String, CardLayout> cardLayouts = {
   "pbdf.pbdf.passport": _documentCard,
   "pbdf-staging.pbdf.passport": _documentCard,
