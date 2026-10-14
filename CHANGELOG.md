@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.3.2] - 2026-10-14
 ### Added
 - The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
 - On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
@@ -768,6 +770,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
 [8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1
