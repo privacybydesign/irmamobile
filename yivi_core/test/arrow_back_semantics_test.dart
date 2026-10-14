@@ -1,10 +1,11 @@
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/arrow_back_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
+import "helpers/test_translation_loader.dart";
 
 // Regression test for #638: on iOS this screen hands the user back to the
 // browser they came from, but the control it points at is the status bar back
@@ -36,7 +37,7 @@ void main() {
       builder: (_) => MaterialApp(
         localizationsDelegates: [
           FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
+            translationLoader: TestTranslationLoader(
               basePath: "assets/locales",
               forcedLocale: locale,
             ),

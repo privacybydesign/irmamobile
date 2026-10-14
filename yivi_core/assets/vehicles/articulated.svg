@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- CE: articulated lorry (tractor unit with semi-trailer), facing left -->
+  <path d="M.8 15.4V12.2L4 9.1H8.3V15.4Z M4.3 10H6.9V12.4H2.4Z"/>
+  <path d="M8.3 14.4H12.6V15.4H8.3Z"/>
+  <path d="M7.6 5H23.4V14.4H7.6Z"/>
+  <circle cx="3.6" cy="17.4" r="1.6"/>
+  <circle cx="10.4" cy="17.4" r="1.6"/>
+  <circle cx="16.6" cy="17.4" r="1.6"/>
+  <circle cx="20.8" cy="17.4" r="1.6"/>
+</svg>

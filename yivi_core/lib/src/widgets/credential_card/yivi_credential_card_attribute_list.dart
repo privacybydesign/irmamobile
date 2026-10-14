@@ -1,13 +1,15 @@
-import "dart:convert";
+import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
+import "attribute_groups/attribute_group.dart";
+import "attribute_groups/attribute_group_registry.dart";
+import "attribute_groups/attribute_value_formatting.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -15,28 +17,58 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // When true, each leaf/primarray row draws a 1px horizontal divider at
   // its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
+  // Credential type id; selects the attribute group renderers.
+  final String? credentialId;
+  // Overrides the registry lookup for [credentialId] (tests).
+  final List<AttributeGroupRenderer>? renderers;
+  // The attributes are being shared (a disclosure), not the whole credential.
+  final bool disclosure;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
     this.showDividers = false,
+    this.credentialId,
+    this.renderers,
+    this.disclosure = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final sorted = [...attributes]
-      ..sort((a, b) {
-        final aIsImage =
-            a.value?.type == schemaless.AttributeType.image ||
-            a.value?.type == schemaless.AttributeType.base64Image;
-        final bIsImage =
-            b.value?.type == schemaless.AttributeType.image ||
-            b.value?.type == schemaless.AttributeType.base64Image;
-        if (aIsImage == bIsImage) return 0;
-        return aIsImage ? 1 : -1;
-      });
+    final groups = <_ClaimedGroup>[];
+    var remaining = attributes;
+    for (final renderer
+        in renderers ?? attributeGroupRenderers[credentialId] ?? const []) {
+      final group = renderer.claim(remaining, compareTo: compareTo);
+      if (group == null) continue;
+      final claimedKeys = {
+        for (final a in group.claimed) claimPathKey(a.claimPath),
+      };
+      assert(() {
+        final offered = {for (final a in remaining) claimPathKey(a.claimPath)};
+        return offered.containsAll(claimedKeys);
+      }(), "${renderer.runtimeType} claimed an attribute it was not offered");
+      final firstIndex = attributes.indexWhere(
+        (a) => claimedKeys.contains(claimPathKey(a.claimPath)),
+      );
+      groups.add(
+        _ClaimedGroup(group, firstIndex < 0 ? attributes.length : firstIndex),
+      );
+      remaining = remaining
+          .where((a) => !claimedKeys.contains(claimPathKey(a.claimPath)))
+          .toList();
+    }
+
+    // Images last, everything else in the order given. Not List.sort: it is
+    // not stable, and past 32 elements it reorders the attributes it sees as
+    // equal.
+    final sorted = [
+      ...remaining.where((a) => !_isImage(a)),
+      ...remaining.where(_isImage),
+    ];
 
     final tree = _buildTree(sorted, compareTo: compareTo);
+    _insertGroups(tree.children, groups, attributes);
     final items = _flatten(tree);
 
     return Column(
@@ -48,6 +80,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             item: items[i],
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
             showDivider: showDividers,
+            disclosure: disclosure,
           ),
       ],
     );
@@ -96,15 +129,29 @@ class _RowNode extends _Node {
 
 class _PrimArrayNode extends _Node {
   final String label;
+  final List<dynamic> path;
   final List<schemaless.AttributeValue> values;
-  _PrimArrayNode({required this.label, required this.values});
+  _PrimArrayNode({
+    required this.label,
+    required this.path,
+    required this.values,
+  });
 }
+
+class _AttributeGroupNode extends _Node {
+  final AttributeGroup group;
+  _AttributeGroupNode(this.group);
+}
+
+bool _isImage(schemaless.Attribute a) =>
+    a.value?.type == schemaless.AttributeType.image ||
+    a.value?.type == schemaless.AttributeType.base64Image;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tree builder
 // ─────────────────────────────────────────────────────────────────────────────
 
-String _pathKey(List<dynamic> p) => jsonEncode(p);
+String _pathKey(List<dynamic> p) => claimPathKey(p);
 
 class _StackFrame {
   final List<dynamic> path;
@@ -119,10 +166,12 @@ class _StackFrame {
 
 class _PrimCollector {
   final String label;
+  final List<dynamic> path;
   final List<schemaless.AttributeValue> values;
   final List<_Node> parent;
   _PrimCollector({
     required this.label,
+    required this.path,
     required this.values,
     required this.parent,
   });
@@ -152,7 +201,9 @@ _GroupNode _buildTree(
   void flushPrim(String key) {
     final c = primCollectors[key];
     if (c == null) return;
-    c.parent.add(_PrimArrayNode(label: c.label, values: c.values));
+    c.parent.add(
+      _PrimArrayNode(label: c.label, path: c.path, values: c.values),
+    );
     primCollectors.remove(key);
   }
 
@@ -255,8 +306,12 @@ _GroupNode _buildTree(
 
       primCollectors.putIfAbsent(
         parentKey,
-        () =>
-            _PrimCollector(label: label, values: [], parent: frame.childrenArr),
+        () => _PrimCollector(
+          label: label,
+          path: parentArrPath,
+          values: [],
+          parent: frame.childrenArr,
+        ),
       );
       primCollectors[parentKey]!.values.add(e.value!);
       continue;
@@ -290,6 +345,76 @@ void _stampItemTotals(_Node node) {
     if (c is _ItemNode) c.totalItems = itemCount;
     _stampItemTotals(c);
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Attribute groups: slot each claimed group in among the top-level rows.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ClaimedGroup {
+  final AttributeGroup group;
+  // Index of the group's first claimed attribute in the unsorted input; the
+  // fallback position for an `after` whose anchor is absent.
+  final int firstIndex;
+  _ClaimedGroup(this.group, this.firstIndex);
+}
+
+Object? _topSegment(_Node node) => switch (node) {
+  _RowNode n => n.attribute.claimPath.firstOrNull,
+  _GroupNode n => n.path.firstOrNull,
+  _ItemNode n => n.path.firstOrNull,
+  _PrimArrayNode n => n.path.firstOrNull,
+  _AttributeGroupNode _ => null,
+};
+
+/// Inserts [groups] into the top-level [children]. Groups resolving to the
+/// same slot keep their registry order; only an `end` group goes below the
+/// images.
+void _insertGroups(
+  List<_Node> children,
+  List<_ClaimedGroup> groups,
+  List<schemaless.Attribute> original,
+) {
+  if (groups.isEmpty) return;
+  final n = children.length;
+  var bottom = children.indexWhere(
+    (c) => c is _RowNode && _isImage(c.attribute),
+  );
+  if (bottom < 0) bottom = n;
+  final originalIndex = [
+    for (final c in children)
+      original.indexWhere((a) => a.claimPath.firstOrNull == _topSegment(c)),
+  ];
+
+  int fallback(int firstIndex) {
+    final i = originalIndex.indexWhere((o) => o > firstIndex);
+    return i < 0 ? n : i;
+  }
+
+  final slots = [
+    for (final g in groups)
+      switch (g.group.placement) {
+        TopPlacement() => 0,
+        BottomPlacement() => bottom,
+        EndPlacement() => n,
+        AfterPlacement(:final attributeId) => min(bottom, switch (children
+            .indexWhere((c) => _topSegment(c) == attributeId)) {
+          -1 => fallback(g.firstIndex),
+          final i => i + 1,
+        }),
+      },
+  ];
+
+  final placed = <_Node>[];
+  for (var j = 0; j <= n; j++) {
+    for (var k = 0; k < groups.length; k++) {
+      if (slots[k] == j) placed.add(_AttributeGroupNode(groups[k].group));
+    }
+    if (j < n) placed.add(children[j]);
+  }
+  children
+    ..clear()
+    ..addAll(placed);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -337,7 +462,7 @@ List<_RenderItem> _flatten(_GroupNode root) {
       final c = children[i];
       final isLast = i == children.length - 1;
 
-      if (c is _RowNode || c is _PrimArrayNode) {
+      if (c is _RowNode || c is _PrimArrayNode || c is _AttributeGroupNode) {
         emit(c, depth, isLast);
         continue;
       }
@@ -399,10 +524,12 @@ class _RenderItemView extends StatelessWidget {
   // When false, suppresses the horizontal divider line entirely — guide
   // lines and indent are unaffected.
   final bool showDivider;
+  final bool disclosure;
   const _RenderItemView({
     required this.item,
     required this.nextDepth,
     required this.showDivider,
+    required this.disclosure,
   });
 
   @override
@@ -458,7 +585,11 @@ class _RenderItemView extends StatelessWidget {
               padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
               child: Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: _RowContent(node: node),
+                child: _RowContent(
+                  node: node,
+                  isFirst: item.previousDepth < 0,
+                  disclosure: disclosure,
+                ),
               ),
             ),
             if (drawDivider)
@@ -477,6 +608,7 @@ class _RenderItemView extends StatelessWidget {
     // and primarrays (and empty-group fallbacks rendered as labelled rows).
     if (node is _RowNode) return true;
     if (node is _PrimArrayNode) return true;
+    if (node is _AttributeGroupNode) return true;
     if (node is _GroupNode) return node.children.isEmpty;
     return false;
   }
@@ -494,7 +626,14 @@ class _RenderItemView extends StatelessWidget {
 
 class _RowContent extends StatelessWidget {
   final _Node node;
-  const _RowContent({required this.node});
+  // The first row of the list: nothing is drawn above it.
+  final bool isFirst;
+  final bool disclosure;
+  const _RowContent({
+    required this.node,
+    required this.isFirst,
+    required this.disclosure,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -503,31 +642,13 @@ class _RowContent extends StatelessWidget {
       _PrimArrayNode n => _PrimArrayContent(node: n),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
+      _AttributeGroupNode n => AttributeGroupScope(
+        isFirst: isFirst,
+        isDisclosure: disclosure,
+        child: Builder(builder: n.group.build),
+      ),
     };
   }
-}
-
-// Shared label / value text styles.
-TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
-  fontFamily: theme.secondaryFontFamily,
-  fontSize: 14,
-  fontWeight: FontWeight.w400,
-  color: theme.neutralExtraDark,
-);
-
-TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
-  fontFamily: theme.primaryFontFamily,
-  fontSize: 16,
-  fontWeight: FontWeight.w600,
-  color: color,
-);
-
-String _formatBool(BuildContext context, bool? value) {
-  if (value == null) return "";
-  return FlutterI18n.translate(
-    context,
-    value ? "credential.boolean_yes" : "credential.boolean_no",
-  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -549,7 +670,7 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(attribute.effectiveDisplayName, style: _labelStyle(theme)),
+        Text(attribute.effectiveDisplayName, style: attributeLabelStyle(theme)),
         _buildValue(context, theme),
       ],
     );
@@ -568,15 +689,15 @@ class _LeafContent extends StatelessWidget {
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: attributeValueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.boolean => Text(
-        _formatBool(context, val.boolValue),
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        formatAttributeBool(context, val.boolValue),
+        style: attributeValueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: attributeValueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, theme),
@@ -585,17 +706,8 @@ class _LeafContent extends StatelessWidget {
 
   Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
     final attribute = node.attribute;
-    final val = attribute.value;
-    final raw = val?.imagePath ?? val?.base64Image ?? "";
-    // Issuers sometimes fill an empty image attribute with a placeholder such
-    // as " "; decoding that throws during build and greys out the whole card.
-    final Uint8List bytes;
-    try {
-      bytes = const Base64Decoder().convert(raw.trim());
-    } on FormatException {
-      return const SizedBox.shrink();
-    }
-    if (bytes.isEmpty) return const SizedBox.shrink();
+    final bytes = decodeAttributeImage(attribute.value);
+    if (bytes == null) return const SizedBox.shrink();
     final image = Image.memory(
       bytes,
       fit: BoxFit.fitWidth,
@@ -638,7 +750,7 @@ class _PrimArrayContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(node.label, style: _labelStyle(theme)),
+        Text(node.label, style: attributeLabelStyle(theme)),
         for (final v in node.values) _bulletRow(context, theme, v),
       ],
     );
@@ -649,7 +761,10 @@ class _PrimArrayContent extends StatelessWidget {
     IrmaThemeData theme,
     schemaless.AttributeValue v,
   ) {
-    final valueStyle = _valueStyle(theme, theme.dark).copyWith(height: 1.2);
+    final valueStyle = attributeValueStyle(
+      theme,
+      theme.dark,
+    ).copyWith(height: 1.2);
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
       padding: EdgeInsets.only(top: theme.tinySpacing / 2),
@@ -681,7 +796,10 @@ class _PrimArrayContent extends StatelessWidget {
     return switch (v.type) {
       schemaless.AttributeType.string => v.string ?? "",
       schemaless.AttributeType.integer => v.intValue?.toString() ?? "",
-      schemaless.AttributeType.boolean => _formatBool(context, v.boolValue),
+      schemaless.AttributeType.boolean => formatAttributeBool(
+        context,
+        v.boolValue,
+      ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => v.string ?? "",
     };
@@ -703,9 +821,12 @@ class _EyebrowContent extends StatelessWidget {
     // were rendered as labelled rows by the flatten step. Render as a plain
     // bodyMedium-like label.
     if (node.children.isEmpty) {
-      return Text(node.label ?? "", style: _labelStyle(theme));
+      return Text(node.label ?? "", style: attributeLabelStyle(theme));
     }
-    return Text((node.label ?? "").toUpperCase(), style: _eyebrowStyle(theme));
+    return Text(
+      (node.label ?? "").toUpperCase(),
+      style: attributeEyebrowStyle(theme),
+    );
   }
 }
 
@@ -720,18 +841,6 @@ class _ItemEyebrowContent extends StatelessWidget {
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : parentLabel;
-    return Text(text, style: _eyebrowStyle(theme));
+    return Text(text, style: attributeEyebrowStyle(theme));
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Eyebrow text style — small uppercase Open Sans label.
-// ─────────────────────────────────────────────────────────────────────────────
-
-TextStyle _eyebrowStyle(IrmaThemeData theme) => TextStyle(
-  fontFamily: theme.secondaryFontFamily,
-  fontSize: 12,
-  fontWeight: FontWeight.w700,
-  color: theme.neutralDark,
-  letterSpacing: 0.96, // 0.08em × 12px
-);
