@@ -335,12 +335,14 @@ void main() {
   testWidgets("moving images last keeps the order of more than 32 rows", (
     tester,
   ) async {
+    const photoIndex = 15;
     final ids = [for (var i = 0; i < 63; i++) "a$i"];
     await _pump(tester, [
-      for (final id in ids.take(15)) _attr(id),
+      for (final id in ids.take(photoIndex)) _attr(id),
       _photo(),
-      for (final id in ids.skip(15)) _attr(id),
+      for (final id in ids.skip(photoIndex)) _attr(id),
     ], const []);
+
     final labels = [for (final id in ids) "label-$id"];
     expect(_order(tester, [...labels, "label-photo"]), [
       ...labels,
