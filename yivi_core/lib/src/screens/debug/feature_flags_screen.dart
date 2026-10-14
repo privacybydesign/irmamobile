@@ -5,6 +5,9 @@ import "../../data/feature_flags.dart";
 import "../../providers/feature_flag_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
+import "../../widgets/glass/glass_group.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 
 class FeatureFlagsScreen extends ConsumerWidget {
@@ -23,26 +26,42 @@ class FeatureFlagsScreen extends ConsumerWidget {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(titleString: "Feature flags"),
       body: ListView(
+        padding: EdgeInsets.fromLTRB(
+          theme.defaultSpacing,
+          0,
+          theme.defaultSpacing,
+          theme.defaultSpacing,
+        ),
         children: [
           Padding(
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: Wrap(
               spacing: theme.smallSpacing,
               children: [
-                OutlinedButton(
+                PillButton(
+                  label: "All on",
+                  height: 40,
+                  expand: false,
                   onPressed: () => _enableOnly(ref, FeatureFlag.values.toSet()),
-                  child: const Text("All on"),
                 ),
-                OutlinedButton(
+                PillButton(
+                  label: "All off",
+                  height: 40,
+                  expand: false,
                   onPressed: () => _enableOnly(ref, {}),
-                  child: const Text("All off"),
                 ),
               ],
             ),
           ),
-          for (final flag in FeatureFlag.values) _FeatureFlagTile(flag: flag),
+          GlassGroup(
+            children: [
+              for (final flag in FeatureFlag.values)
+                _FeatureFlagTile(flag: flag),
+            ],
+          ),
         ],
       ),
     );
@@ -59,6 +78,7 @@ class _FeatureFlagTile extends ConsumerWidget {
     final enabled = ref.watch(featureFlagProvider(flag)).value ?? false;
 
     return SwitchListTile(
+      activeTrackColor: YiviPalette.of(context).primary,
       title: Text("${flag.id} · ${flag.name}"),
       subtitle: Text(flag.description),
       value: enabled,

@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_dialog.dart";
+import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
@@ -36,10 +37,11 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
         runSpacing: theme.defaultSpacing,
         alignment: WrapAlignment.center,
         children: [
-          TextField(
+          PillTextField(
             controller: controller,
-            autocorrect: false,
             autofocus: true,
+            keyboardType: TextInputType.url,
+            hint: "https://",
             onSubmitted: (url) => navigator.pop(url),
           ),
           YiviThemedButton(

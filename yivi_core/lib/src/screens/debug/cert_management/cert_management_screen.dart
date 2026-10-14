@@ -10,10 +10,11 @@ import "../../../models/error_event.dart";
 import "../../../models/eudi_configuration.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/progress.dart";
-import "../../../widgets/translated_text.dart";
 import "../../error/error_screen.dart";
 import "../cert_management/widgets/cert_manager_tile.dart";
 import "../cert_management/widgets/provide_cert_dialog.dart";
@@ -107,6 +108,7 @@ class _CertificateManagementScreenState
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.cert_management.title",
         actions: [
@@ -123,25 +125,43 @@ class _CertificateManagementScreenState
             final configuration = snapshot.data!;
 
             return ListView(
-              padding: EdgeInsets.all(theme.defaultSpacing),
+              padding: EdgeInsets.fromLTRB(
+                theme.defaultSpacing,
+                0,
+                theme.defaultSpacing,
+                theme.defaultSpacing,
+              ),
               children: [
-                const TranslatedText("debug.cert_management.issuer_certs"),
-                if (configuration.issuerCertificates != null)
-                  for (final cert in configuration.issuerCertificates!)
-                    CertManagerTile(
-                      cert: cert,
-                      onTap: () => _onCertificateTileTap(cert.thumbprint),
-                      onDelete: () => _onRemoveCertificate("issuer", cert),
-                    ),
-                SizedBox(height: theme.defaultSpacing),
-                const TranslatedText("debug.cert_management.verifier_certs"),
-                if (configuration.verifierCertificates != null)
-                  for (final cert in configuration.verifierCertificates!)
-                    CertManagerTile(
-                      cert: cert,
-                      onTap: () => _onCertificateTileTap(cert.thumbprint),
-                      onDelete: () => _onRemoveCertificate("verifier", cert),
-                    ),
+                GlassGroup(
+                  header: FlutterI18n.translate(
+                    context,
+                    "debug.cert_management.issuer_certs",
+                  ),
+                  children: [
+                    for (final cert
+                        in configuration.issuerCertificates ?? const <Cert>[])
+                      CertManagerTile(
+                        cert: cert,
+                        onTap: () => _onCertificateTileTap(cert.thumbprint),
+                        onDelete: () => _onRemoveCertificate("issuer", cert),
+                      ),
+                  ],
+                ),
+                GlassGroup(
+                  header: FlutterI18n.translate(
+                    context,
+                    "debug.cert_management.verifier_certs",
+                  ),
+                  children: [
+                    for (final cert
+                        in configuration.verifierCertificates ?? const <Cert>[])
+                      CertManagerTile(
+                        cert: cert,
+                        onTap: () => _onCertificateTileTap(cert.thumbprint),
+                        onDelete: () => _onRemoveCertificate("verifier", cert),
+                      ),
+                  ],
+                ),
               ],
             );
           },

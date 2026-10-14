@@ -3,6 +3,11 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/local_backends_provider.dart";
 import "../../../providers/preferences_provider.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/pill_text_field.dart";
+import "../../more/widgets/tiles.dart";
 
 /// Points the app at a backend setup on a developer's machine. With
 /// `adb reverse` for its ports the host is "localhost"; otherwise the
@@ -10,31 +15,42 @@ import "../../../providers/preferences_provider.dart";
 class LocalBackendsTile extends ConsumerWidget {
   const LocalBackendsTile({super.key});
 
+  static String backendsSummary(WidgetRef ref) {
+    final backends = ref.read(localBackendsProvider);
+    return backends == null
+        ? "Off"
+        : "E-mail issuer ${backends.emailIssuer}\n"
+              "E-mail link ${backends.keyshareEmailLink}";
+  }
+
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
     final current = ref.read(localBackendsProvider)?.host ?? "";
     final controller = TextEditingController(text: current);
 
     final host = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Local backends"),
-        content: TextField(
-          key: const Key("local_backend_host_field"),
+      builder: (context) => GlassDialog(
+        title: "Local backends",
+        message: LocalBackendsTile.backendsSummary(ref),
+        body: PillTextField(
+          fieldKey: const Key("local_backend_host_field"),
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: "Host",
-            hintText: "localhost",
-          ),
+          label: "Host",
+          hint: "localhost",
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(""),
-            child: const Text("Off"),
-          ),
-          TextButton(
+          FancyPillButton(
+            label: "Save",
+            height: 52,
+            glow: false,
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text("Save"),
+          ),
+          PillButton(
+            label: "Off",
+            style: PillStyle.text,
+            height: 48,
+            onPressed: () => Navigator.of(context).pop(""),
           ),
         ],
       ),
@@ -50,17 +66,17 @@ class LocalBackendsTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final backends = ref.watch(localBackendsProvider);
 
-    return ListTile(
+    final palette = YiviPalette.of(context);
+    return Tile(
       key: const Key("local_backends_tile"),
-      leading: const Icon(Icons.dns_outlined),
-      title: const Text("Local backends"),
-      subtitle: Text(
-        backends == null
-            ? "Off"
-            : "E-mail issuer ${backends.emailIssuer}\n"
-                  "E-mail link ${backends.keyshareEmailLink}",
-      ),
+      isLink: false,
+      iconData: Icons.dns_outlined,
+      labelTranslationKey: "Local backends",
       onTap: () => _edit(context, ref),
+      trailing: Text(
+        backends == null ? "Off" : "On",
+        style: palette.body(14).copyWith(color: palette.secondaryText),
+      ),
     );
   }
 }

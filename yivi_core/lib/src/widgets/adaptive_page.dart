@@ -95,8 +95,11 @@ class _AdaptiveRoute<T> extends PageRoute<T>
 
   bool get _platformPush => !_expanded && _phone == PhoneTransition.push;
 
+  // Only a sheet on a tablet shows the app around it. On a phone the screen
+  // covers the window, so it is opaque (once its transition is done), which
+  // takes the screens below offstage.
   @override
-  bool get opaque => _page.mode != PresentationMode.sheet;
+  bool get opaque => _page.mode != PresentationMode.sheet || !_expanded;
 
   @override
   bool get maintainState => true;

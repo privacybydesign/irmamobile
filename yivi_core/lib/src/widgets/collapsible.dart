@@ -15,12 +15,16 @@ class Collapsible extends StatefulWidget {
   final ScrollController? parentScrollController;
   final bool initiallyExpanded;
 
+  /// Draws no card of its own, for a question in a GlassGroup with others.
+  final bool flat;
+
   const Collapsible({
     super.key,
     required this.header,
     required this.content,
     this.parentScrollController,
     this.initiallyExpanded = false,
+    this.flat = false,
   });
 
   @override
@@ -100,53 +104,62 @@ class _CollapsibleState extends State<Collapsible> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return IrmaCard(
-      padding: EdgeInsets.zero,
-      margin: EdgeInsets.zero,
-      child: ConfigurableExpansionTile(
-        initiallyExpanded: widget.initiallyExpanded,
-        onExpansionChanged: _onExpansionChanged,
-        animatedWidgetFollowingHeader: Padding(
-          padding: EdgeInsets.all(theme.tinySpacing),
-          child: Icon(Icons.expand_more, color: theme.neutralExtraDark),
-        ),
-        header: Expanded(
-          child: Semantics(
-            hint: _isExpanded
-                ? FlutterI18n.translate(context, "accessibility.collapse_hint")
-                : FlutterI18n.translate(context, "accessibility.expand_hint"),
-            label: _isExpanded
-                ? FlutterI18n.translate(context, "accessibility.expanded")
-                : FlutterI18n.translate(context, "accessibility.collapsed"),
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: theme.tinySpacing * 3,
-                bottom: theme.tinySpacing * 3,
-                left: theme.defaultSpacing,
-                right: theme.defaultSpacing,
-              ),
-              child: Text(
-                widget.header,
-                style: YiviPalette.of(
-                  context,
-                ).body(16, weight: FontWeight.w600),
+    final palette = YiviPalette.of(context);
+    final tile = ConfigurableExpansionTile(
+      initiallyExpanded: widget.initiallyExpanded,
+      onExpansionChanged: _onExpansionChanged,
+      animatedWidgetFollowingHeader: Padding(
+        padding: EdgeInsets.all(theme.tinySpacing),
+        child: Icon(Icons.expand_more, color: palette.secondaryText),
+      ),
+      header: Expanded(
+        child: Semantics(
+          hint: _isExpanded
+              ? FlutterI18n.translate(context, "accessibility.collapse_hint")
+              : FlutterI18n.translate(context, "accessibility.expand_hint"),
+          label: _isExpanded
+              ? FlutterI18n.translate(context, "accessibility.expanded")
+              : FlutterI18n.translate(context, "accessibility.collapsed"),
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: theme.tinySpacing * 3,
+              bottom: theme.tinySpacing * 3,
+              left: theme.defaultSpacing,
+              right: theme.defaultSpacing,
+            ),
+            child: Text(
+              widget.header,
+              style: palette.body(
+                16,
+                weight: _isExpanded ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ),
         ),
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: theme.smallSpacing,
-              horizontal: theme.defaultSpacing,
-            ),
-            child: ExcludeSemantics(
-              excluding: !_isExpanded,
+      ),
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
+          ),
+          child: ExcludeSemantics(
+            excluding: !_isExpanded,
+            child: DefaultTextStyle.merge(
+              style: palette
+                  .body(15)
+                  .copyWith(height: 23 / 15, color: palette.heading),
               child: widget.content,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+    if (widget.flat) return tile;
+    return IrmaCard(
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.zero,
+      child: tile,
     );
   }
 }

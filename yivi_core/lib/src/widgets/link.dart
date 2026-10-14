@@ -7,6 +7,35 @@ import "irma_dialog.dart";
 import "translated_text.dart";
 import "yivi_themed_button.dart";
 
+/// Opens a new e-mail to Yivi support, or explains in a dialog that no mail
+/// app could be opened.
+Future<void> openSupportMail(BuildContext context) async {
+  final String address = FlutterI18n.translate(context, "help.contact");
+  final String subject = Uri.encodeComponent(
+    FlutterI18n.translate(context, "help.mail_subject"),
+  );
+  final mail = "mailto:$address?subject=$subject";
+  try {
+    await IrmaRepositoryProvider.of(context).openURLExternally(mail);
+  } catch (_) {
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return IrmaDialog(
+            title: FlutterI18n.translate(context, "help.mail_error_title"),
+            content: FlutterI18n.translate(context, "help.mail_error"),
+            child: YiviThemedButton(
+              label: "help.mail_error_button",
+              onPressed: () => Navigator.pop(context),
+            ),
+          );
+        },
+      );
+    }
+  }
+}
+
 class ContactLink extends StatelessWidget {
   final String translationKey;
 
@@ -14,38 +43,7 @@ class ContactLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Link(
-      label: translationKey,
-      onTap: () async {
-        final String address = FlutterI18n.translate(context, "help.contact");
-        final String subject = Uri.encodeComponent(
-          FlutterI18n.translate(context, "help.mail_subject"),
-        );
-        final mail = "mailto:$address?subject=$subject";
-        try {
-          await IrmaRepositoryProvider.of(context).openURLExternally(mail);
-        } catch (_) {
-          if (context.mounted) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return IrmaDialog(
-                  title: FlutterI18n.translate(
-                    context,
-                    "help.mail_error_title",
-                  ),
-                  content: FlutterI18n.translate(context, "help.mail_error"),
-                  child: YiviThemedButton(
-                    label: "help.mail_error_button",
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                );
-              },
-            );
-          }
-        }
-      },
-    );
+    return Link(label: translationKey, onTap: () => openSupportMail(context));
   }
 }
 

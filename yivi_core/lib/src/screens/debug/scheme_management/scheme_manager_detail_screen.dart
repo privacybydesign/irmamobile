@@ -9,8 +9,10 @@ import "../../../models/irma_configuration.dart";
 import "../../../models/scheme_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
 import "../../../widgets/active_indicator.dart";
+import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
@@ -253,6 +255,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         }
 
         return Scaffold(
+          backgroundColor: YiviPalette.of(context).background,
           appBar: IrmaAppBar(
             titleString: schemeManager.id,
             actions: [
@@ -264,7 +267,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           ),
           body: SingleChildScrollView(
             padding: EdgeInsets.all(theme.screenPadding),
-            child: Column(
+            child: GlassGroup(
               children: [
                 // These values are not translated because they are the same in English and Dutch.
                 if (!schemeManager.demo)

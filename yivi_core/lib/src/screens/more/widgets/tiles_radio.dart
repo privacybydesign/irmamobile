@@ -1,8 +1,9 @@
 import "package:collection/collection.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/glass_group.dart";
 import "tiles.dart";
-import "tiles_card.dart";
 
 class RadioTilesCard extends StatefulWidget {
   final List<String> options;
@@ -39,15 +40,21 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
 
   @override
   Widget build(BuildContext context) {
-    return TilesCard(
+    final palette = YiviPalette.of(context);
+    return GlassGroup(
       children: widget.options
           .mapIndexed(
-            (i, option) => Tile(
-              labelTranslationKey: option,
-              onTap: () => _onChangeOptions(i),
-              trailing: i == _selectedIndex
-                  ? const Icon(Icons.check)
-                  : const SizedBox(),
+            (i, option) => Semantics(
+              selected: i == _selectedIndex,
+              inMutuallyExclusiveGroup: true,
+              child: Tile(
+                isLink: false,
+                labelTranslationKey: option,
+                onTap: () => _onChangeOptions(i),
+                trailing: i == _selectedIndex
+                    ? Icon(Icons.check_rounded, color: palette.primary)
+                    : const SizedBox(width: 24),
+              ),
             ),
           )
           .toList(growable: false),

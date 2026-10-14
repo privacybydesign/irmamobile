@@ -26,9 +26,10 @@ class GlassGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    // The fill is a Material, so rows that paint ink (ListTile, InkWell)
+    // show their splashes on it; the shadow sits on a box around it.
     final group = DecoratedBox(
       decoration: ShapeDecoration(
-        color: palette.surface,
         shape: const RoundedSuperellipseBorder(borderRadius: radius),
         shadows: [
           BoxShadow(
@@ -40,8 +41,10 @@ class GlassGroup extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRSuperellipse(
-        borderRadius: radius,
+      child: Material(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(borderRadius: radius),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

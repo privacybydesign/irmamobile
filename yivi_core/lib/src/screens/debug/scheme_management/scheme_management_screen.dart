@@ -13,12 +13,13 @@ import "../../../models/scheme_events.dart";
 import "../../../models/update_schemes_event.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
+import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/progress.dart";
-import "../../../widgets/translated_text.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
 import "requestor_scheme_detail_screen.dart";
@@ -180,6 +181,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.scheme_management.title",
         actions: [
@@ -203,38 +205,55 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                 final irmaConfiguration = snapshot.data!.b;
 
                 return ListView(
-                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  padding: EdgeInsets.fromLTRB(
+                    theme.defaultSpacing,
+                    0,
+                    theme.defaultSpacing,
+                    theme.defaultSpacing,
+                  ),
                   children: [
-                    const TranslatedText(
-                      "debug.scheme_management.issuer_schemes",
-                    ),
-                    for (final schemeManager
-                        in irmaConfiguration.schemeManagers.values)
-                      SchemeManagerTile(
-                        schemeManager: schemeManager,
-                        isActive: schemeManager.keyshareServer.isNotEmpty
-                            ? enrollmentStatus.enrolledSchemeManagerIds
-                                  .contains(schemeManager.id)
-                            : null,
-                        onTap: () => _onSchemeManagerTileTap(schemeManager.id),
+                    GlassGroup(
+                      header: FlutterI18n.translate(
+                        context,
+                        "debug.scheme_management.issuer_schemes",
                       ),
-                    SizedBox(height: theme.defaultSpacing),
-                    const TranslatedText(
-                      "debug.scheme_management.requestor_schemes",
+                      children: [
+                        for (final schemeManager
+                            in irmaConfiguration.schemeManagers.values)
+                          SchemeManagerTile(
+                            schemeManager: schemeManager,
+                            isActive: schemeManager.keyshareServer.isNotEmpty
+                                ? enrollmentStatus.enrolledSchemeManagerIds
+                                      .contains(schemeManager.id)
+                                : null,
+                            onTap: () =>
+                                _onSchemeManagerTileTap(schemeManager.id),
+                          ),
+                      ],
                     ),
-                    for (final schemeId
-                        in irmaConfiguration.requestorSchemes.keys)
-                      ListTile(
-                        title: Text(schemeId),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => RequestorSchemeDetailScreen(
-                              requestorScheme:
-                                  irmaConfiguration.requestorSchemes[schemeId]!,
+                    GlassGroup(
+                      header: FlutterI18n.translate(
+                        context,
+                        "debug.scheme_management.requestor_schemes",
+                      ),
+                      children: [
+                        for (final schemeId
+                            in irmaConfiguration.requestorSchemes.keys)
+                          ListTile(
+                            title: Text(schemeId),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RequestorSchemeDetailScreen(
+                                      requestorScheme: irmaConfiguration
+                                          .requestorSchemes[schemeId]!,
+                                    ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                      ],
+                    ),
                   ],
                 );
               },

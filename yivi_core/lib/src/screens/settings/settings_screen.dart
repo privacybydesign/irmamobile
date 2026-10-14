@@ -8,14 +8,13 @@ import "package:material_ui/material_ui.dart";
 import "../../models/clear_all_data_event.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/email_linking.dart";
+import "../../util/language.dart";
 import "../../util/navigation.dart";
+import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/section_header.dart";
-import "../../widgets/translated_text.dart";
 import "../more/widgets/tiles.dart";
-import "../more/widgets/tiles_card.dart";
 import "../pin/providers/biometric_provider.dart";
 import "widgets/delete_data_confirmation_dialog.dart";
 
@@ -51,228 +50,149 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final repo = IrmaRepositoryProvider.of(context);
-
-    Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: SectionHeader(translationKey),
-    );
-
-    Widget buildExplanationText(String translationKey) => Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: theme.smallSpacing,
-        horizontal: theme.defaultSpacing,
-      ),
-      child: TranslatedText(
-        translationKey,
-        style: theme.textTheme.bodyMedium!.copyWith(
-          fontSize: 14,
-          color: theme.neutralDark,
-        ),
-      ),
-    );
-
-    final spacerWidget = SizedBox(height: theme.defaultSpacing);
+    final language = FlutterI18n.currentLocale(context)?.languageName() ?? "";
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "settings.title"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Biometric unlock — first option, but only when the device has
-              // biometrics enrolled. The toggle reflects/sets the opt-in pref.
+              // Every switch in one group, each with its explanation under
+              // the label.
               Consumer(
                 builder: (context, ref, _) {
-                  final available =
+                  // Biometric unlock comes first, but only when the device
+                  // has biometrics enrolled.
+                  final biometricAvailable =
                       ref.watch(biometricAvailableProvider).value ?? false;
-                  if (!available) return const SizedBox.shrink();
                   final biometricEnabled =
                       ref.watch(biometricEnabledProvider).value ?? false;
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TilesCard(
-                          children: [
-                            ToggleTile(
-                              key: const Key("biometric_toggle"),
-                              labelTranslationKey: "settings.biometric_unlock",
-                              // Enabling requires a successful biometric
-                              // prompt; on failure the pref stays false and the
-                              // switch (driven by the stream) reverts.
-                              // Disabling needs no auth.
-                              onChanged: (value) async {
-                                if (!value) {
-                                  await repo.preferences.setBiometricEnabled(
-                                    false,
-                                  );
-                                  return;
-                                }
-                                final ok = await ref
-                                    .read(biometricServiceProvider)
-                                    .authenticate(
-                                      localizedReason: FlutterI18n.translate(
-                                        context,
-                                        "pin.biometric_confirm_reason",
-                                      ),
-                                    );
-                                if (ok) {
-                                  await repo.preferences.setBiometricEnabled(
-                                    true,
-                                  );
-                                }
-                              },
-                              stream: repo.preferences.getBiometricEnabled(),
-                            ),
-                          ],
+                  return GlassGroup(
+                    children: [
+                      if (biometricAvailable) ...[
+                        ToggleTile(
+                          key: const Key("biometric_toggle"),
+                          labelTranslationKey: "settings.biometric_unlock",
+                          subtitleTranslationKey:
+                              "settings.biometric_unlock_explanation",
+                          // Enabling requires a successful biometric prompt;
+                          // on failure the pref stays false and the switch
+                          // (driven by the stream) reverts. Disabling needs
+                          // no auth.
+                          onChanged: (value) async {
+                            if (!value) {
+                              await repo.preferences.setBiometricEnabled(false);
+                              return;
+                            }
+                            final ok = await ref
+                                .read(biometricServiceProvider)
+                                .authenticate(
+                                  localizedReason: FlutterI18n.translate(
+                                    context,
+                                    "pin.biometric_confirm_reason",
+                                  ),
+                                );
+                            if (ok) {
+                              await repo.preferences.setBiometricEnabled(true);
+                            }
+                          },
+                          stream: repo.preferences.getBiometricEnabled(),
                         ),
-                        buildExplanationText(
-                          "settings.biometric_unlock_explanation",
-                        ),
-                        // "Scan on launch": stays visible but greyed out and
-                        // non-interactive while biometric unlock is off — the
-                        // pref is ignored until biometric is re-enabled.
-                        SizedBox(height: theme.defaultSpacing),
-                        IgnorePointer(
-                          ignoring: !biometricEnabled,
-                          child: Opacity(
-                            opacity: biometricEnabled ? 1.0 : 0.5,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TilesCard(
-                                  children: [
-                                    ToggleTile(
-                                      key: const Key(
-                                        "biometric_immediate_toggle",
-                                      ),
-                                      labelTranslationKey:
-                                          "settings.biometric_immediate",
-                                      // No auth to flip — it only changes whether
-                                      // an already-enabled biometric fires
-                                      // automatically.
-                                      onChanged: repo
-                                          .preferences
-                                          .setBiometricImmediate,
-                                      stream: repo.preferences
-                                          .getBiometricImmediate(),
-                                    ),
-                                  ],
-                                ),
-                                buildExplanationText(
-                                  "settings.biometric_immediate_explanation",
-                                ),
-                              ],
-                            ),
-                          ),
+                        // Belongs to the one above: indented, and greyed out
+                        // while biometric unlock is off (the pref is ignored
+                        // until it is re-enabled).
+                        ToggleTile(
+                          key: const Key("biometric_immediate_toggle"),
+                          labelTranslationKey: "settings.biometric_immediate",
+                          subtitleTranslationKey:
+                              "settings.biometric_immediate_explanation",
+                          indent: 16,
+                          enabled: biometricEnabled,
+                          onChanged: repo.preferences.setBiometricImmediate,
+                          stream: repo.preferences.getBiometricImmediate(),
                         ),
                       ],
-                    ),
+                      ToggleTile(
+                        key: const Key("report_toggle"),
+                        labelTranslationKey: "settings.report_errors",
+                        subtitleTranslationKey:
+                            "settings.report_errors_explanation",
+                        onChanged: repo.preferences.setReportErrors,
+                        stream: repo.preferences.getReportErrors(),
+                      ),
+                      if (Platform.isAndroid)
+                        ToggleTile(
+                          key: const Key("screenshot_toggle"),
+                          labelTranslationKey: "settings.enable_screenshots",
+                          subtitleTranslationKey:
+                              "settings.enable_screenshots_explanation",
+                          onChanged: repo.preferences.setScreenshotsEnabled,
+                          stream: repo.preferences.getScreenshotsEnabled(),
+                        ),
+                      ToggleTile(
+                        key: const Key("dark_mode_toggle"),
+                        labelTranslationKey: "settings.dark_mode_preview",
+                        subtitleTranslationKey:
+                            "settings.dark_mode_preview_explanation",
+                        onChanged: repo.preferences.setDarkModePreview,
+                        stream: repo.preferences.getDarkModePreview(),
+                      ),
+                      if (showDeveloperModeToggle)
+                        ToggleTile(
+                          key: const Key("dev_mode_toggle"),
+                          labelTranslationKey: "settings.developer_mode",
+                          onChanged: repo.setDeveloperMode,
+                          stream: repo.getDeveloperMode(),
+                        ),
+                    ],
                   );
                 },
               ),
-              TilesCard(
-                children: [
-                  ToggleTile(
-                    key: const Key("report_toggle"),
-                    labelTranslationKey: "settings.report_errors",
-                    onChanged: repo.preferences.setReportErrors,
-                    stream: repo.preferences.getReportErrors(),
-                  ),
-                ],
-              ),
-              buildExplanationText("settings.report_errors_explanation"),
-              spacerWidget,
-              TilesCard(
-                children: [
-                  ToggleTile(
-                    key: const Key("dark_mode_toggle"),
-                    labelTranslationKey: "settings.dark_mode_preview",
-                    onChanged: repo.preferences.setDarkModePreview,
-                    stream: repo.preferences.getDarkModePreview(),
-                  ),
-                ],
-              ),
-              buildExplanationText("settings.dark_mode_preview_explanation"),
-              if (Platform.isAndroid) ...[
-                spacerWidget,
-                TilesCard(
+              Consumer(
+                builder: (context, ref, _) => GlassGroup(
+                  header: FlutterI18n.translate(context, "settings.other"),
+                  dividerIndent: 68,
                   children: [
-                    ToggleTile(
-                      key: const Key("screenshot_toggle"),
-                      labelTranslationKey: "settings.enable_screenshots",
-                      onChanged: repo.preferences.setScreenshotsEnabled,
-                      stream: repo.preferences.getScreenshotsEnabled(),
+                    if (ref.watch(emailLinkAvailableProvider))
+                      InternalLinkTile(
+                        key: const Key("link_email_link"),
+                        iconData: Icons.mail_outline_rounded,
+                        labelTranslationKey: "settings.link_email",
+                        onTap: () => openEmailLinking(context, ref),
+                      ),
+                    Tile(
+                      key: const Key("change_language_link"),
+                      isLink: false,
+                      iconData: Icons.language_rounded,
+                      labelTranslationKey: "settings.language",
+                      value: language,
+                      onTap: context.pushLanguageSettingsScreen,
+                    ),
+                    InternalLinkTile(
+                      key: const Key("change_pin_link"),
+                      iconData: Icons.lock_outline_rounded,
+                      labelTranslationKey: "settings.change_pin",
+                      onTap: context.pushChangePinScreen,
+                    ),
+                    Tile(
+                      isLink: false,
+                      key: const Key("delete_link"),
+                      iconData: Icons.delete_outline_rounded,
+                      danger: true,
+                      labelTranslationKey: "settings.delete",
+                      onTap: () => showConfirmDeleteDialog(context),
                     ),
                   ],
                 ),
-                buildExplanationText("settings.enable_screenshots_explanation"),
-                spacerWidget,
-              ],
-              if (showDeveloperModeToggle)
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                  child: TilesCard(
-                    children: [
-                      ToggleTile(
-                        key: const Key("dev_mode_toggle"),
-                        labelTranslationKey: "settings.developer_mode",
-                        onChanged: repo.setDeveloperMode,
-                        stream: repo.getDeveloperMode(),
-                      ),
-                    ],
-                  ),
-                ),
-              Consumer(
-                builder: (context, ref, _) {
-                  if (!ref.watch(emailLinkAvailableProvider)) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-                    child: TilesCard(
-                      children: [
-                        InternalLinkTile(
-                          key: const Key("link_email_link"),
-                          labelTranslationKey: "settings.link_email",
-                          onTap: () => openEmailLinking(context, ref),
-                        ),
-                      ],
-                    ),
-                  );
-                },
               ),
-              buildHeaderText("settings.other"),
-              TilesCard(
-                children: [
-                  InternalLinkTile(
-                    key: Key("change_language_link"),
-                    labelTranslationKey: "settings.language",
-                    onTap: context.pushLanguageSettingsScreen,
-                  ),
-                  InternalLinkTile(
-                    key: Key("change_pin_link"),
-                    labelTranslationKey: "settings.change_pin",
-                    onTap: context.pushChangePinScreen,
-                  ),
-                  Tile(
-                    isLink: false,
-                    key: const Key("delete_link"),
-                    labelTranslationKey: "settings.delete",
-                    onTap: () => showConfirmDeleteDialog(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 200),
             ],
           ),
         ),

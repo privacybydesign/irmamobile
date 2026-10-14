@@ -147,15 +147,27 @@ class InternalLinkTile extends StatelessWidget {
 class ToggleTile extends StatelessWidget {
   final IconData? iconData;
   final String labelTranslationKey;
+
+  /// Grey text under the label that explains the setting.
+  final String? subtitleTranslationKey;
   final void Function(bool) onChanged;
   final Stream<bool> stream;
+
+  /// Extra space at the start, for a setting that belongs to the one above.
+  final double indent;
+
+  /// When false the row is greyed out and ignores taps.
+  final bool enabled;
 
   const ToggleTile({
     super.key,
     this.iconData,
     required this.labelTranslationKey,
+    this.subtitleTranslationKey,
     required this.onChanged,
     required this.stream,
+    this.indent = 0,
+    this.enabled = true,
   });
 
   @override
@@ -185,6 +197,9 @@ class ToggleTile extends StatelessWidget {
             isLink: false,
             iconData: iconData,
             labelTranslationKey: labelTranslationKey,
+            subtitleTranslationKey: subtitleTranslationKey,
+            indent: indent,
+            enabled: enabled,
             // Tapping anywhere on the row toggles the switch.
             onTap: () => toggle(!value),
             // The switch handles its own taps/drags too: a disabled
@@ -193,7 +208,7 @@ class ToggleTile extends StatelessWidget {
             trailing: CupertinoSwitch(
               value: value,
               onChanged: toggle,
-              activeTrackColor: theme.success,
+              activeTrackColor: theme.primary,
             ),
           ),
         );
@@ -205,58 +220,116 @@ class ToggleTile extends StatelessWidget {
 class Tile extends StatelessWidget {
   final IconData? iconData;
   final String labelTranslationKey;
+
+  /// Grey text under the label.
+  final String? subtitleTranslationKey;
+
+  /// Grey text at the end of the row, before the chevron, e.g. the current
+  /// language.
+  final String? value;
   final Function() onTap;
   final Widget? trailing;
   final bool isLink;
+
+  /// A destructive action: red label and a red icon square, no chevron.
+  final bool danger;
+
+  /// Extra space at the start, for a row that belongs to the one above.
+  final double indent;
+
+  /// When false the row is greyed out and ignores taps.
+  final bool enabled;
 
   const Tile({
     super.key,
     this.iconData,
     required this.labelTranslationKey,
+    this.subtitleTranslationKey,
+    this.value,
     required this.onTap,
     this.trailing,
     this.isLink = true,
+    this.danger = false,
+    this.indent = 0,
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final (Color squareFill, Color iconColor, Color labelColor) = danger
+        ? (palette.errorSurface, palette.danger, palette.danger)
+        : (palette.tint, palette.heading, palette.text);
 
-    return Semantics(
-      link: isLink,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 60),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
-              child: Row(
-                spacing: 16,
-                children: [
-                  if (iconData != null)
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: ShapeDecoration(
-                        color: palette.tint,
-                        shape: const RoundedSuperellipseBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                        ),
-                      ),
-                      child: Icon(iconData, size: 22, color: palette.heading),
-                    ),
-                  Expanded(
-                    child: TranslatedText(
-                      labelTranslationKey,
-                      style: palette.body(16),
-                    ),
+    final row = ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 60),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16 + indent, 12, 12, 12),
+        child: Row(
+          spacing: 16,
+          children: [
+            if (iconData != null)
+              Container(
+                width: 36,
+                height: 36,
+                decoration: ShapeDecoration(
+                  color: squareFill,
+                  shape: const RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
                   ),
-                  trailing ?? Icon(Icons.chevron_right, color: palette.faint),
+                ),
+                child: Icon(iconData, size: 22, color: iconColor),
+              ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TranslatedText(
+                    labelTranslationKey,
+                    style: palette
+                        .body(
+                          16,
+                          weight: danger ? FontWeight.w600 : FontWeight.w400,
+                        )
+                        .copyWith(color: labelColor),
+                  ),
+                  if (subtitleTranslationKey != null)
+                    TranslatedText(
+                      subtitleTranslationKey!,
+                      style: palette
+                          .body(14)
+                          .copyWith(
+                            height: 20 / 14,
+                            color: palette.secondaryText,
+                          ),
+                    ),
                 ],
               ),
             ),
+            if (value != null)
+              Text(
+                value!,
+                style: palette.body(14).copyWith(color: palette.secondaryText),
+              ),
+            trailing ??
+                (danger
+                    ? const SizedBox.shrink()
+                    : Icon(Icons.chevron_right, color: palette.faint)),
+          ],
+        ),
+      ),
+    );
+
+    return Semantics(
+      link: isLink,
+      enabled: enabled,
+      child: Material(
+        type: MaterialType.transparency,
+        child: IgnorePointer(
+          ignoring: !enabled,
+          child: Opacity(
+            opacity: enabled ? 1 : 0.5,
+            child: InkWell(onTap: onTap, child: row),
           ),
         ),
       ),

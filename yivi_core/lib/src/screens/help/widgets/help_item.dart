@@ -17,6 +17,7 @@ class HelpItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Collapsible(
+    flat: true,
     header: FlutterI18n.translate(context, headerTranslationKey),
     parentScrollController: parentScrollController,
     content: body,
