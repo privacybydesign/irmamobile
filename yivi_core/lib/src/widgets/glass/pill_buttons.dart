@@ -109,10 +109,11 @@ class FancyPillButton extends StatelessWidget {
   }
 }
 
-enum PillStyle { outlined, text, neutral, danger }
+enum PillStyle { outlined, text, neutral, danger, dangerFilled }
 
 /// Secondary pill buttons: outlined, plain text, a filled neutral one ("Log
-/// out") and a red text one for destructive actions.
+/// out"), a red text one for destructive actions and a red filled one that
+/// confirms a destructive action in a dialog.
 class PillButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -143,6 +144,11 @@ class PillButton extends StatelessWidget {
       PillStyle.text => (Colors.transparent, palette.heading, BorderSide.none),
       PillStyle.neutral => (palette.heading, palette.surface, BorderSide.none),
       PillStyle.danger => (Colors.transparent, palette.danger, BorderSide.none),
+      PillStyle.dangerFilled => (
+        palette.dangerFill,
+        Colors.white,
+        BorderSide.none,
+      ),
     };
 
     final content = SizedBox(

@@ -172,9 +172,9 @@ class _BandCredential extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.success,
                   shape: BoxShape.circle,
-                  border: Border.all(color: theme.light),
+                  border: Border.all(color: theme.onPrimary),
                 ),
-                child: Icon(Icons.check, size: 10, color: theme.light),
+                child: Icon(Icons.check, size: 10, color: theme.onPrimary),
               ),
             ),
         ],

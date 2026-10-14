@@ -1,14 +1,12 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "translated_text.dart";
 
-/// Section header indented to align with the inner content of cards below.
-///
-/// Cards in this app have `defaultSpacing` of internal padding, so the header
-/// is shifted right by the same amount to line up with where the card's
-/// content (avatar, icon, text) starts. The style is fixed so headers read
-/// consistently across the app.
+/// Section header above a group of cards or rows, in the display face of the
+/// redesign. It sits just inside the groups' rounded edge, like the headers
+/// of [GlassGroup]. The style is fixed so headers read consistently across
+/// the app.
 class SectionHeader extends StatelessWidget {
   final String? _translationKey;
   final String? _text;
@@ -25,15 +23,12 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final style = theme.themeData.textTheme.headlineMedium?.copyWith(
-      color: theme.neutralExtraDark,
-    );
+    final style = YiviPalette.of(context).display(16);
     final Widget content = _translationKey != null
         ? TranslatedText(_translationKey, isHeader: true, style: style)
         : Semantics(header: true, child: Text(_text!, style: style));
     return Padding(
-      padding: EdgeInsets.only(left: theme.defaultSpacing),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: content,
     );
   }

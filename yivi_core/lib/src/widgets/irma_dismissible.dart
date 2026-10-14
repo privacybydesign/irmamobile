@@ -23,7 +23,7 @@ class IrmaDismissible extends StatelessWidget {
 
     final dismissedText = TranslatedText(
       "ui.delete",
-      style: theme.textTheme.bodyLarge!.copyWith(color: theme.light),
+      style: theme.textTheme.bodyLarge!.copyWith(color: theme.onPrimary),
     );
 
     final background = Container(

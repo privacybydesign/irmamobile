@@ -190,8 +190,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
           child: MaterialApp.router(
             key: const Key("app"),
             title: "Yivi",
-            theme: IrmaTheme.of(context).themeData,
-            darkTheme: IrmaTheme.of(context).darkThemeData,
+            theme: IrmaTheme.variantsOf(context).data.themeData,
+            darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
             themeMode: _darkModePreview ? ThemeMode.dark : ThemeMode.light,
             localizationsDelegates: defaultLocalizationsDelegates(
               widget.forcedLocale,

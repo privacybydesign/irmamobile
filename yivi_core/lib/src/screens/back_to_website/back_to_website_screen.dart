@@ -155,7 +155,7 @@ class _BrowserSketch extends StatelessWidget {
                     child: TranslatedText(
                       "back_to_website.sketch_button",
                       style: theme.textTheme.labelLarge!.copyWith(
-                        color: theme.light,
+                        color: theme.onPrimary,
                       ),
                     ),
                   ),

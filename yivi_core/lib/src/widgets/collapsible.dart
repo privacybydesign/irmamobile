@@ -5,6 +5,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "configurable_expansion_tile.dart";
 import "irma_card.dart";
 
@@ -124,7 +125,12 @@ class _CollapsibleState extends State<Collapsible> {
                 left: theme.defaultSpacing,
                 right: theme.defaultSpacing,
               ),
-              child: Text(widget.header, style: theme.textTheme.headlineSmall),
+              child: Text(
+                widget.header,
+                style: YiviPalette.of(
+                  context,
+                ).body(16, weight: FontWeight.w600),
+              ),
             ),
           ),
         ),

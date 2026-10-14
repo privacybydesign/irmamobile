@@ -63,6 +63,13 @@ class YiviPalette {
   final Color glassHighlight;
   final Color glassShadow;
 
+  /// Fill of dialogs and other glass that carries a lot of text: more opaque
+  /// than [glassFill].
+  final Color glassStrongFill;
+
+  /// Fill of the button that confirms a destructive action.
+  final Color dangerFill;
+
   /// Brand red, the same in both variants.
   final Color primary = const Color(0xFFBA3354);
 
@@ -94,6 +101,8 @@ class YiviPalette {
     required this.glassBorder,
     required this.glassHighlight,
     required this.glassShadow,
+    required this.glassStrongFill,
+    required this.dangerFill,
   });
 
   static const light = YiviPalette._(
@@ -104,7 +113,8 @@ class YiviPalette {
     sheet: Color(0xFFFAFAFA),
     text: Color(0xFF000000),
     heading: Color(0xFF484747),
-    secondaryText: Color(0xFF757375),
+    // #757375 (neutralDark) is 4.18:1 on the background; this passes AA.
+    secondaryText: Color(0xFF6B696B),
     faint: Color(0xFF9F9A9A),
     divider: Color(0xFFEAE5E2),
     outline: Color(0xFFCFE4EF),
@@ -124,6 +134,8 @@ class YiviPalette {
     glassBorder: Color(0xBFFFFFFF),
     glassHighlight: Color(0xF2FFFFFF),
     glassShadow: Color(0x1A000000),
+    glassStrongFill: Color(0xD1FFFFFF),
+    dangerFill: Color(0xFFBD1919),
   );
 
   static const dark = YiviPalette._(
@@ -154,6 +166,8 @@ class YiviPalette {
     glassBorder: Color(0x24FFFFFF),
     glassHighlight: Color(0x29FFFFFF),
     glassShadow: Color(0x73000000),
+    glassStrongFill: Color(0xE01E2229),
+    dangerFill: Color(0xFFC42B2B),
   );
 
   bool get isDark => brightness == Brightness.dark;

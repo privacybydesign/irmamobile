@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
-import "../../package_name.dart";
 
+import "glass/glass_dialog.dart";
 import "irma_info_scaffold_body.dart";
 
 enum ErrorType { general, expired, pairingRejected }
@@ -26,7 +26,10 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaInfoScaffoldBody(
-      imagePath: yiviAsset("error/general_error_illustration.svg"),
+      icon: type == ErrorType.expired
+          ? Icons.schedule_rounded
+          : Icons.warning_amber_rounded,
+      tone: type == ErrorType.expired ? DialogTone.warning : DialogTone.danger,
       titleTranslationKey: _translationKeys[type]!,
       bodyTranslationKey: reportable == true ? "error.report" : null,
       linkTranslationKey: details != null ? "error.button_show_error" : null,

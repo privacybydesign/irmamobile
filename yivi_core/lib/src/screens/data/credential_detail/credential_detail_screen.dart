@@ -11,6 +11,7 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/instance_hint.dart";
+import "../../../widgets/app_toast.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
@@ -688,8 +689,7 @@ class _Details extends ConsumerWidget {
         ) ??
         false;
     if (!confirmed || !context.mounted) return;
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    final palette = YiviPalette.of(context);
+    final toast = appToastFor(context);
     final message = FlutterI18n.translate(
       context,
       "credential.options.delete_success",
@@ -698,16 +698,7 @@ class _Details extends ConsumerWidget {
       DeleteCredentialEvent(hashByFormat: credential.credentialInstanceIds),
     );
     onDeleted();
-    messenger?.showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: palette.body(16).copyWith(color: palette.surface),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: palette.heading,
-      ),
-    );
+    toast(message);
   }
 }
 

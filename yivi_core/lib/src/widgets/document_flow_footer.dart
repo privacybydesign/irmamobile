@@ -40,7 +40,9 @@ class DocumentFlowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final textColor = style == .primary ? theme.light : theme.neutralExtraDark;
+    final textColor = style == .primary
+        ? theme.onPrimary
+        : theme.neutralExtraDark;
     final label = Center(
       child: Padding(
         padding: .symmetric(

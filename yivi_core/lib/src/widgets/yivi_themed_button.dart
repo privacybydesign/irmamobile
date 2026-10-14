@@ -137,9 +137,14 @@ class YiviThemedButton extends StatelessWidget {
       );
     }
 
-    final textColor = style == YiviButtonStyle.outlined
-        ? theme.neutralExtraDark
-        : theme.light;
+    // A filled button is [IrmaThemeData.secondary], which turns light in dark
+    // mode, so its label takes the surface colour; the fancy one is red in
+    // both and keeps a white label.
+    final textColor = switch (style) {
+      YiviButtonStyle.outlined => theme.neutralExtraDark,
+      YiviButtonStyle.filled when !isTransparent => theme.light,
+      _ => theme.onPrimary,
+    };
     final labelWidget = TranslatedText(
       label,
       translationParams: labelParams,

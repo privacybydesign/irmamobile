@@ -10,6 +10,7 @@ import "../../../package_name.dart";
 import "../../data/irma_preferences.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
@@ -533,7 +534,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   }
 
   Widget _buildInstructionText(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Center(
       child: Semantics(
         header: true,
@@ -545,12 +545,10 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           widget.instruction ??
               FlutterI18n.translate(context, widget.instructionKey!),
           textAlign: TextAlign.center,
-          style: theme.textTheme.displaySmall?.copyWith(
-            // Smaller than displaySmall's 18, scaled down further on small
-            // screens, and without its 2.0 line-height so the block stays
-            // clear of the keypad.
-            fontSize: 16.scaleToDesignSize(context),
-            height: 1.3,
+          style: YiviPalette.of(context).display(
+            // Scaled down on small screens so the block stays clear of the
+            // keypad.
+            18.scaleToDesignSize(context),
           ),
         ),
       ),

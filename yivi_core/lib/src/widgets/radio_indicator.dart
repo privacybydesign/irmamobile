@@ -33,7 +33,7 @@ class RadioIndicator extends StatelessWidget {
             ),
       child: Center(
         child: isSelected
-            ? _buildInnerCircle(color: theme.light, size: size * 0.45)
+            ? _buildInnerCircle(color: theme.onPrimary, size: size * 0.45)
             : null,
       ),
     );

@@ -60,9 +60,30 @@ import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
 import "src/util/missing_data_flow.dart";
 import "src/util/navigation.dart";
+import "src/widgets/adaptive_page.dart";
 import "src/widgets/irma_app_bar.dart";
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+/// A route whose screen is presented by [mode] on tablets and comes in with
+/// [phone] on phones (see [AdaptivePage]).
+GoRoute _adaptive({
+  required PresentationMode mode,
+  PhoneTransition phone = PhoneTransition.push,
+  required String path,
+  required GoRouterWidgetBuilder builder,
+  List<RouteBase> routes = const [],
+}) => GoRoute(
+  path: path,
+  routes: routes,
+  pageBuilder: (context, state) => AdaptivePage<void>(
+    key: state.pageKey,
+    name: state.uri.path,
+    mode: mode,
+    phoneTransition: phone,
+    child: builder(context, state),
+  ),
+);
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -78,7 +99,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) => RouteNotFoundScreen(),
     routes: [
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.sheet,
+        phone: PhoneTransition.push,
         path: "/error",
         builder: (context, state) => ErrorScreen(
           details: state.extra as String,
@@ -90,7 +113,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         pageBuilder: (context, state) =>
             NoTransitionPage(name: "/loading", child: LoadingScreen()),
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.full,
+        phone: PhoneTransition.fade,
         path: "/modal_pin",
         builder: (context, state) {
           return PinScreen(
@@ -99,20 +124,28 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           );
         },
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.full,
+        phone: PhoneTransition.push,
         path: "/reset_pin",
         builder: (context, state) => ResetPinScreen(),
       ),
       // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.sheet,
+        phone: PhoneTransition.push,
         path: "/change_pin",
         builder: (context, state) => ChangePinScreen(),
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.full,
+        phone: PhoneTransition.push,
         path: "/enrollment",
         builder: (context, state) => EnrollmentScreen(),
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.sheet,
+        phone: PhoneTransition.push,
         path: "/back_to_website",
         builder: (context, state) => const BackToWebsiteScreen(),
       ),
@@ -145,7 +178,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               ),
             ),
           ),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.push,
             path: "credentials_details",
             builder: (context, state) {
               final args = CredentialsDetailsRouteParams.fromQueryParams(
@@ -156,7 +191,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.push,
             path: "activity_details",
             builder: (context, state) {
               final logEntry = state.extra as LogInfo;
@@ -165,12 +202,20 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(path: "help", builder: (context, state) => HelpScreen()),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            path: "help",
+            builder: (context, state) => HelpScreen(),
+          ),
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.push,
             path: "add_data",
             builder: (context, state) => SchemalessAddDataScreen(),
             routes: [
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.push,
                 path: "details",
                 builder: (context, state) {
                   final params = AddDataDetailsRouteParams.fromQueryParams(
@@ -203,21 +248,29 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               ),
             ],
           ),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.push,
             path: "debug",
             builder: (context, state) => const DebugScreen(),
             routes: [
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.push,
                 path: "feature_flags",
                 builder: (context, state) => const FeatureFlagsScreen(),
               ),
             ],
           ),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.push,
             path: "settings",
             builder: (context, state) => SettingsScreen(),
             routes: [
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.push,
                 path: "change_language",
                 builder: (context, state) => ChangeLanguageScreen(),
               ),
@@ -229,7 +282,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           ),
         ],
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.window,
+        phone: PhoneTransition.rise,
         path: "/session",
         builder: (context, state) {
           final args = SessionRouteParams.fromQueryParams(
@@ -241,7 +296,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           );
         },
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.sheet,
+        phone: PhoneTransition.push,
         path: "/unknown_session",
         builder: (context, state) {
           final args = SessionRouteParams.fromQueryParams(
@@ -273,7 +330,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           );
         },
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.full,
+        phone: PhoneTransition.push,
         path: "/rooted_warning",
         builder: (context, state) {
           return RootedWarningScreen(
@@ -286,7 +345,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           );
         },
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.full,
+        phone: PhoneTransition.push,
         path: "/name_changed",
         builder: (context, state) {
           return NameChangedScreen(
@@ -295,15 +356,21 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           );
         },
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.full,
+        phone: PhoneTransition.push,
         path: "/update_required",
         builder: (context, state) => RequiredUpdateScreen(),
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.sheet,
+        phone: PhoneTransition.rise,
         path: "/issue_mobilenumber",
         builder: (context, state) => SmsIssuanceScreen(),
       ),
-      GoRoute(
+      _adaptive(
+        mode: PresentationMode.sheet,
+        phone: PhoneTransition.rise,
         path: "/issue_email",
         builder: (context, state) => EmailIssuanceScreen(
           purpose:
@@ -315,7 +382,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/mrz",
         builder: (context, state) => Container(),
         routes: [
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.rise,
             path: "/instructions/:type",
             builder: (context, state) {
               final documentType = DocumentType.values.byName(
@@ -335,7 +404,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             path: "/manual_entry",
             builder: (context, state) => Container(),
             routes: [
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.rise,
                 path: "/driving_licence",
                 builder: (context, state) {
                   return DrivingLicenceMrzManualEntryScreen(
@@ -354,7 +425,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   );
                 },
               ),
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.rise,
                 path: "/passport",
                 builder: (context, state) {
                   return PassportMrzManualEntryScreen(
@@ -387,7 +460,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   );
                 },
               ),
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.rise,
                 path: "/id_card",
                 builder: (context, state) {
                   return PassportMrzManualEntryScreen(
@@ -426,7 +501,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             path: "/reader",
             builder: (context, state) => Container(),
             routes: [
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.rise,
                 path: "/driving_licence",
                 builder: (context, state) {
                   return MrzReaderScreen(
@@ -461,7 +538,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   );
                 },
               ),
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.rise,
                 path: "/passport",
                 builder: (context, state) {
                   return MrzReaderScreen(
@@ -494,7 +573,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   );
                 },
               ),
-              GoRoute(
+              _adaptive(
+                mode: PresentationMode.sheet,
+                phone: PhoneTransition.rise,
                 path: "/id_card",
                 builder: (context, state) {
                   return MrzReaderScreen(
@@ -532,7 +613,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/nfc",
         builder: (context, state) => Container(),
         routes: [
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.rise,
             path: "/driving_licence",
             builder: (context, state) {
               final args = DrivingLicenceNfcReadingRouteParams.fromQueryParams(
@@ -590,7 +673,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.rise,
             path: "/passport",
             builder: (context, state) {
               final args = PassportNfcReadingRouteParams.fromQueryParams(
@@ -642,7 +727,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(
+          _adaptive(
+            mode: PresentationMode.sheet,
+            phone: PhoneTransition.rise,
             path: "/id_card",
             builder: (context, state) {
               final args = PassportNfcReadingRouteParams.fromQueryParams(

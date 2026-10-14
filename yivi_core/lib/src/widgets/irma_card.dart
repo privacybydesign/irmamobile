@@ -4,7 +4,8 @@ import "../theme/theme.dart";
 
 enum IrmaCardStyle { normal, outlined, highlighted, danger }
 
-/// Variant of Material's Card that uses IRMA styling.
+/// Variant of Material's Card that uses IRMA styling: a rounded group on the
+/// surface colour, as in the glass redesign.
 class IrmaCard extends StatelessWidget {
   final Function()? onTap;
   final Widget? child;
@@ -28,36 +29,38 @@ class IrmaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    // Rounder than the 8 pt of the old cards, like the groups of the redesign.
+    const radius = BorderRadius.all(Radius.circular(20));
 
     BoxDecoration boxDecoration;
     switch (style) {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
+          borderRadius: radius,
           border: Border.all(width: 0, color: Colors.transparent),
           color: theme.light,
         );
         break;
       case IrmaCardStyle.outlined:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
+          borderRadius: radius,
           border: Border.all(
             color: theme.themeData.colorScheme.secondary,
             width: 1,
           ),
-          color: Colors.white,
+          color: theme.light,
         );
         break;
       case IrmaCardStyle.highlighted:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
+          borderRadius: radius,
           border: Border.all(color: theme.tertiary, width: 1),
           color: theme.surfaceSecondary,
         );
         break;
       case IrmaCardStyle.danger:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
+          borderRadius: radius,
           border: Border.all(color: theme.danger, width: 1),
           color: theme.surfaceTertiary,
         );
@@ -73,7 +76,9 @@ class IrmaCard extends StatelessWidget {
       boxDecoration = boxDecoration.copyWith(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade300,
+            color: theme.isDark
+                ? const Color(0x40000000)
+                : const Color(0x17000000),
             offset: const Offset(0.0, 1.0),
             blurRadius: 6.0,
           ),
@@ -86,9 +91,9 @@ class IrmaCard extends StatelessWidget {
       child: Container(
         decoration: boxDecoration,
         child: ClipRRect(
-          borderRadius: theme.borderRadius,
+          borderRadius: radius,
           child: InkWell(
-            borderRadius: theme.borderRadius,
+            borderRadius: radius,
             onTap: onTap,
             child: Container(
               // In this context the "margin" is set on the container padding.

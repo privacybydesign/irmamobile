@@ -1,3 +1,4 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -10,6 +11,7 @@ import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
+import "../../widgets/app_toast.dart";
 import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
@@ -18,7 +20,6 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/progress.dart";
-import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_bottom_sheet.dart";
 
 class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
@@ -239,21 +240,10 @@ class _CredentialsDetailsScreenState
     );
   }
 
-  void _showDeletedSnackbar() {
-    final theme = IrmaTheme.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: TranslatedText(
-          "credential.options.delete_success",
-          style: theme.themeData.textTheme.bodyMedium!.copyWith(
-            color: theme.light,
-          ),
-        ),
-        behavior: .floating,
-        backgroundColor: theme.themeData.colorScheme.secondary,
-      ),
-    );
-  }
+  void _showDeletedSnackbar() => showAppToast(
+    context,
+    FlutterI18n.translate(context, "credential.options.delete_success"),
+  );
 
   void _reobtainCredential(
     BuildContext context,

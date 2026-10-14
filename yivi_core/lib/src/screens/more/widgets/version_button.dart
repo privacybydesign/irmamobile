@@ -1,4 +1,5 @@
 import "package:collection/collection.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
 
@@ -6,6 +7,7 @@ import "../../../../sentry_dsn.dart";
 import "../../../models/credentials.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../widgets/app_toast.dart";
 import "../../../widgets/translated_text.dart";
 
 class VersionButton extends StatefulWidget {
@@ -40,13 +42,7 @@ class _VersionButtonState extends State<VersionButton> {
     );
 
     void showSnackbar(String translationKey) =>
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: theme.success,
-            content: TranslatedText(translationKey),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        showAppToast(context, FlutterI18n.translate(context, translationKey));
 
     void onTap() async {
       _tapCounter++;

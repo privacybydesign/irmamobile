@@ -230,7 +230,7 @@ class _ManualEntryButton extends StatelessWidget {
                   label: label,
                   child: InkWell(
                     onTap: onTap,
-                    child: Icon(Icons.edit, color: theme.light, size: 42),
+                    child: Icon(Icons.edit, color: theme.onPrimary, size: 42),
                   ),
                 ),
               ),

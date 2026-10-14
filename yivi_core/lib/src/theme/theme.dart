@@ -1,7 +1,7 @@
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
-import "yivi_palette.dart";
+import "page_transitions.dart";
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -16,40 +16,50 @@ class IrmaThemeData {
   final double largeSpacing = _spaceBase * 2; // 32
   final double hugeSpacing = _spaceBase * 4; // 64
 
+  /// Light or dark. The colour fields below keep their names in both
+  /// variants and mean the same role (`light` is the plain surface behind
+  /// content, `dark` the plain text colour), so screens built on them follow
+  /// the app brightness without changes. Text and icons on a coloured fill
+  /// (primary buttons, badges, camera overlays) use [onPrimary], which is
+  /// white in both.
+  final Brightness brightness;
+  bool get isDark => brightness == Brightness.dark;
+
   // Main colors
   final Color primary = const Color(0xFFBA3354);
   Color get secondary => neutralExtraDark; // Used for buttons and headlines
-  final Color tertiary = const Color(0xFFCFE4EF);
+  final Color tertiary;
+
+  /// Text and icons on [primary] and other coloured fills.
+  final Color onPrimary = Colors.white;
 
   // Background / contrast colors
-  Color get backgroundPrimary => light; //Used on scaffolds
-  final Color backgroundSecondary = const Color(0xFFFAFAFA);
-  Color backgroundTertiary = const Color(0xFFEAF3F9);
+  final Color backgroundPrimary; // Used on scaffolds
+  final Color backgroundSecondary;
+  final Color backgroundTertiary;
 
   Color get surfacePrimary =>
       light; // Used on cards etc, to contrast with the background
-  final Color surfaceSecondary = const Color(
-    0xFFEAF3F9,
-  ); // Used on cards that are active etc.
-  Color surfaceTertiary = const Color(0xffF0DEDE); // Used on cards that expired
+  final Color surfaceSecondary; // Used on cards that are active etc.
+  final Color surfaceTertiary; // Used on cards that expired
 
-  // Grey swatch
-  final Color dark = Colors.black;
-  final Color neutralExtraDark = const Color(0xFF484747);
-  final Color neutralDark = const Color(0xFF757375);
-  final Color neutral = const Color(0xFF9F9A9A);
-  final Color neutralLight = const Color(0xFFD7D2CD);
-  final Color neutralExtraLight = const Color(0xFFEAE5E2);
-  final Color light = Colors.white;
+  // Grey swatch, from the text colour ([dark]) to the surface ([light]).
+  final Color dark;
+  final Color neutralExtraDark;
+  final Color neutralDark;
+  final Color neutral;
+  final Color neutralLight;
+  final Color neutralExtraLight;
+  final Color light;
 
   // Communicating colors
-  final Color error = const Color(0xFFBD1919);
-  final Color errorSurface = const Color(0xFFF5DBDB);
-  final Color warning = const Color(0xFFEBA73B);
-  final Color success = const Color(0xFF00973A);
-  final Color successSurface = const Color(0xFFD7EFE0);
-  final Color link = const Color(0xFF1D4E89);
-  final Color danger = const Color(0xffEABEBE);
+  final Color error;
+  final Color errorSurface;
+  final Color warning;
+  final Color success;
+  final Color successSurface;
+  final Color link;
+  final Color danger;
 
   // Fonts
   final String primaryFontFamily = "Open Sans";
@@ -78,16 +88,42 @@ class IrmaThemeData {
   // A heading above body text, on screens that have no app bar title for it.
   TextStyle? get bodyHeading => textTheme.bodyLarge?.copyWith(fontSize: 20);
 
-  IrmaThemeData() {
+  /// The light theme. [IrmaThemeData.dark] has the same fields with the
+  /// colours of the dark palette of the redesign.
+  IrmaThemeData() : this._(Brightness.light);
+
+  IrmaThemeData.dark() : this._(Brightness.dark);
+
+  IrmaThemeData._(this.brightness)
+    : tertiary = _pick(brightness, 0xFFCFE4EF, 0xFF2C3B48),
+      backgroundPrimary = _pick(brightness, 0xFFFFFFFF, 0xFF0E1116),
+      backgroundSecondary = _pick(brightness, 0xFFFAFAFA, 0xFF13161B),
+      backgroundTertiary = _pick(brightness, 0xFFEAF3F9, 0xFF0E1116),
+      surfaceSecondary = _pick(brightness, 0xFFEAF3F9, 0xFF1B2530),
+      surfaceTertiary = _pick(brightness, 0xFFF0DEDE, 0xFF3A1A1C),
+      dark = _pick(brightness, 0xFF000000, 0xFFF2F2F4),
+      neutralExtraDark = _pick(brightness, 0xFF484747, 0xFFD9D6D4),
+      neutralDark = _pick(brightness, 0xFF757375, 0xFFA3A0A2),
+      neutral = _pick(brightness, 0xFF9F9A9A, 0xFF6F6C6E),
+      neutralLight = _pick(brightness, 0xFFD7D2CD, 0xFF4A4E55),
+      neutralExtraLight = _pick(brightness, 0xFFEAE5E2, 0xFF2A2F37),
+      light = _pick(brightness, 0xFFFFFFFF, 0xFF1A1E25),
+      error = _pick(brightness, 0xFFBD1919, 0xFFFF7A7A),
+      errorSurface = _pick(brightness, 0xFFF5DBDB, 0xFF3A1A1C),
+      warning = _pick(brightness, 0xFFEBA73B, 0xFFF2C46B),
+      success = _pick(brightness, 0xFF00973A, 0xFF3FBF74),
+      successSurface = _pick(brightness, 0xFFD7EFE0, 0xFF133324),
+      link = _pick(brightness, 0xFF1D4E89, 0xFF8DBBF2),
+      danger = _pick(brightness, 0xFFEABEBE, 0xFF5A2A2E) {
     //Init color scheme
     final colorScheme = ColorScheme(
-      brightness: Brightness.light,
+      brightness: brightness,
       primary: primary,
-      onPrimary: light,
+      onPrimary: onPrimary,
       secondary: secondary,
       onSecondary: light,
       error: error,
-      onError: light,
+      onError: onPrimary,
       surface: surfacePrimary,
       onSurface: dark,
     );
@@ -180,15 +216,15 @@ class IrmaThemeData {
         fontSize: 16,
         height: 24 / 16,
         fontWeight: FontWeight.w700,
-        color: light,
+        color: onPrimary,
       ),
     );
 
     //Init Input Decoration Theme
     final inputDecorationTheme = InputDecorationTheme(
       labelStyle: textTheme.labelSmall,
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: neutral),
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide: BorderSide(color: secondary, width: 2.0),
@@ -196,8 +232,8 @@ class IrmaThemeData {
       errorBorder: UnderlineInputBorder(
         borderSide: BorderSide(color: error, width: 2.0),
       ),
-      disabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
+      disabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: neutral),
       ),
       errorStyle: textTheme.bodyMedium?.copyWith(color: error),
     );
@@ -208,14 +244,16 @@ class IrmaThemeData {
       iconTheme: IconThemeData(color: dark),
       toolbarTextStyle: textTheme.bodyMedium,
       titleTextStyle: textTheme.titleLarge,
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        // Android 15+ ignores bar colors under enforced edge-to-edge;
-        // icon brightness is what stays readable. App is light-only.
+      // Android 15+ ignores bar colors under enforced edge-to-edge; icon
+      // brightness is what stays readable.
+      systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
-        statusBarBrightness: Brightness.light, // iOS: light bg
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: brightness, // iOS: the background brightness
+        systemNavigationBarColor: backgroundPrimary,
+        systemNavigationBarIconBrightness: isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
     );
 
@@ -238,7 +276,7 @@ class IrmaThemeData {
     mrzLabel = TextStyle(
       fontFamily: "monospace",
       fontSize: 14,
-      color: light,
+      color: onPrimary,
       letterSpacing: 2,
     );
 
@@ -258,6 +296,7 @@ class IrmaThemeData {
 
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
+      brightness: brightness,
       fontFamily: primaryFontFamily,
       scaffoldBackgroundColor: backgroundPrimary,
       bottomSheetTheme: const BottomSheetThemeData(
@@ -268,40 +307,15 @@ class IrmaThemeData {
       appBarTheme: appBarTheme,
       inputDecorationTheme: inputDecorationTheme,
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
-    );
-  }
-}
-
-extension IrmaDarkTheme on IrmaThemeData {
-  /// The dark variant used by the dark mode preview: the redesigned screens
-  /// take their colours from [YiviPalette.dark]; this sets the Material
-  /// defaults around them (scaffold, surfaces, status bar icons).
-  ThemeData get darkThemeData {
-    const palette = YiviPalette.dark;
-    return themeData.copyWith(
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: palette.background,
-      colorScheme: themeData.colorScheme.copyWith(
-        brightness: Brightness.dark,
-        surface: palette.surface,
-        onSurface: palette.text,
-      ),
-      appBarTheme: themeData.appBarTheme.copyWith(
-        iconTheme: IconThemeData(color: palette.text),
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
-          systemNavigationBarColor: Color(0xFF0E1116),
-          systemNavigationBarIconBrightness: Brightness.light,
-        ),
-      ),
+      pageTransitionsTheme: yiviPageTransitionsTheme,
     );
   }
 }
 
 class IrmaTheme extends InheritedWidget {
   final IrmaThemeData data = IrmaThemeData();
+  final IrmaThemeData darkData = IrmaThemeData.dark();
+
   // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.
   IrmaTheme({super.key, required WidgetBuilder builder})
@@ -312,7 +326,20 @@ class IrmaTheme extends InheritedWidget {
     return (oldWidget as IrmaTheme).data != data;
   }
 
+  /// The variant matching the brightness of the nearest [Theme]: dark below a
+  /// MaterialApp in dark mode, light everywhere else (including above the
+  /// MaterialApp, where the app picks its `theme` and `darkTheme`).
   static IrmaThemeData of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!.data;
+    final theme = context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!;
+    return Theme.of(context).brightness == Brightness.dark
+        ? theme.darkData
+        : theme.data;
   }
+
+  /// Both variants, for the MaterialApp's `theme` and `darkTheme`.
+  static IrmaTheme variantsOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!;
 }
+
+Color _pick(Brightness brightness, int light, int dark) =>
+    Color(brightness == Brightness.dark ? dark : light);

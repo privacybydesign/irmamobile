@@ -104,7 +104,7 @@ class IrmaQrScanButton extends StatelessWidget {
                           onTap: () => openQrCodeScanner(context),
                           child: Icon(
                             Icons.qr_code_scanner_rounded,
-                            color: theme.light,
+                            color: theme.onPrimary,
                             size: 42,
                           ),
                         ),

@@ -3,26 +3,19 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "glass/glass_surface.dart";
-import "irma_icon_button.dart";
 
+/// The round glass close button. [IrmaCloseButton.filled] is the same button;
+/// it stays for the call sites that asked for the filled look before every
+/// close button became glass.
 class IrmaCloseButton extends StatelessWidget {
   final Function()? onTap;
-  final bool _filled;
 
-  const IrmaCloseButton({this.onTap}) : _filled = false;
+  const IrmaCloseButton({this.onTap});
 
-  const IrmaCloseButton.filled({this.onTap}) : _filled = true;
+  const IrmaCloseButton.filled({this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    if (!_filled) {
-      return IrmaIconButton(
-        icon: Icons.close,
-        semanticsLabelKey: "accessibility.close",
-        onTap: onTap ?? Navigator.of(context).pop,
-      );
-    }
-
     return GlassIconButton(
       semanticsLabel: FlutterI18n.translate(context, "accessibility.close"),
       onTap: onTap ?? Navigator.of(context).pop,

@@ -28,7 +28,7 @@ class EndOfListIndicator extends StatelessWidget {
             : BoxDecoration(shape: BoxShape.circle, color: theme.success),
         child: isLoading
             ? LoadingIndicator()
-            : Icon(Icons.check, size: 18, color: theme.light),
+            : Icon(Icons.check, size: 18, color: theme.onPrimary),
       ),
     );
 

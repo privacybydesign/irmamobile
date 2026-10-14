@@ -292,7 +292,7 @@ class _Connector extends StatelessWidget {
                 child: Icon(
                   progress >= 0.5 ? Icons.check : Icons.compare_arrows,
                   size: 18,
-                  color: theme.light,
+                  color: theme.onPrimary,
                 ),
               ),
             ),

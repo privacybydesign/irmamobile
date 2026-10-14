@@ -1,9 +1,8 @@
-import "package:flutter/widgets.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "glass/pill_buttons.dart";
 import "irma_dialog.dart";
-import "yivi_themed_button.dart";
 
 class IrmaConfirmationDialog extends StatelessWidget {
   final String titleTranslationKey;
@@ -13,7 +12,16 @@ class IrmaConfirmationDialog extends StatelessWidget {
   final Function()? onCancelPressed;
   final String? confirmTranslationKey;
   final Function()? onConfirmPressed;
+
+  /// Makes cancelling the primary action, for confirmations of something the
+  /// user probably did not mean to do.
   final bool nudgeCancel;
+
+  /// Confirming deletes or resets something: the confirm button turns red.
+  final bool destructive;
+
+  /// Shown above the title, usually a ToneDisc.
+  final Widget? icon;
 
   const IrmaConfirmationDialog({
     required this.titleTranslationKey,
@@ -24,42 +32,75 @@ class IrmaConfirmationDialog extends StatelessWidget {
     this.confirmTranslationKey,
     this.onConfirmPressed,
     this.nudgeCancel = false,
+    this.destructive = false,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    String t(String key) => FlutterI18n.translate(context, key);
 
-    final confirmButton = YiviThemedButton(
-      key: const Key("dialog_confirm_button"),
-      onPressed: onConfirmPressed ?? () => Navigator.of(context).pop(true),
-      label: confirmTranslationKey ?? "ui.confirm",
-      style: !nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
-    );
+    final onConfirm = onConfirmPressed ?? () => Navigator.of(context).pop(true);
+    final onCancel = onCancelPressed ?? () => Navigator.of(context).pop(false);
+    final confirmLabel = t(confirmTranslationKey ?? "ui.confirm");
+    final cancelLabel = t(cancelTranslationKey ?? "ui.cancel");
 
-    final cancelButton = YiviThemedButton(
-      key: const Key("dialog_cancel_button"),
-      onPressed: onCancelPressed ?? () => Navigator.of(context).pop(false),
-      label: cancelTranslationKey ?? "ui.cancel",
-      style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
-    );
+    final Widget confirmButton = nudgeCancel
+        ? PillButton(
+            key: const Key("dialog_confirm_button"),
+            label: confirmLabel,
+            onPressed: onConfirm,
+            style: destructive ? PillStyle.danger : PillStyle.text,
+            height: 48,
+          )
+        : destructive
+        ? PillButton(
+            key: const Key("dialog_confirm_button"),
+            label: confirmLabel,
+            onPressed: onConfirm,
+            style: PillStyle.dangerFilled,
+          )
+        : FancyPillButton(
+            key: const Key("dialog_confirm_button"),
+            label: confirmLabel,
+            onPressed: onConfirm,
+            height: 52,
+            glow: false,
+          );
 
-    final spacerWidget = SizedBox(height: theme.smallSpacing);
+    final Widget cancelButton = nudgeCancel
+        ? FancyPillButton(
+            key: const Key("dialog_cancel_button"),
+            label: cancelLabel,
+            onPressed: onCancel,
+            height: 52,
+            glow: false,
+          )
+        : PillButton(
+            key: const Key("dialog_cancel_button"),
+            label: cancelLabel,
+            onPressed: onCancel,
+            style: PillStyle.text,
+            height: 48,
+          );
 
-    var buttonWidgets = [confirmButton, spacerWidget, cancelButton];
-
-    if (nudgeCancel) {
-      buttonWidgets = buttonWidgets.reversed.toList();
-    }
-
+    // Built on IrmaDialog, so tests and callers that look for an IrmaDialog
+    // keep finding it.
     return IrmaDialog(
-      title: FlutterI18n.translate(context, titleTranslationKey),
+      icon: icon,
+      title: t(titleTranslationKey),
       content: FlutterI18n.translate(
         context,
         contentTranslationKey,
         translationParams: contentTranslationParams,
       ),
-      child: Column(children: buttonWidgets),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 4,
+        children: nudgeCancel
+            ? [cancelButton, confirmButton]
+            : [confirmButton, cancelButton],
+      ),
     );
   }
 }

@@ -1,7 +1,9 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "glass/glass_surface.dart";
 import "irma_icon_button.dart";
 import "translated_text.dart";
 
@@ -34,6 +36,7 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
   }
 }
 
+/// The round glass back button at the start of an app bar.
 class YiviBackButton extends StatelessWidget {
   final Function()? onTap;
 
@@ -41,17 +44,23 @@ class YiviBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IrmaIconButton(
-      key: const Key("irma_app_bar_leading"),
-      icon: Icons.arrow_back_sharp,
-      semanticsLabelKey: "ui.go_back",
-      onTap: () {
-        if (onTap == null) {
-          Navigator.of(context).pop();
-        } else {
-          onTap!();
-        }
-      },
+    return Center(
+      child: GlassIconButton(
+        key: const Key("irma_app_bar_leading"),
+        semanticsLabel: FlutterI18n.translate(context, "ui.go_back"),
+        icon: Icon(
+          Icons.arrow_back_rounded,
+          size: 22,
+          color: YiviPalette.of(context).text,
+        ),
+        onTap: () {
+          if (onTap == null) {
+            Navigator.of(context).pop();
+          } else {
+            onTap!();
+          }
+        },
+      ),
     );
   }
 }

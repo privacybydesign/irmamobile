@@ -29,7 +29,7 @@ class IrmaActionCard extends StatelessWidget {
     final isLandscape = MediaQuery.of(context).size.width > 450;
 
     final centeredLayout = subtitleKey == null || isLandscape;
-    final contentColor = isFancy ? theme.light : theme.neutralExtraDark;
+    final contentColor = isFancy ? theme.onPrimary : theme.neutralExtraDark;
 
     Widget flexibleTitleTextWidget = Flexible(
       child: TranslatedText(

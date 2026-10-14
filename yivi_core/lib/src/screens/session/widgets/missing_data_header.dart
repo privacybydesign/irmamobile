@@ -52,7 +52,11 @@ class MissingDataHeader extends StatelessWidget {
       curve: Curves.easeInOut,
       builder: (context, t, _) {
         final background = Color.lerp(theme.light, theme.link, t)!;
-        final foreground = Color.lerp(theme.neutralExtraDark, theme.light, t)!;
+        final foreground = Color.lerp(
+          theme.neutralExtraDark,
+          theme.onPrimary,
+          t,
+        )!;
 
         return Container(
           key: const Key("missing_data_header"),

@@ -2,8 +2,10 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
+import "glass/glass_dialog.dart";
 import "irma_dialog.dart";
+import "status_body.dart";
 import "translated_text.dart";
 import "yivi_themed_button.dart";
 
@@ -18,6 +20,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   final String? linkTranslationKey;
   final String? linkDialogText;
 
+  /// Colours the disc behind [icon] or [imagePath].
+  final DialogTone tone;
+
   const IrmaInfoScaffoldBody({
     super.key,
     required this.titleTranslationKey,
@@ -29,6 +34,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
     this.iconColor,
     this.linkDialogText,
     this.linkTranslationKey,
+    this.tone = DialogTone.neutral,
   }) : assert(
          iconColor == null || icon != null,
          "Icon color can only be used when an icon is provided",
@@ -58,62 +64,47 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
+    String t(String key, Map<String, String>? params) =>
+        FlutterI18n.translate(context, key, translationParams: params);
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.largeSpacing),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null || imagePath != null) ...[
-              if (icon != null)
-                Icon(
-                  icon,
-                  color: iconColor ?? theme.themeData.colorScheme.secondary,
-                  size: 125,
-                ),
-              if (imagePath != null)
-                (imagePath!.endsWith("svg"))
-                    ? SvgPicture.asset(imagePath!)
-                    : Image.asset(imagePath!),
-              SizedBox(height: theme.mediumSpacing),
-            ],
-            TranslatedText(
-              titleTranslationKey,
-              translationParams: titleTranslationParams,
-              style: theme.textTheme.displayLarge,
-              textAlign: TextAlign.center,
+    return StatusBody(
+      title: t(titleTranslationKey, titleTranslationParams),
+      message: bodyTranslationKey == null
+          ? null
+          : t(bodyTranslationKey!, bodyTranslationParams),
+      icon: icon,
+      iconColor: iconColor,
+      tone: tone,
+      picture: imagePath == null
+          ? null
+          : SizedBox.square(
+              dimension: 96,
+              child: imagePath!.endsWith("svg")
+                  ? SvgPicture.asset(imagePath!)
+                  : Image.asset(imagePath!),
             ),
-            if (bodyTranslationKey != null) ...[
-              SizedBox(height: theme.mediumSpacing),
-              TranslatedText(
-                bodyTranslationKey!,
-                translationParams: bodyTranslationParams,
-                style: theme.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
-            if (linkTranslationKey != null) ...[
-              SizedBox(height: theme.mediumSpacing),
-              GestureDetector(
+      footer: linkTranslationKey == null
+          ? null
+          : Semantics(
+              link: true,
+              child: GestureDetector(
                 onTap: () {
                   _showIrmaDialog(context);
                   Feedback.forTap(context);
                 },
                 child: TranslatedText(
                   linkTranslationKey!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    decoration: TextDecoration.underline,
-                    color: theme.link,
-                  ),
+                  style: palette
+                      .body(16, weight: FontWeight.w600)
+                      .copyWith(
+                        decoration: TextDecoration.underline,
+                        color: palette.link,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
-            ],
-          ],
-        ),
-      ),
+            ),
     );
   }
 }

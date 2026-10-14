@@ -1,5 +1,6 @@
 import "package:flutter/scheduler.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -14,9 +15,8 @@ import "../screens/pin/providers/biometric_provider.dart";
 import "../screens/pin/widgets/biometric_opt_in_dialog.dart";
 import "../screens/reset_pin/reset_pin_screen.dart";
 import "../screens/terms_changed/terms_changed_dialog.dart";
-import "../theme/theme.dart";
 import "../widgets/irma_app_bar.dart";
-import "../widgets/translated_text.dart";
+import "app_toast.dart";
 
 /// Routes that bypass the lock overlay. Conceptually the inverse of
 /// the previous `whiteListedOnLocked` redirect-whitelist: with the
@@ -223,18 +223,9 @@ class _LogoutConfirmationState extends State<_LogoutConfirmation> {
     // mounted.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final theme = IrmaTheme.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: TranslatedText(
-            "more_tab.logged_out_toast",
-            style: theme.themeData.textTheme.bodySmall!.copyWith(
-              color: theme.light,
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: theme.themeData.colorScheme.secondary,
-        ),
+      showAppToast(
+        context,
+        FlutterI18n.translate(context, "more_tab.logged_out_toast"),
       );
     });
   }
