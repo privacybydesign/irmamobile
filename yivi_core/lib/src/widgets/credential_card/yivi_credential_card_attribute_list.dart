@@ -59,13 +59,13 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
           .toList();
     }
 
-    final sorted = [...remaining]
-      ..sort((a, b) {
-        final aIsImage = _isImage(a);
-        final bIsImage = _isImage(b);
-        if (aIsImage == bIsImage) return 0;
-        return aIsImage ? 1 : -1;
-      });
+    // Images last, everything else in the order given. Not List.sort: it is
+    // not stable, and past 32 elements it reorders the attributes it sees as
+    // equal.
+    final sorted = [
+      ...remaining.where((a) => !_isImage(a)),
+      ...remaining.where(_isImage),
+    ];
 
     final tree = _buildTree(sorted, compareTo: compareTo);
     _insertGroups(tree.children, groups, attributes);
