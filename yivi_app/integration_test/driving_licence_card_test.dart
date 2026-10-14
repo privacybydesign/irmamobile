@@ -74,7 +74,7 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets("issuance shows the categories table", (tester) async {
+    testWidgets("issuance shows the categories as tiles", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       await startIssuanceSession(
