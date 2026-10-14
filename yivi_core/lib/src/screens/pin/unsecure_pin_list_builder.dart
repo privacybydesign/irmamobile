@@ -24,5 +24,5 @@ List<Widget> _listBuilder(BuildContext context, EnterPinState state) {
       ),
   ];
 
-  return ListTile.divideTiles(context: context, tiles: tiles).toList();
+  return tiles;
 }

@@ -318,19 +318,32 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     final hideLogo =
         isLandscape &&
         _nextButtonVisibility(context) == WidgetVisibility.visible;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: theme.defaultSpacing.scaleToDesignSize(context),
-      children: [
-        if (!hideLogo) ...[
-          _buildScaledLogo(context),
-          SizedBox(height: theme.defaultSpacing),
-        ],
-        _buildInstructionText(context),
-        _buildDecoratedPinDots(context),
-        _buildActionLinkSlot(),
-        _buildSecurePinWarningSlot(showSecurePinText),
-      ],
+    // On short screens (an iPhone SE, landscape) the block is taller than its
+    // half of the screen; it then scales down as a whole instead of
+    // overflowing into the keypad.
+    return LayoutBuilder(
+      builder: (context, constraints) => Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
+            width: constraints.maxWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: theme.defaultSpacing.scaleToDesignSize(context),
+              children: [
+                if (!hideLogo) ...[
+                  _buildScaledLogo(context),
+                  SizedBox(height: theme.defaultSpacing),
+                ],
+                _buildInstructionText(context),
+                _buildDecoratedPinDots(context),
+                _buildActionLinkSlot(),
+                _buildSecurePinWarningSlot(showSecurePinText),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -369,7 +382,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       maintainState: true,
       child: Link(
         onTap: widget.onTogglePinSize ?? widget.onForgotPin ?? () {},
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
         label: FlutterI18n.translate(
           context,
           isToggle ? _getTogglePinSizeSemanticKey() : "pin.button_forgot",
@@ -468,8 +481,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     String semanticLabelKey,
     VoidCallback fn,
   ) {
-    final theme = IrmaTheme.of(context);
-
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(28),
@@ -485,7 +496,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             child: Icon(
               icon,
               size: 24,
-              color: theme.secondary,
+              color: YiviPalette.of(context).heading,
               semanticLabel: FlutterI18n.translate(context, semanticLabelKey),
             ),
           ),
@@ -548,7 +559,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           style: YiviPalette.of(context).display(
             // Scaled down on small screens so the block stays clear of the
             // keypad.
-            18.scaleToDesignSize(context),
+            22.scaleToDesignSize(context),
           ),
         ),
       ),

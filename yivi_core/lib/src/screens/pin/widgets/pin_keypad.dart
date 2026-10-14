@@ -48,7 +48,6 @@ class PinKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final rows = <List<Widget>>[
       [_key(1, ""), _key(2, "ABC"), _key(3, "DEF")],
       [_key(4, "GHI"), _key(5, "JKL"), _key(6, "MNO")],
@@ -73,7 +72,10 @@ class PinKeypad extends StatelessWidget {
           label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
           child: _PinKeypadIcon(
             callback: onBackspace,
-            child: Icon(Icons.backspace_outlined, color: theme.secondary),
+            child: Icon(
+              Icons.backspace_outlined,
+              color: YiviPalette.of(context).text,
+            ),
           ),
         ),
       ],
@@ -137,13 +139,11 @@ class _PinKeypadKey extends StatelessWidget {
     // if you pass a constant fontSize, then the text will take up
     // too much space
     const heightFactor = 0.825;
-    final bigNumberTextStyle = TextStyle(
-      fontFamily: theme.secondaryFontFamily,
-      color: theme.secondary,
-      fontSize: 32,
-      height: 32 / 40,
-      fontWeight: FontWeight.w600,
-    );
+    final palette = YiviPalette.of(context);
+    // The display face of the redesign, as on the round glass keys.
+    final bigNumberTextStyle = palette
+        .display(32)
+        .copyWith(color: palette.text, height: 32 / 40);
 
     return Semantics(
       label: number.toString(),
@@ -173,7 +173,7 @@ class _PinKeypadKey extends StatelessWidget {
                     heightFactor: 1.1 - heightFactor,
                     textStyle: TextStyle(
                       fontFamily: theme.secondaryFontFamily,
-                      color: theme.secondary,
+                      color: palette.secondaryText,
                       fontWeight: FontWeight.w400,
                       height: 14.0 / 24.0,
                     ),

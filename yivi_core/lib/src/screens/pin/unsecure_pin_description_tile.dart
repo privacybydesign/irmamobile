@@ -10,24 +10,37 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
+    final (fill, ink) = followsRule
+        ? (palette.successSurface, palette.successText)
+        : (palette.errorSurface, palette.danger);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          Icon(
-            followsRule ? Icons.check : Icons.close,
-            size: 16,
-            color: followsRule ? Colors.green : Colors.red,
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+            child: Icon(
+              followsRule ? Icons.check_rounded : Icons.close_rounded,
+              size: 16,
+              color: ink,
+              semanticLabel: FlutterI18n.translate(
+                context,
+                followsRule
+                    ? "credential.boolean_yes"
+                    : "credential.boolean_no",
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
           Expanded(
             child: Text(
               FlutterI18n.translate(context, descriptionKey),
-              style: theme.textTheme.bodyMedium,
+              style: palette.body(15).copyWith(height: 22 / 15),
             ),
           ),
         ],

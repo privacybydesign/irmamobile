@@ -39,7 +39,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
               SizedBox(height: theme.screenPadding),
               Text(
                 FlutterI18n.translate(context, "secure_pin.subtitle"),
-                style: theme.textTheme.bodyMedium,
+                style: YiviPalette.of(context).body(16),
               ),
               SizedBox(height: theme.screenPadding),
               ..._listBuilder(context, state),
@@ -53,32 +53,46 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     // Use the scaffold's context (not this subtree's): the OrientationBuilder
     // above reports a misleading orientation. Disabled when there's no key,
     // i.e. the slot is only reserving height and never visible.
     final scaffoldContext = scaffoldKey?.currentContext;
 
+    final palette = YiviPalette.of(context);
     return Center(
-      child: TextButton(
-        onPressed: scaffoldContext == null
-            ? null
-            : () => _showSecurePinRules(scaffoldContext, state),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              FlutterI18n.translate(context, "secure_pin.info_button"),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.warning,
-                fontWeight: FontWeight.w700,
+      child: Material(
+        color: palette.warningSurface,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: scaffoldContext == null
+              ? null
+              : () => _showSecurePinRules(scaffoldContext, state),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 32),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 6,
+                children: [
+                  Icon(
+                    Icons.warning_rounded,
+                    size: 16,
+                    color: palette.warningText,
+                  ),
+                  Flexible(
+                    child: Text(
+                      FlutterI18n.translate(context, "secure_pin.info_button"),
+                      style: palette
+                          .body(13, weight: FontWeight.w600)
+                          .copyWith(color: palette.warningText),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 2.0),
-            Icon(Icons.info_outlined, color: theme.warning),
-          ],
+          ),
         ),
       ),
     );

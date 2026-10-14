@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../glass/glass_dialog.dart";
 import "../irma_dialog.dart";
 import "../yivi_themed_button.dart";
 import "format_blocked_for.dart";
@@ -17,6 +18,7 @@ class PinWrongBlockedDialog extends StatelessWidget {
     final blockedForStr = formatBlockedFor(context, Duration(seconds: blocked));
 
     return IrmaDialog(
+      icon: const ToneDisc(icon: Icons.lock_clock, tone: DialogTone.danger),
       title: FlutterI18n.translate(context, "pin_common.blocked_title"),
       content: FlutterI18n.translate(
         context,

@@ -245,8 +245,9 @@ void main() {
       final expectedScreenText = [
         "Forgot your PIN?",
         "We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
-        "Cancel",
+        // The destructive action first, "Cancel" as text under it.
         "Start all over",
+        "Cancel",
         "Forgot PIN",
       ];
 

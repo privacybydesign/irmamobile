@@ -111,7 +111,7 @@ class _PinIndicator extends StatelessWidget {
     // Each digit's box tracks the glyph size so the row fits without clipping.
     final boxWidth = isMaxPin5 ? 14.0 : fontSize * 0.8;
 
-    final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
+    final double edgeSize = maxPinSize != shortPinSize ? 6 : 16;
 
     // Applied scaling so, the circles / dots won't
     // get too small on devices bigger than the design
