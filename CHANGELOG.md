@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way
 
 ### Fixed
+- A credential with more than 32 attributes keeps the order the scheme gives them. Moving its photo to the bottom of the card used to shuffle the other attributes, which put Over 18 at the top of a driving licence with categories
 - Tilting the phone to landscape during the face check in the F-Droid build no longer ends the issuance with an error (`LANDSCAPE_MODE_RESTRICTED`); the face check screen stays in portrait
 - The F-Droid build finds the MRZ of a document on a textured surface such as a tablecloth, where it used to read the fabric below the document instead; it reads documents held at any angle, upside down included, and no longer stalls for seconds on frames without a document in them
 - An MRZ line that OCR read a filler or two too short or too long is no longer thrown away; the run of fillers is brought back to length, which puts the check digits back in place
