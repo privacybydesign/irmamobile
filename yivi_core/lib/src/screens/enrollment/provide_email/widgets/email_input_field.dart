@@ -2,41 +2,47 @@ import "package:email_validator/email_validator.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../theme/theme.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/pill_text_field.dart";
 
-class EmailInputField extends StatelessWidget {
+/// The e-mail field of enrollment. It says an address is invalid once the
+/// user has typed something that is not one.
+class EmailInputField extends StatefulWidget {
   final TextEditingController controller;
+  final VoidCallback? onSubmitted;
 
-  const EmailInputField({required this.controller});
+  const EmailInputField({required this.controller, this.onSubmitted});
+
+  static bool isValid(String email) => EmailValidator.validate(email);
+
+  @override
+  State<EmailInputField> createState() => _EmailInputFieldState();
+}
+
+class _EmailInputFieldState extends State<EmailInputField> {
+  var _touched = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
-
-    return TextFormField(
-      key: const Key("email_input_field"),
-      controller: controller,
+    final email = widget.controller.text;
+    final invalid =
+        _touched && email.isNotEmpty && !EmailInputField.isValid(email);
+    return PillTextField(
+      fieldKey: const Key("email_input_field"),
+      controller: widget.controller,
+      label: FlutterI18n.translate(
+        context,
+        "enrollment.email.provide.input.label",
+      ),
+      hint: FlutterI18n.translate(
+        context,
+        "enrollment.email.provide.input.hint",
+      ),
       keyboardType: TextInputType.emailAddress,
       autofillHints: const [AutofillHints.email],
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.only(top: -10.0),
-        label: TranslatedText(
-          "enrollment.email.provide.input.label",
-          style: baseTextStyle,
-        ),
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        hintText: FlutterI18n.translate(
-          context,
-          "enrollment.email.provide.input.hint",
-        ),
-      ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (email) => email != null && !EmailValidator.validate(email)
+      textInputAction: TextInputAction.done,
+      onChanged: (_) => setState(() => _touched = true),
+      onSubmitted: (_) => widget.onSubmitted?.call(),
+      errorText: invalid
           ? FlutterI18n.translate(
               context,
               "enrollment.email.provide.input.invalid",

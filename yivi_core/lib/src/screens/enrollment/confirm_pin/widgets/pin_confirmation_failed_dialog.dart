@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_dialog.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 
@@ -12,6 +13,7 @@ class PinConfirmationFailedDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaDialog(
+      icon: const ToneDisc(icon: Icons.pin_outlined, tone: DialogTone.danger),
       title: FlutterI18n.translate(context, "confirm_pin.error.title"),
       content: FlutterI18n.translate(context, "confirm_pin.error.body"),
       child: YiviThemedButton(

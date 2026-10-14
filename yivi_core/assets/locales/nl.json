@@ -355,6 +355,16 @@
       "step_3": {
         "title": "Veilig op jouw mobiel",
         "explanation": "Alleen jij hebt toegang tot de gegevens op jouw mobiel. Niemand kan meekijken, zelfs Yivi niet."
+      },
+      "art": {
+        "email": "E-mailadres",
+        "personal": "Persoonsgegevens",
+        "phone": "Mobiel nummer",
+        "municipality": "Je gemeente",
+        "share_only": "Je deelt alleen",
+        "over_18": "Ouder dan 18",
+        "date_of_birth": "Geboortedatum",
+        "added": "Toegevoegd 02-03-2024"
       }
     },
     "confirm_pin": {

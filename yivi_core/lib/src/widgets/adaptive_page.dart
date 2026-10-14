@@ -132,10 +132,20 @@ class _AdaptiveRoute<T> extends PageRoute<T>
     final palette = YiviPalette.of(context);
 
     if (_page.mode == PresentationMode.full) {
+      final size = MediaQuery.sizeOf(context);
       return ColoredBox(
         color: palette.background,
         child: Center(
-          child: SizedBox(width: fullColumnWidth, child: child),
+          child: SizedBox(
+            width: fullColumnWidth,
+            // The screen inside lays out for the column, not the window.
+            child: MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(size: Size(fullColumnWidth, size.height)),
+              child: child,
+            ),
+          ),
         ),
       );
     }

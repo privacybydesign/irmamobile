@@ -2,16 +2,20 @@ import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../package_name.dart";
 import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../providers/feature_flag_provider.dart";
 import "../../providers/install_referrer_provider.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
+import "../../widgets/translated_text.dart";
 import "../pin/providers/biometric_provider.dart";
 import "../pin/widgets/biometric_opt_in_dialog.dart";
 import "accept_terms/accept_terms_screen.dart";
@@ -92,15 +96,13 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
     repo.preferences.setLongPin(false);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        // AnnotatedRegion replaces the whole style, so repeat the bar-icon
-        // brightness here or the status bar reverts to unreadable on Android 15+.
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
-        statusBarBrightness: Brightness.light, // iOS: light bg
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
+      // AnnotatedRegion replaces the whole style; the theme's has readable
+      // bar icons for the current brightness (Android 15+ keeps only those).
+      value:
+          Theme.of(context).appBarTheme.systemOverlayStyle ??
+          (Theme.of(context).brightness == Brightness.dark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark),
       child: BlocConsumer<EnrollmentBloc, EnrollmentState>(
         listener: (BuildContext context, EnrollmentState state) {
           if (state is EnrollmentCompleted) {
@@ -196,9 +198,57 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
               onRetryEnrollment: () => addEvent(EnrollmentRetried()),
             );
           }
-          // If state is loading/initial/submitting show centered loading indicator
-          return Scaffold(body: Center(child: LoadingIndicator()));
+          // Loading, initial or submitting: the logo and a spinner, with
+          // "Logging in" while the account is being created.
+          return _SigningUp(showText: state is Enrolling);
         },
+      ),
+    );
+  }
+}
+
+class _SigningUp extends StatelessWidget {
+  final bool showText;
+
+  const _SigningUp({required this.showText});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Scaffold(
+      backgroundColor: palette.background,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ExcludeSemantics(
+                child: SvgPicture.asset(
+                  yiviAsset("non-free/logo_no_margin.svg"),
+                  height: 52,
+                ),
+              ),
+              const SizedBox(height: 40),
+              LoadingIndicator(),
+              if (showText) ...[
+                const SizedBox(height: 24),
+                TranslatedText(
+                  "enrollment.submit.title",
+                  isHeader: true,
+                  textAlign: TextAlign.center,
+                  style: palette.display(20),
+                ),
+                const SizedBox(height: 8),
+                TranslatedText(
+                  "enrollment.submit.progress_enrollment",
+                  textAlign: TextAlign.center,
+                  style: palette.body(16),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

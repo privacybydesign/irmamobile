@@ -1,6 +1,8 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "glass/pill_buttons.dart";
 import "irma_bottom_bar_base.dart";
 import "yivi_themed_button.dart";
 
@@ -42,13 +44,15 @@ class IrmaBottomBar extends StatelessWidget {
     );
   }
 
+  // A plain text pill, as every secondary action in the redesign.
   Widget _buildSecondaryButton(BuildContext context) {
     return Expanded(
-      child: YiviThemedButton(
+      child: PillButton(
         key: const Key("bottom_bar_secondary"),
         onPressed: onSecondaryPressed,
-        label: secondaryButtonLabel!,
-        style: YiviButtonStyle.outlined,
+        label: FlutterI18n.translate(context, secondaryButtonLabel!),
+        style: PillStyle.text,
+        height: 48,
       ),
     );
   }

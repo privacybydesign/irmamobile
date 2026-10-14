@@ -115,10 +115,11 @@ void main() {
         final actualCurrentInstructionTexts = tester.getAllText(
           instructionFinder,
         );
+        // "Next" is the primary button; "Previous" sits under it.
         final expectedCurrentInstructionTexts = [
           ...expectedInstructions[i],
-          if (i != 0) "Previous",
           "Next",
+          if (i != 0) "Previous",
         ];
         expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
 

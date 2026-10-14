@@ -58,9 +58,13 @@ class _IntroductionAnimationWrapperState
   }
 
   @override
-  Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+  Widget build(BuildContext context) => LayoutBuilder(
+    // The space it gets, not the window: on a tablet the introduction is a
+    // centred column.
+    builder: (context, constraints) => _build(context, constraints.biggest),
+  );
 
+  Widget _build(BuildContext context, Size screenSize) {
     const crossFadeDuration = Duration(seconds: 1);
     const alignDuration = Duration(seconds: 1);
 

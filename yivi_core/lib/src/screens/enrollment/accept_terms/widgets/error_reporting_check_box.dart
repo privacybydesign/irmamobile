@@ -75,7 +75,12 @@ class ErrorReportingCheckBox extends ConsumerWidget {
                       repo.preferences.setReportErrors(isAccepted);
                     }
                   },
-                  activeColor: theme.themeData.colorScheme.secondary,
+                  activeColor: theme.primary,
+                  checkColor: theme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: BorderSide(color: theme.tertiary, width: 2),
                 );
               },
             ),

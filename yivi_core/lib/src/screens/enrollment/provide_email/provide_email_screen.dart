@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -25,29 +25,28 @@ class ProvideEmailScreen extends StatefulWidget {
 }
 
 class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
-  final _emailFormKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-
-  bool _emailFormIsValid = false;
 
   @override
   void initState() {
     _emailController.text = widget.email ?? "";
+    _emailController.addListener(_rebuild);
     super.initState();
   }
 
+  void _rebuild() => setState(() {});
+
   @override
   void dispose() {
+    _emailController.removeListener(_rebuild);
     _emailController.dispose();
     super.dispose();
   }
 
+  bool get _valid => EmailInputField.isValid(_emailController.text);
+
   void _onContinuePressed() {
-    final emailForm = _emailFormKey.currentState;
-    if (emailForm!.validate()) {
-      final email = _emailController.text;
-      widget.onEmailProvided(email);
-    }
+    if (_valid) widget.onEmailProvided(_emailController.text);
   }
 
   void _onSkipPressed() async {
@@ -62,69 +61,65 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final mediaQuery = MediaQuery.of(context);
-    final keyboardIsActive = mediaQuery.viewInsets.bottom > 0;
-    final isLandscape = mediaQuery.size.width > 450;
+    final palette = YiviPalette.of(context);
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "enrollment.email.provide.title",
         leading: YiviBackButton(onTap: widget.onPrevious),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: IntrinsicHeight(
-              child: Form(
-                key: _emailFormKey,
-                onChanged: () => setState(
-                  () => _emailFormIsValid = _emailFormKey.currentState!
-                      .validate(),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(theme.defaultSpacing),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          TranslatedText(
-                            "enrollment.email.provide.header",
-                            style: theme.textTheme.displaySmall,
-                          ),
-                          SizedBox(height: theme.defaultSpacing),
-                          const TranslatedText(
-                            "enrollment.email.provide.explanation",
-                          ),
-                          SizedBox(height: theme.mediumSpacing),
-                          EmailInputField(controller: _emailController),
-                        ],
-                      ),
-                    ),
-                    if (!keyboardIsActive || !isLandscape) ...[
-                      const Spacer(),
-                      IrmaBottomBar(
-                        alignment: isLandscape
-                            ? IrmaBottomBarAlignment.horizontal
-                            : IrmaBottomBarAlignment.vertical,
-                        primaryButtonLabel: "ui.next",
-                        onPrimaryPressed: _emailFormIsValid
-                            ? _onContinuePressed
-                            : null,
-                        secondaryButtonLabel: "ui.skip",
-                        onSecondaryPressed: _onSkipPressed,
-                      ),
-                    ],
-                  ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: ExcludeSemantics(
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: palette.warningSurface,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Icon(
+                    Icons.mail_outline_rounded,
+                    size: 48,
+                    color: palette.warningText,
+                  ),
                 ),
               ),
             ),
-          ),
+            const SizedBox(height: 24),
+            TranslatedText(
+              "enrollment.email.provide.header",
+              isHeader: true,
+              textAlign: TextAlign.center,
+              style: palette
+                  .display(24, weight: FontWeight.w700)
+                  .copyWith(height: 32 / 24),
+            ),
+            const SizedBox(height: 8),
+            TranslatedText(
+              "enrollment.email.provide.explanation",
+              textAlign: TextAlign.center,
+              style: palette.body(16).copyWith(height: 24 / 16),
+            ),
+            const SizedBox(height: 32),
+            EmailInputField(
+              controller: _emailController,
+              onSubmitted: _onContinuePressed,
+            ),
+          ],
         ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        alignment: IrmaBottomBarAlignment.vertical,
+        primaryButtonLabel: "ui.next",
+        onPrimaryPressed: _valid ? _onContinuePressed : null,
+        secondaryButtonLabel: "ui.skip",
+        onSecondaryPressed: _onSkipPressed,
       ),
     );
   }

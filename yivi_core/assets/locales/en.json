@@ -326,6 +326,16 @@
       "step_3": {
         "title": "Securely on your phone",
         "explanation": "Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi."
+      },
+      "art": {
+        "email": "Email address",
+        "personal": "Personal data",
+        "phone": "Mobile number",
+        "municipality": "Your municipality",
+        "share_only": "You share only",
+        "over_18": "Over 18",
+        "date_of_birth": "Date of birth",
+        "added": "Added 02-03-2024"
       }
     },
     "confirm_pin": {

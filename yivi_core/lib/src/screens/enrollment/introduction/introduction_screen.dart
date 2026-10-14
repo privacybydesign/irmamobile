@@ -4,12 +4,13 @@ import "../../../../package_name.dart";
 
 import "../../../data/feature_flags.dart";
 import "../../../providers/feature_flag_provider.dart";
-import "../widgets/enrollment_hero.dart";
+import "../../../theme/yivi_palette.dart";
 import "../widgets/enrollment_instruction.dart";
 import "../widgets/enrollment_layout.dart";
 import "models/introduction_entry.dart";
 import "models/introduction_step.dart";
 import "widgets/introduction_animation_wrapper.dart";
+import "widgets/introduction_art.dart";
 
 class IntroductionScreen extends ConsumerStatefulWidget {
   static const String routeName = "introduction";
@@ -65,27 +66,32 @@ class _IntroductionScreenState extends ConsumerState<IntroductionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
     // Onboarding v2 has a single introduction page, so no progress dots.
     final onboardingV2 =
         ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
+    final step = IntroductionScreen.introductionSteps[widget.currentStepIndex];
 
     Widget contentWidget = EnrollmentLayout(
-      hero: EnrollmentHero(
-        IntroductionScreen.introductionSteps[widget.currentStepIndex].imagePath,
+      hero: LayoutBuilder(
+        builder: (context, constraints) => FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: IntroductionArt(
+              // A fresh key per step replays the entrance of the art.
+              key: ValueKey(widget.currentStepIndex),
+              step: widget.currentStepIndex,
+            ),
+          ),
+        ),
       ),
       instruction: EnrollmentInstruction(
         stepIndex: onboardingV2 ? null : widget.currentStepIndex,
         stepCount: onboardingV2
             ? null
             : IntroductionScreen.introductionSteps.length,
-        titleTranslationKey: IntroductionScreen
-            .introductionSteps[widget.currentStepIndex]
-            .titleTranslationKey,
-        explanationTranslationKey: IntroductionScreen
-            .introductionSteps[widget.currentStepIndex]
-            .explanationTranslationKey,
+        titleTranslationKey: step.titleTranslationKey,
+        explanationTranslationKey: step.explanationTranslationKey,
         onContinue: widget.onContinue,
         onPrevious: widget.currentStepIndex != 0 ? widget.onPrevious : null,
       ),
@@ -96,7 +102,8 @@ class _IntroductionScreenState extends ConsumerState<IntroductionScreen> {
     }
 
     return Scaffold(
-      body: SafeArea(bottom: isLandscape, child: contentWidget),
+      backgroundColor: YiviPalette.of(context).background,
+      body: SafeArea(child: contentWidget),
     );
   }
 }

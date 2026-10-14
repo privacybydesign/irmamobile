@@ -13,7 +13,7 @@ class IrmaBottomBarBase extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
 
     return SizedBox(
-      width: mediaQuery.size.width,
+      width: double.infinity,
       child: Padding(
         padding: .only(
           left: theme.defaultSpacing + mediaQuery.padding.left,

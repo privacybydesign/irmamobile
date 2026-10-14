@@ -27,14 +27,21 @@ class YiviProgressIndicator extends StatelessWidget {
   final int stepIndex;
   final int stepCount;
 
+  /// Centres the dots instead of starting them at the left.
+  final bool centered;
+
   const YiviProgressIndicator({
     required this.stepIndex,
     required this.stepCount,
+    this.centered = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: centered
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
       children: List.generate(
         stepCount,
         (int index) => Padding(

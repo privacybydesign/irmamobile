@@ -78,7 +78,12 @@ class TermsCheckBox extends ConsumerWidget {
             child: Checkbox(
               key: const Key("accept_terms_checkbox"),
               value: isAccepted,
-              activeColor: theme.themeData.colorScheme.secondary,
+              activeColor: theme.primary,
+              checkColor: theme.onPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              side: BorderSide(color: theme.tertiary, width: 2),
               onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
             ),
           ),

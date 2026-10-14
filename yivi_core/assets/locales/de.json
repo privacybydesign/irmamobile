@@ -355,6 +355,16 @@
       "step_3": {
         "title": "Sicher auf Ihrem Telefon",
         "explanation": "Nur Sie können auf die Daten auf Ihrem Telefon zugreifen. Niemand kann zuschauen, nicht einmal Yivi."
+      },
+      "art": {
+        "email": "E-Mail-Adresse",
+        "personal": "Persönliche Daten",
+        "phone": "Handynummer",
+        "municipality": "Ihre Gemeinde",
+        "share_only": "Sie teilen nur",
+        "over_18": "Über 18",
+        "date_of_birth": "Geburtsdatum",
+        "added": "Hinzugefügt 02-03-2024"
       }
     },
     "confirm_pin": {
