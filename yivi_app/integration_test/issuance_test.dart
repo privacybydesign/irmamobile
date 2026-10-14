@@ -25,8 +25,10 @@ void main() {
 
     Future<void> testIssueMunicipality(
       WidgetTester tester,
-      Locale locale,
-    ) async {
+      Locale locale, {
+      required List<String> titles,
+      required List<String> headerTexts,
+    }) async {
       await pumpAndUnlockApp(
         tester,
         irmaBinding.repository,
@@ -67,16 +69,49 @@ void main() {
       // Expect to find a card
       final credentialCardFinder = find.byType(YiviCredentialCard);
       expect(credentialCardFinder, findsOneWidget);
+
+      // issueCredentials leaves out what the profile header and age row draw,
+      // so check those here. The Dutch Ja/Nee age flags get no age row.
+      evaluateCardSections(
+        tester,
+        credentialCardFinder,
+        titles: titles,
+        texts: headerTexts,
+      );
     }
 
     testWidgets(
       "issue-municipality-en",
-      (tester) => testIssueMunicipality(tester, const Locale("en", "EN")),
+      (tester) => testIssueMunicipality(
+        tester,
+        const Locale("en", "EN"),
+        titles: ["PERSON", "NAME", "REGISTRATION"],
+        headerTexts: [
+          "Willeke Liselotte de Bruijn",
+          "10-04-1965",
+          "Arnhem, Arnhem",
+          "Dutch",
+          "V",
+          "Older than 21",
+          "Not older than 65",
+        ],
+      ),
     );
 
     testWidgets(
       "issue-municipality-nl",
-      (tester) => testIssueMunicipality(tester, const Locale("nl", "NL")),
+      (tester) => testIssueMunicipality(
+        tester,
+        const Locale("nl", "NL"),
+        titles: ["PERSOON", "NAAM", "REGISTRATIE"],
+        headerTexts: [
+          "Willeke Liselotte de Bruijn",
+          "10-04-1965",
+          "Arnhem, Arnhem",
+          "Nederlands",
+          "V",
+        ],
+      ),
     );
 
     testWidgets("decline", (tester) async {
