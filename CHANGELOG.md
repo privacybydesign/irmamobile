@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.3.2] - 2026-10-14
 ### Added
 - The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
 - On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
@@ -30,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Attribute groups: a credential type can register a renderer (in `attribute_group_registry.dart`) that takes a set of its attributes out of the ordinary attribute rows and draws them as one widget, placed at the top, after a given attribute, at the bottom, or below the images. A renderer is handed only the attributes being shown, so on a disclosure it draws just what is shared, and it does its own comparison colouring
 - Widget tests load the locale files through a `TestTranslationLoader` that decodes them on the test isolate. The locale files are now past the 50 KB at which `rootBundle.loadString` decodes on a background isolate, which never completes under the widget tester's fake async
 - A pull request now has to update this changelog or carry the `skip-changelog` label, which a CI check enforces
+- Upgrade the Regula face SDK: `flutter_face_api` to 8.4.1655 and `flutter_face_core_basic` to 8.4.761
+- The `unit_test` CI lane also runs the tests in `yivi_app` and `yivi_fdroid`, which it used to skip
 
 ## [8.3.1] - 2026-10-05
 ### Fixed
@@ -769,6 +773,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
 [8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1
