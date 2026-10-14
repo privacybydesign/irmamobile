@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Identity credentials (passport, ID card, residence permit, driving licence and the municipality's personal data) are shown as a card with titled sections: a header with the photo, name and date of birth, a row of age chips, and the other attributes in a two-column grid. A disclosure and its activity log entry use the same card with only the attributes being shared. "Show as list" in the card's options menu switches a credential type back to the plain list of attributes, and "Show as card" switches it back
+- When a verifier asks for a specific value, the attribute on the card carries a "Satisfies", "Required" or "Required: <value>" chip
+
+### Changed
+- The line at the bottom of a credential card says when the credential expires and how many shares are left, for example "Expires in 3 days" and "Only 2 shares left"
+- The driving licence categories start as tiles of the categories held, with a link to the full table, instead of a table that ends in a "+ 14 categories not held" row
 
 ## [8.3.2] - 2026-10-14
 ### Added
