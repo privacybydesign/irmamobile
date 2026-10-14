@@ -356,6 +356,26 @@ void main() {
     ]);
   });
 
+  // List.sort is insertion sort up to 32 elements and quicksort past that,
+  // which moved over18 above documentNumber on a 64-attribute driving licence.
+  testWidgets("moving images last keeps the order of more than 32 rows", (
+    tester,
+  ) async {
+    const photoIndex = 15;
+    final ids = [for (var i = 0; i < 63; i++) "a$i"];
+    await _pump(tester, [
+      for (final id in ids.take(photoIndex)) _attr(id),
+      _photo(),
+      for (final id in ids.skip(photoIndex)) _attr(id),
+    ], const []);
+
+    final labels = [for (final id in ids) "label-$id"];
+    expect(_order(tester, [...labels, "label-photo"]), [
+      ...labels,
+      "label-photo",
+    ]);
+  });
+
   testWidgets("driving licence categories render in their section", (
     tester,
   ) async {

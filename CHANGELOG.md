@@ -5,14 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.3.2] - 2026-10-14
 ### Added
 - The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
 - On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
+- The categories on a driving licence credential (`pbdf.pbdf.drivinglicence`, and its `pbdf-staging` counterpart) are shown as one table laid out like the back of the licence card, instead of three separate rows per category: a vehicle pictogram and the category code, followed by the issue and expiry dates, with "-" for a category that is not held. On the credential detail screen the table starts collapsed to the categories held and ends in a "+ 14 categories not held" row that expands the rest in place. On a disclosure, in the session and in the activity log, it shows exactly the categories being shared, with only the date columns that were requested, or a Status column (Held / Not held) when no date was requested
 
 ### Changed
 - The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way
 
 ### Fixed
+- A credential with more than 32 attributes keeps the order the scheme gives them. Moving its photo to the bottom of the card used to shuffle the other attributes, which put Over 18 at the top of a driving licence with categories
 - Tilting the phone to landscape during the face check in the F-Droid build no longer ends the issuance with an error (`LANDSCAPE_MODE_RESTRICTED`); the face check screen stays in portrait
 - The F-Droid build finds the MRZ of a document on a textured surface such as a tablecloth, where it used to read the fabric below the document instead; it reads documents held at any angle, upside down included, and no longer stalls for seconds on frames without a document in them
 - An MRZ line that OCR read a filler or two too short or too long is no longer thrown away; the run of fillers is brought back to length, which puts the check digits back in place
@@ -21,6 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The MRZ camera runs at 1080p instead of 720p, which gives the OCR more pixels per character
 - A camera frame that arrived after the MRZ scanner had released the camera no longer raises an unhandled exception
 - The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from the staging scheme (`pbdf-staging`) and the demo scheme (`irma-demo`) are listed separately at the bottom, under "Staging (test environment)" and "Demo (example data)"
+
+### Internal
+- The demo driving licence (`irma-demo.pbdf.drivinglicence`, "Dutch Driving Licence (demo)") gets the categories table too, and the bundled `irma-demo` scheme is updated to the version that adds it
+- Integration tests for the driving licence categories table in `integration_test/driving_licence_card_test.dart`, against the demo driving licence: the issuance screen, collapsing and expanding on the detail screen, a licence with no category, every category or no category data at all, the Status and date columns on a disclosure, and the activity log entry of that disclosure. `issueCredentials` and `evaluateCredentialCard` skip the texts inside an attribute group when they read a card's attribute rows
+- Attribute groups: a credential type can register a renderer (in `attribute_group_registry.dart`) that takes a set of its attributes out of the ordinary attribute rows and draws them as one widget, placed at the top, after a given attribute, at the bottom, or below the images. A renderer is handed only the attributes being shown, so on a disclosure it draws just what is shared, and it does its own comparison colouring
+- Widget tests load the locale files through a `TestTranslationLoader` that decodes them on the test isolate. The locale files are now past the 50 KB at which `rootBundle.loadString` decodes on a background isolate, which never completes under the widget tester's fake async
+- A pull request now has to update this changelog or carry the `skip-changelog` label, which a CI check enforces
+- Upgrade the Regula face SDK: `flutter_face_api` to 8.4.1655 and `flutter_face_core_basic` to 8.4.761
+- The `unit_test` CI lane also runs the tests in `yivi_app` and `yivi_fdroid`, which it used to skip
 
 ## [8.3.1] - 2026-10-05
 ### Fixed
@@ -760,6 +773,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
 [8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1

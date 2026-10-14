@@ -132,6 +132,7 @@ const Map<String, CardLayout> cardLayouts = {
   "pbdf-staging.pbdf.residencepermit": _documentCard,
   "pbdf.pbdf.drivinglicence": _drivingLicenceCard,
   "pbdf-staging.pbdf.drivinglicence": _drivingLicenceCard,
+  "irma-demo.pbdf.drivinglicence": _drivingLicenceCard,
   "pbdf.gemeente.personalData": _municipalityCard,
   "irma-demo.gemeente.personalData": _municipalityCard,
 };
