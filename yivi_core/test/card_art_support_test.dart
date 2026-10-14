@@ -24,35 +24,59 @@ void main() {
   group("fillSvgTemplate", () {
     test("fills placeholders and escapes XML", () {
       expect(
-        fillSvgTemplate(
-          "<text>{{name}} {{ card_no }} {{missing}}</text>",
-          {"name": "Ann & <Bob>", "card_no": "42"},
-        ),
+        fillSvgTemplate("<text>{{name}} {{ card_no }} {{missing}}</text>", {
+          "name": "Ann & <Bob>",
+          "card_no": "42",
+        }),
         "<text>Ann &amp; &lt;Bob&gt; 42 </text>",
       );
     });
   });
 
   group("pickSvgTemplate", () {
-    final portraitLight = SvgCardTemplate(svg: "pl", orientation: "portrait", colorScheme: "light");
-    final landscapeLight = SvgCardTemplate(svg: "ll", orientation: "landscape", colorScheme: "light");
-    final landscapeDark = SvgCardTemplate(svg: "ld", orientation: "landscape", colorScheme: "dark");
+    final portraitLight = SvgCardTemplate(
+      svg: "pl",
+      orientation: "portrait",
+      colorScheme: "light",
+    );
+    final landscapeLight = SvgCardTemplate(
+      svg: "ll",
+      orientation: "landscape",
+      colorScheme: "light",
+    );
+    final landscapeDark = SvgCardTemplate(
+      svg: "ld",
+      orientation: "landscape",
+      colorScheme: "dark",
+    );
 
     test("prefers landscape, then the matching colour scheme", () {
       final all = [portraitLight, landscapeLight, landscapeDark];
       expect(
-        pickSvgTemplate(all, brightness: Brightness.light, highContrast: false)!.svg,
+        pickSvgTemplate(
+          all,
+          brightness: Brightness.light,
+          highContrast: false,
+        )!.svg,
         "ll",
       );
       expect(
-        pickSvgTemplate(all, brightness: Brightness.dark, highContrast: false)!.svg,
+        pickSvgTemplate(
+          all,
+          brightness: Brightness.dark,
+          highContrast: false,
+        )!.svg,
         "ld",
       );
     });
 
     test("returns null without templates", () {
       expect(
-        pickSvgTemplate(const [], brightness: Brightness.light, highContrast: false),
+        pickSvgTemplate(
+          const [],
+          brightness: Brightness.light,
+          highContrast: false,
+        ),
         isNull,
       );
     });

@@ -1,33 +1,60 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/date_formatter.dart";
+import "../../../util/nfc_credentials.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/translated_text.dart";
+import "document_issuance_permission.dart";
 import "session_scaffold.dart";
 
-class IssuancePermission extends StatelessWidget {
+class IssuancePermission extends ConsumerWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
+
+  /// Name of the issuer whose website the user just came back from, if any.
+  final String? returnedFromIssuer;
 
   const IssuancePermission({
     super.key,
     this.onDismiss,
     this.onGivePermission,
+    this.returnedFromIssuer,
     required this.issuedCredentials,
   });
 
   @override
-  Widget build(BuildContext context) => SessionScaffold(
-    appBarTitle: "issuance.title",
-    bottomNavigationBar: _buildNavigationBar(context),
-    body: _buildBody(context),
-    onDismiss: onDismiss,
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final documentFlowV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
+    final isDocument =
+        issuedCredentials.isNotEmpty &&
+        issuedCredentials.every((c) => credentialRequiresNfc(c.credentialId));
+    if (documentFlowV2 && isDocument) {
+      return DocumentIssuancePermission(
+        issuedCredentials: issuedCredentials,
+        returnedFromIssuer: returnedFromIssuer,
+        onDismiss: onDismiss,
+        onGivePermission: onGivePermission,
+      );
+    }
+
+    return SessionScaffold(
+      appBarTitle: "issuance.title",
+      bottomNavigationBar: _buildNavigationBar(context),
+      body: _buildBody(context),
+      onDismiss: onDismiss,
+    );
+  }
 
   Widget _buildNavigationBar(BuildContext context) {
     return onGivePermission != null
@@ -65,6 +92,15 @@ class IssuancePermission extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (returnedFromIssuer != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                        child: TranslatedText(
+                          "external_issuer.returned",
+                          translationParams: {"issuer": returnedFromIssuer!},
+                          style: palette.display(18),
+                        ),
+                      ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Semantics(

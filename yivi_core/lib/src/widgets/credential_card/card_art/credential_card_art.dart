@@ -25,8 +25,10 @@ String instanceHintText(BuildContext context, InstanceHint hint) {
   };
 }
 
-String _date(BuildContext context, DateTime date) =>
-    printableDate(date, FlutterI18n.currentLocale(context)?.languageCode ?? "en");
+String _date(BuildContext context, DateTime date) => printableDate(
+  date,
+  FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+);
 
 /// The picture of a credential as a card, at any width (the height follows
 /// the ID-1 card ratio). It is decorative: screen readers get the same
@@ -94,7 +96,9 @@ class CredentialCardArt extends StatelessWidget {
               child: DecoratedBox(
                 decoration: ShapeDecoration(
                   shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(27 * width / designWidth),
+                    borderRadius: BorderRadius.circular(
+                      27 * width / designWidth,
+                    ),
                     side: const BorderSide(color: Color(0x1A000000)),
                   ),
                 ),
@@ -234,7 +238,11 @@ class _YiviCard extends StatelessWidget {
             child: Row(
               spacing: 16,
               children: [
-                _Logo(credential: credential, background: background, foreground: foreground),
+                _Logo(
+                  credential: credential,
+                  background: background,
+                  foreground: foreground,
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,7 +279,10 @@ class _YiviCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        FlutterI18n.translate(context, "credential_card.issued_by"),
+                        FlutterI18n.translate(
+                          context,
+                          "credential_card.issued_by",
+                        ),
                         style: text(12, FontWeight.w400, alpha: 0.7),
                       ),
                       Text(
@@ -284,7 +295,17 @@ class _YiviCard extends StatelessWidget {
                   ),
                 ),
                 if (footer != null)
-                  Text(footer, style: text(12, FontWeight.w400, alpha: 0.7)),
+                  // Long translations and large text shrink the date, not
+                  // the issuer: it gives way with an ellipsis.
+                  Flexible(
+                    child: Text(
+                      footer,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: text(12, FontWeight.w400, alpha: 0.7),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -305,7 +326,10 @@ class _YiviCard extends StatelessWidget {
         context,
         "credential_card.added_on",
         translationParams: {
-          "date": _date(context, DateTime.fromMillisecondsSinceEpoch(issued * 1000)),
+          "date": _date(
+            context,
+            DateTime.fromMillisecondsSinceEpoch(issued * 1000),
+          ),
         },
       );
     }
@@ -359,7 +383,9 @@ class _Logo extends StatelessWidget {
       alignment: Alignment.center,
       decoration: ShapeDecoration(
         color: foreground,
-        shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
       child: Text(
         source.isEmpty ? "?" : source.characters.first.toUpperCase(),

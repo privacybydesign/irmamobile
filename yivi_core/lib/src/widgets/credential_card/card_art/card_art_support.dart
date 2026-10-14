@@ -133,8 +133,11 @@ String _escapeXml(String s) => s
 /// link irmago's sanitiser lets through). Null for every other value.
 String? imageDataUri(schemaless.AttributeValue? value) {
   if (value == null) return null;
-  final data = value.base64Image ??
-      (value.type == schemaless.AttributeType.base64Image ? value.string : null);
+  final data =
+      value.base64Image ??
+      (value.type == schemaless.AttributeType.base64Image
+          ? value.string
+          : null);
   if (data == null || data.isEmpty) return null;
   final mime = data.startsWith("/9j/")
       ? "image/jpeg"
@@ -151,7 +154,11 @@ String? imageDataUri(schemaless.AttributeValue? value) {
 
 /// The plain-text form of an attribute value, or null when it has none that
 /// fits on a card (images, missing values).
-String? attributeText(schemaless.AttributeValue? value, {String? yes, String? no}) {
+String? attributeText(
+  schemaless.AttributeValue? value, {
+  String? yes,
+  String? no,
+}) {
   if (value == null) return null;
   return switch (value.type) {
     schemaless.AttributeType.string =>

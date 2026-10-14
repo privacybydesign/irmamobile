@@ -8,6 +8,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/theme/theme.dart";
 
 import "helpers/test_translation_loader.dart";
+import "support/pump_translated.dart";
 
 const _prompt = "Hold your phone upright";
 
@@ -18,7 +19,8 @@ Future<void> _pump(
   Stream<NativeDeviceOrientation> orientations, {
   MediaQueryData mediaQuery = const MediaQueryData(),
 }) async {
-  await tester.pumpWidget(
+  await pumpTranslated(
+    tester,
     MediaQuery(
       data: mediaQuery,
       child: IrmaTheme(

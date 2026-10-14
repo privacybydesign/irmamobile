@@ -13,6 +13,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
 import "helpers/test_translation_loader.dart";
+import "support/pump_translated.dart";
 
 CredentialStoreItem _item(String credentialId, String name) =>
     CredentialStoreItem(
@@ -99,7 +100,7 @@ void main() {
   testWidgets(
     "NFC-requiring credential is greyed out (disabled, with a11y hint) when the device has no NFC",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: false));
+      await pumpTranslated(tester, _testWidget(nfcAvailable: false));
       await tester.pumpAndSettle();
 
       final passport = _card(tester, "pbdf.pbdf.passport");
@@ -119,7 +120,7 @@ void main() {
   testWidgets(
     "tapping a greyed-out NFC credential shows the NFC-unsupported dialog instead of navigating",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: false));
+      await pumpTranslated(tester, _testWidget(nfcAvailable: false));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key("irma_dialog")), findsNothing);
@@ -137,7 +138,7 @@ void main() {
   testWidgets(
     "NFC-requiring credential stays enabled when the device supports NFC",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: true));
+      await pumpTranslated(tester, _testWidget(nfcAvailable: true));
       await tester.pumpAndSettle();
 
       final passport = _card(tester, "pbdf.pbdf.passport");
@@ -149,7 +150,7 @@ void main() {
   testWidgets(
     "NFC-requiring credential stays enabled while the NFC check is still loading",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: null));
+      await pumpTranslated(tester, _testWidget(nfcAvailable: null));
       // Can't settle: the credential store resolves but the NFC future stays
       // pending on purpose. Pump enough to let the store stream emit.
       await tester.pump();
@@ -163,7 +164,8 @@ void main() {
   testWidgets("shows the staging scheme's credentials under their own header", (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await pumpTranslated(
+      tester,
       _testWidget(
         nfcAvailable: true,
         store: [
@@ -187,7 +189,8 @@ void main() {
   });
 
   testWidgets("shows demo credentials under their own header", (tester) async {
-    await tester.pumpWidget(
+    await pumpTranslated(
+      tester,
       _testWidget(
         nfcAvailable: true,
         store: [

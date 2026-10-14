@@ -3,11 +3,14 @@ import "dart:convert";
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
+import "../providers/email_issuance_provider.dart";
+import "../providers/ocr_processor_provider.dart";
 
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
@@ -34,8 +37,10 @@ extension RoutingHelpers on BuildContext {
     push("/issue_mobilenumber");
   }
 
-  void pushEmailIssuanceScreen() {
-    push("/issue_email");
+  void pushEmailIssuanceScreen({
+    EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
+  }) {
+    push("/issue_email", extra: purpose);
   }
 
   void popToWizardScreen() {
@@ -96,12 +101,20 @@ extension RoutingHelpers on BuildContext {
     go("/home/debug");
   }
 
+  void pushFeatureFlagsScreen() {
+    push("/home/debug/feature_flags");
+  }
+
   void goNotificationsScreen() {
     go("/home/notifications");
   }
 
   void goEnrollmentScreen() {
     go("/enrollment");
+  }
+
+  void goBackToWebsiteScreen() {
+    go("/back_to_website");
   }
 
   void goIssueWizardSuccessScreen({
@@ -182,6 +195,32 @@ extension RoutingHelpers on BuildContext {
       queryParameters: params.toQueryParams(),
     );
     pushReplacement(uri.toString());
+  }
+
+  void pushDocumentInstructionScreen(DocumentType documentType) {
+    final uri = Uri(path: "/mrz/instructions/${documentType.name}");
+    push(uri.toString());
+  }
+
+  /// Opens the MRZ camera, or manual entry when the build has no
+  /// [ocrProcessor].
+  void pushDocumentCapture(
+    DocumentType documentType, {
+    required OcrProcessor? ocrProcessor,
+  }) {
+    final hasCamera = ocrProcessor != null;
+    switch (documentType) {
+      case .passport:
+        hasCamera
+            ? pushPassportMrzReaderScreen()
+            : pushPassportManualEntryScreen();
+      case .identityCard:
+        hasCamera ? pushIdCardMrzReaderScreen() : pushIdCardManualEntryScreen();
+      case .drivingLicence:
+        hasCamera
+            ? pushDrivingLicenceMrzReaderScreen()
+            : pushDrivingLicenceManualEntryScreen();
+    }
   }
 
   void pushPassportMrzReaderScreen() {

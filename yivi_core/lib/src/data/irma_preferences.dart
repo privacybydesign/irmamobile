@@ -1,5 +1,7 @@
 import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
 
+import "feature_flags.dart";
+
 class IrmaPreferences {
   final String mostRecentTermsUrlNl;
   final String mostRecentTermsUrlEn;
@@ -74,6 +76,10 @@ class IrmaPreferences {
          _darkModePreviewKey,
          defaultValue: false,
        ),
+       _favouriteCredentials = preferences.getStringList(
+         _favouriteCredentialsKey,
+         defaultValue: [],
+       ),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -86,7 +92,36 @@ class IrmaPreferences {
          _reviewLastAskEpochMsKey,
          defaultValue: 0,
        ),
-       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
+       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false),
+       _readyChipPending = preferences.getBool(
+         _readyChipPendingKey,
+         defaultValue: false,
+       ),
+       _installReferrerRead = preferences.getBool(
+         _installReferrerReadKey,
+         defaultValue: false,
+       ),
+       _backToWebsitePending = preferences.getBool(
+         _backToWebsitePendingKey,
+         defaultValue: false,
+       ),
+       _emailLinked = preferences.getBool(_emailLinkedKey, defaultValue: false),
+       _emailBannerDismissed = preferences.getBool(
+         _emailBannerDismissedKey,
+         defaultValue: false,
+       ),
+       _emailBannerSnoozedUntilMs = preferences.getInt(
+         _emailBannerSnoozedUntilMsKey,
+         defaultValue: 0,
+       ),
+       _localBackendHost = preferences.getString(
+         _localBackendHostKey,
+         defaultValue: "",
+       ),
+       _featureFlags = {
+         for (final flag in FeatureFlag.values)
+           flag: preferences.getBool(flag.prefKey, defaultValue: false),
+       } {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -193,6 +228,11 @@ class IrmaPreferences {
   static const String _darkModePreviewKey = "preference.dark_mode_preview";
   final Preference<bool> _darkModePreview;
 
+  // Credential ids the user pinned to the top of the data tab
+  static const String _favouriteCredentialsKey =
+      "preference.favourite_credentials";
+  final Preference<List<String>> _favouriteCredentials;
+
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
   // All wiped by clearAll(), so a logout/reset restarts the whole flow.
 
@@ -215,6 +255,51 @@ class IrmaPreferences {
   /// the second ask was reached. Never ask again once true.
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
+
+  // --- Onboarding v2 (see privacybydesign/irmamobile#742) -------------------
+
+  /// Set when onboarding completes, until the empty data tab has shown the
+  /// "ready" chip once.
+  static const String _readyChipPendingKey = "preference.ready_chip_pending";
+  final Preference<bool> _readyChipPending;
+
+  /// Whether the Play install referrer has been read. It is read once.
+  static const String _installReferrerReadKey =
+      "preference.install_referrer_read";
+  final Preference<bool> _installReferrerRead;
+
+  /// Set when the install referrer says the install started on a website,
+  /// until the "go back to the website" screen has been shown once.
+  static const String _backToWebsitePendingKey =
+      "preference.back_to_website_pending";
+  final Preference<bool> _backToWebsitePending;
+
+  // --- E-mail linking (FeatureFlag.emailLinking) ------------------------------
+  // All wiped by clearAll().
+
+  /// Whether this install has linked an e-mail address to the keyshare server.
+  /// The server offers no way to ask, so this is only set by the linking flow.
+  static const String _emailLinkedKey = "preference.email_linked";
+  final Preference<bool> _emailLinked;
+
+  /// Terminal: the user chose "Negeren", so the banner never shows again.
+  static const String _emailBannerDismissedKey =
+      "preference.email_banner_dismissed";
+  final Preference<bool> _emailBannerDismissed;
+
+  /// Wall-clock time (ms since epoch) before which the banner stays hidden,
+  /// set by "Vraag het me later".
+  static const String _emailBannerSnoozedUntilMsKey =
+      "preference.email_banner_snoozed_until_ms";
+  final Preference<int> _emailBannerSnoozedUntilMs;
+
+  /// Host of a local backend setup, set in the debug menu, such as
+  /// "localhost" with `adb reverse`. Empty means the real backends.
+  static const String _localBackendHostKey = "preference.local_backend_host";
+  final Preference<String> _localBackendHost;
+
+  /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
+  final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
   // =============================================================================
 
@@ -319,6 +404,11 @@ class IrmaPreferences {
   Future<bool> setDarkModePreview(bool enabled) =>
       _darkModePreview.setValue(enabled);
 
+  Stream<List<String>> getFavouriteCredentials() => _favouriteCredentials;
+
+  Future<bool> setFavouriteCredentials(List<String> ids) =>
+      _favouriteCredentials.setValue(ids);
+
   // --- App-store review prompt ----------------------------------------------
 
   int getReviewSuccessCountNow() => _reviewSuccessCount.getValue();
@@ -340,6 +430,56 @@ class IrmaPreferences {
     await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
     await _reviewLastAskEpochMs.setValue(nowEpochMs);
   }
+
+  // --- Onboarding v2 --------------------------------------------------------
+
+  Stream<bool> getReadyChipPending() => _readyChipPending;
+
+  Future<bool> markReadyChipPending() => _readyChipPending.setValue(true);
+
+  Future<bool> markReadyChipShown() => _readyChipPending.setValue(false);
+
+  Stream<bool> getInstallReferrerRead() => _installReferrerRead;
+
+  Future<bool> markInstallReferrerRead() => _installReferrerRead.setValue(true);
+
+  Stream<bool> getBackToWebsitePending() => _backToWebsitePending;
+
+  Future<bool> markBackToWebsitePending() =>
+      _backToWebsitePending.setValue(true);
+
+  Future<bool> markBackToWebsiteShown() =>
+      _backToWebsitePending.setValue(false);
+
+  // --- E-mail linking -------------------------------------------------------
+
+  Stream<bool> getEmailLinked() => _emailLinked;
+
+  Future<bool> markEmailLinked() => _emailLinked.setValue(true);
+
+  Stream<bool> getEmailBannerDismissed() => _emailBannerDismissed;
+
+  Future<bool> dismissEmailBanner() => _emailBannerDismissed.setValue(true);
+
+  Stream<DateTime> getEmailBannerSnoozedUntil() =>
+      _emailBannerSnoozedUntilMs.map(DateTime.fromMillisecondsSinceEpoch);
+
+  Future<bool> snoozeEmailBannerUntil(DateTime until) =>
+      _emailBannerSnoozedUntilMs.setValue(until.millisecondsSinceEpoch);
+
+  // --- Local backends -------------------------------------------------------
+
+  Stream<String> getLocalBackendHost() => _localBackendHost;
+
+  Future<bool> setLocalBackendHost(String host) =>
+      _localBackendHost.setValue(host);
+
+  // --- Feature flags --------------------------------------------------------
+
+  Stream<bool> getFeatureFlag(FeatureFlag flag) => _featureFlags[flag]!;
+
+  Future<bool> setFeatureFlag(FeatureFlag flag, bool value) =>
+      _featureFlags[flag]!.setValue(value);
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

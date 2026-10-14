@@ -2,10 +2,12 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../base64_image.dart";
@@ -13,6 +15,7 @@ import "../information_box.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
 import "../yivi_themed_button.dart";
+import "models/credential_card_layout.dart";
 import "models/credential_card_status.dart";
 import "yivi_credential_card_attribute_list.dart";
 import "yivi_credential_card_footer.dart";
@@ -34,6 +37,11 @@ class YiviCredentialCard extends ConsumerWidget {
   final EdgeInsetsGeometry? padding;
   final bool hideFooter;
   final bool hideNotObtainable;
+  final CredentialCardLayout layout;
+
+  /// Replaces the validity footer: shown below the attributes, behind a
+  /// divider, even when [hideFooter] is set.
+  final Widget? footer;
 
   /// The card shows attributes being shared (a disclosure) rather than the
   /// whole credential; attribute groups lay themselves out accordingly.
@@ -56,6 +64,8 @@ class YiviCredentialCard extends ConsumerWidget {
     this.hideFooter = false,
     this.hideNotObtainable = false,
     this.disclosure = false,
+    this.layout = CredentialCardLayout.standard,
+    this.footer,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -70,6 +80,7 @@ class YiviCredentialCard extends ConsumerWidget {
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
+    CredentialCardLayout layout = CredentialCardLayout.standard,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   }) : this(
          key: key,
@@ -98,6 +109,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         layout: layout,
        );
 
   YiviCredentialCard.fromSelectableInstance({
@@ -110,6 +122,7 @@ class YiviCredentialCard extends ConsumerWidget {
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
+    Widget? footer,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   }) : this(
          key: key,
@@ -141,6 +154,7 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: hideFooter,
          disclosure: true,
+         footer: footer,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -294,6 +308,20 @@ class YiviCredentialCard extends ConsumerWidget {
     final displayIssuerName = issuerName.isNotEmpty
         ? issuerName
         : FlutterI18n.translate(context, "ui.unknown");
+    final collapseAges =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
+
+    if (layout == .document) {
+      return _buildDocumentLayout(
+        context,
+        displayName: displayName,
+        displayIssuerName: displayIssuerName,
+        ageDisplay: collapseAges
+            ? AgeDisplay.collapsed
+            : AgeDisplay.perAttribute,
+      );
+    }
 
     return IrmaCard(
       style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
@@ -327,9 +355,18 @@ class YiviCredentialCard extends ConsumerWidget {
               compareTo: compareTo,
               credentialId: status.credentialId,
               disclosure: disclosure,
+              ageDisplay: collapseAges
+                  ? AgeDisplay.collapsed
+                  : AgeDisplay.perAttribute,
             ),
           ],
-          if (!hideFooter && !status.revoked)
+          if (footer != null) ...[
+            IrmaDivider(
+              color: status.isExpired ? theme.danger : null,
+              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+            ),
+            footer!,
+          ] else if (!hideFooter && !status.revoked)
             Column(
               children: [
                 if (attributes.isNotEmpty)
@@ -374,6 +411,74 @@ class YiviCredentialCard extends ConsumerWidget {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  /// The card of a document on its permission screen: the header and the
+  /// validity cells reach the card's edges, split off by thin lines.
+  Widget _buildDocumentLayout(
+    BuildContext context, {
+    required String displayName,
+    required String displayIssuerName,
+    required AgeDisplay ageDisplay,
+  }) {
+    final theme = IrmaTheme.of(context);
+    final lineColor = status.isExpired ? theme.danger : null;
+
+    return IrmaCard(
+      style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
+      onTap: onTap,
+      padding: padding,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: .stretch,
+        mainAxisSize: .min,
+        children: [
+          Padding(
+            padding: .all(theme.defaultSpacing),
+            child: YiviCredentialCardHeader(
+              compact: compact,
+              credentialName: displayName,
+              issuerName: displayIssuerName,
+              logoPath: imagePath,
+              logoImage: image,
+              trailing: headerTrailing,
+              isExpired: status.isExpired,
+              isRevoked: status.revoked,
+              isExpiringSoon: status.hasWarning,
+              layout: layout,
+            ),
+          ),
+          if (attributes.isNotEmpty) ...[
+            IrmaDivider(color: lineColor),
+            Padding(
+              padding: .fromLTRB(
+                theme.defaultSpacing,
+                theme.smallSpacing,
+                theme.defaultSpacing,
+                0,
+              ),
+              child: YiviCredentialCardAttributeList(
+                attributes,
+                compareTo: compareTo,
+                ageDisplay: ageDisplay,
+                layout: layout,
+              ),
+            ),
+          ],
+          if (!hideFooter && !status.revoked) ...[
+            SizedBox(height: theme.smallSpacing),
+            IrmaDivider(color: lineColor),
+            YiviCredentialCardFooter(
+              instanceBasedExpireState: status.instanceExpireState,
+              timeBasedExpireState: status.timeExpireState,
+              expiryDate: status.expiryDate,
+              instanceCount: status.instanceCount,
+              layout: layout,
+            ),
+          ],
         ],
       ),
     );

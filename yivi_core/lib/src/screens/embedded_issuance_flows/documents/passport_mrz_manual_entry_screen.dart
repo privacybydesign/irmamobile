@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -120,7 +121,10 @@ class _PassportMrzManualEntryScreenState
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
-        appBar: IrmaAppBar(titleTranslationKey: widget.translationKeys.title),
+        appBar: IrmaAppBar(
+          bottom: context.missingDataBand,
+          titleTranslationKey: widget.translationKeys.title,
+        ),
         body: SizedBox(
           height: .infinity,
           child: SingleChildScrollView(
@@ -198,7 +202,7 @@ class _PassportMrzManualEntryScreenState
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: "ui.cancel",
+          secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
           onSecondaryPressed: widget.onCancel,
         ),
       ),

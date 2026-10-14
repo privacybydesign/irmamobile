@@ -12,6 +12,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_read
 import "package:yivi_core/src/theme/theme.dart";
 
 import "helpers/test_translation_loader.dart";
+import "support/pump_translated.dart";
 
 final _mrz = ScannedPassportMrz(
   documentNumber: "AB1234567",
@@ -149,7 +150,7 @@ void main() {
     );
 
     final reader = _RecordingReader(privacyScreenCalls);
-    await tester.pumpWidget(_testWidget(reader));
+    await pumpTranslated(tester, _testWidget(reader));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key("bottom_bar_primary")));

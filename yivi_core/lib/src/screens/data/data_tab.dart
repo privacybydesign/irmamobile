@@ -8,9 +8,12 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
+import "../../data/feature_flags.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/credentials_search.dart";
+import "../../providers/email_linking_provider.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
@@ -27,8 +30,10 @@ import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "credential_detail/credential_detail_screen.dart";
+import "empty_data_routes.dart";
 import "wallet/card_hero.dart";
 import "wallet/wallet_transition.dart";
+import "widgets/email_link_banner.dart";
 
 /// Height of the floating search row at the top of the tab.
 const double _topBarHeight = 48;
@@ -169,6 +174,9 @@ class _Content extends ConsumerWidget {
     final palette = YiviPalette.of(context);
     final snapshot = ref.watch(schemalessCredentialsProvider);
     final ordered = ref.watch(schemalessCredentialOrderControllerProvider);
+    // Read next to the credentials so it has loaded by the time they have.
+    final onboardingV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
 
     return switch ((snapshot, ordered)) {
       (AsyncError(), _) || (_, AsyncError()) => Center(
@@ -187,7 +195,19 @@ class _Content extends ConsumerWidget {
         cards.isEmpty && snap.problematic.isEmpty
             ? Padding(
                 padding: EdgeInsets.only(top: topInset),
-                child: _NoCredentialsYet(addDataButtonKey: addDataButtonKey),
+                child: Column(
+                  children: [
+                    if (ref.watch(emailBannerVisibleProvider))
+                      const EmailLinkBanner(),
+                    Expanded(
+                      child: onboardingV2
+                          ? const EmptyDataRoutes()
+                          : _NoCredentialsYet(
+                              addDataButtonKey: addDataButtonKey,
+                            ),
+                    ),
+                  ],
+                ),
               )
             : _CardList(
                 cards: cards,
@@ -247,6 +267,13 @@ class _CardList extends ConsumerWidget {
           key: const Key("wallet_scroll"),
           slivers: [
             SliverToBoxAdapter(child: SizedBox(height: topInset)),
+            if (ref.watch(emailBannerVisibleProvider))
+              box(
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: EmailLinkBanner(),
+                ),
+              ),
             box(
               PushAway(
                 direction: PushAwayDirection.up,

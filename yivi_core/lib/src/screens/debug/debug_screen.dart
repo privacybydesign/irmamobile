@@ -6,6 +6,7 @@ import "../../models/credential_events.dart";
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/handle_pointer.dart";
+import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";
 import "cert_management/cert_management_screen.dart";
@@ -16,6 +17,7 @@ import "scheme_management/widgets/scheme_management_warning_dialog.dart";
 import "session/session_helper_screen.dart";
 import "util/snackbar.dart";
 import "widgets/delete_all_credentials_confirmation_dialog.dart";
+import "widgets/local_backends_tile.dart";
 
 class DebugScreen extends StatefulWidget {
   const DebugScreen({super.key});
@@ -124,6 +126,12 @@ class _DebugScreenState extends State<DebugScreen> {
             "debug.cert_management.title",
             onTap: _onOpenCertManagement,
           ),
+          ListTile(
+            leading: const Icon(Icons.flag_outlined),
+            title: const Text("Feature flags"),
+            onTap: context.pushFeatureFlagsScreen,
+          ),
+          const LocalBackendsTile(),
           _buildListTile(
             Icons.badge,
             "debug.issue_digid",

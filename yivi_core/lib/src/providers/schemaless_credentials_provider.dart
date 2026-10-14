@@ -20,6 +20,16 @@ final schemalessCredentialsProvider =
       }
     });
 
+/// Whether the data tab has anything to show: a credential, or one that cannot
+/// be rendered. The keyshare credential is never in the list, so this is false
+/// right after enrollment.
+final hasCredentialsProvider = Provider<bool>((ref) {
+  final credentials = ref.watch(schemalessCredentialsProvider).value;
+  return credentials != null &&
+      (credentials.credentials.isNotEmpty ||
+          credentials.problematic.isNotEmpty);
+});
+
 final schemalessCredentialTypesProvider =
     StreamProvider<List<schemaless.Credential>>((ref) async* {
       final allCredentials = (await ref.watch(

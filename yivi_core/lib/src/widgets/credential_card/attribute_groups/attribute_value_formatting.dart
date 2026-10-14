@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
+import "../models/credential_card_layout.dart";
 
 // Text styles and value formatting shared by the attribute list and by
 // attribute group renderers, so a group can match the look of ordinary rows.
@@ -49,17 +50,26 @@ class AttributeColors {
   }
 }
 
-TextStyle attributeLabelStyle(BuildContext context) => TextStyle(
+TextStyle attributeLabelStyle(
+  BuildContext context, {
+  CredentialCardLayout layout = CredentialCardLayout.standard,
+}) => TextStyle(
   fontFamily: IrmaTheme.of(context).secondaryFontFamily,
   fontSize: 14,
+  height: layout == .document ? CredentialCardLayout.smallLineHeight : null,
   fontWeight: FontWeight.w400,
   color: AttributeColors.of(context).label,
 );
 
-TextStyle attributeValueStyle(BuildContext context, Color color) => TextStyle(
+TextStyle attributeValueStyle(
+  BuildContext context,
+  Color color, {
+  CredentialCardLayout layout = CredentialCardLayout.standard,
+}) => TextStyle(
   fontFamily: IrmaTheme.of(context).primaryFontFamily,
   fontSize: 16,
-  fontWeight: FontWeight.w600,
+  height: layout == .document ? CredentialCardLayout.bodyLineHeight : null,
+  fontWeight: layout == .document ? FontWeight.w700 : FontWeight.w600,
   color: color,
 );
 

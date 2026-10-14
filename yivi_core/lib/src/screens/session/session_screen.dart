@@ -4,15 +4,21 @@ import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
+import "../../providers/email_linking_provider.dart";
+import "../../providers/external_issuer_provider.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
+import "../../theme/theme.dart";
+import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -24,9 +30,13 @@ import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
 import "widgets/disclosure_permission_confirm_dialog.dart";
 import "widgets/disclosure_permission_introduction_screen.dart";
+import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
+import "widgets/missing_data_checklist_screen.dart";
+import "widgets/missing_data_flow_reset.dart";
+import "widgets/missing_data_header.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
@@ -70,6 +80,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   bool _hasLongPin = false;
 
+  /// `FeatureFlag.missingDataChecklist`, refreshed on every build.
+  bool _useMissingDataChecklist = false;
+
   /// Whether the disclosure introduction screen should be shown.
   /// Null means we haven't loaded the preference yet.
   bool? _showIntroduction;
@@ -108,6 +121,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// its caller other than the iOS status-bar back link. Replaces the session
   /// body with [ArrowBack] until they leave the app.
   bool _showArrowBack = false;
+
+  /// True once the issuance session of the e-mail linking flow handed over to
+  /// the keyshare disclosure. Keeps the success screen away while it starts.
+  bool _handedOverToKeyshare = false;
+
+  /// True once the finished keyshare disclosure was recorded as a linked address.
+  bool _emailLinkRecorded = false;
 
   @override
   void initState() {
@@ -151,6 +171,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       sessionAwaitingInteractionProvider(widget.sessionId),
     );
     _lastSession = asyncSession;
+    _useMissingDataChecklist =
+        ref
+            .watch(featureFlagProvider(FeatureFlag.missingDataChecklist))
+            .value ??
+        false;
 
     // Track the latest non-null remainingTxCodeAttempts so that, if the
     // session subsequently errors out, we can detect the tx_code-lockout
@@ -277,6 +302,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final isIssuanceSession =
         session.type == .issuance && session.offeredCredentials != null;
 
+    if (_useMissingDataChecklist && session.type == .disclosure) {
+      if (needsIssueBeforeDisclosure) {
+        return MissingDataFlowReset(
+          sessionId: widget.sessionId,
+          child: MissingDataChecklistScreen(
+            sessionId: widget.sessionId,
+            onDismiss: _showDismissDialog,
+          ),
+        );
+      }
+      if (_hadIssueDuringDisclosure) {
+        return MissingDataFlowReset(
+          sessionId: widget.sessionId,
+          child: _buildMissingDataShareScreen(session),
+        );
+      }
+    }
+
     // Show issuance screen while steps are pending, or keep showing it
     // in completed state until the user acknowledges by tapping "Next step".
     if (needsIssueBeforeDisclosure ||
@@ -305,6 +348,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
+        returnedFromIssuer: _returnedFromIssuer(session),
         onDismiss: _dismissSession,
         onGivePermission: () {
           _grantPermission(_pendingDisclosureChoices ?? []);
@@ -322,6 +366,42 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         _showShareConfirmDialog(session, choices);
       },
     );
+  }
+
+  /// The checklist, once nothing is missing anymore: the same screen, now
+  /// asking the user to share.
+  Widget _buildMissingDataShareScreen(SessionState session) {
+    return DisclosureChoicesOverview(
+      sessionState: session,
+      confirmLabelKey: "missing_data.share",
+      headerBuilder: (context, itemCount) => Padding(
+        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
+        child: MissingDataHeader(
+          requestor: session.requestor,
+          phase: MissingDataPhase.ready,
+          total: itemCount,
+          presentCount: itemCount,
+        ),
+      ),
+      onDismiss: _showDismissDialog,
+      onChoicesConfirmed: _grantPermission,
+    );
+  }
+
+  /// The issuer whose website the user opened from the app and who now offers
+  /// the credential, when the external issuer flow is on.
+  String? _returnedFromIssuer(SessionState session) {
+    if (!ref.watch(externalIssuerFlowEnabledProvider)) return null;
+
+    final launched =
+        ref.watch(websiteLaunchedCredentialsProvider).value ?? const {};
+    for (final credential in session.offeredCredentials ?? const []) {
+      if (launched.contains(credential.credentialId) &&
+          _repo.issuesViaWebsite(credential.credentialId)) {
+        return credential.issuer.name;
+      }
+    }
+    return null;
   }
 
   Widget _buildOpenIdRequestPermission(SessionState session) {
@@ -427,6 +507,36 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildSuccess(SessionState session) {
+    final linking = ref.read(emailLinkingProvider);
+
+    // E-mail linking (FeatureFlag.emailLinking): once the address is issued,
+    // share it with the keyshare server, and finish on its own screen.
+    if (_handedOverToKeyshare ||
+        linking.issuanceSessionId == widget.sessionId) {
+      if (!_handedOverToKeyshare) {
+        _handedOverToKeyshare = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) shareEmailWithKeyshare(context, ref);
+        });
+      }
+      return _buildLoadingScreen(session);
+    }
+
+    if (linking.disclosureSessionId == widget.sessionId) {
+      if (!_emailLinkRecorded) {
+        _emailLinkRecorded = true;
+        final linkingNotifier = ref.read(emailLinkingProvider.notifier);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          linkingNotifier.markLinked();
+        });
+      }
+      return EmailLinkedScreen(
+        onDismiss: (_) => context.popToUnderlyingSessionOrHome(
+          hasUnderlyingSession: widget.hasUnderlyingSession,
+        ),
+      );
+    }
+
     // Latch the in-app-launched decision on first build, then clear the
     // launched set so abandoned launches don't leak into a future session.
     // Build runs multiple times; without latching, the cleared set would

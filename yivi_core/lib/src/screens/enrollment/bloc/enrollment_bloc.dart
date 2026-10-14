@@ -1,9 +1,11 @@
 import "package:flutter_bloc/flutter_bloc.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/enrollment_events.dart";
 import "../../../models/session.dart";
 import "../introduction/introduction_screen.dart";
+import "../introduction/models/introduction_entry.dart";
 
 part "enrollment_event.dart";
 part "enrollment_state.dart";
@@ -15,8 +17,20 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   String? _email;
   String? _pin;
 
+  /// Whether the e-mail step is left out (`FeatureFlag.emailLinking`). Read once
+  /// the PIN is confirmed, which is where the step would start.
+  var _emailStepSkipped = false;
+
   EnrollmentBloc({required this.language, required this.repo})
     : super(EnrollmentIntroduction());
+
+  /// Onboarding v2 keeps only the first introduction step.
+  Future<int> _introductionStepCount() async {
+    final onboardingV2 = await repo.preferences
+        .getFeatureFlag(FeatureFlag.onboardingV2)
+        .first;
+    return onboardingV2 ? 1 : IntroductionScreen.introductionSteps.length;
+  }
 
   Future<EnrollmentState> _enroll() async {
     var enrollment = await repo.enroll(
@@ -44,8 +58,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     // Introduction
     else if (state is EnrollmentIntroduction) {
       if (event is EnrollmentNextPressed) {
-        if (state.currentStepIndex <
-            IntroductionScreen.introductionSteps.length - 1) {
+        if (state.currentStepIndex < await _introductionStepCount() - 1) {
           yield EnrollmentIntroduction(
             currentStepIndex: state.currentStepIndex + 1,
           );
@@ -69,7 +82,8 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield EnrollmentChoosePin();
       } else if (event is EnrollmentPreviousPressed) {
         yield EnrollmentIntroduction(
-          currentStepIndex: IntroductionScreen.introductionSteps.length - 1,
+          currentStepIndex: await _introductionStepCount() - 1,
+          entry: IntroductionEntry.returning,
         );
       }
       // Terms are toggled
@@ -93,7 +107,15 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
       if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
-          yield EnrollmentProvideEmail();
+          _emailStepSkipped = await repo.preferences
+              .getFeatureFlag(FeatureFlag.emailLinking)
+              .first;
+          if (_emailStepSkipped) {
+            yield Enrolling();
+            yield await _enroll();
+          } else {
+            yield EnrollmentProvideEmail();
+          }
         } else {
           yield EnrollmentConfirmPin(confirmationFailed: true);
         }
@@ -117,7 +139,9 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
     } else if (state is EnrollmentFailed &&
         event is EnrollmentPreviousPressed) {
-      yield EnrollmentProvideEmail(email: _email);
+      yield _emailStepSkipped
+          ? EnrollmentChoosePin()
+          : EnrollmentProvideEmail(email: _email);
     }
   }
 }

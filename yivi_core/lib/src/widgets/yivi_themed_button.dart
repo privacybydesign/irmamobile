@@ -43,18 +43,22 @@ class YiviButtonSize {
 
 class YiviThemedButton extends StatelessWidget {
   final String label;
+  final Map<String, String>? labelParams;
   final VoidCallback? onPressed;
   final YiviButtonStyle style;
   final YiviButtonSize size;
   final bool isTransparent;
+  final IconData? trailingIcon;
 
   const YiviThemedButton({
     super.key,
     required this.label,
+    this.labelParams,
     this.onPressed,
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
+    this.trailingIcon,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
          "Fancy button cannot be transparent",
@@ -133,16 +137,28 @@ class YiviThemedButton extends StatelessWidget {
       );
     }
 
+    final textColor = style == YiviButtonStyle.outlined
+        ? theme.neutralExtraDark
+        : theme.light;
+    final labelWidget = TranslatedText(
+      label,
+      translationParams: labelParams,
+      textAlign: TextAlign.center,
+      style: baseTextStyle.copyWith(color: textColor),
+    );
     final centeredTextWidget = Center(
-      child: TranslatedText(
-        label,
-        textAlign: TextAlign.center,
-        style: baseTextStyle.copyWith(
-          color: style == YiviButtonStyle.outlined
-              ? theme.neutralExtraDark
-              : theme.light,
-        ),
-      ),
+      child: trailingIcon == null
+          ? labelWidget
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: labelWidget),
+                SizedBox(width: theme.tinySpacing),
+                ExcludeSemantics(
+                  child: Icon(trailingIcon, size: 20, color: textColor),
+                ),
+              ],
+            ),
     );
 
     Widget buttonWidget = Semantics(

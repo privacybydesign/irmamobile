@@ -6,6 +6,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:rxdart/rxdart.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
@@ -13,17 +14,23 @@ import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
+import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
+import "src/providers/ocr_processor_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
+import "src/screens/add_data/add_data_details_route.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
+import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/credential_detail/credential_detail_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
+import "src/screens/debug/feature_flags_screen.dart";
+import "src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -51,6 +58,7 @@ import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
+import "src/util/missing_data_flow.dart";
 import "src/util/navigation.dart";
 import "src/widgets/irma_app_bar.dart";
 
@@ -103,6 +111,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/enrollment",
         builder: (context, state) => EnrollmentScreen(),
+      ),
+      GoRoute(
+        path: "/back_to_website",
+        builder: (context, state) => const BackToWebsiteScreen(),
       ),
       GoRoute(
         path: "/home",
@@ -165,18 +177,27 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     state.uri.queryParameters,
                   );
 
-                  return SchemalessAddDataDetailsScreen(
-                    credential: params.credential,
-                    faq: params.faq,
-                    onCancel: context.pop,
-                    onAdd: () {
+                  Future<void> openIssueURL() =>
                       IrmaRepositoryProvider.of(context).openIssueURL(
                         context,
                         params.credential.credentialId,
                         params.credential.issueURL,
                         ref,
                       );
+
+                  return AddDataDetailsRoute(
+                    credential: params.credential,
+                    onBack: context.pop,
+                    onOpenWebsite: () async {
+                      await openIssueURL();
+                      if (context.mounted) context.pop();
                     },
+                    details: SchemalessAddDataDetailsScreen(
+                      credential: params.credential,
+                      faq: params.faq,
+                      onCancel: context.pop,
+                      onAdd: openIssueURL,
+                    ),
                   );
                 },
               ),
@@ -185,6 +206,12 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           GoRoute(
             path: "debug",
             builder: (context, state) => const DebugScreen(),
+            routes: [
+              GoRoute(
+                path: "feature_flags",
+                builder: (context, state) => const FeatureFlagsScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: "settings",
@@ -278,12 +305,32 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       GoRoute(
         path: "/issue_email",
-        builder: (context, state) => EmailIssuanceScreen(),
+        builder: (context, state) => EmailIssuanceScreen(
+          purpose:
+              state.extra as EmailIssuancePurpose? ??
+              EmailIssuancePurpose.addCredential,
+        ),
       ),
       GoRoute(
         path: "/mrz",
         builder: (context, state) => Container(),
         routes: [
+          GoRoute(
+            path: "/instructions/:type",
+            builder: (context, state) {
+              final documentType = DocumentType.values.byName(
+                state.pathParameters["type"]!,
+              );
+              return DocumentInstructionScreen(
+                documentType: documentType,
+                onCancel: context.pop,
+                onStart: () => context.pushDocumentCapture(
+                  documentType,
+                  ocrProcessor: ref.read(ocrProcessorProvider),
+                ),
+              );
+            },
+          ),
           GoRoute(
             path: "/manual_entry",
             builder: (context, state) => Container(),
@@ -292,7 +339,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/driving_licence",
                 builder: (context, state) {
                   return DrivingLicenceMrzManualEntryScreen(
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     onContinue: (data) {
                       context.pushDrivingLicenceNfcReadingScreen(
                         DrivingLicenceNfcReadingRouteParams(
@@ -327,7 +374,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                           "passport.manual.fields.document_nr_invalid",
                       dateInvalid: "passport.manual.fields.date_invalid",
                     ),
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     onContinue: (data) {
                       context.pushPassportNfcReadingScreen(
                         PassportNfcReadingRouteParams(
@@ -360,7 +407,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                           "id_card.manual.fields.document_nr_invalid",
                       dateInvalid: "id_card.manual.fields.date_invalid",
                     ),
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     onContinue: (data) {
                       context.pushIdCardNfcReadingScreen(
                         PassportNfcReadingRouteParams(
@@ -409,7 +456,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushDrivingLicenceManualEntryScreen,
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     mrzParser: DrivingLicenceMrzParser(),
                   );
                 },
@@ -442,7 +489,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushPassportManualEntryScreen,
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     mrzParser: PassportMrzParser(),
                   );
                 },
@@ -472,7 +519,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushIdCardManualEntryScreen,
-                    onCancel: context.pop,
+                    onCancel: context.missingDataBack(context.pop),
                     mrzParser: IdCardMrzParser(),
                   );
                 },
@@ -539,7 +586,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   randomData: args.randomData,
                   configuration: args.configuration,
                 ),
-                onCancel: context.goHomeScreen,
+                onCancel: context.missingDataBack(context.goHomeScreen),
               );
             },
           ),
@@ -591,7 +638,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   dateOfBirth: args.dateOfBirth,
                   dateOfExpiry: args.dateOfExpiry,
                 ),
-                onCancel: context.goHomeScreen,
+                onCancel: context.missingDataBack(context.goHomeScreen),
               );
             },
           ),
@@ -643,7 +690,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   dateOfBirth: args.dateOfBirth,
                   dateOfExpiry: args.dateOfExpiry,
                 ),
-                onCancel: context.goHomeScreen,
+                onCancel: context.missingDataBack(context.goHomeScreen),
               );
             },
           ),

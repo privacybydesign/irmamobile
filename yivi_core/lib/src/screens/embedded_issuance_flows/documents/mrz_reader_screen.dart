@@ -1,12 +1,17 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:permission_handler/permission_handler.dart";
 
 import "../../../../package_name.dart";
+import "../../../data/feature_flags.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../util/test_detection.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -31,7 +36,7 @@ class MrzReaderTranslationKeys {
 }
 
 /// Mzr reading is the process of obtaining mrz data via the camera
-class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
+class MrzReaderScreen<Parser extends MrzParser> extends ConsumerStatefulWidget {
   final void Function(MrzResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
   final VoidCallback onCancel;
@@ -49,10 +54,10 @@ class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
   });
 
   @override
-  State<MrzReaderScreen> createState() => MrzReaderScreenState();
+  ConsumerState<MrzReaderScreen> createState() => MrzReaderScreenState();
 }
 
-class MrzReaderScreenState extends State<MrzReaderScreen> {
+class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
   final MrzController controller = MrzController();
   late PermissionStatus _cameraPermissionStatus = .denied;
 
@@ -77,6 +82,9 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final documentFlowV2 =
+        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
+        false;
 
     final body = switch (_cameraPermissionStatus) {
       .granted => MrzScanner(
@@ -130,22 +138,46 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
           return Scaffold(
             backgroundColor: theme.backgroundTertiary,
             appBar: IrmaAppBar(
+              bottom: context.missingDataBand,
               titleTranslationKey: widget.translationKeys.title,
+              hasBorder: !documentFlowV2,
             ),
             body: body,
-            bottomNavigationBar: IrmaBottomBar(
-              primaryButtonLabel: widget.translationKeys.manualEntryButton,
-              onPrimaryPressed: widget.onManualAdd,
-              secondaryButtonLabel: "ui.cancel",
-              onSecondaryPressed: widget.onCancel,
-              alignment: .vertical,
-            ),
+            bottomNavigationBar: documentFlowV2
+                ? DocumentFlowFooter(
+                    buttons: [
+                      DocumentFlowButton(
+                        key: DocumentFlowButton.primaryKey,
+                        labelKey: widget.translationKeys.manualEntryButton,
+                        onPressed: widget.onManualAdd,
+                      ),
+                      DocumentFlowButton(
+                        key: DocumentFlowButton.secondaryKey,
+                        labelKey: context.missingDataBackLabel(
+                          "document_flow.cancel",
+                        ),
+                        onPressed: widget.onCancel,
+                        style: .outline,
+                      ),
+                    ],
+                  )
+                : IrmaBottomBar(
+                    primaryButtonLabel:
+                        widget.translationKeys.manualEntryButton,
+                    onPrimaryPressed: widget.onManualAdd,
+                    secondaryButtonLabel: context.missingDataBackLabel(
+                      "ui.cancel",
+                    ),
+                    onSecondaryPressed: widget.onCancel,
+                    alignment: .vertical,
+                  ),
           );
         }
 
         return Scaffold(
           backgroundColor: theme.backgroundTertiary,
           appBar: IrmaAppBar(
+            bottom: context.missingDataBand,
             titleTranslationKey: widget.translationKeys.title,
             leading: YiviBackButton(
               key: const Key("bottom_bar_secondary"),

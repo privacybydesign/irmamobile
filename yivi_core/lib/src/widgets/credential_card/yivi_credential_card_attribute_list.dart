@@ -2,14 +2,27 @@ import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
+import "../translated_text.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
 import "attribute_groups/attribute_value_formatting.dart";
+import "models/credential_card_layout.dart";
+
+/// How `overNN` age attributes are listed.
+enum AgeDisplay {
+  /// One row per attribute, like any other.
+  perAttribute,
+
+  /// One row with the highest age that is true and the lowest that is false,
+  /// and a link that expands it into one chip per age.
+  collapsed,
+}
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -23,6 +36,8 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<AttributeGroupRenderer>? renderers;
   // The attributes are being shared (a disclosure), not the whole credential.
   final bool disclosure;
+  final AgeDisplay ageDisplay;
+  final CredentialCardLayout layout;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -31,6 +46,8 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.credentialId,
     this.renderers,
     this.disclosure = false,
+    this.ageDisplay = AgeDisplay.perAttribute,
+    this.layout = CredentialCardLayout.standard,
   });
 
   @override
@@ -69,6 +86,10 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
 
     final tree = _buildTree(sorted, compareTo: compareTo);
     _insertGroups(tree.children, groups, attributes);
+    // Comparing against another credential needs every attribute on its own row.
+    if (ageDisplay == AgeDisplay.collapsed && compareTo == null) {
+      _collapseAges(tree.children);
+    }
     final items = _flatten(tree);
 
     return Column(
@@ -81,6 +102,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
             showDivider: showDividers,
             disclosure: disclosure,
+            layout: layout,
           ),
       ],
     );
@@ -125,6 +147,18 @@ class _RowNode extends _Node {
     required this.hasCompareTo,
     this.compareToValue,
   });
+}
+
+class _AgeEntry {
+  final int age;
+  final bool over;
+  const _AgeEntry({required this.age, required this.over});
+}
+
+/// All `overNN` attributes of one group, folded into a single row.
+class _AgeNode extends _Node {
+  final List<_AgeEntry> ages;
+  _AgeNode({required this.ages});
 }
 
 class _PrimArrayNode extends _Node {
@@ -334,6 +368,61 @@ _GroupNode _buildTree(
   return root;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Ages — `overNN` attributes fold into one row per group.
+// ─────────────────────────────────────────────────────────────────────────────
+
+final _ageClaim = RegExp(r"^over(\d+)$");
+
+_AgeEntry? _ageEntry(schemaless.Attribute attribute) {
+  final claim = attribute.claimPath.lastOrNull;
+  if (claim is! String) return null;
+  final age = _ageClaim.firstMatch(claim)?.group(1);
+  if (age == null) return null;
+
+  final value = attribute.value;
+  final over = switch (value?.type) {
+    schemaless.AttributeType.boolean => value?.boolValue,
+    schemaless.AttributeType.string => switch (value?.string?.toLowerCase()) {
+      "yes" || "true" => true,
+      "no" || "false" => false,
+      _ => null,
+    },
+    _ => null,
+  };
+  if (over == null) return null;
+
+  return _AgeEntry(age: int.parse(age), over: over);
+}
+
+void _collapseAges(List<_Node> children) {
+  final ages = <_AgeEntry>[];
+  int? firstIndex;
+  final rest = <_Node>[];
+  for (final child in children) {
+    final entry = child is _RowNode ? _ageEntry(child.attribute) : null;
+    if (entry == null) {
+      rest.add(child);
+      continue;
+    }
+    ages.add(entry);
+    firstIndex ??= rest.length;
+  }
+
+  if (firstIndex != null) {
+    ages.sort((a, b) => a.age.compareTo(b.age));
+    rest.insert(firstIndex, _AgeNode(ages: ages));
+    children
+      ..clear()
+      ..addAll(rest);
+  }
+
+  for (final child in children) {
+    if (child is _GroupNode) _collapseAges(child.children);
+    if (child is _ItemNode) _collapseAges(child.children);
+  }
+}
+
 void _stampItemTotals(_Node node) {
   List<_Node>? children;
   if (node is _GroupNode) children = node.children;
@@ -365,6 +454,8 @@ Object? _topSegment(_Node node) => switch (node) {
   _ItemNode n => n.path.firstOrNull,
   _PrimArrayNode n => n.path.firstOrNull,
   _AttributeGroupNode _ => null,
+  // Ages are collapsed after the groups are inserted, so none exist yet.
+  _AgeNode _ => null,
 };
 
 /// Inserts [groups] into the top-level [children]. Groups resolving to the
@@ -462,7 +553,10 @@ List<_RenderItem> _flatten(_GroupNode root) {
       final c = children[i];
       final isLast = i == children.length - 1;
 
-      if (c is _RowNode || c is _PrimArrayNode || c is _AttributeGroupNode) {
+      if (c is _RowNode ||
+          c is _PrimArrayNode ||
+          c is _AttributeGroupNode ||
+          c is _AgeNode) {
         emit(c, depth, isLast);
         continue;
       }
@@ -525,12 +619,17 @@ class _RenderItemView extends StatelessWidget {
   // lines and indent are unaffected.
   final bool showDivider;
   final bool disclosure;
+  final CredentialCardLayout layout;
   const _RenderItemView({
     required this.item,
     required this.nextDepth,
     required this.showDivider,
     required this.disclosure,
+    required this.layout,
   });
+
+  // Space above and below a row in the document layout.
+  static const _documentRowPadding = 6.0;
 
   @override
   Widget build(BuildContext context) {
@@ -545,7 +644,7 @@ class _RenderItemView extends StatelessWidget {
     // padding to 0 so the visible glyph top of the label aligns with the
     // top of the freshly-introduced vertical line (which itself is inset by
     // tinySpacing from the row top).
-    final double topPad;
+    double topPad;
     if (isEyebrow) {
       topPad = theme.smallSpacing;
     } else if (isFirstAtDepth) {
@@ -553,7 +652,11 @@ class _RenderItemView extends StatelessWidget {
     } else {
       topPad = theme.tinySpacing;
     }
-    final bottomPad = theme.tinySpacing;
+    var bottomPad = theme.tinySpacing;
+    if (layout == .document && !isEyebrow && !isFirstAtDepth) {
+      topPad = _documentRowPadding;
+      bottomPad = _documentRowPadding;
+    }
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
@@ -589,6 +692,7 @@ class _RenderItemView extends StatelessWidget {
                   node: node,
                   isFirst: item.previousDepth < 0,
                   disclosure: disclosure,
+                  layout: layout,
                 ),
               ),
             ),
@@ -612,6 +716,7 @@ class _RenderItemView extends StatelessWidget {
     if (node is _RowNode) return true;
     if (node is _PrimArrayNode) return true;
     if (node is _AttributeGroupNode) return true;
+    if (node is _AgeNode) return true;
     if (node is _GroupNode) return node.children.isEmpty;
     return false;
   }
@@ -632,16 +737,19 @@ class _RowContent extends StatelessWidget {
   // The first row of the list: nothing is drawn above it.
   final bool isFirst;
   final bool disclosure;
+  final CredentialCardLayout layout;
   const _RowContent({
     required this.node,
     required this.isFirst,
     required this.disclosure,
+    required this.layout,
   });
 
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n),
+      _RowNode n => _LeafContent(node: n, layout: layout),
+      _AgeNode n => _AgeContent(node: n, layout: layout),
       _PrimArrayNode n => _PrimArrayContent(node: n),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
@@ -661,7 +769,8 @@ class _RowContent extends StatelessWidget {
 
 class _LeafContent extends StatelessWidget {
   final _RowNode node;
-  const _LeafContent({required this.node});
+  final CredentialCardLayout layout;
+  const _LeafContent({required this.node, required this.layout});
 
   @override
   Widget build(BuildContext context) {
@@ -675,7 +784,7 @@ class _LeafContent extends StatelessWidget {
       children: [
         Text(
           attribute.effectiveDisplayName,
-          style: attributeLabelStyle(context),
+          style: attributeLabelStyle(context, layout: layout),
         ),
         _buildValue(context, theme),
       ],
@@ -699,15 +808,27 @@ class _LeafContent extends StatelessWidget {
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: attributeValueStyle(context, _valueColor(context, val, theme)),
+        style: attributeValueStyle(
+          context,
+          _valueColor(context, val, theme),
+          layout: layout,
+        ),
       ),
       schemaless.AttributeType.boolean => Text(
         formatAttributeBool(context, val.boolValue),
-        style: attributeValueStyle(context, _valueColor(context, val, theme)),
+        style: attributeValueStyle(
+          context,
+          _valueColor(context, val, theme),
+          layout: layout,
+        ),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: attributeValueStyle(context, _valueColor(context, val, theme)),
+        style: attributeValueStyle(
+          context,
+          _valueColor(context, val, theme),
+          layout: layout,
+        ),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, theme),
@@ -741,6 +862,217 @@ class _LeafContent extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Age — the highest age that is true and the lowest that is false, with one
+// chip per age under it once expanded.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AgeContent extends StatefulWidget {
+  final _AgeNode node;
+  final CredentialCardLayout layout;
+  const _AgeContent({required this.node, required this.layout});
+
+  @override
+  State<_AgeContent> createState() => _AgeContentState();
+}
+
+class _AgeContentState extends State<_AgeContent> {
+  bool _expanded = false;
+
+  String _summary(BuildContext context) {
+    final ages = widget.node.ages;
+    final over = ages.where((a) => a.over).map((a) => a.age).lastOrNull;
+    final notOver = ages.where((a) => !a.over).map((a) => a.age).firstOrNull;
+
+    final (key, params) = switch ((over, notOver)) {
+      (final over?, final notOver?) => (
+        "credential.age.over_and_not_over",
+        {"over": "$over", "notOver": "$notOver"},
+      ),
+      (final over?, null) => ("credential.age.over", {"age": "$over"}),
+      (null, final notOver?) => (
+        "credential.age.not_over",
+        {"age": "$notOver"},
+      ),
+      (null, null) => ("", <String, String>{}),
+    };
+    return FlutterI18n.translate(context, key, translationParams: params);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final layout = widget.layout;
+    // Nothing to expand into when there is only one age.
+    final canExpand = widget.node.ages.length > 1;
+
+    return Column(
+      mainAxisSize: .min,
+      crossAxisAlignment: .start,
+      children: [
+        TranslatedText(
+          "credential.age.label",
+          style: attributeLabelStyle(context, layout: layout),
+        ),
+        Text(
+          _summary(context),
+          style: attributeValueStyle(context, theme.dark, layout: layout),
+        ),
+        if (_expanded) ...[
+          Padding(
+            padding: .only(top: _AgeChip.gap),
+            child: TranslatedText(
+              "credential.age.over_label",
+              style: attributeLabelStyle(context, layout: layout),
+            ),
+          ),
+          Padding(
+            padding: .only(top: _AgeChip.gap / 3, bottom: _AgeChip.gap),
+            child: Wrap(
+              spacing: _AgeChip.gap,
+              runSpacing: _AgeChip.gap,
+              children: [
+                for (final entry in widget.node.ages) _AgeChip(entry: entry),
+              ],
+            ),
+          ),
+        ],
+        if (canExpand)
+          _AgeToggle(
+            expanded: _expanded,
+            onTap: () => setState(() => _expanded = !_expanded),
+          ),
+      ],
+    );
+  }
+}
+
+/// A pill that says whether the holder is over [_AgeEntry.age]. The mark and the
+/// colour repeat what the spoken label says.
+class _AgeChip extends StatelessWidget {
+  final _AgeEntry entry;
+  const _AgeChip({required this.entry});
+
+  static const double gap = 6;
+  static const double _height = 30;
+
+  // Colours of the pills on board F_AgeConfirm, which no theme token has.
+  static const _overText = Color(0xFF00602A);
+  static const _notOverSurface = Color(0xFFF2F0EE);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    // The board's neutralDark is 4.14:1 on _notOverSurface, below the 4.5:1 of
+    // WCAG 1.4.3.
+    final textColor = entry.over ? _overText : theme.neutralExtraDark;
+    return Semantics(
+      excludeSemantics: true,
+      label: FlutterI18n.translate(
+        context,
+        entry.over ? "credential.age.chip_yes" : "credential.age.chip_no",
+        translationParams: {"age": "${entry.age}"},
+      ),
+      child: Container(
+        height: _height,
+        padding: .symmetric(
+          horizontal: theme.smallSpacing + theme.tinySpacing / 2,
+        ),
+        decoration: BoxDecoration(
+          color: entry.over ? theme.successSurface : _notOverSurface,
+          borderRadius: .circular(_height / 2),
+        ),
+        // Centers in the fixed height without stretching to the row's width.
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            "${entry.over ? "✓" : "–"} ${entry.age}",
+            style: attributeLabelStyle(
+              context,
+            ).copyWith(fontWeight: FontWeight.w600, color: textColor),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows or hides the chips under the age.
+class _AgeToggle extends StatelessWidget {
+  final bool expanded;
+  final VoidCallback onTap;
+  const _AgeToggle({required this.expanded, required this.onTap});
+
+  static const double _minHeight = 44;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Semantics(
+      button: true,
+      expanded: expanded,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: _minHeight),
+          child: Row(
+            mainAxisSize: .min,
+            spacing: theme.tinySpacing,
+            children: [
+              TranslatedText(
+                expanded
+                    ? "credential.age.hide_all"
+                    : "credential.age.show_all",
+                style: attributeLabelStyle(
+                  context,
+                ).copyWith(fontWeight: FontWeight.w600, color: theme.link),
+              ),
+              ExcludeSemantics(
+                child: RotatedBox(
+                  quarterTurns: expanded ? 2 : 0,
+                  child: SizedBox.square(
+                    dimension: 16,
+                    child: CustomPaint(
+                      painter: _ChevronPainter(color: theme.link),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChevronPainter extends CustomPainter {
+  final Color color;
+  _ChevronPainter({required this.color});
+
+  static const _grid = 24.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / _grid);
+    canvas.drawPath(
+      Path()
+        ..moveTo(6, 9)
+        ..lineTo(12, 15)
+        ..lineTo(18, 9),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_ChevronPainter oldDelegate) => oldDelegate.color != color;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

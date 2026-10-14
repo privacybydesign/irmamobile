@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/theme.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
+import "models/credential_card_layout.dart";
 
 TextStyle issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
@@ -31,6 +32,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
   final bool isExpired;
   final bool isExpiringSoon;
   final bool isRevoked;
+  final CredentialCardLayout layout;
 
   const YiviCredentialCardHeader({
     required this.credentialName,
@@ -42,6 +44,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
     this.isExpiringSoon = false,
     this.isExpired = false,
     this.isRevoked = false,
+    this.layout = CredentialCardLayout.standard,
   });
 
   Widget? statusText(IrmaThemeData theme) {
@@ -73,11 +76,13 @@ class YiviCredentialCardHeader extends StatelessWidget {
   }
 
   static const _compactLogoSize = 52.0;
+  static const _documentLogoSize = 44.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final status = statusText(theme);
+    final document = layout == .document;
 
     // Always use the compact layout for now — the expanded variant has
     // been retired while we align the header style with the design.
@@ -98,7 +103,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     initials: logoPath == null && logoImage == null
                         ? credentialName[0]
                         : null,
-                    size: _compactLogoSize,
+                    size: document ? _documentLogoSize : _compactLogoSize,
                   ),
                 ),
               ),
@@ -112,12 +117,24 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     children: [
                       Text(
                         credentialName,
-                        style: credentialNameStyle(theme, 19),
+                        style: document
+                            ? credentialNameStyle(theme, 16).copyWith(
+                                fontWeight: FontWeight.w700,
+                                height: CredentialCardLayout.bodyLineHeight,
+                              )
+                            : credentialNameStyle(theme, 19),
                         softWrap: true,
                       ),
                       if (issuerName != null) ...[
-                        SizedBox(height: 1),
-                        Text(issuerName!, style: issuerLabelStyle(theme)),
+                        SizedBox(height: document ? 0 : 1),
+                        Text(
+                          issuerName!,
+                          style: issuerLabelStyle(theme).copyWith(
+                            height: document
+                                ? CredentialCardLayout.smallLineHeight
+                                : null,
+                          ),
+                        ),
                       ],
                     ],
                   ),

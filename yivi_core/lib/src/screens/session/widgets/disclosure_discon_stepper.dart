@@ -4,11 +4,11 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_stepper.dart";
 import "../../../widgets/translated_text.dart";
 import "disclosure_permission_choice.dart";
+import "disclosure_step_credential_card.dart";
+import "single_tap_choice.dart";
 
 /// A stepper widget that displays the issuance-during-disclosure steps.
 ///
@@ -20,13 +20,15 @@ import "disclosure_permission_choice.dart";
 ///   in the bundle — so the IrmaStepper's per-item progress indicator
 ///   (filled / outlined / success) reflects per-credential progress.
 /// - **Multi-option step (the choice case)**: one stepper item, with the
-///   existing [DisclosurePermissionChoice] inside.
+///   existing [DisclosurePermissionChoice] inside, or a [SingleTapChoice] when
+///   [onObtainOption] is set.
 class DisclosureDisconStepper extends StatelessWidget {
   final List<IssuanceStep> steps;
   final int? currentStepIndex;
   final List<int> selectedOptionPerStep;
   final Set<String> issuedCredentialIds;
   final ValueChanged<({int stepIndex, int optionIndex})>? onChoiceUpdated;
+  final ValueChanged<({int stepIndex, int optionIndex})>? onObtainOption;
 
   const DisclosureDisconStepper({
     super.key,
@@ -35,12 +37,14 @@ class DisclosureDisconStepper extends StatelessWidget {
     required this.selectedOptionPerStep,
     required this.issuedCredentialIds,
     this.onChoiceUpdated,
+    this.onObtainOption,
   });
 
   factory DisclosureDisconStepper.fromState({
     Key? key,
     required IssueDuringDisclosureState wizardState,
     required IssueDuringDisclosureNotifier notifier,
+    ValueChanged<({int stepIndex, int optionIndex})>? onObtainOption,
   }) {
     return DisclosureDisconStepper(
       key: key,
@@ -50,6 +54,7 @@ class DisclosureDisconStepper extends StatelessWidget {
       issuedCredentialIds: wizardState.issuedCredentialIds,
       onChoiceUpdated: (choice) =>
           notifier.selectOption(choice.stepIndex, choice.optionIndex),
+      onObtainOption: onObtainOption,
     );
   }
 
@@ -152,10 +157,9 @@ class DisclosureDisconStepper extends StatelessWidget {
       case _CredentialVirtualStep(:final descriptor):
         return Padding(
           padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: YiviCredentialCard.fromDescriptor(
+          child: DisclosureStepCredentialCard(
             descriptor: descriptor,
-            compact: true,
-            style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+            isCurrent: isCurrent,
           ),
         );
     }
@@ -174,6 +178,15 @@ class DisclosureDisconStepper extends StatelessWidget {
     IssuanceStep step,
     int issuanceStepIndex,
   ) {
+    final onObtain = onObtainOption;
+    if (onObtain != null) {
+      return SingleTapChoice(
+        options: step.options,
+        onObtain: (optionIndex) =>
+            onObtain((stepIndex: issuanceStepIndex, optionIndex: optionIndex)),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

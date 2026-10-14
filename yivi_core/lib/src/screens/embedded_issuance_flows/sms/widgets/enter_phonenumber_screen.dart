@@ -12,6 +12,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
@@ -209,6 +210,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
         appBar: IrmaAppBar(
+          bottom: context.missingDataBand,
           titleTranslationKey: "sms_issuance.enter_phone.title",
         ),
         body: SafeArea(
@@ -318,9 +320,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
             ? null
             : IrmaBottomBar(
                 primaryButtonLabel: "sms_issuance.enter_phone.next_button",
-                secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
+                secondaryButtonLabel: context.missingDataBackLabel(
+                  "sms_issuance.enter_phone.back_button",
+                ),
                 onPrimaryPressed: _validPhoneNumber ? _submit : null,
-                onSecondaryPressed: context.pop,
+                onSecondaryPressed: context.missingDataBack(context.pop),
               ),
       ),
     );

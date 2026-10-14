@@ -127,6 +127,17 @@
       "not_held_count-1": "{count} category not held",
       "not_held_count-2": "{count} categories not held",
       "show_less": "Show less"
+    },
+    "age": {
+      "label": "Age",
+      "over": "Older than {age}",
+      "not_over": "Not older than {age}",
+      "over_and_not_over": "Older than {over}, not older than {notOver}",
+      "show_all": "Show all ages",
+      "hide_all": "Hide ages",
+      "over_label": "Older than",
+      "chip_yes": "Older than {age}: yes",
+      "chip_no": "Older than {age}: no"
     }
   },
   "data": {
@@ -226,6 +237,15 @@
     "optional_data": "Optional data",
     "add_optional_data": "Add optional data",
     "no_data_selected": "No data selected",
+    "choice": {
+      "or": "or",
+      "none_yet": "Not in your app yet. Tap what you want to obtain.",
+      "obtain": "Obtain",
+      "certified_by": "Certified by {issuer}",
+      "switch": "Switch",
+      "sheet_title": "What do you want to share?",
+      "sheet_explanation": "{requestor} accepts: {options}. Tap what you want to share."
+    },
     "introduction": {
       "title": "Get going",
       "header": "Share your data",
@@ -340,7 +360,8 @@
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})"
+      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
+      "required": "required"
     },
     "error_reporting": {
       "accept": {
@@ -445,7 +466,30 @@
     "empty": {
       "title": "Obtain your personal data",
       "subtitle": "Tap on the plus icon to obtain your personal data."
+    },
+    "expired_label": "{name}, expired",
+    "favourites": {
+      "title": "Favourites",
+      "add": "Add to favourites",
+      "remove": "Remove from favourites"
+    },
+    "section_count-1": "{count} item",
+    "section_count-2": "{count} items",
+    "start": {
+      "ready": "Your Yivi app is ready",
+      "title": "How do you want to start?",
+      "website_title": "Did you come from a website on this phone?",
+      "website_text": "Go back to your browser and tap 'Open Yivi app' again.",
+      "qr_title": "Do you see a QR code on a computer?",
+      "qr_text": "Tap Scan QR below."
     }
+  },
+  "back_to_website": {
+    "title": "Your Yivi app is ready. Go back to the website.",
+    "text": "You came here from a website. Go back to your browser and tap 'Open Yivi app' there again. Yivi then opens by itself and continues where you left off.",
+    "sketch_button": "Open Yivi app",
+    "hint": "Not working anymore? Reload the page on the website and try again.",
+    "other": "I want to do something else"
   },
   "issuance": {
     "title": "Add data",
@@ -516,6 +560,37 @@
       }
     }
   },
+  "email_linking": {
+    "banner": {
+      "title": "Secure your Yivi app",
+      "body": "Link your email address. Then you can block your app if you lose your phone.",
+      "link": "Link email address"
+    },
+    "later": {
+      "title": "Remind you later?",
+      "body": "Without a linked email address you can't block your app remotely. You can always link it later under More › Settings.",
+      "remind_me": "Ask me later",
+      "dismiss": "Dismiss"
+    },
+    "enter_email": {
+      "title": "Link email address",
+      "header": "Link your email address",
+      "body": "Then you can block your Yivi app if you lose your phone. We'll send you an email with a code to confirm it.",
+      "label": "Email address"
+    },
+    "verify_code": {
+      "title": "Link email address",
+      "header": "Enter the code",
+      "body": "We've sent an email to {email}. On this phone, tap the link in the email, or enter the code here.",
+      "next_button": "Check code",
+      "resend_button": "Send email again",
+      "filled_from_link": "Code filled in from the link"
+    },
+    "done": {
+      "title": "Email address linked",
+      "body": "You can now block your Yivi app if you lose your phone."
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Add phone number",
@@ -549,6 +624,23 @@
         "confirm": "Send sms",
         "cancel": "Cancel"
       }
+    }
+  },
+  "external_issuer": {
+    "source": "Via the website of {issuer}",
+    "returned": "You're back from the website of {issuer}",
+    "heads_up": {
+      "title": "You're about to go to another website",
+      "step_1": "Follow the steps on that website.",
+      "step_2": "Yivi then opens by itself to add your {credential}.",
+      "step_3": "You come back to this list.",
+      "to_website": "Go to the website",
+      "back_to_list": "Back to the list"
+    },
+    "waiting": {
+      "status": "Not received yet",
+      "body": "Still busy on the website of {issuer}? Continue there. When you're done, Yivi opens by itself.",
+      "reopen": "Open the website again"
     }
   },
   "issue_wizard": {
@@ -729,6 +821,7 @@
     "language": "Language",
     "use_system_language": "Use system language",
     "change_pin": "Change PIN",
+    "link_email": "Link email address",
     "biometric_unlock": "Unlock with biometrics",
     "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN to receive or share data.",
     "biometric_immediate": "Unlock automatically",
@@ -810,6 +903,53 @@
     "title": "No camera permissions",
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
+  },
+  "document_flow": {
+    "start": "Start",
+    "cancel": "Cancel",
+    "document": {
+      "passport": "passport",
+      "id_card": "ID-card",
+      "driving_licence": "driving licence"
+    },
+    "instruction": {
+      "passport": {
+        "title": "Open your passport on the photo page",
+        "body": "Hold your passport in front of the camera and make sure the whole page is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the passport directly under a lamp, it gives less glare.",
+        "image_alt": "An open passport on the photo page. The two lines at the bottom are highlighted."
+      },
+      "id_card": {
+        "title": "Use the back of your ID-card",
+        "body": "Hold your ID-card in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the card directly under a lamp, it gives less glare.",
+        "image_alt": "The back of an ID-card. The three lines at the bottom are highlighted."
+      },
+      "driving_licence": {
+        "title": "Use the back of your driving licence",
+        "body": "Hold your driving licence in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the driving licence directly under a lamp, it gives less glare.",
+        "image_alt": "The back of a driving licence. The two lines at the bottom are highlighted."
+      }
+    },
+    "nfc": {
+      "waiting_title": "Place your phone on your {document}",
+      "waiting_body_passport": "Your passport can stay closed.",
+      "waiting_body_card": "Hold the back of your phone against the card.",
+      "reading_title": "Don't move",
+      "reading_body": "Your {document} is being read.",
+      "done_title": "Your {document} has been read",
+      "done_body": "You can pick up your phone again.",
+      "off_title": "Turn on NFC",
+      "off_body": "Your phone uses it to read the chip in your {document}.",
+      "open_settings": "Open NFC settings",
+      "waiting_image_alt": "Animation: place the back of your phone on your closed passport",
+      "reading_label": {
+        "passport": "Reading passport",
+        "id_card": "Reading ID-card",
+        "driving_licence": "Reading driving licence"
+      }
+    }
   },
   "mrz_scanner": {
     "glare_hint": "Reflection on the document. Tilt it slightly."
@@ -1136,5 +1276,34 @@
       "added": "Added",
       "added_to_yivi": "Added to Yivi"
     }
+  },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} asks for {n} item of data",
+      "other": "{requestor} asks for {n} items of data"
+    },
+    "known_party": "Known party",
+    "unknown_party": "Unknown party",
+    "progress": "{x} of {n} ready",
+    "status": {
+      "present": "Already in your app",
+      "missing": "Not in your app yet",
+      "just_added": "Just added"
+    },
+    "obtain": "Obtain",
+    "obtain_named": "Obtain: {credential}",
+    "share_with": "Share with {requestor}",
+    "hint": {
+      "one": "Obtain the missing item of data first",
+      "other": "Obtain the {n} missing items of data first"
+    },
+    "band": "For {requestor} · {x} of {n} ready",
+    "back_to_list": "Back to the list",
+    "ready_title": "Everything is ready",
+    "share_question": {
+      "one": "Do you want to share this item of data with {requestor}?",
+      "other": "Do you want to share these {n} items of data with {requestor}?"
+    },
+    "share": "Share"
   }
 }

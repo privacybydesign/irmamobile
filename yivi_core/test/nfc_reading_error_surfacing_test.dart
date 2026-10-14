@@ -19,6 +19,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
 import "helpers/test_translation_loader.dart";
+import "support/pump_translated.dart";
 
 /// Passport issuer whose session start is held open by [gate], so a test can
 /// tear the NFC screen down before the failure arrives.
@@ -252,7 +253,8 @@ Future<GoRouter> _pumpNfcScreen(
     ],
   );
 
-  await tester.pumpWidget(
+  await pumpTranslated(
+    tester,
     ProviderScope(
       overrides: [
         passportReaderProvider.overrideWith2(

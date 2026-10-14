@@ -127,6 +127,17 @@
       "not_held_count-1": "{count} Klasse nicht vorhanden",
       "not_held_count-2": "{count} Klassen nicht vorhanden",
       "show_less": "Weniger anzeigen"
+    },
+    "age": {
+      "label": "Alter",
+      "over": "Älter als {age}",
+      "not_over": "Nicht älter als {age}",
+      "over_and_not_over": "Älter als {over}, nicht älter als {notOver}",
+      "show_all": "Alle Alter anzeigen",
+      "hide_all": "Alter ausblenden",
+      "over_label": "Älter als",
+      "chip_yes": "Älter als {age}: ja",
+      "chip_no": "Älter als {age}: nein"
     }
   },
   "data": {
@@ -226,6 +237,15 @@
     "optional_data": "Optionale Daten",
     "add_optional_data": "Optionale Daten hinzufügen",
     "no_data_selected": "Keine Daten ausgewählt",
+    "choice": {
+      "or": "oder",
+      "none_yet": "Noch nicht in Ihrer App. Tippen Sie auf das, was Sie abrufen möchten.",
+      "obtain": "Abrufen",
+      "certified_by": "Beglaubigt von {issuer}",
+      "switch": "Wechseln",
+      "sheet_title": "Was möchten Sie teilen?",
+      "sheet_explanation": "{requestor} akzeptiert: {options}. Tippen Sie auf das, was Sie teilen möchten."
+    },
     "introduction": {
       "title": "Los geht's",
       "header": "Teilen Sie Ihre Daten",
@@ -293,6 +313,35 @@
       "extra_explanation_android": "Sie hören einige Pieptöne und werden verbunden."
     }
   },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} fragt nach {n} Angabe",
+      "other": "{requestor} fragt nach {n} Angaben"
+    },
+    "known_party": "Bekannte Partei",
+    "unknown_party": "Unbekannte Partei",
+    "progress": "{x} von {n} bereit",
+    "status": {
+      "present": "Bereits in Ihrer App",
+      "missing": "Noch nicht in Ihrer App",
+      "just_added": "Gerade hinzugefügt"
+    },
+    "obtain": "Abrufen",
+    "obtain_named": "Abrufen: {credential}",
+    "share_with": "Mit {requestor} teilen",
+    "hint": {
+      "one": "Rufen Sie zuerst die fehlende Angabe ab",
+      "other": "Rufen Sie zuerst die {n} fehlenden Angaben ab"
+    },
+    "band": "Für {requestor} · {x} von {n} bereit",
+    "back_to_list": "Zurück zur Liste",
+    "ready_title": "Alles ist bereit",
+    "share_question": {
+      "one": "Möchten Sie diese Angabe mit {requestor} teilen?",
+      "other": "Möchten Sie diese {n} Angaben mit {requestor} teilen?"
+    },
+    "share": "Teilen"
+  },
   "enrollment": {
     "introduction": {
       "step_1": {
@@ -340,7 +389,8 @@
       "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
       "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
       "point_3": "Niemand schaut zu, auch Yivi nicht!",
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
+      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
+      "required": "erforderlich"
     },
     "error_reporting": {
       "accept": {
@@ -445,7 +495,30 @@
     "empty": {
       "title": "Holen Sie sich Ihre persönlichen Daten",
       "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
+    },
+    "expired_label": "{name}, abgelaufen",
+    "favourites": {
+      "title": "Favoriten",
+      "add": "Zu Favoriten hinzufügen",
+      "remove": "Aus Favoriten entfernen"
+    },
+    "section_count-1": "{count} Eintrag",
+    "section_count-2": "{count} Einträge",
+    "start": {
+      "ready": "Ihre Yivi-App ist bereit",
+      "title": "Wie möchten Sie beginnen?",
+      "website_title": "Kamen Sie von einer Website auf diesem Telefon?",
+      "website_text": "Gehen Sie zurück zu Ihrem Browser und tippen Sie noch einmal auf 'Yivi-App öffnen'.",
+      "qr_title": "Sehen Sie einen QR-Code auf einem Computer?",
+      "qr_text": "Tippen Sie unten auf QR scannen."
     }
+  },
+  "back_to_website": {
+    "title": "Ihre Yivi-App ist bereit. Gehen Sie zurück zur Website.",
+    "text": "Sie kamen von einer Website hierher. Gehen Sie zurück zu Ihrem Browser und tippen Sie dort noch einmal auf 'Yivi-App öffnen'. Yivi öffnet sich dann automatisch und macht dort weiter, wo Sie waren.",
+    "sketch_button": "Yivi-App öffnen",
+    "hint": "Funktioniert es nicht mehr? Laden Sie die Seite auf der Website neu und versuchen Sie es noch einmal.",
+    "other": "Ich möchte etwas anderes tun"
   },
   "issuance": {
     "title": "Daten hinzufügen",
@@ -516,6 +589,37 @@
       }
     }
   },
+  "email_linking": {
+    "banner": {
+      "title": "Sichere deine Yivi-App",
+      "body": "Verknüpfe deine E-Mail-Adresse. Dann kannst du deine App sperren, wenn dein Telefon verloren geht.",
+      "link": "E-Mail-Adresse verknüpfen"
+    },
+    "later": {
+      "title": "Später erinnern?",
+      "body": "Ohne verknüpfte E-Mail-Adresse kannst du deine App nicht aus der Ferne sperren. Du kannst sie jederzeit unter Mehr › Einstellungen verknüpfen.",
+      "remind_me": "Später fragen",
+      "dismiss": "Ignorieren"
+    },
+    "enter_email": {
+      "title": "E-Mail-Adresse verknüpfen",
+      "header": "Verknüpfe deine E-Mail-Adresse",
+      "body": "Dann kannst du deine Yivi-App sperren, wenn dein Telefon verloren geht. Wir senden dir eine E-Mail mit einem Code zur Bestätigung.",
+      "label": "E-Mail-Adresse"
+    },
+    "verify_code": {
+      "title": "E-Mail-Adresse verknüpfen",
+      "header": "Code eingeben",
+      "body": "Wir haben eine E-Mail an {email} gesendet. Tippe auf diesem Telefon auf den Link in der E-Mail oder gib den Code hier ein.",
+      "next_button": "Code prüfen",
+      "resend_button": "E-Mail erneut senden",
+      "filled_from_link": "Code aus dem Link eingetragen"
+    },
+    "done": {
+      "title": "E-Mail-Adresse verknüpft",
+      "body": "Du kannst deine Yivi-App jetzt sperren, wenn dein Telefon verloren geht."
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Telefonnummer hinzufügen",
@@ -549,6 +653,23 @@
         "confirm": "SMS senden",
         "cancel": "Abbrechen"
       }
+    }
+  },
+  "external_issuer": {
+    "source": "Über die Website von {issuer}",
+    "returned": "Sie sind zurück von der Website von {issuer}",
+    "heads_up": {
+      "title": "Sie wechseln kurz zu einer anderen Website",
+      "step_1": "Folgen Sie den Schritten auf dieser Website.",
+      "step_2": "Danach öffnet sich Yivi von selbst, um {credential} hinzuzufügen.",
+      "step_3": "Sie kehren zu dieser Liste zurück.",
+      "to_website": "Zur Website",
+      "back_to_list": "Zurück zur Liste"
+    },
+    "waiting": {
+      "status": "Noch nicht erhalten",
+      "body": "Sind Sie noch auf der Website von {issuer}? Machen Sie dort weiter. Wenn Sie fertig sind, öffnet sich Yivi von selbst.",
+      "reopen": "Website erneut öffnen"
     }
   },
   "issue_wizard": {
@@ -729,6 +850,7 @@
     "language": "Sprache",
     "use_system_language": "Systemsprache verwenden",
     "change_pin": "PIN ändern",
+    "link_email": "E-Mail-Adresse verknüpfen",
     "biometric_unlock": "Mit Biometrie entsperren",
     "biometric_unlock_explanation": "Verwenden Sie Ihren Fingerabdruck oder Ihr Gesicht, um die App zu entsperren. Zum Empfangen oder Teilen von Daten benötigen Sie weiterhin Ihre PIN.",
     "biometric_immediate": "Automatisch entsperren",
@@ -810,6 +932,53 @@
     "title": "Keine Kameraberechtigungen",
     "content": "Yivi benötigt Zugriff auf die Kamera, um Ihr Dokument automatisch zu scannen. Erteilen Sie Yivi über die Systemeinstellungen die Berechtigung, die Kamera zu verwenden, oder geben Sie die erforderlichen Daten manuell ein.",
     "open_settings": "Einstellungen öffnen"
+  },
+  "document_flow": {
+    "start": "Start",
+    "cancel": "Abbrechen",
+    "document": {
+      "passport": "Reisepass",
+      "id_card": "Personalausweis",
+      "driving_licence": "Führerschein"
+    },
+    "instruction": {
+      "passport": {
+        "title": "Öffnen Sie Ihren Reisepass auf der Seite mit dem Foto",
+        "body": "Halten Sie Ihren Reisepass vor die Kamera und achten Sie darauf, dass die ganze Seite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie den Reisepass nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
+        "image_alt": "Ein geöffneter Reisepass auf der Seite mit dem Foto. Die beiden Zeilen unten sind markiert."
+      },
+      "id_card": {
+        "title": "Verwenden Sie die Rückseite Ihres Personalausweises",
+        "body": "Halten Sie Ihren Personalausweis vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie die Karte nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
+        "image_alt": "Die Rückseite eines Personalausweises. Die drei Zeilen unten sind markiert."
+      },
+      "driving_licence": {
+        "title": "Verwenden Sie die Rückseite Ihres Führerscheins",
+        "body": "Halten Sie Ihren Führerschein vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie den Führerschein nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
+        "image_alt": "Die Rückseite eines Führerscheins. Die beiden Zeilen unten sind markiert."
+      }
+    },
+    "nfc": {
+      "waiting_title": "Legen Sie Ihr Telefon auf Ihren {document}",
+      "waiting_body_passport": "Ihr Reisepass kann geschlossen bleiben.",
+      "waiting_body_card": "Halten Sie die Rückseite Ihres Telefons an die Karte.",
+      "reading_title": "Nicht bewegen",
+      "reading_body": "Ihr {document} wird gelesen.",
+      "done_title": "Ihr {document} wurde gelesen",
+      "done_body": "Sie können Ihr Telefon wieder aufnehmen.",
+      "off_title": "NFC einschalten",
+      "off_body": "Damit liest Ihr Telefon den Chip in Ihrem {document}.",
+      "open_settings": "NFC-Einstellungen öffnen",
+      "waiting_image_alt": "Animation: Legen Sie die Rückseite Ihres Telefons auf Ihren geschlossenen Reisepass",
+      "reading_label": {
+        "passport": "Reisepass lesen",
+        "id_card": "Personalausweis lesen",
+        "driving_licence": "Führerschein lesen"
+      }
+    }
   },
   "mrz_scanner": {
     "glare_hint": "Spiegelung auf dem Dokument. Kippen Sie es leicht."

@@ -1,5 +1,6 @@
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -8,6 +9,7 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/enrollment/accept_terms/widgets/error_reporting_check_box.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
@@ -47,20 +49,23 @@ void main() {
     required IrmaRepository repo,
     Locale locale = const Locale("en", "US"),
   }) async {
-    final widget = IrmaRepositoryProvider(
-      repository: repo,
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: locale,
+    final widget = ProviderScope(
+      overrides: [preferencesProvider.overrideWithValue(repo.preferences)],
+      child: IrmaRepositoryProvider(
+        repository: repo,
+        child: IrmaTheme(
+          builder: (_) => MaterialApp(
+            localizationsDelegates: [
+              FlutterI18nDelegate(
+                translationLoader: TestTranslationLoader(
+                  basePath: "assets/locales",
+                  forcedLocale: locale,
+                ),
               ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Scaffold(body: ErrorReportingCheckBox()),
+              ...GlobalMaterialLocalizations.delegates,
+            ],
+            home: Scaffold(body: ErrorReportingCheckBox()),
+          ),
         ),
       ),
     );

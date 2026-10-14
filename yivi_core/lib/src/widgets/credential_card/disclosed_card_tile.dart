@@ -23,11 +23,16 @@ class DisclosedCardTile extends ConsumerWidget {
   /// Draws a red ring, for the selected option in a choice.
   final bool selected;
 
+  /// Shown below the attributes, after a divider, e.g. the issuer and a
+  /// switch link of a single-tap choice.
+  final Widget? footer;
+
   const DisclosedCardTile({
     super.key,
     required this.instance,
     this.trailing,
     this.selected = false,
+    this.footer,
   });
 
   /// The card picture of [instance]: the wallet card with the same hash
@@ -174,6 +179,13 @@ class DisclosedCardTile extends ConsumerWidget {
                   showDividers: true,
                 ),
               ),
+            if (footer != null) ...[
+              Divider(height: 17, thickness: 1, color: palette.divider),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                child: footer,
+              ),
+            ],
           ],
         ),
       ),
