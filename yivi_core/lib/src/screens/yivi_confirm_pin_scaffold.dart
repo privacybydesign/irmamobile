@@ -37,6 +37,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
       ),
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,
+        lockIcon: true,
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: _comparePins,

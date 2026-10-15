@@ -65,18 +65,20 @@ void main() {
     final before = scaleOf(key1);
 
     // A quick tap (down + up almost immediately) must still play the full
-    // grow before settling, not a stub.
+    // press before settling, not a stub.
     final gesture = await tester.startGesture(tester.getCenter(key1));
     await tester.pump(); // pointer down
     await gesture.up(); // released right away
-    await tester.pump(const Duration(milliseconds: 90)); // grow runs to peak
+    await tester.pump(const Duration(milliseconds: 90)); // press runs to peak
     final peak = scaleOf(key1);
 
     await tester.pumpAndSettle();
     final after = scaleOf(key1);
 
     expect(before, closeTo(1.0, 0.001));
-    expect(peak, greaterThan(1.1)); // visibly grew even on a quick tap
+    // As in the design the key shrinks a little (towards 0.92) while it
+    // lights up, visibly so also on a quick tap.
+    expect(peak, lessThan(0.96));
     expect(after, closeTo(1.0, 0.001)); // settled back
   });
 

@@ -2,9 +2,9 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/haptics.dart";
+import "../../../widgets/glass/glass_surface.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
 ///
@@ -46,12 +46,20 @@ class PinKeypad extends StatelessWidget {
     this.biometricGlyph,
   });
 
+  /// The design's key size and the gaps between keys.
+  static const double keySize = 76;
+  static const double columnGap = 28;
+  static const double rowGap = 16;
+  static const double width = 3 * keySize + 2 * columnGap;
+  static const double height = 4 * keySize + 3 * rowGap;
+
   @override
   Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
     final rows = <List<Widget>>[
-      [_key(1, ""), _key(2, "ABC"), _key(3, "DEF")],
-      [_key(4, "GHI"), _key(5, "JKL"), _key(6, "MNO")],
-      [_key(7, "PQRS"), _key(8, "TUV"), _key(9, "WXYZ")],
+      [_key(1), _key(2), _key(3)],
+      [_key(4), _key(5), _key(6)],
+      [_key(7), _key(8), _key(9)],
       [
         if (onBiometricUnlock == null || biometricGlyph == null)
           const SizedBox.shrink()
@@ -62,7 +70,7 @@ class PinKeypad extends StatelessWidget {
             child: _PinKeypadIcon(
               key: const Key("pin_biometric_button"),
               callback: onBiometricUnlock!,
-              heightFactor: .6,
+              size: 34,
               child: biometricGlyph!,
             ),
           ),
@@ -72,53 +80,43 @@ class PinKeypad extends StatelessWidget {
           label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
           child: _PinKeypadIcon(
             callback: onBackspace,
-            child: Icon(
-              Icons.backspace_outlined,
-              color: YiviPalette.of(context).text,
-            ),
+            child: Icon(Icons.backspace_outlined, color: palette.heading),
           ),
         ),
       ],
     ];
 
-    // Fixed 4×3 grid of Expanded cells. The old layout used a `Wrap` with
-    // `width = maxWidth / 3`; float rounding made three keys marginally
-    // exceed the row width, so `Wrap` fell back to two-per-row, pushed the
-    // 9/0/backspace row past the bottom and clipped it (#248). Expanded
-    // thirds/quarters can't wrap and scale to whatever height is available.
-    return Column(
-      children: [
-        for (final row in rows)
-          Expanded(
-            child: Row(
+    // A fixed grid of 76 pt keys, as in the design. On a short screen the
+    // host scales the whole pad down instead of squeezing the keys.
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Column(
+        spacing: rowGap,
+        children: [
+          for (final row in rows)
+            Row(
+              spacing: columnGap,
               children: [
                 for (final cell in row)
-                  Expanded(
-                    child: FractionallySizedBox(
-                      heightFactor: 0.8,
-                      alignment: Alignment.topCenter,
-                      child: cell,
-                    ),
-                  ),
+                  SizedBox.square(dimension: keySize, child: cell),
               ],
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _key(int number, [String? subtitle]) => _PinKeypadKey(
+  Widget _key(int number) => _PinKeypadKey(
     onDigitPressed: onDigitPressed,
     onDigitReleased: onDigitReleased,
     onDigitCancelled: onDigitCancelled,
     number: number,
-    subtitle: subtitle,
   );
 }
 
 class _PinKeypadKey extends StatelessWidget {
   final int number;
-  final String? subtitle;
   final void Function(int) onDigitPressed;
   final VoidCallback onDigitReleased;
   final VoidCallback onDigitCancelled;
@@ -128,23 +126,11 @@ class _PinKeypadKey extends StatelessWidget {
     required this.onDigitReleased,
     required this.onDigitCancelled,
     required this.number,
-    this.subtitle,
   }) : super(key: Key("number_pad_key_${number.toString()}"));
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    // On devices smaller than the screen width of the design, e.g. w320
-    // if you pass a constant fontSize, then the text will take up
-    // too much space
-    const heightFactor = 0.825;
     final palette = YiviPalette.of(context);
-    // The display face of the redesign, as on the round glass keys.
-    final bigNumberTextStyle = palette
-        .display(32)
-        .copyWith(color: palette.text, height: 32 / 40);
-
     return Semantics(
       label: number.toString(),
       button: true,
@@ -155,31 +141,13 @@ class _PinKeypadKey extends StatelessWidget {
         onPressCancel: onDigitCancelled,
         onTap: onDigitReleased,
         child: ExcludeSemantics(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(
-                child: _PinKeypadScalableText(
-                  "$number",
-                  heightFactor: (subtitle != null) ? heightFactor : .45,
-                  textStyle: bigNumberTextStyle,
-                ),
-              ),
-              if (subtitle != null)
-                Flexible(
-                  child: _PinKeypadScalableText(
-                    subtitle!,
-                    heightFactor: 1.1 - heightFactor,
-                    textStyle: TextStyle(
-                      fontFamily: theme.secondaryFontFamily,
-                      color: palette.secondaryText,
-                      fontWeight: FontWeight.w400,
-                      height: 14.0 / 24.0,
-                    ),
-                  ),
-                ),
-            ],
+          child: Text(
+            "$number",
+            textAlign: TextAlign.center,
+            // The digit keeps its size at large text settings: the keys
+            // are fixed and it is already large.
+            textScaler: TextScaler.noScaling,
+            style: palette.display(28).copyWith(color: palette.text, height: 1),
           ),
         ),
       ),
@@ -191,15 +159,14 @@ class _PinKeypadIcon extends StatelessWidget {
   final Widget child;
   final VoidCallback callback;
 
-  /// Fraction of the cell height the glyph fills. Backspace uses the default;
-  /// the biometric button overrides it larger.
-  final double heightFactor;
+  /// Size of the glyph: the biometric glyph is drawn larger than backspace.
+  final double size;
 
   const _PinKeypadIcon({
     super.key,
     required this.child,
     required this.callback,
-    this.heightFactor = .5,
+    this.size = 28,
   });
 
   @override
@@ -210,12 +177,9 @@ class _PinKeypadIcon extends StatelessWidget {
       hapticOnDown: true,
       onTap: callback,
       child: IgnorePointer(
-        child: FractionallySizedBox(
-          heightFactor: heightFactor,
-          child: FittedBox(
-            fit: BoxFit.fitHeight,
-            child: Container(alignment: Alignment.center, child: child),
-          ),
+        child: SizedBox.square(
+          dimension: size,
+          child: FittedBox(child: child),
         ),
       ),
     );
@@ -297,7 +261,6 @@ class _PressableCircleState extends State<_PressableCircle>
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -305,92 +268,35 @@ class _PressableCircleState extends State<_PressableCircle>
       onTapUp: (_) => _release(),
       onTapCancel: _cancel,
       onTap: widget.hapticOnDown ? widget.onTap : widget.onTap.haptic,
-      child: LayoutBuilder(
-        builder: (context, c) {
-          // Circle big enough to sit behind the digit AND the letters under
-          // it (a circle inscribed in the cell height narrows at top/bottom
-          // and clips them). Allowed to spill into the inter-row gaps via the
-          // OverflowBox, but capped at the key width so it never bleeds into
-          // the neighbouring keys.
-          final diameter = (c.maxHeight * 1.3).clamp(0.0, c.maxWidth);
-          return AnimatedBuilder(
-            animation: _press,
-            child: widget.child,
-            builder: (context, child) {
-              final t = Curves.easeOut.transform(_press.value);
-              return Transform.scale(
-                scale: 1 + 0.18 * t, // grow ~18%
-                child: Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
-                  children: [
-                    if (widget.resting)
-                      OverflowBox(
-                        maxWidth: double.infinity,
-                        maxHeight: double.infinity,
-                        child: Container(
-                          width: diameter,
-                          height: diameter,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: palette.surface.withValues(alpha: 0.7),
-                            border: Border.all(color: palette.glassBorder),
-                            boxShadow: [
-                              BoxShadow(
-                                color: palette.glassShadow,
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    OverflowBox(
-                      maxWidth: double.infinity,
-                      maxHeight: double.infinity,
-                      child: Container(
-                        width: diameter,
-                        height: diameter,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          // up to ~28%
-                          color: theme.secondary.withAlpha((72 * t).round()),
-                        ),
-                      ),
+      child: AnimatedBuilder(
+        animation: _press,
+        child: widget.child,
+        builder: (context, child) {
+          // As in the design: the pressed key shrinks a little and lights up.
+          final t = Curves.easeOut.transform(_press.value);
+          final light = Center(child: child);
+          return Transform.scale(
+            scale: 1 - 0.08 * t,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (widget.resting)
+                  GlassSurface(shape: const CircleBorder(), child: light)
+                else
+                  light,
+                // The press light, over the glass.
+                IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: palette.glassHighlight.withValues(alpha: 0.6 * t),
                     ),
-                    child!,
-                  ],
+                  ),
                 ),
-              );
-            },
+              ],
+            ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _PinKeypadScalableText extends StatelessWidget {
-  final String string;
-  final TextStyle textStyle;
-  final double heightFactor;
-
-  const _PinKeypadScalableText(
-    this.string, {
-    required this.heightFactor,
-    required this.textStyle,
-  }) : assert(heightFactor < 1.0);
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => SizedBox(
-        height: constraints.maxHeight * heightFactor,
-        width: constraints.maxWidth,
-        child: FittedBox(
-          fit: BoxFit.fitHeight,
-          child: Text(string, textAlign: TextAlign.center, style: textStyle),
-        ),
       ),
     );
   }

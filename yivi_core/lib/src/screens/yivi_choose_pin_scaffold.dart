@@ -48,6 +48,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
                   'choose_pin.instruction.${longPin ? 'long' : 'short'}';
               return YiviPinScreen(
                 scaffoldKey: _scaffoldKey,
+                lockIcon: true,
                 instructionKey: instructionKey,
                 maxPinSize: maxPinSize,
                 onSubmit: _submit,

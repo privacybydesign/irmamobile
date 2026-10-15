@@ -111,12 +111,8 @@ class _PinIndicator extends StatelessWidget {
     // Each digit's box tracks the glyph size so the row fits without clipping.
     final boxWidth = isMaxPin5 ? 14.0 : fontSize * 0.8;
 
-    final double edgeSize = maxPinSize != shortPinSize ? 6 : 16;
-
-    // Applied scaling so, the circles / dots won't
-    // get too small on devices bigger than the design
-    // and too big on devices smaller than the design
-    final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
+    // The design's 16 pt rings for the short PIN, small dots for the long.
+    final double scaledEdgeSize = maxPinSize != shortPinSize ? 6 : 16;
 
     final circleFilledDecoration = BoxDecoration(
       color: isPinVisible ? Colors.transparent : theme.primary,
@@ -145,10 +141,10 @@ class _PinIndicator extends StatelessWidget {
     final joinedPin = pinState.pin.join();
 
     final row = Row(
-      mainAxisSize: isMaxPin5 ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: isMaxPin5
-          ? MainAxisAlignment.spaceEvenly
-          : MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      // 16 between the short PIN's rings, as in the design.
+      spacing: isMaxPin5 ? 16 : 0,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: List.generate(
         isMaxPin5 ? shortPinSize : pinSize,

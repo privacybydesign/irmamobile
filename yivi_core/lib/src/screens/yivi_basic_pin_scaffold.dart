@@ -46,6 +46,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
 
           return YiviPinScreen(
             instructionKey: instructionKey,
+            lockIcon: true,
             maxPinSize: maxPinSize,
             onSubmit: submit,
             listener: (context, state) {

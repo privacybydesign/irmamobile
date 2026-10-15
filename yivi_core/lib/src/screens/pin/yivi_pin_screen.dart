@@ -93,6 +93,10 @@ class YiviPinScreen extends StatefulWidget {
   final VoidCallback? onTogglePinSize;
   final bool displayPinLength;
   final bool checkSecurePin;
+
+  /// Shows a lock on a disc above the title instead of the Yivi logo, for
+  /// choosing, confirming and changing a PIN.
+  final bool lockIcon;
   final String? instructionKey;
   final String? instruction;
 
@@ -117,6 +121,7 @@ class YiviPinScreen extends StatefulWidget {
     this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
+    this.lockIcon = false,
     this.submitLabel = "choose_pin.next",
     this.enabled = true,
     this.listener,
@@ -272,25 +277,64 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             ],
           ),
         ),
-        Expanded(child: _buildKeypad()),
+        Expanded(
+          child: Center(
+            child: FittedBox(fit: BoxFit.scaleDown, child: _buildKeypad()),
+          ),
+        ),
       ],
     );
   }
 
-  Column _bodyPortrait(
+  /// The design's layout: logo (or lock), title, dots, keypad and the
+  /// link under it in one column with fixed gaps, at the top of the screen.
+  /// When it does not fit (a small phone, large text) the whole column scales
+  /// down instead of squeezing the keypad.
+  Widget _bodyPortrait(
     BuildContext context, {
     required bool showSecurePinText,
   }) {
-    final theme = IrmaTheme.of(context);
-    return Column(
-      children: [
-        Expanded(child: _buildTopColumn(context, showSecurePinText)),
-        Expanded(child: _buildKeypad()),
-        Padding(
-          padding: EdgeInsets.only(top: theme.screenPadding),
-          child: _buildNextButton(),
+    final column = SizedBox(
+      width: 358,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          _buildHeaderMark(context),
+          const SizedBox(height: 24),
+          _buildInstructionText(context),
+          const SizedBox(height: 24),
+          _buildDecoratedPinDots(context),
+          // 48 to the keypad, as in the design; screens that check the PIN
+          // keep room for the "possibly not secure" warning in that gap.
+          if (widget.checkSecurePin) ...[
+            const SizedBox(height: 8),
+            _buildSecurePinWarningSlot(showSecurePinText),
+            const SizedBox(height: 8),
+          ] else
+            const SizedBox(height: 48),
+          _buildKeypad(),
+          const SizedBox(height: 16),
+          _buildActionLinkSlot(),
+          _buildNextButton(),
+        ],
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) => Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth,
+            maxHeight: constraints.maxHeight,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.topCenter,
+            child: column,
+          ),
         ),
-      ],
+      ),
     );
   }
 
@@ -394,53 +438,51 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   Widget _buildDecoratedPinDots(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final isLong = widget.maxPinSize != shortPinSize;
-    final fieldWidthFactor = isLong ? .55 : .72;
 
-    // Both modes share the short PIN's height so neither is taller.
+    // The dots centred, with the show/hide button beside them; an equal
+    // space on the other side keeps the dots in the middle. Both PIN modes
+    // share one height so neither is taller.
+    const side = 40.0;
     return SizedBox(
       height: _pinFieldHeight,
-      child: Column(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              FractionallySizedBox(
-                widthFactor: fieldWidthFactor,
-                child: _buildPinDots(),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: _buildListeningPinVisibilityButton(),
-                ),
-              ),
-              // Counter beside the field rather than below, so long PIN isn't
-              // taller than short. Right-padded to clear the visibility button.
-              if (isLong && widget.displayPinLength)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 44),
-                    child: Text(
-                      "${_state.pin.length}/${widget.maxPinSize}",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w300,
-                        color: _state.pin.isNotEmpty
-                            ? theme.secondary
-                            : Colors.transparent,
-                      ),
+          SizedBox(
+            width: side,
+            child: isLong && widget.displayPinLength
+                ? Text(
+                    "${_state.pin.length}/${widget.maxPinSize}",
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w300,
+                      color: _state.pin.isNotEmpty
+                          ? theme.secondary
+                          : Colors.transparent,
                     ),
-                  ),
-                ),
-            ],
+                  )
+                : null,
           ),
           if (isLong)
-            FractionallySizedBox(
-              widthFactor: fieldWidthFactor,
-              child: Divider(height: 1.0, color: theme.secondary),
+            SizedBox(
+              width: 220,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildPinDots(),
+                  Divider(height: 1.0, color: theme.secondary),
+                ],
+              ),
+            )
+          else
+            _buildPinDots(),
+          SizedBox(
+            width: side,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _buildListeningPinVisibilityButton(),
             ),
+          ),
         ],
       ),
     );
@@ -495,8 +537,8 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             customBorder: const CircleBorder(),
             child: Icon(
               icon,
-              size: 24,
-              color: YiviPalette.of(context).heading,
+              size: 20,
+              color: YiviPalette.of(context).secondaryText,
               semanticLabel: FlutterI18n.translate(context, semanticLabelKey),
             ),
           ),
@@ -556,13 +598,41 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           widget.instruction ??
               FlutterI18n.translate(context, widget.instructionKey!),
           textAlign: TextAlign.center,
-          style: YiviPalette.of(context).display(
-            // Scaled down on small screens so the block stays clear of the
-            // keypad.
-            22.scaleToDesignSize(context),
-          ),
+          style: YiviPalette.of(context).display(22).copyWith(height: 30 / 22),
         ),
       ),
+    );
+  }
+
+  /// The Yivi logo when unlocking, a lock on a disc when choosing or
+  /// confirming a PIN ([YiviPinScreen.lockIcon]).
+  Widget _buildHeaderMark(BuildContext context) {
+    if (!widget.lockIcon) {
+      return SvgPicture.asset(
+        yiviAsset("non-free/logo_no_margin.svg"),
+        height: 44,
+        semanticsLabel: FlutterI18n.translate(
+          context,
+          "accessibility.irma_logo",
+        ),
+      );
+    }
+    final palette = YiviPalette.of(context);
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: palette.surface,
+        shape: BoxShape.circle,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x17000000),
+            blurRadius: 6,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Icon(Icons.lock_outline_rounded, size: 28, color: palette.heading),
     );
   }
 
