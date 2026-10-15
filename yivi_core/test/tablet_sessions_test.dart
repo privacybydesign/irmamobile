@@ -1,0 +1,163 @@
+import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_introduction_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
+import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/yivi_bottom_sheet.dart";
+
+import "helpers/credential_factory.dart";
+import "support/onboarding_v2_harness.dart";
+
+const _tablet = Size(1180, 820);
+const _phone = Size(390, 844);
+
+void main() {
+  late IrmaRepository repo;
+
+  setUp(() async {
+    repo = IrmaRepository(
+      client: RecordingBridge(),
+      preferences: await freshPreferences(),
+    );
+  });
+  tearDown(() => repo.close());
+
+  Future<void> pump(WidgetTester tester, Size size, Widget home) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = size;
+    addTearDown(tester.view.reset);
+    await pumpHome(
+      tester,
+      repo: repo,
+      home: LegacyMaterialBridge(child: home),
+    );
+    await settle(tester);
+    await tester.pumpAndSettle();
+  }
+
+  final ticket = testCredential(
+    type: "pbdf.pbdf.ticket",
+    hash: "ticket",
+    name: "Ticket",
+    attributes: [stringAttr("seat", "12A")],
+  );
+
+  group("issuance permission", () {
+    Widget screen() => IssuancePermission(
+      issuedCredentials: [ticket],
+      onDismiss: () {},
+      onGivePermission: () {},
+    );
+
+    testWidgets("tablet: the card left, what you receive and the buttons "
+        "right", (tester) async {
+      await pump(tester, _tablet, screen());
+
+      expect(find.byType(SessionColumns), findsOneWidget);
+      final card = tester.getRect(find.byType(CredentialCardArt));
+      final receive = tester.getRect(find.text("You will receive"));
+      final add = tester.getRect(find.byKey(const Key("bottom_bar_primary")));
+      expect(receive.left, greaterThan(card.right));
+      expect(add.left, greaterThan(card.right));
+      // The buttons follow the content instead of sitting at the bottom.
+      expect(add.bottom, lessThan(_tablet.height - 100));
+    });
+
+    testWidgets("phone: one column, the buttons in the bottom bar", (
+      tester,
+    ) async {
+      await pump(tester, _phone, screen());
+
+      expect(find.byType(SessionColumns), findsNothing);
+      final card = tester.getRect(find.byType(CredentialCardArt));
+      final receive = tester.getRect(find.text("You will receive"));
+      expect(receive.top, greaterThan(card.bottom));
+    });
+  });
+
+  testWidgets("disclosure introduction: picture left, text right on tablet", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _tablet,
+      DisclosurePermissionIntroductionScreen(
+        onContinue: () {},
+        onDismiss: () {},
+      ),
+    );
+
+    expect(find.byType(SessionColumns), findsOneWidget);
+    final columns = tester.getRect(find.byType(SessionColumns));
+    final header = tester.getRect(find.text("Share your data"));
+    expect(header.left, greaterThan(columns.center.dx));
+  });
+
+  group("change choice", () {
+    Future<void> open(WidgetTester tester, Size size) async {
+      await pump(
+        tester,
+        size,
+        Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => pushSessionSubscreen(
+                  context,
+                  const Scaffold(body: Center(child: Text("choices"))),
+                ),
+                child: const Text("open"),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text("open"));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets("tablet: a centred dialog", (tester) async {
+      await open(tester, _tablet);
+      expect(find.byType(SessionDialogFrame), findsOneWidget);
+      final rect = tester.getRect(find.text("choices"));
+      expect(rect.center.dx, closeTo(_tablet.width / 2, 1));
+    });
+
+    testWidgets("phone: a page", (tester) async {
+      await open(tester, _phone);
+      expect(find.byType(SessionDialogFrame), findsNothing);
+      expect(find.text("choices"), findsOneWidget);
+    });
+  });
+
+  testWidgets("a Yivi sheet is a centred dialog on tablet", (tester) async {
+    await pump(
+      tester,
+      _tablet,
+      Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: TextButton(
+              onPressed: () => showYiviBottomSheet(
+                context: context,
+                titleKey: "disclosure_permission.choice.sheet_title",
+                child: const SizedBox(height: 200, child: Text("options")),
+              ),
+              child: const Text("open"),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text("open"));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BottomSheet), findsNothing);
+    final options = tester.getRect(find.text("options"));
+    expect(options.left, greaterThan((_tablet.width - 520) / 2 - 1));
+    expect(options.right, lessThan((_tablet.width + 520) / 2 + 1));
+  });
+}

@@ -7,6 +7,7 @@ import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
+import "session_columns.dart";
 import "session_scaffold.dart";
 import "success_graphic.dart";
 
@@ -92,6 +93,78 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     String explanationKey,
   ) {
     final palette = YiviPalette.of(context);
+    final okButton = YiviThemedButton(
+      key: const Key("ok_button"),
+      label: "action_feedback.ok",
+      onPressed: () => widget.onDismiss(context),
+    );
+    final whatYouShared = <Widget>[
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+        child: Semantics(
+          header: true,
+          child: TranslatedText(
+            "disclosure.what_you_shared",
+            style: palette.display(16),
+          ),
+        ),
+      ),
+      for (final instance in widget.shared)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: DisclosedCardTile(instance: instance),
+        ),
+    ];
+
+    // Tablets: the result and OK on the left, what was shared on the right.
+    if (useSessionColumns(context)) {
+      return PopScope(
+        canPop: false,
+        child: SessionScaffold(
+          appBarTitle: "disclosure.feedback.header.success",
+          onDismiss: () => widget.onDismiss(context),
+          wide: true,
+          body: SessionColumns(
+            startWidth: 380,
+            endWidth: 440,
+            gap: 96,
+            centreVertically: true,
+            start: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 120,
+                  width: 120,
+                  child: SuccessGraphic(),
+                ),
+                const SizedBox(height: 32),
+                TranslatedText(
+                  "disclosure.feedback.header.success",
+                  translationParams: params,
+                  isHeader: true,
+                  style: palette
+                      .display(34, weight: FontWeight.w700)
+                      .copyWith(height: 44 / 34, color: palette.heading),
+                ),
+                const SizedBox(height: 8),
+                TranslatedText(
+                  explanationKey,
+                  translationParams: params,
+                  style: palette.body(18).copyWith(height: 28 / 18),
+                ),
+                const SizedBox(height: 32),
+                okButton,
+              ],
+            ),
+            end: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: whatYouShared,
+            ),
+          ),
+        ),
+      );
+    }
+
     return PopScope(
       canPop: false,
       child: SessionScaffold(
@@ -115,30 +188,11 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
               style: palette.body(16),
               textAlign: TextAlign.center,
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 32, 4, 8),
-              child: Semantics(
-                header: true,
-                child: TranslatedText(
-                  "disclosure.what_you_shared",
-                  style: palette.display(16),
-                ),
-              ),
-            ),
-            for (final instance in widget.shared)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: DisclosedCardTile(instance: instance),
-              ),
+            const SizedBox(height: 32),
+            ...whatYouShared,
           ],
         ),
-        bottomNavigationBar: IrmaBottomBarBase(
-          child: YiviThemedButton(
-            key: const Key("ok_button"),
-            label: "action_feedback.ok",
-            onPressed: () => widget.onDismiss(context),
-          ),
-        ),
+        bottomNavigationBar: IrmaBottomBarBase(child: okButton),
       ),
     );
   }

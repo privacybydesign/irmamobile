@@ -13,6 +13,7 @@ import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dar
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_issuance_permission.dart";
+import "session_columns.dart";
 import "session_scaffold.dart";
 
 class IssuancePermission extends ConsumerWidget {
@@ -48,6 +49,39 @@ class IssuancePermission extends ConsumerWidget {
       );
     }
 
+    // Tablets: the card on the left, what you receive and the buttons on
+    // the right.
+    if (useSessionColumns(context)) {
+      return SessionScaffold(
+        appBarTitle: "issuance.title",
+        wide: true,
+        onDismiss: onDismiss,
+        body: SessionColumns(
+          start: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ..._heading(context, large: true),
+              for (final credential in issuedCredentials) ...[
+                const SizedBox(height: 32),
+                ..._card(context, credential, 460),
+              ],
+            ],
+          ),
+          end: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, credential) in issuedCredentials.indexed)
+                  ..._receives(context, credential, first: i == 0),
+              ],
+            ),
+          ),
+          actions: _buildNavigationBar(context),
+        ),
+      );
+    }
+
     return SessionScaffold(
       appBarTitle: "issuance.title",
       bottomNavigationBar: _buildNavigationBar(context),
@@ -77,9 +111,6 @@ class IssuancePermission extends ConsumerWidget {
   }
 
   Widget _buildBody(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
@@ -92,115 +123,11 @@ class IssuancePermission extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (returnedFromIssuer != null)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                        child: TranslatedText(
-                          "external_issuer.returned",
-                          translationParams: {"issuer": returnedFromIssuer!},
-                          style: palette.display(18),
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Semantics(
-                        header: true,
-                        child: Text(
-                          FlutterI18n.translate(
-                            context,
-                            "issuance.description",
-                          ),
-                          style: palette.display(22),
-                        ),
-                      ),
-                    ),
+                    ..._heading(context),
                     for (final credential in issuedCredentials) ...[
                       const SizedBox(height: 24),
-                      Center(
-                        child: CredentialCardArt(
-                          credential: credential,
-                          width: width,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _Chip(
-                            FlutterI18n.translate(
-                              context,
-                              "credential.issued_by",
-                              translationParams: {
-                                "issuer": credential.issuer.name,
-                              },
-                            ),
-                          ),
-                          if ((credential.expiryDate ?? 0) > 0)
-                            _Chip(
-                              FlutterI18n.translate(
-                                context,
-                                "wallet.detail.valid_until",
-                                translationParams: {
-                                  "date": printableDate(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                      credential.expiryDate! * 1000,
-                                    ),
-                                    lang,
-                                  ),
-                                },
-                              ),
-                            ),
-                          if (credential.display?.svgTemplates.isNotEmpty ??
-                              false)
-                            _Chip(
-                              FlutterI18n.translate(
-                                context,
-                                "credential_card.source.issuer_design",
-                              ),
-                              highlighted: true,
-                            ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
-                        child: Semantics(
-                          header: true,
-                          child: Text(
-                            FlutterI18n.translate(
-                              context,
-                              "issuance.you_will_receive",
-                            ),
-                            style: palette.display(16),
-                          ),
-                        ),
-                      ),
-                      DecoratedBox(
-                        decoration: ShapeDecoration(
-                          color: palette.surface,
-                          shape: const RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(24)),
-                          ),
-                          shadows: const [
-                            BoxShadow(
-                              color: Color(0x17000000),
-                              blurRadius: 6,
-                              offset: Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 4,
-                          ),
-                          child: YiviCredentialCardAttributeList(
-                            credential.attributes,
-                            credentialId: credential.credentialId,
-                            showDividers: true,
-                          ),
-                        ),
-                      ),
+                      ..._card(context, credential, width),
+                      ..._receives(context, credential),
                     ],
                   ],
                 ),
@@ -210,6 +137,131 @@ class IssuancePermission extends ConsumerWidget {
         );
       },
     );
+  }
+
+  /// "Back from {issuer}" and the question.
+  List<Widget> _heading(BuildContext context, {bool large = false}) {
+    final palette = YiviPalette.of(context);
+    return [
+      if (returnedFromIssuer != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+          child: TranslatedText(
+            "external_issuer.returned",
+            translationParams: {"issuer": returnedFromIssuer!},
+            style: palette.display(18),
+          ),
+        ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Semantics(
+          header: true,
+          child: Text(
+            FlutterI18n.translate(context, "issuance.description"),
+            style: large
+                ? palette
+                      .display(30, weight: FontWeight.w700)
+                      .copyWith(height: 38 / 30, color: palette.heading)
+                : palette.display(22),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  /// The card with its issuer, validity and design chips.
+  List<Widget> _card(
+    BuildContext context,
+    schemaless.Credential credential,
+    double width,
+  ) {
+    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+    return [
+      Center(
+        child: CredentialCardArt(credential: credential, width: width),
+      ),
+      const SizedBox(height: 16),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _Chip(
+            FlutterI18n.translate(
+              context,
+              "credential.issued_by",
+              translationParams: {"issuer": credential.issuer.name},
+            ),
+          ),
+          if ((credential.expiryDate ?? 0) > 0)
+            _Chip(
+              FlutterI18n.translate(
+                context,
+                "wallet.detail.valid_until",
+                translationParams: {
+                  "date": printableDate(
+                    DateTime.fromMillisecondsSinceEpoch(
+                      credential.expiryDate! * 1000,
+                    ),
+                    lang,
+                  ),
+                },
+              ),
+            ),
+          if (credential.display?.svgTemplates.isNotEmpty ?? false)
+            _Chip(
+              FlutterI18n.translate(
+                context,
+                "credential_card.source.issuer_design",
+              ),
+              highlighted: true,
+            ),
+        ],
+      ),
+    ];
+  }
+
+  /// "You will receive" and the attributes of [credential].
+  List<Widget> _receives(
+    BuildContext context,
+    schemaless.Credential credential, {
+    bool first = false,
+  }) {
+    final palette = YiviPalette.of(context);
+    return [
+      Padding(
+        padding: EdgeInsets.fromLTRB(4, first ? 0 : 24, 4, 8),
+        child: Semantics(
+          header: true,
+          child: Text(
+            FlutterI18n.translate(context, "issuance.you_will_receive"),
+            style: palette.display(16),
+          ),
+        ),
+      ),
+      DecoratedBox(
+        decoration: ShapeDecoration(
+          color: palette.surface,
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          shadows: const [
+            BoxShadow(
+              color: Color(0x17000000),
+              blurRadius: 6,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: YiviCredentialCardAttributeList(
+            credential.attributes,
+            credentialId: credential.credentialId,
+            showDividers: true,
+          ),
+        ),
+      ),
+    ];
   }
 }
 

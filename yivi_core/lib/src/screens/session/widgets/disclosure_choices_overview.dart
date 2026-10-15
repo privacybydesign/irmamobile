@@ -24,6 +24,7 @@ import "choice_card_footer.dart";
 import "choice_option_row.dart";
 import "disclosure_choice_sheet.dart";
 import "disclosure_make_choice_screen.dart";
+import "session_columns.dart";
 import "session_scaffold.dart";
 
 class DisclosureChoicesOverview extends ConsumerStatefulWidget {
@@ -236,16 +237,16 @@ class _DisclosureChoicesOverviewState
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => DisclosureMakeChoiceScreen(
-          pickOne: choices[disconIndex],
-          initialSelectedIndex: _selectedIndexFor(disconIndex),
-          sessionId: _sessionId,
-          disconIndex: disconIndex,
-          addOptional: addOptional,
-          onChoiceMade: onChoiceMade,
-        ),
+    // A page on phones, a centred dialog on tablets.
+    pushSessionSubscreen(
+      context,
+      DisclosureMakeChoiceScreen(
+        pickOne: choices[disconIndex],
+        initialSelectedIndex: _selectedIndexFor(disconIndex),
+        sessionId: _sessionId,
+        disconIndex: disconIndex,
+        addOptional: addOptional,
+        onChoiceMade: onChoiceMade,
       ),
     );
   }
@@ -300,6 +301,144 @@ class _DisclosureChoicesOverviewState
     final hasUnaddedOptional =
         addedOptionalChoices.length < allOptionalChoices.length;
 
+    // Who asks (and the message to sign), then what they ask for.
+    final requestorPart = <Widget>[
+      if (widget.headerBuilder case final buildHeader?)
+        buildHeader(
+          context,
+          _sharedItemCount([...requiredChoices, ...addedOptionalChoices]),
+        )
+      else ...[
+        RequestorHeader(
+          requestor: session.requestor,
+          isVerified: session.requestor.verified,
+        ),
+
+        if (widget.hasIssueDuringDisclosure)
+          SessionProgressIndicator(
+            step: 2,
+            stepCount: 2,
+            contentTranslationKey: "disclosure_permission.overview.explanation",
+            contentTranslationParams: {"requestorName": requestorName},
+          )
+        else
+          SizedBox(height: theme.defaultSpacing),
+      ],
+
+      if (isSignature && session.messageToSign != null) ...[
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText(
+          "disclosure_permission.overview.sign",
+          style: theme.themeData.textTheme.headlineMedium,
+        ),
+        Padding(
+          padding: .only(top: theme.smallSpacing, bottom: theme.defaultSpacing),
+          child: SignatureMessage(message: session.messageToSign!),
+        ),
+      ],
+    ];
+    final requestedPart = <Widget>[
+      if (requiredChoices.isNotEmpty)
+        Padding(
+          padding: const .fromLTRB(4, 8, 4, 8),
+          child: Row(
+            crossAxisAlignment: .baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: TranslatedText(
+                    "disclosure.requested_data",
+                    style: YiviPalette.of(context).display(16),
+                  ),
+                ),
+              ),
+              TranslatedText(
+                "disclosure.only_this_shared",
+                style: YiviPalette.of(context)
+                    .body(12)
+                    .copyWith(color: YiviPalette.of(context).secondaryText),
+              ),
+            ],
+          ),
+        ),
+
+      // Required choices
+      for (final (index, pickOne) in requiredChoices)
+        _DisclosureChoiceEntry(
+          pickOne: pickOne,
+          selectedIndex: _selectedIndexFor(index),
+          changeable: _hasMultipleOptions(pickOne),
+          onChangeChoice: () => _onChangeChoice(index),
+        ),
+
+      // Added optional choices
+      if (addedOptionalChoices.isNotEmpty) ...[
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText(
+          "disclosure_permission.optional_data",
+          style: theme.themeData.textTheme.headlineMedium,
+        ),
+        SizedBox(height: theme.smallSpacing),
+        for (final (index, pickOne) in addedOptionalChoices)
+          _DisclosureChoiceEntry(
+            pickOne: pickOne,
+            selectedIndex: _selectedIndexFor(index),
+            changeable: _hasMultipleOptions(pickOne),
+            optional: true,
+            onChangeChoice: () => _onChangeChoice(index),
+            onRemove: () => _onRemoveOptional(index),
+          ),
+      ],
+
+      if (choices.isEmpty ||
+          (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
+        TranslatedText(
+          "disclosure_permission.no_data_selected",
+          style: theme.themeData.textTheme.headlineMedium,
+        ),
+
+      // Add optional data button
+      if (hasUnaddedOptional) ...[
+        SizedBox(height: theme.defaultSpacing),
+        IrmaActionCard(
+          titleKey: "disclosure_permission.add_optional_data",
+          icon: Icons.add_circle,
+          isFancy: false,
+          onTap: () {
+            // Find the first unadded optional choice
+            final firstUnadded = allOptionalChoices.firstWhere(
+              (e) => !addedOptional.contains(e.$1),
+            );
+            _onChangeChoice(firstUnadded.$1, addOptional: true);
+          },
+        ),
+      ],
+    ];
+    final confirmBar = IrmaBottomBar(
+      primaryButtonLabel: confirmButtonKey,
+      onPrimaryPressed: _hasUnsharableSelection() ? null : _onApprove,
+    );
+
+    // Tablets: who asks on the left, the requested data and the button on
+    // the right.
+    if (useSessionColumns(context)) {
+      return SessionScaffold(
+        appBarTitle: "disclosure_permission.overview.title",
+        onDismiss: widget.onDismiss,
+        wide: true,
+        body: SessionColumns(
+          startWidth: 400,
+          endWidth: 520,
+          gap: 56,
+          start: Column(crossAxisAlignment: .start, children: requestorPart),
+          end: Column(crossAxisAlignment: .start, children: requestedPart),
+          actions: confirmBar,
+        ),
+      );
+    }
+
     return SessionScaffold(
       appBarTitle: "disclosure_permission.overview.title",
       onDismiss: widget.onDismiss,
@@ -308,135 +447,11 @@ class _DisclosureChoicesOverviewState
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .start,
-            children: [
-              if (widget.headerBuilder case final buildHeader?)
-                buildHeader(
-                  context,
-                  _sharedItemCount([
-                    ...requiredChoices,
-                    ...addedOptionalChoices,
-                  ]),
-                )
-              else ...[
-                RequestorHeader(
-                  requestor: session.requestor,
-                  isVerified: session.requestor.verified,
-                ),
-
-                if (widget.hasIssueDuringDisclosure)
-                  SessionProgressIndicator(
-                    step: 2,
-                    stepCount: 2,
-                    contentTranslationKey:
-                        "disclosure_permission.overview.explanation",
-                    contentTranslationParams: {"requestorName": requestorName},
-                  )
-                else
-                  SizedBox(height: theme.defaultSpacing),
-              ],
-
-              if (isSignature && session.messageToSign != null) ...[
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "disclosure_permission.overview.sign",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
-                Padding(
-                  padding: .only(
-                    top: theme.smallSpacing,
-                    bottom: theme.defaultSpacing,
-                  ),
-                  child: SignatureMessage(message: session.messageToSign!),
-                ),
-              ],
-
-              if (requiredChoices.isNotEmpty)
-                Padding(
-                  padding: const .fromLTRB(4, 8, 4, 8),
-                  child: Row(
-                    crossAxisAlignment: .baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Expanded(
-                        child: Semantics(
-                          header: true,
-                          child: TranslatedText(
-                            "disclosure.requested_data",
-                            style: YiviPalette.of(context).display(16),
-                          ),
-                        ),
-                      ),
-                      TranslatedText(
-                        "disclosure.only_this_shared",
-                        style: YiviPalette.of(context)
-                            .body(12)
-                            .copyWith(
-                              color: YiviPalette.of(context).secondaryText,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Required choices
-              for (final (index, pickOne) in requiredChoices)
-                _DisclosureChoiceEntry(
-                  pickOne: pickOne,
-                  selectedIndex: _selectedIndexFor(index),
-                  changeable: _hasMultipleOptions(pickOne),
-                  onChangeChoice: () => _onChangeChoice(index),
-                ),
-
-              // Added optional choices
-              if (addedOptionalChoices.isNotEmpty) ...[
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "disclosure_permission.optional_data",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
-                SizedBox(height: theme.smallSpacing),
-                for (final (index, pickOne) in addedOptionalChoices)
-                  _DisclosureChoiceEntry(
-                    pickOne: pickOne,
-                    selectedIndex: _selectedIndexFor(index),
-                    changeable: _hasMultipleOptions(pickOne),
-                    optional: true,
-                    onChangeChoice: () => _onChangeChoice(index),
-                    onRemove: () => _onRemoveOptional(index),
-                  ),
-              ],
-
-              if (choices.isEmpty ||
-                  (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
-                TranslatedText(
-                  "disclosure_permission.no_data_selected",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
-
-              // Add optional data button
-              if (hasUnaddedOptional) ...[
-                SizedBox(height: theme.defaultSpacing),
-                IrmaActionCard(
-                  titleKey: "disclosure_permission.add_optional_data",
-                  icon: Icons.add_circle,
-                  isFancy: false,
-                  onTap: () {
-                    // Find the first unadded optional choice
-                    final firstUnadded = allOptionalChoices.firstWhere(
-                      (e) => !addedOptional.contains(e.$1),
-                    );
-                    _onChangeChoice(firstUnadded.$1, addOptional: true);
-                  },
-                ),
-              ],
-            ],
+            children: [...requestorPart, ...requestedPart],
           ),
         ),
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: confirmButtonKey,
-        onPrimaryPressed: _hasUnsharableSelection() ? null : _onApprove,
-      ),
+      bottomNavigationBar: confirmBar,
     );
   }
 }

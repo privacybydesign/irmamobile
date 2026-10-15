@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../util/adaptive_layout.dart";
 import "credential_card/yivi_credential_card_header.dart";
 import "irma_close_button.dart";
 import "irma_divider.dart";
@@ -22,6 +23,34 @@ Future<void> showYiviBottomSheet({
   TextStyle? titleStyle,
   double? sidePadding,
 }) {
+  // Tablets: a centred dialog with the same header and content.
+  if (isExpandedLayout(context)) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 520,
+              maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+            ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: _YiviBottomSheet(
+                titleKey: titleKey,
+                minHeightFraction: 0,
+                titleStyle: titleStyle,
+                sidePadding: sidePadding,
+                dialog: true,
+                child: child,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -48,12 +77,16 @@ class _YiviBottomSheet extends StatefulWidget {
   final TextStyle? titleStyle;
   final double? sidePadding;
 
+  /// Shown as a centred dialog: rounded on all corners.
+  final bool dialog;
+
   const _YiviBottomSheet({
     required this.titleKey,
     required this.child,
     required this.minHeightFraction,
     required this.titleStyle,
     required this.sidePadding,
+    this.dialog = false,
   });
 
   @override
@@ -95,9 +128,18 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
       child: Container(
         decoration: BoxDecoration(
           color: theme.backgroundSecondary,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(_topRadius),
-          ),
+          borderRadius: widget.dialog
+              ? const BorderRadius.all(Radius.circular(_topRadius))
+              : const BorderRadius.vertical(top: Radius.circular(_topRadius)),
+          boxShadow: widget.dialog
+              ? const [
+                  BoxShadow(
+                    color: Color(0x4D000000),
+                    blurRadius: 80,
+                    offset: Offset(0, 30),
+                  ),
+                ]
+              : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(

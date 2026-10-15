@@ -11,6 +11,10 @@ class SessionScaffold extends StatelessWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onPrevious;
 
+  /// The body spans the whole width, for the two-column tablet layouts
+  /// ([SessionColumns]) that centre themselves.
+  final bool wide;
+
   const SessionScaffold({
     Key? key,
     this.onDismiss,
@@ -18,6 +22,7 @@ class SessionScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.body,
     required this.appBarTitle,
+    this.wide = false,
   });
 
   @override
@@ -29,7 +34,7 @@ class SessionScaffold extends StatelessWidget {
       bottomNavigationBar: bottomNavigationBar == null
           ? null
           : _centred(bottomNavigationBar!),
-      body: body == null ? null : _centred(body!),
+      body: body == null ? null : (wide ? body : _centred(body!)),
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
         leading: onPrevious != null ? YiviBackButton(onTap: onPrevious) : null,

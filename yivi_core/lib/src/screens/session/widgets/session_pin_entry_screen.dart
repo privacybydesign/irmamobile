@@ -11,6 +11,7 @@ import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../../pin/yivi_pin_screen.dart";
+import "session_columns.dart";
 
 /// Session PIN entry. A thin wrapper around the shared [YiviPinScreen]: it owns
 /// only the session-specific bits (close button, submitting spinner, and the
@@ -163,6 +164,18 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _applyTabletSupport(BuildContext context, Widget body) {
+    // The tablet layout: the PIN screen's side-by-side layout (instruction
+    // and dots on the left, the keypad on the right) in a centred box wider
+    // than it is high, which is what picks that layout.
+    if (useSessionColumns(context)) {
+      return LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          width: min(constraints.maxWidth, 800),
+          height: min(constraints.maxHeight, 520),
+          child: body,
+        ),
+      );
+    }
     if (!context.isTabletDevice) return body;
     return LayoutBuilder(
       builder: (context, constraints) {
