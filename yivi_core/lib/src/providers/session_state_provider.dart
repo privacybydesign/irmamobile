@@ -11,6 +11,14 @@ final sessionStateProvider = StreamProvider.family<SessionState, int>((
   return repo.getSessionState(sessionId);
 });
 
+/// The request a nested issuance [sessionId] is for: the disclosure session
+/// waiting underneath it, or null. Gives the issuance permission its "For
+/// {requestor} · step n of m" and the values that request needs.
+final underlyingDisclosureProvider = StreamProvider.family<SessionState?, int>(
+  (ref, sessionId) =>
+      ref.watch(irmaRepositoryProvider).getUnderlyingDisclosure(sessionId),
+);
+
 /// Whether [sessionId] has dispatched a user interaction that's still waiting
 /// for the next [SessionState] from Go. Drives the spinner during Gap B and
 /// also covers paths where the interaction is dispatched outside SessionScreen

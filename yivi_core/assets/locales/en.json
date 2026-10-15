@@ -552,7 +552,17 @@
         "header": "Continue in your browser"
       }
     },
-    "you_will_receive": "You will receive"
+    "you_will_receive": "You will receive",
+    "question_many": "Do you want to add these {count} cards to your Yivi app?",
+    "add_many": "Add {count} cards",
+    "card_count": "{count} cards",
+    "from_issuers": "from {count} issuers",
+    "for_request": "For {requestor}",
+    "for_request_step": "For {requestor} · step {step} of {total}",
+    "returned_from": "Back from the website of {issuer}",
+    "all_together": "All cards are added together",
+    "mismatch": "{requestor} needs {attribute} {value}. This card has {offered}, so it won't count for this request. You can still add it.",
+    "mismatch_none": "{requestor} needs {attribute} {value}. This card doesn't have it, so it won't count for this request. You can still add it."
   },
   "email_issuance": {
     "enter_email": {

@@ -17,16 +17,19 @@ class InfoChip extends StatelessWidget {
     return Container(
       height: 28,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      alignment: Alignment.center,
       decoration: ShapeDecoration(
         color: tinted ? palette.tint : palette.surface,
         shape: StadiumBorder(side: BorderSide(color: palette.outline)),
       ),
-      child: Text(
-        label,
-        style: palette
-            .body(12, weight: FontWeight.w600)
-            .copyWith(color: tinted ? palette.link : palette.heading),
+      // As wide as the label, not as the row it is in.
+      child: Center(
+        widthFactor: 1,
+        child: Text(
+          label,
+          style: palette
+              .body(12, weight: FontWeight.w600)
+              .copyWith(color: tinted ? palette.link : palette.heading),
+        ),
       ),
     );
   }

@@ -38,6 +38,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final bool disclosure;
   final AgeDisplay ageDisplay;
   final CredentialCardLayout layout;
+  // Claim paths (see [claimPathKey]) whose value does not match what is
+  // needed: they are shown in the error colour.
+  final Set<String> mismatched;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -48,6 +51,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.disclosure = false,
     this.ageDisplay = AgeDisplay.perAttribute,
     this.layout = CredentialCardLayout.standard,
+    this.mismatched = const {},
   });
 
   @override
@@ -84,7 +88,11 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       ...remaining.where(_isImage),
     ];
 
-    final tree = _buildTree(sorted, compareTo: compareTo);
+    final tree = _buildTree(
+      sorted,
+      compareTo: compareTo,
+      mismatched: mismatched,
+    );
     _insertGroups(tree.children, groups, attributes);
     // Comparing against another credential needs every attribute on its own row.
     if (ageDisplay == AgeDisplay.collapsed && compareTo == null) {
@@ -142,10 +150,12 @@ class _RowNode extends _Node {
   final schemaless.Attribute attribute;
   final schemaless.AttributeValue? compareToValue;
   final bool hasCompareTo;
+  final bool mismatch;
   _RowNode({
     required this.attribute,
     required this.hasCompareTo,
     this.compareToValue,
+    this.mismatch = false,
   });
 }
 
@@ -214,6 +224,7 @@ class _PrimCollector {
 _GroupNode _buildTree(
   List<schemaless.Attribute> attrs, {
   List<schemaless.Attribute>? compareTo,
+  Set<String> mismatched = const {},
 }) {
   final headers = <String, schemaless.Attribute>{};
   for (final e in attrs) {
@@ -359,6 +370,7 @@ _GroupNode _buildTree(
         attribute: e,
         hasCompareTo: compareTo != null,
         compareToValue: lookupCompare(p),
+        mismatch: mismatched.contains(_pathKey(p)),
       ),
     );
   }
@@ -796,6 +808,7 @@ class _LeafContent extends StatelessWidget {
     schemaless.AttributeValue? val,
     IrmaThemeData theme,
   ) {
+    if (node.mismatch) return theme.error;
     if (!node.hasCompareTo) return AttributeColors.of(context).value;
     return val?.string == node.compareToValue?.string
         ? theme.success

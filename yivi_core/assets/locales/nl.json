@@ -581,7 +581,17 @@
         "header": "Ga verder in je browser"
       }
     },
-    "you_will_receive": "Je ontvangt"
+    "you_will_receive": "Je ontvangt",
+    "question_many": "Wil je deze {count} kaarten aan je Yivi-app toevoegen?",
+    "add_many": "{count} kaarten toevoegen",
+    "card_count": "{count} kaarten",
+    "from_issuers": "van {count} uitgevers",
+    "for_request": "Voor {requestor}",
+    "for_request_step": "Voor {requestor} · stap {step} van {total}",
+    "returned_from": "Terug van de website van {issuer}",
+    "all_together": "Alle kaarten worden samen toegevoegd",
+    "mismatch": "{requestor} heeft {attribute} {value} nodig. Deze kaart heeft {offered}, dus telt niet mee voor dit verzoek. Je kunt hem wel toevoegen.",
+    "mismatch_none": "{requestor} heeft {attribute} {value} nodig. Deze kaart heeft dat niet, dus telt niet mee voor dit verzoek. Je kunt hem wel toevoegen."
   },
   "email_issuance": {
     "enter_email": {

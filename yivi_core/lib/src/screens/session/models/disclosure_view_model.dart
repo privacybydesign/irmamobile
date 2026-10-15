@@ -319,12 +319,14 @@ AddAction addActionFor(
 /// underneath: shown in red, with a note before the user adds the card.
 class IssuanceMismatch {
   final String credentialId;
+  final List<dynamic> claimPath;
   final String attributeName;
   final AttributeValue? offered;
   final AttributeValue required;
 
   const IssuanceMismatch({
     required this.credentialId,
+    required this.claimPath,
     required this.attributeName,
     required this.offered,
     required this.required,
@@ -359,6 +361,7 @@ List<IssuanceMismatch> issuanceMismatches(
         out.add(
           IssuanceMismatch(
             credentialId: card.credentialId,
+            claimPath: wanted.claimPath,
             attributeName: wanted.effectiveDisplayName,
             offered: got?.value,
             required: requiredValue,

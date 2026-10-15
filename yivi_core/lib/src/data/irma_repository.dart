@@ -553,6 +553,12 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionId);
   }
 
+  /// The request waiting under [sessionId], see
+  /// [SessionRepository.underlyingDisclosure].
+  Stream<SessionState?> getUnderlyingDisclosure(int sessionId) {
+    return _sessionRepository.underlyingDisclosure(sessionId);
+  }
+
   /// Whether [sessionId] has a user interaction dispatched to Go that's still
   /// waiting on a response state event. Cleared automatically when the next
   /// state arrives.

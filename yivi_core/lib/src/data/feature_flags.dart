@@ -12,10 +12,6 @@ enum FeatureFlag {
     "C+",
     "Your data: categories, favourites, collapsible sections",
   ),
-  externalIssuerFlow(
-    "E",
-    "Data from another website: heads-up and waiting state",
-  ),
   formFieldsV2("H", "Form fields: white fields with the label inside"),
   calmSuccess("J", "Success screens: calm illustrations"),
   shareScreenV2("K", "Sharing: Gewaarmerkt door, trust bar, extra check");

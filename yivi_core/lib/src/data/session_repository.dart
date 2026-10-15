@@ -140,6 +140,24 @@ class SessionRepository {
         .map((map) => map[sessionId]!);
   }
 
+  /// The request waiting under [sessionId]: the most recent other session
+  /// that started before it, asks for data (has a disclosure plan) and is
+  /// still in `requestPermission`. Null while there is none, e.g. for an
+  /// issuance the user started on its own.
+  Stream<SessionState?> underlyingDisclosure(int sessionId) =>
+      _states.map((map) {
+        SessionState? found;
+        for (final s in map.values) {
+          if (s.id < sessionId &&
+              s.status == .requestPermission &&
+              s.disclosurePlan != null &&
+              (found == null || s.id > found.id)) {
+            found = s;
+          }
+        }
+        return found;
+      }).distinct();
+
   /// Synchronous lookup of a [SessionState] by its OpenID4VCI `state` value
   /// (the OAuth `state` parameter we minted when starting the auth-code flow).
   /// Returns `null` if no matching in-flight session exists — e.g. the wallet

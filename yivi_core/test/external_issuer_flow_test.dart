@@ -4,7 +4,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -64,14 +63,13 @@ class _Env {
   ];
 }
 
-Future<_Env> _env({required bool flagOn}) async {
+Future<_Env> _env() async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await IrmaPreferences.fromInstance(
     mostRecentTermsUrlNl: "",
     mostRecentTermsUrlEn: "",
   );
   await prefs.clearAll();
-  await prefs.setFeatureFlag(FeatureFlag.externalIssuerFlow, flagOn);
   final repo = IrmaRepository(client: _RecordingBridge(), preferences: prefs);
   addTearDown(repo.close);
   return _Env(prefs, repo);
@@ -118,8 +116,7 @@ ExternalIssuerStatus _status(
 Future<ProviderContainer> _container(_Env env) async {
   final container = ProviderContainer(overrides: [...env.overrides].cast());
   addTearDown(container.dispose);
-  // Let the flag and launched-credentials streams deliver their first value.
-  container.listen(externalIssuerFlowEnabledProvider, (_, _) {});
+  // Let the launched-credentials stream deliver its first value.
   container.listen(websiteLaunchedCredentialsProvider, (_, _) {});
   await Future<void>.delayed(Duration.zero);
   return container;
@@ -129,23 +126,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group("externalIssuerStatusProvider", () {
-    test("is notExternal for every credential while the flag is off", () async {
-      final container = await _container(await _env(flagOn: false));
-
-      expect(
-        _status(container, _descriptor()),
-        ExternalIssuerStatus.notExternal,
-      );
-    });
-
     test("is ready for a credential issued on a website", () async {
-      final container = await _container(await _env(flagOn: true));
+      final container = await _container(await _env());
 
       expect(_status(container, _descriptor()), ExternalIssuerStatus.ready);
     });
 
     test("is notExternal without an issue URL", () async {
-      final container = await _container(await _env(flagOn: true));
+      final container = await _container(await _env());
 
       expect(
         _status(container, _descriptor(issueUrl: null)),
@@ -158,7 +146,7 @@ void main() {
     });
 
     test("is notExternal for credentials with an embedded flow", () async {
-      final container = await _container(await _env(flagOn: true));
+      final container = await _container(await _env());
 
       for (final id in [
         "pbdf.pbdf.passport",
@@ -176,7 +164,7 @@ void main() {
     test(
       "is waiting once the website was opened, until it is cleared",
       () async {
-        final env = await _env(flagOn: true);
+        final env = await _env();
         final container = await _container(env);
         final descriptor = _descriptor();
 
@@ -191,7 +179,7 @@ void main() {
     );
 
     test("only the credential whose website was opened is waiting", () async {
-      final env = await _env(flagOn: true);
+      final env = await _env();
       final container = await _container(env);
 
       env.repo.markInAppLaunched([_websiteCredential]);
@@ -210,7 +198,7 @@ void main() {
       VoidCallback? onOpenWebsite,
       VoidCallback? onBack,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env()))!;
       await _pumpApp(
         tester,
         env,
@@ -241,7 +229,7 @@ void main() {
     testWidgets("falls back to the credential id for a nameless credential", (
       tester,
     ) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env()))!;
       await _pumpApp(
         tester,
         env,
@@ -299,10 +287,9 @@ void main() {
   group("AddDataDetailsRoute", () {
     Future<void> pump(
       WidgetTester tester, {
-      required bool flagOn,
       CredentialDescriptor? credential,
     }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+      final env = (await tester.runAsync(() => _env()))!;
       await _pumpApp(
         tester,
         env,
@@ -315,19 +302,10 @@ void main() {
       );
     }
 
-    testWidgets("keeps the regular details page while the flag is off", (
-      tester,
-    ) async {
-      await pump(tester, flagOn: false);
-
-      expect(find.text("regular details"), findsOne);
-      expect(find.byType(ExternalIssuerHeadsUpScreen), findsNothing);
-    });
-
     testWidgets("shows the heads-up screen for a website credential", (
       tester,
     ) async {
-      await pump(tester, flagOn: true);
+      await pump(tester);
 
       expect(find.byType(ExternalIssuerHeadsUpScreen), findsOne);
       expect(find.text("regular details"), findsNothing);
@@ -338,7 +316,6 @@ void main() {
     ) async {
       await pump(
         tester,
-        flagOn: true,
         credential: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
       );
 
@@ -348,7 +325,7 @@ void main() {
 
   group("IssuancePermission", () {
     Future<void> pump(WidgetTester tester, {String? returnedFromIssuer}) async {
-      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      final env = (await tester.runAsync(() => _env()))!;
       await _pumpApp(
         tester,
         env,
@@ -365,7 +342,7 @@ void main() {
       await pump(tester, returnedFromIssuer: "Gemeente Voorbeeld");
 
       expect(
-        find.text("You're back from the website of Gemeente Voorbeeld"),
+        find.text("Back from the website of Gemeente Voorbeeld"),
         findsOne,
       );
     });
@@ -373,12 +350,12 @@ void main() {
     testWidgets("says nothing extra without a website issuer", (tester) async {
       await pump(tester);
 
-      expect(find.textContaining("You're back from"), findsNothing);
+      expect(find.textContaining("Back from"), findsNothing);
     });
   });
 
   group("SessionScreen issuance confirmation", () {
-    const welcomeBack = "You're back from the website of Gemeente Voorbeeld";
+    const welcomeBack = "Back from the website of Gemeente Voorbeeld";
 
     SessionState offered() => SessionState(
       id: _sessionId,
@@ -402,8 +379,8 @@ void main() {
       ],
     );
 
-    Future<_Env> pump(WidgetTester tester, {required bool flagOn}) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
+    Future<_Env> pump(WidgetTester tester) async {
+      final env = (await tester.runAsync(() => _env()))!;
       env.repo.markInAppLaunched([_websiteCredential]);
       await _pumpApp(
         tester,
@@ -421,21 +398,15 @@ void main() {
     testWidgets("welcomes the user back after opening the website", (
       tester,
     ) async {
-      await pump(tester, flagOn: true);
+      await pump(tester);
 
       expect(find.text(welcomeBack), findsOne);
-    });
-
-    testWidgets("shows no welcome while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
-
-      expect(find.text(welcomeBack), findsNothing);
     });
 
     testWidgets("shows no welcome when the website was not opened from Yivi", (
       tester,
     ) async {
-      final env = await pump(tester, flagOn: true);
+      final env = await pump(tester);
 
       env.repo.clearInAppLaunches();
       await tester.pumpAndSettle();

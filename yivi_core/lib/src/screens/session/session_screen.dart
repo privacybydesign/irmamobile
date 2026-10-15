@@ -278,6 +278,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
         returnedFromIssuer: _returnedFromIssuer(session),
+        forRequest: widget.hasUnderlyingSession
+            ? ref.watch(underlyingDisclosureProvider(widget.sessionId)).value
+            : null,
         onDismiss: _dismissSession,
         onGivePermission: () => _grantPermission(const []),
       );
@@ -302,10 +305,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   );
 
   /// The issuer whose website the user opened from the app and who now offers
-  /// the credential, when the external issuer flow is on.
+  /// the credential.
   String? _returnedFromIssuer(SessionState session) {
-    if (!ref.watch(externalIssuerFlowEnabledProvider)) return null;
-
     final launched =
         ref.watch(websiteLaunchedCredentialsProvider).value ?? const {};
     for (final credential in session.offeredCredentials ?? const []) {

@@ -5,8 +5,7 @@ import "../../models/schemaless/credential_store.dart";
 import "../../providers/external_issuer_provider.dart";
 import "external_issuer_heads_up_screen.dart";
 
-/// The add-data details route. With the external issuer flow on, a credential
-/// issued on a website gets [ExternalIssuerHeadsUpScreen] instead of the
+/// The add-data details route. A credential issued on a website gets [ExternalIssuerHeadsUpScreen] instead of the
 /// regular [details] page.
 class AddDataDetailsRoute extends ConsumerWidget {
   final CredentialDescriptor credential;

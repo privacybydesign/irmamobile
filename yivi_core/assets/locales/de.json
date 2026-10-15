@@ -581,7 +581,17 @@
         "header": "Weiter in deinem Browser"
       }
     },
-    "you_will_receive": "Du erhältst"
+    "you_will_receive": "Du erhältst",
+    "question_many": "Möchtest du diese {count} Karten zu deiner Yivi-App hinzufügen?",
+    "add_many": "{count} Karten hinzufügen",
+    "card_count": "{count} Karten",
+    "from_issuers": "von {count} Ausstellern",
+    "for_request": "Für {requestor}",
+    "for_request_step": "Für {requestor} · Schritt {step} von {total}",
+    "returned_from": "Zurück von der Website von {issuer}",
+    "all_together": "Alle Karten werden zusammen hinzugefügt",
+    "mismatch": "{requestor} benötigt {attribute} {value}. Diese Karte hat {offered} und zählt daher nicht für diese Anfrage. Du kannst sie trotzdem hinzufügen.",
+    "mismatch_none": "{requestor} benötigt {attribute} {value}. Diese Karte hat das nicht und zählt daher nicht für diese Anfrage. Du kannst sie trotzdem hinzufügen."
   },
   "email_issuance": {
     "enter_email": {
