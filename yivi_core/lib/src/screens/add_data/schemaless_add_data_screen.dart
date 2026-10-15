@@ -110,86 +110,114 @@ class _SchemalessAddDataScreenState
       extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: BarInsetsBuilder(
+        builder: (context, insets) => Stack(
+          fit: StackFit.expand,
           children: [
-            // Above the list, not over it: the list stays the last
-            // scrollable on screen.
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: GlassSearchField(
-                fieldKey: const Key("add_data_search"),
-                hintKey: "data.add.search",
-                onChanged: (q) => setState(() => _query = q),
+            switch (storeItems) {
+              AsyncLoading() => const Center(
+                child: CircularProgressIndicator(),
               ),
-            ),
-            Expanded(
-              child: switch (storeItems) {
-                AsyncLoading() => const Center(
-                  child: CircularProgressIndicator(),
+              AsyncError(error: final error) => Center(
+                child: Text(
+                  error.toString(),
+                  style: palette.body(14).copyWith(color: palette.danger),
                 ),
-                AsyncError(error: final error) => Center(
-                  child: Text(
-                    error.toString(),
-                    style: palette.body(14).copyWith(color: palette.danger),
+              ),
+              AsyncData(value: final value) => () {
+                final groups = [
+                  for (final group in value)
+                    (group, group.items.where(_matches).toList()),
+                ].where((g) => g.$2.isNotEmpty).toList();
+                return ListView(
+                  // Starts below the app bar and the search field, and
+                  // scrolls underneath them, as on the Data tab.
+                  padding: EdgeInsets.fromLTRB(
+                    16 + insets.left,
+                    insets.top + _searchHeight + 20,
+                    16 + insets.right,
+                    48 + insets.bottom,
                   ),
-                ),
-                AsyncData(value: final value) => () {
-                  final groups = [
-                    for (final group in value)
-                      (group, group.items.where(_matches).toList()),
-                  ].where((g) => g.$2.isNotEmpty).toList();
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 48),
-                    children: [
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: TranslatedText(
+                        "data.add.choose",
+                        style: palette
+                            .body(16)
+                            .copyWith(color: palette.heading),
+                      ),
+                    ),
+                    if (groups.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: TranslatedText(
-                          "data.add.choose",
+                        padding: const EdgeInsets.only(top: 40),
+                        child: Text(
+                          FlutterI18n.translate(
+                            context,
+                            "data.add.no_results",
+                            translationParams: {"query": _query.trim()},
+                          ),
+                          textAlign: TextAlign.center,
                           style: palette
                               .body(16)
                               .copyWith(color: palette.heading),
                         ),
                       ),
-                      if (groups.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: Text(
-                            FlutterI18n.translate(
-                              context,
-                              "data.add.no_results",
-                              translationParams: {"query": _query.trim()},
+                    for (final (group, items) in groups)
+                      GlassGroup(
+                        // A credential without a category (irmago marshals
+                        // it `omitempty`) gets no header.
+                        header: title(group).isEmpty ? null : title(group),
+                        dividerIndent: 72,
+                        children: [
+                          for (final item in items)
+                            AddDataRow(
+                              item: item,
+                              nfcBlocked:
+                                  !nfcAvailable &&
+                                  credentialRequiresNfc(
+                                    item.credential.credentialId,
+                                  ),
+                              onTap: () => open(item),
                             ),
-                            textAlign: TextAlign.center,
-                            style: palette
-                                .body(16)
-                                .copyWith(color: palette.heading),
-                          ),
-                        ),
-                      for (final (group, items) in groups)
-                        GlassGroup(
-                          // A credential without a category (irmago marshals
-                          // it `omitempty`) gets no header.
-                          header: title(group).isEmpty ? null : title(group),
-                          dividerIndent: 72,
-                          children: [
-                            for (final item in items)
-                              AddDataRow(
-                                item: item,
-                                nfcBlocked:
-                                    !nfcAvailable &&
-                                    credentialRequiresNfc(
-                                      item.credential.credentialId,
-                                    ),
-                                onTap: () => open(item),
-                              ),
-                          ],
-                        ),
-                    ],
-                  );
-                }(),
-              },
+                        ],
+                      ),
+                  ],
+                );
+              }(),
+            },
+            // The page colour fading out under the search field, so the
+            // list scrolling underneath it fades away.
+            Positioned(
+              left: 0,
+              right: 0,
+              top: insets.top,
+              height: _searchHeight + 32,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        palette.background,
+                        palette.background.withValues(alpha: 0),
+                      ],
+                      stops: const [0.55, 1],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 16 + insets.left,
+              right: 16 + insets.right,
+              top: insets.top + 8,
+              child: GlassSearchField(
+                fieldKey: const Key("add_data_search"),
+                hintKey: "data.add.search",
+                onChanged: (q) => setState(() => _query = q),
+              ),
             ),
           ],
         ),
@@ -200,6 +228,9 @@ class _SchemalessAddDataScreenState
 
 /// One credential type to add: its logo, name and issuer, an NFC chip for
 /// documents, and a chevron. Greyed out when it needs NFC the device lacks.
+/// Height of the floating search field.
+const double _searchHeight = 48;
+
 class AddDataRow extends StatelessWidget {
   final CredentialStoreItem item;
 

@@ -59,8 +59,11 @@ class GlassSurface extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
+                  // A share of the theme's own highlight: a soft white
+                  // sheen in light, only a faint one on dark glass (an
+                  // absolute 35% white glowed there).
                   palette.glassHighlight.withValues(
-                    alpha: solid ? 0 : 0.35 * a,
+                    alpha: solid ? 0 : palette.glassHighlight.a * 0.35 * a,
                   ),
                   palette.glassHighlight.withValues(alpha: 0),
                 ],

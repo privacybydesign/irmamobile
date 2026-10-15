@@ -289,7 +289,11 @@ class _PressableCircleState extends State<_PressableCircle>
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: palette.glassHighlight.withValues(alpha: 0.6 * t),
+                      // As in the design: a white light on light keys,
+                      // a faint one on dark keys.
+                      color: Colors.white.withValues(
+                        alpha: (palette.isDark ? 0.22 : 0.6) * t,
+                      ),
                     ),
                   ),
                 ),

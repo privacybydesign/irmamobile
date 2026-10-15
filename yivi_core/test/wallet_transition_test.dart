@@ -119,9 +119,18 @@ void main() {
       expect(at("below").dy, greaterThanOrEqualTo(844));
       expect(at("tapped"), tapped);
 
-      // And back again when the detail closes.
+      // And back again when the detail closes, with a slight bounce: the
+      // card below runs a little past its place before settling.
       router.pop();
       WalletTransition.openHash.value = "tapped";
+      WalletTransition.closing = true;
+      var highest = double.infinity;
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        highest = at("below").dy < highest ? at("below").dy : highest;
+      }
+      expect(highest, lessThan(below.dy - 2));
+      WalletTransition.closing = false;
       await tester.pumpAndSettle();
       expect(at("search"), search);
       expect(at("below"), below);
@@ -215,5 +224,31 @@ void main() {
         findsNothing,
       );
     });
+  });
+
+  testWidgets("dark glass has only a faint sheen", (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(brightness: Brightness.dark),
+        home: const Scaffold(
+          body: Center(
+            child: GlassSurface(child: SizedBox(width: 100, height: 44)),
+          ),
+        ),
+      ),
+    );
+    final sheen = tester
+        .widgetList<DecoratedBox>(
+          find.descendant(
+            of: find.byType(GlassSurface),
+            matching: find.byType(DecoratedBox),
+          ),
+        )
+        .map((b) => b.decoration)
+        .whereType<ShapeDecoration>()
+        .map((d) => d.gradient)
+        .whereType<LinearGradient>()
+        .single;
+    expect(sheen.colors.first.a, lessThan(0.1));
   });
 }

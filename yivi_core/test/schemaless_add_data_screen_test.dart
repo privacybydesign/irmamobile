@@ -291,4 +291,27 @@ void main() {
     expect(find.textContaining("you will only share"), findsOneWidget);
     expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
   });
+
+  testWidgets(
+    "the list fills the page and scrolls under the search field and title",
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.padding = const FakeViewPadding(top: 47, bottom: 34);
+      addTearDown(tester.view.reset);
+      await pumpTranslated(tester, _testWidget(nfcAvailable: true));
+      await tester.pumpAndSettle();
+
+      // The list runs from the top to the bottom of the screen ...
+      final list = tester.getRect(find.byType(ListView));
+      expect(list.top, 0);
+      expect(list.bottom, 844);
+      // ... while its first row starts below the floating search field.
+      final search = tester.getRect(find.byKey(const Key("add_data_search")));
+      expect(
+        tester.getRect(_rowFinder("pbdf.pbdf.passport")).top,
+        greaterThan(search.bottom),
+      );
+    },
+  );
 }

@@ -65,24 +65,32 @@ class _Tabs extends StatelessWidget {
     final selectedIndex = homeTabs.indexWhere((t) => t.$1 == selectedTab);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
+    // As Apple's Liquid Glass tab bar: the selection lens is wider than its
+    // tab, reaching a little past it on both sides, with room for that at
+    // the ends of the bar.
     return GlassSurface(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: _GlassTabsMetrics.sidePadding,
+        vertical: 4,
+      ),
       child: SizedBox(
         height: 56,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final tabWidth = constraints.maxWidth / homeTabs.length;
+            const reach = _GlassTabsMetrics.lensReach;
             return Stack(
+              clipBehavior: Clip.none,
               children: [
                 AnimatedPositioned(
                   duration: reduceMotion
                       ? Duration.zero
                       : const Duration(milliseconds: 360),
                   curve: const Cubic(0.3, 1.4, 0.5, 1),
-                  left: tabWidth * selectedIndex,
+                  left: tabWidth * selectedIndex - reach,
                   top: 0,
                   bottom: 0,
-                  width: tabWidth,
+                  width: tabWidth + 2 * reach,
                   child: DecoratedBox(
                     decoration: ShapeDecoration(
                       shape: const StadiumBorder(),
@@ -119,6 +127,15 @@ class _Tabs extends StatelessWidget {
       ),
     );
   }
+}
+
+abstract final class _GlassTabsMetrics {
+  /// Space at both ends of the bar, so a lens on the first or last tab still
+  /// sits inside it.
+  static const double sidePadding = 8;
+
+  /// How far the selection lens reaches past its tab on either side.
+  static const double lensReach = 6;
 }
 
 class _TabButton extends StatelessWidget {

@@ -1512,7 +1512,14 @@ Future<void> openAddCredentialDetailsScreen(
   await tester.scrollUntilVisible(
     addCredentialTile,
     300,
-    scrollable: find.byType(Scrollable).last,
+    // The list's own scrollable: the floating search field above it has
+    // one as well.
+    scrollable: find
+        .descendant(
+          of: find.byType(ListView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
   );
   await tester.tapAndSettle(addCredentialTile);
 

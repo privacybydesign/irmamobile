@@ -12,8 +12,24 @@ class WalletTransition {
   WalletTransition._();
 
   static const duration = Duration(milliseconds: 460);
-  static const reverseDuration = Duration(milliseconds: 420);
+
+  /// Closing takes a little longer, for the settle at the end.
+  static const reverseDuration = Duration(milliseconds: 560);
   static const curve = Cubic(0.2, 0.8, 0.2, 1);
+
+  /// The curve of closing: a spring that runs a few percent past the end
+  /// and settles back, so the card lands in the stack with a slight bounce
+  /// and the other cards bounce back into place.
+  static const closeCurve = Cubic(0.34, 1.3, 0.64, 1);
+
+  /// Whether the open card is closing (its detail route runs in reverse).
+  static bool closing = false;
+
+  /// Progress of the open transition (0 closed, 1 open) at [value] of the
+  /// route animation, eased: [curve] while opening, [closeCurve] played from
+  /// the open end while closing (so the overshoot happens on landing).
+  static double eased(double value) =>
+      closing ? 1 - closeCurve.transform(1 - value) : curve.transform(value);
 
   /// Hash of the card whose detail is open (or opening/closing).
   static final openHash = ValueNotifier<String?>(null);
@@ -40,8 +56,14 @@ class WalletTransition {
 class _CurvedRectTween extends RectTween {
   _CurvedRectTween({super.begin, super.end});
 
+  // A popping hero flies from the detail (t = 0) to the card in the list
+  // (t = 1), so closing uses [WalletTransition.closeCurve] forwards.
   @override
-  Rect? lerp(double t) => super.lerp(WalletTransition.curve.transform(t));
+  Rect? lerp(double t) => super.lerp(
+    WalletTransition.closing
+        ? WalletTransition.closeCurve.transform(t)
+        : WalletTransition.curve.transform(t),
+  );
 }
 
 enum PushAwayDirection {
@@ -94,7 +116,7 @@ class PushAway extends StatelessWidget {
         return AnimatedBuilder(
           animation: secondary,
           builder: (context, child) {
-            final t = WalletTransition.curve.transform(secondary.value);
+            final t = WalletTransition.eased(secondary.value);
             if (t == 0) return child!;
             return Transform.translate(
               offset: Offset(0, t * _distance(context)),

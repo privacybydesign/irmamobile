@@ -69,6 +69,8 @@ class _CredentialDetailScreenState
   }
 
   void _onRouteStatus(AnimationStatus status) {
+    // Closing bounces into place (WalletTransition.closeCurve).
+    WalletTransition.closing = status == AnimationStatus.reverse;
     if (status == AnimationStatus.dismissed) {
       WalletTransition.openHash.value = null;
     }
