@@ -2,6 +2,16 @@ import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
 
 import "feature_flags.dart";
 
+/// Light or dark colours, or following the system setting.
+enum Appearance {
+  system,
+  light,
+  dark;
+
+  static Appearance parse(String name) =>
+      values.firstWhere((a) => a.name == name, orElse: () => system);
+}
+
 class IrmaPreferences {
   final String mostRecentTermsUrlNl;
   final String mostRecentTermsUrlEn;
@@ -72,9 +82,16 @@ class IrmaPreferences {
        ),
        _cardOrder = preferences.getStringList(_cardOrderKey, defaultValue: []),
        _walletView = preferences.getString(_walletViewKey, defaultValue: ""),
-       _darkModePreview = preferences.getBool(
-         _darkModePreviewKey,
-         defaultValue: false,
+       // Until the user picks one, the appearance follows the system, or
+       // stays dark for those who turned on the old dark mode preview.
+       _appearance = preferences.getString(
+         _appearanceKey,
+         defaultValue:
+             preferences
+                 .getBool(_darkModePreviewKey, defaultValue: false)
+                 .getValue()
+             ? Appearance.dark.name
+             : Appearance.system.name,
        ),
        _favouriteCredentials = preferences.getStringList(
          _favouriteCredentialsKey,
@@ -223,10 +240,10 @@ class IrmaPreferences {
   static const String _walletViewKey = "preference.wallet_view";
   final Preference<String> _walletView;
 
-  // Shows the app in dark mode. A preview until every screen has moved to the
-  // light/dark palette; then the app should follow the system setting.
+  /// The old "Dark mode (preview)" switch; only read to migrate it.
   static const String _darkModePreviewKey = "preference.dark_mode_preview";
-  final Preference<bool> _darkModePreview;
+  static const String _appearanceKey = "preference.appearance";
+  final Preference<String> _appearance;
 
   // Credential ids the user pinned to the top of the data tab
   static const String _favouriteCredentialsKey =
@@ -399,10 +416,10 @@ class IrmaPreferences {
 
   Future<bool> setWalletView(String view) => _walletView.setValue(view);
 
-  Stream<bool> getDarkModePreview() => _darkModePreview;
+  Stream<Appearance> getAppearance() => _appearance.map(Appearance.parse);
 
-  Future<bool> setDarkModePreview(bool enabled) =>
-      _darkModePreview.setValue(enabled);
+  Future<bool> setAppearance(Appearance appearance) =>
+      _appearance.setValue(appearance.name);
 
   Stream<List<String>> getFavouriteCredentials() => _favouriteCredentials;
 

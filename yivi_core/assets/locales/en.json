@@ -419,7 +419,10 @@
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
       "no_internet": "Please make sure your device has a functional internet connection."
-    }
+    },
+    "expired_title": "Session expired",
+    "no_internet_title": "No internet connection",
+    "button_hide_error": "Hide technical details"
   },
   "help": {
     "about_irma": "About Yivi",
@@ -532,7 +535,8 @@
         "cancel": "Cancel",
         "invalid_code_error-0": "Incorrect code. {count} attempts remaining.",
         "invalid_code_error-1": "Incorrect code. {count} attempt remaining.",
-        "invalid_code_error-2": "Incorrect code. {count} attempts remaining."
+        "invalid_code_error-2": "Incorrect code. {count} attempts remaining.",
+        "label": "Transaction code"
       },
       "tx_code_lockout": {
         "title": "Too many incorrect codes",
@@ -544,7 +548,8 @@
         "title": "Add data",
         "body": "{issuer} needs to verify some details in your browser. Tap '{button}' to continue. You'll return here automatically when you're done.",
         "open_browser": "Open browser",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "header": "Continue in your browser"
       }
     },
     "you_will_receive": "You will receive"
@@ -825,7 +830,8 @@
     },
     "pairing": {
       "title": "Extra safety check",
-      "instruction": "Enter this verification code on the website for extra security."
+      "instruction": "Enter this verification code on the website for extra security.",
+      "waiting": "Waiting for the website…"
     },
     "unknown_session_type": {
       "title": "Cancelled",
@@ -860,8 +866,10 @@
       "confirm": "Yes, delete everything",
       "deny": "Cancel"
     },
-    "dark_mode_preview": "Dark mode (preview)",
-    "dark_mode_preview_explanation": "Shows Yivi in dark colours. Some screens do not support dark mode yet."
+    "appearance": "Appearance",
+    "appearance_system": "Same as system",
+    "appearance_light": "Light",
+    "appearance_dark": "Dark"
   },
   "ui": {
     "loading": "Loading…",

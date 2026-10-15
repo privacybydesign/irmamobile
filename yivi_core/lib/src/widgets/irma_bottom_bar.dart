@@ -13,6 +13,9 @@ class IrmaBottomBar extends StatelessWidget {
   final IconData? primaryButtonTrailingIcon;
   final VoidCallback? onPrimaryPressed;
   final bool showTooltipOnPrimary;
+
+  /// The primary is a red pill, for an action that deletes data.
+  final bool primaryDanger;
   final String? secondaryButtonLabel;
   final VoidCallback? onSecondaryPressed;
   final IrmaBottomBarAlignment alignment;
@@ -23,6 +26,7 @@ class IrmaBottomBar extends StatelessWidget {
     this.primaryButtonTrailingIcon,
     this.onPrimaryPressed,
     this.showTooltipOnPrimary = false,
+    this.primaryDanger = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
     this.alignment = IrmaBottomBarAlignment.automatic,
@@ -34,12 +38,20 @@ class IrmaBottomBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(
           vertical: IrmaTheme.of(context).tinySpacing,
         ),
-        child: YiviThemedButton(
-          key: const Key("bottom_bar_primary"),
-          onPressed: onPrimaryPressed,
-          label: primaryButtonLabel!,
-          trailingIcon: primaryButtonTrailingIcon,
-        ),
+        child: primaryDanger
+            ? PillButton(
+                key: const Key("bottom_bar_primary"),
+                onPressed: onPrimaryPressed,
+                label: FlutterI18n.translate(context, primaryButtonLabel!),
+                style: PillStyle.dangerFilled,
+                height: 56,
+              )
+            : YiviThemedButton(
+                key: const Key("bottom_bar_primary"),
+                onPressed: onPrimaryPressed,
+                label: primaryButtonLabel!,
+                trailingIcon: primaryButtonTrailingIcon,
+              ),
       ),
     );
   }

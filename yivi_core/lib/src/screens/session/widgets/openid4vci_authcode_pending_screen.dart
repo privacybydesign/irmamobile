@@ -3,10 +3,11 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_quote.dart";
 import "session_scaffold.dart";
 
 class OpenID4VCIAuthCodePendingScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _OpenID4VCIAuthCodePendingScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final issuerName = widget.requestor.name;
     final buttonLabel = FlutterI18n.translate(
       context,
@@ -64,28 +65,38 @@ class _OpenID4VCIAuthCodePendingScreenState
         onSecondaryPressed: widget.onDismiss,
       ),
       body: ListView(
-        padding: EdgeInsets.only(
-          left: theme.defaultSpacing,
-          right: theme.defaultSpacing,
-          top: theme.smallSpacing,
-        ),
+        padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: IrmaQuote(
-              quote: FlutterI18n.translate(
+          Center(child: _BrowserHandOff(requestor: widget.requestor)),
+          const SizedBox(height: 32),
+          Semantics(
+            header: true,
+            child: Text(
+              FlutterI18n.translate(
                 context,
-                "issuance.authorization_code.pending.body",
-                translationParams: {
-                  "issuer": issuerName,
-                  "button": buttonLabel,
-                },
+                "issuance.authorization_code.pending.header",
               ),
+              textAlign: TextAlign.center,
+              style: palette
+                  .display(24, weight: FontWeight.w700)
+                  .copyWith(height: 32 / 24, color: palette.heading),
             ),
           ),
+          const SizedBox(height: 12),
+          Text(
+            FlutterI18n.translate(
+              context,
+              "issuance.authorization_code.pending.body",
+              translationParams: {"issuer": issuerName, "button": buttonLabel},
+            ),
+            textAlign: TextAlign.center,
+            style: palette.body(16).copyWith(height: 24 / 16),
+          ),
+          const SizedBox(height: 32),
+          // What the issuer is going to give, as on the permission screen.
           ...widget.offeredCredentialTypes.map(
             (descriptor) => Padding(
-              padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+              padding: const EdgeInsets.only(bottom: 16),
               child: YiviCredentialCard.fromDescriptor(
                 descriptor: descriptor,
                 compact: false,
@@ -94,6 +105,76 @@ class _OpenID4VCIAuthCodePendingScreenState
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The issuer's logo (or first letter) and a globe, with a red arrow from
+/// one to the other: the user goes from Yivi to the issuer's website.
+class _BrowserHandOff extends StatelessWidget {
+  final TrustedParty requestor;
+
+  const _BrowserHandOff({required this.requestor});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final logo = requestor.image;
+
+    Widget tile(Widget child) => Container(
+      width: 100,
+      height: 100,
+      alignment: Alignment.center,
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(32)),
+        ),
+        shadows: [
+          BoxShadow(
+            color: palette.glassShadow,
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: child,
+    );
+
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: 200,
+        height: 140,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              left: 0,
+              child: tile(
+                IrmaAvatar(
+                  size: 64,
+                  initials: requestor.name.isEmpty
+                      ? "?"
+                      : requestor.name.characters.first,
+                  logoImage: logo == null
+                      ? null
+                      : Base64Image(
+                          base64: logo.base64,
+                          mimeType: logo.mimeType,
+                        ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              child: tile(
+                Icon(Icons.language_rounded, size: 56, color: palette.link),
+              ),
+            ),
+            Icon(Icons.arrow_forward_rounded, size: 36, color: palette.primary),
+          ],
+        ),
       ),
     );
   }

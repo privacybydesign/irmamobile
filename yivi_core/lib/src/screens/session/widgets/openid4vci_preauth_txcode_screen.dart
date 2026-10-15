@@ -2,13 +2,14 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
-import "package:pinput/pinput.dart";
 
 import "../../../models/schemaless/credential_store.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/session_state_provider.dart";
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/pill_text_field.dart";
+import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
 import "session_scaffold.dart";
 
 class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
@@ -114,7 +115,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
               : "issuance.pre-authorized_code.tx_code_screen.body",
         );
 
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final length = widget.transactionCodeParameters.length;
     final remainingAttempts = ref
         .watch(sessionStateProvider(widget.sessionId))
@@ -128,40 +129,40 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       bottomNavigationBar: _buildBottomBar(context, length),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: theme.defaultSpacing),
-                Semantics(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Semantics(
                   header: true,
                   child: Text(
                     _getTextReplacements(headerTemplate, context),
-                    style: theme.textTheme.bodyLarge!.copyWith(
-                      color: theme.neutralExtraDark,
-                    ),
+                    style: palette
+                        .display(22, weight: FontWeight.w700)
+                        .copyWith(height: 30 / 22, color: palette.heading),
                   ),
                 ),
-                SizedBox(height: theme.defaultSpacing),
-                Text(
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                child: Text(
                   _getTextReplacements(bodyTemplate, context),
-                  style: theme.textTheme.bodyMedium,
+                  style: palette.body(16).copyWith(height: 24 / 16),
                 ),
-                SizedBox(height: theme.largeSpacing),
-                _buildInput(context, length, codeInvalid),
-                if (codeInvalid)
-                  Text(
-                    FlutterI18n.plural(
-                      context,
-                      "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
-                      remainingAttempts,
-                    ),
-                    style: TextStyle(color: theme.error),
+              ),
+              _buildInput(context, length, codeInvalid),
+              if (codeInvalid)
+                FieldError(
+                  FlutterI18n.plural(
+                    context,
+                    "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
+                    remainingAttempts,
                   ),
-                SizedBox(height: theme.largeSpacing),
-              ],
-            ),
+                  align: length != null ? TextAlign.center : TextAlign.start,
+                ),
+            ],
           ),
         ),
       ),
@@ -169,75 +170,63 @@ class _OpenID4VCIPreAuthTxCodeScreenState
   }
 
   Widget _buildInput(BuildContext context, int? length, bool codeInvalid) {
-    final theme = IrmaTheme.of(context);
+    const labelKey = "issuance.pre-authorized_code.tx_code_screen.label";
 
+    // A known length: a box per character, sent once all are in.
     if (length != null) {
-      final defaultPinTheme = PinTheme(
-        width: 50,
-        height: 50,
-        textStyle: TextStyle(
-          fontSize: 25,
-          color: Color.fromRGBO(30, 60, 87, 1),
-          fontWeight: FontWeight.w600,
-        ),
-        decoration: BoxDecoration(
-          color: codeInvalid
-              ? theme.error.withAlpha(40)
-              : theme.surfaceSecondary,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      );
-
-      final focusedPinTheme = defaultPinTheme.copyWith(
-        width: 54,
-        height: 54,
-        decoration: BoxDecoration(
-          color: codeInvalid
-              ? theme.error.withAlpha(40)
-              : theme.surfaceSecondary,
-          border: Border.all(color: codeInvalid ? theme.error : theme.link),
-          borderRadius: BorderRadius.circular(10),
-        ),
-      );
-
-      return Pinput(
+      return ContactCodeField(
+        fieldKey: const Key("openid4vci_tx_code_input_field"),
         controller: _textController,
-        key: const Key("openid4vci_tx_code_input_field"),
         focusNode: _focusNode,
-        autofocus: true,
+        length: length,
+        invalid: codeInvalid,
+        labelKey: labelKey,
         keyboardType: _keyboardType,
         inputFormatters: _inputFormatters,
-        mainAxisAlignment: MainAxisAlignment.start,
-        defaultPinTheme: defaultPinTheme,
-        focusedPinTheme: focusedPinTheme,
-        length: length,
         onCompleted: widget.onSubmit,
-        pinAnimationType: PinAnimationType.scale,
-        hapticFeedbackType: HapticFeedbackType.lightImpact,
       );
     }
 
-    return TextField(
-      controller: _textController,
-      key: const Key("openid4vci_tx_code_input_field"),
-      focusNode: _focusNode,
-      autocorrect: false,
-      autofocus: true,
-      textAlign: TextAlign.center,
-      keyboardType: _keyboardType,
-      inputFormatters: _inputFormatters,
-      decoration: InputDecoration(
-        enabledBorder: codeInvalid
-            ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
-            : null,
-        focusedBorder: codeInvalid
-            ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
-            : null,
-      ),
-      onChanged: (_) => setState(() {}),
-      onSubmitted: (value) {
-        if (value.isNotEmpty) widget.onSubmit(value);
-      },
+    // Any length: one wide field, sent with Continue.
+    final palette = YiviPalette.of(context);
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+      borderRadius: const BorderRadius.all(Radius.circular(18)),
+      borderSide: BorderSide(color: color, width: 1.5),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const ContactFieldLabel(labelKey),
+        TextField(
+          controller: _textController,
+          key: const Key("openid4vci_tx_code_input_field"),
+          focusNode: _focusNode,
+          autocorrect: false,
+          autofocus: true,
+          keyboardType: _keyboardType,
+          inputFormatters: _inputFormatters,
+          cursorColor: palette.link,
+          style: palette
+              .display(26)
+              .copyWith(letterSpacing: 26 * 0.4, color: palette.heading),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: palette.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 16,
+            ),
+            enabledBorder: border(
+              codeInvalid ? palette.danger : palette.outline,
+            ),
+            focusedBorder: border(codeInvalid ? palette.danger : palette.link),
+          ),
+          onChanged: (_) => setState(() {}),
+          onSubmitted: (value) {
+            if (value.isNotEmpty) widget.onSubmit(value);
+          },
+        ),
+      ],
     );
   }
 

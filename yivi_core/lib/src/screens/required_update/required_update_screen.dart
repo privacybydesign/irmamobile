@@ -4,7 +4,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:url_launcher/url_launcher.dart";
 
-import "../../../package_name.dart";
+import "../../theme/yivi_palette.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
 
@@ -14,8 +15,10 @@ class RequiredUpdateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: YiviPalette.of(context).background,
       body: IrmaInfoScaffoldBody(
-        imagePath: yiviAsset("error/update_request_illustration.svg"),
+        icon: Icons.download_rounded,
+        tone: DialogTone.info,
         titleTranslationKey: "update.title",
         bodyTranslationKey: "update.explanation",
       ),

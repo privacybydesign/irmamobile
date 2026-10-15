@@ -5,10 +5,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
-import "../../theme/theme.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_dialog.dart";
+import "../../widgets/glass/glass_dialog.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/translated_text.dart";
 
 class TermsChangedListener extends ConsumerStatefulWidget {
@@ -84,44 +82,41 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
         ? prefs.mostRecentTermsUrlNl
         : prefs.mostRecentTermsUrlEn;
 
-    final theme = IrmaTheme.of(context);
-
-    return YiviDialog(
+    // `Navigator.of` (not GoRouter's `context.pop`) because the dialog
+    // may be hosted in a local Navigator (e.g. `LockGate`'s overlay) that
+    // sits above the GoRouter scope.
+    return GlassDialog(
       key: const Key("terms_changed_dialog"),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IrmaAppBar(
-            titleTranslationKey: "new_terms_and_conditions.title",
-            leading: null,
-          ),
-          SingleChildScrollView(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: TranslatedText(
-              "new_terms_and_conditions.explanation_markdown",
-              translationParams: {"terms_url": termsUrl},
-              markdownTextAlign: WrapAlignment.center,
-            ),
-          ),
-          IrmaBottomBar(
-            primaryButtonLabel: "new_terms_and_conditions.accept",
-            secondaryButtonLabel: "new_terms_and_conditions.dismiss",
-            onPrimaryPressed: () async {
-              await prefs.markLatestTermsAsAccepted(true);
-              if (context.mounted) {
-                // `Navigator.of` (not GoRouter's `context.pop`)
-                // because the dialog may be hosted in a local
-                // Navigator (e.g. `LockGate`'s overlay) that sits
-                // above the GoRouter scope.
-                Navigator.of(context).pop();
-              }
-            },
-            onSecondaryPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
+      title: FlutterI18n.translate(context, "new_terms_and_conditions.title"),
+      body: TranslatedText(
+        "new_terms_and_conditions.explanation_markdown",
+        translationParams: {"terms_url": termsUrl},
       ),
+      actions: [
+        // The keys of the bottom bar this dialog used to have.
+        FancyPillButton(
+          key: const Key("bottom_bar_primary"),
+          label: FlutterI18n.translate(
+            context,
+            "new_terms_and_conditions.accept",
+          ),
+          height: 52,
+          onPressed: () async {
+            await prefs.markLatestTermsAsAccepted(true);
+            if (context.mounted) Navigator.of(context).pop();
+          },
+        ),
+        PillButton(
+          key: const Key("bottom_bar_secondary"),
+          label: FlutterI18n.translate(
+            context,
+            "new_terms_and_conditions.dismiss",
+          ),
+          style: PillStyle.text,
+          height: 48,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
     );
   }
 }

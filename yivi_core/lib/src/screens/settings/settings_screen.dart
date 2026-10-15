@@ -5,6 +5,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/irma_preferences.dart";
 import "../../models/clear_all_data_event.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
@@ -15,6 +16,7 @@ import "../../util/navigation.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../more/widgets/tiles.dart";
+import "../more/widgets/tiles_radio.dart";
 import "../pin/providers/biometric_provider.dart";
 import "widgets/delete_data_confirmation_dialog.dart";
 
@@ -137,14 +139,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: repo.preferences.setScreenshotsEnabled,
                           stream: repo.preferences.getScreenshotsEnabled(),
                         ),
-                      ToggleTile(
-                        key: const Key("dark_mode_toggle"),
-                        labelTranslationKey: "settings.dark_mode_preview",
-                        subtitleTranslationKey:
-                            "settings.dark_mode_preview_explanation",
-                        onChanged: repo.preferences.setDarkModePreview,
-                        stream: repo.preferences.getDarkModePreview(),
-                      ),
                       if (showDeveloperModeToggle)
                         ToggleTile(
                           key: const Key("dev_mode_toggle"),
@@ -153,6 +147,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           stream: repo.getDeveloperMode(),
                         ),
                     ],
+                  );
+                },
+              ),
+              // Light, dark, or as the system: one choice, marked.
+              StreamBuilder<Appearance>(
+                stream: repo.preferences.getAppearance(),
+                builder: (context, snapshot) {
+                  final appearance = snapshot.data ?? Appearance.system;
+                  return RadioTilesCard(
+                    // Rebuilt with the stored choice once it has loaded.
+                    key: ValueKey("appearance_select_${appearance.name}"),
+                    header: FlutterI18n.translate(
+                      context,
+                      "settings.appearance",
+                    ),
+                    options: [
+                      for (final a in Appearance.values)
+                        "settings.appearance_${a.name}",
+                    ],
+                    defaultSelectedIndex: appearance.index,
+                    onChanged: (i) =>
+                        repo.preferences.setAppearance(Appearance.values[i]),
                   );
                 },
               ),

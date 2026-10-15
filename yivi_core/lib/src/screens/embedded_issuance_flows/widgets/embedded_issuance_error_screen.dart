@@ -7,10 +7,8 @@ import "../../../util/missing_data_flow.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_dialog.dart";
+import "../../../widgets/irma_error_scaffold_body.dart";
 import "../../../widgets/status_body.dart";
-import "../../../widgets/yivi_themed_button.dart";
-import "contact_widgets.dart";
 
 class EmbeddedIssuanceErrorScreen extends StatelessWidget {
   const EmbeddedIssuanceErrorScreen({
@@ -41,10 +39,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
           icon: Icons.error_outline_rounded,
           tone: DialogTone.danger,
           title: FlutterI18n.translate(context, contentTranslationKey),
-          footer: ContactTextLink(
-            labelKey: "error.button_show_error",
-            onTap: () => _showIrmaDialog(context, errorMessage),
-          ),
+          footer: ErrorDetails(details: errorMessage),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
@@ -55,22 +50,6 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
         onPrimaryPressed: onTryAgain,
         onSecondaryPressed: context.missingDataBack(context.pop),
       ),
-    );
-  }
-
-  Future _showIrmaDialog(BuildContext context, String content) async {
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return IrmaDialog(
-          title: FlutterI18n.translate(context, "error.details_title"),
-          content: content,
-          child: YiviThemedButton(
-            label: "error.button_ok",
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        );
-      },
     );
   }
 }

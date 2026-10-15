@@ -6,9 +6,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
 import "../../providers/store_review_provider.dart";
-import "../../theme/theme.dart";
-import "../../widgets/irma_dialog.dart";
-import "../../widgets/yivi_themed_button.dart";
+import "../../widgets/glass/glass_dialog.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "store_review_feedback_dialog.dart";
 
 /// Sentiment pre-gate shown after enough successful sessions. Happy users are
@@ -62,26 +61,25 @@ class _StoreReviewGateDialogState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return IrmaDialog(
-      title: FlutterI18n.translate(context, "review.gate.title"),
-      content: FlutterI18n.translate(context, "review.gate.body"),
-      child: Column(
-        children: [
-          YiviThemedButton(
-            key: const Key("review_gate_positive"),
-            label: "review.gate.positive",
-            onPressed: _busy ? null : _positive,
-          ),
-          SizedBox(height: theme.smallSpacing),
-          YiviThemedButton(
-            key: const Key("review_gate_negative"),
-            label: "review.gate.negative",
-            style: YiviButtonStyle.outlined,
-            onPressed: _busy ? null : _negative,
-          ),
-        ],
-      ),
+    String t(String key) => FlutterI18n.translate(context, key);
+    return GlassDialog(
+      title: t("review.gate.title"),
+      message: t("review.gate.body"),
+      actions: [
+        FancyPillButton(
+          key: const Key("review_gate_positive"),
+          label: t("review.gate.positive"),
+          onPressed: _busy ? null : _positive,
+          height: 52,
+        ),
+        PillButton(
+          key: const Key("review_gate_negative"),
+          label: t("review.gate.negative"),
+          style: PillStyle.text,
+          height: 48,
+          onPressed: _busy ? null : _negative,
+        ),
+      ],
     );
   }
 }

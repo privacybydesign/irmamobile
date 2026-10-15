@@ -3,10 +3,10 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../sentry/sentry.dart";
-import "../../theme/theme.dart";
-import "../../widgets/irma_dialog.dart";
-import "../../widgets/translated_text.dart";
-import "../../widgets/yivi_themed_button.dart";
+import "../../theme/yivi_palette.dart";
+import "../../widgets/glass/glass_dialog.dart";
+import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/pill_text_field.dart";
 
 /// Private feedback box shown to users who tapped "Not really" on the sentiment
 /// gate. Their message is sent to Sentry with `userInitiated: true` (so it goes
@@ -50,84 +50,65 @@ class _StoreReviewFeedbackDialogState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
+    String t(String key) => FlutterI18n.translate(context, key);
 
     if (_sent) {
-      return IrmaDialog(
-        title: FlutterI18n.translate(context, "review.feedback.title"),
-        content: FlutterI18n.translate(context, "review.feedback.thanks"),
-        child: YiviThemedButton(
-          key: const Key("review_feedback_done"),
-          label: "review.feedback.close",
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      return GlassDialog(
+        title: t("review.feedback.title"),
+        message: t("review.feedback.thanks"),
+        actions: [
+          FancyPillButton(
+            key: const Key("review_feedback_done"),
+            label: t("review.feedback.close"),
+            onPressed: () => Navigator.of(context).pop(),
+            height: 52,
+          ),
+        ],
       );
     }
 
-    final hint = FlutterI18n.translate(context, "review.feedback.hint");
-
-    // Body lives in the child (not IrmaDialog's centered `content`) so it can be
-    // left-aligned like a normal form prompt.
-    return IrmaDialog(
-      title: FlutterI18n.translate(context, "review.feedback.title"),
-      content: "",
-      child: Column(
+    return GlassDialog(
+      title: t("review.feedback.title"),
+      message: t("review.feedback.body"),
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TranslatedText(
-            "review.feedback.body",
-            style: theme.textTheme.bodyMedium,
+          PillTextField(
+            fieldKey: const Key("review_feedback_input"),
+            controller: _controller,
+            hint: t("review.feedback.hint"),
+            minLines: 3,
+            maxLines: 6,
+            autofocus: true,
+            keyboardType: TextInputType.multiline,
           ),
-          SizedBox(height: theme.defaultSpacing),
-          // The hint disappears once text is entered, so give screen readers a
-          // persistent label for the field's purpose.
-          Semantics(
-            label: hint,
-            textField: true,
-            child: TextField(
-              key: const Key("review_feedback_input"),
-              controller: _controller,
-              minLines: 3,
-              maxLines: 6,
-              autofocus: true,
-              keyboardType: TextInputType.multiline,
-              // Matches the app's standard text fields (e.g. MRZ manual entry):
-              // the global underline InputDecorationTheme, a bodyMedium style, a
-              // secondary-coloured cursor and a 50%-opacity hint.
-              cursorColor: theme.themeData.colorScheme.secondary,
-              style: theme.textTheme.bodyMedium,
-              decoration: InputDecoration(
-                hint: Text(
-                  hint,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.textTheme.bodyMedium?.color?.withValues(
-                      alpha: 0.5,
-                    ),
-                  ),
-                ),
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+            child: Text(
+              t("review.feedback.privacy"),
+              style: palette
+                  .body(13)
+                  .copyWith(height: 18 / 13, color: palette.secondaryText),
             ),
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          TranslatedText(
-            "review.feedback.privacy",
-            style: theme.textTheme.bodySmall,
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          YiviThemedButton(
-            key: const Key("review_feedback_send"),
-            label: "review.feedback.send",
-            onPressed: _send,
-          ),
-          SizedBox(height: theme.smallSpacing),
-          YiviThemedButton(
-            key: const Key("review_feedback_cancel"),
-            label: "review.feedback.cancel",
-            style: YiviButtonStyle.outlined,
-            onPressed: () => Navigator.of(context).pop(),
           ),
         ],
       ),
+      actions: [
+        FancyPillButton(
+          key: const Key("review_feedback_send"),
+          label: t("review.feedback.send"),
+          onPressed: _send,
+          height: 52,
+        ),
+        PillButton(
+          key: const Key("review_feedback_cancel"),
+          label: t("review.feedback.cancel"),
+          style: PillStyle.text,
+          height: 48,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
     );
   }
 }

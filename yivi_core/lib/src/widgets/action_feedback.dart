@@ -1,12 +1,11 @@
-import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../package_name.dart";
 import "../screens/session/widgets/dynamic_layout.dart";
 import "../screens/session/widgets/session_scaffold.dart";
 import "../screens/session/widgets/success_graphic.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "glass/glass_dialog.dart";
 import "translated_text.dart";
 import "yivi_themed_button.dart";
 
@@ -46,8 +45,12 @@ class ActionFeedback extends StatelessWidget {
         body: DynamicLayout(
           hero: success
               ? (hero ?? SuccessGraphic())
-              : SvgPicture.asset(
-                  yiviAsset("error/general_error_illustration.svg"),
+              // A blue disc with a question mark, as the other status
+              // screens.
+              : const ToneDisc(
+                  icon: Icons.help_outline_rounded,
+                  tone: DialogTone.info,
+                  size: 140,
                 ),
           content: Column(
             children: [

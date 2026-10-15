@@ -11,8 +11,12 @@ class RadioTilesCard extends StatefulWidget {
   final Function(int index) onChanged;
   final int? defaultSelectedIndex;
 
+  /// A heading above the group.
+  final String? header;
+
   const RadioTilesCard({
     super.key,
+    this.header,
     required this.options,
     required this.onChanged,
     this.defaultSelectedIndex,
@@ -42,6 +46,7 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return GlassGroup(
+      header: widget.header,
       children: widget.options
           .mapIndexed(
             (i, option) => Semantics(

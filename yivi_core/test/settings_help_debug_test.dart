@@ -41,13 +41,17 @@ void main() {
   }
 
   group("settings", () {
-    testWidgets("switches with their explanation, then Other", (tester) async {
+    testWidgets("switches with their explanation, Appearance, then Other", (
+      tester,
+    ) async {
       phone(tester);
       await pumpHome(tester, repo: repo, home: SettingsScreen());
       await settle(tester);
       await tester.pumpAndSettle();
 
-      expect(find.byType(GlassGroup), findsNWidgets(2));
+      // Switches, Appearance (light / dark / system), Other.
+      expect(find.byType(GlassGroup), findsNWidgets(3));
+      expect(find.text("Appearance"), findsOneWidget);
       // The explanation sits in the row, under the label.
       final label = tester.getRect(find.text("Error and app status reporting"));
       final explanation = tester.getRect(

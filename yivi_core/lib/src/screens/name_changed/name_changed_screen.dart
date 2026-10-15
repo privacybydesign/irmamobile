@@ -1,11 +1,14 @@
-import "package:lottie/lottie.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
-import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
+import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/translated_text.dart";
+import "../../widgets/status_body.dart";
 
+/// Tells IRMA users once that the app is now called Yivi: the new logo on a
+/// white disc, and that their PIN still works.
 class NameChangedScreen extends StatelessWidget {
   final VoidCallback onContinuePressed;
 
@@ -13,91 +16,25 @@ class NameChangedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-
-    final oldLogoWidget = Image.asset(
-      yiviAsset("non-free/logo_old.png"),
-      height: 120,
-    );
-
-    final newLogoWidget = Image.asset(
-      yiviAsset("non-free/logo.png"),
-      height: 150,
-    );
-
-    final titleTextWidget = TranslatedText(
-      "name_changed.title",
-      style: theme.themeData.textTheme.displaySmall!.copyWith(
-        color: theme.dark,
-      ),
-    );
-
-    final headerTextWidget = TranslatedText(
-      "name_changed.header",
-      style: theme.themeData.textTheme.bodyMedium,
-      textAlign: TextAlign.center,
-    );
-
-    final explanationTextWidget = TranslatedText(
-      "name_changed.explanation",
-      style: theme.themeData.textTheme.bodyMedium,
-      textAlign: TextAlign.center,
-    );
-
-    Widget buildPortrait() => Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        oldLogoWidget,
-        SizedBox(height: theme.largeSpacing),
-        titleTextWidget,
-        SizedBox(height: theme.tinySpacing),
-        headerTextWidget,
-        Lottie.asset(
-          yiviAsset("non-free/yivi_name_change.json"),
-          frameRate: FrameRate(60),
-          repeat: false,
-        ),
-        explanationTextWidget,
-      ],
-    );
-
-    Widget buildLandscape() => Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [oldLogoWidget, newLogoWidget],
-        ),
-        SizedBox(width: theme.largeSpacing),
-        Flexible(
-          flex: 2,
-          child: Column(
-            children: [
-              titleTextWidget,
-              SizedBox(height: theme.tinySpacing),
-              TranslatedText(
-                "name_changed.header",
-                style: theme.themeData.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: theme.tinySpacing),
-              explanationTextWidget,
-            ],
-          ),
-        ),
-      ],
-    );
-
     return Scaffold(
+      backgroundColor: YiviPalette.of(context).background,
+      appBar: IrmaAppBar(
+        titleTranslationKey: "name_changed.title",
+        leading: null,
+      ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(theme.screenPadding),
-            child: isLandscape ? buildLandscape() : buildPortrait(),
+        child: StatusBody(
+          // White in both themes: the logo is drawn for a light background.
+          discColor: Colors.white,
+          picture: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Image.asset(
+              yiviAsset("non-free/logo.png"),
+              semanticLabel: "Yivi",
+            ),
           ),
+          title: FlutterI18n.translate(context, "name_changed.header"),
+          message: FlutterI18n.translate(context, "name_changed.explanation"),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(

@@ -448,7 +448,10 @@
       "expired": "Die Sitzung ist abgelaufen. Bitte beginnen Sie von vorne.",
       "pairing_rejected": "Die Sitzung wurde abgelehnt. Bitte beginnen Sie von vorne.",
       "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat."
-    }
+    },
+    "expired_title": "Sitzung abgelaufen",
+    "no_internet_title": "Keine Internetverbindung",
+    "button_hide_error": "Technische Details ausblenden"
   },
   "help": {
     "about_irma": "Über Yivi",
@@ -561,7 +564,8 @@
         "cancel": "Abbrechen",
         "invalid_code_error-0": "Falscher Code. Noch {count} Versuche übrig.",
         "invalid_code_error-1": "Falscher Code. Noch {count} Versuch übrig.",
-        "invalid_code_error-2": "Falscher Code. Noch {count} Versuche übrig."
+        "invalid_code_error-2": "Falscher Code. Noch {count} Versuche übrig.",
+        "label": "Transaktionscode"
       },
       "tx_code_lockout": {
         "title": "Zu viele falsche Codes",
@@ -573,7 +577,8 @@
         "title": "Daten hinzufügen",
         "body": "{issuer} muss einige Angaben in Ihrem Browser bestätigen. Tippen Sie auf '{button}', um fortzufahren. Sie kehren automatisch hierher zurück, sobald Sie fertig sind.",
         "open_browser": "Browser öffnen",
-        "cancel": "Abbrechen"
+        "cancel": "Abbrechen",
+        "header": "Weiter in deinem Browser"
       }
     },
     "you_will_receive": "Du erhältst"
@@ -854,7 +859,8 @@
     },
     "pairing": {
       "title": "Zusätzliche Sicherheitsprüfung",
-      "instruction": "Geben Sie diesen Bestätigungscode auf der Webseite ein, um die Sicherheit zu erhöhen."
+      "instruction": "Geben Sie diesen Bestätigungscode auf der Webseite ein, um die Sicherheit zu erhöhen.",
+      "waiting": "Warten auf die Website…"
     },
     "unknown_session_type": {
       "title": "Abgebrochen",
@@ -889,8 +895,10 @@
       "confirm": "Ja, alles löschen",
       "deny": "Abbrechen"
     },
-    "dark_mode_preview": "Dunkler Modus (Vorschau)",
-    "dark_mode_preview_explanation": "Zeigt Yivi in dunklen Farben. Einige Bildschirme unterstützen den dunklen Modus noch nicht."
+    "appearance": "Darstellung",
+    "appearance_system": "Wie im System",
+    "appearance_light": "Hell",
+    "appearance_dark": "Dunkel"
   },
   "ui": {
     "loading": "Laden…",

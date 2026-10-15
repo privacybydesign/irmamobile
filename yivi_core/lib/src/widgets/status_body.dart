@@ -22,6 +22,9 @@ class StatusBody extends StatelessWidget {
   /// Overrides the icon colour that [tone] picks.
   final Color? iconColor;
 
+  /// Overrides the disc colour that [tone] picks, e.g. white behind a logo.
+  final Color? discColor;
+
   /// Shown under the note, e.g. a link or a technical details block.
   final Widget? footer;
 
@@ -34,6 +37,7 @@ class StatusBody extends StatelessWidget {
     this.picture,
     this.tone = DialogTone.neutral,
     this.iconColor,
+    this.discColor,
     this.footer,
   });
 
@@ -54,6 +58,7 @@ class StatusBody extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 32),
                   child: _Disc(
                     tone: tone,
+                    color: discColor,
                     child:
                         picture ??
                         Icon(
@@ -112,9 +117,10 @@ class StatusBody extends StatelessWidget {
 /// motion and during integration tests.
 class _Disc extends StatefulWidget {
   final DialogTone tone;
+  final Color? color;
   final Widget child;
 
-  const _Disc({required this.tone, required this.child});
+  const _Disc({required this.tone, this.color, required this.child});
 
   @override
   State<_Disc> createState() => _DiscState();
@@ -153,7 +159,9 @@ class _DiscState extends State<_Disc> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final fill = ToneDisc.colors(YiviPalette.of(context), widget.tone).$1;
+    final fill =
+        widget.color ??
+        ToneDisc.colors(YiviPalette.of(context), widget.tone).$1;
     final still = _still(context);
     return SizedBox.square(
       dimension: _size,

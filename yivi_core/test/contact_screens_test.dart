@@ -61,11 +61,13 @@ void main() {
       findsOneWidget,
     );
 
+    // The details open in place, and close again.
     await tester.tap(find.text("Show technical details"));
     await tester.pumpAndSettle();
     expect(find.text("connection refused"), findsOneWidget);
-    await tester.tap(find.text("OK"));
+    await tester.tap(find.text("Hide technical details"));
     await tester.pumpAndSettle();
+    expect(find.text("connection refused"), findsNothing);
 
     await tester.tap(find.byKey(const Key("bottom_bar_primary")));
     expect(retried, 1);

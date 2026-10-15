@@ -14,6 +14,7 @@ import "../../src/models/session.dart";
 import "../../src/models/update_schemes_event.dart";
 import "../../src/theme/theme.dart";
 import "package_name.dart";
+import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
@@ -45,10 +46,10 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription<Pointer?>? _pointerSubscription;
   StreamSubscription<Event>? _dataClearSubscription;
   StreamSubscription<bool>? _screenshotPrefSubscription;
-  StreamSubscription<bool>? _darkModeSubscription;
+  StreamSubscription<Appearance>? _appearanceSubscription;
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _privacyScreenLoaded = false;
-  bool _darkModePreview = false;
+  var _appearance = Appearance.system;
 
   // TODO: When switching to Riverpod we should add a provider for the
   // router, as that will automatically preserve its state during rebuilds.
@@ -81,12 +82,12 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _listenScreenshotPref();
-    _darkModeSubscription = ref
+    _appearanceSubscription = ref
         .read(preferencesProvider)
-        .getDarkModePreview()
-        .listen((enabled) {
-          if (mounted && enabled != _darkModePreview) {
-            setState(() => _darkModePreview = enabled);
+        .getAppearance()
+        .listen((appearance) {
+          if (mounted && appearance != _appearance) {
+            setState(() => _appearance = appearance);
           }
         });
     _handleUpdateSchemes();
@@ -99,7 +100,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
-    _darkModeSubscription?.cancel();
+    _appearanceSubscription?.cancel();
     _enrollmentStatusSubscription?.cancel();
     super.dispose();
   }
@@ -192,7 +193,11 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             title: "Yivi",
             theme: IrmaTheme.variantsOf(context).data.themeData,
             darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
-            themeMode: _darkModePreview ? ThemeMode.dark : ThemeMode.light,
+            themeMode: switch (_appearance) {
+              Appearance.system => ThemeMode.system,
+              Appearance.light => ThemeMode.light,
+              Appearance.dark => ThemeMode.dark,
+            },
             localizationsDelegates: defaultLocalizationsDelegates(
               widget.forcedLocale,
             ),

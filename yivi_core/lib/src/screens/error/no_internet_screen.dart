@@ -1,7 +1,8 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../package_name.dart";
+import "../../theme/yivi_palette.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -16,13 +17,15 @@ class NoInternetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: "error.details_title",
         leading: YiviBackButton(onTap: onTapClose),
       ),
       body: IrmaInfoScaffoldBody(
-        imagePath: yiviAsset("error/no_connection_illustration.svg"),
-        titleTranslationKey: "error.title",
+        icon: Icons.wifi_off_rounded,
+        tone: DialogTone.info,
+        titleTranslationKey: "error.no_internet_title",
         bodyTranslationKey: "error.types.no_internet",
       ),
       bottomNavigationBar: IrmaBottomBar(

@@ -448,7 +448,10 @@
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
       "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet."
-    }
+    },
+    "expired_title": "Sessie verlopen",
+    "no_internet_title": "Geen internetverbinding",
+    "button_hide_error": "Technische details verbergen"
   },
   "help": {
     "about_irma": "Over Yivi",
@@ -561,7 +564,8 @@
         "cancel": "Annuleren",
         "invalid_code_error-0": "Onjuiste code. Nog {count} pogingen over.",
         "invalid_code_error-1": "Onjuiste code. Nog {count} poging over.",
-        "invalid_code_error-2": "Onjuiste code. Nog {count} pogingen over."
+        "invalid_code_error-2": "Onjuiste code. Nog {count} pogingen over.",
+        "label": "Transactiecode"
       },
       "tx_code_lockout": {
         "title": "Te veel onjuiste codes",
@@ -573,7 +577,8 @@
         "title": "Gegevens toevoegen",
         "body": "{issuer} moet enkele gegevens in je browser bevestigen. Druk op '{button}' om door te gaan. Je komt vanzelf terug als je klaar bent.",
         "open_browser": "Browser openen",
-        "cancel": "Annuleren"
+        "cancel": "Annuleren",
+        "header": "Ga verder in je browser"
       }
     },
     "you_will_receive": "Je ontvangt"
@@ -854,7 +859,8 @@
     },
     "pairing": {
       "title": "Extra veiligheidscontrole",
-      "instruction": "Vul deze extra verificatiecode in op de website."
+      "instruction": "Vul deze extra verificatiecode in op de website.",
+      "waiting": "Wachten op de website…"
     },
     "unknown_session_type": {
       "title": "Afgebroken",
@@ -889,8 +895,10 @@
       "confirm": "Verwijder alles",
       "deny": "Annuleer"
     },
-    "dark_mode_preview": "Donkere modus (voorproef)",
-    "dark_mode_preview_explanation": "Toont Yivi in donkere kleuren. Sommige schermen ondersteunen de donkere modus nog niet."
+    "appearance": "Weergave",
+    "appearance_system": "Zelfde als systeem",
+    "appearance_light": "Licht",
+    "appearance_dark": "Donker"
   },
   "ui": {
     "loading": "Laden…",

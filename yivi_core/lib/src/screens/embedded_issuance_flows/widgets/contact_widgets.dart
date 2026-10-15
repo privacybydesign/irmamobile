@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
@@ -112,6 +113,9 @@ class ContactCodeField extends StatelessWidget {
   final SmsRetriever? smsRetriever;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onCompleted;
+  final String labelKey;
+  final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const ContactCodeField({
     super.key,
@@ -123,14 +127,20 @@ class ContactCodeField extends StatelessWidget {
     this.smsRetriever,
     this.onChanged,
     this.onCompleted,
+    this.labelKey = "embedded_issuance.code_label",
+    this.keyboardType = TextInputType.text,
+    this.inputFormatters,
   });
+
+  static const double _gap = 8;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
 
-    PinTheme box(Color border) => PinTheme(
-      width: 48,
+    // 48 wide, narrower when a long code would not fit.
+    PinTheme box(Color border, double width) => PinTheme(
+      width: width,
       height: 60,
       textStyle: palette
           .display(26, weight: FontWeight.w700)
@@ -145,30 +155,40 @@ class ContactCodeField extends StatelessWidget {
     return Column(
       crossAxisAlignment: .stretch,
       children: [
-        const ContactFieldLabel(
-          "embedded_issuance.code_label",
-          textAlign: TextAlign.center,
-        ),
-        Pinput(
-          key: fieldKey,
-          controller: controller,
-          focusNode: focusNode,
-          smsRetriever: smsRetriever,
-          keyboardType: .text,
-          textCapitalization: .characters,
-          autofocus: true,
-          length: length,
-          mainAxisAlignment: .center,
-          separatorBuilder: (_) => const SizedBox(width: 8),
-          defaultPinTheme: box(invalid ? palette.danger : palette.outline),
-          focusedPinTheme: box(invalid ? palette.danger : palette.link),
-          errorPinTheme: box(palette.danger),
-          forceErrorState: invalid,
-          cursor: Container(width: 2, height: 26, color: palette.link),
-          onChanged: onChanged,
-          onCompleted: onCompleted,
-          pinAnimationType: .scale,
-          hapticFeedbackType: .lightImpact,
+        ContactFieldLabel(labelKey, textAlign: TextAlign.center),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final fits = (constraints.maxWidth - _gap * (length - 1)) / length;
+            final width = fits.isFinite ? fits.clamp(32.0, 48.0) : 48.0;
+            return Pinput(
+              key: fieldKey,
+              controller: controller,
+              focusNode: focusNode,
+              smsRetriever: smsRetriever,
+              keyboardType: keyboardType,
+              inputFormatters: inputFormatters ?? const [],
+              textCapitalization: .characters,
+              autofocus: true,
+              length: length,
+              mainAxisAlignment: .center,
+              separatorBuilder: (_) => const SizedBox(width: _gap),
+              defaultPinTheme: box(
+                invalid ? palette.danger : palette.outline,
+                width,
+              ),
+              focusedPinTheme: box(
+                invalid ? palette.danger : palette.link,
+                width,
+              ),
+              errorPinTheme: box(palette.danger, width),
+              forceErrorState: invalid,
+              cursor: Container(width: 2, height: 26, color: palette.link),
+              onChanged: onChanged,
+              onCompleted: onCompleted,
+              pinAnimationType: .scale,
+              hapticFeedbackType: .lightImpact,
+            );
+          },
         ),
       ],
     );
