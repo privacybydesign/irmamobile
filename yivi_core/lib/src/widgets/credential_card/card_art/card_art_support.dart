@@ -69,7 +69,14 @@ Color? parseCssColor(String? input) {
 /// Background and text colour of the Yivi card template for a credential
 /// without its own colours: a pale wash of the logo colour with dark text in
 /// the same hue, or a neutral white card when there is no tint.
-({Color background, Color foreground}) yiviCardColors(Color? tint) {
+///
+/// In dark mode the card turns dark instead: the logo's hue at 27% lightness
+/// with light text in the same hue, or a graphite card when there is no tint.
+({Color background, Color foreground}) yiviCardColors(
+  Color? tint, {
+  Brightness brightness = Brightness.light,
+}) {
+  if (brightness == Brightness.dark) return _darkYiviCardColors(tint);
   if (tint == null) {
     return (
       background: const Color(0xFFFFFFFF),
@@ -87,6 +94,21 @@ Color? parseCssColor(String? input) {
         .withSaturation((saturation * 0.6).clamp(0.0, 0.5))
         .withLightness(0.18)
         .toColor(),
+  );
+}
+
+({Color background, Color foreground}) _darkYiviCardColors(Color? tint) {
+  if (tint == null) {
+    return (
+      background: const HSLColor.fromAHSL(1, 216, 0.13, 0.18).toColor(),
+      foreground: const Color(0xFFE6E8EC),
+    );
+  }
+  final hsl = HSLColor.fromColor(tint);
+  final saturation = hsl.saturation.clamp(0.0, 0.45);
+  return (
+    background: hsl.withSaturation(saturation).withLightness(0.27).toColor(),
+    foreground: hsl.withSaturation(saturation).withLightness(0.90).toColor(),
   );
 }
 

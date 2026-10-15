@@ -88,4 +88,25 @@ void main() {
     expect(c.foreground.computeLuminance(), lessThan(0.1));
     expect(yiviCardColors(null).background, const Color(0xFFFFFFFF));
   });
+
+  test("in dark mode yiviCardColors gives a dark card in the logo's hue", () {
+    const tint = Color(0xFFE12747);
+    final c = yiviCardColors(tint, brightness: Brightness.dark);
+    final background = HSLColor.fromColor(c.background);
+    final foreground = HSLColor.fromColor(c.foreground);
+
+    expect(background.lightness, closeTo(0.27, 0.01));
+    expect(background.saturation, lessThanOrEqualTo(0.451));
+    expect(background.hue, closeTo(HSLColor.fromColor(tint).hue, 1));
+    expect(foreground.lightness, closeTo(0.90, 0.01));
+    // Readable: at least 4.5:1.
+    final ratio =
+        (c.foreground.computeLuminance() + 0.05) /
+        (c.background.computeLuminance() + 0.05);
+    expect(ratio, greaterThanOrEqualTo(4.5));
+
+    final untinted = yiviCardColors(null, brightness: Brightness.dark);
+    expect(untinted.background.computeLuminance(), lessThan(0.05));
+    expect(untinted.foreground, const Color(0xFFE6E8EC));
+  });
 }

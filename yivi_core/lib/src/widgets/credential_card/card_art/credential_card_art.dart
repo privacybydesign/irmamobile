@@ -1,4 +1,3 @@
-
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
@@ -72,6 +71,7 @@ class CredentialCardArt extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = width / aspectRatio;
     final shape = shapeFor(width);
+    final dark = Theme.of(context).brightness == Brightness.dark;
 
     Widget art = ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
@@ -98,7 +98,12 @@ class CredentialCardArt extends StatelessWidget {
                     borderRadius: BorderRadius.circular(
                       27 * width / designWidth,
                     ),
-                    side: const BorderSide(color: Color(0x1A000000)),
+                    // Light on the dark page, so the card's edge shows.
+                    side: BorderSide(
+                      color: dark
+                          ? const Color(0x1AFFFFFF)
+                          : const Color(0x1A000000),
+                    ),
                   ),
                 ),
               ),
@@ -181,7 +186,11 @@ class _YiviCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final display = credential.display;
-    final tinted = yiviCardColors(parseCssColor(display?.logoTint));
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final tinted = yiviCardColors(
+      parseCssColor(display?.logoTint),
+      brightness: Theme.of(context).brightness,
+    );
     final issuerBackground = parseCssColor(display?.backgroundColor);
     final background = issuerBackground ?? tinted.background;
     final foreground =
@@ -242,6 +251,7 @@ class _YiviCard extends StatelessWidget {
                   credential: credential,
                   background: background,
                   foreground: foreground,
+                  onTile: dark && issuerBackground == null,
                 ),
                 Expanded(
                   child: Column(
@@ -359,19 +369,34 @@ class _Logo extends StatelessWidget {
   final Color background;
   final Color foreground;
 
+  /// Puts the issuer's logo on a white tile: logos are drawn for light
+  /// backgrounds and can vanish on a dark card.
+  final bool onTile;
+
   const _Logo({
     required this.credential,
     required this.background,
     required this.foreground,
+    this.onTile = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final logo = credential.image;
     if (logo != null) {
-      return SizedBox.square(
-        dimension: 40,
-        child: Base64Image(base64: logo.base64, mimeType: logo.mimeType),
+      final image = Base64Image(base64: logo.base64, mimeType: logo.mimeType);
+      if (!onTile) return SizedBox.square(dimension: 40, child: image);
+      return Container(
+        width: 40,
+        height: 40,
+        padding: const EdgeInsets.all(5),
+        decoration: const ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+        child: image,
       );
     }
     final source = credential.issuer.name.isNotEmpty
