@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -41,7 +41,7 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
   // No required credential is missing, so the wallet stays on the choices
   // overview rather than entering the issuance wizard.
   expect(find.byType(IssueDuringDisclosureScreen), findsNothing);
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   expect(find.text("No data selected"), findsOneWidget);
 
   await shareAndFinishEudiDisclosure(tester);

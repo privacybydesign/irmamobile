@@ -3,43 +3,36 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_introduction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "../util.dart";
 
-Future<void> evaluateIntroduction(WidgetTester tester) async {
-  // Wait for the screen to appear
-  await tester.waitFor(find.byType(DisclosurePermissionIntroductionScreen));
+/// Taps the share button (Share, Sign and share, Share and add card…).
+/// It is the consent: the session continues straight away, without a
+/// confirmation dialog.
+Future<void> tapShare(WidgetTester tester) async {
+  final button = find.byKey(const Key("share_button"));
+  await tester.waitFor(button);
+  await tester.tapAndSettle(button);
+}
 
-  // Check the app bar
-  final appBarTextFinder = find.descendant(
-    of: find.byType(IrmaAppBar),
-    matching: find.text("Get going"),
-  );
-  expect(appBarTextFinder, findsOneWidget);
-
-  // Check the body text
-  expect(find.text("Share your data"), findsOneWidget);
-  expect(
-    find.text(
-      "Collect the required data to be able to share it with requesting parties.",
+/// Whether the share button can be pressed now.
+bool shareButtonEnabled(WidgetTester tester) {
+  final button = find.descendant(
+    of: find.byKey(const Key("share_button")),
+    matching: find.byWidgetPredicate(
+      (w) => w is FancyPillButton || w is PillButton,
     ),
-    findsOneWidget,
   );
-
-  // Check and press the continue button
-  final continueButtonFinder = find.descendant(
-    of: find.byType(YiviThemedButton),
-    matching: find.text("Get going"),
-  );
-  expect(continueButtonFinder, findsOneWidget);
-  await tester.tapAndSettle(continueButtonFinder);
+  final widget = tester.widget(button);
+  return switch (widget) {
+    FancyPillButton(:final onPressed) => onPressed != null,
+    PillButton(:final onPressed) => onPressed != null,
+    _ => false,
+  };
 }
 
 Future<void> evaluateFeedback(
@@ -81,29 +74,6 @@ Future<void> evaluateFeedback(
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);
-}
-
-Future<void> evaluateShareDialog(
-  WidgetTester tester, {
-  isSignatureSession = false,
-}) async {
-  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-
-  expect(
-    find.textContaining(
-      isSignatureSession
-          ? "You are about to sign the message"
-          : "You are about to share data",
-    ),
-    findsOneWidget,
-  );
-
-  await tester.tapAndSettle(
-    find.descendant(
-      of: find.byType(DisclosurePermissionConfirmDialog),
-      matching: find.text(isSignatureSession ? "Sign and share" : "Share"),
-    ),
-  );
 }
 
 Future<void> evaluateRequestorHeader(

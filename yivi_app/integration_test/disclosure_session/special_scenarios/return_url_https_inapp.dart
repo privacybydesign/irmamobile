@@ -39,10 +39,8 @@ Future<void> returnUrlHttpsInAppTest(
     sessionRequest,
     continueOnSecondDevice: false,
   );
-  await evaluateIntroduction(tester);
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await tester.tapAndSettle(find.text("Share"));
+  await tapShare(tester);
 
   await tester.pumpAndSettle();
 

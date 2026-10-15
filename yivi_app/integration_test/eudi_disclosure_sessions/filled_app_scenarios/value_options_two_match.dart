@@ -1,9 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -51,10 +49,9 @@ Future<void> valueOptionsTwoMatchTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
@@ -67,10 +64,10 @@ Future<void> valueOptionsTwoMatchTest(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );

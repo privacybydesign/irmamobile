@@ -1,10 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_close_dialog.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -44,19 +43,8 @@ Future<void> declineDisclosureTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
-  // Tap the share button to open the confirm dialog.
-  await tester.tapAndSettle(find.text("Share data"));
-
-  final disclosureConfirmDialogFinder = find.byType(
-    DisclosurePermissionConfirmDialog,
-  );
-  expect(disclosureConfirmDialogFinder, findsOneWidget);
-
-  // Don't share.
-  await tester.tapAndSettle(find.text("Don't share"));
-  expect(disclosureConfirmDialogFinder, findsNothing);
+  await tester.waitFor(find.byKey(const Key("share_button")));
 
   // Close the session.
   await tester.tapAndSettle(find.byType(IrmaCloseButton));

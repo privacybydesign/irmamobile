@@ -1,11 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -51,10 +50,9 @@ Future<void> multipleCredsAllMissingTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsNothing);
+  expect(find.byType(DisclosureShareScreen), findsNothing);
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
 
   // Each missing-descriptor step renders one credential card; the wizard

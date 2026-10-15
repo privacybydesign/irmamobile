@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -8,7 +8,6 @@ import "package:yivi_core/src/widgets/requestor_header.dart";
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 Future<void> signingTest(
@@ -32,9 +31,8 @@ Future<void> signingTest(
         }
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(RequestorHeader);
   await evaluateRequestorHeader(
@@ -65,8 +63,6 @@ Future<void> signingTest(
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text("Sign and share"));
-
-  await evaluateShareDialog(tester, isSignatureSession: true);
+  await tapShare(tester);
   await evaluateFeedback(tester, isSignatureSession: true);
 }

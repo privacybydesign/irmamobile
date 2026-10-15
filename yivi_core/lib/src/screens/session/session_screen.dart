@@ -17,7 +17,6 @@ import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
-import "../../theme/theme.dart";
 import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
@@ -25,18 +24,15 @@ import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
 import "widgets/arrow_back_screen.dart";
-import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
-import "widgets/disclosure_permission_confirm_dialog.dart";
-import "widgets/disclosure_permission_introduction_screen.dart";
+import "widgets/disclosure_share_screen.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/missing_data_checklist_screen.dart";
 import "widgets/missing_data_flow_reset.dart";
-import "widgets/missing_data_header.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
@@ -69,11 +65,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   late final IrmaRepository _repo;
   AsyncValue<SessionState>? _lastSession;
 
-  /// For issuance sessions with disclosures: stores the user's disclosure
-  /// choices after they confirm the disclosure overview, before showing
-  /// the issuance confirmation screen.
-  List<DisclosureDisconSelection>? _pendingDisclosureChoices;
-
   /// The cards the user agreed to share, for "What you shared" on the
   /// success screen.
   List<SelectableCredentialInstance> _sharedInstances = const [];
@@ -82,10 +73,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   /// `FeatureFlag.missingDataChecklist`, refreshed on every build.
   bool _useMissingDataChecklist = false;
-
-  /// Whether the disclosure introduction screen should be shown.
-  /// Null means we haven't loaded the preference yet.
-  bool? _showIntroduction;
 
   /// Whether issuance-during-disclosure was shown (steps were present at some point).
   bool _hadIssueDuringDisclosure = false;
@@ -135,11 +122,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     _repo = ref.read(irmaRepositoryProvider);
     _repo.preferences.getLongPin().first.then((value) {
       if (mounted) setState(() => _hasLongPin = value);
-    });
-    _repo.preferences.getCompletedDisclosurePermissionIntro().first.then((
-      introCompleted,
-    ) {
-      if (mounted) setState(() => _showIntroduction = !introCompleted);
     });
   }
 
@@ -274,17 +256,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildRequestPermission(SessionState session) {
-    // Show introduction screen for disclosure/signature sessions if not yet completed.
-    if (_showIntroduction == true && session.type != SessionType.issuance) {
-      return DisclosurePermissionIntroductionScreen(
-        onContinue: () {
-          _repo.preferences.setCompletedDisclosurePermissionIntro(true);
-          setState(() => _showIntroduction = false);
-        },
-        onDismiss: _showDismissDialog,
-      );
-    }
-
     final plan = session.disclosurePlan;
     final hasDisclosureChoices =
         plan?.disclosureChoicesOverview?.isNotEmpty ?? false;
@@ -315,7 +286,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       if (_hadIssueDuringDisclosure) {
         return MissingDataFlowReset(
           sessionId: widget.sessionId,
-          child: _buildMissingDataShareScreen(session),
+          child: _buildShareScreen(session),
         );
       }
     }
@@ -334,59 +305,29 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    if (isIssuanceSession) {
-      // if the user has yet to pick disclosures
-      if (hasDisclosureChoices && _pendingDisclosureChoices == null) {
-        return DisclosureChoicesOverview(
-          sessionState: session,
-          onDismiss: _showDismissDialog,
-          onChoicesConfirmed: (choices) {
-            setState(() => _pendingDisclosureChoices = choices);
-          },
-        );
-      }
-
+    // An issuance that asks for data first: one screen with what is shared
+    // and the card that is received, and one button for both.
+    if (isIssuanceSession && !hasDisclosureChoices) {
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
         returnedFromIssuer: _returnedFromIssuer(session),
         onDismiss: _dismissSession,
-        onGivePermission: () {
-          _grantPermission(_pendingDisclosureChoices ?? []);
-        },
+        onGivePermission: () => _grantPermission(const []),
       );
     }
 
-    // Pure disclosure or signature session where issuance is no longer required
-    final hadIssueDuringDisclosure = plan?.issueDuringDisclosure != null;
-    return DisclosureChoicesOverview(
-      sessionState: session,
-      hasIssueDuringDisclosure: hadIssueDuringDisclosure,
-      onDismiss: _showDismissDialog,
-      onChoicesConfirmed: (choices) {
-        _showShareConfirmDialog(session, choices);
-      },
-    );
+    return _buildShareScreen(session);
   }
 
-  /// The checklist, once nothing is missing anymore: the same screen, now
-  /// asking the user to share.
-  Widget _buildMissingDataShareScreen(SessionState session) {
-    return DisclosureChoicesOverview(
-      sessionState: session,
-      confirmLabelKey: "missing_data.share",
-      headerBuilder: (context, itemCount) => Padding(
-        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
-        child: MissingDataHeader(
-          requestor: session.requestor,
-          phase: MissingDataPhase.ready,
-          total: itemCount,
-          presentCount: itemCount,
-        ),
-      ),
-      onDismiss: _showDismissDialog,
-      onChoicesConfirmed: _grantPermission,
-    );
-  }
+  /// The share screen. The button is the consent, so it grants permission
+  /// directly (there is no confirmation dialog).
+  Widget _buildShareScreen(SessionState session) => DisclosureShareScreen(
+    session: session,
+    showAddedBanner: _hadIssueDuringDisclosure,
+    onDismiss: _showDismissDialog,
+    onClose: _dismissSession,
+    onShare: _grantPermission,
+  );
 
   /// The issuer whose website the user opened from the app and who now offers
   /// the credential, when the external issuer flow is on.
@@ -455,25 +396,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       context,
       onConfirm: _dismissSession,
     );
-  }
-
-  Future<void> _showShareConfirmDialog(
-    SessionState session,
-    List<DisclosureDisconSelection> choices,
-  ) async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => DisclosurePermissionConfirmDialog(
-            requestor: session.requestor,
-            isSignatureSession: session.type == SessionType.signature,
-          ),
-        ) ??
-        false;
-
-    if (confirmed && mounted) {
-      _grantPermission(choices);
-    }
   }
 
   String _getAppBarTitle(SessionState session) {

@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_introduction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -76,24 +75,6 @@ void main() {
       final receive = tester.getRect(find.text("You will receive"));
       expect(receive.top, greaterThan(card.bottom));
     });
-  });
-
-  testWidgets("disclosure introduction: picture left, text right on tablet", (
-    tester,
-  ) async {
-    await pump(
-      tester,
-      _tablet,
-      DisclosurePermissionIntroductionScreen(
-        onContinue: () {},
-        onDismiss: () {},
-      ),
-    );
-
-    expect(find.byType(SessionColumns), findsOneWidget);
-    final columns = tester.getRect(find.byType(SessionColumns));
-    final header = tester.getRect(find.text("Share your data"));
-    expect(header.left, greaterThan(columns.center.dx));
   });
 
   group("change choice", () {

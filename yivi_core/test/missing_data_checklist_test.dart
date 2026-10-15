@@ -380,7 +380,10 @@ void main() {
       router.pop();
       await tester.pumpAndSettle();
 
-      expect(find.text("Alles staat klaar"), findsOneWidget);
+      expect(
+        find.text("Alles is toegevoegd. Controleer wat je deelt."),
+        findsOneWidget,
+      );
       expect(container().read(missingDataFlowProvider), isNull);
     });
 
@@ -465,19 +468,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("Alles staat klaar"), findsOneWidget);
+      // The share screen, with a note that everything is in place now.
+      expect(find.text("Wil je deze gegevens delen?"), findsOneWidget);
       expect(
-        find.text("Wil je deze 2 gegevens delen met Test Verifier?"),
+        find.text("Alles is toegevoegd. Controleer wat je deelt."),
         findsOneWidget,
       );
       expect(find.text("Delen"), findsOneWidget);
-      expect(find.text("Nog niet in je app"), findsNothing);
       expect(find.text("Volgende stap"), findsNothing);
-
-      final header = tester.widget<Container>(
-        find.byKey(const Key("missing_data_header")),
-      );
-      expect((header.decoration as BoxDecoration).color, IrmaThemeData().link);
     });
 
     testWidgets("keeps today's screens when the flag is off", (tester) async {

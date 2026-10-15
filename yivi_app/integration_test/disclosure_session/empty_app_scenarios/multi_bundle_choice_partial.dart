@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -47,7 +47,6 @@ Future<void> multiBundleChoicePartialTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Wizard runs for the missing fullName credential of Bundle A. Bundle B is
   // still fully missing but Bundle A is the default selection, so the user
@@ -60,7 +59,7 @@ Future<void> multiBundleChoicePartialTest(
   expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await tester.waitFor(find.byType(RequestorHeader));
 
   final cardsFinder = findCredentialCards();
@@ -87,8 +86,6 @@ Future<void> multiBundleChoicePartialTest(
   // Bundle B remains obtainable -> Change choice button is visible.
   expect(find.text("Change choice"), findsOneWidget);
 
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

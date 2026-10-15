@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/widgets/irma_icon_button.dart";
 
 import "../../helpers/helpers.dart";
@@ -38,7 +38,6 @@ Future<void> optionalsTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Expect a disclose stepper
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
@@ -63,7 +62,7 @@ Future<void> optionalsTest(
   await tester.tapAndSettle(addOptionalDataCardFinder);
 
   // Expect the make choice screen
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
@@ -105,7 +104,7 @@ Future<void> optionalsTest(
   await tester.tapAndSettle(addOptionalDataCardFinder);
 
   // Make choice screen should reappear
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // Select the mobile number option this time
   final mobileNumberHeaderFinder = find.text("Demo Mobile phone number");
@@ -125,8 +124,6 @@ Future<void> optionalsTest(
     findsOneWidget,
   );
 
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

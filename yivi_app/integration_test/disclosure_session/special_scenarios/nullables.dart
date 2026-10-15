@@ -5,7 +5,6 @@ import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../disclosure_helpers.dart";
 
 Future<void> nullablesTest(
   WidgetTester tester,
@@ -25,7 +24,6 @@ Future<void> nullablesTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);

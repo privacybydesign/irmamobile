@@ -3,12 +3,11 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/refresh_credential_statuses_event.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
-import "disclosure_session/disclosure_helpers.dart";
 import "helpers/eudi_issuance_helpers.dart";
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -198,8 +197,7 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
-  await tester.pumpUntilFound(find.byType(DisclosureChoicesOverview));
+  await tester.pumpUntilFound(find.byType(DisclosureShareScreen));
 
   final cardsFinder = findCredentialCards();
   expect(

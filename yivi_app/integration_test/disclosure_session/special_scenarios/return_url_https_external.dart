@@ -39,10 +39,8 @@ Future<void> returnUrlHttpsExternalTest(
     sessionRequest,
     continueOnSecondDevice: false,
   );
-  await evaluateIntroduction(tester);
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await tester.tapAndSettle(find.text("Share"));
+  await tapShare(tester);
 
   // The success-path post-frame callback fires openURLExternally and pops.
   // pumpAndSettle runs the microtask + frame queue until everything settles.

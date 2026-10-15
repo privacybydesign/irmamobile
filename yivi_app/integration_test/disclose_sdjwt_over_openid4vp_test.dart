@@ -15,13 +15,11 @@ import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_scree
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/document_reading_helpers.dart";
@@ -173,7 +171,6 @@ Future<void> testDisclosePassportOpensPassportScanner(
   // first session to get to instance count of 0
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
@@ -283,10 +280,9 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   // first session to get to instance count of 0
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
@@ -298,17 +294,14 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   final session2Url = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session2Url);
 
-  await tester.waitFor(find.byType(DisclosureChoicesOverview));
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(tester, cardsFinder, isExpired: true);
 
   // make sure the share button is disabled, so it can't be pressed...
-  final shareButton = tester.widget<YiviThemedButton>(
-    find.widgetWithText(YiviThemedButton, "Share data"),
-  );
-  expect(shareButton.onPressed, isNull);
+  expect(shareButtonEnabled(tester), isFalse);
 
   // issue it again...
   await issueEmailAddress(
@@ -399,10 +392,9 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   };
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
@@ -411,7 +403,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -504,11 +496,10 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
@@ -524,11 +515,11 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -610,11 +601,10 @@ Future<void> testClaimValueOnePresentOneNot(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
@@ -633,7 +623,7 @@ Future<void> testClaimValueOnePresentOneNot(
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -724,11 +714,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
 
   expect(cardsFinder, findsOneWidget);
@@ -746,11 +735,11 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   await tester.tapAndSettle(addOptionalDataButton);
 
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -894,17 +883,16 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final cardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -1014,11 +1002,10 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final choiceButtonFinder = find.text("Change choice", skipOffstage: false);
   expect(choiceButtonFinder, findsNWidgets(2));
 
@@ -1028,7 +1015,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -1059,7 +1046,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final phoneChoiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -1175,19 +1162,18 @@ Future<void> testOneCredentialTwoChoices(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final cardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -1226,7 +1212,7 @@ Future<void> testOneCredentialTwoChoices(
   await tester.pumpAndSettle();
 
   // after issuance, expect to be back on the disclosure overview with the newly issued credential
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final overviewCardsFinder = findCredentialCards(skipOffstage: false);
   expect(overviewCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
@@ -1239,10 +1225,10 @@ Future<void> testOneCredentialTwoChoices(
 
   // change choices to verify there are now 4 cards (3 existing + 1 obtainable)
   await tapChangeChoicesButton(tester);
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   final updatedCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -1299,7 +1285,6 @@ Future<void> testOneMissingOnePresent(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
@@ -1328,7 +1313,7 @@ Future<void> testOneMissingOnePresent(
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
@@ -1373,7 +1358,6 @@ Future<void> testDiscloseSdJwtThatsNotThere(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
 
@@ -1399,7 +1383,7 @@ Future<void> testDiscloseSdJwtThatsNotThere(
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -1435,7 +1419,6 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await shareAndFinishDisclosureSession(tester);
 
@@ -1489,7 +1472,6 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await evaluateCredentialCard(
     tester,
@@ -1569,7 +1551,6 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
 
   await evaluateCredentialCard(
     tester,
@@ -1675,9 +1656,7 @@ Future<void> testDiscloseSdJwtWithChoices(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  await evaluateIntroduction(tester);
-
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // expect one card, namely the email credential
   final cardFinder = findCredentialCards();
@@ -1692,11 +1671,11 @@ Future<void> testDiscloseSdJwtWithChoices(
 
   await tapChangeChoicesButton(tester);
 
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
   final cardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -1823,10 +1802,7 @@ Dw==
 """;
 
 Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
-  // share
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-  // confirm
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }
 

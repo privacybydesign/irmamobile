@@ -1,8 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_introduction_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
-import "../disclosure_session/disclosure_helpers.dart";
 import "../helpers/eudi_stack_helpers.dart";
 import "../irma_binding.dart";
 import "../util.dart";
@@ -30,10 +28,8 @@ Future<EudiVerifierSession> startMdocDisclosure(
   final session = await startEudiVerifierSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session.uri);
   if (expectIntroduction) {
-    await evaluateIntroduction(tester);
   } else {
-    await tester.waitFor(find.byType(DisclosureChoicesOverview));
-    expect(find.byType(DisclosurePermissionIntroductionScreen), findsNothing);
+    await tester.waitFor(find.byType(DisclosureShareScreen));
   }
   await tester.pumpAndSettle();
   return session;

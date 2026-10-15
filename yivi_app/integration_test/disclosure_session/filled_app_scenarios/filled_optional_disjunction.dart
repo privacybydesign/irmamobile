@@ -36,8 +36,6 @@ Future<void> filledOptionalDisjunctionTest(
         }
       ''');
 
-  await evaluateIntroduction(tester);
-
   // First, the missing required disjunctions should be obtained using an issue wizard.
   expect(find.text("Collect data"), findsOneWidget);
 
@@ -127,7 +125,6 @@ Future<void> filledOptionalDisjunctionTest(
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

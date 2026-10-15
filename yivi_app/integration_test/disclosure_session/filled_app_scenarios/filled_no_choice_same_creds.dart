@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -39,7 +39,6 @@ Future<void> filledNoChoiceSameCredsTest(
 
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Find and press change choice
   final changeChoiceFinder = find.text("Change choice");
@@ -83,7 +82,7 @@ Future<void> filledNoChoiceSameCredsTest(
   await tester.tapAndSettle(doneButterFinder);
 
   // Expect to be on the overview screen
-  final overviewScreenFinder = find.byType(DisclosureChoicesOverview);
+  final overviewScreenFinder = find.byType(DisclosureShareScreen);
   expect(overviewScreenFinder, findsOneWidget);
 
   // The only credential on the overview should be the second email
@@ -96,7 +95,6 @@ Future<void> filledNoChoiceSameCredsTest(
   );
 
   // Finish the flow
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

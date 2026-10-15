@@ -284,11 +284,10 @@ Future<String> _postToVeramo(
   return responseBody;
 }
 
-/// Taps the share button on the disclosure overview, walks through the
-/// share-confirm dialog, and dismisses the success feedback screen.
+/// Taps the share button on the share screen and dismisses the success
+/// feedback screen.
 Future<void> shareAndFinishEudiDisclosure(WidgetTester tester) async {
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }
 

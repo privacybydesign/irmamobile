@@ -1,10 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -55,10 +54,8 @@ Future<void> revocationTest(
         }
       ''');
 
-  await evaluateIntroduction(tester);
-
   // The disclosure permission overview screen should be visible.
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   expect(find.text("Share my data"), findsOneWidget);
   expect(find.byType(RequestorHeader), findsOneWidget);
 
@@ -137,8 +134,8 @@ Future<void> revocationTest(
       ''');
 
   // Introduction was already completed in the first session, so it's skipped.
-  await tester.waitFor(find.byType(DisclosureChoicesOverview));
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // Find the revoked credential card and evaluate it
   final demoCredentialCardFinder = cardsFinder.first;
@@ -148,17 +145,11 @@ Future<void> revocationTest(
     isRevoked: true,
   );
 
-  // Share data button should be disabled
-  final shareDataButtonFinder = find.ancestor(
-    of: find.text("Share data"),
-    matching: find.byType(YiviThemedButton),
-  );
-  expect(
-    tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed,
-    isNull,
-  );
+  // The share button is disabled, with the reason above it.
+  expect(shareButtonEnabled(tester), isFalse);
+  expect(find.text("Replace the revoked card to share."), findsOneWidget);
 
-  expect(find.text("Change choice"), findsNothing);
+  expect(find.byKey(const Key("share_change_0")), findsNothing);
 
   // Now reobtain the card.
   await issueCredentials(
@@ -175,13 +166,9 @@ Future<void> revocationTest(
     isRevoked: false,
   );
 
-  // Share data button should be enabled now
-  expect(
-    tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed,
-    isNotNull,
-  );
+  // The share button is enabled now.
+  expect(shareButtonEnabled(tester), isTrue);
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

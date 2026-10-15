@@ -1,9 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -54,15 +53,13 @@ Future<void> zeroInstanceCountNoReobtainTest(
   for (var i = 0; i < 2; i++) {
     final sessionUrl = await startVeramoVPSession(dcql);
     irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-    if (i == 0) {
-      await evaluateIntroduction(tester);
-    }
+    if (i == 0) {}
     // waitFor, not pumpUntilFound: pumpUntilFound returns on the first frame
     // the overview exists, which can be part-way through the route
     // transition. The share button is then still outside the viewport and
     // tap() fails the hit test. waitFor pumps and settles, so the transition
     // has finished before we tap.
-    await tester.waitFor(find.byType(DisclosureChoicesOverview));
+    await tester.waitFor(find.byType(DisclosureShareScreen));
     await shareAndFinishEudiDisclosure(tester);
   }
 

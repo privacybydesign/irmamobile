@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -31,7 +31,6 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
         }
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
@@ -127,7 +126,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
 
   await tester.tapAndSettle(find.text("Next step"));
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   expect(find.byType(RequestorHeader), findsOneWidget);
 
   await evaluateCredentialCard(
@@ -142,8 +141,6 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

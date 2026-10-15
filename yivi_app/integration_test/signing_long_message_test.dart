@@ -3,7 +3,7 @@ import "dart:convert";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/util/signature_message_text.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -65,10 +65,9 @@ void main() {
       });
 
       await irmaBinding.repository.startTestSession(sessionRequest);
-      await evaluateIntroduction(tester);
 
       // The signing screen rendered (i.e. did not freeze).
-      expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+      expect(find.byType(DisclosureShareScreen), findsOneWidget);
       expect(find.text("This is the message you're signing:"), findsOneWidget);
 
       // The message is shown truncated to a few lines with an ellipsis, plus a
@@ -109,8 +108,7 @@ void main() {
 
       // The long message is still signable end-to-end. "Sign and share" lives
       // in the fixed bottom bar, so no scrolling is needed to reach it.
-      await tester.tapAndSettle(find.text("Sign and share"));
-      await evaluateShareDialog(tester, isSignatureSession: true);
+      await tapShare(tester);
       await evaluateFeedback(tester, isSignatureSession: true);
     });
   });

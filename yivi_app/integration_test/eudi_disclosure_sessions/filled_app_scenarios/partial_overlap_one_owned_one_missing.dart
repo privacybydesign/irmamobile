@@ -4,14 +4,13 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 
 /// Wallet has email; verifier asks for email AND phone. Backend hides the
-/// `DisclosureChoicesOverview` whenever any issuance step exists, so the
+/// `DisclosureShareScreen` whenever any issuance step exists, so the
 /// wallet renders `IssueDuringDisclosureScreen` with the missing phone
 /// descriptor — the owned email is **not visible at this stage**.
 ///
@@ -62,7 +61,6 @@ Future<void> partialOverlapOneOwnedOneMissingTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
   await tester.pumpAndSettle();
 
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);

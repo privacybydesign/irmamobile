@@ -33,6 +33,7 @@ Future<void> showDisclosureChoiceSheet({
     context: context,
     titleKey: "disclosure_permission.choice.sheet_title",
     child: _DisclosureChoiceSheet(
+      key: const Key("disclosure_choice_sheet"),
       pickOne: pickOne,
       sessionId: sessionId,
       disconIndex: disconIndex,
@@ -57,6 +58,7 @@ class _DisclosureChoiceSheet extends ConsumerWidget {
   final VoidCallback? onSelected;
 
   const _DisclosureChoiceSheet({
+    super.key,
     required this.pickOne,
     required this.sessionId,
     required this.disconIndex,

@@ -1366,6 +1366,52 @@
       "expired_note": "This card is no longer valid.",
       "last_use": "Last use",
       "last_use_note": "After this, the card can no longer be shared. You can add a new one afterwards."
-    }
+    },
+    "title": {
+      "share": "Do you want to share this data?",
+      "sign": "Do you want to sign this message?",
+      "share_receive": "Do you want to share this data and add a card?"
+    },
+    "bar": {
+      "share": "Share data",
+      "sign": "Sign",
+      "share_receive": "Share and receive"
+    },
+    "button": {
+      "share": "Share",
+      "sign_and_share": "Sign and share",
+      "share_and_add": "Share and add card",
+      "share_without_data": "Share without data",
+      "close": "Close"
+    },
+    "reason": {
+      "revoked": "Replace the revoked card to share.",
+      "used_up": "Replace the used-up card to share.",
+      "expired": "Replace the expired card to share.",
+      "cant_renew": "{requestor} needs a card you can't renew in Yivi. Ask {issuer} for a new one."
+    },
+    "section": {
+      "you_share": "You share",
+      "with_signature": "With your signature",
+      "optional": "Optional",
+      "you_choose": "You choose",
+      "you_receive": "You receive",
+      "from": "From {issuer}",
+      "nothing_required": "Nothing required",
+      "nothing_required_text": "{requestor} asks for nothing you must share."
+    },
+    "change": "Change",
+    "leave_out": "Leave out {name}",
+    "add": "Add",
+    "in_your_app": "In your app",
+    "not_in_app_yet": "Not in your app yet",
+    "or": " or ",
+    "add_new": "Add a new {name}",
+    "message_label": "You sign this message",
+    "read_whole_message": "Read the whole message",
+    "show_less": "Show less",
+    "footnote": "{requestor} gets only this. Fields that are not listed stay on your phone.",
+    "footnote_none": "The visit is still kept in your Activity.",
+    "everything_added": "Everything is added. Check what you share."
   }
 }

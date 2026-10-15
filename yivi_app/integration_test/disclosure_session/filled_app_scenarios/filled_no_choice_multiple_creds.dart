@@ -1,9 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -39,7 +38,6 @@ Future<void> filledNoChoiceMultipleCredsTest(
 
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
@@ -86,7 +84,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the overview screen
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // The requestor header should be present
   expect(find.byType(RequestorHeader), findsOneWidget);
@@ -118,7 +116,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
   await tester.tapAndSettle(changeChoiceFinder.first);
 
   // Expect make choice screen
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   // This screen should show two options
   expect(cardsFinder, findsNWidgets(2));
@@ -145,7 +143,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
   await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
 
   // Expect the choices screen
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // Now two filled cards should be visible
   expect(cardsFinder, findsNWidgets(2));
@@ -166,7 +164,6 @@ Future<void> filledNoChoiceMultipleCredsTest(
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

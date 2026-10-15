@@ -34,7 +34,6 @@ Future<void> completelyOptionalTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   expect(find.text("No data selected"), findsOneWidget);
 
@@ -61,17 +60,13 @@ Future<void> completelyOptionalTest(
   await tester.scrollUntilVisible(deleteOptionalDataButton.hitTestable(), 50);
   await tester.tapAndSettle(deleteOptionalDataButton);
 
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 
   //  start session again to verify that the email is still not pre-selected
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await tester.waitFor(find.text("Share data"));
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tester.waitFor(find.byKey(const Key("share_button")));
+  await tapShare(tester);
   await evaluateFeedback(tester);
 
   // Navigate to to activity tab

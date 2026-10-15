@@ -1,13 +1,12 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_close_dialog.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
-import "../disclosure_helpers.dart";
 
 Future<void> declineDisclosure(
   WidgetTester tester,
@@ -31,22 +30,8 @@ Future<void> declineDisclosure(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
-  // Press share
-  await tester.tapAndSettle(find.text("Share data"));
-
-  // Expect confirm share dialog
-  final disclosureConfirmDialogFinder = find.byType(
-    DisclosurePermissionConfirmDialog,
-  );
-  expect(disclosureConfirmDialogFinder, findsOneWidget);
-
-  // Press don't share
-  await tester.tapAndSettle(find.text("Don't share"));
-
-  // Dialog should disappear
-  expect(disclosureConfirmDialogFinder, findsNothing);
+  await tester.waitFor(find.byKey(const Key("share_button")));
 
   // Press the close button
   await tester.tapAndSettle(find.byType(IrmaCloseButton));

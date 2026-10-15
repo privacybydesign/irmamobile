@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_choice.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -37,7 +37,6 @@ Future<void> choiceMixedTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Expect a disclose stepper
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
@@ -146,9 +145,7 @@ Future<void> choiceMixedTest(
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

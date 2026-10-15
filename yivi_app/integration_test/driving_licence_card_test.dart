@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_disclosure.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -365,14 +365,12 @@ Future<void> _startDisclosure(
       "disclose": [[[ $requested ]]]
     }
   ''');
-  await evaluateIntroduction(tester);
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await tester.ensureVisible(_table);
   await tester.pumpAndSettle();
 }
 
 Future<void> _shareAndFinish(WidgetTester tester) async {
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

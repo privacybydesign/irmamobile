@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -39,10 +39,9 @@ Future<void> filledMultiCredBundleTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // Straight to overview — nothing needs to be obtained.
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await tester.waitFor(find.byType(RequestorHeader));
 
   // Three cards on the overview: root + fullName (bundle), and email.
@@ -80,8 +79,6 @@ Future<void> filledMultiCredBundleTest(
   // Second discon has 1 owned (email) + 1 obtainable (mobile) -> Change choice.
   expect(find.text("Change choice"), findsOneWidget);
 
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

@@ -1366,6 +1366,52 @@
       "expired_note": "Diese Karte ist nicht mehr gültig.",
       "last_use": "Letztes Mal",
       "last_use_note": "Danach kann die Karte nicht mehr geteilt werden. Du kannst danach eine neue hinzufügen."
-    }
+    },
+    "title": {
+      "share": "Möchtest du diese Daten teilen?",
+      "sign": "Möchtest du diese Nachricht unterschreiben?",
+      "share_receive": "Möchtest du diese Daten teilen und eine Karte hinzufügen?"
+    },
+    "bar": {
+      "share": "Daten teilen",
+      "sign": "Unterschreiben",
+      "share_receive": "Teilen und erhalten"
+    },
+    "button": {
+      "share": "Teilen",
+      "sign_and_share": "Unterschreiben und teilen",
+      "share_and_add": "Teilen und Karte hinzufügen",
+      "share_without_data": "Ohne Daten teilen",
+      "close": "Schließen"
+    },
+    "reason": {
+      "revoked": "Ersetze die widerrufene Karte, um zu teilen.",
+      "used_up": "Ersetze die aufgebrauchte Karte, um zu teilen.",
+      "expired": "Ersetze die abgelaufene Karte, um zu teilen.",
+      "cant_renew": "{requestor} braucht eine Karte, die du in Yivi nicht erneuern kannst. Bitte {issuer} um eine neue."
+    },
+    "section": {
+      "you_share": "Du teilst",
+      "with_signature": "Mit deiner Unterschrift",
+      "optional": "Optional",
+      "you_choose": "Du wählst",
+      "you_receive": "Du erhältst",
+      "from": "Von {issuer}",
+      "nothing_required": "Nichts erforderlich",
+      "nothing_required_text": "{requestor} fragt nichts, was du teilen musst."
+    },
+    "change": "Ändern",
+    "leave_out": "{name} weglassen",
+    "add": "Hinzufügen",
+    "in_your_app": "In deiner App",
+    "not_in_app_yet": "Noch nicht in deiner App",
+    "or": " oder ",
+    "add_new": "Neue {name} hinzufügen",
+    "message_label": "Du unterschreibst diese Nachricht",
+    "read_whole_message": "Ganze Nachricht lesen",
+    "show_less": "Weniger anzeigen",
+    "footnote": "{requestor} bekommt nur das. Felder, die hier nicht stehen, bleiben auf deinem Telefon.",
+    "footnote_none": "Der Besuch steht trotzdem in deiner Aktivität.",
+    "everything_added": "Alles ist hinzugefügt. Prüfe, was du teilst."
   }
 }

@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../eudi_disclosure_sessions/eudi_choice_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -50,7 +49,7 @@ Future<void> ageTwoCandidatesChoiceTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final overviewCard = findCredentialCards(skipOffstage: false);
   expect(overviewCard, findsOneWidget);
 
@@ -64,10 +63,10 @@ Future<void> ageTwoCandidatesChoiceTest(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
   final choiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );

@@ -1,9 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
+import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -70,10 +69,9 @@ Future<void> twoCredentialsTwoChoicesEachTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final choiceButtonFinder = find.text("Change choice", skipOffstage: false);
   expect(choiceButtonFinder, findsNWidgets(2));
 
@@ -82,7 +80,7 @@ Future<void> twoCredentialsTwoChoicesEachTest(
   await tester.tapAndSettle(choiceButtonFinder.at(0));
 
   final emailChoiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );
@@ -110,7 +108,7 @@ Future<void> twoCredentialsTwoChoicesEachTest(
   await tester.tapAndSettle(choiceButtonFinder.at(1));
 
   final phoneChoiceCardsFinder = find.descendant(
-    of: find.byType(DisclosureMakeChoiceScreen),
+    of: find.byKey(const Key("disclosure_choice_sheet")),
     matching: findCredentialCards(),
     skipOffstage: false,
   );

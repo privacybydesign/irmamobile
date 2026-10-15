@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
@@ -30,8 +30,6 @@ Future<void> randomBlindTest(
         }
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
-
-  await evaluateIntroduction(tester);
 
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
 
@@ -62,7 +60,7 @@ Future<void> randomBlindTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // We should go straight to the overview screen.
-  final overViewScreenFinder = find.byType(DisclosureChoicesOverview);
+  final overViewScreenFinder = find.byType(DisclosureShareScreen);
   await tester.pumpUntilFound(
     overViewScreenFinder,
     timeout: const Duration(seconds: 5),
@@ -108,8 +106,6 @@ Future<void> randomBlindTest(
     timeout: const Duration(seconds: 5),
   );
   await tester.tapAndSettle(confirmButtonFinder);
-
-  await evaluateShareDialog(tester, isSignatureSession: true);
 
   await evaluateFeedback(tester, isSignatureSession: true);
 }

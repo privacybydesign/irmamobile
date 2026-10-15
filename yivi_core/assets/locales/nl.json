@@ -1366,6 +1366,52 @@
       "expired_note": "Deze kaart is niet meer geldig.",
       "last_use": "Laatste keer",
       "last_use_note": "Hierna kan de kaart niet meer gedeeld worden. Je kunt daarna een nieuwe toevoegen."
-    }
+    },
+    "title": {
+      "share": "Wil je deze gegevens delen?",
+      "sign": "Wil je dit bericht ondertekenen?",
+      "share_receive": "Wil je deze gegevens delen en een kaart toevoegen?"
+    },
+    "bar": {
+      "share": "Gegevens delen",
+      "sign": "Ondertekenen",
+      "share_receive": "Delen en ontvangen"
+    },
+    "button": {
+      "share": "Delen",
+      "sign_and_share": "Ondertekenen en delen",
+      "share_and_add": "Delen en kaart toevoegen",
+      "share_without_data": "Delen zonder gegevens",
+      "close": "Sluiten"
+    },
+    "reason": {
+      "revoked": "Vervang de ingetrokken kaart om te delen.",
+      "used_up": "Vervang de opgebruikte kaart om te delen.",
+      "expired": "Vervang de verlopen kaart om te delen.",
+      "cant_renew": "{requestor} heeft een kaart nodig die je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe."
+    },
+    "section": {
+      "you_share": "Je deelt",
+      "with_signature": "Met je handtekening",
+      "optional": "Optioneel",
+      "you_choose": "Jij kiest",
+      "you_receive": "Je ontvangt",
+      "from": "Van {issuer}",
+      "nothing_required": "Niets verplicht",
+      "nothing_required_text": "{requestor} vraagt niets wat je moet delen."
+    },
+    "change": "Wijzig",
+    "leave_out": "{name} weglaten",
+    "add": "Toevoegen",
+    "in_your_app": "In je app",
+    "not_in_app_yet": "Nog niet in je app",
+    "or": " of ",
+    "add_new": "Voeg een nieuwe {name} toe",
+    "message_label": "Je ondertekent dit bericht",
+    "read_whole_message": "Lees het hele bericht",
+    "show_less": "Toon minder",
+    "footnote": "{requestor} krijgt alleen dit. Velden die hier niet staan blijven op je telefoon.",
+    "footnote_none": "Het bezoek staat wel in je Activiteit.",
+    "everything_added": "Alles is toegevoegd. Controleer wat je deelt."
   }
 }

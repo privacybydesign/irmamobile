@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
@@ -30,7 +30,6 @@ Future<void> noChoiceTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   // First, the missing required disjunctions should be obtained using an issue wizard.
   expect(find.text("Collect data"), findsOneWidget);
@@ -46,7 +45,7 @@ Future<void> noChoiceTest(
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen. It should not show change choice options.
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   expect(find.text("Change choice"), findsNothing);
 
   final requestorHeaderFinder = find.byType(RequestorHeader);
@@ -57,8 +56,6 @@ Future<void> noChoiceTest(
     isVerified: false,
   );
 
-  await tester.tapAndSettle(find.text("Share data"));
-
-  await evaluateShareDialog(tester);
+  await tapShare(tester);
   await evaluateFeedback(tester);
 }

@@ -7,12 +7,11 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
-import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";
 import "irma_binding.dart";
@@ -145,8 +144,7 @@ Future<void> _issueAndRevokeDemoCredential(
     }
   ''');
 
-  await evaluateIntroduction(tester);
-  await tester.waitFor(find.byType(DisclosureChoicesOverview));
+  await tester.waitFor(find.byType(DisclosureShareScreen));
 
   await tester.tapAndSettle(find.byType(IrmaCloseButton));
   await tester.tapAndSettle(find.text("Yes"));

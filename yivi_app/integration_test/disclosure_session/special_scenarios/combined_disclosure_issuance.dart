@@ -1,14 +1,13 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
+import "../disclosure_helpers.dart";
 
 Future<void> combinedDisclosureIssuanceSessionTest(
   WidgetTester tester,
@@ -39,29 +38,18 @@ Future<void> combinedDisclosureIssuanceSessionTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Combined issuance+disclosure sessions skip the introduction screen
-  // and go straight to the disclosure choices overview.
-  // For issuance sessions, the button says "Next" instead of "Share data".
-  await tester.waitFor(find.text("Next"));
-  await tester.tapAndSettle(find.text("Next"));
-
-  // Expect add data screen
-  expect(find.byType(IssuancePermission), findsOneWidget);
-
-  // One credential is offered: its card picture and the attributes it holds.
-  final cardsFinder = findIssuanceCards();
-  expect(cardsFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Login data",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Login code", "1234"), ("Organization", "E-mail guild")],
-    style: IrmaCardStyle.normal,
+  // One screen for both: what is shared, and the card that is received.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(
+    find.text("Do you want to share this data and add a card?"),
+    findsOneWidget,
   );
+  expect(find.text("YOU RECEIVE"), findsOneWidget);
+  expect(find.text("Demo Login data"), findsWidgets);
+  expect(find.text("1234"), findsOneWidget);
+  expect(find.text("Share and add card"), findsOneWidget);
 
-  // Tap add data button
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  await tapShare(tester);
 
   final successScreenFinder = find.byType(IssuanceSuccessScreen);
   expect(successScreenFinder, findsOneWidget);

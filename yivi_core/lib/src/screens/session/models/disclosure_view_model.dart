@@ -3,6 +3,7 @@ import "package:collection/collection.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
+import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 
 // What the disclosure screens show, worked out from the session state irmago
@@ -83,6 +84,57 @@ int selectionOf(DisclosurePickOne pickOne, int? selected) {
   }
   return defaultSelection(pickOne);
 }
+
+/// The owned option index per pick-one, from what the user picked
+/// ([chosen] holds a bundle per pick-one, [addedOptional] the optional ones
+/// they included). A bundle is matched by its set of credential hashes, so
+/// the choice survives the plan being sent again. Optional data that was
+/// not included is -1.
+Map<int, int> selectionsFrom(
+  List<DisclosurePickOne> pickOnes,
+  Map<int, DisclosureBundle> chosen,
+  Set<int> addedOptional,
+) {
+  final out = <int, int>{};
+  for (final (i, pickOne) in pickOnes.indexed) {
+    final owned = pickOne.ownedOptions ?? const [];
+    if (pickOne.optional && !addedOptional.contains(i)) {
+      out[i] = -1;
+      continue;
+    }
+    final want = chosen[i]?.credentialHashes;
+    final k = want == null
+        ? -1
+        : owned.indexWhere((b) {
+            final have = b.credentialHashes;
+            return have.length == want.length && have.containsAll(want);
+          });
+    out[i] = k >= 0 ? k : (owned.isEmpty ? -1 : 0);
+  }
+  return out;
+}
+
+/// What is sent to irmago when the user shares: per pick-one, the selected
+/// cards with the requested attribute paths, or nothing.
+List<DisclosureDisconSelection> disclosureChoicesFor(
+  List<DisclosurePickOne> pickOnes,
+  Map<int, int> selections,
+) => [
+  for (final (i, pickOne) in pickOnes.indexed)
+    DisclosureDisconSelection(
+      credentials: switch (selectionOf(pickOne, selections[i])) {
+        < 0 => const [],
+        final k => [
+          for (final c in pickOne.ownedOptions![k].credentials)
+            SelectedCredential(
+              credentialId: c.credentialId,
+              credentialHash: c.hash,
+              attributePaths: [for (final a in c.attributes) a.claimPath],
+            ),
+        ],
+      },
+    ),
+];
 
 /// Whether the share screen shows "Change" on [pickOne]: there is more
 /// than one thing to choose from (cards in the app plus types that can be

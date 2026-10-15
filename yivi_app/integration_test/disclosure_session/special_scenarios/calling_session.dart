@@ -37,13 +37,9 @@ Future<void> callingSessionTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
-  // Press share on the overview screen
-  await tester.tapAndSettle(find.text("Share data"));
-
-  // Press share on the confirmation dialog
-  await tester.tapAndSettle(find.text("Share"));
+  // Share: the button is the consent, there is no confirmation dialog.
+  await tapShare(tester);
 
   // Expect to be on the call info screen
   final callInfoScreenFinder = find.byType(CallInfoScreen);

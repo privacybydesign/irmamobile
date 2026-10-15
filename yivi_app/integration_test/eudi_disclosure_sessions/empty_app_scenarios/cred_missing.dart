@@ -1,11 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
-import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -17,7 +16,7 @@ import "../../util.dart";
 /// testVeramoVerifierRequestingMissingCredentialSurfacesIt`) populates
 /// `IssueDuringDisclosure.Steps[0].Options[0]` with `IssueURL == nil` and
 /// the descriptor's `Name`/`Issuer.Name` from VCT type metadata, while
-/// leaving `DisclosureChoicesOverview` nil.
+/// leaving `DisclosureShareScreen` nil.
 ///
 /// Wallet routing (`session_screen.dart:253-262`) therefore renders the
 /// `IssueDuringDisclosureScreen`. Because the descriptor has no IssueURL,
@@ -52,12 +51,11 @@ Future<void> credMissingTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await evaluateIntroduction(tester);
   await tester.pumpAndSettle();
 
   // Wallet must NOT render the choices overview — the backend hides it
   // when issuance steps exist.
-  expect(find.byType(DisclosureChoicesOverview), findsNothing);
+  expect(find.byType(DisclosureShareScreen), findsNothing);
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
 
   // The missing-cred descriptor card displays the credential name from VCT
