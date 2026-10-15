@@ -1349,5 +1349,23 @@
       "other": "Do you want to share these {n} items of data with {requestor}?"
     },
     "share": "Share"
+  },
+  "share": {
+    "requestor": {
+      "registered": "Registered with Yivi",
+      "not_registered": "Not registered with Yivi",
+      "unknown_note": "Yivi can't confirm who this is. Only share if you trust the website you came from."
+    },
+    "step_count": "Step {step} of {total}",
+    "problem": {
+      "revoked": "Revoked",
+      "revoked_note": "{issuer} withdrew this card.",
+      "used_up": "Used up",
+      "used_up_note": "This card has been shared as often as it allows.",
+      "expired": "Expired",
+      "expired_note": "This card is no longer valid.",
+      "last_use": "Last use",
+      "last_use_note": "After this, the card can no longer be shared. You can add a new one afterwards."
+    }
   }
 }

@@ -1349,5 +1349,23 @@
       "added": "Hinzugefügt",
       "added_to_yivi": "Zu Yivi hinzugefügt"
     }
+  },
+  "share": {
+    "requestor": {
+      "registered": "Bei Yivi registriert",
+      "not_registered": "Nicht bei Yivi registriert",
+      "unknown_note": "Yivi kann nicht bestätigen, wer das ist. Teile nur, wenn du der Website vertraust, von der du kommst."
+    },
+    "step_count": "Schritt {step} von {total}",
+    "problem": {
+      "revoked": "Widerrufen",
+      "revoked_note": "{issuer} hat diese Karte widerrufen.",
+      "used_up": "Aufgebraucht",
+      "used_up_note": "Diese Karte wurde so oft geteilt, wie es möglich ist.",
+      "expired": "Abgelaufen",
+      "expired_note": "Diese Karte ist nicht mehr gültig.",
+      "last_use": "Letztes Mal",
+      "last_use_note": "Danach kann die Karte nicht mehr geteilt werden. Du kannst danach eine neue hinzufügen."
+    }
   }
 }

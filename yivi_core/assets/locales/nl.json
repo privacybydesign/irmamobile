@@ -1349,5 +1349,23 @@
       "added": "Toegevoegd",
       "added_to_yivi": "Toegevoegd aan Yivi"
     }
+  },
+  "share": {
+    "requestor": {
+      "registered": "Geregistreerd bij Yivi",
+      "not_registered": "Niet geregistreerd bij Yivi",
+      "unknown_note": "Yivi kan niet bevestigen wie dit is. Deel alleen als je de website waar je vandaan komt vertrouwt."
+    },
+    "step_count": "Stap {step} van {total}",
+    "problem": {
+      "revoked": "Ingetrokken",
+      "revoked_note": "{issuer} heeft deze kaart ingetrokken.",
+      "used_up": "Opgebruikt",
+      "used_up_note": "Deze kaart is zo vaak gedeeld als mogelijk is.",
+      "expired": "Verlopen",
+      "expired_note": "Deze kaart is niet meer geldig.",
+      "last_use": "Laatste keer",
+      "last_use_note": "Hierna kan de kaart niet meer gedeeld worden. Je kunt daarna een nieuwe toevoegen."
+    }
   }
 }

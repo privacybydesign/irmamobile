@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -74,6 +75,12 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool hasBorder;
   final PreferredSizeWidget? bottom;
 
+  /// Shows the title only while true, fading it in and out. For screens
+  /// whose content starts with a large title (see `LargeTitleScrollView`),
+  /// as on iOS: the bar's title appears once the large one has scrolled
+  /// under the bar. Null keeps the title always visible.
+  final ValueListenable<bool>? titleVisibility;
+
   IrmaAppBar({
     this.titleTranslationKey,
     this.titleString,
@@ -82,6 +89,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.hasBorder = false,
     this.bottom,
+    this.titleVisibility,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -93,7 +101,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
 
-    final titleWidget = Semantics(
+    final Widget plainTitle = Semantics(
       header: true,
       namesRoute: true,
       child: DefaultTextStyle.merge(
@@ -109,6 +117,25 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
       ),
     );
+    final visibility = titleVisibility;
+    final titleWidget = visibility == null
+        ? plainTitle
+        : ValueListenableBuilder<bool>(
+            valueListenable: visibility,
+            builder: (context, visible, child) => ExcludeSemantics(
+              // The large title on the page says the same while this one
+              // is hidden.
+              excluding: !visible,
+              child: AnimatedOpacity(
+                key: const Key("irma_app_bar_title"),
+                opacity: visible ? 1 : 0,
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
+                child: child,
+              ),
+            ),
+            child: plainTitle,
+          );
 
     final toolbar = SizedBox(
       height: toolbarHeight,

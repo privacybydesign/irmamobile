@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
@@ -19,6 +20,10 @@ class SessionScaffold extends StatelessWidget {
   /// kept between the bars.
   final bool scrollsUnderBars;
 
+  /// For a body that starts with a large title (`LargeTitleScrollView`):
+  /// the bar's title shows only while this is true.
+  final ValueListenable<bool>? barTitleVisibility;
+
   const SessionScaffold({
     Key? key,
     this.onDismiss,
@@ -28,11 +33,11 @@ class SessionScaffold extends StatelessWidget {
     required this.appBarTitle,
     this.wide = false,
     this.scrollsUnderBars = false,
+    this.barTitleVisibility,
   });
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
@@ -43,6 +48,7 @@ class SessionScaffold extends StatelessWidget {
       body: body == null ? null : _keepClear(wide ? body! : _centred(body!)),
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
+        titleVisibility: barTitleVisibility,
         leading: onPrevious != null ? YiviBackButton(onTap: onPrevious) : null,
         actions: [
           if (onDismiss != null) IrmaCloseButton.filled(onTap: onDismiss),
