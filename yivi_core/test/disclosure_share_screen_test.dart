@@ -13,6 +13,7 @@ import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/schemaless/session_user_interaction.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/theme/theme.dart";
@@ -158,6 +159,10 @@ Future<_Calls> _pump(
           _sessionId,
         ).overrideWith((ref) => sessions ?? Stream.value(session!)),
         schemalessCredentialOrderControllerProvider.overrideWith(_NoWallet.new),
+        // Where "Go to …" sends the user, recorded instead of opened.
+        issuerOpenerProvider.overrideWithValue(
+          (context, d, ref) async => calls.obtained.add(d.credentialId),
+        ),
       ],
       child: IrmaTheme(
         builder: (_) => MaterialApp.router(
@@ -225,7 +230,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text("What do you want to share?"), findsOneWidget);
 
-    await tester.tap(find.text("de Vries"));
+    await tester.tap(find.byKey(const Key("sheet_owned_hash-idcard-de Vries")));
     await tester.pumpAndSettle();
     expect(find.text("What do you want to share?"), findsNothing);
     expect(find.text("de Vries"), findsOneWidget);
@@ -253,11 +258,25 @@ void main() {
 
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
-    await tester.tap(find.text("ID card"));
-    await tester.pumpAndSettle();
+    expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
+    expect(find.text("Issuer · on issuer.example"), findsOneWidget);
 
-    expect(find.text("details"), findsOneWidget);
-    expect(calls.obtained.single, contains('"credential_id":"idcard"'));
+    // First where the user goes, then there.
+    await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+    await tester.pumpAndSettle();
+    expect(find.text("Add ID card"), findsOneWidget);
+    expect(find.text("Back here, already selected"), findsOneWidget);
+    expect(calls.obtained, isEmpty);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key("sheet_go_button")),
+        matching: find.text("Go to issuer.example"),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+    expect(calls.obtained, ["idcard"]);
   });
 
   group("optional data", () {
@@ -279,7 +298,10 @@ void main() {
 
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
-      await tester.tap(find.text("de Vries"));
+      expect(find.text("Add optional data"), findsOneWidget);
+      await tester.tap(
+        find.byKey(const Key("sheet_owned_hash-idcard-de Vries")),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text("de Vries"), findsOneWidget);
@@ -293,45 +315,61 @@ void main() {
       expect(_hashes(calls.shared.single), [<String>[]]);
     });
 
-    testWidgets("obtained while the sheet is open, it is included", (
+    testWidgets("a card added for it is included once it arrives", (
       tester,
     ) async {
       final sessions = StreamController<SessionState>();
       addTearDown(sessions.close);
-      sessions.add(
-        _session([
+      DisclosurePickOne optional(List<SelectableCredentialInstance> owned) =>
           DisclosurePickOne(
             optional: true,
-            ownedOptions: [
-              _bundle(_instance("passport", "Passport", "Jansen")),
-            ],
+            ownedOptions: [for (final i in owned) _bundle(i)],
             obtainableOptions: [_descriptor("idcard", "ID card")],
-          ),
+          );
+      final passport = _instance("passport", "Passport", "Jansen");
+      sessions.add(
+        _session([
+          optional([passport]),
         ]),
       );
-      await _pump(tester, sessions: sessions.stream);
+      final calls = await _pump(tester, sessions: sessions.stream);
 
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      expect(calls.obtained, ["idcard"]);
+      // Not included before the card is there.
+      expect(find.byKey(const Key("share_slot_0")), findsNothing);
+
       sessions.add(
         _session([
-          DisclosurePickOne(
-            optional: true,
-            ownedOptions: [
-              _bundle(_instance("passport", "Passport", "Jansen")),
-              _bundle(_instance("idcard", "ID card", "de Vries")),
-            ],
-          ),
+          optional([passport, _instance("idcard", "ID card", "de Vries")]),
         ]),
       );
-      await tester.pumpAndSettle();
-
-      final sheetTitle = find.text("What do you want to share?");
-      Navigator.of(tester.element(sheetTitle)).pop();
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
       expect(find.text("de Vries"), findsOneWidget);
+    });
+
+    testWidgets("leaving the sheet without adding changes nothing", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([_passportOrIdCard(optional: true)]),
+      );
+
+      await tester.tap(find.byKey(const Key("share_add_optional_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key("share_add_optional_0")), findsOneWidget);
+      expect(find.byKey(const Key("share_slot_0")), findsNothing);
     });
   });
 
@@ -359,9 +397,13 @@ void main() {
       await tester.tap(_share);
       expect(calls.shared, isEmpty);
 
+      // The fix opens the sheet straight on adding a new one.
       await tester.tap(find.byKey(const Key("shared_card_fix")));
       await tester.pumpAndSettle();
-      expect(calls.obtained.single, contains('"credential_id":"address"'));
+      expect(find.text("Add address"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      expect(calls.obtained, ["address"]);
     });
 
     testWidgets("used up and not renewable in Yivi: Close", (tester) async {
@@ -469,5 +511,90 @@ void main() {
       tester.getRect(find.byKey(const Key("share_slot_0"))).left,
       greaterThan(header.right),
     );
+  });
+
+  group("the Change sheet", () {
+    testWidgets("cards of one type: which one, told apart by value", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(_instance("email", "Email address", "s@werk.example")),
+              _bundle(
+                _instance("email", "Email address", "sanne@devries.example"),
+              ),
+            ],
+            obtainableOptions: [_descriptor("email", "Email address")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Which email address?"), findsOneWidget);
+      expect(find.text("IN YOUR APP"), findsOneWidget);
+      expect(find.text("sanne@devries.example"), findsOneWidget);
+      expect(find.text("Another email address"), findsOneWidget);
+    });
+
+    testWidgets("the current card is the checked radio", (tester) async {
+      final semantics = tester.ensureSemantics();
+      await _pump(tester, session: _session([_passportOrIdCard()]));
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(
+          find.byKey(const Key("sheet_owned_hash-passport-Jansen")),
+        ),
+        isSemantics(
+          isInMutuallyExclusiveGroup: true,
+          hasCheckedState: true,
+          isChecked: true,
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(
+        tester.getSemantics(
+          find.byKey(const Key("sheet_owned_hash-idcard-de Vries")),
+        ),
+        isSemantics(
+          isInMutuallyExclusiveGroup: true,
+          hasCheckedState: true,
+          isChecked: false,
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets("back from adding returns to the choice", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(_instance("passport", "Passport", "Jansen")),
+            ],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel("Go back"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("What do you want to share?"), findsOneWidget);
+    });
   });
 }

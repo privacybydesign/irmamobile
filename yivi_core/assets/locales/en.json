@@ -1412,6 +1412,22 @@
     "show_less": "Show less",
     "footnote": "{requestor} gets only this. Fields that are not listed stay on your phone.",
     "footnote_none": "The visit is still kept in your Activity.",
-    "everything_added": "Everything is added. Check what you share."
+    "everything_added": "Everything is added. Check what you share.",
+    "sheet": {
+      "add_optional": "Add optional data",
+      "which": "Which {name}?",
+      "what": "What do you want to share?",
+      "subtitle": "Tap a card in your app to use it, or add a new one.",
+      "subtitle_add": "Pick what you want to add.",
+      "another": "Another {name}",
+      "on_host": "{issuer} · on {host}",
+      "add_title": "Add {name}",
+      "add_subtitle": "You add it on the issuer's website, then come straight back.",
+      "from": "From",
+      "where": "Where",
+      "afterwards": "Afterwards",
+      "selected_back": "Back here, already selected",
+      "go_to": "Go to {host}"
+    }
   }
 }

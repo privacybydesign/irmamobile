@@ -42,6 +42,11 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
   /// the bundle containing them.
   Map<int, Set<String>> _previousOwnedHashes = {};
 
+  /// Optional pick-ones the user went to add a card for: they are included
+  /// as soon as that card arrives (and not before, so leaving the issuer's
+  /// website without adding anything changes nothing).
+  final Set<int> _includeWhenAdded = {};
+
   SessionUserChoicesNotifier(this.sessionId);
 
   @override
@@ -73,6 +78,12 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
 
   void removeOptional(int disconIndex) {
     state = state.withOptionalRemoved(disconIndex);
+  }
+
+  /// Includes optional pick-one [disconIndex] once a new card for it is
+  /// added (the user tapped "Go to …" for it).
+  void includeOptionalWhenAdded(int disconIndex) {
+    _includeWhenAdded.add(disconIndex);
   }
 
   void _autoSelectNewlyIssuedCredentials(SessionState session) {
@@ -107,6 +118,10 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
 
         if (target != null && target != existing) {
           updated = updated.withBundle(i, target);
+          changed = true;
+        }
+        if (target != null && _includeWhenAdded.remove(i)) {
+          updated = updated.withOptionalAdded(i);
           changed = true;
         }
       }

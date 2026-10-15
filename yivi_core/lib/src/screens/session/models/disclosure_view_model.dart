@@ -56,6 +56,19 @@ String? hostOf(String? url) {
   return host.startsWith("www.") ? host.substring(4) : host;
 }
 
+/// [name] for use inside a sentence ("Which email address?"): the first
+/// letter lowercased when it is an ordinary capitalised word, but kept for
+/// abbreviations and brand names such as "ID card", "iDIN" or "BSN", and
+/// in German, where nouns keep their capital.
+String inSentence(String name, {String? language}) {
+  if (language == "de" || name.length < 2) return name;
+  final first = name[0];
+  final second = name[1];
+  final ordinary =
+      first != first.toLowerCase() && second == second.toLowerCase();
+  return ordinary ? first.toLowerCase() + name.substring(1) : name;
+}
+
 /// Whether Yivi can send the user to get [descriptor]: it has an issue URL.
 /// Types without one (OID4VCI, mdoc, some IRMA demo types) are shown, but
 /// cannot be picked.

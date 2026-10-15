@@ -1412,6 +1412,22 @@
     "show_less": "Toon minder",
     "footnote": "{requestor} krijgt alleen dit. Velden die hier niet staan blijven op je telefoon.",
     "footnote_none": "Het bezoek staat wel in je Activiteit.",
-    "everything_added": "Alles is toegevoegd. Controleer wat je deelt."
+    "everything_added": "Alles is toegevoegd. Controleer wat je deelt.",
+    "sheet": {
+      "add_optional": "Optionele gegevens toevoegen",
+      "which": "Welk(e) {name}?",
+      "what": "Wat wil je delen?",
+      "subtitle": "Tik op een kaart in je app om die te gebruiken, of voeg een nieuwe toe.",
+      "subtitle_add": "Kies wat je wilt toevoegen.",
+      "another": "Ander(e) {name}",
+      "on_host": "{issuer} · op {host}",
+      "add_title": "Voeg {name} toe",
+      "add_subtitle": "Je voegt het toe op de website van de uitgever en komt daarna meteen terug.",
+      "from": "Van",
+      "where": "Waar",
+      "afterwards": "Daarna",
+      "selected_back": "Terug hier, al geselecteerd",
+      "go_to": "Naar {host}"
+    }
   }
 }

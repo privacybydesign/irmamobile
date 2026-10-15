@@ -443,4 +443,12 @@ void main() {
       );
     });
   });
+
+  test("names inside a sentence keep abbreviations", () {
+    expect(inSentence("Email address"), "email address");
+    expect(inSentence("ID card"), "ID card");
+    expect(inSentence("iDIN"), "iDIN");
+    expect(inSentence("BSN"), "BSN");
+    expect(inSentence("Email-Adresse", language: "de"), "Email-Adresse");
+  });
 }

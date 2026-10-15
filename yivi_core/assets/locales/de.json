@@ -1412,6 +1412,22 @@
     "show_less": "Weniger anzeigen",
     "footnote": "{requestor} bekommt nur das. Felder, die hier nicht stehen, bleiben auf deinem Telefon.",
     "footnote_none": "Der Besuch steht trotzdem in deiner Aktivität.",
-    "everything_added": "Alles ist hinzugefügt. Prüfe, was du teilst."
+    "everything_added": "Alles ist hinzugefügt. Prüfe, was du teilst.",
+    "sheet": {
+      "add_optional": "Optionale Daten hinzufügen",
+      "which": "Welche(s) {name}?",
+      "what": "Was möchtest du teilen?",
+      "subtitle": "Tippe auf eine Karte in deiner App, um sie zu verwenden, oder füge eine neue hinzu.",
+      "subtitle_add": "Wähle, was du hinzufügen möchtest.",
+      "another": "Andere(s) {name}",
+      "on_host": "{issuer} · auf {host}",
+      "add_title": "{name} hinzufügen",
+      "add_subtitle": "Du fügst es auf der Website des Ausstellers hinzu und kommst dann direkt zurück.",
+      "from": "Von",
+      "where": "Wo",
+      "afterwards": "Danach",
+      "selected_back": "Zurück hier, schon ausgewählt",
+      "go_to": "Zu {host}"
+    }
   }
 }

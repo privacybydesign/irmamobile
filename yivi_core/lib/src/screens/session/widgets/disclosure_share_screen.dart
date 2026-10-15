@@ -6,10 +6,8 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
-import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_surface.dart";
@@ -19,7 +17,7 @@ import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/large_title_scroll_view.dart";
 import "../../../widgets/signature_message.dart";
 import "../models/disclosure_view_model.dart";
-import "disclosure_choice_sheet.dart";
+import "change_choice_sheet.dart";
 import "session_columns.dart";
 import "session_requestor_header.dart";
 import "session_scaffold.dart";
@@ -79,37 +77,15 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     super.dispose();
   }
 
-  /// "Change", or "Add" on optional data: the choice sheet for pick-one [i].
-  void _openChoice(int i, {bool addOptional = false}) {
-    final notifier = ref.read(sessionUserChoicesProvider(_sessionId).notifier);
-    showDisclosureChoiceSheet(
-      context: context,
-      pickOne: _pickOnes[i],
-      sessionId: _sessionId,
-      disconIndex: i,
-      requestorName: widget.session.requestor.name,
-      onChoiceMade: (k) {
-        // The plan may have changed while the sheet was open (a card was
-        // added), so take the bundle from the current state.
-        final current =
-            ref
-                .read(sessionStateProvider(_sessionId))
-                .value
-                ?.disclosurePlan
-                ?.disclosureChoicesOverview ??
-            _pickOnes;
-        final owned = i < current.length ? current[i].ownedOptions : null;
-        if (addOptional) notifier.addOptional(i);
-        if (owned != null && k < owned.length) notifier.setBundle(i, owned[k]);
-      },
-      onObtain: _obtain,
-      onSelected: addOptional ? () => notifier.addOptional(i) : null,
-    );
-  }
-
-  void _obtain(CredentialDescriptor descriptor) =>
-      context.pushSchemalessDataDetailsScreen(
-        AddDataDetailsRouteParams(credential: descriptor),
+  /// "Change", or "Add" on optional data: the choice sheet for pick-one
+  /// [i]. With [addNew] it opens on adding that type (the fix of a card that
+  /// cannot be shared).
+  void _openChoice(int i, {CredentialDescriptor? addNew}) =>
+      showChangeChoiceSheet(
+        context: context,
+        sessionId: _sessionId,
+        index: i,
+        addNew: addNew,
       );
 
   @override
@@ -311,9 +287,14 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           : FlutterI18n.translate(
               context,
               "share.add_new",
-              translationParams: {"name": fix.name.toLowerCase()},
+              translationParams: {
+                "name": inSentence(
+                  fix.name,
+                  language: FlutterI18n.currentLocale(context)?.languageCode,
+                ),
+              },
             ),
-      onFix: fix == null ? null : () => _obtain(fix),
+      onFix: fix == null ? null : () => _openChoice(i, addNew: fix),
     );
   }
 
@@ -350,7 +331,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         context,
         owned.isNotEmpty ? "share.in_your_app" : "share.not_in_app_yet",
       ),
-      onTap: () => _openChoice(i, addOptional: true),
+      onTap: () => _openChoice(i),
     );
   }
 
