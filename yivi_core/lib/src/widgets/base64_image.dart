@@ -4,6 +4,25 @@ import "dart:typed_data";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
+/// The bytes of [base64], decoded once and then shared.
+///
+/// Image caches key on the bytes object ([MemoryImage] and the SVG loaders
+/// compare it by identity), so decoding the same logo again for every new
+/// widget misses the cache and the picture is blank for a few frames. A card
+/// that is rebuilt elsewhere, such as the Hero flying to the card detail,
+/// would flicker.
+Uint8List decodeBase64Cached(String base64) {
+  final cached = _decoded.remove(base64);
+  final bytes = cached ?? base64Decode(base64);
+  // Most recently used last; drop the oldest beyond the limit.
+  _decoded[base64] = bytes;
+  if (_decoded.length > _decodedLimit) _decoded.remove(_decoded.keys.first);
+  return bytes;
+}
+
+const _decodedLimit = 128;
+final _decoded = <String, Uint8List>{};
+
 class Base64Image extends StatefulWidget {
   final String base64;
   final String? mimeType;
@@ -16,7 +35,7 @@ class Base64Image extends StatefulWidget {
 }
 
 class _Base64ImageState extends State<Base64Image> {
-  late final Uint8List _bytes = base64Decode(widget.base64);
+  late final Uint8List _bytes = decodeBase64Cached(widget.base64);
   late final bool _isSvg = _detectSvg();
   late final MemoryImage? _provider = _isSvg ? null : MemoryImage(_bytes);
 
@@ -52,5 +71,7 @@ class _Base64ImageState extends State<Base64Image> {
 
   @override
   Widget build(BuildContext context) =>
-      _isSvg ? SvgPicture.memory(_bytes) : Image(image: _provider!);
+      _isSvg
+      ? SvgPicture.memory(_bytes)
+      : Image(image: _provider!, gaplessPlayback: true);
 }

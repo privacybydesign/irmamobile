@@ -163,16 +163,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         routes: [
           GoRoute(
             path: "credential",
-            pageBuilder: (context, state) => CustomTransitionPage(
+            // Moves the data tab's items out of the way while the card
+            // flies (see WalletTransition).
+            pageBuilder: (context, state) => WalletDetailPage(
               key: state.pageKey,
               name: "/home/credential",
-              // Not opaque, so the data tab stays painted while its cards
-              // move out of the way (see WalletTransition).
-              opaque: false,
-              transitionDuration: WalletTransition.duration,
-              reverseTransitionDuration: WalletTransition.reverseDuration,
-              transitionsBuilder: (context, animation, secondary, child) =>
-                  child,
               child: CredentialDetailScreen(
                 hash: state.uri.queryParameters["hash"] ?? "",
               ),

@@ -1,4 +1,3 @@
-import "dart:convert";
 
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -214,8 +213,9 @@ class _YiviCard extends StatelessWidget {
         children: [
           if (image != null)
             Positioned.fill(
-              child: Image.memory(
-                base64Decode(image.base64),
+              child: Image(
+                // Decoded once, so a rebuilt card finds it in the cache.
+                image: MemoryImage(decodeBase64Cached(image.base64)),
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
                 errorBuilder: (_, _, _) => const SizedBox.shrink(),

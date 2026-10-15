@@ -283,9 +283,12 @@ class _CardList extends ConsumerWidget {
             SliverToBoxAdapter(child: SizedBox(height: topInset)),
             if (ref.watch(emailBannerVisibleProvider))
               box(
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 16),
-                  child: EmailLinkBanner(),
+                const PushAway(
+                  direction: PushAwayDirection.up,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: EmailLinkBanner(),
+                  ),
                 ),
               ),
             box(

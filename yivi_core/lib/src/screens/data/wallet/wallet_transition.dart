@@ -122,3 +122,70 @@ class PushAway extends StatelessWidget {
     return up ? -(bottom + 32) : (screen - top + 32);
   }
 }
+
+/// The page of the card detail route. It draws no transition of its own: the
+/// card flies as a [Hero] and the detail fades in itself.
+///
+/// It also hands the route below (home) a [ModalRoute.delegatedTransition]
+/// that leaves that page where it is. Without one a Material route below
+/// does not run its `secondaryAnimation` for this route, and [PushAway]
+/// would never move the search bar, the other cards and the tab bar.
+class WalletDetailPage<T> extends Page<T> {
+  final Widget child;
+
+  const WalletDetailPage({super.key, super.name, required this.child});
+
+  @override
+  Route<T> createRoute(BuildContext context) => _WalletDetailRoute<T>(this);
+}
+
+class _WalletDetailRoute<T> extends PageRoute<T> {
+  _WalletDetailRoute(WalletDetailPage<T> page) : super(settings: page);
+
+  WalletDetailPage<T> get _page => settings as WalletDetailPage<T>;
+
+  // Not opaque, so the data tab stays painted while its items move away.
+  @override
+  bool get opaque => false;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => WalletTransition.duration;
+
+  @override
+  Duration get reverseTransitionDuration => WalletTransition.reverseDuration;
+
+  @override
+  DelegatedTransitionBuilder? get delegatedTransition => _stayInPlace;
+
+  static Widget? _stayInPlace(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    bool allowSnapshotting,
+    Widget? child,
+  ) => child;
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) => _page.child;
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => child;
+}
