@@ -11,6 +11,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../home/home_screen.dart";
 import "../../home/widgets/irma_nav_bar.dart";
+import "wallet_transition.dart";
 
 /// Where the incoming card is while it flies from the issuance success
 /// screen into the data tab.
@@ -39,8 +40,6 @@ class IssuanceFlight {
   static const curtain = Duration(milliseconds: 460);
   static const insertAt = Duration(milliseconds: 420);
 
-  /// In Stack view the card tucks under the next one from here on.
-  static const tuckAt = Duration(milliseconds: 820);
   static const stackEnd = Duration(milliseconds: 1120);
   static const end = Duration(milliseconds: 840);
   static const curve = Cubic(0.3, 0.9, 0.25, 1);
@@ -288,7 +287,6 @@ class _FlightOverlayState extends State<_FlightOverlay>
             _progress(IssuanceFlight.flight),
           );
           final rect = Rect.lerp(widget.from, _to ?? widget.from, t)!;
-          final tucked = widget.stack && _elapsed >= IssuanceFlight.tuckAt;
 
           return Stack(
             children: [
@@ -305,10 +303,13 @@ class _FlightOverlayState extends State<_FlightOverlay>
                   left: rect.left,
                   top: rect.top,
                   width: rect.width,
-                  child: ClipRect(
-                    // Tucked into the stack only the top strip shows, the
-                    // way the real card does under the next one.
-                    clipper: tucked ? const _TopStrip(64) : null,
+                  // Slides under the card below its place in the stack (the
+                  // first card, until it joins the list), so it tucks in
+                  // as it lands instead of jumping under at the end.
+                  child: CoveredByStack(
+                    hash: widget.card.hash,
+                    incoming: true,
+                    repaint: _clock,
                     child: Transform.rotate(
                       angle: -0.035 * (1 - t),
                       child: Stack(
@@ -337,19 +338,6 @@ class _FlightOverlayState extends State<_FlightOverlay>
       ),
     );
   }
-}
-
-class _TopStrip extends CustomClipper<Rect> {
-  final double height;
-
-  const _TopStrip(this.height);
-
-  @override
-  Rect getClip(Size size) =>
-      Rect.fromLTWH(-24, -24, size.width + 48, height + 24);
-
-  @override
-  bool shouldReclip(_TopStrip old) => old.height != height;
 }
 
 /// The green check on the received card.

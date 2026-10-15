@@ -545,16 +545,20 @@ class _StackView extends StatelessWidget {
               right: 0,
               child: PushAway(
                 hash: c.hash,
-                child: _flightSlot(
-                  first: i == 0,
+                child: WalletStackSlot(
                   hash: c.hash,
-                  child: _CardButton(
-                    credential: c,
-                    hintText: hintTexts[c.hash],
-                    child: CardHero(
+                  index: i,
+                  child: _flightSlot(
+                    first: i == 0,
+                    hash: c.hash,
+                    child: _CardButton(
                       credential: c,
-                      width: width,
                       hintText: hintTexts[c.hash],
+                      child: CardHero(
+                        credential: c,
+                        width: width,
+                        hintText: hintTexts[c.hash],
+                      ),
                     ),
                   ),
                 ),

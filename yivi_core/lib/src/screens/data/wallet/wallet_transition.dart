@@ -1,4 +1,7 @@
+import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
+
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 
 /// State shared between the data tab and the card detail route while a card
 /// opens or closes, for the Wallet-style transition: the tapped card glides
@@ -210,4 +213,169 @@ class _WalletDetailRoute<T> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) => child;
+}
+
+/// A card's place in the Stack view of the data tab. Cards lower in the
+/// stack are drawn over the ones above them; a card flying into or out of
+/// its place ([CoveredByStack]) uses this to slide under the card below it.
+class WalletStackSlot extends StatefulWidget {
+  final String hash;
+  final int index;
+  final Widget child;
+
+  const WalletStackSlot({
+    super.key,
+    required this.hash,
+    required this.index,
+    required this.child,
+  });
+
+  static final _byIndex = <int, BuildContext>{};
+  static final _indexOf = <String, int>{};
+
+  /// The card drawn over [hash]'s place: the next card down the stack. For a
+  /// card that is not in the stack yet ([incoming]), the first card, which it
+  /// will slide under. Null outside the Stack view.
+  static RenderBox? coverOf(String hash, {bool incoming = false}) {
+    final index = _indexOf[hash];
+    final cover = index != null
+        ? _byIndex[index + 1]
+        : (incoming ? _byIndex[0] : null);
+    if (cover == null || !cover.mounted) return null;
+    final box = cover.findRenderObject();
+    return box is RenderBox && box.attached && box.hasSize ? box : null;
+  }
+
+  @override
+  State<WalletStackSlot> createState() => _WalletStackSlotState();
+}
+
+class _WalletStackSlotState extends State<WalletStackSlot> {
+  void _register() {
+    WalletStackSlot._byIndex[widget.index] = context;
+    WalletStackSlot._indexOf[widget.hash] = widget.index;
+  }
+
+  void _unregister(WalletStackSlot old) {
+    if (WalletStackSlot._byIndex[old.index] == context) {
+      WalletStackSlot._byIndex.remove(old.index);
+    }
+    if (WalletStackSlot._indexOf[old.hash] == old.index) {
+      WalletStackSlot._indexOf.remove(old.hash);
+    }
+  }
+
+  @override
+  void didUpdateWidget(WalletStackSlot old) {
+    super.didUpdateWidget(old);
+    _unregister(old);
+  }
+
+  @override
+  void dispose() {
+    _unregister(widget);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _register();
+    return widget.child;
+  }
+}
+
+/// Hides the part of a flying card that the cards below its place in the
+/// stack cover, every frame ([repaint]), so it slides under the card below it
+/// and over the one above it instead of flying over all of them and jumping
+/// under at the end.
+class CoveredByStack extends SingleChildRenderObjectWidget {
+  final String hash;
+
+  /// The card is not in the stack yet: it slides under the first card.
+  final bool incoming;
+  final Listenable repaint;
+
+  const CoveredByStack({
+    super.key,
+    required this.hash,
+    required this.repaint,
+    this.incoming = false,
+    required super.child,
+  });
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      RenderCoveredByStack(hash, incoming, repaint);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderCoveredByStack renderObject,
+  ) {
+    renderObject
+      ..hash = hash
+      ..incoming = incoming
+      ..repaint = repaint;
+  }
+}
+
+class RenderCoveredByStack extends RenderProxyBox {
+  RenderCoveredByStack(this.hash, this.incoming, this._repaint);
+
+  String hash;
+  bool incoming;
+  Listenable _repaint;
+
+  set repaint(Listenable value) {
+    if (value == _repaint) return;
+    if (attached) _repaint.removeListener(markNeedsPaint);
+    _repaint = value;
+    if (attached) _repaint.addListener(markNeedsPaint);
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _repaint.addListener(markNeedsPaint);
+  }
+
+  @override
+  void detach() {
+    _repaint.removeListener(markNeedsPaint);
+    super.detach();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final cover = WalletStackSlot.coverOf(hash, incoming: incoming);
+    if (cover == null || child == null) {
+      super.paint(context, offset);
+      return;
+    }
+    // The covering card in this box's coordinates, reaching far down: the
+    // cards after it cover the rest of the stack.
+    final coverTop = globalToLocal(cover.localToGlobal(Offset.zero));
+    final coverRect = Rect.fromLTWH(
+      coverTop.dx,
+      coverTop.dy,
+      cover.size.width,
+      cover.size.height + 10000,
+    );
+    final covered = CredentialCardArt.shapeFor(
+      cover.size.width,
+    ).getOuterPath(coverRect);
+    // Room around the card for its shadow.
+    final visible = Path.combine(
+      PathOperation.difference,
+      Path()..addRect((Offset.zero & size).inflate(48)),
+      covered,
+    );
+    context.pushClipPath(
+      needsCompositing,
+      offset,
+      (Offset.zero & size).inflate(48),
+      visible,
+      super.paint,
+    );
+  }
 }

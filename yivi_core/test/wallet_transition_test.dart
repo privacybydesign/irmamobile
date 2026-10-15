@@ -1,3 +1,4 @@
+import "package:flutter/rendering.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -250,5 +251,88 @@ void main() {
         .whereType<LinearGradient>()
         .single;
     expect(sheen.colors.first.a, lessThan(0.1));
+  });
+
+  testWidgets("a flying card slides under the card below its place", (
+    tester,
+  ) async {
+    const green = Color(0xFF00FF00), blue = Color(0xFF0000FF);
+    const red = Color(0xFFFF0000);
+    final key = GlobalKey();
+    final fly = AnimationController(vsync: const TestVSync());
+    addTearDown(fly.dispose);
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: RepaintBoundary(
+            key: key,
+            child: SizedBox(
+              width: 300,
+              height: 300,
+              child: Stack(
+                children: [
+                  // The stack: the card at index 1 is drawn over index 0.
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    width: 300,
+                    height: 190,
+                    child: WalletStackSlot(
+                      hash: "a",
+                      index: 0,
+                      child: ColoredBox(color: green),
+                    ),
+                  ),
+                  const Positioned(
+                    left: 0,
+                    top: 64,
+                    width: 300,
+                    height: 190,
+                    child: WalletStackSlot(
+                      hash: "b",
+                      index: 1,
+                      child: ColoredBox(color: blue),
+                    ),
+                  ),
+                  // Card "a" flying in, drawn over everything.
+                  Positioned(
+                    left: 0,
+                    top: 32,
+                    width: 300,
+                    height: 190,
+                    child: CoveredByStack(
+                      hash: "a",
+                      repaint: fly,
+                      child: const ColoredBox(color: red),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final image = await tester.runAsync(() async {
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      final image = await boundary.toImage();
+      return (await image.toByteData())!;
+    });
+    Color at(int x, int y) {
+      final i = (y * 300 + x) * 4;
+      return Color.fromARGB(
+        image!.getUint8(i + 3),
+        image.getUint8(i),
+        image.getUint8(i + 1),
+        image.getUint8(i + 2),
+      );
+    }
+
+    // Over the card above its place, under the card below it.
+    expect(at(150, 48), red);
+    expect(at(150, 150), blue);
   });
 }

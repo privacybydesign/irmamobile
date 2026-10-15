@@ -26,11 +26,16 @@ class CardHero extends StatelessWidget {
     return Hero(
       tag: WalletTransition.heroTag(credential.hash),
       createRectTween: WalletTransition.rectTween,
-      flightShuttleBuilder: (_, _, _, _, _) => LayoutBuilder(
-        builder: (context, constraints) => CredentialCardArt(
-          credential: credential,
-          width: constraints.maxWidth,
-          hintText: hintText,
+      // Flies under the card below its place in the stack, not over it.
+      flightShuttleBuilder: (_, animation, _, _, _) => CoveredByStack(
+        hash: credential.hash,
+        repaint: animation,
+        child: LayoutBuilder(
+          builder: (context, constraints) => CredentialCardArt(
+            credential: credential,
+            width: constraints.maxWidth,
+            hintText: hintText,
+          ),
         ),
       ),
       child: CredentialCardArt(
