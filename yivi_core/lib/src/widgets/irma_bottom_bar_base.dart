@@ -14,30 +14,40 @@ class IrmaBottomBarBase extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
 
     // Floats over the page: the content scrolls underneath and fades out
-    // behind the buttons, as in the design (with `extendBody`).
+    // above the bar, as in the design (with `extendBody`). The fade is a
+    // fixed band above the content, so a taller bar (a reason above the
+    // button) is solid behind everything it shows.
     final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [palette.background.withValues(alpha: 0), palette.background],
-          stops: const [0, 0.45],
-        ),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child: Padding(
-          padding: .only(
-            left: theme.defaultSpacing + mediaQuery.padding.left,
-            right: theme.defaultSpacing + mediaQuery.padding.right,
-            // Room for the fade above the buttons.
-            top: theme.defaultSpacing * 2,
-            bottom: theme.defaultSpacing + mediaQuery.padding.bottom,
+    final fade = theme.defaultSpacing * 2;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                palette.background.withValues(alpha: 0),
+                palette.background,
+              ],
+            ),
           ),
-          child: child,
+          child: SizedBox(height: fade),
         ),
-      ),
+        ColoredBox(
+          color: palette.background,
+          child: Padding(
+            padding: .only(
+              left: theme.defaultSpacing + mediaQuery.padding.left,
+              right: theme.defaultSpacing + mediaQuery.padding.right,
+              bottom: theme.defaultSpacing + mediaQuery.padding.bottom,
+            ),
+            child: child,
+          ),
+        ),
+      ],
     );
   }
 }

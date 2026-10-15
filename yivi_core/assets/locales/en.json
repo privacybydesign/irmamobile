@@ -194,30 +194,7 @@
   },
   "disclosure": {
     "title": "Data request",
-    "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
-    "disclosure_call_header": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
-    "signing_header": "{otherParty} asks you to sign a message",
-    "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
-    "unsatisfiable_header": "You don't have all data that {otherParty} is asking for in your Yivi app.",
-    "issuer": "Issuer",
     "logo_semantic": "Logo of {otherParty}",
-    "choices": "{choices} choices",
-    "next": "next choices",
-    "previous": "previous choices",
-    "not_present": "This data has not yet been added to Yivi.",
-    "not_present_have_other": "The requested data does not match the data you have available in Yivi.",
-    "you_have": "You have:",
-    "requested_for": "This is requested:",
-    "card_count": "{i} of {total}",
-    "among_others": "Among others",
-    "add_additional": "Want to share different information? Add additional '{credential}' data.",
-    "expired": "This data is expired.",
-    "revoked": "This data has been revoked.",
-    "not_revokable": "This data has to be refreshed first.",
-    "obtain": "Add",
-    "refresh": "Refresh",
-    "nothing_selected": "Nothing selected",
-    "redirect": "You are being redirected to the webpage...",
     "feedback": {
       "header": {
         "success": "Success",
@@ -232,54 +209,15 @@
         "not_satisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party.",
         "not_satisfiable_signature": "{otherParty} is requesting you to sign with outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party."
       }
-    },
-    "requested_data": "Requested data",
-    "only_this_shared": "Only this is shared",
-    "what_you_shared": "What you shared"
+    }
   },
   "disclosure_permission": {
-    "title": "Data request",
-    "next": "Next",
-    "change_choice": "Change choice",
-    "choose": "Make a choice",
-    "obtain_new": "Obtain new data",
-    "next_step": "Next step",
-    "obtain_data": "Obtain data",
-    "close": "Close",
-    "optional_data": "Optional data",
-    "add_optional_data": "Add optional data",
-    "no_data_selected": "No data selected",
-    "choice": {
-      "or": "or",
-      "none_yet": "Not in your app yet. Tap what you want to obtain.",
-      "obtain": "Obtain",
-      "certified_by": "Certified by {issuer}",
-      "switch": "Switch",
-      "sheet_title": "What do you want to share?",
-      "sheet_explanation": "{requestor} accepts: {options}. Tap what you want to share."
-    },
-    "introduction": {
-      "title": "Get going",
-      "header": "Share your data",
-      "explanation": "Collect the required data to be able to share it with requesting parties.",
-      "continue": "Get going"
-    },
     "issue_wizard": {
-      "title": "Collect data",
       "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that.",
       "explanation_incomplete_single": "Obtain the required data and share it with the requesting party after that.",
       "explanation_complete": "All required data has been added."
     },
-    "previously_added": {
-      "title": "Validate data",
-      "explanation": "This data has already been added to your app. Verify that the data is still correct."
-    },
     "overview": {
-      "title": "Share my data",
-      "sign": "This is the message you're signing:",
-      "explanation": "Share my data with {requestorName}",
-      "confirm": "Share data",
-      "confirm_sign": "Sign and share",
       "requestor_verification": {
         "verified_suffix": "is asking for your data. This is a known party that has registered itself with Yivi.",
         "unverified_suffix": "is asking for your data. Warning: this party is not known by Yivi.",
@@ -290,39 +228,14 @@
         }
       }
     },
-    "confirm_dialog": {
-      "title": "Share data",
-      "title_signature": "Sign and share data",
-      "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
-      "explanation_signature": "You are about to sign the message of {requestorName}. Tap 'Sign and share' to continue",
-      "confirm": "Share",
-      "confirm_signature": "Sign and share",
-      "decline": "Don't share",
-      "decline_signature": "Don't sign"
-    },
     "confirm_close_dialog": {
       "title": "Cancel sharing data?",
       "explanation": "Are you sure you don't want to share your data?",
       "confirm": "Yes",
       "decline": "No"
     },
-    "wrong_credentials_added": {
-      "title": "Error",
-      "explanation": "Data has been added to the app, but they do not meet the requested criteria. Please obtain the right data.",
-      "you_issued": "Received",
-      "expected": "Expected",
-      "dismiss_action": "OK"
-    },
     "call": {
-      "title": "Call via Yivi",
-      "disclosure_explanation": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
-      "disclosure_success": "Data has been shared with {otherParty}",
-      "explanation_header_ios": "Choose next to call",
-      "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link code. If you choose to call, you will hear a few beeps and you will be connected.",
-      "explanation_header_android": "1. Choose next",
-      "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link code.",
-      "extra_explanation_header_android": "2. Tap the call button in your phone app",
-      "extra_explanation_android": "You will hear a few beeps and you will be connected."
+      "title": "Call via Yivi"
     }
   },
   "enrollment": {
@@ -674,7 +587,6 @@
     "code_label": "Verification code"
   },
   "external_issuer": {
-    "source": "Via the website of {issuer}",
     "returned": "You're back from the website of {issuer}",
     "heads_up": {
       "title": "You're about to go to another website",
@@ -683,11 +595,6 @@
       "step_3": "You come back to this list.",
       "to_website": "Go to the website",
       "back_to_list": "Back to the list"
-    },
-    "waiting": {
-      "status": "Not received yet",
-      "body": "Still busy on the website of {issuer}? Continue there. When you're done, Yivi opens by itself.",
-      "reopen": "Open the website again"
     }
   },
   "issue_wizard": {
@@ -1339,33 +1246,9 @@
     }
   },
   "missing_data": {
-    "header": {
-      "one": "{requestor} asks for {n} item of data",
-      "other": "{requestor} asks for {n} items of data"
-    },
     "known_party": "Known party",
-    "unknown_party": "Unknown party",
-    "progress": "{x} of {n} ready",
-    "status": {
-      "present": "Already in your app",
-      "missing": "Not in your app yet",
-      "just_added": "Just added"
-    },
-    "obtain": "Obtain",
-    "obtain_named": "Obtain: {credential}",
-    "share_with": "Share with {requestor}",
-    "hint": {
-      "one": "Obtain the missing item of data first",
-      "other": "Obtain the {n} missing items of data first"
-    },
     "band": "For {requestor} · {x} of {n} ready",
-    "back_to_list": "Back to the list",
-    "ready_title": "Everything is ready",
-    "share_question": {
-      "one": "Do you want to share this item of data with {requestor}?",
-      "other": "Do you want to share these {n} items of data with {requestor}?"
-    },
-    "share": "Share"
+    "back_to_list": "Back to the list"
   },
   "share": {
     "requestor": {
@@ -1425,8 +1308,6 @@
     "or": " or ",
     "add_new": "Add a new {name}",
     "message_label": "You sign this message",
-    "read_whole_message": "Read the whole message",
-    "show_less": "Show less",
     "footnote": "{requestor} gets only this. Fields that are not listed stay on your phone.",
     "footnote_none": "The visit is still kept in your Activity.",
     "everything_added": "Everything is added. Check what you share.",

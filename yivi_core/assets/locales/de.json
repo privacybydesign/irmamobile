@@ -194,30 +194,7 @@
   },
   "disclosure": {
     "title": "Datenanfrage",
-    "disclosure_header": "Möchten Sie die folgenden Daten an {otherParty} weitergeben?",
-    "disclosure_call_header": "Möchten Sie die folgenden Daten an {otherParty} weitergeben und {phoneNumber} anrufen?",
-    "signing_header": "{otherParty} bittet Sie, eine Nachricht zu signieren",
-    "signing_call_header": "{otherParty} bittet Sie, eine Nachricht zu signieren und {phoneNumber} anzurufen",
-    "unsatisfiable_header": "Sie haben nicht alle Daten, die {otherParty} anfordert, in Ihrer Yivi-App.",
-    "issuer": "Aussteller",
     "logo_semantic": "Logo von {otherParty}",
-    "choices": "{choices} Auswahlmöglichkeiten",
-    "next": "nächste Möglichkeit",
-    "previous": "vorherige Möglichkeit",
-    "not_present": "Diese Daten wurden noch nicht zu Yivi hinzugefügt.",
-    "not_present_have_other": "Die angeforderten Daten stimmen nicht mit den Daten überein, die Sie in Yivi verfügbar haben.",
-    "you_have": "Sie haben:",
-    "requested_for": "Dies wird angefordert:",
-    "card_count": "{i} von {total}",
-    "among_others": "Unter anderem",
-    "add_additional": "Möchten Sie andere Informationen teilen? Fügen Sie zusätzliche '{credential}'-Daten hinzu.",
-    "expired": "Diese Daten sind abgelaufen.",
-    "revoked": "Diese Daten wurden widerrufen.",
-    "not_revokable": "Diese Daten müssen zuerst aktualisiert werden.",
-    "obtain": "Hinzufügen",
-    "refresh": "Aktualisieren",
-    "nothing_selected": "Nichts ausgewählt",
-    "redirect": "Sie werden zur Webseite weitergeleitet...",
     "feedback": {
       "header": {
         "success": "Erfolg",
@@ -232,54 +209,15 @@
         "not_satisfiable": "Ihre Daten wurden nicht weitergegeben, weil {otherParty} veraltete Daten anfordert. Sie können nichts tun, um dies zu beheben. Bitte kontaktieren Sie die anfragende Partei.",
         "not_satisfiable_signature": "{otherParty} fordert Sie auf, mit veralteten Daten zu signieren. Sie können dieses Problem selbst nicht beheben. Bitte kontaktieren Sie die anfragende Partei."
       }
-    },
-    "requested_data": "Angefragte Daten",
-    "only_this_shared": "Nur dies wird geteilt",
-    "what_you_shared": "Was du geteilt hast"
+    }
   },
   "disclosure_permission": {
-    "title": "Datenanfrage",
-    "next": "Weiter",
-    "change_choice": "Auswahl ändern",
-    "choose": "Auswahl treffen",
-    "obtain_new": "Neue Daten abrufen",
-    "next_step": "Nächster Schritt",
-    "obtain_data": "Daten abrufen",
-    "close": "Schließen",
-    "optional_data": "Optionale Daten",
-    "add_optional_data": "Optionale Daten hinzufügen",
-    "no_data_selected": "Keine Daten ausgewählt",
-    "choice": {
-      "or": "oder",
-      "none_yet": "Noch nicht in Ihrer App. Tippen Sie auf das, was Sie abrufen möchten.",
-      "obtain": "Abrufen",
-      "certified_by": "Beglaubigt von {issuer}",
-      "switch": "Wechseln",
-      "sheet_title": "Was möchten Sie teilen?",
-      "sheet_explanation": "{requestor} akzeptiert: {options}. Tippen Sie auf das, was Sie teilen möchten."
-    },
-    "introduction": {
-      "title": "Los geht's",
-      "header": "Teilen Sie Ihre Daten",
-      "explanation": "Sammeln Sie die erforderlichen Daten, um sie mit anfragenden Parteien teilen zu können.",
-      "continue": "Los geht's"
-    },
     "issue_wizard": {
-      "title": "Daten sammeln",
       "explanation_incomplete": "Meine Daten Schritt für Schritt abrufen und danach mit der anfragenden Partei teilen.",
       "explanation_incomplete_single": "Die benötigten Daten abrufen und danach mit der anfragenden Partei teilen.",
       "explanation_complete": "Alle erforderlichen Daten wurden hinzugefügt."
     },
-    "previously_added": {
-      "title": "Daten validieren",
-      "explanation": "Diese Daten wurden bereits zu Ihrer App hinzugefügt. Überprüfen Sie, ob die Daten noch korrekt sind."
-    },
     "overview": {
-      "title": "Meine Daten teilen",
-      "sign": "Dies ist die Nachricht, die Sie signieren:",
-      "explanation": "Meine Daten mit {requestorName} teilen",
-      "confirm": "Daten teilen",
-      "confirm_sign": "Signieren und teilen",
       "requestor_verification": {
         "verified_suffix": "fragt nach Ihren Daten. Dies ist eine bekannte Partei, die sich bei Yivi registriert hat.",
         "unverified_suffix": "fragt nach Ihren Daten. Warnung: Diese Partei ist Yivi nicht bekannt.",
@@ -290,69 +228,20 @@
         }
       }
     },
-    "confirm_dialog": {
-      "title": "Daten teilen",
-      "title_signature": "Signieren und Daten teilen",
-      "explanation": "Sie sind dabei, Daten mit {requestorName} zu teilen. Tippen Sie auf 'Teilen', um fortzufahren",
-      "explanation_signature": "Sie sind dabei, die Nachricht von {requestorName} zu signieren. Tippen Sie auf 'Signieren und teilen', um fortzufahren",
-      "confirm": "Teilen",
-      "confirm_signature": "Signieren und teilen",
-      "decline": "Nicht teilen",
-      "decline_signature": "Nicht signieren"
-    },
     "confirm_close_dialog": {
       "title": "Datenfreigabe abbrechen?",
       "explanation": "Sind Sie sicher, dass Sie Ihre Daten nicht teilen möchten?",
       "confirm": "Ja",
       "decline": "Nein"
     },
-    "wrong_credentials_added": {
-      "title": "Fehler",
-      "explanation": "Daten wurden zur App hinzugefügt, aber sie erfüllen nicht die angeforderten Kriterien. Bitte rufen Sie die richtigen Daten ab.",
-      "you_issued": "Erhalten",
-      "expected": "Erwartet",
-      "dismiss_action": "OK"
-    },
     "call": {
-      "title": "Anruf über Yivi",
-      "disclosure_explanation": "Möchten Sie die folgenden Daten an {otherParty} weitergeben und {phoneNumber} anrufen?",
-      "disclosure_success": "Daten wurden mit {otherParty} geteilt",
-      "explanation_header_ios": "Wählen Sie Weiter zum Anrufen",
-      "explanation_ios": "Ein Pop-up erscheint mit der Option, den Anruf zu tätigen. Die Nummer ist vorausgefüllt, gefolgt von einem Link-Code. Wenn Sie anrufen, hören Sie einige Pieptöne und werden verbunden.",
-      "explanation_header_android": "1. Wählen Sie Weiter",
-      "explanation_android": "Ihre Telefon-App öffnet sich jetzt automatisch. Die Nummer ist vorausgefüllt, gefolgt von einem Link-Code.",
-      "extra_explanation_header_android": "2. Tippen Sie auf die Anruftaste in Ihrer Telefon-App",
-      "extra_explanation_android": "Sie hören einige Pieptöne und werden verbunden."
+      "title": "Anruf über Yivi"
     }
   },
   "missing_data": {
-    "header": {
-      "one": "{requestor} fragt nach {n} Angabe",
-      "other": "{requestor} fragt nach {n} Angaben"
-    },
     "known_party": "Bekannte Partei",
-    "unknown_party": "Unbekannte Partei",
-    "progress": "{x} von {n} bereit",
-    "status": {
-      "present": "Bereits in Ihrer App",
-      "missing": "Noch nicht in Ihrer App",
-      "just_added": "Gerade hinzugefügt"
-    },
-    "obtain": "Abrufen",
-    "obtain_named": "Abrufen: {credential}",
-    "share_with": "Mit {requestor} teilen",
-    "hint": {
-      "one": "Rufen Sie zuerst die fehlende Angabe ab",
-      "other": "Rufen Sie zuerst die {n} fehlenden Angaben ab"
-    },
     "band": "Für {requestor} · {x} von {n} bereit",
-    "back_to_list": "Zurück zur Liste",
-    "ready_title": "Alles ist bereit",
-    "share_question": {
-      "one": "Möchten Sie diese Angabe mit {requestor} teilen?",
-      "other": "Möchten Sie diese {n} Angaben mit {requestor} teilen?"
-    },
-    "share": "Teilen"
+    "back_to_list": "Zurück zur Liste"
   },
   "enrollment": {
     "introduction": {
@@ -703,7 +592,6 @@
     "code_label": "Bestätigungscode"
   },
   "external_issuer": {
-    "source": "Über die Website von {issuer}",
     "returned": "Sie sind zurück von der Website von {issuer}",
     "heads_up": {
       "title": "Sie wechseln kurz zu einer anderen Website",
@@ -712,11 +600,6 @@
       "step_3": "Sie kehren zu dieser Liste zurück.",
       "to_website": "Zur Website",
       "back_to_list": "Zurück zur Liste"
-    },
-    "waiting": {
-      "status": "Noch nicht erhalten",
-      "body": "Sind Sie noch auf der Website von {issuer}? Machen Sie dort weiter. Wenn Sie fertig sind, öffnet sich Yivi von selbst.",
-      "reopen": "Website erneut öffnen"
     }
   },
   "issue_wizard": {
@@ -1425,8 +1308,6 @@
     "or": " oder ",
     "add_new": "Neue {name} hinzufügen",
     "message_label": "Du unterschreibst diese Nachricht",
-    "read_whole_message": "Ganze Nachricht lesen",
-    "show_less": "Weniger anzeigen",
     "footnote": "{requestor} bekommt nur das. Felder, die hier nicht stehen, bleiben auf deinem Telefon.",
     "footnote_none": "Der Besuch steht trotzdem in deiner Aktivität.",
     "everything_added": "Alles ist hinzugefügt. Prüfe, was du teilst.",

@@ -125,18 +125,18 @@ void main() {
   });
 
   test("a stored flag is on in a new IrmaPreferences (app restart)", () async {
-    await prefs.setFeatureFlag(FeatureFlag.calmSuccess, true);
+    await prefs.setFeatureFlag(FeatureFlag.formFieldsV2, true);
 
     final restarted = await IrmaPreferences.fromInstance(
       mostRecentTermsUrlNl: "",
       mostRecentTermsUrlEn: "",
     );
 
-    expect(await restarted.getFeatureFlag(FeatureFlag.calmSuccess).first, true);
     expect(
-      await restarted.getFeatureFlag(FeatureFlag.shareScreenV2).first,
-      false,
+      await restarted.getFeatureFlag(FeatureFlag.formFieldsV2).first,
+      true,
     );
+    expect(await restarted.getFeatureFlag(FeatureFlag.dataTabV2).first, false);
   });
 
   test("featureFlagProvider emits the new value when a flag changes", () async {

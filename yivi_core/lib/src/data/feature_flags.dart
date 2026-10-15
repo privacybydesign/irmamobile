@@ -12,9 +12,7 @@ enum FeatureFlag {
     "C+",
     "Your data: categories, favourites, collapsible sections",
   ),
-  formFieldsV2("H", "Form fields: white fields with the label inside"),
-  calmSuccess("J", "Success screens: calm illustrations"),
-  shareScreenV2("K", "Sharing: Gewaarmerkt door, trust bar, extra check");
+  formFieldsV2("H", "Form fields: white fields with the label inside");
 
   const FeatureFlag(this.id, this.description);
 

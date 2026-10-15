@@ -194,30 +194,7 @@
   },
   "disclosure": {
     "title": "Gegevens delen",
-    "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
-    "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
-    "signing_header": "{otherParty} verzoekt je om een bericht te ondertekenen",
-    "signing_call_header": "{otherParty} verzoekt je om een bericht te ondertekenen en te bellen naar {phoneNumber}",
-    "unsatisfiable_header": "Je hebt nog niet alle gegevens waar {otherParty} om vraagt in je Yivi-app.",
-    "issuer": "Uitgever",
     "logo_semantic": "Logo van {otherParty}",
-    "choices": "{choices} keuzes",
-    "next": "volgende kiezen",
-    "previous": "vorige kiezen",
-    "not_present": "Deze gegevens zijn nog niet aan Yivi toegevoegd.",
-    "not_present_have_other": "De gevraagde gegevens komen niet overeen met de gegevens in Yivi.",
-    "you_have": "Je hebt:",
-    "requested_for": "Ze vragen:",
-    "card_count": "{i} van {total}",
-    "among_others": "Onder andere",
-    "add_additional": "Wil je andere gegevens doorgeven? Voeg dan extra '{credential}'-gegevens toe.",
-    "expired": "Deze gegevens zijn verlopen.",
-    "revoked": "Deze gegevens zijn ingetrokken.",
-    "not_revokable": "Deze gegevens moeten ververst worden.",
-    "obtain": "Toevoegen",
-    "refresh": "Verversen",
-    "nothing_selected": "Niets gekozen",
-    "redirect": "Je wordt teruggeleid naar de webpagina...",
     "feedback": {
       "header": {
         "success": "Gelukt",
@@ -232,54 +209,15 @@
         "not_satisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij.",
         "not_satisfiable_signature": "Je hebt het bericht niet ondertekend, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij."
       }
-    },
-    "requested_data": "Gevraagde gegevens",
-    "only_this_shared": "Alleen dit wordt gedeeld",
-    "what_you_shared": "Wat je hebt gedeeld"
+    }
   },
   "disclosure_permission": {
-    "title": "Gegevens delen",
-    "next": "Volgende",
-    "change_choice": "Keuze wijzigen",
-    "choose": "Maak een keuze",
-    "obtain_new": "Nieuwe gegevens ophalen",
-    "next_step": "Volgende stap",
-    "obtain_data": "Gegevens ophalen",
-    "close": "Sluiten",
-    "optional_data": "Optionele gegevens",
-    "add_optional_data": "Voeg optionele gegevens toe",
-    "no_data_selected": "Geen gegevens geselecteerd",
-    "choice": {
-      "or": "of",
-      "none_yet": "Nog niet in je app. Tik op wat je wilt ophalen.",
-      "obtain": "Ophalen",
-      "certified_by": "Gewaarmerkt door {issuer}",
-      "switch": "Wissel",
-      "sheet_title": "Wat wil je delen?",
-      "sheet_explanation": "{requestor} accepteert: {options}. Tik op wat je wilt delen."
-    },
-    "introduction": {
-      "continue": "Aan de slag",
-      "explanation": "Verzamel de gegevens die nodig zijn, zodat je deze kunt delen met de partij die daar om vraagt.",
-      "header": "Deel mijn gegevens",
-      "title": "Aan de slag"
-    },
     "issue_wizard": {
-      "title": "Verzamel gegevens",
       "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
       "explanation_incomplete_single": "Haal de benodigde gegevens op en deel ze daarna met de partij die daarom vraagt.",
       "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
     },
-    "previously_added": {
-      "title": "Controleer gegevens",
-      "explanation": "Deze gegevens zijn al eerder door je toegevoegd aan de app. Controleer of de volgende gegevens kloppen."
-    },
     "overview": {
-      "title": "Deel mijn gegevens",
-      "sign": "Dit bericht ga je ondertekenen:",
-      "explanation": "Deel mijn gegevens met {requestorName}",
-      "confirm": "Gegevens delen",
-      "confirm_sign": "Ondertekenen en deel",
       "requestor_verification": {
         "verified_suffix": "vraagt om je gegevens. Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
         "unverified_suffix": "vraagt om je gegevens. Waarschuwing: deze partij is niet bekend bij Yivi.",
@@ -290,69 +228,20 @@
         }
       }
     },
-    "confirm_dialog": {
-      "title": "Gegevens delen",
-      "title_signature": "Ondertekenen en data delen",
-      "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
-      "explanation_signature": "Je staat op het punt om het bericht van {requestorName} te tekenen met je data. Klik op 'Ondertekenen en delen' om verder te gaan.",
-      "confirm": "Delen",
-      "confirm_signature": "Ondertekenen en delen",
-      "decline": "Niet delen",
-      "decline_signature": "Niet ondertekenen"
-    },
     "confirm_close_dialog": {
       "title": "Delen stoppen?",
       "explanation": "Weet je zeker dat je je gegevens niet wilt delen?",
       "confirm": "Ja",
       "decline": "Nee"
     },
-    "wrong_credentials_added": {
-      "title": "Foutmelding",
-      "explanation": "Gegevens zijn toegevoegd in de app, maar zijn niet de gevraagde gegevens. Haal de juiste gegevens op.",
-      "you_issued": "Ontvangen",
-      "expected": "Verwacht",
-      "dismiss_action": "OK"
-    },
     "call": {
-      "title": "Bel via Yivi",
-      "disclosure_explanation": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
-      "disclosure_success": "Gegevens zijn doorgegeven aan {otherParty}",
-      "explanation_header_ios": "Kies volgende om te bellen",
-      "explanation_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
-      "explanation_header_android": "1. Kies volgende",
-      "explanation_android": "Je belapplicatie opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
-      "extra_explanation_header_android": "2. Klik op de belknop in je belapplicatie",
-      "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
+      "title": "Bel via Yivi"
     }
   },
   "missing_data": {
-    "header": {
-      "one": "{requestor} vraagt om {n} gegeven",
-      "other": "{requestor} vraagt om {n} gegevens"
-    },
     "known_party": "Bekende partij",
-    "unknown_party": "Onbekende partij",
-    "progress": "{x} van {n} klaar",
-    "status": {
-      "present": "Staat al in je app",
-      "missing": "Nog niet in je app",
-      "just_added": "Zojuist toegevoegd"
-    },
-    "obtain": "Ophalen",
-    "obtain_named": "Ophalen: {credential}",
-    "share_with": "Delen met {requestor}",
-    "hint": {
-      "one": "Haal eerst het ontbrekende gegeven op",
-      "other": "Haal eerst de {n} ontbrekende gegevens op"
-    },
     "band": "Voor {requestor} · {x} van {n} klaar",
-    "back_to_list": "Terug naar de lijst",
-    "ready_title": "Alles staat klaar",
-    "share_question": {
-      "one": "Wil je dit gegeven delen met {requestor}?",
-      "other": "Wil je deze {n} gegevens delen met {requestor}?"
-    },
-    "share": "Delen"
+    "back_to_list": "Terug naar de lijst"
   },
   "enrollment": {
     "introduction": {
@@ -703,7 +592,6 @@
     "code_label": "Verificatiecode"
   },
   "external_issuer": {
-    "source": "Via de website van {issuer}",
     "returned": "Je bent terug van de website van {issuer}",
     "heads_up": {
       "title": "Je gaat even naar een andere website",
@@ -712,11 +600,6 @@
       "step_3": "Je komt terug in deze lijst.",
       "to_website": "Naar de website",
       "back_to_list": "Terug naar de lijst"
-    },
-    "waiting": {
-      "status": "Nog niet ontvangen",
-      "body": "Ben je nog bezig op de website van {issuer}? Ga daar verder. Als je klaar bent, opent Yivi vanzelf.",
-      "reopen": "Website opnieuw openen"
     }
   },
   "issue_wizard": {
@@ -1425,8 +1308,6 @@
     "or": " of ",
     "add_new": "Voeg een nieuwe {name} toe",
     "message_label": "Je ondertekent dit bericht",
-    "read_whole_message": "Lees het hele bericht",
-    "show_less": "Toon minder",
     "footnote": "{requestor} krijgt alleen dit. Velden die hier niet staan blijven op je telefoon.",
     "footnote_none": "Het bezoek staat wel in je Activiteit.",
     "everything_added": "Alles is toegevoegd. Controleer wat je deelt.",

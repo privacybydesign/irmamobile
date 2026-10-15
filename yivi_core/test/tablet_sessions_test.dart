@@ -124,7 +124,7 @@ void main() {
             child: TextButton(
               onPressed: () => showYiviBottomSheet(
                 context: context,
-                titleKey: "disclosure_permission.choice.sheet_title",
+                titleKey: "share.sheet.what",
                 child: const SizedBox(height: 200, child: Text("options")),
               ),
               child: const Text("open"),
