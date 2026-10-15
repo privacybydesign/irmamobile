@@ -108,7 +108,7 @@ class _PhoneOnPassportPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / _grid);
 
-    canvas.drawCircle(_center, 140, Paint()..color = theme.backgroundTertiary);
+    canvas.drawCircle(_center, 140, Paint()..color = theme.surfacePrimary);
     _paintPassport(canvas);
 
     final t = _animation.value;
@@ -276,7 +276,7 @@ class _NfcOffPainter extends CustomPainter {
     canvas.drawCircle(
       const Offset(100, 100),
       92,
-      Paint()..color = theme.backgroundTertiary,
+      Paint()..color = theme.surfacePrimary,
     );
 
     final waves = Paint()

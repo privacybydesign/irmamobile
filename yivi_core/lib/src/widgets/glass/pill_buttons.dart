@@ -77,24 +77,34 @@ class FancyPillButton extends StatelessWidget {
                     type: MaterialType.transparency,
                     child: InkWell(
                       onTap: onPressed,
-                      child: SizedBox(
-                        height: height,
-                        width: double.infinity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 8,
-                          children: [
-                            ?leading,
-                            Flexible(
-                              child: Text(
-                                label,
-                                textAlign: TextAlign.center,
-                                style: palette
-                                    .display(16, weight: FontWeight.w700)
-                                    .copyWith(color: Colors.white),
+                      // [height] is the least: a label that wraps at a
+                      // large text size makes the pill taller.
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: height,
+                          minWidth: double.infinity,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 8,
+                            children: [
+                              ?leading,
+                              Flexible(
+                                child: Text(
+                                  label,
+                                  textAlign: TextAlign.center,
+                                  style: palette
+                                      .display(16, weight: FontWeight.w700)
+                                      .copyWith(color: Colors.white),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -151,11 +161,15 @@ class PillButton extends StatelessWidget {
       ),
     };
 
-    final content = SizedBox(
-      height: height,
-      width: expand ? double.infinity : null,
+    // [height] is the least: a label that wraps at a large text size makes
+    // the pill taller.
+    final content = ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: height,
+        minWidth: expand ? double.infinity : 0,
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         child: Row(
           mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,

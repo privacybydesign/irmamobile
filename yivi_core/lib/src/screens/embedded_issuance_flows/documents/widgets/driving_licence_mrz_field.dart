@@ -3,7 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/pill_text_field.dart";
 
 class DrivingLicenceMrzInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -46,20 +46,16 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
       ],
-      decoration: InputDecoration(
-        hint: TranslatedText(
+      decoration: pillInputDecoration(
+        context,
+        label: FlutterI18n.translate(
+          context,
           "driving_licence.manual.fields.mrz",
-          style: baseTextStyle?.copyWith(
-            color: baseTextStyle.color?.withValues(alpha: 0.5),
-          ),
         ),
-        contentPadding: const EdgeInsets.only(top: -10.0),
-        label: TranslatedText(
+        hint: FlutterI18n.translate(
+          context,
           "driving_licence.manual.fields.mrz",
-          style: baseTextStyle,
         ),
-        floatingLabelAlignment: .start,
-        floatingLabelBehavior: .always,
       ),
       autovalidateMode: .onUserInteraction,
       validator: (documentNr) => _validateDocumentNr(documentNr, context),

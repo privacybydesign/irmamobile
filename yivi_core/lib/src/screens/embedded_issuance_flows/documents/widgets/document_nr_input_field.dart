@@ -2,6 +2,7 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../widgets/pill_text_field.dart";
 
 class DocumentNrInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -46,17 +47,10 @@ class DocumentNrInputField extends StatelessWidget {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
       ],
-      decoration: InputDecoration(
-        hint: Text(
-          labelText,
-          style: baseTextStyle?.copyWith(
-            color: baseTextStyle.color?.withValues(alpha: 0.5),
-          ),
-        ),
-        contentPadding: const EdgeInsets.only(top: -10.0),
-        label: Text(labelText, style: baseTextStyle),
-        floatingLabelAlignment: .start,
-        floatingLabelBehavior: .always,
+      decoration: pillInputDecoration(
+        context,
+        label: labelText,
+        hint: labelText,
       ),
       autovalidateMode: .onUserInteraction,
       validator: (documentNr) => _validateDocumentNr(documentNr, context),

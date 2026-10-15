@@ -171,3 +171,42 @@ class FieldError extends StatelessWidget {
     );
   }
 }
+
+/// The look of [PillTextField] for a [TextFormField] that keeps its own
+/// validator: a rounded field on the surface colour with the label above it
+/// in the outline, link blue on focus, red with an error.
+InputDecoration pillInputDecoration(
+  BuildContext context, {
+  String? label,
+  String? hint,
+  Widget? suffixIcon,
+}) {
+  final palette = YiviPalette.of(context);
+  OutlineInputBorder border(Color color) => OutlineInputBorder(
+    borderRadius: const BorderRadius.all(Radius.circular(18)),
+    borderSide: BorderSide(color: color, width: 1.5),
+  );
+  return InputDecoration(
+    filled: true,
+    fillColor: palette.surface,
+    labelText: label,
+    labelStyle: palette
+        .body(14, weight: FontWeight.w600)
+        .copyWith(color: palette.heading),
+    floatingLabelStyle: palette
+        .body(14, weight: FontWeight.w600)
+        .copyWith(color: palette.heading),
+    floatingLabelBehavior: FloatingLabelBehavior.always,
+    hintText: hint,
+    hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 17),
+    suffixIcon: suffixIcon,
+    enabledBorder: border(palette.outline),
+    focusedBorder: border(palette.link),
+    errorBorder: border(palette.danger),
+    focusedErrorBorder: border(palette.danger),
+    errorStyle: palette
+        .body(14, weight: FontWeight.w600)
+        .copyWith(color: palette.danger),
+  );
+}

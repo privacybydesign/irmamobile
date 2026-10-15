@@ -1,7 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -57,8 +59,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     if (style == .documentFlowV2) return _buildDocumentFlow(context);
 
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "face_verification.title"),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -70,18 +73,34 @@ class FaceVerificationIntroScreen extends StatelessWidget {
               SizedBox(height: theme.largeSpacing),
               TranslatedText(
                 "face_verification.intro.explanation",
-                style: theme.textTheme.bodyLarge,
+                style: palette.body(16, weight: FontWeight.w600),
               ),
-              SizedBox(height: theme.largeSpacing),
-              const _Tip(translationKey: "face_verification.intro.tip_camera"),
-              const _Tip(
-                translationKey: "face_verification.intro.tip_lighting",
-              ),
-              const _Tip(
-                translationKey: "face_verification.intro.tip_look_straight",
-              ),
-              const _Tip(
-                translationKey: "face_verification.intro.tip_no_accessories",
+              SizedBox(height: theme.defaultSpacing),
+              const GlassGroup(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Column(
+                      children: [
+                        _Tip(
+                          translationKey: "face_verification.intro.tip_camera",
+                        ),
+                        _Tip(
+                          translationKey:
+                              "face_verification.intro.tip_lighting",
+                        ),
+                        _Tip(
+                          translationKey:
+                              "face_verification.intro.tip_look_straight",
+                        ),
+                        _Tip(
+                          translationKey:
+                              "face_verification.intro.tip_no_accessories",
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -98,8 +117,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
 
   Widget _buildDocumentFlow(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundPrimary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "face_verification.title",
         hasBorder: false,
@@ -112,15 +132,29 @@ class FaceVerificationIntroScreen extends StatelessWidget {
             spacing: theme.defaultSpacing + theme.tinySpacing,
             children: [
               const Center(child: FaceFrameIllustration()),
-              const TranslatedText("face_verification.intro.explanation"),
-              Column(
-                spacing: theme.smallSpacing + theme.tinySpacing,
-                children: const [
-                  _DocumentFlowTip("face_verification.intro.tip_camera"),
-                  _DocumentFlowTip("face_verification.intro.tip_lighting"),
-                  _DocumentFlowTip("face_verification.intro.tip_look_straight"),
-                  _DocumentFlowTip(
-                    "face_verification.intro.tip_no_accessories",
+              TranslatedText(
+                "face_verification.intro.explanation",
+                style: palette.body(16).copyWith(height: 24 / 16),
+              ),
+              GlassGroup(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      spacing: theme.smallSpacing + theme.tinySpacing,
+                      children: const [
+                        _DocumentFlowTip("face_verification.intro.tip_camera"),
+                        _DocumentFlowTip(
+                          "face_verification.intro.tip_lighting",
+                        ),
+                        _DocumentFlowTip(
+                          "face_verification.intro.tip_look_straight",
+                        ),
+                        _DocumentFlowTip(
+                          "face_verification.intro.tip_no_accessories",
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -155,7 +189,11 @@ class _Tip extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle, size: 20, color: theme.success),
+          Icon(
+            Icons.check_circle,
+            size: 20,
+            color: YiviPalette.of(context).successText,
+          ),
           SizedBox(width: theme.smallSpacing),
           Expanded(child: TranslatedText(translationKey)),
         ],
@@ -184,7 +222,11 @@ class _DocumentFlowTip extends StatelessWidget {
           child: ExcludeSemantics(
             child: SizedBox.square(
               dimension: _tickSize,
-              child: CustomPaint(painter: _TickPainter(color: theme.success)),
+              child: CustomPaint(
+                painter: _TickPainter(
+                  color: YiviPalette.of(context).successText,
+                ),
+              ),
             ),
           ),
         ),

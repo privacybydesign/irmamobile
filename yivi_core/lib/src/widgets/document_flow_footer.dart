@@ -1,18 +1,18 @@
 import "dart:math" as math;
 
-import "package:flutter_svg/svg.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../package_name.dart";
 import "../theme/theme.dart";
-import "translated_text.dart";
+import "../theme/yivi_palette.dart";
+import "glass/pill_buttons.dart";
 
-/// Button look in the document flow screens: 48 high, 16 bold.
+/// Button look in the document flow screens: 56 high pills, 16 bold.
 enum DocumentFlowButtonStyle {
-  /// The red brand stripes.
+  /// The faceted red pill.
   primary,
 
-  /// White with a thin dark border.
+  /// A plain text pill (was an outlined button before the redesign).
   outline,
 
   /// Underlined text without a surface.
@@ -27,7 +27,7 @@ class DocumentFlowButton extends StatelessWidget {
     super.key,
   });
 
-  static const double height = 48;
+  static const double height = 56;
 
   /// The keys of the two button positions, the same as IrmaBottomBar's.
   static const primaryKey = Key("bottom_bar_primary");
@@ -39,73 +39,75 @@ class DocumentFlowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final textColor = style == .primary
-        ? theme.onPrimary
-        : theme.neutralExtraDark;
-    final label = Center(
-      child: Padding(
-        padding: .symmetric(
-          horizontal: theme.smallSpacing,
-          vertical: theme.tinySpacing,
-        ),
-        child: TranslatedText(
-          labelKey,
-          textAlign: .center,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: textColor,
-            decoration: style == .text ? TextDecoration.underline : null,
-            decorationColor: textColor,
-          ),
-        ),
+    final label = FlutterI18n.translate(context, labelKey);
+    // The pills of the redesign: the faceted red one for the main action,
+    // plain text pills for the others (underlined for a text link).
+    final Widget button = switch (style) {
+      .primary => FancyPillButton(
+        label: label,
+        onPressed: onPressed,
+        height: height,
       ),
-    );
-
-    final button = switch (style) {
-      .primary => Stack(
-        fit: .passthrough,
-        children: [
-          Positioned.fill(
-            child: ExcludeSemantics(
-              child: SvgPicture.asset(yiviAsset("ui/btn-bg.svg"), fit: .fill),
-            ),
-          ),
-          Material(
-            type: .transparency,
-            child: InkWell(onTap: onPressed, child: label),
-          ),
-        ],
+      .outline => PillButton(
+        label: label,
+        onPressed: onPressed,
+        style: PillStyle.text,
+        height: height,
       ),
-      .outline => Material(
-        color: theme.light,
-        child: InkWell(
-          onTap: onPressed,
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: theme.borderRadius,
-              border: Border.all(color: theme.neutralExtraDark),
-            ),
-            child: label,
-          ),
-        ),
-      ),
-      .text => Material(
-        type: .transparency,
-        child: InkWell(onTap: onPressed, child: label),
-      ),
+      .text => _UnderlinedTextButton(label: label, onPressed: onPressed),
     };
 
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      // [height] is the least: a label that wraps at a large text size makes
-      // the button taller instead of being cut off.
+    // [height] is the least: a label that wraps at a large text size makes
+    // the button taller instead of being cut off. MergeSemantics gives the
+    // button itself one node with its role, label and enabled state.
+    return MergeSemantics(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           minWidth: double.infinity,
           minHeight: height,
         ),
-        child: ClipRRect(borderRadius: theme.borderRadius, child: button),
+        child: button,
+      ),
+    );
+  }
+}
+
+class _UnderlinedTextButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+
+  const _UnderlinedTextButton({required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      excludeSemantics: true,
+      label: label,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onPressed,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: palette
+                    .display(16, weight: FontWeight.w700)
+                    .copyWith(
+                      color: palette.heading,
+                      decoration: TextDecoration.underline,
+                      decorationColor: palette.heading,
+                    ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -135,29 +137,34 @@ class DocumentFlowFooter extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final inset = MediaQuery.paddingOf(context);
 
+    // On the page, as the redesign's bottom bars: the content fades out
+    // under it instead of a shadow lifting it off.
+    final palette = YiviPalette.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.light,
-        boxShadow: style == .raised
-            ? [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  offset: const Offset(0, -1),
-                  blurRadius: 6,
-                ),
-              ]
+        gradient: style == .raised
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  palette.background.withValues(alpha: 0),
+                  palette.background,
+                ],
+                stops: const [0, 0.35],
+              )
             : null,
+        color: style == .raised ? null : palette.background,
       ),
       child: Padding(
         padding: .fromLTRB(
           theme.defaultSpacing + inset.left,
           theme.defaultSpacing,
           theme.defaultSpacing + inset.right,
-          math.max(theme.largeSpacing, theme.defaultSpacing + inset.bottom),
+          math.max(theme.mediumSpacing, theme.defaultSpacing + inset.bottom),
         ),
         child: Column(
           mainAxisSize: .min,
-          spacing: theme.smallSpacing,
+          spacing: theme.tinySpacing,
           children: buttons,
         ),
       ),
@@ -165,6 +172,10 @@ class DocumentFlowFooter extends StatelessWidget {
   }
 }
 
-/// Title above a line of text on the document flow screens.
+/// Title above a line of text on the document flow screens: the display face
+/// of the redesign. Takes [theme] for the callers; the colours follow the
+/// app brightness through the palette.
 TextStyle documentFlowTitleStyle(IrmaThemeData theme) =>
-    theme.textTheme.displayMedium!.copyWith(height: 32 / 24);
+    YiviPalette.forBrightness(
+      theme.brightness,
+    ).display(24, weight: FontWeight.w700).copyWith(height: 32 / 24);

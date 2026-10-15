@@ -97,10 +97,11 @@ Finder _secondary() => find.byKey(const Key("bottom_bar_secondary"));
 TextStyle _styleOf(WidgetTester tester, String text) =>
     tester.widget<Text>(find.text(text)).style!;
 
-/// The footers of the boards: 16 above, 32 under, 16 on the sides.
+/// The footers of the redesign: 56 high pills, 4 apart, 16 above, 24 under,
+/// 16 on the sides.
 void _expectFooterButton(WidgetTester tester, Finder button, {double? top}) {
   final rect = tester.getRect(button);
-  expect(rect.height, 48);
+  expect(rect.height, 56);
   expect(rect.left, 16);
   expect(rect.width, _phone.width - 32);
   if (top != null) expect(rect.top, top);
@@ -125,18 +126,19 @@ void main() {
 
       final picture = tester.getRect(find.byType(DocumentInstructionAnimation));
       expect(picture.size, const Size(320, 256));
-      expect(picture.top, 56 + 24);
+      // 16 page padding and 16 inside the tinted stage.
+      expect(picture.top, 56 + 16 + 16);
       expect(
         tester
             .getTopLeft(
               find.text("Open je paspoort op de pagina met je pasfoto"),
             )
             .dy,
-        picture.bottom + 24,
+        picture.bottom + 16 + 24,
       );
     });
 
-    testWidgets("Dutch copy, heading 18 bold, the tip 14 in grey", (
+    testWidgets("Dutch copy, heading 22 bold, the tip 14 in grey", (
       tester,
     ) async {
       await pumpScreen(tester);
@@ -153,9 +155,9 @@ void main() {
         tester,
         "Open je paspoort op de pagina met je pasfoto",
       );
-      expect(heading.fontSize, 18);
+      expect(heading.fontSize, 22);
       expect(heading.fontWeight, FontWeight.w700);
-      expect(heading.height, 26 / 18);
+      expect(heading.height, 30 / 22);
 
       final tip = _styleOf(
         tester,
@@ -180,9 +182,7 @@ void main() {
       expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNull);
     });
 
-    testWidgets("Start and Annuleer are 48 high, with a shadow above", (
-      tester,
-    ) async {
+    testWidgets("Start and Annuleer are 56 high pills", (tester) async {
       await pumpScreen(tester);
 
       expect(find.text("Start"), findsOneWidget);
@@ -190,12 +190,12 @@ void main() {
       _expectFooterButton(
         tester,
         _primary(),
-        top: _phone.height - 32 - 48 - 8 - 48,
+        top: _phone.height - 24 - 56 - 4 - 56,
       );
-      expect(tester.getRect(_secondary()).bottom, _phone.height - 32);
+      expect(tester.getRect(_secondary()).bottom, _phone.height - 24);
       expect(
         tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
-        8,
+        4,
       );
     });
   });
@@ -223,7 +223,7 @@ void main() {
           flag: flag,
         );
 
-    testWidgets("flag on: Voer handmatig in and Annuleer, 48 high", (
+    testWidgets("flag on: Voer handmatig in and Annuleer, 56 high", (
       tester,
     ) async {
       await pumpScreen(tester, flag: .on);
@@ -308,7 +308,7 @@ void main() {
         tester.getTopLeft(find.text("Je paspoort mag dicht blijven.")).dy,
         tester.getRect(find.text("Leg je telefoon op je paspoort")).bottom + 10,
       );
-      _expectFooterButton(tester, _secondary(), top: _phone.height - 32 - 48);
+      _expectFooterButton(tester, _secondary(), top: _phone.height - 24 - 56);
     });
 
     testWidgets("G4: a ring of 240 with the percentage at 44", (tester) async {
@@ -391,10 +391,19 @@ void main() {
         tester.getSize(find.byType(NfcOffIllustration)),
         const Size(200, 200),
       );
-      expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 152);
+      // 16 above, the two pills 4 apart, 24 under. The test font is wide, so
+      // the longer label wraps and its pill grows past 56.
+      expect(
+        tester.getSize(find.byType(DocumentFlowFooter)).height,
+        16 +
+            tester.getSize(_primary()).height +
+            4 +
+            tester.getSize(_secondary()).height +
+            24,
+      );
       expect(
         tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
-        8,
+        4,
       );
     });
 
@@ -568,10 +577,10 @@ void main() {
 
       expect(find.text("Start verificatie"), findsOneWidget);
       expect(_secondary(), findsNothing);
-      _expectFooterButton(tester, _primary(), top: _phone.height - 32 - 48);
+      _expectFooterButton(tester, _primary(), top: _phone.height - 24 - 56);
     });
 
-    testWidgets("the tips are 12 apart and start 34 in", (tester) async {
+    testWidgets("the tips are 12 apart, in a group", (tester) async {
       await pumpIntro(tester);
 
       final first = tester.getRect(
@@ -579,7 +588,8 @@ void main() {
       );
       final second = tester.getRect(find.text("Zorg voor voldoende licht."));
       expect(second.top - first.bottom, 12);
-      expect(first.left, 24 + 22 + 12);
+      // Page padding, the group's padding, the tick and the gap.
+      expect(first.left, 24 + 16 + 22 + 12);
     });
   });
 
@@ -687,7 +697,7 @@ void main() {
       expect((box.decoration! as BoxDecoration).color, _blue);
       expect(
         (box.decoration! as BoxDecoration).borderRadius,
-        BorderRadius.circular(8),
+        BorderRadius.circular(20),
       );
       expect(
         box.padding,
@@ -750,15 +760,16 @@ void main() {
       expect(find.text("Annuleer"), findsOneWidget);
       expect(_styleOf(tester, "Annuleer").decoration, TextDecoration.underline);
       _expectFooterButton(tester, _primary());
-      _expectFooterButton(tester, _secondary(), top: _phone.height - 32 - 48);
+      _expectFooterButton(tester, _secondary(), top: _phone.height - 24 - 56);
     });
 
     testWidgets("the close button is on the right of the bar", (tester) async {
       await pumpPermission(tester);
 
+      // The round glass close button of the redesign.
       final close = tester.getRect(find.bySemanticsLabel("Sluiten"));
-      expect(close.size, const Size(46, 46));
-      expect(close.right, _phone.width - 4);
+      expect(close.size, const Size(44, 44));
+      expect(close.right, _phone.width - 16);
     });
   });
 }

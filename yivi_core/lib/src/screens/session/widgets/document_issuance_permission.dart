@@ -2,11 +2,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_icon_button.dart";
+import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/translated_text.dart";
 
 /// The permission screen for a document read from its chip, with
@@ -21,8 +22,6 @@ class DocumentIssuancePermission extends StatelessWidget {
     super.key,
   });
 
-  static const double _closeIconSize = 22;
-
   final VoidCallback? onDismiss;
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
@@ -33,9 +32,10 @@ class DocumentIssuancePermission extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "issuance.title",
         leading: null,
@@ -43,13 +43,8 @@ class DocumentIssuancePermission extends StatelessWidget {
         actions: [
           if (onDismiss != null)
             Padding(
-              padding: .only(right: theme.tinySpacing),
-              child: IrmaIconButton(
-                icon: Icons.close,
-                size: _closeIconSize,
-                semanticsLabelKey: "accessibility.close",
-                onTap: onDismiss!,
-              ),
+              padding: .only(right: theme.defaultSpacing),
+              child: IrmaCloseButton(onTap: onDismiss!),
             ),
         ],
       ),
@@ -63,7 +58,7 @@ class DocumentIssuancePermission extends StatelessWidget {
               TranslatedText(
                 "external_issuer.returned",
                 translationParams: {"issuer": returnedFromIssuer!},
-                style: theme.textTheme.headlineMedium,
+                style: palette.display(18),
               ),
             Container(
               padding: .symmetric(
@@ -71,10 +66,13 @@ class DocumentIssuancePermission extends StatelessWidget {
                 vertical: theme.smallSpacing + theme.tinySpacing,
               ),
               decoration: BoxDecoration(
-                color: theme.tertiary,
-                borderRadius: theme.borderRadius,
+                color: palette.outline,
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: const TranslatedText("issuance.description"),
+              child: TranslatedText(
+                "issuance.description",
+                style: palette.body(16).copyWith(color: palette.text),
+              ),
             ),
             for (final credential in issuedCredentials)
               YiviCredentialCard.fromCredential(

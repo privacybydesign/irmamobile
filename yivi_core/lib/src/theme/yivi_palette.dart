@@ -173,7 +173,10 @@ class YiviPalette {
   bool get isDark => brightness == Brightness.dark;
 
   static YiviPalette of(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? dark : light;
+      forBrightness(Theme.of(context).brightness);
+
+  static YiviPalette forBrightness(Brightness brightness) =>
+      brightness == Brightness.dark ? dark : light;
 
   /// Alexandria, the display face used for headings in the redesign.
   TextStyle display(double size, {FontWeight weight = FontWeight.w600}) =>

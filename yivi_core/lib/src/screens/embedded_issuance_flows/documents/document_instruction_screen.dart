@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -29,31 +30,46 @@ class DocumentInstructionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final keys = documentType.instructionKey;
 
     return Scaffold(
-      backgroundColor: theme.backgroundPrimary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: documentType.scanTitleKey,
         hasBorder: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: .all(theme.mediumSpacing),
+          // 16 around and 16 inside the stage keep the picture at its 320.
+          padding: .all(theme.defaultSpacing),
           child: Column(
             crossAxisAlignment: .stretch,
             spacing: theme.mediumSpacing,
             children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: _pictureWidth),
-                  child: AspectRatio(
-                    aspectRatio: _pictureWidth / _pictureHeight,
-                    child: Semantics(
-                      image: true,
-                      label: FlutterI18n.translate(context, "$keys.image_alt"),
-                      child: DocumentInstructionAnimation(
-                        documentType: documentType,
+              // The animation on a tinted, rounded stage.
+              Container(
+                padding: .all(theme.defaultSpacing),
+                decoration: ShapeDecoration(
+                  color: palette.tint,
+                  shape: const RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(28)),
+                  ),
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: _pictureWidth),
+                    child: AspectRatio(
+                      aspectRatio: _pictureWidth / _pictureHeight,
+                      child: Semantics(
+                        image: true,
+                        label: FlutterI18n.translate(
+                          context,
+                          "$keys.image_alt",
+                        ),
+                        child: DocumentInstructionAnimation(
+                          documentType: documentType,
+                        ),
                       ),
                     ),
                   ),
@@ -65,24 +81,47 @@ class DocumentInstructionScreen extends StatelessWidget {
                   TranslatedText(
                     "$keys.title",
                     textAlign: .center,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontSize: 18,
-                      height: 26 / 18,
-                    ),
+                    isHeader: true,
+                    style: palette
+                        .display(22, weight: FontWeight.w700)
+                        .copyWith(height: 30 / 22),
                   ),
-                  TranslatedText("$keys.body", textAlign: .center),
-                  Padding(
-                    padding: .symmetric(
-                      horizontal: theme.tinySpacing,
-                      vertical: theme.tinySpacing / 2,
+                  TranslatedText(
+                    "$keys.body",
+                    textAlign: .center,
+                    style: palette.body(16).copyWith(height: 24 / 16),
+                  ),
+                  // The tip on an info card.
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
-                    child: TranslatedText(
-                      "$keys.tip",
-                      textAlign: .center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        height: 20 / 14,
-                        color: theme.neutralExtraDark,
-                      ),
+                    decoration: BoxDecoration(
+                      color: palette.surface,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: .start,
+                      spacing: 12,
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline_rounded,
+                          size: 20,
+                          color: palette.link,
+                        ),
+                        Expanded(
+                          child: TranslatedText(
+                            "$keys.tip",
+                            style: palette
+                                .body(14)
+                                .copyWith(
+                                  height: 20 / 14,
+                                  color: palette.heading,
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

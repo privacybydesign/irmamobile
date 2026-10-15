@@ -618,7 +618,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   Widget _buildPreparing(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      // The redesign's page background (backgroundTertiary is the same colour).
+      backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(titleTranslationKey: "face_verification.title"),
       body: SafeArea(
         child: Center(
@@ -728,7 +729,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.backgroundTertiary,
+        // A card on the page, which is backgroundTertiary itself.
+        color: theme.surfacePrimary,
         borderRadius: .circular(20),
         border: .all(color: theme.tertiary),
       ),
@@ -1044,7 +1046,8 @@ class _NfcScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      // The redesign's page background (backgroundTertiary is the same colour).
+      backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: titleTranslationKey,
         bottom: context.missingDataBand,

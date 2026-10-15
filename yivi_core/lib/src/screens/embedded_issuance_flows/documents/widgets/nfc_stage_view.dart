@@ -3,6 +3,7 @@ import "dart:math" as math;
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../widgets/document_flow_footer.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/translated_text.dart";
@@ -87,6 +88,7 @@ class NfcStageScaffold extends StatelessWidget {
               bodyKey,
               translationParams: textParams,
               textAlign: .center,
+              style: YiviPalette.of(context).body(16).copyWith(height: 24 / 16),
             ),
           ],
         ),
@@ -94,7 +96,7 @@ class NfcStageScaffold extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: theme.backgroundPrimary,
+      backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitleKey,
         leading: leading,
@@ -189,19 +191,21 @@ class NfcProgressRing extends StatelessWidget {
         dimension: _ringGrid,
         child: CustomPaint(
           painter: _RingPainter(
-            color: theme.success,
-            trackColor: theme.backgroundTertiary,
+            // Brand red on the outline colour, as on the canvas.
+            color: theme.primary,
+            trackColor: YiviPalette.of(context).outline,
             progress: progress.clamp(0.0, 1.0),
           ),
           child: Center(
             child: ExcludeSemantics(
               child: Text(
                 "$percent%",
-                style: theme.textTheme.displayMedium?.copyWith(
-                  fontSize: 44,
-                  height: 1,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+                style: YiviPalette.of(context)
+                    .display(44, weight: FontWeight.w700)
+                    .copyWith(
+                      height: 1,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
               ),
             ),
           ),

@@ -3,6 +3,7 @@ import "package:mask_text_input_formatter/mask_text_input_formatter.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../widgets/pill_text_field.dart";
 
 class DateInputField extends StatefulWidget {
   final TextEditingController controller;
@@ -67,16 +68,10 @@ class _DateInputFieldState extends State<DateInputField> {
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
       inputFormatters: [_dateMask],
-      decoration: InputDecoration(
-        hintText: "YYYY-MM-DD",
-        hintStyle: baseTextStyle?.copyWith(
-          color: baseTextStyle.color?.withValues(alpha: 0.5),
-        ),
-        contentPadding: const .only(bottom: 8.0),
-        labelText: widget.labelText,
-        labelStyle: baseTextStyle,
-        floatingLabelAlignment: .start,
-        floatingLabelBehavior: .always,
+      decoration: pillInputDecoration(
+        context,
+        hint: "YYYY-MM-DD",
+        label: widget.labelText,
         suffixIcon: IconButton(
           icon: const Icon(Icons.calendar_today),
           onPressed: () async {
