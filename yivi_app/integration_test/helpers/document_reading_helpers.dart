@@ -8,6 +8,8 @@ import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -139,43 +141,64 @@ Future<void> navigateToPassportNfcReadingScreen(
   await tester.pump(const Duration(seconds: 1));
 }
 
-Future<void> openDrivingLicenceDetailsScreen(
+/// Taps the document on the add data screen, which opens its instructions.
+Future<void> openDocumentInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
+  required String fullCredentialId,
   List<Override> overrides = const [],
 }) async {
-  await openAddCredentialDetailsScreen(
+  await tapAddCredentialTile(
     tester,
     binding,
-    fullCredentialId: "pbdf-staging.pbdf.drivinglicence",
+    fullCredentialId: fullCredentialId,
     overrides: overrides,
   );
+  await tester.waitFor(find.byType(DocumentInstructionScreen));
 }
 
-Future<void> openIdCardDetailsScreen(
+Future<void> openDrivingLicenceInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
-}) async {
-  await openAddCredentialDetailsScreen(
-    tester,
-    binding,
-    fullCredentialId: "pbdf-staging.pbdf.idcard",
-    overrides: overrides,
-  );
-}
+}) => openDocumentInstructionScreen(
+  tester,
+  binding,
+  fullCredentialId: "pbdf-staging.pbdf.drivinglicence",
+  overrides: overrides,
+);
 
-Future<void> openPassportDetailsScreen(
+Future<void> openIdCardInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
-}) async {
-  await openAddCredentialDetailsScreen(
-    tester,
-    binding,
-    fullCredentialId: "pbdf-staging.pbdf.passport",
-    overrides: overrides,
-  );
+}) => openDocumentInstructionScreen(
+  tester,
+  binding,
+  fullCredentialId: "pbdf-staging.pbdf.idcard",
+  overrides: overrides,
+);
+
+Future<void> openPassportInstructionScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  List<Override> overrides = const [],
+}) => openDocumentInstructionScreen(
+  tester,
+  binding,
+  fullCredentialId: "pbdf-staging.pbdf.passport",
+  overrides: overrides,
+);
+
+/// Starts the chip read once the NFC screen is up. Android starts it by
+/// itself; iOS waits for a tap on Start, which opens Apple's NFC sheet.
+Future<void> startNfcRead(WidgetTester tester) async {
+  await tester.waitFor(find.byType(NfcReadingScreen));
+  final start = find.byKey(const Key("bottom_bar_primary"));
+  if (start.evaluate().isNotEmpty) {
+    await tester.tap(start);
+  }
+  await tester.pumpAndSettle();
 }
 
 class FakePassportIssuer implements PassportIssuer {

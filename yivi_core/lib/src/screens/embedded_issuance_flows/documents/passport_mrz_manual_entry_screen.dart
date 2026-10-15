@@ -1,13 +1,13 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/translated_text.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
+import "widgets/manual_entry_layout.dart";
 
 class PassportMrzManualEntryTranslationKeys {
   final String title;
@@ -20,6 +20,15 @@ class PassportMrzManualEntryTranslationKeys {
   final String documentNumberRequired;
   final String documentNumberInvalid;
   final String dateInvalid;
+
+  /// The bar title: the scan title of the document ("Scan passport"), next
+  /// to the heading in the page.
+  String get appBarTitle => title.replaceFirst(".manual.title", ".scan.title");
+
+  /// Where to find the details, under the fields.
+  String get tip => title.startsWith("id_card")
+      ? "document_flow.manual.tip_id_card"
+      : "document_flow.manual.tip_passport";
 
   PassportMrzManualEntryTranslationKeys({
     required this.title,
@@ -115,17 +124,17 @@ class _PassportMrzManualEntryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         extendBodyBehindAppBar: true,
         extendBody: true,
-        backgroundColor: theme.backgroundTertiary,
+        backgroundColor: palette.background,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
-          titleTranslationKey: widget.translationKeys.title,
+          titleTranslationKey: widget.translationKeys.appBarTitle,
         ),
         body: SizedBox(
           height: .infinity,
@@ -138,12 +147,12 @@ class _PassportMrzManualEntryScreenState
               },
               child: SafeArea(
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      TranslatedText(widget.translationKeys.explanation),
-                      SizedBox(height: theme.mediumSpacing),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: ManualEntryLayout(
+                    titleKey: widget.translationKeys.title,
+                    explanationKey: widget.translationKeys.explanation,
+                    tipKey: widget.translationKeys.tip,
+                    fields: [
                       DocumentNrInputField(
                         controller: _documentNrCtrl,
                         labelText: FlutterI18n.translate(
@@ -159,7 +168,6 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.documentNumberInvalid,
                         ),
                       ),
-                      SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _dateOfBirthCtrl,
                         fieldKey: const Key("passport_dob_field"),
@@ -176,7 +184,6 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.dateInvalid,
                         ),
                       ),
-                      SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _expiryDateCtrl,
                         fieldKey: const Key("passport_expiry_date_field"),
@@ -193,7 +200,6 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.dateOfExpiryRequired,
                         ),
                       ),
-                      SizedBox(height: theme.largeSpacing),
                     ],
                   ),
                 ),

@@ -29,6 +29,9 @@ class DocumentFlowButton extends StatelessWidget {
 
   static const double height = 56;
 
+  /// The text buttons under the main one are lower, as on the boards.
+  static const double secondaryHeight = 48;
+
   /// The keys of the two button positions, the same as IrmaBottomBar's.
   static const primaryKey = Key("bottom_bar_primary");
   static const secondaryKey = Key("bottom_bar_secondary");
@@ -52,7 +55,7 @@ class DocumentFlowButton extends StatelessWidget {
         label: label,
         onPressed: onPressed,
         style: PillStyle.text,
-        height: height,
+        height: secondaryHeight,
       ),
       .text => _UnderlinedTextButton(label: label, onPressed: onPressed),
     };
@@ -62,9 +65,9 @@ class DocumentFlowButton extends StatelessWidget {
     // button itself one node with its role, label and enabled state.
     return MergeSemantics(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
+        constraints: BoxConstraints(
           minWidth: double.infinity,
-          minHeight: height,
+          minHeight: style == .primary ? height : secondaryHeight,
         ),
         child: button,
       ),

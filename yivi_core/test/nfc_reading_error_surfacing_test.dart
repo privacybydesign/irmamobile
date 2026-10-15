@@ -200,11 +200,6 @@ NfcReadingTranslationKeys _passportKeys() => NfcReadingTranslationKeys(
   error: "passport.nfc.error",
   errorGeneric: "passport.nfc.error_generic",
   title: "passport.nfc.title",
-  nfcDisabled: "passport.nfc.nfc_disabled",
-  nfcEnabled: "passport.nfc.nfc_enabled",
-  introduction: "passport.nfc.introduction",
-  startScanning: "passport.nfc.start_scanning",
-  nfcDisabledExplanation: "passport.nfc.nfc_disabled_explanation",
   holdNearPhotoPage: "passport.nfc.hold_near_photo_page",
   tip1: "passport.nfc.tip_1",
   tip2: "passport.nfc.tip_2",
@@ -262,9 +257,10 @@ Future<GoRouter> _pumpNfcScreen(
         ),
         passportIssuerProvider.overrideWithValue(issuer),
         regulaFaceServiceProvider.overrideWithValue(faceService),
+        nfcDoneHoldProvider.overrideWithValue(Duration.zero),
       ],
-      // TestContext disables the scanning animation's repeating ticker so
-      // pumpAndSettle does not hang.
+      // TestContext stops the waiting picture from looping, so pumpAndSettle
+      // does not hang.
       child: TestContext(
         child: IrmaTheme(
           builder: (_) => MaterialApp.router(
@@ -340,6 +336,10 @@ Future<Set<String>> _illustrationForIssuanceError(
   return _errorIllustrations(tester);
 }
 
+/// On iOS the read waits for a tap on Start, so each test can choose when it
+/// begins; Android starts it as soon as the screen opens.
+const _ios = TargetPlatformVariant({TargetPlatform.iOS});
+
 void main() {
   // The read runs inside PrivacyScreen.suspendDuring. An unmocked method
   // channel replies with a null envelope, which MethodChannel turns into a
@@ -398,7 +398,7 @@ void main() {
     // return the user to the readout page they already finished — the same
     // choice _startIssuance makes for this flow.
     expect(_stackDepth(router), depthBefore);
-  });
+  }, variant: _ios);
 
   testWidgets("a failure before the liveness session is not pushed onto "
       "wherever the user went instead", (tester) async {
@@ -423,7 +423,7 @@ void main() {
     // instead of throwing a full-screen error over where they navigated to.
     expect(find.text("elsewhere"), findsOneWidget);
     expect(find.textContaining("issuer unreachable"), findsNothing);
-  });
+  }, variant: _ios);
 
   testWidgets("a rejected face match gets the failed-face illustration", (
     tester,
@@ -434,7 +434,7 @@ void main() {
     );
     expect(shown, hasLength(1));
     expect(shown.single, contains("failed_face_verification.svg"));
-  });
+  }, variant: _ios);
 
   testWidgets("another issuance failure that happens to contain 400 does not", (
     tester,
@@ -448,7 +448,7 @@ void main() {
     );
     expect(shown, hasLength(1));
     expect(shown.single, contains("general_error_illustration.svg"));
-  });
+  }, variant: _ios);
 
   testWidgets("a failure while the screen is up stays in the screen", (
     tester,
@@ -470,5 +470,5 @@ void main() {
       find.text("Could not read passport. Please try again."),
       findsOneWidget,
     );
-  });
+  }, variant: _ios);
 }

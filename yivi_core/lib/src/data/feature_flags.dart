@@ -21,10 +21,6 @@ enum FeatureFlag {
     "Data from another website: heads-up and waiting state",
   ),
   singleTapChoice("F", "Choices: tap to pick, Wissel sheet"),
-  documentFlowV2(
-    "G",
-    "Adding a document: no details page, new NFC screens, age row",
-  ),
   formFieldsV2("H", "Form fields: white fields with the label inside"),
   calmSuccess("J", "Success screens: calm illustrations"),
   shareScreenV2("K", "Sharing: Gewaarmerkt door, trust bar, extra check");

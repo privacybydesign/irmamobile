@@ -104,7 +104,6 @@ flutter:
 
   assets:
     - assets/
-    - assets/passport/
     - assets/locales/
     - assets/arrow_back/
     - assets/enrollment/

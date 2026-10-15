@@ -8,10 +8,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/models/mrz.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
-import "package:yivi_core/src/providers/feature_flag_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/nfc_settings_provider.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
@@ -153,11 +151,6 @@ NfcReadingTranslationKeys _translationKeys() {
     error: "$key.error",
     errorGeneric: "$key.error_generic",
     title: "$key.title",
-    nfcDisabled: "$key.nfc_disabled",
-    nfcEnabled: "$key.nfc_enabled",
-    introduction: "$key.introduction",
-    startScanning: "$key.start_scanning",
-    nfcDisabledExplanation: "$key.nfc_disabled_explanation",
     holdNearPhotoPage: "$key.hold_near_photo_page",
     tip1: "$key.tip_1",
     tip2: "$key.tip_2",
@@ -177,8 +170,6 @@ NfcReadingTranslationKeys _translationKeys() {
     success: "$key.success",
   );
 }
-
-enum _Flag { on, off }
 
 const _androidOnly = TargetPlatformVariant({TargetPlatform.android});
 const _iosOnly = TargetPlatformVariant({TargetPlatform.iOS});
@@ -212,7 +203,6 @@ void main() {
 
   Future<void> pumpScreen(
     WidgetTester tester, {
-    _Flag flag = .on,
     ScannedMrz? mrz,
     PassportIssuer? issuer,
     Size surface = const Size(390, 844),
@@ -229,9 +219,6 @@ void main() {
           passportReaderProvider.overrideWith2((mrz) => reader),
           idCardReaderProvider.overrideWith2((mrz) => reader),
           passportIssuerProvider.overrideWithValue(issuer ?? _StubIssuer()),
-          featureFlagProvider(
-            FeatureFlag.documentFlowV2,
-          ).overrideWith((ref) => Stream.value(flag == .on)),
           nfcStatusReaderProvider.overrideWithValue(() async {
             final error = nfcStatusError;
             if (error != null) throw error;
@@ -266,16 +253,6 @@ void main() {
 
   Finder primaryButton() => find.byKey(const Key("bottom_bar_primary"));
   Finder cancelButton() => find.byKey(const Key("bottom_bar_secondary"));
-
-  testWidgets("flag off: the screen is the introduction with a Start button", (
-    tester,
-  ) async {
-    await pumpScreen(tester, flag: .off);
-
-    expect(find.byType(NfcStageScaffold), findsNothing);
-    expect(find.text("Start scanning"), findsOneWidget);
-    expect(reader.readCount, 0);
-  }, variant: _androidOnly);
 
   group("before contact", () {
     testWidgets("Android starts listening at once and offers Cancel only", (

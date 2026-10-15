@@ -2,9 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/feature_flags.dart";
 import "../../models/schemaless/credential_store.dart";
-import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
@@ -69,9 +67,6 @@ class _SchemalessAddDataScreenState
     // than showing it normally. Only a confirmed "no NFC chip" result greys
     // out the NFC-requiring credentials.
     final nfcAvailable = ref.watch(nfcAvailableProvider).value ?? true;
-    final documentFlowV2 =
-        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
-        false;
 
     void open(CredentialStoreItem item) {
       final credential = item.credential;
@@ -79,8 +74,7 @@ class _SchemalessAddDataScreenState
           !nfcAvailable && credentialRequiresNfc(credential.credentialId);
       if (nfcBlocked) {
         _showNfcUnsupportedDialog(context);
-      } else if (documentFlowV2 &&
-          credentialRequiresNfc(credential.credentialId)) {
+      } else if (credentialRequiresNfc(credential.credentialId)) {
         IrmaRepositoryProvider.of(context).openIssueURL(
           context,
           credential.credentialId,

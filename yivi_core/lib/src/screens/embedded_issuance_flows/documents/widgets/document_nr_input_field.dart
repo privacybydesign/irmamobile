@@ -1,8 +1,9 @@
 import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../theme/theme.dart";
-import "../../../../widgets/pill_text_field.dart";
+import "../../../../theme/yivi_palette.dart";
+import "manual_entry_layout.dart";
 
 class DocumentNrInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -34,26 +35,31 @@ class DocumentNrInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
+    final palette = YiviPalette.of(context);
 
-    return TextFormField(
-      key: const Key("document_nr_input_field"),
-      controller: controller,
-      keyboardType: .text,
-      textCapitalization: .characters,
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
-      ],
-      decoration: pillInputDecoration(
-        context,
-        label: labelText,
-        hint: labelText,
+    return DocumentField(
+      label: labelText,
+      field: TextFormField(
+        key: const Key("document_nr_input_field"),
+        controller: controller,
+        keyboardType: .text,
+        textCapitalization: .characters,
+        cursorColor: palette.link,
+        // A little spacing helps reading a code.
+        style: documentFieldText(context, spacing: 16 * 0.04),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
+        ],
+        decoration: documentFieldDecoration(
+          context,
+          hint: FlutterI18n.translate(
+            context,
+            "document_flow.manual.document_nr_hint",
+          ),
+        ),
+        autovalidateMode: .onUserInteraction,
+        validator: (documentNr) => _validateDocumentNr(documentNr, context),
       ),
-      autovalidateMode: .onUserInteraction,
-      validator: (documentNr) => _validateDocumentNr(documentNr, context),
     );
   }
 }

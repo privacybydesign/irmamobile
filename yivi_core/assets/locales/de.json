@@ -1008,15 +1008,24 @@
       "off_body": "Damit liest Ihr Telefon den Chip in Ihrem {document}.",
       "open_settings": "NFC-Einstellungen öffnen",
       "waiting_image_alt": "Animation: Legen Sie die Rückseite Ihres Telefons auf Ihren geschlossenen Reisepass",
+      "waiting_image_alt_card": "Animation: Legen Sie die Rückseite Ihres Telefons auf das Dokument ({document})",
       "reading_label": {
         "passport": "Reisepass lesen",
         "id_card": "Personalausweis lesen",
         "driving_licence": "Führerschein lesen"
       }
+    },
+    "manual": {
+      "document_nr_hint": "z. B. NXC4R1P72",
+      "tip_passport": "Du findest diese auf der Seite mit deinem Passfoto, in den zwei Zeilen unten.",
+      "tip_id_card": "Du findest diese auf der Rückseite deines Ausweises, in den Zeilen unten.",
+      "tip_driving_licence": "Du findest dies auf der Rückseite deines Führerscheins, in den Zeilen unten."
     }
   },
   "mrz_scanner": {
-    "glare_hint": "Spiegelung auf dem Dokument. Kippen Sie es leicht."
+    "glare_hint": "Spiegelung auf dem Dokument. Kippen Sie es leicht.",
+    "looking": "Halte das Dokument in den Rahmen.",
+    "found": "Dokument gefunden"
   },
   "face_verification": {
     "title": "Gesichtsverifizierung",

@@ -1,166 +1,110 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
-import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "widgets/face_frame_illustration.dart";
-import "widgets/face_verification_animation.dart";
-
-enum FaceVerificationIntroStyle {
-  classic,
-
-  /// The document flow V2 screen: a still picture and a single button.
-  documentFlowV2,
-}
 
 /// Yivi-themed intro shown after a successful document readout and before the
 /// Regula liveness session. It replaces Regula's built-in "Time for a selfie"
 /// onboarding (which is skipped) so the copy and theming are fully under our
 /// control and localised through the app's own i18n.
 ///
-/// Buttons invoke [onStart] / [onCancel]; use [show] to present it as a route
+/// Start invokes [onStart] and the back button [onCancel]; use [show] to present it as a route
 /// that resolves to whether the user chose to continue.
 class FaceVerificationIntroScreen extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onCancel;
-  final FaceVerificationIntroStyle style;
 
   const FaceVerificationIntroScreen({
     required this.onStart,
     required this.onCancel,
-    this.style = FaceVerificationIntroStyle.classic,
     super.key,
   });
 
   /// Presents the intro on the root navigator and resolves to `true` when the
   /// user taps start, `false` when they cancel or back out.
-  static Future<bool> show(
-    BuildContext context, {
-    FaceVerificationIntroStyle style = FaceVerificationIntroStyle.classic,
-  }) async {
+  static Future<bool> show(BuildContext context) async {
     final result = await Navigator.of(context, rootNavigator: true).push<bool>(
       MaterialPageRoute(
         builder: (routeContext) => FaceVerificationIntroScreen(
           onStart: () => Navigator.of(routeContext).pop(true),
           onCancel: () => Navigator.of(routeContext).pop(false),
-          style: style,
         ),
       ),
     );
     return result ?? false;
   }
 
+  /// The canvas's face check intro: the face on a white card, the
+  /// explanation, the tips in a group, and one Start button.
   @override
   Widget build(BuildContext context) {
-    if (style == .documentFlowV2) return _buildDocumentFlow(context);
-
-    final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(titleTranslationKey: "face_verification.title"),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Center(child: FaceVerificationAnimation()),
-              SizedBox(height: theme.largeSpacing),
-              TranslatedText(
-                "face_verification.intro.explanation",
-                style: palette.body(16, weight: FontWeight.w600),
-              ),
-              SizedBox(height: theme.defaultSpacing),
-              const GlassGroup(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Column(
-                      children: [
-                        _Tip(
-                          translationKey: "face_verification.intro.tip_camera",
-                        ),
-                        _Tip(
-                          translationKey:
-                              "face_verification.intro.tip_lighting",
-                        ),
-                        _Tip(
-                          translationKey:
-                              "face_verification.intro.tip_look_straight",
-                        ),
-                        _Tip(
-                          translationKey:
-                              "face_verification.intro.tip_no_accessories",
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "face_verification.intro.start",
-        onPrimaryPressed: onStart,
-        secondaryButtonLabel: "ui.cancel",
-        onSecondaryPressed: onCancel,
-      ),
-    );
-  }
-
-  Widget _buildDocumentFlow(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final palette = YiviPalette.of(context);
+    const tips = [
+      "face_verification.intro.tip_camera",
+      "face_verification.intro.tip_lighting",
+      "face_verification.intro.tip_look_straight",
+      "face_verification.intro.tip_no_accessories",
+    ];
+    const cardShadow = [
+      BoxShadow(color: Color(0x17000000), blurRadius: 6, offset: Offset(0, 1)),
+    ];
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "face_verification.title",
+        leading: YiviBackButton(onTap: onCancel),
         hasBorder: false,
       ),
       body: SingleChildScrollView(
-        padding: .all(theme.mediumSpacing),
+        padding: const .fromLTRB(16, 16, 16, 32),
+        // Inside the scroll view, so the content starts below the bars and
+        // scrolls underneath them.
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .stretch,
-            spacing: theme.defaultSpacing + theme.tinySpacing,
             children: [
-              const Center(child: FaceFrameIllustration()),
-              TranslatedText(
-                "face_verification.intro.explanation",
-                style: palette.body(16).copyWith(height: 24 / 16),
-              ),
-              GlassGroup(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      spacing: theme.smallSpacing + theme.tinySpacing,
-                      children: const [
-                        _DocumentFlowTip("face_verification.intro.tip_camera"),
-                        _DocumentFlowTip(
-                          "face_verification.intro.tip_lighting",
-                        ),
-                        _DocumentFlowTip(
-                          "face_verification.intro.tip_look_straight",
-                        ),
-                        _DocumentFlowTip(
-                          "face_verification.intro.tip_no_accessories",
-                        ),
-                      ],
-                    ),
+              Container(
+                height: 230,
+                alignment: Alignment.center,
+                decoration: ShapeDecoration(
+                  color: palette.surface,
+                  shape: const RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(28)),
                   ),
-                ],
+                  shadows: cardShadow,
+                ),
+                child: const FaceFrameIllustration(),
+              ),
+              Padding(
+                padding: const .fromLTRB(4, 20, 4, 0),
+                child: TranslatedText(
+                  "face_verification.intro.explanation",
+                  style: palette.body(17).copyWith(height: 26 / 17),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: palette.surface,
+                  shape: const RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                  ),
+                  shadows: cardShadow,
+                ),
+                child: Padding(
+                  padding: const .symmetric(horizontal: 16, vertical: 4),
+                  child: Column(
+                    children: [
+                      for (final (i, tip) in tips.indexed)
+                        _DocumentFlowTip(tip, divider: i > 0),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -179,69 +123,56 @@ class FaceVerificationIntroScreen extends StatelessWidget {
   }
 }
 
-/// A single, left-aligned guidance line: a check icon + text.
-class _Tip extends StatelessWidget {
-  final String translationKey;
+/// A guidance line: a white check on a green
+/// disc and the text, with a line above all but the first.
+class _DocumentFlowTip extends StatelessWidget {
+  const _DocumentFlowTip(this.translationKey, {required this.divider});
 
-  const _Tip({required this.translationKey});
+  static const double _tickSize = 22;
+
+  final String translationKey;
+  final bool divider;
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+    final palette = YiviPalette.of(context);
+    return Container(
+      padding: const .symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: divider
+            ? Border(top: BorderSide(color: palette.divider))
+            : null,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          Icon(
-            Icons.check_circle,
-            size: 20,
-            color: YiviPalette.of(context).successText,
+          ExcludeSemantics(
+            child: Container(
+              width: _tickSize,
+              height: _tickSize,
+              decoration: const BoxDecoration(
+                color: Color(0xFF00973A),
+                shape: BoxShape.circle,
+              ),
+              child: const CustomPaint(
+                painter: _TickPainter(color: Colors.white),
+              ),
+            ),
           ),
-          SizedBox(width: theme.smallSpacing),
-          Expanded(child: TranslatedText(translationKey)),
+          Expanded(
+            child: TranslatedText(
+              translationKey,
+              style: palette.body(16).copyWith(height: 24 / 16),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-/// A guidance line of the document flow V2 screen: a green tick and text.
-class _DocumentFlowTip extends StatelessWidget {
-  const _DocumentFlowTip(this.translationKey);
-
-  static const double _tickSize = 22;
-
-  final String translationKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Row(
-      crossAxisAlignment: .start,
-      spacing: theme.smallSpacing + theme.tinySpacing,
-      children: [
-        Padding(
-          padding: const .only(top: 1),
-          child: ExcludeSemantics(
-            child: SizedBox.square(
-              dimension: _tickSize,
-              child: CustomPaint(
-                painter: _TickPainter(
-                  color: YiviPalette.of(context).successText,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(child: TranslatedText(translationKey)),
-      ],
-    );
-  }
-}
-
 class _TickPainter extends CustomPainter {
-  _TickPainter({required this.color});
+  const _TickPainter({required this.color});
 
   final Color color;
 
@@ -252,13 +183,13 @@ class _TickPainter extends CustomPainter {
     canvas.scale(size.width / _grid);
     canvas.drawPath(
       Path()
-        ..moveTo(4, 12.5)
-        ..lineTo(9, 17.5)
-        ..lineTo(20, 6.5),
+        ..moveTo(6.5, 12.5)
+        ..lineTo(10.5, 16.5)
+        ..lineTo(17.5, 8.5),
       Paint()
         ..color = color
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.4
+        ..strokeWidth = 2.6
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
     );

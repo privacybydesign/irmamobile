@@ -7,22 +7,17 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/models/mrz.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
-import "package:yivi_core/src/providers/feature_flag_provider.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_verification_animation.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
 import "support/pump_translated.dart";
-
-enum _Flag { on, off }
 
 class _FakePassportData extends Fake implements PassportData {}
 
@@ -105,11 +100,6 @@ NfcReadingTranslationKeys _translationKeys() {
     error: "$key.error",
     errorGeneric: "$key.error_generic",
     title: "$key.title",
-    nfcDisabled: "$key.nfc_disabled",
-    nfcEnabled: "$key.nfc_enabled",
-    introduction: "$key.introduction",
-    startScanning: "$key.start_scanning",
-    nfcDisabledExplanation: "$key.nfc_disabled_explanation",
     holdNearPhotoPage: "$key.hold_near_photo_page",
     tip1: "$key.tip_1",
     tip2: "$key.tip_2",
@@ -173,10 +163,7 @@ void main() {
       );
     });
 
-    Future<void> pumpUntilIntro(
-      WidgetTester tester, {
-      required _Flag flag,
-    }) async {
+    Future<void> pumpUntilIntro(WidgetTester tester) async {
       await pumpTranslated(
         tester,
         _app(
@@ -199,16 +186,13 @@ void main() {
             regulaFaceServiceProvider.overrideWithValue(_IdleFaceService()),
             // The done stage's hold has its own test.
             nfcDoneHoldProvider.overrideWithValue(Duration.zero),
-            featureFlagProvider(
-              FeatureFlag.documentFlowV2,
-            ).overrideWith((ref) => Stream.value(flag == .on)),
           ],
         ),
       );
       await tester.pumpAndSettle();
 
-      // Flag off waits for the Start tap; on, Android starts at once and iOS
-      // needs the tap too, so tap it where it is there.
+      // Android starts at once and iOS needs a tap on Start, so tap it where
+      // it is there.
       final start = find.byKey(const Key("bottom_bar_primary"));
       if (start.evaluate().isNotEmpty) await tester.tap(start);
       await tester.runAsync(
@@ -217,22 +201,19 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets("flag on: a still picture and a Start button, no animation", (
-      tester,
-    ) async {
-      await pumpUntilIntro(tester, flag: .on);
+    testWidgets("a still picture and a Start button", (tester) async {
+      await pumpUntilIntro(tester);
 
       expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
       expect(find.byType(FaceFrameIllustration), findsOneWidget);
-      expect(find.byType(FaceVerificationAnimation), findsNothing);
       expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
       expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
     }, variant: const TargetPlatformVariant({TargetPlatform.android}));
 
-    testWidgets("flag on: leaving the intro starts a new read on Android", (
+    testWidgets("leaving the intro starts a new read on Android", (
       tester,
     ) async {
-      await pumpUntilIntro(tester, flag: .on);
+      await pumpUntilIntro(tester);
       await tester.tap(find.byKey(const Key("irma_app_bar_leading")));
 
       // Round one lets the screen see the cancel, round two the read it starts.
@@ -246,18 +227,6 @@ void main() {
       // The first reader is dropped while the loader shows. The one the
       // screen watches after the cancel has to be read too.
       expect(readers.map((reader) => reader.readCount), [1, 1]);
-    }, variant: const TargetPlatformVariant({TargetPlatform.android}));
-
-    testWidgets("flag off: the animation, with Start and Cancel", (
-      tester,
-    ) async {
-      await pumpUntilIntro(tester, flag: .off);
-
-      expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
-      expect(find.byType(FaceVerificationAnimation), findsOneWidget);
-      expect(find.byType(FaceFrameIllustration), findsNothing);
-      expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
-      expect(find.byKey(const Key("bottom_bar_secondary")), findsOneWidget);
     }, variant: const TargetPlatformVariant({TargetPlatform.android}));
   });
 }

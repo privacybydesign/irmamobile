@@ -1008,15 +1008,24 @@
       "off_body": "Daarmee leest je telefoon de chip in je {document}.",
       "open_settings": "Open NFC-instellingen",
       "waiting_image_alt": "Animatie: leg de achterkant van je telefoon op je dichte paspoort",
+      "waiting_image_alt_card": "Animatie: leg de achterkant van je telefoon op je {document}",
       "reading_label": {
         "passport": "Paspoort lezen",
         "id_card": "Identiteitskaart lezen",
         "driving_licence": "Rijbewijs lezen"
       }
+    },
+    "manual": {
+      "document_nr_hint": "bijv. NXC4R1P72",
+      "tip_passport": "Je vindt deze op de pagina met je pasfoto, in de twee regels onderaan.",
+      "tip_id_card": "Je vindt deze op de achterkant van je ID-kaart, in de regels onderaan.",
+      "tip_driving_licence": "Je vindt dit op de achterkant van je rijbewijs, in de regels onderaan."
     }
   },
   "mrz_scanner": {
-    "glare_hint": "Reflectie op het document. Kantel het iets."
+    "glare_hint": "Reflectie op het document. Kantel het iets.",
+    "looking": "Houd het document binnen het kader.",
+    "found": "Document gevonden"
   },
   "face_verification": {
     "title": "Gezichtsverificatie",

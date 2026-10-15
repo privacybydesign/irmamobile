@@ -979,15 +979,24 @@
       "off_body": "Your phone uses it to read the chip in your {document}.",
       "open_settings": "Open NFC settings",
       "waiting_image_alt": "Animation: place the back of your phone on your closed passport",
+      "waiting_image_alt_card": "Animation: place the back of your phone on your {document}",
       "reading_label": {
         "passport": "Reading passport",
         "id_card": "Reading ID-card",
         "driving_licence": "Reading driving licence"
       }
+    },
+    "manual": {
+      "document_nr_hint": "e.g. NXC4R1P72",
+      "tip_passport": "You find these on the photo page, in the two lines at the bottom.",
+      "tip_id_card": "You find these on the back of your ID-card, in the lines at the bottom.",
+      "tip_driving_licence": "You find this on the back of your driving licence, in the lines at the bottom."
     }
   },
   "mrz_scanner": {
-    "glare_hint": "Reflection on the document. Tilt it slightly."
+    "glare_hint": "Reflection on the document. Tilt it slightly.",
+    "looking": "Hold the document inside the frame.",
+    "found": "Document found"
   },
   "face_verification": {
     "title": "Face verification",

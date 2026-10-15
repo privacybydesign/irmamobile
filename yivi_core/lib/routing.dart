@@ -35,9 +35,6 @@ import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
-import "src/screens/embedded_issuance_flows/documents/widgets/driving_licence_mrz_camera_overlay.dart";
-import "src/screens/embedded_issuance_flows/documents/widgets/id_card_mrz_camera_overlay.dart";
-import "src/screens/embedded_issuance_flows/documents/widgets/passport_mrz_camera_overlay.dart";
 import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
@@ -502,11 +499,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/driving_licence",
                 builder: (context, state) {
                   return MrzReaderScreen(
-                    overlayBuilder: ({required success, required child}) =>
-                        DrivingLicenceMrzCameraOverlay(
-                          success: success,
-                          child: child,
-                        ),
                     translationKeys: MrzReaderTranslationKeys(
                       title: "driving_licence.scan.title",
                       manualEntryButton: "driving_licence.scan.manual",
@@ -539,11 +531,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/passport",
                 builder: (context, state) {
                   return MrzReaderScreen(
-                    overlayBuilder: ({required success, required child}) =>
-                        PassportMrzCameraOverlay(
-                          success: success,
-                          child: child,
-                        ),
                     translationKeys: MrzReaderTranslationKeys(
                       title: "passport.scan.title",
                       manualEntryButton: "passport.scan.manual",
@@ -574,8 +561,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/id_card",
                 builder: (context, state) {
                   return MrzReaderScreen(
-                    overlayBuilder: ({required success, required child}) =>
-                        IdCardMrzCameraOverlay(success: success, child: child),
                     translationKeys: MrzReaderTranslationKeys(
                       title: "id_card.scan.title",
                       manualEntryButton: "id_card.scan.manual",
@@ -628,12 +613,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "driving_licence.nfc.error",
                   errorGeneric: "driving_licence.nfc.error_generic",
                   title: "driving_licence.nfc.title",
-                  nfcDisabled: "driving_licence.nfc.nfc_disabled",
-                  nfcEnabled: "driving_licence.nfc.nfc_enabled",
-                  introduction: "driving_licence.nfc.introduction",
-                  startScanning: "driving_licence.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "driving_licence.nfc.nfc_disabled_explanation",
                   holdNearPhotoPage: "driving_licence.nfc.hold_near_photo_page",
                   tip1: "driving_licence.nfc.tip_1",
                   tip2: "driving_licence.nfc.tip_2",
@@ -686,12 +665,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "passport.nfc.error",
                   errorGeneric: "passport.nfc.error_generic",
                   title: "passport.nfc.title",
-                  nfcDisabled: "passport.nfc.nfc_disabled",
-                  nfcEnabled: "passport.nfc.nfc_enabled",
-                  introduction: "passport.nfc.introduction",
-                  startScanning: "passport.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "passport.nfc.nfc_disabled_explanation",
                   holdNearPhotoPage: "passport.nfc.hold_near_photo_page",
                   tip1: "passport.nfc.tip_1",
                   tip2: "passport.nfc.tip_2",
@@ -740,12 +713,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "id_card.nfc.error",
                   errorGeneric: "id_card.nfc.error_generic",
                   title: "id_card.nfc.title",
-                  nfcDisabled: "id_card.nfc.nfc_disabled",
-                  nfcEnabled: "id_card.nfc.nfc_enabled",
-                  introduction: "id_card.nfc.introduction",
-                  startScanning: "id_card.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "id_card.nfc.nfc_disabled_explanation",
                   holdNearPhotoPage: "id_card.nfc.hold_near_photo_page",
                   tip1: "id_card.nfc.tip_1",
                   tip2: "id_card.nfc.tip_2",

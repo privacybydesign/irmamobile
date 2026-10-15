@@ -2,12 +2,10 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/feature_flags.dart";
 import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
-import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../base64_image.dart";
@@ -308,18 +306,13 @@ class YiviCredentialCard extends ConsumerWidget {
     final displayIssuerName = issuerName.isNotEmpty
         ? issuerName
         : FlutterI18n.translate(context, "ui.unknown");
-    final collapseAges =
-        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
-        false;
 
     if (layout == .document) {
       return _buildDocumentLayout(
         context,
         displayName: displayName,
         displayIssuerName: displayIssuerName,
-        ageDisplay: collapseAges
-            ? AgeDisplay.collapsed
-            : AgeDisplay.perAttribute,
+        ageDisplay: AgeDisplay.collapsed,
       );
     }
 
@@ -355,9 +348,7 @@ class YiviCredentialCard extends ConsumerWidget {
               compareTo: compareTo,
               credentialId: status.credentialId,
               disclosure: disclosure,
-              ageDisplay: collapseAges
-                  ? AgeDisplay.collapsed
-                  : AgeDisplay.perAttribute,
+              ageDisplay: AgeDisplay.collapsed,
             ),
           ],
           if (footer != null) ...[

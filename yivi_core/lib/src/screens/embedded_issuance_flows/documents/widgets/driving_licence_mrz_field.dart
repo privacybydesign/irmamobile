@@ -2,8 +2,8 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../theme/theme.dart";
-import "../../../../widgets/pill_text_field.dart";
+import "../../../../theme/yivi_palette.dart";
+import "manual_entry_layout.dart";
 
 class DrivingLicenceMrzInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -32,33 +32,29 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
+    final palette = YiviPalette.of(context);
+    final label = FlutterI18n.translate(
+      context,
+      "driving_licence.manual.fields.mrz",
+    );
 
-    return TextFormField(
-      key: const Key("driving_licence_mrz_input_field"),
-      controller: controller,
-      keyboardType: .text,
-      textCapitalization: .characters,
-      autofillHints: const [AutofillHints.creditCardNumber],
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
-      ],
-      decoration: pillInputDecoration(
-        context,
-        label: FlutterI18n.translate(
-          context,
-          "driving_licence.manual.fields.mrz",
-        ),
-        hint: FlutterI18n.translate(
-          context,
-          "driving_licence.manual.fields.mrz",
-        ),
+    return DocumentField(
+      label: label,
+      field: TextFormField(
+        key: const Key("driving_licence_mrz_input_field"),
+        controller: controller,
+        keyboardType: .text,
+        textCapitalization: .characters,
+        autofillHints: const [AutofillHints.creditCardNumber],
+        cursorColor: palette.link,
+        style: documentFieldText(context, spacing: 16 * 0.04),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
+        ],
+        decoration: documentFieldDecoration(context, hint: label),
+        autovalidateMode: .onUserInteraction,
+        validator: (documentNr) => _validateDocumentNr(documentNr, context),
       ),
-      autovalidateMode: .onUserInteraction,
-      validator: (documentNr) => _validateDocumentNr(documentNr, context),
     );
   }
 }

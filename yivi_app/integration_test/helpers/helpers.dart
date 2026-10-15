@@ -1495,6 +1495,22 @@ Future<void> openAddCredentialDetailsScreen(
   required String fullCredentialId,
   List<Override> overrides = const [],
 }) async {
+  await tapAddCredentialTile(
+    tester,
+    binding,
+    fullCredentialId: fullCredentialId,
+    overrides: overrides,
+  );
+  await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
+}
+
+/// Opens the add data screen and taps the tile of [fullCredentialId].
+Future<void> tapAddCredentialTile(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  required String fullCredentialId,
+  List<Override> overrides = const [],
+}) async {
   await pumpAndUnlockApp(
     tester,
     binding.repository,
@@ -1522,6 +1538,4 @@ Future<void> openAddCredentialDetailsScreen(
         .first,
   );
   await tester.tapAndSettle(addCredentialTile);
-
-  await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
 }

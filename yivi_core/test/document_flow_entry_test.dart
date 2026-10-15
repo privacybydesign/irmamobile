@@ -6,7 +6,6 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:vcmrtd/vcmrtd.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -165,67 +164,53 @@ void main() {
     await settle(tester);
   }
 
-  testWidgets("flag off: a document opens the details page", (tester) async {
+  for (final (credentialId, documentType) in [
+    ("pbdf.pbdf.passport", DocumentType.passport),
+    ("pbdf.pbdf.idcard", DocumentType.identityCard),
+    ("pbdf.pbdf.drivinglicence", DocumentType.drivingLicence),
+  ]) {
+    testWidgets("$credentialId skips the details page for the instructions", (
+      tester,
+    ) async {
+      await pumpAddData(tester);
+      await settle(tester);
+
+      await tapCredential(tester, credentialId);
+
+      expect(find.text("details page"), findsNothing);
+      final screen = tester.widget<DocumentInstructionScreen>(
+        find.byType(DocumentInstructionScreen),
+      );
+      expect(screen.documentType, documentType);
+    });
+  }
+
+  testWidgets("a credential that needs no NFC still has a details page", (
+    tester,
+  ) async {
     await pumpAddData(tester);
     await settle(tester);
 
-    await tapCredential(tester, "pbdf.pbdf.passport");
+    await tapCredential(tester, "pbdf.sidn-pbdf.email");
 
     expect(find.text("details page"), findsOneWidget);
     expect(find.byType(DocumentInstructionScreen), findsNothing);
   });
 
-  group("flag on", () {
-    setUp(() => prefs.setFeatureFlag(FeatureFlag.documentFlowV2, true));
+  testWidgets("Start continues to capture, Cancel returns to the list", (
+    tester,
+  ) async {
+    await pumpAddData(tester);
+    await settle(tester);
 
-    for (final (credentialId, documentType) in [
-      ("pbdf.pbdf.passport", DocumentType.passport),
-      ("pbdf.pbdf.idcard", DocumentType.identityCard),
-      ("pbdf.pbdf.drivinglicence", DocumentType.drivingLicence),
-    ]) {
-      testWidgets("$credentialId skips the details page for the instructions", (
-        tester,
-      ) async {
-        await pumpAddData(tester);
-        await settle(tester);
+    await tapCredential(tester, "pbdf.pbdf.passport");
+    await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+    await settle(tester);
+    expect(find.byType(SchemalessAddDataScreen), findsOneWidget);
 
-        await tapCredential(tester, credentialId);
-
-        expect(find.text("details page"), findsNothing);
-        final screen = tester.widget<DocumentInstructionScreen>(
-          find.byType(DocumentInstructionScreen),
-        );
-        expect(screen.documentType, documentType);
-      });
-    }
-
-    testWidgets("a credential that needs no NFC still has a details page", (
-      tester,
-    ) async {
-      await pumpAddData(tester);
-      await settle(tester);
-
-      await tapCredential(tester, "pbdf.sidn-pbdf.email");
-
-      expect(find.text("details page"), findsOneWidget);
-      expect(find.byType(DocumentInstructionScreen), findsNothing);
-    });
-
-    testWidgets("Start continues to capture, Cancel returns to the list", (
-      tester,
-    ) async {
-      await pumpAddData(tester);
-      await settle(tester);
-
-      await tapCredential(tester, "pbdf.pbdf.passport");
-      await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
-      await settle(tester);
-      expect(find.byType(SchemalessAddDataScreen), findsOneWidget);
-
-      await tapCredential(tester, "pbdf.pbdf.passport");
-      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-      await settle(tester);
-      expect(find.text("manual entry"), findsOneWidget);
-    });
+    await tapCredential(tester, "pbdf.pbdf.passport");
+    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+    await settle(tester);
+    expect(find.text("manual entry"), findsOneWidget);
   });
 }

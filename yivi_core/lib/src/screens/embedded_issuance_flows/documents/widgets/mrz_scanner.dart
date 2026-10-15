@@ -7,29 +7,21 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../../routing.dart";
-import "../../../../data/feature_flags.dart";
-import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/ocr_processor_provider.dart";
-import "../../../../theme/theme.dart";
 import "../../../../util/mrz_glare.dart";
 import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
-import "../../../../widgets/translated_text.dart";
-
-typedef CameraOverlayBuilder =
-    Widget Function({required bool success, required Widget child});
+import "document_camera_frame.dart";
 
 class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   const MrzScanner({
     Key? controller,
     required this.onSuccess,
     this.initialDirection = .back,
-    required this.overlayBuilder,
     required this.mrzParser,
   }) : super(key: controller);
   final void Function(MrzResult mrzResult) onSuccess;
   final CameraLensDirection initialDirection;
-  final CameraOverlayBuilder overlayBuilder;
   final Parser mrzParser;
 
   @override
@@ -140,17 +132,11 @@ class MrzScannerState extends ConsumerState<MrzScanner>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          widget.overlayBuilder(
-            success: _showSuccessCheck,
-            child: _liveFeedBody(),
-          ),
-          if (_showGlareHint && !_showSuccessCheck) const _GlareHintBanner(),
-        ],
-      ),
+    // One frame for every document, with the glare hint in its hint card.
+    return DocumentCameraFrame(
+      found: _showSuccessCheck,
+      glare: _showGlareHint,
+      child: _liveFeedBody(),
     );
   }
 
@@ -326,51 +312,5 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     } finally {
       _isBusy = false;
     }
-  }
-}
-
-/// Tells the user to tilt the document when a reflection washes out the MRZ, which
-/// stalls a scan until the reflection moves off it.
-class _GlareHintBanner extends ConsumerWidget {
-  const _GlareHintBanner();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
-    final documentFlowV2 =
-        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
-        false;
-
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Semantics(
-          liveRegion: true,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(180),
-              borderRadius: theme.borderRadius,
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: theme.defaultSpacing,
-                vertical: documentFlowV2
-                    ? theme.smallSpacing + theme.tinySpacing
-                    : theme.smallSpacing,
-              ),
-              child: TranslatedText(
-                "mrz_scanner.glare_hint",
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.white,
-                  height: documentFlowV2 ? 22 / 16 : null,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

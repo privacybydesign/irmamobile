@@ -2,8 +2,8 @@ import "package:intl/intl.dart";
 import "package:mask_text_input_formatter/mask_text_input_formatter.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../theme/theme.dart";
-import "../../../../widgets/pill_text_field.dart";
+import "../../../../theme/yivi_palette.dart";
+import "manual_entry_layout.dart";
 
 class DateInputField extends StatefulWidget {
   final TextEditingController controller;
@@ -56,66 +56,71 @@ class _DateInputFieldState extends State<DateInputField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
+    final palette = YiviPalette.of(context);
 
-    return TextFormField(
-      key: widget.fieldKey ?? const Key("date_input_field"),
-      controller: widget.controller,
-      readOnly: false,
-      keyboardType: .number,
-      textInputAction: .next,
-      cursorColor: theme.themeData.colorScheme.secondary,
-      style: baseTextStyle,
-      inputFormatters: [_dateMask],
-      decoration: pillInputDecoration(
-        context,
-        hint: "YYYY-MM-DD",
-        label: widget.labelText,
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.calendar_today),
-          onPressed: () async {
-            final now = DateTime.now();
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDatePickerMode: .day,
-              initialEntryMode: .calendarOnly,
-              initialDate: widget.initialDate ?? DateTime(now.year - 25),
-              firstDate: widget.firstDate ?? DateTime(1900),
-              lastDate: widget.lastDate ?? DateTime(2100),
-            );
-            if (pickedDate != null && mounted) {
-              final fmt = widget.formatDate ?? _defaultFormat;
-              if (!context.mounted) {
-                return;
-              }
-              final text = fmt(context, pickedDate);
-              // Set both text and caret to end to avoid selection glitches.
-              widget.controller.value = widget.controller.value.copyWith(
-                text: text,
-                selection: .collapsed(offset: text.length),
-                composing: .empty,
+    return DocumentField(
+      label: widget.labelText,
+      field: TextFormField(
+        key: widget.fieldKey ?? const Key("date_input_field"),
+        controller: widget.controller,
+        readOnly: false,
+        keyboardType: .number,
+        textInputAction: .next,
+        cursorColor: palette.link,
+        style: documentFieldText(context),
+        inputFormatters: [_dateMask],
+        decoration: documentFieldDecoration(
+          context,
+          hint: "YYYY-MM-DD",
+          suffixIcon: IconButton(
+            icon: Icon(
+              Icons.calendar_today_rounded,
+              size: 20,
+              color: palette.heading,
+            ),
+            onPressed: () async {
+              final now = DateTime.now();
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDatePickerMode: .day,
+                initialEntryMode: .calendarOnly,
+                initialDate: widget.initialDate ?? DateTime(now.year - 25),
+                firstDate: widget.firstDate ?? DateTime(1900),
+                lastDate: widget.lastDate ?? DateTime(2100),
               );
-            }
-          },
+              if (pickedDate != null && mounted) {
+                final fmt = widget.formatDate ?? _defaultFormat;
+                if (!context.mounted) {
+                  return;
+                }
+                final text = fmt(context, pickedDate);
+                // Set both text and caret to end to avoid selection glitches.
+                widget.controller.value = widget.controller.value.copyWith(
+                  text: text,
+                  selection: .collapsed(offset: text.length),
+                  composing: .empty,
+                );
+              }
+            },
+          ),
         ),
+        autovalidateMode: .onUserInteraction,
+        validator: (value) {
+          final v = value?.trim() ?? "";
+          if (v.isEmpty) {
+            return widget.requiredText;
+          }
+          final parsed = _dateFormat.tryParseStrict(v);
+          if (parsed == null) {
+            return widget.dateInvalidText;
+          }
+          // Round-trip to ensure canonical yyyy-MM-dd (no partials like 2025-13-40)
+          if (_dateFormat.format(parsed) != v) {
+            return widget.dateInvalidText;
+          }
+          return null;
+        },
       ),
-      autovalidateMode: .onUserInteraction,
-      validator: (value) {
-        final v = value?.trim() ?? "";
-        if (v.isEmpty) {
-          return widget.requiredText;
-        }
-        final parsed = _dateFormat.tryParseStrict(v);
-        if (parsed == null) {
-          return widget.dateInvalidText;
-        }
-        // Round-trip to ensure canonical yyyy-MM-dd (no partials like 2025-13-40)
-        if (_dateFormat.format(parsed) != v) {
-          return widget.dateInvalidText;
-        }
-        return null;
-      },
     );
   }
 }

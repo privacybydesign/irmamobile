@@ -43,8 +43,12 @@ class NfcStageScaffold extends StatelessWidget {
     super.key,
   });
 
-  static const double _pictureAreaHeight = 380;
-  static const double _pictureAreaShare = 0.46;
+  /// As on the canvas: the picture area starts 16 below the app bar and is
+  /// 360 high; the title starts 24 under it.
+  static const double pictureAreaTop = 16;
+  static const double pictureAreaHeight = 360;
+  static const double textTop = 24;
+  static const double _pictureAreaShare = 0.44;
 
   final String appBarTitleKey;
 
@@ -71,12 +75,12 @@ class NfcStageScaffold extends StatelessWidget {
       liveRegion: true,
       child: SingleChildScrollView(
         padding: .symmetric(
-          horizontal: theme.largeSpacing,
+          horizontal: 32,
           vertical: isLandscape ? theme.defaultSpacing : 0,
         ),
         child: Column(
           mainAxisSize: .min,
-          spacing: theme.smallSpacing + theme.tinySpacing / 2,
+          spacing: 10,
           children: [
             TranslatedText(
               titleKey,
@@ -116,13 +120,15 @@ class NfcStageScaffold extends StatelessWidget {
             : Column(
                 crossAxisAlignment: .stretch,
                 children: [
+                  const SizedBox(height: pictureAreaTop),
                   SizedBox(
                     height: math.min(
-                      _pictureAreaHeight,
+                      pictureAreaHeight,
                       size.height * _pictureAreaShare,
                     ),
                     child: pictureArea,
                   ),
+                  const SizedBox(height: textTop),
                   Expanded(child: textArea),
                 ],
               ),
@@ -170,8 +176,9 @@ class _ActionBar extends StatelessWidget {
   }
 }
 
-/// A ring that fills with [progress] (0 to 1) and shows it as a percentage.
-/// [label] names what is being read, for screen readers.
+/// A ring that fills with [progress] (0 to 1) and shows it as a percentage,
+/// as on the canvas: green on a soft blue track, on a disc of the surface
+/// colour. [label] names what is being read, for screen readers.
 class NfcProgressRing extends StatelessWidget {
   const NfcProgressRing({
     required this.progress,
@@ -184,7 +191,7 @@ class NfcProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final percent = (progress * 100).round().clamp(0, 100);
     return Semantics(
       label: label,
@@ -193,16 +200,15 @@ class NfcProgressRing extends StatelessWidget {
         dimension: _ringGrid,
         child: CustomPaint(
           painter: _RingPainter(
-            // Brand red on the outline colour, as on the canvas.
-            color: theme.primary,
-            trackColor: YiviPalette.of(context).outline,
+            disc: palette.surface,
+            trackColor: palette.infoSurface,
             progress: progress.clamp(0.0, 1.0),
           ),
           child: Center(
             child: ExcludeSemantics(
               child: Text(
                 "$percent%",
-                style: YiviPalette.of(context)
+                style: palette
                     .display(44, weight: FontWeight.w700)
                     .copyWith(
                       height: 1,
@@ -217,40 +223,57 @@ class NfcProgressRing extends StatelessWidget {
   }
 }
 
-/// The full ring turned into a disc with a check that draws itself, shown once
-/// the read is done. Under reduced motion it is drawn at once.
+/// A green disc that swells in, with a check that then draws itself, shown
+/// once the read is done. Under reduced motion it is there at once.
 class NfcDoneCheck extends StatelessWidget {
   const NfcDoneCheck({super.key});
 
-  /// The board's loop lasts 3 seconds, of which the first 36% is the disc
-  /// popping and the check drawing; the rest is rest.
-  static const _loopShare = 0.36;
-  static const _drawDuration = Duration(milliseconds: 1080);
+  static const double size = 180;
+
+  /// The disc swells in over 700 ms; the check draws from 350 ms for 600 ms.
+  static const _total = Duration(milliseconds: 950);
+  static const _swellCurve = Cubic(0.3, 1.3, 0.5, 1);
+  static const _drawCurve = Cubic(0.6, 0, 0.2, 1);
 
   /// How long the done stage stays up before the flow moves on: the check
   /// draws itself, then stays a moment, so the user sees the read succeeded.
   static const holdDuration = Duration(milliseconds: 1500);
 
-  static const _drawCurve = Cubic(0.65, 0, 0.35, 1);
-
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return ExcludeSemantics(
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: reduceMotion ? 1 : 0, end: 1),
-        duration: reduceMotion ? Duration.zero : _drawDuration,
+        duration: reduceMotion ? Duration.zero : _total,
         builder: (context, t, _) {
-          final time = t * _loopShare;
+          final ms = t * _total.inMilliseconds;
+          // swell: 0.7 → 1.06 over the first 60%, then back to 1.
+          final swell = (ms / 700).clamp(0.0, 1.0);
+          final double scale;
+          final double opacity;
+          if (swell < 0.6) {
+            final e = _swellCurve.transform(swell / 0.6);
+            scale = 0.7 + 0.36 * e;
+            opacity = e.clamp(0.0, 1.0);
+          } else {
+            scale = 1.06 - 0.06 * _swellCurve.transform((swell - 0.6) / 0.4);
+            opacity = 1;
+          }
+          final draw = _drawCurve.transform(((ms - 350) / 600).clamp(0.0, 1.0));
           return SizedBox.square(
-            dimension: _ringGrid,
-            child: CustomPaint(
-              painter: _DiscPainter(
-                theme: theme,
-                pop: _pop(time),
-                checkProgress: _interval(time, 0.12, _loopShare, _drawCurve),
-                checkOpacity: _interval(time, 0.12, 0.14, _drawCurve),
+            dimension: size,
+            child: Opacity(
+              opacity: opacity,
+              child: Transform.scale(
+                scale: scale,
+                child: CustomPaint(
+                  painter: _DoneCheckPainter(
+                    disc: palette.successSurface,
+                    drawn: draw,
+                  ),
+                ),
               ),
             ),
           );
@@ -258,16 +281,6 @@ class NfcDoneCheck extends StatelessWidget {
       ),
     );
   }
-
-  /// The disc swells a little and settles back.
-  static double _pop(double time) =>
-      1 +
-      0.06 *
-          (_interval(time, 0.10, 0.20, Curves.easeOut) -
-              _interval(time, 0.20, 0.30, Curves.easeOut));
-
-  static double _interval(double time, double from, double to, Curve curve) =>
-      curve.transform(((time - from) / (to - from)).clamp(0.0, 1.0));
 }
 
 const _ringGrid = 240.0;
@@ -275,14 +288,16 @@ const _ringCenter = Offset(120, 120);
 const _ringRadius = 104.0;
 const _ringStroke = 16.0;
 
+const _success = Color(0xFF00973A);
+
 class _RingPainter extends CustomPainter {
   _RingPainter({
-    required this.color,
+    required this.disc,
     required this.trackColor,
     required this.progress,
   });
 
-  final Color color;
+  final Color disc;
   final Color trackColor;
   final double progress;
 
@@ -290,79 +305,73 @@ class _RingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / _ringGrid);
 
+    canvas.drawCircle(_ringCenter, 112, Paint()..color = disc);
     final stroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = _ringStroke
       ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(_ringCenter, _ringRadius, stroke..color = trackColor);
+    if (progress <= 0) return;
     canvas.drawArc(
       Rect.fromCircle(center: _ringCenter, radius: _ringRadius),
       -math.pi / 2,
       2 * math.pi * progress,
       false,
-      stroke..color = color,
+      stroke..color = _success,
     );
   }
 
   @override
   bool shouldRepaint(_RingPainter oldDelegate) =>
       oldDelegate.progress != progress ||
-      oldDelegate.color != color ||
+      oldDelegate.disc != disc ||
       oldDelegate.trackColor != trackColor;
 }
 
-class _DiscPainter extends CustomPainter {
-  _DiscPainter({
-    required this.theme,
-    required this.pop,
-    required this.checkProgress,
-    required this.checkOpacity,
-  });
+/// The done disc on a 180 grid: the soft green disc with a 4 pt green edge,
+/// and the check of a 96 box drawn up to [drawn].
+class _DoneCheckPainter extends CustomPainter {
+  _DoneCheckPainter({required this.disc, required this.drawn});
 
-  final IrmaThemeData theme;
-  final double pop;
-
-  /// How much of the check is drawn (0 to 1).
-  final double checkProgress;
-  final double checkOpacity;
+  final Color disc;
+  final double drawn;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.scale(size.width / _ringGrid);
-    canvas.translate(_ringCenter.dx, _ringCenter.dy);
-    canvas.scale(pop);
-    canvas.translate(-_ringCenter.dx, -_ringCenter.dy);
-
+    canvas.scale(size.width / NfcDoneCheck.size);
+    const center = Offset(90, 90);
+    canvas.drawCircle(center, 90, Paint()..color = disc);
     canvas.drawCircle(
-      _ringCenter,
-      _ringRadius,
-      Paint()..color = theme.successSurface,
+      center,
+      88,
+      Paint()
+        ..color = _success
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4,
     );
-    final stroke = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _ringStroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    canvas.drawCircle(_ringCenter, _ringRadius, stroke..color = theme.success);
+    if (drawn <= 0) return;
 
-    if (checkProgress <= 0) return;
-
+    // The check of the board: a 48 grid shown at 96, centred.
+    canvas.translate(42, 42);
+    canvas.scale(2);
     final check = Path()
-      ..moveTo(80, 122)
-      ..lineTo(106, 148)
-      ..lineTo(160, 94);
+      ..moveTo(12, 25)
+      ..lineTo(21, 34)
+      ..lineTo(37, 15);
     final metric = check.computeMetrics().first;
     canvas.drawPath(
-      metric.extractPath(0, metric.length * checkProgress),
-      stroke..color = theme.success.withValues(alpha: checkOpacity),
+      metric.extractPath(0, metric.length * drawn),
+      Paint()
+        ..color = _success
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 5
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
     );
   }
 
   @override
-  bool shouldRepaint(_DiscPainter oldDelegate) =>
-      oldDelegate.pop != pop ||
-      oldDelegate.checkProgress != checkProgress ||
-      oldDelegate.checkOpacity != checkOpacity ||
-      oldDelegate.theme != theme;
+  bool shouldRepaint(_DoneCheckPainter oldDelegate) =>
+      oldDelegate.drawn != drawn || oldDelegate.disc != disc;
 }

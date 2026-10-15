@@ -2,9 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../data/feature_flags.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../providers/feature_flag_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/nfc_credentials.dart";
@@ -35,13 +33,10 @@ class IssuancePermission extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final documentFlowV2 =
-        ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
-        false;
     final isDocument =
         issuedCredentials.isNotEmpty &&
         issuedCredentials.every((c) => credentialRequiresNfc(c.credentialId));
-    if (documentFlowV2 && isDocument) {
+    if (isDocument) {
       return DocumentIssuancePermission(
         issuedCredentials: issuedCredentials,
         returnedFromIssuer: returnedFromIssuer,

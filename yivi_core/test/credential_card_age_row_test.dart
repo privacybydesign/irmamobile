@@ -1,13 +1,10 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
     as schemaless;
-import "package:yivi_core/src/providers/feature_flag_provider.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
@@ -29,8 +26,6 @@ double _contrast(Color a, Color b) {
 
 enum _Answer { yes, no }
 
-enum _Flag { on, off }
-
 schemaless.Attribute _text(String claim, String name, String value) =>
     schemaless.Attribute(
       claimPath: [claim],
@@ -50,24 +45,22 @@ schemaless.Attribute _age(int age, _Answer answer) => schemaless.Attribute(
   ),
 );
 
-Widget _app(Widget child, {List<Override> overrides = const []}) =>
-    ProviderScope(
-      overrides: overrides,
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Scaffold(body: SingleChildScrollView(child: child)),
+Widget _app(Widget child) => ProviderScope(
+  child: IrmaTheme(
+    builder: (_) => MaterialApp(
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+          translationLoader: FileTranslationLoader(
+            basePath: "assets/locales",
+            forcedLocale: const Locale("en", "US"),
+          ),
         ),
-      ),
-    );
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      home: Scaffold(body: SingleChildScrollView(child: child)),
+    ),
+  ),
+);
 
 Future<void> _pumpList(
   WidgetTester tester,
@@ -268,7 +261,7 @@ void main() {
   });
 
   group("on a credential card", () {
-    Future<void> pumpCard(WidgetTester tester, {required _Flag flag}) async {
+    Future<void> pumpCard(WidgetTester tester) async {
       await pumpTranslated(
         tester,
         _app(
@@ -283,28 +276,16 @@ void main() {
             compact: false,
             hideFooter: true,
           ),
-          overrides: [
-            featureFlagProvider(
-              FeatureFlag.documentFlowV2,
-            ).overrideWith((ref) => Stream.value(flag == .on)),
-          ],
         ),
       );
       await tester.pumpAndSettle();
     }
 
-    testWidgets("flag on: one age row", (tester) async {
-      await pumpCard(tester, flag: .on);
+    testWidgets("one age row", (tester) async {
+      await pumpCard(tester);
 
       expect(find.text("Older than 21, not older than 65"), findsOneWidget);
       expect(find.text("Over 18"), findsNothing);
-    });
-
-    testWidgets("flag off: a row per age, as before", (tester) async {
-      await pumpCard(tester, flag: .off);
-
-      expect(find.text("Over 18"), findsOneWidget);
-      expect(find.text("Age"), findsNothing);
     });
   });
 }

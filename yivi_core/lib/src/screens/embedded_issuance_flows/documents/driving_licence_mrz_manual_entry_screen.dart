@@ -1,12 +1,12 @@
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/translated_text.dart";
 import "widgets/driving_licence_mrz_field.dart";
+import "widgets/manual_entry_layout.dart";
 
 /// Data returned on continue.
 class DrivingLicenceMrzManualEntryData {
@@ -77,17 +77,17 @@ class _DrivingLicencetMrzManualEntryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         extendBodyBehindAppBar: true,
         extendBody: true,
-        backgroundColor: theme.backgroundTertiary,
+        backgroundColor: palette.background,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
-          titleTranslationKey: "driving_licence.manual.title",
+          titleTranslationKey: "driving_licence.scan.title",
         ),
         body: SizedBox(
           height: .infinity,
@@ -98,16 +98,13 @@ class _DrivingLicencetMrzManualEntryScreenState
               onChanged: _recomputeCanContinue,
               child: SafeArea(
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      const TranslatedText(
-                        "driving_licence.manual.explanation",
-                      ),
-                      SizedBox(height: theme.mediumSpacing),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: ManualEntryLayout(
+                    titleKey: "driving_licence.manual.title",
+                    explanationKey: "driving_licence.manual.explanation",
+                    tipKey: "document_flow.manual.tip_driving_licence",
+                    fields: [
                       DrivingLicenceMrzInputField(controller: _documentNrCtrl),
-                      SizedBox(height: theme.largeSpacing),
                     ],
                   ),
                 ),

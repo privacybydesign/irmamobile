@@ -10,6 +10,7 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/test_detection.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
@@ -81,11 +82,6 @@ NfcReadingTranslationKeys _translationKeys() {
     error: key,
     errorGeneric: key,
     title: key,
-    nfcDisabled: key,
-    nfcEnabled: key,
-    introduction: key,
-    startScanning: key,
-    nfcDisabledExplanation: key,
     holdNearPhotoPage: key,
     tip1: key,
     tip2: key,
@@ -112,18 +108,24 @@ Widget _testWidget(_RecordingReader reader) {
       passportReaderProvider.overrideWith2((mrz) => reader),
       passportIssuerProvider.overrideWithValue(_StubIssuer()),
     ],
-    child: IrmaTheme(
-      builder: (_) => MaterialApp(
-        localizationsDelegates: [
-          FlutterI18nDelegate(
-            translationLoader: TestTranslationLoader(
-              basePath: "assets/locales",
-              forcedLocale: const Locale("en", "US"),
+    // TestContext stops the waiting picture from looping.
+    child: TestContext(
+      child: IrmaTheme(
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: TestTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
+              ),
             ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          home: NfcReadingScreen(
+            mrz: _mrz,
+            translationKeys: _translationKeys(),
           ),
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        home: NfcReadingScreen(mrz: _mrz, translationKeys: _translationKeys()),
+        ),
       ),
     ),
   );
@@ -162,9 +164,6 @@ void main() {
     expect(reader.callsDuringRead, ["suspendPrivacyScreen"]);
     expect(privacyScreenCalls, ["suspendPrivacyScreen", "resumePrivacyScreen"]);
 
-    // The scanning animation loops on a Future.delayed; tear the tree down and
-    // let the last delay elapse, or the test fails on a pending timer.
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 3));
-  });
+    // The iOS sheet is where the blur would show; Android has none.
+  }, variant: const TargetPlatformVariant({TargetPlatform.iOS}));
 }

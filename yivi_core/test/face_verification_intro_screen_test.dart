@@ -60,7 +60,7 @@ void main() {
     expect(started, 1);
   });
 
-  testWidgets("cancel button invokes onCancel", (tester) async {
+  testWidgets("the back button invokes onCancel", (tester) async {
     var cancelled = 0;
     await pumpTranslated(
       tester,
@@ -68,7 +68,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+    await tester.tap(find.byKey(const Key("irma_app_bar_leading")));
     await tester.pumpAndSettle();
 
     expect(cancelled, 1);
