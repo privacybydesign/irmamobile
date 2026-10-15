@@ -6,6 +6,7 @@ import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "session_scaffold.dart";
@@ -64,47 +65,53 @@ class _OpenID4VCIAuthCodePendingScreenState
         ),
         onSecondaryPressed: widget.onDismiss,
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
-        children: [
-          Center(child: _BrowserHandOff(requestor: widget.requestor)),
-          const SizedBox(height: 32),
-          Semantics(
-            header: true,
-            child: Text(
+      scrollsUnderBars: true,
+      body: BarInsetsBuilder(
+        builder: (context, insets) => ListView(
+          padding: insets + const EdgeInsets.fromLTRB(32, 24, 32, 32),
+          children: [
+            Center(child: _BrowserHandOff(requestor: widget.requestor)),
+            const SizedBox(height: 32),
+            Semantics(
+              header: true,
+              child: Text(
+                FlutterI18n.translate(
+                  context,
+                  "issuance.authorization_code.pending.header",
+                ),
+                textAlign: TextAlign.center,
+                style: palette
+                    .display(24, weight: FontWeight.w700)
+                    .copyWith(height: 32 / 24, color: palette.heading),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
               FlutterI18n.translate(
                 context,
-                "issuance.authorization_code.pending.header",
+                "issuance.authorization_code.pending.body",
+                translationParams: {
+                  "issuer": issuerName,
+                  "button": buttonLabel,
+                },
               ),
               textAlign: TextAlign.center,
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 32 / 24, color: palette.heading),
+              style: palette.body(16).copyWith(height: 24 / 16),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            FlutterI18n.translate(
-              context,
-              "issuance.authorization_code.pending.body",
-              translationParams: {"issuer": issuerName, "button": buttonLabel},
-            ),
-            textAlign: TextAlign.center,
-            style: palette.body(16).copyWith(height: 24 / 16),
-          ),
-          const SizedBox(height: 32),
-          // What the issuer is going to give, as on the permission screen.
-          ...widget.offeredCredentialTypes.map(
-            (descriptor) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: YiviCredentialCard.fromDescriptor(
-                descriptor: descriptor,
-                compact: false,
-                hideNotObtainable: true,
+            const SizedBox(height: 32),
+            // What the issuer is going to give, as on the permission screen.
+            ...widget.offeredCredentialTypes.map(
+              (descriptor) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: YiviCredentialCard.fromDescriptor(
+                  descriptor: descriptor,
+                  compact: false,
+                  hideNotObtainable: true,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

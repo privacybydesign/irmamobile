@@ -64,6 +64,8 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
     final palette = YiviPalette.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "enrollment.email.provide.title",
@@ -71,47 +73,49 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: ExcludeSemantics(
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: palette.warningSurface,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: Icon(
-                    Icons.mail_outline_rounded,
-                    size: 48,
-                    color: palette.warningText,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: ExcludeSemantics(
+                  child: Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: palette.warningSurface,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Icon(
+                      Icons.mail_outline_rounded,
+                      size: 48,
+                      color: palette.warningText,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            TranslatedText(
-              "enrollment.email.provide.header",
-              isHeader: true,
-              textAlign: TextAlign.center,
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 32 / 24),
-            ),
-            const SizedBox(height: 8),
-            TranslatedText(
-              "enrollment.email.provide.explanation",
-              textAlign: TextAlign.center,
-              style: palette.body(16).copyWith(height: 24 / 16),
-            ),
-            const SizedBox(height: 32),
-            EmailInputField(
-              controller: _emailController,
-              onSubmitted: _onContinuePressed,
-            ),
-          ],
+              const SizedBox(height: 24),
+              TranslatedText(
+                "enrollment.email.provide.header",
+                isHeader: true,
+                textAlign: TextAlign.center,
+                style: palette
+                    .display(24, weight: FontWeight.w700)
+                    .copyWith(height: 32 / 24),
+              ),
+              const SizedBox(height: 8),
+              TranslatedText(
+                "enrollment.email.provide.explanation",
+                textAlign: TextAlign.center,
+                style: palette.body(16).copyWith(height: 24 / 16),
+              ),
+              const SizedBox(height: 32),
+              EmailInputField(
+                controller: _emailController,
+                onSubmitted: _onContinuePressed,
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(

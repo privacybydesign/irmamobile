@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../util/adaptive_layout.dart";
+import "../../../widgets/irma_app_bar.dart";
 
 /// Whether the session screens use their two-column tablet layouts.
 bool useSessionColumns(BuildContext context) => isExpandedLayout(context);
@@ -76,7 +77,10 @@ class SessionColumns extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+        padding: BarInsets.of(
+          context,
+          const EdgeInsets.fromLTRB(32, 24, 32, 32),
+        ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
             minHeight: centreVertically

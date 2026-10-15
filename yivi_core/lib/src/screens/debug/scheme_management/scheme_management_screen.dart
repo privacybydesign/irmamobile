@@ -181,6 +181,8 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.scheme_management.title",

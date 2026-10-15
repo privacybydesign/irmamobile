@@ -84,6 +84,8 @@ class _WaitingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: IrmaAppBar(
         bottom: context.missingDataBand,
         titleTranslationKey: "email_issuance.enter_email.title",

@@ -34,15 +34,17 @@ class DocumentInstructionScreen extends StatelessWidget {
     final keys = documentType.instructionKey;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: documentType.scanTitleKey,
         hasBorder: false,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          // 16 around and 16 inside the stage keep the picture at its 320.
-          padding: .all(theme.defaultSpacing),
+      body: SingleChildScrollView(
+        // 16 around and 16 inside the stage keep the picture at its 320.
+        padding: .all(theme.defaultSpacing),
+        child: SafeArea(
           child: Column(
             crossAxisAlignment: .stretch,
             spacing: theme.mediumSpacing,

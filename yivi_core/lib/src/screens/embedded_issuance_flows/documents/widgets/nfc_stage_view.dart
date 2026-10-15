@@ -96,6 +96,8 @@ class NfcStageScaffold extends StatelessWidget {
     );
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitleKey,

@@ -27,6 +27,8 @@ class EmailSentScreen extends StatelessWidget {
     final fromParts = fromText.split("**");
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       key: const Key("email_sent_screen"),
       appBar: IrmaAppBar(
@@ -39,68 +41,70 @@ class EmailSentScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
-        child: Column(
-          children: [
-            const _MailPicture(),
-            const SizedBox(height: 40),
-            TranslatedText(
-              "enrollment.email.confirm.header",
-              isHeader: true,
-              textAlign: TextAlign.center,
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 32 / 24),
-            ),
-            const SizedBox(height: 8),
-            DecoratedBox(
-              decoration: ShapeDecoration(
-                color: palette.surface,
-                shape: const StadiumBorder(),
-                shadows: const [
-                  BoxShadow(
-                    color: Color(0x17000000),
-                    blurRadius: 6,
-                    offset: Offset(0, 1),
-                  ),
-                ],
+        child: SafeArea(
+          child: Column(
+            children: [
+              const _MailPicture(),
+              const SizedBox(height: 40),
+              TranslatedText(
+                "enrollment.email.confirm.header",
+                isHeader: true,
+                textAlign: TextAlign.center,
+                style: palette
+                    .display(24, weight: FontWeight.w700)
+                    .copyWith(height: 32 / 24),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Text(
-                  email,
-                  textAlign: TextAlign.center,
-                  style: palette.body(16, weight: FontWeight.w700),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text.rich(
-              TextSpan(
-                children: [
-                  for (var i = 0; i < fromParts.length; i++)
-                    TextSpan(
-                      text: fromParts[i],
-                      style: i.isOdd
-                          ? const TextStyle(fontWeight: FontWeight.w700)
-                          : null,
+              const SizedBox(height: 8),
+              DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: palette.surface,
+                  shape: const StadiumBorder(),
+                  shadows: const [
+                    BoxShadow(
+                      color: Color(0x17000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 1),
                     ),
-                ],
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    email,
+                    textAlign: TextAlign.center,
+                    style: palette.body(16, weight: FontWeight.w700),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-              style: palette.body(16).copyWith(height: 24 / 16),
-            ),
-            const SizedBox(height: 12),
-            TranslatedText(
-              "enrollment.email.confirm.explanation",
-              textAlign: TextAlign.center,
-              style: palette
-                  .body(14)
-                  .copyWith(height: 20 / 14, color: palette.secondaryText),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    for (var i = 0; i < fromParts.length; i++)
+                      TextSpan(
+                        text: fromParts[i],
+                        style: i.isOdd
+                            ? const TextStyle(fontWeight: FontWeight.w700)
+                            : null,
+                      ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+                style: palette.body(16).copyWith(height: 24 / 16),
+              ),
+              const SizedBox(height: 12),
+              TranslatedText(
+                "enrollment.email.confirm.explanation",
+                textAlign: TextAlign.center,
+                style: palette
+                    .body(14)
+                    .copyWith(height: 20 / 14, color: palette.secondaryText),
+              ),
+            ],
+          ),
         ),
       ),
     );

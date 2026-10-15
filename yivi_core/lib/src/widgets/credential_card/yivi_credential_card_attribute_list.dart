@@ -850,8 +850,11 @@ class _LeafContent extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
+              extendBodyBehindAppBar: true,
               appBar: IrmaAppBar(titleString: attribute.effectiveDisplayName),
-              body: SingleChildScrollView(child: Center(child: image)),
+              body: SingleChildScrollView(
+                child: SafeArea(child: Center(child: image)),
+              ),
             ),
           ),
         );

@@ -108,6 +108,7 @@ class _CertificateManagementScreenState
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.cert_management.title",

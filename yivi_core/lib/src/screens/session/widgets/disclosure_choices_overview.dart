@@ -427,6 +427,7 @@ class _DisclosureChoicesOverviewState
         appBarTitle: "disclosure_permission.overview.title",
         onDismiss: widget.onDismiss,
         wide: true,
+        scrollsUnderBars: true,
         body: SessionColumns(
           startWidth: 400,
           endWidth: 520,
@@ -441,6 +442,7 @@ class _DisclosureChoicesOverviewState
     return SessionScaffold(
       appBarTitle: "disclosure_permission.overview.title",
       onDismiss: widget.onDismiss,
+      scrollsUnderBars: true,
       body: SingleChildScrollView(
         padding: .all(theme.defaultSpacing),
         child: SafeArea(

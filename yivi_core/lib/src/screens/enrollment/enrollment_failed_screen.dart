@@ -16,6 +16,8 @@ class EnrollmentFailedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: IrmaAppBar(
         titleTranslationKey: "ui.error",
         leading: YiviBackButton(onTap: onPrevious),

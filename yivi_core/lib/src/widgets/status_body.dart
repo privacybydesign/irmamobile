@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_palette.dart";
 import "../util/test_detection.dart";
 import "glass/glass_dialog.dart";
+import "irma_app_bar.dart";
 
 /// The middle of a status screen (an error, a warning, "update required"):
 /// a large tinted disc with an icon or picture, a heading, a message, an
@@ -47,7 +48,11 @@ class StatusBody extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+        // Below and above the floating bars, scrolling underneath them.
+        padding: BarInsets.of(
+          context,
+          const EdgeInsets.fromLTRB(32, 24, 32, 32),
+        ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
           child: Column(

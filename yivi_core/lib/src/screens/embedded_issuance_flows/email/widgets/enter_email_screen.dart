@@ -149,6 +149,8 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         _focusNode.unfocus();
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
+        extendBody: true,
         key: Key("$onScreenKeyboardShown"),
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
@@ -156,14 +158,14 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
           titleTranslationKey: titleKey,
           hasBorder: false,
         ),
-        body: SafeArea(
-          child: KeyboardAnimationListener(
-            onKeyboardSettled: (context, inset, visible) {
-              _handleFocusChange();
-            },
-            key: _scrollableKey,
-            child: SingleChildScrollView(
-              controller: _scrollController,
+        body: KeyboardAnimationListener(
+          onKeyboardSettled: (context, inset, visible) {
+            _handleFocusChange();
+          },
+          key: _scrollableKey,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: SafeArea(
               child: Padding(
                 padding: .all(theme.defaultSpacing),
                 child: Column(

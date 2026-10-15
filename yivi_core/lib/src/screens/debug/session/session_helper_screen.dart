@@ -25,6 +25,7 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    extendBodyBehindAppBar: true,
     backgroundColor: YiviPalette.of(context).background,
     appBar: IrmaAppBar(
       titleTranslationKey: "debug.session_helper",

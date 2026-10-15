@@ -198,7 +198,7 @@ void main() {
       expect(find.byKey(const Key("missing_data_band")), findsNothing);
       expect(
         tester.getSize(find.byKey(const Key("irma_app_bar"))).height,
-        kToolbarHeight,
+        IrmaAppBar.toolbarHeight,
       );
     });
   });

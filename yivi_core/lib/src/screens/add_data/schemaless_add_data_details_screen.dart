@@ -80,6 +80,8 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
     ].where((n) => n.isNotEmpty).toList();
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "data.add.details.title",
@@ -88,10 +90,7 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
         ),
         actions: [
           if (widget.onDismiss != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: IrmaCloseButton(onTap: widget.onDismiss),
-            ),
+            IrmaCloseButton(onTap: widget.onDismiss),
         ],
       ),
       body: SizedBox(

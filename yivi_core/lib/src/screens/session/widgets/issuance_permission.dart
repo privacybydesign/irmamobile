@@ -10,6 +10,7 @@ import "../../../util/date_formatter.dart";
 import "../../../util/nfc_credentials.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_issuance_permission.dart";
@@ -55,6 +56,7 @@ class IssuancePermission extends ConsumerWidget {
       return SessionScaffold(
         appBarTitle: "issuance.title",
         wide: true,
+        scrollsUnderBars: true,
         onDismiss: onDismiss,
         body: SessionColumns(
           start: Column(
@@ -85,6 +87,7 @@ class IssuancePermission extends ConsumerWidget {
     return SessionScaffold(
       appBarTitle: "issuance.title",
       bottomNavigationBar: _buildNavigationBar(context),
+      scrollsUnderBars: true,
       body: _buildBody(context),
       onDismiss: onDismiss,
     );
@@ -115,7 +118,10 @@ class IssuancePermission extends ConsumerWidget {
       builder: (context, constraints) {
         final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
         return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: BarInsets.of(
+            context,
+            const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          ),
           children: [
             Center(
               child: ConstrainedBox(

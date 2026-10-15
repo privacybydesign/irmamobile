@@ -4,6 +4,7 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/credential_card/disclosed_card_tile.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -124,6 +125,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           appBarTitle: "disclosure.feedback.header.success",
           onDismiss: () => widget.onDismiss(context),
           wide: true,
+          scrollsUnderBars: true,
           body: SessionColumns(
             startWidth: 380,
             endWidth: 440,
@@ -170,27 +172,30 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
       child: SessionScaffold(
         appBarTitle: "disclosure.feedback.header.success",
         onDismiss: () => widget.onDismiss(context),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          children: [
-            const SizedBox(height: 160, child: SuccessGraphic()),
-            const SizedBox(height: 16),
-            TranslatedText(
-              "disclosure.feedback.header.success",
-              translationParams: params,
-              style: palette.display(26, weight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            TranslatedText(
-              explanationKey,
-              translationParams: params,
-              style: palette.body(16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            ...whatYouShared,
-          ],
+        scrollsUnderBars: true,
+        body: BarInsetsBuilder(
+          builder: (context, insets) => ListView(
+            padding: insets + const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            children: [
+              const SizedBox(height: 160, child: SuccessGraphic()),
+              const SizedBox(height: 16),
+              TranslatedText(
+                "disclosure.feedback.header.success",
+                translationParams: params,
+                style: palette.display(26, weight: FontWeight.w700),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              TranslatedText(
+                explanationKey,
+                translationParams: params,
+                style: palette.body(16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ...whatYouShared,
+            ],
+          ),
         ),
         bottomNavigationBar: IrmaBottomBarBase(child: okButton),
       ),

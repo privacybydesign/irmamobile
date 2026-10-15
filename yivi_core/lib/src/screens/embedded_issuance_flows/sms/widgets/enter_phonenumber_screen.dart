@@ -212,6 +212,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         _focusNode.unfocus();
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
+        extendBody: true,
         key: Key("$onScreenKeyboardShown"),
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
@@ -219,14 +221,14 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
           titleTranslationKey: "sms_issuance.enter_phone.title",
           hasBorder: false,
         ),
-        body: SafeArea(
-          child: KeyboardAnimationListener(
-            key: _scrollableKey,
-            onKeyboardSettled: (context, inset, visible) {
-              _handleFocusChange();
-            },
-            child: SingleChildScrollView(
-              controller: _scrollController,
+        body: KeyboardAnimationListener(
+          key: _scrollableKey,
+          onKeyboardSettled: (context, inset, visible) {
+            _handleFocusChange();
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: SafeArea(
               child: Padding(
                 padding: .all(theme.defaultSpacing),
                 child: Column(

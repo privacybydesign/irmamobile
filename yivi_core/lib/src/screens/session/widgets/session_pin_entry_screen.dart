@@ -110,6 +110,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     final paddingSize = theme.screenPadding;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IrmaAppBar(
         titleTranslationKey: widget.title,
         leading: const SizedBox.shrink(),

@@ -26,8 +26,8 @@ class ToneDisc extends StatelessWidget {
   /// Fill and icon colour of [tone].
   static (Color, Color) colors(YiviPalette palette, DialogTone tone) =>
       switch (tone) {
-        DialogTone.neutral => (palette.tint, palette.heading),
-        DialogTone.info => (palette.tint, palette.link),
+        DialogTone.neutral => (palette.infoSurface, palette.heading),
+        DialogTone.info => (palette.infoSurface, palette.link),
         DialogTone.success => (palette.successSurface, palette.successText),
         DialogTone.warning => (palette.warningSurface, palette.warningText),
         DialogTone.danger => (palette.errorSurface, palette.danger),

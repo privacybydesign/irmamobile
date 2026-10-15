@@ -127,7 +127,7 @@ void main() {
       final picture = tester.getRect(find.byType(DocumentInstructionAnimation));
       expect(picture.size, const Size(320, 256));
       // 16 page padding and 16 inside the tinted stage.
-      expect(picture.top, 56 + 16 + 16);
+      expect(picture.top, IrmaAppBar.toolbarHeight + 16 + 16);
       expect(
         tester
             .getTopLeft(
@@ -179,7 +179,10 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNull);
+      expect(
+        tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).hasBorder,
+        isFalse,
+      );
     });
 
     testWidgets("Start and Annuleer are 56 high pills", (tester) async {
@@ -232,7 +235,10 @@ void main() {
       expect(find.text("Annuleer"), findsOneWidget);
       _expectFooterButton(tester, _primary());
       _expectFooterButton(tester, _secondary());
-      expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNull);
+      expect(
+        tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).hasBorder,
+        isFalse,
+      );
     });
 
     testWidgets("flag off: the buttons are as they were", (tester) async {
@@ -240,7 +246,10 @@ void main() {
 
       expect(find.text("Annuleren"), findsOneWidget);
       expect(tester.getSize(_primary()).height, 50);
-      expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNotNull);
+      expect(
+        tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).hasBorder,
+        isTrue,
+      );
     });
   });
 
@@ -287,7 +296,7 @@ void main() {
 
       expect(
         tester.getRect(find.byKey(const Key("nfc_stage_picture"))),
-        Rect.fromLTWH(0, 56, _phone.width, 380),
+        Rect.fromLTWH(0, IrmaAppBar.toolbarHeight, _phone.width, 380),
       );
       expect(
         tester.getSize(find.byType(NfcPhoneOnPassport)),
@@ -301,7 +310,7 @@ void main() {
       expect(title.color, _textColor);
       expect(
         tester.getTopLeft(find.text("Leg je telefoon op je paspoort")).dy,
-        56 + 380,
+        IrmaAppBar.toolbarHeight + 380,
       );
       // 10 between the title and the line under it.
       expect(
@@ -572,7 +581,7 @@ void main() {
 
       final picture = tester.getRect(find.byType(FaceFrameIllustration));
       expect(picture.size, const Size(200, 200));
-      expect(picture.top, 56 + 24);
+      expect(picture.top, IrmaAppBar.toolbarHeight + 24);
       expect(tester.getTopLeft(find.text(explanation)).dy, picture.bottom + 20);
 
       expect(find.text("Start verificatie"), findsOneWidget);

@@ -28,19 +28,19 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         bottom: context.missingDataBand,
         titleTranslationKey: titleTranslationKey,
         hasBorder: false,
       ),
-      body: SafeArea(
-        child: StatusBody(
-          icon: Icons.error_outline_rounded,
-          tone: DialogTone.danger,
-          title: FlutterI18n.translate(context, contentTranslationKey),
-          footer: ErrorDetails(details: errorMessage),
-        ),
+      body: StatusBody(
+        icon: Icons.error_outline_rounded,
+        tone: DialogTone.danger,
+        title: FlutterI18n.translate(context, contentTranslationKey),
+        footer: ErrorDetails(details: errorMessage),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "error.button_retry",

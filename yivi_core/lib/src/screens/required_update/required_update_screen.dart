@@ -15,6 +15,7 @@ class RequiredUpdateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       backgroundColor: YiviPalette.of(context).background,
       body: IrmaInfoScaffoldBody(
         icon: Icons.download_rounded,

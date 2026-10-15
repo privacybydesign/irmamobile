@@ -27,6 +27,7 @@ class ActivityDetailsScreen extends StatelessWidget {
     final dateAtTime = activityDateAtTime(context, logEntry);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         title: Text(

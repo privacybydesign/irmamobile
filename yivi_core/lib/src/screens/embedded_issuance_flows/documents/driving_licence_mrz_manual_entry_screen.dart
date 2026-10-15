@@ -82,6 +82,8 @@ class _DrivingLicencetMrzManualEntryScreenState
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        extendBodyBehindAppBar: true,
+        extendBody: true,
         backgroundColor: theme.backgroundTertiary,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,

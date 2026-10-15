@@ -17,25 +17,25 @@ class NameChangedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleTranslationKey: "name_changed.title",
         leading: null,
       ),
-      body: SafeArea(
-        child: StatusBody(
-          // White in both themes: the logo is drawn for a light background.
-          discColor: Colors.white,
-          picture: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Image.asset(
-              yiviAsset("non-free/logo.png"),
-              semanticLabel: "Yivi",
-            ),
+      body: StatusBody(
+        // White in both themes: the logo is drawn for a light background.
+        discColor: Colors.white,
+        picture: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Image.asset(
+            yiviAsset("non-free/logo.png"),
+            semanticLabel: "Yivi",
           ),
-          title: FlutterI18n.translate(context, "name_changed.header"),
-          message: FlutterI18n.translate(context, "name_changed.explanation"),
         ),
+        title: FlutterI18n.translate(context, "name_changed.header"),
+        message: FlutterI18n.translate(context, "name_changed.explanation"),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "action_feedback.ok",

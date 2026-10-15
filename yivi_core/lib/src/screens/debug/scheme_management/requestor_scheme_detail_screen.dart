@@ -37,6 +37,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(
         titleString: requestorScheme.id,
@@ -49,17 +50,19 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.screenPadding),
-        child: GlassGroup(
-          children: [
-            ListTile(
-              title: const Text("Type"),
-              subtitle: Text(
-                requestorScheme.demo
-                    ? "Demo requestor scheme"
-                    : "Production requestor scheme",
+        child: SafeArea(
+          child: GlassGroup(
+            children: [
+              ListTile(
+                title: const Text("Type"),
+                subtitle: Text(
+                  requestorScheme.demo
+                      ? "Demo requestor scheme"
+                      : "Production requestor scheme",
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

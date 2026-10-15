@@ -61,11 +61,13 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "face_verification.title"),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(theme.defaultSpacing),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -119,14 +121,16 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "face_verification.title",
         hasBorder: false,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: .all(theme.mediumSpacing),
+      body: SingleChildScrollView(
+        padding: .all(theme.mediumSpacing),
+        child: SafeArea(
           child: Column(
             crossAxisAlignment: .stretch,
             spacing: theme.defaultSpacing + theme.tinySpacing,

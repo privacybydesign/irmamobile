@@ -32,6 +32,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
         appBarTitle: "disclosure_permission.introduction.title",
         onDismiss: onDismiss,
         wide: true,
+        scrollsUnderBars: true,
         body: SessionColumns(
           startWidth: 400,
           endWidth: 400,

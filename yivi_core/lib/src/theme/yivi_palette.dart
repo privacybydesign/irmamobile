@@ -43,6 +43,10 @@ class YiviPalette {
   final Color handle;
 
   final Color link;
+
+  /// The soft blue behind an info icon, e.g. a status disc. Not [tint],
+  /// which is the page colour in the light theme.
+  final Color infoSurface;
   final Color successSurface;
   final Color successText;
   final Color successTint;
@@ -87,6 +91,7 @@ class YiviPalette {
     required this.outline,
     required this.handle,
     required this.link,
+    required this.infoSurface,
     required this.successSurface,
     required this.successText,
     required this.successTint,
@@ -120,6 +125,7 @@ class YiviPalette {
     outline: Color(0xFFCFE4EF),
     handle: Color(0xFFD7D2CD),
     link: Color(0xFF1D4E89),
+    infoSurface: Color(0xFFDCEAF6),
     successSurface: Color(0xFFD7EFE0),
     successText: Color(0xFF00602A),
     successTint: Color(0xFFE6F5EC),
@@ -152,6 +158,7 @@ class YiviPalette {
     outline: Color(0xFF2C3B48),
     handle: Color(0xFF4A4E55),
     link: Color(0xFF8DBBF2),
+    infoSurface: Color(0xFF1B2A3A),
     successSurface: Color(0xFF133324),
     successText: Color(0xFF7EDBA4),
     successTint: Color(0xFF10261B),

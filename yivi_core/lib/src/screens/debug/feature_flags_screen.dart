@@ -26,43 +26,49 @@ class FeatureFlagsScreen extends ConsumerWidget {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(titleString: "Feature flags"),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          theme.defaultSpacing,
-          0,
-          theme.defaultSpacing,
-          theme.defaultSpacing,
-        ),
-        children: [
-          Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: Wrap(
-              spacing: theme.smallSpacing,
+      body: BarInsetsBuilder(
+        builder: (context, insets) => ListView(
+          padding:
+              insets +
+              EdgeInsets.fromLTRB(
+                theme.defaultSpacing,
+                0,
+                theme.defaultSpacing,
+                theme.defaultSpacing,
+              ),
+          children: [
+            Padding(
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: Wrap(
+                spacing: theme.smallSpacing,
+                children: [
+                  PillButton(
+                    label: "All on",
+                    height: 40,
+                    expand: false,
+                    onPressed: () =>
+                        _enableOnly(ref, FeatureFlag.values.toSet()),
+                  ),
+                  PillButton(
+                    label: "All off",
+                    height: 40,
+                    expand: false,
+                    onPressed: () => _enableOnly(ref, {}),
+                  ),
+                ],
+              ),
+            ),
+            GlassGroup(
               children: [
-                PillButton(
-                  label: "All on",
-                  height: 40,
-                  expand: false,
-                  onPressed: () => _enableOnly(ref, FeatureFlag.values.toSet()),
-                ),
-                PillButton(
-                  label: "All off",
-                  height: 40,
-                  expand: false,
-                  onPressed: () => _enableOnly(ref, {}),
-                ),
+                for (final flag in FeatureFlag.values)
+                  _FeatureFlagTile(flag: flag),
               ],
             ),
-          ),
-          GlassGroup(
-            children: [
-              for (final flag in FeatureFlag.values)
-                _FeatureFlagTile(flag: flag),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

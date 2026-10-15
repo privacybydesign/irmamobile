@@ -107,6 +107,7 @@ class _SchemalessAddDataScreenState
     };
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
       body: SafeArea(

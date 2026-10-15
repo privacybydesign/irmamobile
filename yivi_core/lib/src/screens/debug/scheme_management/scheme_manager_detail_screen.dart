@@ -255,6 +255,8 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         }
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
+          extendBody: true,
           backgroundColor: YiviPalette.of(context).background,
           appBar: IrmaAppBar(
             titleString: schemeManager.id,
@@ -267,52 +269,54 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           ),
           body: SingleChildScrollView(
             padding: EdgeInsets.all(theme.screenPadding),
-            child: GlassGroup(
-              children: [
-                // These values are not translated because they are the same in English and Dutch.
-                if (!schemeManager.demo)
+            child: SafeArea(
+              child: GlassGroup(
+                children: [
+                  // These values are not translated because they are the same in English and Dutch.
+                  if (!schemeManager.demo)
+                    ListTile(
+                      title: const Text("Status"),
+                      trailing: ActiveIndicator(schemeIsActive),
+                    ),
+
                   ListTile(
-                    title: const Text("Status"),
-                    trailing: ActiveIndicator(schemeIsActive),
+                    title: const Text("Type"),
+                    subtitle: Text(
+                      schemeManager.demo ? "Demo scheme" : "Production scheme",
+                    ),
                   ),
 
-                ListTile(
-                  title: const Text("Type"),
-                  subtitle: Text(
-                    schemeManager.demo ? "Demo scheme" : "Production scheme",
+                  ListTile(
+                    title: const Text("Latest scheme update"),
+                    subtitle: Text(
+                      "${DateTime.fromMillisecondsSinceEpoch(schemeManager.timestamp * 1000)}\nTimestamp ${schemeManager.timestamp}",
+                    ),
                   ),
-                ),
 
-                ListTile(
-                  title: const Text("Latest scheme update"),
-                  subtitle: Text(
-                    "${DateTime.fromMillisecondsSinceEpoch(schemeManager.timestamp * 1000)}\nTimestamp ${schemeManager.timestamp}",
+                  ListTile(
+                    title: const Text("Keyshare server"),
+                    subtitle: Text(
+                      schemeManager.keyshareServer.isNotEmpty
+                          ? schemeManager.keyshareServer
+                          : "(none)",
+                    ),
                   ),
-                ),
 
-                ListTile(
-                  title: const Text("Keyshare server"),
-                  subtitle: Text(
-                    schemeManager.keyshareServer.isNotEmpty
-                        ? schemeManager.keyshareServer
-                        : "(none)",
+                  ListTile(
+                    title: const Text("Timestamp server"),
+                    subtitle: Text(
+                      schemeManager.timestampServer.isNotEmpty
+                          ? schemeManager.timestampServer
+                          : "(none)",
+                    ),
                   ),
-                ),
 
-                ListTile(
-                  title: const Text("Timestamp server"),
-                  subtitle: Text(
-                    schemeManager.timestampServer.isNotEmpty
-                        ? schemeManager.timestampServer
-                        : "(none)",
+                  ListTile(
+                    title: const Text("App ID"),
+                    subtitle: Text(appId ?? "(none)"),
                   ),
-                ),
-
-                ListTile(
-                  title: const Text("App ID"),
-                  subtitle: Text(appId ?? "(none)"),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: bottomBar,

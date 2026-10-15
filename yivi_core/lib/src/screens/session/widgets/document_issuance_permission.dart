@@ -35,53 +35,51 @@ class DocumentIssuancePermission extends StatelessWidget {
     final palette = YiviPalette.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "issuance.title",
         leading: null,
         hasBorder: false,
-        actions: [
-          if (onDismiss != null)
-            Padding(
-              padding: .only(right: theme.defaultSpacing),
-              child: IrmaCloseButton(onTap: onDismiss!),
-            ),
-        ],
+        actions: [if (onDismiss != null) IrmaCloseButton(onTap: onDismiss!)],
       ),
       body: SingleChildScrollView(
         padding: .all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: .stretch,
-          spacing: theme.defaultSpacing,
-          children: [
-            if (returnedFromIssuer != null)
-              TranslatedText(
-                "external_issuer.returned",
-                translationParams: {"issuer": returnedFromIssuer!},
-                style: palette.display(18),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: .stretch,
+            spacing: theme.defaultSpacing,
+            children: [
+              if (returnedFromIssuer != null)
+                TranslatedText(
+                  "external_issuer.returned",
+                  translationParams: {"issuer": returnedFromIssuer!},
+                  style: palette.display(18),
+                ),
+              Container(
+                padding: .symmetric(
+                  horizontal: theme.defaultSpacing,
+                  vertical: theme.smallSpacing + theme.tinySpacing,
+                ),
+                decoration: BoxDecoration(
+                  color: palette.outline,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: TranslatedText(
+                  "issuance.description",
+                  style: palette.body(16).copyWith(color: palette.text),
+                ),
               ),
-            Container(
-              padding: .symmetric(
-                horizontal: theme.defaultSpacing,
-                vertical: theme.smallSpacing + theme.tinySpacing,
-              ),
-              decoration: BoxDecoration(
-                color: palette.outline,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: TranslatedText(
-                "issuance.description",
-                style: palette.body(16).copyWith(color: palette.text),
-              ),
-            ),
-            for (final credential in issuedCredentials)
-              YiviCredentialCard.fromCredential(
-                credential: credential,
-                compact: false,
-                lowInstanceCountThreshold: 0,
-                layout: CredentialCardLayout.document,
-              ),
-          ],
+              for (final credential in issuedCredentials)
+                YiviCredentialCard.fromCredential(
+                  credential: credential,
+                  compact: false,
+                  lowInstanceCountThreshold: 0,
+                  layout: CredentialCardLayout.document,
+                ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: DocumentFlowFooter(

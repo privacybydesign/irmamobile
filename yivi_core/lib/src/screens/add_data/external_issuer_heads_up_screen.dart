@@ -38,6 +38,8 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
     final palette = YiviPalette.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "data.add.details.title",

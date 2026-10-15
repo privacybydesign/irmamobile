@@ -17,14 +17,15 @@ class ResetPinScreen extends StatelessWidget {
     final circle = small ? 150.0 : 200.0;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "reset_pin.title"),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(32, 16, 32, 24),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(32, 16, 32, 24),
+              child: SafeArea(
                 child: Column(
                   children: [
                     ExcludeSemantics(
@@ -67,35 +68,35 @@ class ResetPinScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 4,
-                children: [
-                  PillButton(
-                    key: const Key("reset_pin_reset"),
-                    label: FlutterI18n.translate(context, "reset_pin.reset"),
-                    style: PillStyle.dangerFilled,
-                    height: 56,
-                    onPressed: () => showConfirmDeleteDialog(context),
-                  ),
-                  PillButton(
-                    key: const Key("reset_pin_cancel"),
-                    label: FlutterI18n.translate(context, "ui.cancel"),
-                    style: PillStyle.text,
-                    height: 48,
-                    // `Navigator.of(context).pop` (not GoRouter's
-                    // `context.pop`) so this screen works whether it was
-                    // pushed via the GoRouter `/reset_pin` route or onto the
-                    // LockGate overlay's local Navigator.
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 4,
+              children: [
+                PillButton(
+                  key: const Key("reset_pin_reset"),
+                  label: FlutterI18n.translate(context, "reset_pin.reset"),
+                  style: PillStyle.dangerFilled,
+                  height: 56,
+                  onPressed: () => showConfirmDeleteDialog(context),
+                ),
+                PillButton(
+                  key: const Key("reset_pin_cancel"),
+                  label: FlutterI18n.translate(context, "ui.cancel"),
+                  style: PillStyle.text,
+                  height: 48,
+                  // `Navigator.of(context).pop` (not GoRouter's
+                  // `context.pop`) so this screen works whether it was
+                  // pushed via the GoRouter `/reset_pin` route or onto the
+                  // LockGate overlay's local Navigator.
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

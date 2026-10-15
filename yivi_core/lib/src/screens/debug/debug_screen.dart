@@ -122,99 +122,106 @@ class _DebugScreenState extends State<DebugScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
       appBar: IrmaAppBar(titleTranslationKey: "debug.title"),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
-        children: [
-          GlassGroup(
-            dividerIndent: 68,
-            children: [
-              _buildListTile(
-                Icons.list_alt,
-                "debug.scheme_management.title",
-                onTap: _onOpenSchemeManagement,
-              ),
-              _buildListTile(
-                Icons.verified_outlined,
-                "debug.cert_management.title",
-                onTap: _onOpenCertManagement,
-              ),
-              // Debug-only labels are plain English.
-              _buildListTile(
-                Icons.flag_outlined,
-                "Feature flags",
-                onTap: context.pushFeatureFlagsScreen,
-              ),
-              const LocalBackendsTile(),
-            ],
-          ),
-          const SizedBox(height: 24),
-          GlassGroup(
-            dividerIndent: 68,
-            children: [
-              _buildListTile(
-                Icons.badge,
-                "debug.issue_digid",
-                onTap: () async {
-                  final digidIssuanceRequest = await _debugHelper
-                      .digidProefIssuanceRequest();
-                  await repo.startTestSession(digidIssuanceRequest);
-                },
-              ),
-              _buildListTile(
-                Icons.exposure_plus_2,
-                "debug.random_issuance",
-                onTap: () async {
-                  final randomIssuanceRequest = await _debugHelper
-                      .randomIssuanceRequest(2);
-                  await repo.startTestSession(randomIssuanceRequest);
-                },
-              ),
-              _buildListTile(
-                Icons.play_arrow,
-                "debug.custom_issue_wizard",
-                onTap: () => handlePointer(
-                  context,
-                  IssueWizardPointer("irma-demo-requestors.ivido.demo-client"),
+      body: BarInsetsBuilder(
+        builder: (context, insets) => ListView(
+          padding: insets + const EdgeInsets.fromLTRB(16, 8, 16, 48),
+          children: [
+            GlassGroup(
+              dividerIndent: 68,
+              children: [
+                _buildListTile(
+                  Icons.list_alt,
+                  "debug.scheme_management.title",
+                  onTap: _onOpenSchemeManagement,
                 ),
-              ),
-              _buildListTile(
-                Icons.share,
-                "debug.start_session",
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => SessionHelperScreen(
-                      initialRequest: DebugHelper.disclosureSessionRequest(),
+                _buildListTile(
+                  Icons.verified_outlined,
+                  "debug.cert_management.title",
+                  onTap: _onOpenCertManagement,
+                ),
+                // Debug-only labels are plain English.
+                _buildListTile(
+                  Icons.flag_outlined,
+                  "Feature flags",
+                  onTap: context.pushFeatureFlagsScreen,
+                ),
+                const LocalBackendsTile(),
+              ],
+            ),
+            const SizedBox(height: 24),
+            GlassGroup(
+              dividerIndent: 68,
+              children: [
+                _buildListTile(
+                  Icons.badge,
+                  "debug.issue_digid",
+                  onTap: () async {
+                    final digidIssuanceRequest = await _debugHelper
+                        .digidProefIssuanceRequest();
+                    await repo.startTestSession(digidIssuanceRequest);
+                  },
+                ),
+                _buildListTile(
+                  Icons.exposure_plus_2,
+                  "debug.random_issuance",
+                  onTap: () async {
+                    final randomIssuanceRequest = await _debugHelper
+                        .randomIssuanceRequest(2);
+                    await repo.startTestSession(randomIssuanceRequest);
+                  },
+                ),
+                _buildListTile(
+                  Icons.play_arrow,
+                  "debug.custom_issue_wizard",
+                  onTap: () => handlePointer(
+                    context,
+                    IssueWizardPointer(
+                      "irma-demo-requestors.ivido.demo-client",
                     ),
                   ),
                 ),
-              ),
-              // The screen gallery of main_prototypes.dart, in development
-              // builds only.
-              if (!kReleaseMode)
                 _buildListTile(
-                  Icons.view_carousel_outlined,
-                  "Preview screens",
-                  key: const Key("debug_preview_screens"),
+                  Icons.share,
+                  "debug.start_session",
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => PrototypesScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => SessionHelperScreen(
+                        initialRequest: DebugHelper.disclosureSessionRequest(),
+                      ),
+                    ),
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          GlassGroup(
-            children: [
-              _buildListTile(
-                Icons.delete_outline_rounded,
-                "debug.delete_credentials.delete",
-                danger: true,
-                onTap: () => _deleteAllDeletableCards(repo),
-              ),
-            ],
-          ),
-        ],
+                // The screen gallery of main_prototypes.dart, in development
+                // builds only.
+                if (!kReleaseMode)
+                  _buildListTile(
+                    Icons.view_carousel_outlined,
+                    "Preview screens",
+                    key: const Key("debug_preview_screens"),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PrototypesScreen(),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            GlassGroup(
+              children: [
+                _buildListTile(
+                  Icons.delete_outline_rounded,
+                  "debug.delete_credentials.delete",
+                  danger: true,
+                  onTap: () => _deleteAllDeletableCards(repo),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

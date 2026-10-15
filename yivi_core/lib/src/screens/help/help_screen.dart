@@ -25,6 +25,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final palette = YiviPalette.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "help.faq"),
       body: SingleChildScrollView(

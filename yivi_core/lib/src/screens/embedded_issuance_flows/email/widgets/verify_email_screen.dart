@@ -186,6 +186,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           _focusNode.unfocus();
         },
         child: Scaffold(
+          extendBodyBehindAppBar: true,
+          extendBody: true,
           backgroundColor: palette.background,
           appBar: IrmaAppBar(
             bottom: context.missingDataBand,
@@ -193,13 +195,13 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
             leading: YiviBackButton(onTap: _goBack),
             hasBorder: false,
           ),
-          body: SafeArea(
-            child: KeyboardAnimationListener(
-              onKeyboardSettled: (context, inset, visible) {
-                _handleFocusChange();
-              },
-              child: SingleChildScrollView(
-                controller: _scrollController,
+          body: KeyboardAnimationListener(
+            onKeyboardSettled: (context, inset, visible) {
+              _handleFocusChange();
+            },
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: SafeArea(
                 child: Padding(
                   padding: .all(theme.defaultSpacing),
                   child: Column(
