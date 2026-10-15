@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
+import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -26,7 +26,7 @@ Future<void> nullablesTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // Expect obtain credential screen
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
   expect(
     find.text(
       "Obtain the required data and share it with the requesting party after that.",
@@ -35,7 +35,7 @@ Future<void> nullablesTest(
   );
 
   // One stepper should be visible
-  expect(find.byType(DisclosureDisconStepper), findsOneWidget);
+  expect(find.byKey(const Key("add_missing_data_list")), findsOneWidget);
 
   // One Credential card should be visible
   final cardsFinder = findCredentialCards();

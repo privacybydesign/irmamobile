@@ -1428,6 +1428,31 @@
       "afterwards": "Danach",
       "selected_back": "Zurück hier, schon ausgewählt",
       "go_to": "Zu {host}"
+    },
+    "add_data": {
+      "bar": "Zuerst Daten hinzufügen",
+      "intro_one": "{requestor} fragt nach Daten, die noch nicht in deiner App sind. Füge sie zuerst hinzu; dann prüfst du alles und teilst.",
+      "intro_many": "{requestor} fragt nach Daten, die noch nicht in deiner App sind. Füge sie Schritt für Schritt hinzu; dann prüfst du alles und teilst.",
+      "which": "Welche möchtest du hinzufügen?",
+      "accepts_any": "{requestor} akzeptiert jede davon. Du brauchst nur eine.",
+      "title": "{name} hinzufügen",
+      "only_together": "Diese Karten werden nur zusammen akzeptiert.",
+      "from": "Von {issuer}.",
+      "cant_be_added": "Kann nicht über Yivi hinzugefügt werden",
+      "one_by_one": "Diese werden nacheinander hinzugefügt",
+      "state_added": "Hinzugefügt",
+      "state_next": "Als Nächstes",
+      "state_to_add": "Noch hinzufügen",
+      "must_be": "muss {value} sein",
+      "wrong_note": "Die hinzugefügte Karte passt nicht zu dem, was {requestor} braucht. Sie bleibt in deiner App, aber du brauchst eine passende.",
+      "you_added": "Hinzugefügt",
+      "needed": "Benötigt",
+      "button_add": "{name} hinzufügen",
+      "button_add_again": "Erneut hinzufügen",
+      "button_add_plain": "Hinzufügen",
+      "opens": "Öffnet {host}",
+      "reason_pick": "Wähle eine Karte, die hinzugefügt werden kann.",
+      "reason_cant": "Yivi kann {name} nicht hinzufügen. Hol es dir zuerst bei {issuer} und scanne dann den QR-Code erneut."
     }
   }
 }

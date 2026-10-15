@@ -1428,6 +1428,31 @@
       "afterwards": "Daarna",
       "selected_back": "Terug hier, al geselecteerd",
       "go_to": "Naar {host}"
+    },
+    "add_data": {
+      "bar": "Eerst gegevens toevoegen",
+      "intro_one": "{requestor} vraagt om gegevens die nog niet in je app staan. Voeg ze eerst toe; daarna controleer je alles en deel je.",
+      "intro_many": "{requestor} vraagt om gegevens die nog niet in je app staan. Voeg ze stap voor stap toe; daarna controleer je alles en deel je.",
+      "which": "Welke wil je toevoegen?",
+      "accepts_any": "{requestor} accepteert elk van deze. Je hebt er maar één nodig.",
+      "title": "Voeg {name} toe",
+      "only_together": "Deze kaarten worden alleen samen geaccepteerd.",
+      "from": "Van {issuer}.",
+      "cant_be_added": "Kan niet vanuit Yivi worden toegevoegd",
+      "one_by_one": "Deze worden één voor één toegevoegd",
+      "state_added": "Toegevoegd",
+      "state_next": "Volgende",
+      "state_to_add": "Nog toevoegen",
+      "must_be": "moet {value} zijn",
+      "wrong_note": "De kaart die je toevoegde past niet bij wat {requestor} nodig heeft. Hij blijft in je app, maar je hebt een passende nodig.",
+      "you_added": "Je voegde toe",
+      "needed": "Nodig",
+      "button_add": "Voeg {name} toe",
+      "button_add_again": "Opnieuw toevoegen",
+      "button_add_plain": "Toevoegen",
+      "opens": "Opent {host}",
+      "reason_pick": "Kies een kaart die toegevoegd kan worden.",
+      "reason_cant": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan daarna de QR-code opnieuw."
     }
   }
 }

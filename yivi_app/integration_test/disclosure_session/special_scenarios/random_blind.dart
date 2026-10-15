@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
 
@@ -31,7 +31,7 @@ Future<void> randomBlindTest(
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
   expect(
     find.text(

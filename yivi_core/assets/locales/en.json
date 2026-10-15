@@ -1428,6 +1428,31 @@
       "afterwards": "Afterwards",
       "selected_back": "Back here, already selected",
       "go_to": "Go to {host}"
+    },
+    "add_data": {
+      "bar": "Add data first",
+      "intro_one": "{requestor} asks for data that is not in your app yet. Add it first; then you check everything and share.",
+      "intro_many": "{requestor} asks for data that is not in your app yet. Add it step by step; then you check everything and share.",
+      "which": "Which one do you want to add?",
+      "accepts_any": "{requestor} accepts any of these. You only need one.",
+      "title": "Add {name}",
+      "only_together": "These cards are only accepted together.",
+      "from": "From {issuer}.",
+      "cant_be_added": "Can't be added from Yivi",
+      "one_by_one": "These are added one by one",
+      "state_added": "Added",
+      "state_next": "Next",
+      "state_to_add": "To add",
+      "must_be": "must be {value}",
+      "wrong_note": "The card you added doesn't match what {requestor} needs. It's kept in your app, but you need a matching one.",
+      "you_added": "You added",
+      "needed": "Needed",
+      "button_add": "Add {name}",
+      "button_add_again": "Add again",
+      "button_add_plain": "Add",
+      "opens": "Opens {host}",
+      "reason_pick": "Pick a card that can be added.",
+      "reason_cant": "Yivi can't add {name}. Get it from {issuer} first, then scan the QR code again."
     }
   }
 }

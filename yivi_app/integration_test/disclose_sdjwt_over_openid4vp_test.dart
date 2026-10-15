@@ -15,8 +15,8 @@ import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_scree
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
@@ -173,7 +173,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
   await tester.pumpAndSettle();
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
   await tester.tapAndSettle(find.text("Obtain data"));
 
@@ -220,7 +220,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   // should be back at the issue wizard screen
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 }
 
 Future<void> navigateToLatestActivity(
@@ -1288,7 +1288,7 @@ Future<void> testOneMissingOnePresent(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
   final cardFinder = find.byType(YiviCredentialCard);
 
   expect(cardFinder, findsOneWidget);
@@ -1361,7 +1361,7 @@ Future<void> testDiscloseSdJwtThatsNotThere(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
   final cardFinder = find.byType(YiviCredentialCard);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(

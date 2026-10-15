@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -48,7 +48,7 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
 
   // No required cred is missing, so the wallet stays on the choices
   // overview rather than entering the issuance wizard.
-  expect(find.byType(IssueDuringDisclosureScreen), findsNothing);
+  expect(find.byType(AddMissingDataScreen), findsNothing);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // Empty-state copy is rendered when no data is selected.

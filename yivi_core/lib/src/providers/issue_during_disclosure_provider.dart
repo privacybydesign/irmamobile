@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart";
 import "../models/schemaless/session_state.dart";
+import "../screens/session/models/disclosure_view_model.dart";
 import "session_state_provider.dart";
 
 class IssueDuringDisclosureState {
@@ -133,11 +134,12 @@ class IssueDuringDisclosureNotifier
     // Carry forward the user's previous selection per step, but clamp against
     // the live step's option count: if the Go side shrinks a step's option
     // list, a stale index would otherwise blow up downstream readers.
+    // A step starts on its first option that can be added from Yivi.
     final selections = List<int>.generate(steps.length, (i) {
-      if (i >= previousSelections.length) return 0;
+      if (i >= previousSelections.length) return defaultStepOption(steps[i]);
       final prev = previousSelections[i];
       final optionCount = steps[i].options.length;
-      if (prev < 0 || prev >= optionCount) return 0;
+      if (prev < 0 || prev >= optionCount) return defaultStepOption(steps[i]);
       return prev;
     });
 

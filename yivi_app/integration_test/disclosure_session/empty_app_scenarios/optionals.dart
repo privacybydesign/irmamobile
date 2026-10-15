@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/widgets/irma_icon_button.dart";
 
 import "../../helpers/helpers.dart";
@@ -40,7 +39,7 @@ Future<void> optionalsTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // Expect a disclose stepper
-  final disConStepperFinder = find.byType(DisclosureDisconStepper);
+  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
   expect(disConStepperFinder, findsOneWidget);
 
   // Continue and expect the SchemalessAddDataDetailsScreen

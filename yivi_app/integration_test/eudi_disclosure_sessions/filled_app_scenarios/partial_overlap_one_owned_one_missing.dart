@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -11,7 +11,7 @@ import "../../util.dart";
 
 /// Wallet has email; verifier asks for email AND phone. Backend hides the
 /// `DisclosureShareScreen` whenever any issuance step exists, so the
-/// wallet renders `IssueDuringDisclosureScreen` with the missing phone
+/// wallet renders `AddMissingDataScreen` with the missing phone
 /// descriptor — the owned email is **not visible at this stage**.
 ///
 /// On the IRMA-issued spine, the user could tap "Obtain data" to issue the
@@ -63,7 +63,7 @@ Future<void> partialOverlapOneOwnedOneMissingTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await tester.pumpAndSettle();
 
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
   // The missing phone descriptor card renders, with name from VCT metadata.
   // Direct text-finder used because the missing-cred descriptor has no logo

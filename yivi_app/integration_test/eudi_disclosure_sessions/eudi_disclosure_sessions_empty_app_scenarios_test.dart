@@ -22,7 +22,7 @@ void main() {
       // "cannot proceed" — no obtain-during-disclosure is possible.
 
       // Single email cred requested; wallet empty.
-      // Asserts IssueDuringDisclosureScreen with disabled "Close" CTA.
+      // Asserts AddMissingDataScreen with disabled "Close" CTA.
       testWidgets(
         "cred-missing",
         (tester) => credMissingTest(tester, irmaBinding),

@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_choice.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
@@ -37,13 +36,13 @@ Future<void> choiceTest(
   expect(find.text("Collect data"), findsOneWidget);
 
   // We should have one discon stepper
-  final disConStepperFinder = find.byType(DisclosureDisconStepper);
+  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
   expect(disConStepperFinder, findsOneWidget);
 
   // The discon stepper should contain one choice
   final disconChoiceFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(DisclosurePermissionChoice),
+    matching: find.byKey(const Key("add_missing_data_list")),
   );
   expect(disconChoiceFinder, findsOneWidget);
 

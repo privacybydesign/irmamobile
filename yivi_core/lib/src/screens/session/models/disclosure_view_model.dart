@@ -281,7 +281,10 @@ class PickAddable extends AddAction {
 class CloseCannotAdd extends AddAction {
   final List<String> issuers;
 
-  const CloseCannotAdd(this.issuers);
+  /// The name of what cannot be added ("Voting card").
+  final String name;
+
+  const CloseCannotAdd(this.issuers, {this.name = ""});
 }
 
 /// The button for [step] with option [selected] chosen, given what was
@@ -297,6 +300,7 @@ AddAction addActionFor(
     if (step.options.any(canBeAddedBundle)) return const PickAddable();
     return CloseCannotAdd(
       bundle.credentials.map((c) => c.issuer.name).toSet().toList(),
+      name: bundle.credentials.map((c) => c.name).join(" + "),
     );
   }
   final next = bundle.credentials.firstWhere(

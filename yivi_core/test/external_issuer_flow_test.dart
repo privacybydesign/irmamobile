@@ -19,9 +19,7 @@ import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_route.dart";
 import "package:yivi_core/src/screens/add_data/external_issuer_heads_up_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_step_credential_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "support/pump_translated.dart";
 
@@ -52,31 +50,6 @@ CredentialDescriptor _descriptor({
   category: null,
   attributes: const [],
   issueURL: issueUrl,
-);
-
-SessionState _sessionNeeding(CredentialDescriptor descriptor) => SessionState(
-  id: _sessionId,
-  protocol: "irma",
-  type: SessionType.disclosure,
-  status: SessionStatus.requestPermission,
-  requestor: TrustedParty(
-    id: "requestor",
-    name: "Webshop",
-    url: null,
-    parent: null,
-    verified: true,
-  ),
-  disclosurePlan: DisclosurePlan(
-    issueDuringDisclosure: IssueDuringDisclosure(
-      steps: [
-        IssuanceStep(
-          options: [
-            IssuanceBundle(credentials: [descriptor]),
-          ],
-        ),
-      ],
-    ),
-  ),
 );
 
 class _Env {
@@ -370,126 +343,6 @@ void main() {
       );
 
       expect(find.text("regular details"), findsOne);
-    });
-  });
-
-  group("DisclosureStepCredentialCard", () {
-    const sourceLine = "Via the website of Gemeente Voorbeeld";
-    const waitingStatus = "Not received yet";
-    const waitingBody =
-        "Still busy on the website of Gemeente Voorbeeld? Continue there. "
-        "When you're done, Yivi opens by itself.";
-
-    Future<_Env> pump(
-      WidgetTester tester, {
-      required bool flagOn,
-      CredentialDescriptor? descriptor,
-    }) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
-      await _pumpApp(
-        tester,
-        env,
-        Scaffold(
-          body: DisclosureStepCredentialCard(
-            descriptor: descriptor ?? _descriptor(),
-            isCurrent: true,
-          ),
-        ),
-      );
-      return env;
-    }
-
-    testWidgets("looks as before while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
-
-      expect(find.text("Persoonsgegevens"), findsOne);
-      expect(find.text(sourceLine), findsNothing);
-      expect(find.byIcon(Icons.schedule), findsNothing);
-    });
-
-    testWidgets("says where the data comes from", (tester) async {
-      await pump(tester, flagOn: true);
-
-      expect(find.text(sourceLine), findsOne);
-      expect(find.text(waitingStatus), findsNothing);
-    });
-
-    testWidgets("adds no source line for an embedded flow", (tester) async {
-      await pump(
-        tester,
-        flagOn: true,
-        descriptor: _descriptor(credentialId: "pbdf.sidn-pbdf.email"),
-      );
-
-      expect(find.text(sourceLine), findsNothing);
-    });
-
-    testWidgets("shows the waiting state once the website was opened", (
-      tester,
-    ) async {
-      final env = await pump(tester, flagOn: true);
-
-      env.repo.markInAppLaunched([_websiteCredential]);
-      await tester.pumpAndSettle();
-
-      expect(find.text(waitingStatus), findsOne);
-      expect(find.text(waitingBody), findsOne);
-      expect(find.byIcon(Icons.schedule), findsOne);
-    });
-  });
-
-  group("IssueDuringDisclosureScreen primary button", () {
-    Future<_Env> pump(WidgetTester tester, {required bool flagOn}) async {
-      final env = (await tester.runAsync(() => _env(flagOn: flagOn)))!;
-      await _pumpApp(
-        tester,
-        env,
-        IssueDuringDisclosureScreen(
-          sessionId: _sessionId,
-          onDismiss: () {},
-          onClose: () {},
-        ),
-        overrides: [
-          sessionStateProvider(
-            _sessionId,
-          ).overrideWith((ref) => Stream.value(_sessionNeeding(_descriptor()))),
-        ],
-      );
-      return env;
-    }
-
-    Finder primary(Finder matching) => find.descendant(
-      of: find.byKey(const Key("bottom_bar_primary")),
-      matching: matching,
-    );
-
-    testWidgets("is unchanged while the flag is off", (tester) async {
-      await pump(tester, flagOn: false);
-
-      expect(primary(find.text("Obtain data")), findsOne);
-      expect(primary(find.byType(Icon)), findsNothing);
-    });
-
-    testWidgets("carries an external-link icon for a website credential", (
-      tester,
-    ) async {
-      await pump(tester, flagOn: true);
-
-      expect(primary(find.text("Obtain data")), findsOne);
-      expect(primary(find.byIcon(Icons.open_in_new)), findsOne);
-    });
-
-    testWidgets("offers to open the website again when it is pending", (
-      tester,
-    ) async {
-      final env = await pump(tester, flagOn: true);
-
-      env.repo.markInAppLaunched([_websiteCredential]);
-      await tester.pumpAndSettle();
-
-      expect(primary(find.text("Open the website again")), findsOne);
-      expect(primary(find.byIcon(Icons.open_in_new)), findsOne);
-      expect(find.text("Not received yet"), findsOne);
     });
   });
 

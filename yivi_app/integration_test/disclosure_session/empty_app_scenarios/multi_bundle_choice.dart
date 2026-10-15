@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_permission_choice.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -53,12 +52,12 @@ Future<void> multiBundleChoiceTest(
 
   // Wizard runs. The discon-stepper renders one DisclosurePermissionChoice
   // with two bundle options (Bundle A + Bundle B).
-  final disConStepperFinder = find.byType(DisclosureDisconStepper);
+  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
   expect(disConStepperFinder, findsOneWidget);
 
   final choiceFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(DisclosurePermissionChoice),
+    matching: find.byKey(const Key("add_missing_data_list")),
   );
   expect(choiceFinder, findsOneWidget);
 

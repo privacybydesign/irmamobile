@@ -4,7 +4,6 @@ import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
@@ -13,7 +12,6 @@ import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/external_issuer_provider.dart";
-import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
@@ -23,6 +21,7 @@ import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
+import "widgets/add_missing_data_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
@@ -30,8 +29,6 @@ import "widgets/disclosure_share_screen.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
-import "widgets/issue_during_disclosure_screen.dart";
-import "widgets/missing_data_checklist_screen.dart";
 import "widgets/missing_data_flow_reset.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
@@ -71,14 +68,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   bool _hasLongPin = false;
 
-  /// `FeatureFlag.missingDataChecklist`, refreshed on every build.
-  bool _useMissingDataChecklist = false;
-
   /// Whether issuance-during-disclosure was shown (steps were present at some point).
   bool _hadIssueDuringDisclosure = false;
-
-  /// Whether the user has acknowledged the issuance-during-disclosure completion.
-  bool _issueDuringDisclosureAcknowledged = false;
 
   /// True after the OID4VCI pre-auth auto-grant has fired for the current
   /// session, so we don't fire it again on rebuilds.
@@ -153,11 +144,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       sessionAwaitingInteractionProvider(widget.sessionId),
     );
     _lastSession = asyncSession;
-    _useMissingDataChecklist =
-        ref
-            .watch(featureFlagProvider(FeatureFlag.missingDataChecklist))
-            .value ??
-        false;
 
     // Track the latest non-null remainingTxCodeAttempts so that, if the
     // session subsequently errors out, we can detect the tx_code-lockout
@@ -273,35 +259,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final isIssuanceSession =
         session.type == .issuance && session.offeredCredentials != null;
 
-    if (_useMissingDataChecklist && session.type == .disclosure) {
-      if (needsIssueBeforeDisclosure) {
-        return MissingDataFlowReset(
-          sessionId: widget.sessionId,
-          child: MissingDataChecklistScreen(
-            sessionId: widget.sessionId,
-            onDismiss: _showDismissDialog,
-          ),
-        );
-      }
-      if (_hadIssueDuringDisclosure) {
-        return MissingDataFlowReset(
-          sessionId: widget.sessionId,
-          child: _buildShareScreen(session),
-        );
-      }
-    }
-
-    // Show issuance screen while steps are pending, or keep showing it
-    // in completed state until the user acknowledges by tapping "Next step".
-    if (needsIssueBeforeDisclosure ||
-        (_hadIssueDuringDisclosure && !_issueDuringDisclosureAcknowledged)) {
-      return IssueDuringDisclosureScreen(
+    // Something is missing: add it first. The share screen follows as soon
+    // as irmago sends the plan without missing steps.
+    if (needsIssueBeforeDisclosure) {
+      return MissingDataFlowReset(
         sessionId: widget.sessionId,
-        onDismiss: _showDismissDialog,
-        onClose: _dismissSession,
-        onCompleted: () {
-          setState(() => _issueDuringDisclosureAcknowledged = true);
-        },
+        child: AddMissingDataScreen(
+          sessionId: widget.sessionId,
+          onDismiss: _showDismissDialog,
+          onClose: _dismissSession,
+        ),
       );
     }
 
@@ -316,7 +283,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    return _buildShareScreen(session);
+    // Wrapped like the add screen while the user may still be inside an
+    // issuance flow that started from it.
+    final share = _buildShareScreen(session);
+    return _hadIssueDuringDisclosure
+        ? MissingDataFlowReset(sessionId: widget.sessionId, child: share)
+        : share;
   }
 
   /// The share screen. The button is the consent, so it grants permission

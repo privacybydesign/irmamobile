@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -11,7 +11,7 @@ import "../../irma_binding.dart";
 import "../../util.dart";
 
 /// AND request for two creds (email + phone); wallet empty. Both missing
-/// descriptors appear inside `IssueDuringDisclosureScreen`; bottom-bar
+/// descriptors appear inside `AddMissingDataScreen`; bottom-bar
 /// primary remains "Close".
 Future<void> multipleCredsAllMissingTest(
   WidgetTester tester,
@@ -53,7 +53,7 @@ Future<void> multipleCredsAllMissingTest(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
   // Each missing-descriptor step renders one credential card; the wizard
   // shows them sequentially. Verify the first card's name comes from the

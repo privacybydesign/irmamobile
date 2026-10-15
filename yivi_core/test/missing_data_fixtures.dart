@@ -1,11 +1,11 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -129,7 +129,7 @@ class MissingDataHarness {
   static Future<MissingDataHarness> pump(
     WidgetTester tester,
     GoRouter router, {
-    bool flagOn = true,
+    List<Override> overrides = const [],
   }) async {
     final bridge = _TestBridge();
 
@@ -142,7 +142,6 @@ class MissingDataHarness {
       );
       await prefs.clearAll();
       await prefs.setCompletedDisclosurePermissionIntro(true);
-      await prefs.setFeatureFlag(FeatureFlag.missingDataChecklist, flagOn);
     });
 
     final repo = IrmaRepository(client: bridge, preferences: prefs);
@@ -152,6 +151,7 @@ class MissingDataHarness {
       overrides: [
         preferencesProvider.overrideWithValue(prefs),
         irmaRepositoryProvider.overrideWithValue(repo),
+        ...overrides,
       ],
     );
     addTearDown(container.dispose);

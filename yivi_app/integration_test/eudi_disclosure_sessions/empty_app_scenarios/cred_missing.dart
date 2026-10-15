@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -19,7 +19,7 @@ import "../../util.dart";
 /// leaving `DisclosureShareScreen` nil.
 ///
 /// Wallet routing (`session_screen.dart:253-262`) therefore renders the
-/// `IssueDuringDisclosureScreen`. Because the descriptor has no IssueURL,
+/// `AddMissingDataScreen`. Because the descriptor has no IssueURL,
 /// `currentIsObtainable` is false and the bottom-bar primary becomes
 /// "Close" (`issue_during_disclosure_screen.dart:119-122`). Tapping Close
 /// dismisses the session.
@@ -56,7 +56,7 @@ Future<void> credMissingTest(
   // Wallet must NOT render the choices overview — the backend hides it
   // when issuance steps exist.
   expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
   // The missing-cred descriptor card displays the credential name from VCT
   // type metadata. We use a direct text-finder rather than

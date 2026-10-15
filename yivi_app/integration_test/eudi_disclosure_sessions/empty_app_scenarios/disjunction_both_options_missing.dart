@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -60,7 +60,7 @@ Future<void> disjunctionBothOptionsMissingTest(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
+  expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
   // No "Obtain data" CTA; cred types have no IssueURL.
   expect(find.text("Obtain data"), findsNothing);
