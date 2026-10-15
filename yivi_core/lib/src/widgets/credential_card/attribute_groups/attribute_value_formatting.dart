@@ -2,6 +2,7 @@ import "dart:convert";
 
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
@@ -40,6 +41,40 @@ String formatAttributeBool(BuildContext context, bool? value) {
     context,
     value ? "credential.boolean_yes" : "credential.boolean_no",
   );
+}
+
+/// Formats a string attribute value. A value that carries a currency code is
+/// shown as an amount in that currency for the app's locale (e.g. "€ 12,50");
+/// anything else, including values from irmago versions without currency
+/// support, is shown as the raw string.
+String formatAttributeString(
+  BuildContext context,
+  schemaless.AttributeValue value,
+) {
+  final raw = value.string ?? "";
+  final currency = value.currency;
+  if (currency == null) return raw;
+  final locale = FlutterI18n.currentLocale(context)?.toLanguageTag();
+  return formatCurrencyAmount(raw, currency, locale) ?? raw;
+}
+
+final _currencyAmount = RegExp(r"^-?[0-9]+(\.[0-9]+)?$");
+final _currencyCode = RegExp(r"^[A-Z]{3}$");
+
+/// Formats a plain decimal [amount] (e.g. "12.50") in the given ISO 4217
+/// [currency] for [locale], or returns null when either can't be formatted.
+String? formatCurrencyAmount(String amount, String currency, String? locale) {
+  if (!_currencyAmount.hasMatch(amount) || !_currencyCode.hasMatch(currency)) {
+    return null;
+  }
+  try {
+    return NumberFormat.simpleCurrency(
+      locale: locale,
+      name: currency,
+    ).format(num.parse(amount));
+  } on Object {
+    return null;
+  }
 }
 
 /// Decodes an image attribute value, or returns null when it holds no usable

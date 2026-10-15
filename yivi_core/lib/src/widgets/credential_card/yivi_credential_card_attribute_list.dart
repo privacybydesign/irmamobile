@@ -688,7 +688,7 @@ class _LeafContent extends StatelessWidget {
     if (val == null) return const SizedBox.shrink();
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
-        val.string ?? "",
+        formatAttributeString(context, val),
         style: attributeValueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.boolean => Text(
@@ -794,7 +794,7 @@ class _PrimArrayContent extends StatelessWidget {
 
   String _formatValue(BuildContext context, schemaless.AttributeValue v) {
     return switch (v.type) {
-      schemaless.AttributeType.string => v.string ?? "",
+      schemaless.AttributeType.string => formatAttributeString(context, v),
       schemaless.AttributeType.integer => v.intValue?.toString() ?? "",
       schemaless.AttributeType.boolean => formatAttributeBool(
         context,
