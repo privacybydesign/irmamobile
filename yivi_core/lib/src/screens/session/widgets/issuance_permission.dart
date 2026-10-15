@@ -95,13 +95,14 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         appBarTitle: "issuance.title",
         wide: true,
         scrollsUnderBars: true,
+        barTitleVisibility: hiddenBarTitle,
         onDismiss: widget.onDismiss,
         body: SessionColumns(
           start: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
             children: [
-              _title(title),
+              SessionColumnsTitle(title),
               ..._overview(context, steps, mismatches, cardWidth: 460),
             ],
           ),
@@ -145,23 +146,6 @@ class _IssuancePermissionState extends State<IssuancePermission> {
               children: _receives(context, mismatches),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _title(String title) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title,
-          key: const Key("large_title"),
-          style: palette
-              .display(22)
-              .copyWith(height: 30 / 22, color: palette.heading),
         ),
       ),
     );

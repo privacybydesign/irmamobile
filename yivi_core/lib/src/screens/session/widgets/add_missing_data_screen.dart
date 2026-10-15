@@ -17,6 +17,7 @@ import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../models/disclosure_view_model.dart";
 import "change_choice_sheet.dart";
+import "session_columns.dart";
 import "session_requestor_header.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
@@ -78,7 +79,7 @@ class AddMissingDataScreen extends ConsumerWidget {
             wrongCredentialIssued: state.wrongCredentialIssued,
           );
 
-    final children = <Widget>[
+    final header = <Widget>[
       SessionRequestorHeader(
         requestor: session.requestor,
         description: t(
@@ -94,6 +95,8 @@ class AddMissingDataScreen extends ConsumerWidget {
               )
             : null,
       ),
+    ];
+    final stepCards = <Widget>[
       for (final (i, step) in steps.indexed)
         if (isStepDone(step, issued))
           _DoneStep(key: Key("add_step_$i"), step: step, issued: issued)
@@ -111,18 +114,46 @@ class AddMissingDataScreen extends ConsumerWidget {
         else
           _LaterStep(key: Key("add_step_$i"), number: i + 1, step: step),
     ];
+    final bar = action == null
+        ? null
+        : _AddBar(
+            action: action,
+            onAdd: (d) => _add(context, ref, d),
+            onClose: onClose,
+          );
 
+    // Tablets: the question and who asks on the left, the steps and the
+    // button on the right.
+    if (useSessionColumns(context)) {
+      return SessionScaffold(
+        appBarTitle: "share.add_data.bar",
+        onDismiss: onDismiss,
+        wide: true,
+        scrollsUnderBars: true,
+        barTitleVisibility: hiddenBarTitle,
+        body: SessionColumns(
+          start: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 14,
+            children: [SessionColumnsTitle(t("share.add_data.bar")), ...header],
+          ),
+          end: Column(
+            key: const Key("add_missing_data_list"),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 14,
+            children: stepCards,
+          ),
+          actions: bar,
+        ),
+      );
+    }
+
+    final children = [...header, ...stepCards];
     return SessionScaffold(
       appBarTitle: "share.add_data.bar",
       onDismiss: onDismiss,
       scrollsUnderBars: true,
-      bottomNavigationBar: action == null
-          ? null
-          : _AddBar(
-              action: action,
-              onAdd: (d) => _add(context, ref, d),
-              onClose: onClose,
-            ),
+      bottomNavigationBar: bar,
       body: Builder(
         builder: (context) => ListView(
           key: const Key("add_missing_data_list"),

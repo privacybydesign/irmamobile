@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../screens/session/widgets/dynamic_layout.dart";
+import "../screens/session/widgets/session_columns.dart";
 import "../screens/session/widgets/session_scaffold.dart";
 import "../screens/session/widgets/success_graphic.dart";
 import "../theme/theme.dart";
@@ -40,6 +41,33 @@ class ActionFeedback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
+
+    final graphic = success
+        ? (hero ?? SuccessGraphic())
+        // A blue disc with a question mark, as the other status screens.
+        : const ToneDisc(
+            icon: Icons.help_outline_rounded,
+            tone: DialogTone.info,
+            size: 140,
+          );
+    final title = TranslatedText(
+      titleTranslationKey,
+      translationParams: titleTranslationParams,
+      style: palette.display(26, weight: FontWeight.w700),
+    );
+    final explanation = TranslatedText(
+      explanationTranslationKey,
+      translationParams: explanationTranslationParams,
+      style: palette.body(16),
+      textAlign: TextAlign.center,
+    );
+    final button = YiviThemedButton(
+      key: const Key("ok_button"),
+      label: buttonTranslationKey,
+      labelParams: buttonTranslationParams,
+      onPressed: onDismiss,
+    );
 
     return PopScope(
       canPop: false,
@@ -48,43 +76,30 @@ class ActionFeedback extends StatelessWidget {
             ? "disclosure.feedback.header.success"
             : "ui.error",
         onDismiss: onDismiss,
-        body: DynamicLayout(
-          hero: success
-              ? (hero ?? SuccessGraphic())
-              // A blue disc with a question mark, as the other status
-              // screens.
-              : const ToneDisc(
-                  icon: Icons.help_outline_rounded,
-                  tone: DialogTone.info,
-                  size: 140,
+        // Tablets: one centred column, the button right under the text.
+        body: useSessionColumns(context)
+            ? SessionCentred(
+                children: [
+                  hero ?? SizedBox(height: 160, child: graphic),
+                  const SizedBox(height: 32),
+                  title,
+                  SizedBox(height: theme.tinySpacing),
+                  explanation,
+                  const SizedBox(height: 32),
+                  SizedBox(width: 360, child: button),
+                ],
+              )
+            : DynamicLayout(
+                hero: graphic,
+                content: Column(
+                  children: [
+                    title,
+                    SizedBox(height: theme.tinySpacing),
+                    explanation,
+                  ],
                 ),
-          content: Column(
-            children: [
-              TranslatedText(
-                titleTranslationKey,
-                translationParams: titleTranslationParams,
-                style: YiviPalette.of(
-                  context,
-                ).display(26, weight: FontWeight.w700),
+                actions: [button],
               ),
-              SizedBox(height: theme.tinySpacing),
-              TranslatedText(
-                explanationTranslationKey,
-                translationParams: explanationTranslationParams,
-                style: YiviPalette.of(context).body(16),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            YiviThemedButton(
-              key: const Key("ok_button"),
-              label: buttonTranslationKey,
-              labelParams: buttonTranslationParams,
-              onPressed: onDismiss,
-            ),
-          ],
-        ),
       ),
     );
   }

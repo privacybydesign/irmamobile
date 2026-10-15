@@ -493,24 +493,26 @@ void main() {
     );
   });
 
-  testWidgets("tablet: two columns, the title stays in the bar", (
-    tester,
-  ) async {
+  testWidgets("tablet: the question, who asks and the footnote left, what "
+      "is shared right", (tester) async {
     await _pump(
       tester,
       session: _session([_passportOrIdCard()]),
       size: const Size(1280, 900),
     );
     expect(find.byType(SessionColumns), findsOneWidget);
-    expect(find.byKey(const Key("irma_app_bar_title")), findsNothing);
-    // Who asks on the left, what is shared on the right.
-    final header = tester.getRect(
-      find.byKey(const Key("session_requestor_header")),
-    );
-    expect(
-      tester.getRect(find.byKey(const Key("share_slot_0"))).left,
-      greaterThan(header.right),
-    );
+    final slot = tester.getRect(find.byKey(const Key("share_slot_0")));
+    for (final left in [
+      "large_title",
+      "session_requestor_header",
+      "share_footnote",
+    ]) {
+      expect(
+        tester.getRect(find.byKey(Key(left))).right,
+        lessThan(slot.left),
+        reason: left,
+      );
+    }
   });
 
   group("the Change sheet", () {

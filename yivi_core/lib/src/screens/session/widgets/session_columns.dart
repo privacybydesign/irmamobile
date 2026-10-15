@@ -1,5 +1,7 @@
+import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 
@@ -93,6 +95,77 @@ class SessionColumns extends StatelessWidget {
                 maxWidth: startWidth + gap + endWidth,
               ),
               child: row,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The bar title of a tablet session screen: hidden, because the question
+/// it repeats is always in view at the top of the start column.
+const ValueListenable<bool> hiddenBarTitle = AlwaysStoppedAnimation(false);
+
+/// The question a tablet session screen asks ("Do you want to share this
+/// data?"), at the top of [SessionColumns.start].
+class SessionColumnsTitle extends StatelessWidget {
+  final String text;
+
+  const SessionColumnsTitle(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Semantics(
+        header: true,
+        child: Text(
+          text,
+          key: const Key("large_title"),
+          style: palette
+              .display(30)
+              .copyWith(height: 38 / 30, color: palette.heading),
+        ),
+      ),
+    );
+  }
+}
+
+/// The tablet layout of a short session screen (a result, the call): one
+/// column of at most [maxWidth], centred on the screen, with its button
+/// under the text instead of across the bottom.
+class SessionCentred extends StatelessWidget {
+  final List<Widget> children;
+  final double maxWidth;
+
+  const SessionCentred({
+    super.key,
+    required this.children,
+    this.maxWidth = 480,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: BarInsets.of(
+          context,
+          const EdgeInsets.fromLTRB(32, 24, 32, 32),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: (constraints.maxHeight - 56).clamp(0.0, double.infinity),
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: children,
+              ),
             ),
           ),
         ),

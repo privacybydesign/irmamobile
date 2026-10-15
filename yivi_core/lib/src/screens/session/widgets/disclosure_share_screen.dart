@@ -182,12 +182,12 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         ),
         for (final card in offered) _OfferedCard(card: card),
       ],
-      _Footnote(
-        text: anyShared
-            ? t("share.footnote", {"requestor": requestor})
-            : t("share.footnote_none"),
-      ),
     ];
+    final footnote = _Footnote(
+      text: anyShared
+          ? t("share.footnote", {"requestor": requestor})
+          : t("share.footnote_none"),
+    );
 
     final bar = _ShareBar(
       reason: switch (button) {
@@ -209,14 +209,15 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           : () => widget.onShare(disclosureChoicesFor(pickOnes, selections)),
     );
 
-    // Tablets: who asks on the left, what is shared and the button on the
-    // right. The title stays in the bar.
+    // Tablets: the question, who asks and what it means on the left; what
+    // is shared and the button on the right.
     if (useSessionColumns(context)) {
       return SessionScaffold(
         appBarTitle: "share.bar.$kind",
         onDismiss: widget.onDismiss,
         wide: true,
         scrollsUnderBars: true,
+        barTitleVisibility: hiddenBarTitle,
         body: SessionColumns(
           startWidth: 400,
           endWidth: 520,
@@ -225,13 +226,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 14,
             children: [
-              Text(
-                t("share.title.$kind"),
-                style: palette
-                    .display(22)
-                    .copyWith(height: 30 / 22, color: palette.heading),
-              ),
+              SessionColumnsTitle(t("share.title.$kind")),
               ...requestorPart,
+              footnote,
             ],
           ),
           end: Column(
@@ -260,7 +257,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             const EdgeInsets.fromLTRB(16, 16, 16, 24),
           ),
           spacing: 12,
-          children: [...requestorPart, ...requestedPart],
+          children: [...requestorPart, ...requestedPart, footnote],
         ),
       ),
     );
