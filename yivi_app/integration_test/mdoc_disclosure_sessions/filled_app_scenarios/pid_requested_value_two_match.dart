@@ -1,8 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
-import "../../eudi_disclosure_sessions/eudi_choice_helpers.dart";
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -51,42 +50,23 @@ Future<void> pidRequestedValueTwoMatchTest(
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   expect(findCredentialCards(skipOffstage: false), findsOneWidget);
 
-  await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
+  await changeChoice(tester, 0);
   // The two matching PIDs; the Rotterdam one is filtered out by irmago and
-  // there is no obtainable template for an mdoc.
-  expect(choiceCardsFinder, findsNWidgets(2));
-  expect(
-    find.descendant(
-      of: choiceCardsFinder,
-      matching: find.text("Amsterdam", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: choiceCardsFinder,
-      matching: find.text("Utrecht", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
+  // there is no addable template for an mdoc.
+  final rows = findSheetOwnedRows();
+  expect(rows, findsNWidgets(2));
+  expect(findSheetAddRow("eu.europa.ec.eudi.pid.1"), findsNothing);
   expect(find.text("Rotterdam", skipOffstage: false), findsNothing);
-  expect(find.text("Obtain new data"), findsNothing);
 
-  // Pick the Amsterdam PID explicitly, confirm, share.
-  final amsterdamCard = find.ancestor(
-    of: find.text("Amsterdam", skipOffstage: false),
-    matching: findCredentialCards(),
+  // Both rows lead with the family name ("Doe"), so go by position: oldest
+  // first, the Amsterdam PID. Pick it explicitly; the sheet closes.
+  await tester.tapAndSettle(rows.at(0));
+  await tester.waitUntilDisappeared(findChoiceSheet());
+  await evaluateCredentialCard(
+    tester,
+    findShareSlot(0),
+    attributes: [("Family Name(s)", "Doe"), ("Resident City", "Amsterdam")],
   );
-  await tester.scrollUntilVisible(amsterdamCard, 100);
-  await tester.tapAndSettle(amsterdamCard);
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishEudiDisclosure(tester);
 
   await verifyMostRecentActivityLog(

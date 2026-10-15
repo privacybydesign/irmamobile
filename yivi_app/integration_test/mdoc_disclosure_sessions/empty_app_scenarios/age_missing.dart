@@ -1,9 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
@@ -17,10 +14,10 @@ import "../mdoc_disclosure_helpers.dart";
 ///
 /// irmago answers a query nothing owns with a URL-less descriptor built from
 /// the query itself (there is no discovery document for an mdoc docType), so
-/// the wallet renders the issue-during-disclosure screen with a single
-/// missing-credential card and, because the descriptor has no issue URL, a
-/// "Close" button instead of "Obtain data". Nothing can be shared and nothing
-/// reaches the verifier.
+/// the wallet shows "Add data first" with one step that "Can't be added from
+/// Yivi" and, because the descriptor has no issue URL, a "Close" button with
+/// where to get it instead of an "Add …" button. Nothing can be shared and
+/// nothing reaches the verifier.
 Future<void> ageMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -45,14 +42,8 @@ Future<void> ageMissingTest(
   // No issuance: the wallet is empty.
   final session = await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-
-  // URL-less descriptor: no way to obtain, only to close.
-  expect(find.text("Obtain data"), findsNothing);
-  expect(find.text("Close"), findsOneWidget);
-  await tester.tapAndSettle(find.text("Close"));
+  // URL-less descriptor: no way to add it, only to close.
+  await expectCannotAddAndClose(tester);
 
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);

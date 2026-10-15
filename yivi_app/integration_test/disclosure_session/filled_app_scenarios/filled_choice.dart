@@ -1,15 +1,12 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
+import "sheet_checks.dart";
 
 Future<void> filledChoiceTest(
   WidgetTester tester,
@@ -35,6 +32,7 @@ Future<void> filledChoiceTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   // Expect the choices screen
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
@@ -53,67 +51,25 @@ Future<void> filledChoiceTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Change choice should be visible
-  final changeChoiceFinder = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
-  expect(changeChoiceFinder, findsOneWidget);
-
-  // Press the change choice
-  await tester.tapAndSettle(changeChoiceFinder);
-
-  // Expect make choice screen
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // This screen to have three options
-  expect(cardFinder, findsNWidgets(3));
-
-  // The first card should be select
-  await evaluateCredentialCard(
+  // Change the choice: the sheet has the e-mail address in the app, and
+  // both types can be added.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email address", "test@example.com")],
-    isSelected: true,
+    owned: ["Demo Email address"],
+    selected: "Demo Email address",
+    addable: [_email, _mobile],
   );
 
-  // The second card should show a template credential
-  await evaluateCredentialCard(
-    tester,
-    cardFinder.at(1),
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    isSelected: false,
-  );
-
-  // The third card should show a template credential too
-  final thirdCardFinder = cardFinder.at(2);
-  await tester.scrollUntilVisible(thirdCardFinder.hitTestable(), 50);
-  await evaluateCredentialCard(
-    tester,
-    thirdCardFinder,
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    isSelected: false,
-  );
-
-  // Select the obtain mobile number
-  await tester.tapAndSettle(thirdCardFinder);
-
-  // Card should be selected now
-  await evaluateCredentialCard(tester, thirdCardFinder, isSelected: true);
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
+  // Add a mobile number: the confirm view, then (as the issuer would)
+  // issue it. Something unrelated is issued first; it changes nothing.
+  await startAdding(tester, _mobile);
   await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMobileNumber(tester, irmaBinding);
 
-  // After issuance, we should be back on the overview with the newly
-  // issued mobile number auto-selected.
+  // Back on the share screen with the new mobile number selected.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(findChoiceSheet(), findsNothing);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -124,63 +80,28 @@ Future<void> filledChoiceTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Tap "Change choice" to go to the make choice screen
-  final changeChoiceFinder2 = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder2.hitTestable(), 50);
-  await tester.tapAndSettle(changeChoiceFinder2);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // Now four cards should be visible
-  expect(cardFinder, findsNWidgets(4));
-
-  // Check if all cards display the correct data
-  await evaluateCredentialCard(
+  // The sheet now has both cards in the app, the mobile number selected.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email address", "test@example.com")],
-    isSelected: false,
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardFinder.at(1),
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Mobile phone number", "0612345678")],
-    isSelected: true,
+    owned: ["Demo Email address", "Demo Mobile phone number"],
+    selected: "Demo Mobile phone number",
+    addable: [_email, _mobile],
   );
 
-  await evaluateCredentialCard(
-    tester,
-    cardFinder.at(2),
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    isSelected: false,
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardFinder.at(3),
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    isSelected: false,
-  );
-
-  // Confirm choice
-  await tester.tapAndSettle(find.text("Done"));
+  // Keep it as it is.
+  await closeChoiceSheet(tester);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
-  final requestorHeaderFinder = find.byType(RequestorHeader);
   await evaluateRequestorHeader(
     tester,
-    requestorHeaderFinder,
+    null,
     localizedRequestorName: "is.demo.staging.yivi.app",
     isVerified: false,
   );
 
-  // Only selected card should remain
+  // Only the selected card is shared.
+  expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardFinder.first,
@@ -193,3 +114,6 @@ Future<void> filledChoiceTest(
   await tapShare(tester);
   await evaluateFeedback(tester);
 }
+
+const _email = "irma-demo.sidn-pbdf.email";
+const _mobile = "irma-demo.sidn-pbdf.mobilenumber";

@@ -39,6 +39,7 @@ Future<void> returnUrlHttpsExternalTest(
     sessionRequest,
     continueOnSecondDevice: false,
   );
+  await waitForRequest(tester);
 
   await tapShare(tester);
 

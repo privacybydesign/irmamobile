@@ -31,16 +31,19 @@ Future<void> randomBlindTest(
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-
+  // The voting card is missing and cannot be added from Yivi: the button
+  // closes, and says where to get it first.
+  await tester.waitFor(find.byType(AddMissingDataScreen));
   expect(
     find.text(
-      "This data cannot be obtained. Please contact Demo Voting Card Issuer to obtain this data.",
+      "Yivi can't add demo Voting Card. Get it from Demo Voting Card Issuer "
+      "first, then scan the QR code again.",
     ),
     findsOneWidget,
   );
+  expect(addButtonTexts(tester), ["Close"]);
 
-  await tester.tapAndSettle(find.text("Close"));
+  await tester.tapAndSettle(find.byKey(const Key("add_button")));
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);
@@ -58,6 +61,7 @@ Future<void> randomBlindTest(
 
   // Start random blind signature session again
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   // We should go straight to the overview screen.
   final overViewScreenFinder = find.byType(DisclosureShareScreen);

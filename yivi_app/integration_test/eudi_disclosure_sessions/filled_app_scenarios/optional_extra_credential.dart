@@ -2,10 +2,11 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
+import "../eudi_choice_helpers.dart";
 
 /// Required: phone. Optional: email. Wallet has both. Tests the "Add
 /// optional data" flow on the choices overview. The change-choice screen
@@ -70,7 +71,7 @@ Future<void> optionalExtraCredentialTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
@@ -85,40 +86,18 @@ Future<void> optionalExtraCredentialTest(
     attributes: [("Phone Number", "0612345678")],
   );
 
-  final addOptionalDataButton = find.text("Add optional data");
-  await tester.scrollUntilVisible(addOptionalDataButton, 100);
-  expect(addOptionalDataButton, findsOneWidget);
-  await tester.tapAndSettle(addOptionalDataButton);
+  // The optional email is not shared yet: a row to add it.
+  final optional = keyIndex(tester, "share_add_optional_");
+  await addOptional(tester, optional);
+  expect(find.text("Add optional data"), findsOneWidget);
 
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+  // Two owned email cards; nothing to add for OID4VCI.
+  expectOnlyOwnedInSheet(2);
+  expect(sheetOwnedRowsWith("one@example.com"), findsOneWidget);
+  expect(sheetOwnedRowsWith("two@example.com"), findsOneWidget);
 
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-
-  // Two owned email cards; no obtainable template card for OID4VCI.
-  expect(choiceCardsFinder, findsNWidgets(2));
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(0),
-    issuerName: "Test Issuer",
-    credentialName: "Email Credential (SD-JWT)",
-    attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
-  );
-  await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(1),
-    issuerName: "Test Issuer",
-    credentialName: "Email Credential (SD-JWT)",
-    attributes: [("Email", "two@example.com"), ("Domain", "example.com")],
-  );
-  expect(find.text("Obtain new data"), findsNothing);
-
-  // Confirm choice / go back to overview.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // One tap includes the first and closes the sheet.
+  await pickOwned(tester, "one@example.com");
 
   // Overview now shows two cards: phone + chosen email.
   expect(cardsFinder, findsNWidgets(2));
@@ -131,11 +110,10 @@ Future<void> optionalExtraCredentialTest(
     attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
   );
 
-  // Remove the optional card.
-  await tester.tapAndSettle(
-    find.byKey(const Key("remove_optional_data_button")),
-  );
-  expect(addOptionalDataButton, findsOneWidget);
+  // Leave the optional card out again: the add row is back.
+  await removeOptional(tester, optional);
+  expect(find.byKey(Key("share_add_optional_$optional")), findsOneWidget);
+  expect(cardsFinder, findsOneWidget);
 
   await shareAndFinishEudiDisclosure(tester);
 

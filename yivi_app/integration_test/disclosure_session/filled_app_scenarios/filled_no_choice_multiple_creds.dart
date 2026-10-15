@@ -1,16 +1,15 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 import "../disclosure_helpers.dart";
+import "sheet_checks.dart";
 
 Future<void> filledNoChoiceMultipleCredsTest(
   WidgetTester tester,
@@ -38,57 +37,28 @@ Future<void> filledNoChoiceMultipleCredsTest(
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Expect obtain credential screen
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-  expect(
-    find.text(
-      "Obtain the required data and share it with the requesting party after that.",
-    ),
-    findsOneWidget,
-  );
+  // The mobile number is missing: one step to add it first.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  expect(find.text("Add demo Mobile phone number"), findsWidgets);
+  expectAddButtonFor(tester, "Demo Mobile phone number");
 
-  // One stepper should be visible
-  expect(find.byKey(const Key("add_missing_data_list")), findsOneWidget);
-
-  // One Credential card should be visible
-  final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    style: IrmaCardStyle.highlighted,
-  );
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
+  // Something unrelated is added first: the step stays.
   await issueMunicipalityPersonalData(tester, irmaBinding);
+  expect(findAddScreen(), findsOneWidget);
+  expectAddButtonFor(tester, "Demo Mobile phone number");
 
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
+  // The issuer adds the mobile number: the share screen follows by itself.
   await issueMobileNumber(tester, irmaBinding);
-
-  // Card styling should change
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    style: IrmaCardStyle.normal,
-  );
-
-  // Continue
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // Expect the overview screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   // The requestor header should be present
-  expect(find.byType(RequestorHeader), findsOneWidget);
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
   // Two cards should be visible: email and mobile phone
+  final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
@@ -107,41 +77,18 @@ Future<void> filledNoChoiceMultipleCredsTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Change choice should be visible
-  final changeChoiceFinder = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder.first.hitTestable(), 50);
-
-  // Press the change choice
-  await tester.tapAndSettle(changeChoiceFinder.first);
-
-  // Expect make choice screen
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // This screen should show two options
-  expect(cardsFinder, findsNWidgets(2));
-
-  // The card should show the previously obtained credential
-  await evaluateCredentialCard(
+  // Change the e-mail address: one in the app (shown by its value), and
+  // another one can be added.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email address", "test@example.com")],
+    owned: ["test@example.com"],
+    selected: "test@example.com",
+    addable: ["irma-demo.sidn-pbdf.email"],
   );
 
-  // Second card should be a template card
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-  );
-
-  // Press go back
-  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
-
-  // Expect the choices screen
+  // Close it without changing anything.
+  await closeChoiceSheet(tester);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // Now two filled cards should be visible

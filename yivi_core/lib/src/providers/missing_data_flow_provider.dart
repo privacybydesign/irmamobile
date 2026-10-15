@@ -27,7 +27,10 @@ class MissingDataFlowNotifier extends Notifier<MissingDataFlow?> {
     if (state != null) state = null;
   }
 
+  /// Ends the flow of [sessionId]. Called after a frame, by which time the
+  /// whole app (and this provider) may be gone already.
   void clearForSession(int sessionId) {
+    if (!ref.mounted) return;
     if (state?.sessionId == sessionId) state = null;
   }
 }

@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -65,8 +65,7 @@ Future<void> discloseWithChoiceDisjunctionTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureShareScreen));
 
   // Default selection is the email cred.
   final cardFinder = findCredentialCards();
@@ -80,36 +79,39 @@ Future<void> discloseWithChoiceDisjunctionTest(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-  final cardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
+  // 2 owned options; nothing to add for OID4VCI (the irmago backend leaves
+  // `obtainable_options == null` for cred types without an IssueURL). Two
+  // types: each row has the name, and "{value} · {issuer}" below it.
+  expectOnlyOwnedInSheet(2);
+  final emailRow = sheetOwnedRowsWith("test@example.com · Test Issuer");
+  final phoneRow = sheetOwnedRowsWith("0612345678 · Test Issuer");
+  expect(emailRow, findsOneWidget);
+  expect(phoneRow, findsOneWidget);
+  expect(
+    find.descendant(
+      of: emailRow,
+      matching: find.text("Email Credential (SD-JWT)"),
+    ),
+    findsWidgets,
   );
-  // 2 owned options; no obtainable templates for OID4VCI (the irmago
-  // backend leaves `obtainable_options == null` for cred types without an
-  // IssueURL).
-  expect(cardsFinder, findsNWidgets(2));
+  expect(
+    find.descendant(
+      of: phoneRow,
+      matching: find.text("Phone Credential (SD-JWT)"),
+    ),
+    findsWidgets,
+  );
+
+  // Pick the phone (the sheet closes), share.
+  await pickOwned(tester, "0612345678 · Test Issuer");
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(0),
-    issuerName: "Test Issuer",
-    credentialName: "Email Credential (SD-JWT)",
-    attributes: [("Email", "test@example.com")],
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
+    findShareSlot(0),
     issuerName: "Test Issuer",
     credentialName: "Phone Credential (SD-JWT)",
     attributes: [("Phone Number", "0612345678")],
   );
-
-  // Pick the phone, go back, share.
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
-  await tester.tapAndSettle(cardsFinder.at(1));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishEudiDisclosure(tester);
 
   await verifyMostRecentActivityLog(

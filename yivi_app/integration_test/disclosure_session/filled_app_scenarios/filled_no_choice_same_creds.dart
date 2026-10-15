@@ -6,6 +6,7 @@ import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 import "../disclosure_helpers.dart";
+import "sheet_checks.dart";
 
 Future<void> filledNoChoiceSameCredsTest(
   WidgetTester tester,
@@ -40,52 +41,34 @@ Future<void> filledNoChoiceSameCredsTest(
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Find and press change choice
-  final changeChoiceFinder = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
-  await tester.tapAndSettle(changeChoiceFinder);
-
+  // The share screen starts with the first e-mail address.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
   final credentialCardsFinder = findCredentialCards();
   const demoEmailCredentialName = "Demo Email address";
   const demoEmailIssuerName = "Demo Privacy by Design Foundation via SIDN";
-
+  expect(credentialCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     credentialCardsFinder.first,
-    isSelected: true,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
     attributes: [("Email address", "first-email@example.com")],
   );
 
-  final secondCredentialCard = credentialCardsFinder.at(1);
-  await evaluateCredentialCard(
+  // Change it: both addresses are in the app, told apart by their value.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    secondCredentialCard,
-    isSelected: false,
-    credentialName: demoEmailCredentialName,
-    issuerName: demoEmailIssuerName,
-    attributes: [("Email address", "second-email@example.com")],
+    owned: ["first-email@example.com", "second-email@example.com"],
+    selected: "first-email@example.com",
   );
 
-  // Scroll to the second credential
-  await tester.scrollUntilVisible(secondCredentialCard, 50);
+  // Pick the second one: the sheet closes.
+  await pickOwned(tester, "second-email@example.com");
 
-  // Select the second credential
-  await tester.tapAndSettle(secondCredentialCard);
-
-  // Second credential should be selected now
-  await evaluateCredentialCard(tester, secondCredentialCard, isSelected: true);
-
-  // Press done
-  final doneButterFinder = find.text("Done").hitTestable();
-  await tester.tapAndSettle(doneButterFinder);
-
-  // Expect to be on the overview screen
-  final overviewScreenFinder = find.byType(DisclosureShareScreen);
-  expect(overviewScreenFinder, findsOneWidget);
-
-  // The only credential on the overview should be the second email
+  // The only card on the share screen is now the second address.
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(credentialCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     credentialCardsFinder.first,

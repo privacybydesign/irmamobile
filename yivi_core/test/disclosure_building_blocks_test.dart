@@ -233,6 +233,49 @@ void main() {
       expect(find.byKey(const Key("shared_card_chip")), findsNothing);
     });
 
+    testWidgets("a value that is exactly what is asked for is green", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _inPage(
+          SharedCardTile(
+            bundle: DisclosureBundle(
+              credentials: [
+                _instance(
+                  "Address",
+                  attributes: [
+                    Attribute(
+                      claimPath: ["city"],
+                      displayName: "City",
+                      value: AttributeValue(
+                        type: AttributeType.string,
+                        string: "Arnhem",
+                      ),
+                      requestedValue: AttributeValue(
+                        type: AttributeType.string,
+                        string: "Arnhem",
+                      ),
+                    ),
+                    stringAttr("street", "Grote Markt 1"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      final theme = IrmaTheme.of(tester.element(find.text("Arnhem")));
+      expect(
+        tester.widget<Text>(find.text("Arnhem")).style?.color,
+        theme.success,
+      );
+      expect(
+        tester.widget<Text>(find.text("Grote Markt 1")).style?.color,
+        isNot(theme.success),
+      );
+    });
+
     testWidgets("a revoked card: chip, reason and the fix", (tester) async {
       var fixed = 0;
       await _pump(

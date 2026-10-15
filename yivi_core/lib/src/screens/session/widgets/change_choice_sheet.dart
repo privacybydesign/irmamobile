@@ -10,6 +10,7 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -378,7 +379,7 @@ class _OwnedRow extends ConsumerWidget {
     final cards = bundle.credentials;
     final name = cards.map((c) => c.name).join(" + ");
     final issuers = cards.map((c) => c.issuer.name).toSet().join(", ");
-    final value = _firstValue(bundle);
+    final value = _firstValue(context, bundle);
     final problem = problemOfBundle(bundle);
 
     return Semantics(
@@ -469,13 +470,10 @@ class _OwnedRow extends ConsumerWidget {
 
   /// The first shown value of the bundle, to tell instances of one type
   /// apart ("s.devries@werk.example").
-  static String? _firstValue(DisclosureBundle bundle) {
+  static String? _firstValue(BuildContext context, DisclosureBundle bundle) {
     for (final c in bundle.credentials) {
       for (final a in c.attributes) {
-        final v = a.value;
-        if (v == null) continue;
-        final text =
-            v.string ?? v.intValue?.toString() ?? v.boolValue?.toString();
+        final text = localizedAttributeText(context, a.value);
         if (text != null && text.isNotEmpty) return text;
       }
     }

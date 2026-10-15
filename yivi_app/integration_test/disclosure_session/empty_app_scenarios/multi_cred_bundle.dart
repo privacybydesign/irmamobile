@@ -1,9 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -11,10 +10,11 @@ import "../../irma_binding.dart";
 import "../../util.dart";
 import "../disclosure_helpers.dart";
 
-/// Empty wallet. The wizard must issue MijnOverheid.root + MijnOverheid.fullName
-/// (the two singletons that together satisfy the first discon's inner con) plus
-/// email (to satisfy the second discon). Then the overview renders the 2-card
-/// bundle for the first discon and the email card for the second.
+/// Empty wallet. The add screen asks for MijnOverheid.root +
+/// MijnOverheid.fullName (the two singletons that together satisfy the first
+/// discon's inner con) and then email (to satisfy the second discon). Then the
+/// share screen shows the 2-card bundle for the first discon and the email
+/// card for the second.
 Future<void> multiCredBundleTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -37,58 +37,68 @@ Future<void> multiCredBundleTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Wizard runs for all missing credentials.
-  expect(find.text("Collect data"), findsOneWidget);
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  // Two steps to add: the set of root + name, then e-mail or mobile.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsOneWidget);
+  expect(find.text("These cards are only accepted together."), findsOneWidget);
+  expect(find.byKey(const Key("add_checklist")), findsOneWidget);
+  expectAddButtonFor(tester, "Demo Root");
 
-  // Issue the credentials one by one; the wizard sees each new credential and
-  // advances. For the second discon (email OR mobile), we satisfy it with
-  // email — mobile remains obtainable on the overview.
+  // The button opens the issuer's website; the test issues the cards the
+  // way that website would. The cards of the set go one by one.
   await issueMijnOverheidRoot(tester, irmaBinding);
+  await tester.waitFor(
+    find.descendant(
+      of: find.byKey(const Key("add_checklist")),
+      matching: find.text("Added"),
+    ),
+  );
+  expectAddButtonFor(tester, "Demo Name");
   await issueMijnOverheidFullName(tester, irmaBinding);
+
+  // The set is done; e-mail or mobile is next, e-mail selected. Mobile
+  // remains obtainable on the share screen.
+  await tester.waitFor(
+    find.descendant(of: findAddStep(0), matching: find.text("Added")),
+  );
+  expectAddButtonFor(tester, "Demo Email address");
   await issueEmailAddress(tester, irmaBinding);
 
-  // Wizard should be completed.
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(RequestorHeader));
+  // Everything is added: the share screen follows by itself.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(SessionRequestorHeader));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsNWidgets(3));
+  expect(cardsFinder, findsNWidgets(2));
 
   await evaluateCredentialCard(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Root",
+    findShareSlot(0),
+    credentialName: "Demo Root + Demo Name",
     issuerName: "Demo MijnOverheid.nl",
-    attributes: [("BSN", "999999990")],
+    attributes: [
+      ("BSN", "999999990"),
+      ("First name", "Willeke"),
+      ("Family name", "Bruijn"),
+    ],
     style: IrmaCardStyle.normal,
   );
 
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Name",
-    issuerName: "Demo MijnOverheid.nl",
-    attributes: [("First name", "Willeke"), ("Family name", "Bruijn")],
-    style: IrmaCardStyle.normal,
-  );
-
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(2),
+    findShareSlot(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
 
-  // First discon: single bundle, no alternative -> no Change choice.
-  // Second discon: 1 owned (email) + 1 obtainable (mobile) -> Change choice.
-  expect(find.text("Change choice"), findsOneWidget);
+  // First discon: single bundle, no alternative -> no Change.
+  // Second discon: 1 owned (email) + 1 obtainable (mobile) -> Change.
+  expect(find.byKey(const Key("share_change_0")), findsNothing);
+  expect(find.byKey(const Key("share_change_1")), findsOneWidget);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

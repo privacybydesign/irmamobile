@@ -11,14 +11,12 @@ import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -172,13 +170,16 @@ Future<void> testDisclosePassportOpensPassportScanner(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  await tester.pumpAndSettle();
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
 
-  await tester.tapAndSettle(find.text("Obtain data"));
-
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-  await tester.tapAndSettle(find.text("Add"));
+  // The passport is added in the app (an embedded flow, no website), so the
+  // add button can be used: it opens the passport instructions, and from
+  // there the scanner.
+  expect(addButtonTexts(tester).first, startsWith("Add "));
+  await tester.tapAndSettle(find.byKey(const Key("add_button")));
+  await tester.waitFor(find.byType(DocumentInstructionScreen));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
@@ -219,8 +220,14 @@ Future<void> testDisclosePassportOpensPassportScanner(
   // press the continue button
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-  // should be back at the issue wizard screen
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
+  // The issuance ran inside the request: its success screen leads back.
+  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  expect(find.textContaining("Back to "), findsOneWidget);
+  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+
+  // Back at "Add data first": the issued card is not the passport.
+  await tester.waitFor(findAddScreen());
+  expect(findAddScreen(), findsOneWidget);
 }
 
 Future<void> navigateToLatestActivity(
@@ -280,6 +287,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   // first session to get to instance count of 0
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
@@ -392,6 +400,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   };
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
@@ -401,42 +410,18 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
 
   await tapChangeChoicesButton(tester);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
+  // Two cards in the app satisfy one of the claim sets, oldest first; a
+  // card of one type is told apart by its first value. Under "Not in your
+  // app yet": another e-mail address.
+  _expectOwnedRows(tester, [
+    "one@example.com",
+    anyOf(contains("two@template.com"), contains("template.com")),
+  ]);
+  expect(find.text("thee@not.com"), findsNothing);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
 
-  // make sure there are three choices available (two existing + option to issue new one)
-  expect(choiceCardsFinder, findsNWidgets(3));
-  expect(
-    find.descendant(
-      of: choiceCardsFinder.at(0),
-      matching: find.text("one@example.com"),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: choiceCardsFinder.at(1),
-      matching: find.text("two@template.com"),
-    ),
-    findsOneWidget,
-  );
-
-  // expect obtain new data with one card with a predefined value from the claim
-  expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
-  expect(
-    find.descendant(
-      of: choiceCardsFinder.at(2),
-      matching: find.text("one@example.com"),
-    ),
-    findsOneWidget,
-  );
-
-  // go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Leave the choice as it is.
+  await closeChoiceSheet(tester);
   await shareAndFinishDisclosureSession(tester);
 
   // Drain any pending focus/animation work before teardown, otherwise a stray
@@ -496,6 +481,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
 
@@ -515,43 +501,14 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
+  // The two cards with one of the requested values, and another e-mail
+  // address to add.
+  _expectOwnedRows(tester, ["one@example.com", "three@example.com"]);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
 
-  // make sure there are two existing choices available + one obtain data
-  expect(choiceCardsFinder, findsNWidgets(3));
-  expect(
-    find.descendant(
-      of: choiceCardsFinder.at(0),
-      matching: find.text("one@example.com"),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: choiceCardsFinder.at(1),
-      matching: find.text("three@example.com"),
-    ),
-    findsOneWidget,
-  );
-
-  expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
-  expect(
-    find.descendant(
-      of: choiceCardsFinder.at(2),
-      matching: find.text("one@example.com"),
-    ),
-    findsOneWidget,
-  );
-
-  // go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Leave the choice as it is.
+  await closeChoiceSheet(tester);
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -601,6 +558,7 @@ Future<void> testClaimValueOnePresentOneNot(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
 
@@ -621,18 +579,14 @@ Future<void> testClaimValueOnePresentOneNot(
 
   await tapChangeChoicesButton(tester);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-  expect(choiceCardsFinder, findsNWidgets(2));
+  // Only the card with the requested value is offered, and another one to
+  // add.
+  _expectOwnedRows(tester, ["two@example.com"]);
+  expect(find.text("one@example.com"), findsNothing);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
 
-  expect(find.text("Obtain new data"), findsOneWidget);
-
-  // confirm choice/go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Leave the choice as it is.
+  await closeChoiceSheet(tester);
 
   await shareAndFinishDisclosureSession(tester);
 }
@@ -714,6 +668,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
 
@@ -729,64 +684,23 @@ Future<void> testOptionallyDiscloseExtraCredential(
     attributes: [("Mobile phone number", "0612345678")],
   );
 
-  final addOptionalDataButton = find.text("Add optional data");
-  await tester.scrollUntilVisible(addOptionalDataButton, 100);
-  expect(addOptionalDataButton, findsOneWidget);
+  // The optional e-mail address is a row to add; its sheet has both e-mail
+  // addresses in the app and another one to add.
+  final optional = _optionalItemIndex();
+  await addOptional(tester, optional);
+  expect(find.text("Add optional data"), findsOneWidget);
+  _expectOwnedRows(tester, ["one@example.com", "two@example.com"]);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
 
-  await tester.tapAndSettle(addOptionalDataButton);
-
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-
-  expect(choiceCardsFinder, findsNWidgets(3));
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(0),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-    attributes: [
-      ("Email address", "one@example.com"),
-      ("Email domain name", "example.com"),
-    ],
-  );
-  await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(1),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-    attributes: [
-      ("Email address", "two@example.com"),
-      ("Email domain name", "example.com"),
-    ],
-  );
-
-  await tester.scrollUntilVisible(choiceCardsFinder.at(2), 100);
-  expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(2),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-  );
-
-  // confirm choice/go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
+  // Picking one includes it and closes the sheet.
+  await pickOwned(tester, "one@example.com");
   expect(cardsFinder, findsNWidgets(2));
-
-  // now shows chosen credential card
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
+  final emailSlot = findShareSlot(optional);
+  await tester.scrollUntilVisible(emailSlot, 100);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    emailSlot,
+    issuerName: _sidn,
     credentialName: "Demo Email address",
     attributes: [
       ("Email address", "one@example.com"),
@@ -794,11 +708,13 @@ Future<void> testOptionallyDiscloseExtraCredential(
     ],
   );
 
-  // remove the optional credential card
-  await tester.tapAndSettle(
-    find.byKey(const Key("remove_optional_data_button")),
+  // Leave it out again.
+  await removeOptional(tester, optional);
+  expect(
+    find.byKey(Key("share_add_optional_$optional"), skipOffstage: false),
+    findsOneWidget,
   );
-  expect(addOptionalDataButton, findsOneWidget);
+  expect(cardsFinder, findsOneWidget);
 
   await shareAndFinishDisclosureSession(tester);
 }
@@ -883,6 +799,7 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
 
@@ -890,42 +807,36 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   await tapChangeChoicesButton(tester);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final cardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
+  // Four cards in the app (two e-mail addresses, two phone numbers), each
+  // row with its name and value, and both types to add.
+  expect(findSheetOwnedRows(), findsNWidgets(4));
+  for (final value in [
+    "one@example.com",
+    "two@template.com",
+    "0612345678",
+    "0687654321",
+  ]) {
+    expect(
+      find.descendant(
+        of: findSheetOwnedRows(),
+        matching: find.textContaining(value),
+      ),
+      findsOneWidget,
+      reason: value,
+    );
+  }
+  expect(findSheetAddRow(_emailId), findsOneWidget);
+  expect(findSheetAddRow(_phoneId), findsOneWidget);
+
+  // Pick the last phone number: the sheet closes and it is shared.
+  await _pickOwnedContaining(tester, "0687654321");
+  await evaluateCredentialCard(
+    tester,
+    findShareSlot(0),
+    credentialName: "Demo Mobile phone number",
+    attributes: [("Mobile phone number", "0687654321")],
   );
 
-  // expect 4 existing credentials + 2 buttons to obtain new ones
-  expect(cardsFinder, findsNWidgets(6));
-
-  expect(
-    find.descendant(of: cardsFinder, matching: find.text("one@example.com")),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(of: cardsFinder, matching: find.text("two@template.com")),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(of: cardsFinder, matching: find.text("0612345678")),
-    findsOneWidget,
-  );
-
-  final lastExistingMobileFinder = find.descendant(
-    of: cardsFinder,
-    matching: find.text("0687654321"),
-  );
-  expect(lastExistingMobileFinder, findsOneWidget);
-
-  await tester.scrollUntilVisible(lastExistingMobileFinder, 100);
-  await tester.tapAndSettle(lastExistingMobileFinder);
-
-  expect(find.text("Obtain new data"), findsOneWidget);
-
-  // confirm choice/go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -1002,74 +913,31 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  final choiceButtonFinder = find.text("Change choice", skipOffstage: false);
-  expect(choiceButtonFinder, findsNWidgets(2));
+  // Each card can be changed: both types have two cards in the app.
+  for (final i in [0, 1]) {
+    expect(
+      find.byKey(Key("share_change_$i"), skipOffstage: false),
+      findsOneWidget,
+    );
+  }
 
-  // change the email
-  await tester.scrollUntilVisible(choiceButtonFinder.at(0), 100);
-  await tester.tapAndSettle(choiceButtonFinder.at(0));
+  // The e-mail address: both in the app, and another to add.
+  await tapChangeChoicesButton(tester, 0);
+  _expectOwnedRows(tester, ["one@example.com", "two@template.com"]);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
+  await closeChoiceSheet(tester);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
+  // The phone number: likewise.
+  await tapChangeChoicesButton(tester, 1);
+  _expectOwnedRows(tester, ["0612345678", "0687654321"]);
+  expect(findSheetAddRow(_phoneId), findsOneWidget);
+  await closeChoiceSheet(tester);
 
-  // expect two existing + an obtain data card
-  expect(choiceCardsFinder, findsNWidgets(3));
-  expect(
-    find.descendant(
-      of: choiceCardsFinder,
-      matching: find.text("one@example.com", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: choiceCardsFinder,
-      matching: find.text("two@template.com", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(find.text("Obtain new data"), findsOneWidget);
-
-  await tester.tapAndSettle(find.byType(YiviBackButton));
-
-  // change mobilenumber
-  await tester.scrollUntilVisible(choiceButtonFinder.at(1), 100);
-  await tester.tapAndSettle(choiceButtonFinder.at(1));
-
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final phoneChoiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-
-  // expect two existing + an obtain data card
-  expect(phoneChoiceCardsFinder, findsExactly(3));
-  expect(
-    find.descendant(
-      of: phoneChoiceCardsFinder,
-      matching: find.text("0612345678", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: phoneChoiceCardsFinder,
-      matching: find.text("0687654321", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(find.text("Obtain new data"), findsOneWidget);
-
-  await tester.tapAndSettle(find.byType(YiviBackButton));
   await shareAndFinishDisclosureSession(tester);
 
   await navigateToLatestActivity(tester, irmaBinding);
@@ -1162,6 +1030,7 @@ Future<void> testOneCredentialTwoChoices(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await tester.pumpAndSettle();
 
@@ -1169,77 +1038,42 @@ Future<void> testOneCredentialTwoChoices(
 
   await tapChangeChoicesButton(tester);
 
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+  // Both e-mail addresses in the app, and another one to add.
+  _expectOwnedRows(tester, ["one@example.com", "two@template.com"]);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final cardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-
-  expect(cardsFinder, findsNWidgets(3));
-
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(0),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-    attributes: [("Email address", "one@example.com")],
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-    attributes: [("Email address", "two@template.com")],
-  );
-
-  expect(find.text("Obtain new data"), findsOneWidget);
-
-  // select the last credential card to start obtaining it
-  await tester.scrollUntilVisible(cardsFinder.at(2), 100);
-  await tester.tapAndSettle(cardsFinder.at(2));
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // we can't actually open the browser in the integration test, so we'll just start an issuance session
+  // Add a new one: the confirm view says where it is added. "Go to …" opens
+  // the issuer's website, so the test issues the card the way that website
+  // would. Coming back closes the sheet and selects the new card.
+  await startAdding(tester, _emailId);
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
+  await tester.waitUntilDisappeared(findChoiceSheet());
 
-  await tester.pumpAndSettle();
-
-  // after issuance, expect to be back on the disclosure overview with the newly issued credential
+  // Back on the share screen, with the newly issued card selected.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final overviewCardsFinder = findCredentialCards(skipOffstage: false);
   expect(overviewCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     overviewCardsFinder,
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    issuerName: _sidn,
     credentialName: "Demo Email address",
     attributes: [("Email address", "test@example.com")],
   );
 
-  // change choices to verify there are now 4 cards (3 existing + 1 obtainable)
+  // The sheet now has three cards in the app; pick the second.
   await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  final updatedCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
+  _expectOwnedRows(tester, [
+    "one@example.com",
+    "two@template.com",
+    "test@example.com",
+  ]);
+  await pickOwned(tester, "two@template.com");
+  await evaluateCredentialCard(
+    tester,
+    findShareSlot(0),
+    attributes: [("Email address", "two@template.com")],
   );
-  expect(updatedCardsFinder, findsNWidgets(4));
-
-  // select one of them
-  await tester.scrollUntilVisible(updatedCardsFinder.at(1), 100);
-  await tester.tapAndSettle(updatedCardsFinder.at(1));
-
-  // go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -1286,34 +1120,21 @@ Future<void> testOneMissingOnePresent(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  await tester.pumpAndSettle();
+  // The phone number is missing: one step that adds it.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  _expectAddOption(0, 0, "Demo Mobile phone number", _sidn);
+  expectAddButtonFor(tester, "Demo Mobile phone number");
 
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-  final cardFinder = find.byType(YiviCredentialCard);
-
-  expect(cardFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardFinder,
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Mobile phone number",
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // we can't actually open the browser in the integration test, so we'll just start an issuance session
+  // The button opens the issuer's website; the test issues the card the way
+  // that website would.
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  await tester.pumpAndSettle();
-
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // Expect the choices screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  // Everything is added: the share screen follows by itself.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(findAddScreen(), findsNothing);
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
@@ -1359,31 +1180,19 @@ Future<void> testDiscloseSdJwtThatsNotThere(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  await tester.pumpAndSettle();
+  // The e-mail address is missing: one step that adds it.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  _expectAddOption(0, 0, "Demo Email address", _sidn);
+  expectAddButtonFor(tester, "Demo Email address");
 
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-  final cardFinder = find.byType(YiviCredentialCard);
-  expect(cardFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardFinder,
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // we can't actually open the browser in the integration test, so we'll just start an issuance session
+  // The button opens the issuer's website; the test issues the card the way
+  // that website would.
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // Expect the choices screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  // Everything is added: the share screen follows by itself.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(findAddScreen(), findsNothing);
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -1419,6 +1228,7 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await shareAndFinishDisclosureSession(tester);
 
@@ -1472,6 +1282,7 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await evaluateCredentialCard(
     tester,
@@ -1551,6 +1362,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   await evaluateCredentialCard(
     tester,
@@ -1655,6 +1467,7 @@ Future<void> testDiscloseSdJwtWithChoices(
 
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
@@ -1671,36 +1484,24 @@ Future<void> testDiscloseSdJwtWithChoices(
 
   await tapChangeChoicesButton(tester);
 
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+  // Both cards in the app (different types: name, then value), and both
+  // types to add.
+  _expectOwnedRows(tester, [
+    allOf(contains("Demo Email address"), contains("test@example.com")),
+    allOf(contains("Demo Mobile phone number"), contains("0612345678")),
+  ]);
+  expect(findSheetAddRow(_emailId), findsOneWidget);
+  expect(findSheetAddRow(_phoneId), findsOneWidget);
 
-  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
-  final cardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-  // 2 existing + 2 obtainable
-  expect(cardsFinder, findsNWidgets(4));
+  // Pick the phone: the sheet closes and the phone is shared.
+  await _pickOwnedContaining(tester, "0612345678");
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(0),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    credentialName: "Demo Email address",
-    attributes: [("Email address", "test@example.com")],
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    findShareSlot(0),
+    issuerName: _sidn,
     credentialName: "Demo Mobile phone number",
     attributes: [("Mobile phone number", "0612345678")],
   );
-
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
-  // pick the phone
-  await tester.tapAndSettle(cardsFinder.at(1));
-  // go back
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 
   // evaluate phone cred count has decreased and email not
@@ -1806,8 +1607,81 @@ Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
   await evaluateFeedback(tester);
 }
 
-Future<void> tapChangeChoicesButton(WidgetTester tester) async {
-  final changeChoiceFinder = find.text("Change choice", skipOffstage: false);
-  await tester.scrollUntilVisible(changeChoiceFinder, 100);
-  await tester.tapAndSettle(changeChoiceFinder);
+/// Opens the Change sheet of requested item [item] on the share screen.
+Future<void> tapChangeChoicesButton(WidgetTester tester, [int item = 0]) =>
+    changeChoice(tester, item);
+
+const _emailId = "irma-demo.sidn-pbdf.email";
+const _phoneId = "irma-demo.sidn-pbdf.mobilenumber";
+const _sidn = "Demo Privacy by Design Foundation via SIDN";
+
+/// All text of [row] in the open Change sheet, as one line.
+String _rowText(WidgetTester tester, Finder row) => tester
+    .widgetList<Text>(find.descendant(of: row, matching: find.byType(Text)))
+    .map((t) => t.data ?? "")
+    .join(" | ");
+
+/// Checks the "In your app" rows of the open Change sheet: one per entry of
+/// [rows], in any order (irmago's order of owned cards is not part of what
+/// is tested), each row's text matching its entry (a string it must
+/// contain, or a matcher). Cards of one type lead with their first value;
+/// cards of different types with their name, then "value · issuer".
+void _expectOwnedRows(WidgetTester tester, List<Object> rows) {
+  final owned = findSheetOwnedRows();
+  expect(owned, findsNWidgets(rows.length));
+  expect(
+    [for (var i = 0; i < rows.length; i++) _rowText(tester, owned.at(i))],
+    unorderedMatches([
+      for (final expected in rows)
+        expected is String ? contains(expected) : expected,
+    ]),
+    reason: "sheet rows",
+  );
+}
+
+/// Picks the row of the open Change sheet whose text contains [text]; the
+/// sheet closes.
+Future<void> _pickOwnedContaining(WidgetTester tester, String text) async {
+  final row = findSheetOwnedRowShowing(text, partial: true);
+  expect(row, findsOneWidget, reason: "sheet row with '$text'");
+  await tester.scrollUntilVisible(
+    row,
+    100,
+    scrollable: find
+        .descendant(of: findChoiceSheet(), matching: find.byType(Scrollable))
+        .first,
+  );
+  await tester.tapAndSettle(row);
+  await tester.waitUntilDisappeared(findChoiceSheet());
+}
+
+/// Checks option [option] of step [step] on "Add data first": the card's
+/// name, and "{issuer} · on {host}".
+void _expectAddOption(int step, int option, String name, String issuer) {
+  final row = findAddOption(step, option);
+  expect(row, findsOneWidget);
+  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
+  expect(
+    find.descendant(of: row, matching: find.textContaining("$issuer · on ")),
+    findsOneWidget,
+  );
+}
+
+/// The index of the one optional item on the share screen that is not
+/// shared yet (its "Add" row, `share_add_optional_<i>`).
+int _optionalItemIndex() {
+  final keys = find
+      .byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(
+              "share_add_optional_",
+            ),
+        skipOffstage: false,
+      )
+      .evaluate()
+      .map((e) => (e.widget.key! as ValueKey<String>).value)
+      .toList();
+  expect(keys, hasLength(1), reason: "one optional item to add");
+  return int.parse(keys.single.substring("share_add_optional_".length));
 }

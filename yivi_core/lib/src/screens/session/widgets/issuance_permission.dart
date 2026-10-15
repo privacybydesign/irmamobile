@@ -258,13 +258,13 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     final miss = mismatches.firstOrNull;
     final request = widget.forRequest;
     if (miss == null || request == null) return null;
-    final offered = attributeText(miss.offered);
+    final offered = localizedAttributeText(context, miss.offered);
     return _t(
       offered == null ? "issuance.mismatch_none" : "issuance.mismatch",
       {
         "requestor": request.requestor.name,
         "attribute": miss.attributeName,
-        "value": attributeText(miss.required) ?? "",
+        "value": localizedAttributeText(context, miss.required) ?? "",
         "offered": ?offered,
       },
     );

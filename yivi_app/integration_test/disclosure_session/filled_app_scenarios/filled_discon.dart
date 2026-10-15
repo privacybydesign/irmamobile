@@ -1,15 +1,13 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
+import "sheet_checks.dart";
 
 Future<void> filledDisconTest(
   WidgetTester tester,
@@ -38,6 +36,7 @@ Future<void> filledDisconTest(
 
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   // Both cards are already obtained
   // Expect choices screen.
@@ -68,124 +67,45 @@ Future<void> filledDisconTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Tap the first change choice
-  final changeChoiceFinder = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder.first.hitTestable(), 50);
-  await tester.tapAndSettle(changeChoiceFinder.first);
-
-  // Expect two options to be present
-  // First one should be the already obtained Demo Address
-  await evaluateCredentialCard(
+  // Change the first choice: the address in the app, iDIN can be added.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: [
-      ("Street", "Meander"),
-      ("House number", "501"),
-      ("City", "Arnhem"),
-    ],
-    isSelected: true,
+    owned: ["Demo Address"],
+    selected: "Demo Address",
+    addable: [_idin],
   );
 
-  // Second card should show the option to add iDIN
-  final secondCardFinder = cardsFinder.at(1);
-  await evaluateCredentialCard(
-    tester,
-    secondCardFinder,
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [],
-    isSelected: false,
-  );
-  await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
-  // Tap iDIN option
-  await tester.tapAndSettle(secondCardFinder);
-
-  // Evaluate the card styling again now that iDIN is selected
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    isSelected: false,
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    isSelected: true,
-  );
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
+  // Add iDIN: the confirm view, then (as the issuer would) issue it.
+  await startAdding(tester, _idin);
   await issueIdin(tester, irmaBinding);
 
-  // After issuance, we should be back on the overview with iDIN auto-selected.
+  // Back on the share screen with iDIN selected.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-
-  // Tap "Change choice" to verify the make choice screen
-  final changeChoiceFinder2 = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder2.first.hitTestable(), 50);
-  await tester.tapAndSettle(changeChoiceFinder2.first);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // Now the second card should be filled too
-  await evaluateCredentialCard(
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: [
-      ("Street", "Meander"),
-      ("House number", "501"),
-      ("City", "Arnhem"),
-    ],
-    isSelected: false,
+    owned: ["Demo Address", "Demo iDIN"],
+    selected: "Demo iDIN",
+  );
+  await closeChoiceSheet(tester);
+
+  // The second choice: one e-mail address in the app (shown by its value,
+  // as all options are e-mail addresses), another one can be added.
+  await changeChoice(tester, 1);
+  expectSheet(
+    tester,
+    owned: ["test@example.com"],
+    selected: "test@example.com",
+    addable: [_email],
   );
 
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
-    isSelected: true,
-  );
-
-  await tester.tapAndSettle(find.text("Done"));
+  // Leave the choices as they are.
+  await closeChoiceSheet(tester);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
-  // Check the second change choice
-  await tester.scrollUntilVisible(changeChoiceFinder.at(1).hitTestable(), 50);
-  await tester.tapAndSettle(changeChoiceFinder.at(1));
-
-  // Evaluate the choice screen
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email address", "test@example.com")],
-    isSelected: true,
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    isSelected: false,
-  );
-
-  // Leave the choices as they are
-  await tester.tapAndSettle(find.text("Done"));
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.byType(RequestorHeader), findsOneWidget);
-
+  expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -206,3 +126,6 @@ Future<void> filledDisconTest(
   await tapShare(tester);
   await evaluateFeedback(tester);
 }
+
+const _idin = "irma-demo.idin.idin";
+const _email = "irma-demo.sidn-pbdf.email";

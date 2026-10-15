@@ -39,6 +39,7 @@ Future<void> _runDisregardTest(
   // Second-device is the default for test sessions; this is the case #656 is
   // about, so we rely on that default rather than annotating it.
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   await tapShare(tester);
   await tester.pumpAndSettle();

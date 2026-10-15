@@ -6,6 +6,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -151,6 +152,14 @@ class SharedCardTile extends ConsumerWidget {
                     credentialId: c.credentialId,
                     disclosure: true,
                     showDividers: true,
+                    // What the requestor asked for exactly, in green.
+                    matched: {
+                      for (final a in c.attributes)
+                        if (a.requestedValue case final wanted?
+                            when wanted.hasConcreteValue &&
+                                sameValue(a.value, wanted))
+                          claimPathKey(a.claimPath),
+                    },
                   ),
                 ),
             if (note != null)

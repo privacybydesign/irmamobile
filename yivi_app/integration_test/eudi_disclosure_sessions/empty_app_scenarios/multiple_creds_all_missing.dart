@@ -1,18 +1,20 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 
 /// AND request for two creds (email + phone); wallet empty. Both missing
-/// descriptors appear inside `AddMissingDataScreen`; bottom-bar
-/// primary remains "Close".
+/// descriptors appear as steps of `AddMissingDataScreen`: the first is
+/// current, the second waits. Neither can be added, so the button is
+/// "Close".
 Future<void> multipleCredsAllMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -50,24 +52,35 @@ Future<void> multipleCredsAllMissingTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsNothing);
   expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
-  // Each missing-descriptor step renders one credential card; the wizard
-  // shows them sequentially. Verify the first card's name comes from the
-  // first VCT's metadata and that the screen is showing a missing-cred
-  // descriptor card (not an owned-cred card).
-  final cardsFinder = find.byType(YiviCredentialCard);
-  expect(cardsFinder, findsAtLeast(1));
+  // One step per missing credential: the first is current (its option
+  // row), the second is a later step.
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsOneWidget);
+  expect(findAddOption(0, 0), findsOneWidget);
+  expect(findAddOption(1, 0), findsNothing);
+  expect(
+    find.descendant(
+      of: findAddOption(0, 0),
+      matching: find.text("Can't be added from Yivi"),
+    ),
+    findsWidgets,
+  );
 
-  // No "Obtain data" CTA on the wizard's bottom bar — neither cred is
-  // obtainable.
-  expect(find.text("Obtain data"), findsNothing);
-  expect(find.text("Close"), findsOneWidget);
+  // No add button — neither cred can be added; "Close", and why.
+  expect(addButtonTexts(tester), ["Close"]);
+  expect(find.byKey(const Key("add_reason")), findsOneWidget);
 
-  await tester.tapAndSettle(find.text("Close"));
+  await tester.tapAndSettle(
+    find.descendant(
+      of: find.byKey(const Key("add_button")),
+      matching: find.text("Close"),
+    ),
+  );
 
   // Wait for the SessionScreen to unmount before ending the test (the
   // dismiss flow is async; see cred_missing.dart for the full explanation).

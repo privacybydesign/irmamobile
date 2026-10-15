@@ -3,7 +3,6 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/helpers.dart";
@@ -37,8 +36,8 @@ void main() {
       final successScreenFinder = find.byType(IssuanceSuccessScreen);
       expect(successScreenFinder, findsOneWidget);
 
-      // Expect the SuccessGraphic in the IssuanceSuccessScreen
-      final successGraphicFinder = find.byType(SuccessGraphic);
+      // The received card, with its check badge
+      final successGraphicFinder = find.byKey(const Key("received_check"));
       expect(
         find.descendant(
           of: successScreenFinder,

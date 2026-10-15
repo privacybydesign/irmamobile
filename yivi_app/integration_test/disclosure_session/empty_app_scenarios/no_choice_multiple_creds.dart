@@ -1,8 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -35,68 +33,50 @@ Future<void> noChoiceMultipleCredsTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // First, the missing credentials should be obtainable
-  expect(find.text("Collect data"), findsOneWidget);
-
-  // We should have one discon stepper
-  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
-  expect(disConStepperFinder, findsOneWidget);
-
-  // The discon stepper should consist of two cards
-  final cardsFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: findCredentialCards(),
+  // Two steps to add: the e-mail address first, then the mobile number.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsOneWidget);
+  expect(
+    find.descendant(
+      of: findAddStep(0),
+      matching: find.text(
+        "Demo Privacy by Design Foundation via SIDN · on portal.yivi.app",
+      ),
+    ),
+    findsOneWidget,
   );
-  expect(cardsFinder, findsNWidgets(2));
-
-  // First card should be highlighted, second card should be normal
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    style: IrmaCardStyle.highlighted,
+  expect(
+    find.descendant(
+      of: findAddStep(1),
+      matching: find.text("Demo Mobile phone number"),
+    ),
+    findsOneWidget,
   );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    style: IrmaCardStyle.normal,
+  expect(
+    find.descendant(of: findAddStep(1), matching: find.text("Next")),
+    findsOneWidget,
   );
+  expectAddButtonFor(tester, "Demo Email address");
 
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Issue the email credential
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueEmailAddress(tester, irmaBinding);
 
-  // Now only the second card should be highlighted
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    style: IrmaCardStyle.normal,
+  // The e-mail step is done, the mobile number is current now.
+  await tester.waitFor(
+    find.descendant(of: findAddStep(0), matching: find.text("Added")),
   );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    style: IrmaCardStyle.highlighted,
-  );
+  expectAddButtonFor(tester, "Demo Mobile phone number");
 
   await issueMobileNumber(tester, irmaBinding);
 
-  // Issue wizard should be completed
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // Expect the choices screen with change choice buttons (email and mobile number are not singleton)
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.text("Change choice"), findsNWidgets(2));
+  // Everything is added: the share screen follows by itself, with a Change
+  // button on both (another e-mail address or number can still be added).
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  expect(find.byKey(const Key("share_change_0")), findsOneWidget);
+  expect(find.byKey(const Key("share_change_1")), findsOneWidget);
   await tapShare(tester);
   await evaluateFeedback(tester);
 }

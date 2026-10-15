@@ -1,15 +1,14 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 import "../disclosure_helpers.dart";
+import "sheet_checks.dart";
 
 Future<void> filledChoiceMixedTest(
   WidgetTester tester,
@@ -32,11 +31,12 @@ Future<void> filledChoiceMixedTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   // Should go straight to overview screen,
   // because the address has already been obtained
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(RequestorHeader));
+  await tester.waitFor(find.byType(SessionRequestorHeader));
 
   // Expect the already obtained municipality address
   final cardsFinder = findCredentialCards();
@@ -54,61 +54,23 @@ Future<void> filledChoiceMixedTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Change choice should be visible
-  final changeChoiceFinder = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
-  expect(changeChoiceFinder, findsOneWidget);
-
-  // Press the change choice
-  await tester.tapAndSettle(changeChoiceFinder);
-
-  // Expect make choice screen
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  //This screen to have two options
-  expect(cardsFinder, findsNWidgets(2));
-  await evaluateCredentialCard(
+  // Change the choice: the address in the app, iDIN can be added.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: [
-      ("Street", "Meander"),
-      ("House number", "501"),
-      ("City", "Arnhem"),
-    ],
-    isSelected: true,
+    owned: ["Demo Address"],
+    selected: "Demo Address",
+    addable: [_idin],
   );
 
-  final secondCardFinder = cardsFinder.at(1);
-  await evaluateCredentialCard(
-    tester,
-    secondCardFinder,
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [],
-    isSelected: false,
-  );
-
-  // Press iDin option
-  await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
-  await tester.tapAndSettle(secondCardFinder);
-
-  // The styling of the cards should represent this choice
-  await evaluateCredentialCard(tester, cardsFinder.first, isSelected: false);
-  await evaluateCredentialCard(tester, cardsFinder.at(1), isSelected: true);
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Issue iDin
+  // Add iDIN: the confirm view, then (as the issuer would) issue it.
+  await startAdding(tester, _idin);
   await issueIdin(tester, irmaBinding);
 
-  // After issuance, we should be back on the overview with the newly
-  // issued iDIN auto-selected.
+  // Back on the share screen with the new iDIN selected.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await tester.waitFor(
-    find.byType(RequestorHeader),
+    find.byType(SessionRequestorHeader),
     timeout: const Duration(seconds: 5),
   );
   expect(cardsFinder, findsOneWidget);
@@ -121,38 +83,18 @@ Future<void> filledChoiceMixedTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Tap "Change choice" to verify the make choice screen
-  final changeChoiceFinder2 = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder2.hitTestable(), 50);
-  await tester.tapAndSettle(changeChoiceFinder2);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // Now two filled cards should be present
-  await evaluateCredentialCard(
+  // The sheet now has both cards in the app, iDIN selected.
+  await changeChoice(tester, 0);
+  expectSheet(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: [
-      ("Street", "Meander"),
-      ("House number", "501"),
-      ("City", "Arnhem"),
-    ],
+    owned: ["Demo Address", "Demo iDIN"],
+    selected: "Demo iDIN",
   );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
-  );
+  await closeChoiceSheet(tester);
 
-  await tester.tapAndSettle(find.text("Done"));
-
-  // Expect choices overview
+  // Still the iDIN on the share screen.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.byType(RequestorHeader), findsOneWidget);
-
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -166,3 +108,5 @@ Future<void> filledChoiceMixedTest(
   await tapShare(tester);
   await evaluateFeedback(tester);
 }
+
+const _idin = "irma-demo.idin.idin";

@@ -5,11 +5,11 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/util/string.dart";
 import "package:yivi_core/src/widgets/credential_card/irma_empty_credential_card.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../disclosure_session/disclosure_helpers.dart";
 import "../irma_binding.dart";
@@ -318,7 +318,7 @@ Future<void> verifyMostRecentActivityLog(
     return;
   }
 
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = find.byType(ActivityCredentialTile, skipOffstage: false);
   expect(cardsFinder, findsNWidgets(expectedCredentials.length));
 
   for (var i = 0; i < expectedCredentials.length; i++) {
@@ -334,8 +334,8 @@ Future<void> verifyMostRecentActivityLog(
 }
 
 /// Opens the most recent activity entry and asserts it represents an empty
-/// disclosure: an [IrmaEmptyCredentialCard] is shown, and the [RequestorHeader]
-/// contains [expectedRequestorName] (i.e. the log records *who* the
+/// disclosure: an [IrmaEmptyCredentialCard] is shown, and the
+/// [ActivityPartyCard] contains [expectedRequestorName] (i.e. the log records *who* the
 /// transaction was with, even though no data was shared).
 Future<void> verifyEmptyDisclosureActivityLog(
   WidgetTester tester, {
@@ -351,12 +351,13 @@ Future<void> verifyEmptyDisclosureActivityLog(
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
   expect(find.byType(IrmaEmptyCredentialCard), findsOneWidget);
 
-  final requestorHeaderFinder = find.byType(RequestorHeader);
+  final requestorHeaderFinder = find.byType(ActivityPartyCard);
   expect(requestorHeaderFinder, findsOneWidget);
+  // The name is shown with non-breaking hyphens.
   expect(
     find.descendant(
       of: requestorHeaderFinder,
-      matching: find.text(expectedRequestorName),
+      matching: find.text(expectedRequestorName.replaceBreakingHyphens()),
     ),
     findsOneWidget,
   );

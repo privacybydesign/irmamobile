@@ -35,6 +35,7 @@ Future<void> callingSessionTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   // Share: the button is the consent, there is no confirmation dialog.
   await tapShare(tester);

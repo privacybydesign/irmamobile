@@ -2,17 +2,17 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../mdoc_disclosure_helpers.dart";
 
 /// Test 23: the age-verification mdoc is required, the PID mdoc is optional
 /// (`credential_sets` with `required: false`). Both are owned. The user adds
-/// the optional PID, sees it on the overview, removes it again, and shares
-/// only the age claim.
+/// the optional PID from its sheet, sees it on the share screen, leaves it
+/// out again, and shares only the age claim.
 Future<void> optionalExtraPidTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -63,44 +63,34 @@ Future<void> optionalExtraPidTest(
     attributes: [(avLabel(18), booleanYes)],
   );
 
-  final addOptionalDataButton = find.text("Add optional data");
-  await tester.scrollUntilVisible(addOptionalDataButton, 100);
-  expect(addOptionalDataButton, findsOneWidget);
-  await tester.tapAndSettle(addOptionalDataButton);
+  // The optional PID is offered as a row to add; its sheet has the PID in
+  // the app and nothing to add from Yivi (an mdoc has no issue URL).
+  final optional = optionalItemIndex(tester);
+  await addOptional(tester, optional);
+  expect(find.text("Add optional data"), findsOneWidget);
+  expect(findSheetOwnedRows(), findsOneWidget);
+  expect(findSheetAddRow("eu.europa.ec.eudi.pid.1"), findsNothing);
 
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-  expect(choiceCardsFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder,
-    credentialName: pidMdocCredentialName,
-    issuerName: eudiIssuerDisplayName,
-    attributes: [("Family Name(s)", presetFamilyName)],
-  );
-  expect(find.text("Obtain new data"), findsNothing);
-
-  // Confirm: the overview now shows the age mdoc and the PID.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // One card of one type: the row leads with its first value. Picking it
+  // includes the PID and closes the sheet.
+  await pickOwned(tester, presetFamilyName);
   expect(cardsFinder, findsNWidgets(2));
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
+  final pidSlot = findShareSlot(optional);
+  await tester.scrollUntilVisible(pidSlot, 100);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    pidSlot,
     credentialName: pidMdocCredentialName,
     issuerName: eudiIssuerDisplayName,
     attributes: [("Family Name(s)", presetFamilyName)],
   );
 
-  // Remove the optional PID again and share only the age claim.
-  await tester.tapAndSettle(
-    find.byKey(const Key("remove_optional_data_button")),
+  // Leave the optional PID out again and share only the age claim.
+  await removeOptional(tester, optional);
+  expect(
+    find.byKey(Key("share_add_optional_$optional"), skipOffstage: false),
+    findsOneWidget,
   );
-  expect(addOptionalDataButton, findsOneWidget);
   expect(cardsFinder, findsOneWidget);
 
   await shareAndFinishEudiDisclosure(tester);

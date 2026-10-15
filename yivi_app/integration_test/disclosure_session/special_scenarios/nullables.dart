@@ -1,10 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
 Future<void> nullablesTest(
   WidgetTester tester,
@@ -25,33 +24,30 @@ Future<void> nullablesTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Expect obtain credential screen
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
+  // The member card is missing: one step to add it first, with its name
+  // and issuer.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
   expect(
-    find.text(
-      "Obtain the required data and share it with the requesting party after that.",
+    find.descendant(
+      of: findAddStep(0),
+      matching: find.textContaining("IRMATube Member"),
     ),
-    findsOneWidget,
+    findsWidgets,
   );
-
-  // One stepper should be visible
-  expect(find.byKey(const Key("add_missing_data_list")), findsOneWidget);
-
-  // One Credential card should be visible
-  final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo IRMATube Member",
-    issuerName: "Demo IRMATube",
-    attributes: [], // TODO Add check for the required/notNull attirbute
-    style: IrmaCardStyle.highlighted,
+  expect(
+    find.descendant(
+      of: findAddStep(0),
+      matching: find.textContaining("Demo IRMATube"),
+    ),
+    findsWidgets,
   );
+  // TODO Add check for the required/notNull attribute
 
   // TODO Add non matching credential
 
-  // TODO Expect the DisclosurePermissionWrongCredentialsAddedDialog and evaluate it
+  // TODO Expect the wrong-card note (Key("add_wrong_note")) and evaluate it
 
   // TODO Add matching credential
 

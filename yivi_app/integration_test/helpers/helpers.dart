@@ -30,7 +30,11 @@ import "package:yivi_core/src/screens/loading/loading_screen.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
+import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -105,6 +109,13 @@ Future<void> pumpYiviApp(
         // notSupported and greys out passport/idcard/drivinglicence. Fake it
         // available; a test that wants the no-NFC case overrides it back.
         nfcAvailableProvider.overrideWith((ref) => Future.value(true)),
+        // An issuer's website cannot be used in a test: the test issues the
+        // card itself, as the website would (see issueCredentials). The
+        // app's own flows (e-mail, phone, documents) still open.
+        issuerOpenerProvider.overrideWithValue((context, d, ref) async {
+          if (repo.issuesViaWebsite(d.credentialId)) return;
+          await repo.openIssueURL(context, d.credentialId, d.issueURL, ref);
+        }),
         ...?providerOverrides,
       ],
       child: TestContext(
@@ -307,6 +318,14 @@ Future<void> issueCredentials(
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
 
+  // On top of another session (the issuer's link opened a second session),
+  // the success screen leads back to it: "Back to {requestor}" when that is
+  // a request, "OK" otherwise.
+  final nested = find
+      .byWidgetPredicate((w) => w is SessionScreen && w.hasUnderlyingSession)
+      .evaluate()
+      .isNotEmpty;
+
   // Check whether all credentials are displayed: one card picture each.
   final issuanceCards = findIssuanceCards();
   expect(issuanceCards, findsNWidgets(groupedAttributes.length));
@@ -378,9 +397,21 @@ Future<void> issueCredentials(
   );
   expect(buttonFinder, findsOneWidget);
 
+  final forRequest =
+      tester.widget<IssuancePermission>(issuancePageFinder).forRequest != null;
   await tester.tapAndSettle(buttonFinder);
 
   await tester.waitUntilDisappeared(issuancePageFinder);
+
+  if (nested && !declineOffer) {
+    await tester.waitFor(find.byType(IssuanceSuccessScreen));
+    expect(
+      find.textContaining("Back to "),
+      forRequest ? findsOneWidget : findsNothing,
+    );
+    await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+    await tester.waitUntilDisappeared(find.byType(IssuanceSuccessScreen));
+  }
 }
 
 /// Generates a revocation key that can be used for issueCredentials.
@@ -452,6 +483,7 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
       (w) =>
           w is YiviCredentialCard ||
           w is DisclosedCardTile ||
+          w is SharedCardTile ||
           w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
     );
@@ -477,6 +509,7 @@ Finder findCredentialDetail() => find.byType(CredentialDetailScreen);
 bool _isCardRoot(Widget w) =>
     w is YiviCredentialCard ||
     w is DisclosedCardTile ||
+    w is SharedCardTile ||
     w is ActivityCredentialTile ||
     w is CredentialDetailScreen ||
     w is CredentialCardArt;
@@ -499,6 +532,7 @@ Element _cardRoot(Finder finder) {
           (w) =>
               w is YiviCredentialCard ||
               w is DisclosedCardTile ||
+              w is SharedCardTile ||
               w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
         ),
@@ -672,6 +706,54 @@ Future<void> evaluateCredentialCard(
         expect(instance.batchInstanceCountRemaining, instancesRemaining);
       }
 
+    case SharedCardTile():
+      // A card (or cards that go together) on the share screen: what is
+      // shared is what is selected, so there is no selection to check.
+      final instance = widget.bundle.credentials.first;
+      status = CredentialCardStatus(
+        expiryDateUnix: instance.expiryDate,
+        revoked: instance.revoked,
+        batchInstanceCountsRemaining: {
+          instance.format: instance.batchInstanceCountRemaining,
+        },
+        credentialId: instance.credentialId,
+        issueUrl: instance.issueUrl,
+      );
+      attributeListFinder = find.descendant(
+        of: rootFinder,
+        matching: find.byType(YiviCredentialCardAttributeList),
+      );
+      // The tile's own texts: the name(s), then the issuer(s).
+      if (credentialName != null || issuerName != null) {
+        final ownTexts = _textsOutside(rootFinder, [
+          find.descendant(
+            of: rootFinder,
+            matching: find.byType(CredentialCardArt),
+          ),
+          attributeListFinder,
+        ]);
+        if (credentialName != null) {
+          expect(ownTexts.firstOrNull, credentialName);
+        }
+        if (issuerName != null) {
+          expect(ownTexts.elementAtOrNull(1), issuerName);
+        }
+      }
+      if (isSelected != null) {
+        expect(
+          isSelected,
+          isTrue,
+          reason: "a card on the share screen is always the selected one",
+        );
+      }
+      if (style != null) {
+        final unusable = status.isExpired || status.revoked;
+        expect(unusable, style == IrmaCardStyle.danger, reason: "style $style");
+      }
+      if (instancesRemaining != null) {
+        expect(instance.batchInstanceCountRemaining, instancesRemaining);
+      }
+
     case ActivityCredentialTile():
       final credential = widget.credential;
       status = CredentialCardStatus(
@@ -772,11 +854,14 @@ Future<void> evaluateCredentialCard(
       }
 
       // The validity chip follows the credential's status.
+      // As the detail screen decides it: a warning (expiring soon, or only a
+      // few uses left) shows the clock when there is an expiry date.
+      final hasExpiry = status.expiryDate != null;
       final chipIcon = status.revoked
           ? Icons.block
-          : status.timeExpireState == ExpireState.expired
+          : status.isExpired && hasExpiry
           ? Icons.warning_amber_rounded
-          : status.timeExpireState == ExpireState.almostExpired
+          : status.hasWarning && hasExpiry
           ? Icons.schedule
           : Icons.check;
       expect(
@@ -900,7 +985,7 @@ Future<void> evaluateCredentialCard(
       } else if (expectReobtainButton == false) {
         expect(reobtain, findsNothing);
       }
-    } else if (widget is DisclosedCardTile) {
+    } else if (widget is DisclosedCardTile || widget is SharedCardTile) {
       // No button on the tile: check the credential would offer one.
       expect(status.showReobtain, isReobtainable, reason: "reobtainable");
     }

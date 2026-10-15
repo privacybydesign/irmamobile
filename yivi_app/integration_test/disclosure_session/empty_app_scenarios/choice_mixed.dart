@@ -1,8 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -37,114 +35,60 @@ Future<void> choiceMixedTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Expect a disclose stepper
-  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
-  expect(disConStepperFinder, findsOneWidget);
+  // Two steps to add: first the address (a choice), then the AGB code.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsOneWidget);
+  expect(find.text("Which one do you want to add?"), findsOneWidget);
 
-  // The discon stepper should have one choice
-  final choiceFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byKey(const Key("add_missing_data_list")),
-  );
-  expect(choiceFinder, findsOneWidget);
+  // The address can come from the municipality or from iDIN, each saying
+  // where it is added. The municipality starts selected.
+  _expectOption(0, 0, "Demo Address", "Demo Municipality");
+  _expectOption(0, 1, "Demo iDIN", "Demo iDIN");
+  expectAddButtonFor(tester, "Demo Address");
 
-  // The choice should consist of two cards
-  final choiceCardsFinder = find.descendant(
-    of: choiceFinder,
-    matching: findCredentialCards(),
-  );
-  expect(choiceCardsFinder, findsNWidgets(2));
+  // Pick iDIN: the button follows.
+  await pickSource(tester, 0, 1);
+  expectAddButtonFor(tester, "Demo iDIN");
 
-  // First card in the choice should be selected
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: [],
-    isSelected: true,
-  );
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(1),
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [],
-    isSelected: false,
-  );
-
-  // Select the iDIN option
-  final iDinOptionFinder = find.text("Demo iDIN").first;
-  await tester.ensureVisible(iDinOptionFinder);
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(iDinOptionFinder);
-
-  // Now the second card in the choice should be highlighted, second card should be outlined
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: [],
-    isSelected: false,
-  );
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(1),
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [],
-    isSelected: true,
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueIdin(tester, irmaBinding);
 
-  // The choice should have disappeared
-  expect(choiceFinder, findsNothing);
-
-  // Now the discon stepper should consist of two cards
-  final disConCardsFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: findCredentialCards(),
+  // The first step is done, the AGB code is next.
+  await tester.waitFor(
+    find.descendant(of: findAddStep(0), matching: find.text("Added")),
   );
-  expect(disConCardsFinder, findsNWidgets(2));
-
-  // Now only the second discon card should be highlighted
-  await evaluateCredentialCard(
-    tester,
-    disConCardsFinder.first,
-    credentialName: "Demo iDIN",
-    issuerName: "Demo iDIN",
-    attributes: [],
-    style: IrmaCardStyle.normal,
+  expect(
+    find.descendant(of: findAddStep(0), matching: find.text("Demo iDIN")),
+    findsOneWidget,
   );
-  await evaluateCredentialCard(
-    tester,
-    disConCardsFinder.at(1),
-    credentialName: "Demo Vektis agb by Nuts",
-    issuerName: "Demo Nuts",
-    attributes: [],
-    style: IrmaCardStyle.highlighted,
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  expectAddButtonFor(tester, "Demo Vektis agb by Nuts");
 
   // Obtain the data from Nuts
   await issueCredentials(tester, irmaBinding, {
     "irma-demo.nuts.agb.agbcode": "7722255556",
   });
 
-  // Issue wizard should be completed
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
+  // Everything is added: the share screen follows by itself.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
-  // Expect the choices screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await tapShare(tester);
   await evaluateFeedback(tester);
+}
+
+/// Checks option [option] of step [step] on the add screen: its name and
+/// "{issuer} · on {host}".
+void _expectOption(int step, int option, String name, String issuer) {
+  final row = findAddOption(step, option);
+  expect(row, findsOneWidget);
+  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
+  expect(
+    find.descendant(
+      of: row,
+      matching: find.text("$issuer · on portal.yivi.app"),
+    ),
+    findsOneWidget,
+  );
 }

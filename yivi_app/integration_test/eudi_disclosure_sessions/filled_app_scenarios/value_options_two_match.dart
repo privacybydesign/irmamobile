@@ -1,11 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../eudi_choice_helpers.dart";
 
 /// DCQL `values` filter accepting a list of acceptable values. Issues three
@@ -49,7 +48,7 @@ Future<void> valueOptionsTwoMatchTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
@@ -64,36 +63,24 @@ Future<void> valueOptionsTwoMatchTest(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-
-  // Two matching owned creds; no obtainable template card for OID4VCI
+  // Two matching owned creds, in this order; nothing to add for OID4VCI
   // (backend leaves `obtainable_options == null` because the cred type has
-  // no IssueURL).
-  expect(choiceCardsFinder, findsNWidgets(2));
+  // no IssueURL). The non-matching two@ is not offered.
+  expectOnlyOwnedInSheet(2);
+  final rows = findSheetOwnedRows();
   expect(
-    find.descendant(
-      of: choiceCardsFinder.at(0),
-      matching: find.text("one@example.com"),
-    ),
+    find.descendant(of: rows.at(0), matching: find.text("one@example.com")),
     findsOneWidget,
   );
   expect(
-    find.descendant(
-      of: choiceCardsFinder.at(1),
-      matching: find.text("three@example.com"),
-    ),
+    find.descendant(of: rows.at(1), matching: find.text("three@example.com")),
     findsOneWidget,
   );
-  expect(find.text("Obtain new data"), findsNothing);
+  expect(sheetOwnedRowsWith("two@example.com"), findsNothing);
 
-  // Confirm choice / go back.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Keep the default (the first): close the sheet and share.
+  await closeChoiceSheet(tester);
   await shareAndFinishEudiDisclosure(tester);
 
   await verifyMostRecentActivityLog(

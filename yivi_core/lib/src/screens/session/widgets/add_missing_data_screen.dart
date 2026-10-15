@@ -82,7 +82,9 @@ class AddMissingDataScreen extends ConsumerWidget {
       SessionRequestorHeader(
         requestor: session.requestor,
         description: t(
-          steps.length > 1 ? "share.add_data.intro_many" : "share.add_data.intro_one",
+          steps.length > 1
+              ? "share.add_data.intro_many"
+              : "share.add_data.intro_one",
           {"requestor": requestor},
         ),
         progress: steps.length > 1
@@ -204,7 +206,10 @@ class _CurrentStep extends ConsumerWidget {
       for (final c in bundle.credentials)
         for (final a in c.attributes)
           if (a.requestedValue?.hasConcreteValue ?? false)
-            (a.effectiveDisplayName, attributeText(a.requestedValue) ?? ""),
+            (
+              a.effectiveDisplayName,
+              localizedAttributeText(context, a.requestedValue) ?? "",
+            ),
     ];
     final mismatch = wrong == null
         ? null
@@ -288,7 +293,9 @@ class _CurrentStep extends ConsumerWidget {
                   Expanded(
                     child: _Compare(
                       label: t("share.add_data.you_added"),
-                      value: attributeText(mismatch.offered) ?? "–",
+                      value:
+                          localizedAttributeText(context, mismatch.offered) ??
+                          "–",
                       background: palette.background,
                       foreground: palette.errorText,
                     ),
@@ -296,7 +303,9 @@ class _CurrentStep extends ConsumerWidget {
                   Expanded(
                     child: _Compare(
                       label: t("share.add_data.needed"),
-                      value: attributeText(mismatch.required) ?? "",
+                      value:
+                          localizedAttributeText(context, mismatch.required) ??
+                          "",
                       background: palette.successSurface,
                       foreground: palette.successText,
                     ),

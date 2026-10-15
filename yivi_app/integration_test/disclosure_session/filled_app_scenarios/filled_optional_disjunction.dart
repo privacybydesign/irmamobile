@@ -1,14 +1,15 @@
 import "package:flutter_test/flutter_test.dart";
-
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 import "../disclosure_helpers.dart";
+import "sheet_checks.dart";
 
 Future<void> filledOptionalDisjunctionTest(
   WidgetTester tester,
@@ -36,73 +37,51 @@ Future<void> filledOptionalDisjunctionTest(
         }
       ''');
 
-  // First, the missing required disjunctions should be obtained using an issue wizard.
-  expect(find.text("Collect data"), findsOneWidget);
+  // First, the missing e-mail address is added (one step).
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  expectAddButtonFor(tester, "Demo Email address");
 
-  final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    style: IrmaCardStyle.highlighted,
-  );
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
-  // Therefore, we mock this behaviour using the helper below until we have a better solution.
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueEmailAddress(tester, irmaBinding);
 
-  expect(find.text("All required data has been added."), findsOneWidget);
+  // Everything required is added: the share screen follows by itself.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
-  // Complete issue wizard
-  await tester.tapAndSettle(find.text("Next step"));
+  // The mobile number is optional and starts left out.
+  final cardsFinder = findCredentialCards();
+  expect(cardsFinder, findsOneWidget);
+  expect(findShareSlot(1), findsNothing);
 
-  expect(find.byType(RequestorHeader), findsOneWidget);
-
-  // Try to add optional data.
-  final addOptionalDataButton = find.text("Add optional data").hitTestable();
-  await tester.scrollUntilVisible(addOptionalDataButton, 50);
-  await tester.tapAndSettle(addOptionalDataButton);
-
-  // There should be three options: the option we added at the beginning of this test and two template options
-  // to obtain new mobile number credential instances for either pbdf or sidn-pbdf.
-  expect(cardsFinder, findsNWidgets(3));
-
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Mobile phone number", "0612345678")],
-    isSelected: true,
+  // Add it: the sheet has the mobile number in the app (by its value, as
+  // every option is a mobile number), and both kinds can be added.
+  await addOptional(tester, 1);
+  expect(
+    find.descendant(
+      of: findChoiceSheet(),
+      matching: find.text("Add optional data"),
+    ),
+    findsOneWidget,
   );
-  await evaluateCredentialCard(
+  expectSheet(
     tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation",
-    attributes: [],
-    isSelected: false,
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(2),
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [],
-    isSelected: false,
+    owned: ["0612345678"],
+    // Optional data starts left out: no row is selected.
+    selected: "",
+    addable: [
+      "irma-demo.pbdf.mobilenumber",
+      "irma-demo.sidn-pbdf.mobilenumber",
+    ],
   );
 
-  // Select the mobile phone number that we added at the beginning of this test.
-  await tester.tapAndSettle(find.text("Done"));
-
-  expect(find.text("Share my data"), findsOneWidget);
-  expect(find.byType(RequestorHeader), findsOneWidget);
+  // Use the mobile number in the app: the sheet closes and it is shared.
+  await pickOwned(tester, "0612345678");
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(findShareSlot(1), findsOneWidget);
 
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(

@@ -1,10 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -32,101 +30,40 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Expect obtain credential screen
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-  expect(
-    find.text(
-      "Obtain the required data and share it with the requesting party after that.",
-    ),
-    findsOneWidget,
-  );
+  // The owned e-mail address has the wrong domain, so one step adds one
+  // that matches, and says what the domain must be.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  _expectRequiredValue("Email domain name", "sidn.nl");
+  expect(find.byKey(const Key("add_wrong_note")), findsNothing);
+  expectAddButtonFor(tester, "Demo Email address");
 
-  final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email domain name", "sidn.nl")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
-    style: IrmaCardStyle.highlighted,
-  );
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Now obtain the email credential with wrong domain
+  // The issuer adds an e-mail address with the wrong domain.
   await issueCredentials(tester, irmaBinding, {
     "irma-demo.sidn-pbdf.email.email": "test@demo.com",
     "irma-demo.sidn-pbdf.email.domain": "demo.com",
   });
 
-  // Wrong credentials added dialog should appear
-  final wrongCredAddedDialogFinder = find.byKey(const Key("add_wrong_note"));
-  expect(wrongCredAddedDialogFinder, findsOneWidget);
+  // The step says so in place: what was added and what is needed, and the
+  // button adds again.
+  await tester.waitFor(find.byKey(const Key("add_wrong_note")));
+  expect(findAddScreen(), findsOneWidget);
+  _expectCompare("You added", "demo.com");
+  _expectCompare("Needed", "sidn.nl");
+  expect(addButtonTexts(tester).first, "Add again");
 
-  // Dialog should show two credential cards
-  final dialogCardsFinder = find.descendant(
-    of: wrongCredAddedDialogFinder,
-    matching: findCredentialCards(),
-  );
-  expect(dialogCardsFinder, findsNWidgets(2));
-
-  // Evaluate the cards in the dialog
-  await evaluateCredentialCard(
-    tester,
-    dialogCardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email domain name", "demo.com")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
-    style: IrmaCardStyle.normal,
-  );
-  await evaluateCredentialCard(
-    tester,
-    dialogCardsFinder.at(1),
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email domain name", "sidn.nl")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
-    style: IrmaCardStyle.normal,
-  );
-
-  // Close the dialog
-  final okButtonFinder = find.text("OK");
-  await tester.ensureVisible(okButtonFinder);
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(okButtonFinder);
-
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Now issue the correct right credential
+  // Now the issuer adds the right one: the share screen follows by itself.
   await issueCredentials(tester, irmaBinding, {
     "irma-demo.sidn-pbdf.email.email": "test@sidn.nl",
     "irma-demo.sidn-pbdf.email.domain": "sidn.nl",
   });
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
-  // Issue wizard should be completed now
-  expect(find.text("All required data has been added."), findsOneWidget);
-
-  // Check the credential card now that is has been completed
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: [("Email domain name", "sidn.nl")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
-    style: IrmaCardStyle.normal,
-  );
-
-  await tester.tapAndSettle(find.text("Next step"));
-
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.byType(RequestorHeader), findsOneWidget);
-
+  final cardsFinder = findCredentialCards();
+  expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -141,4 +78,31 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
 
   await tapShare(tester);
   await evaluateFeedback(tester);
+}
+
+/// The "must be …" row of the current step for [label].
+void _expectRequiredValue(String label, String value) {
+  final step = findAddStep(0);
+  expect(find.descendant(of: step, matching: find.text(label)), findsOneWidget);
+  expect(
+    find.descendant(of: step, matching: find.text("must be $value")),
+    findsOneWidget,
+  );
+}
+
+/// The "You added" / "Needed" box of the current step: its [label] above
+/// [value].
+void _expectCompare(String label, String value) {
+  final step = findAddStep(0);
+  final labelFinder = find.descendant(of: step, matching: find.text(label));
+  expect(labelFinder, findsOneWidget);
+  expect(
+    find.descendant(
+      of: find
+          .ancestor(of: labelFinder, matching: find.byType(Container))
+          .first,
+      matching: find.text(value),
+    ),
+    findsOneWidget,
+  );
 }

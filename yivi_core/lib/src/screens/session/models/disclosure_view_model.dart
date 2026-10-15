@@ -157,16 +157,31 @@ bool canChange(DisclosurePickOne pickOne) =>
     1;
 
 /// The type to add to replace [bundle] when it has a problem: an addable
-/// option of the same credential type. Null when it cannot be renewed
-/// from Yivi.
+/// option of the same credential type, or else the problem card's own
+/// issuer (irmago offers no other option for a type the user can hold only
+/// one of, such as a revoked BSN). Null when it cannot be renewed from Yivi.
 CredentialDescriptor? fixFor(
   DisclosurePickOne pickOne,
   DisclosureBundle bundle,
 ) {
   final ids = bundle.credentials.map((c) => c.credentialId).toSet();
-  return addableOptions(
+  final offered = addableOptions(
     pickOne,
   ).firstWhereOrNull((d) => ids.contains(d.credentialId));
+  if (offered != null) return offered;
+  final card = bundle.credentials.firstWhereOrNull(
+    (c) => problemOf(c) != null && hostOf(c.issueUrl) != null,
+  );
+  return card == null
+      ? null
+      : CredentialDescriptor(
+          credentialId: card.credentialId,
+          name: card.name,
+          issuer: card.issuer,
+          category: null,
+          attributes: const [],
+          issueURL: card.issueUrl,
+        );
 }
 
 /// What the share button says.

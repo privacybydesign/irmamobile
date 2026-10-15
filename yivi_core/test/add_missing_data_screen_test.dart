@@ -297,6 +297,36 @@ void main() {
     );
   });
 
+  testWidgets("a required yes or no reads as a word", (tester) async {
+    await setUp(tester);
+    await emit(
+      tester,
+      testSession(
+        steps: [
+          testStep([
+            [
+              _descriptor(
+                "age",
+                attributes: [
+                  Attribute(
+                    claimPath: ["over65"],
+                    displayName: "Over 65",
+                    requestedValue: AttributeValue(
+                      type: AttributeType.boolean,
+                      boolValue: true,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ]),
+        ],
+      ),
+    );
+
+    expect(find.text("moet Ja zijn"), findsOneWidget);
+  });
+
   testWidgets("once nothing is missing: the share screen, no Next step", (
     tester,
   ) async {

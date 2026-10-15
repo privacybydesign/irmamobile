@@ -2,8 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/irma_empty_credential_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -35,30 +35,33 @@ Future<void> completelyOptionalTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  expect(find.text("No data selected"), findsOneWidget);
+  // Nothing is required: the share screen opens directly, with the e-mail
+  // address as optional data that is not in the app yet.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.text("Nothing required"), findsOneWidget);
+  expect(findShareSlot(0), findsNothing);
 
-  // Try to add optional data.
-  final addOptionalDataButton = find.text("Add optional data").hitTestable();
-  await tester.scrollUntilVisible(addOptionalDataButton, 50);
-  await tester.tapAndSettle(addOptionalDataButton);
-
-  expect(find.text("Demo Email address"), findsOneWidget);
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
-  // Therefore, we mock this behaviour using the helper below until we have a better solution.
-  await issueEmailAddress(tester, irmaBinding);
-
-  // Delete optional data from selection again.
-  final deleteOptionalDataButton = find.descendant(
-    of: findCredentialCards(),
-    matching: find.byIcon(Icons.close).hitTestable(),
+  // Add it: the sheet offers it under "Not in your app yet".
+  await addOptional(tester, 0);
+  expect(
+    find.descendant(
+      of: findChoiceSheet(),
+      matching: find.text("Demo Email address"),
+    ),
+    findsWidgets,
   );
-  await tester.scrollUntilVisible(deleteOptionalDataButton.hitTestable(), 50);
-  await tester.tapAndSettle(deleteOptionalDataButton);
+  await startAdding(tester, "irma-demo.sidn-pbdf.email");
+
+  // The "Go to" button opens the issuer's website; the test issues the card
+  // the way that website would. Back from it, the new card is included.
+  await issueEmailAddress(tester, irmaBinding);
+  await tester.waitFor(findShareSlot(0));
+  expect(findChoiceSheet(), findsNothing);
+
+  // Leave the optional data out again.
+  await removeOptional(tester, 0);
+  expect(findShareSlot(0), findsNothing);
+  expect(find.text("Share without data"), findsOneWidget);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

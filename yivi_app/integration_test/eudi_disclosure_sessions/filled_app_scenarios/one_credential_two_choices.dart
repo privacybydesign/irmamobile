@@ -1,18 +1,17 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../eudi_choice_helpers.dart";
 
-/// Issue two emails, then disclose. The change-choice screen lists exactly
-/// the two owned creds — no "Obtain new data" template card is shown
+/// Issue two emails, then disclose. The Change sheet lists exactly the two
+/// owned creds under "In your app" — nothing under "Not in your app yet"
 /// (irmago leaves `obtainable_options == null` for OID4VCI cred types
-/// because they have no `IssueURL`). The user picks one of the two owned
-/// creds and proceeds.
+/// because they have no `IssueURL`). The user picks the second one; one tap
+/// selects it and closes the sheet.
 Future<void> oneCredentialTwoChoicesTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -50,42 +49,35 @@ Future<void> oneCredentialTwoChoicesTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
-  await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  final cardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-
-  // Two owned; no obtainable template card for OID4VCI.
-  expect(cardsFinder, findsNWidgets(2));
-
+  // The default is the first owned email.
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(0),
+    findShareSlot(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
     attributes: [("Email", "one@example.com")],
   );
+
+  await tapChangeChoicesButton(tester);
+
+  // Two owned, told apart by their value; nothing to add for OID4VCI.
+  expectOnlyOwnedInSheet(2);
+  expect(sheetOwnedRowsWith("one@example.com"), findsOneWidget);
+  expect(sheetOwnedRowsWith("two@template.com"), findsOneWidget);
+
+  // Pick the second owned cred: the sheet closes, the share screen shows it.
+  await pickOwned(tester, "two@template.com");
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    findShareSlot(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
     attributes: [("Email", "two@template.com")],
   );
-  expect(find.text("Obtain new data"), findsNothing);
-
-  // Pick the second owned cred and go back.
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
-  await tester.tapAndSettle(cardsFinder.at(1));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await shareAndFinishEudiDisclosure(tester);
 

@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -31,24 +31,30 @@ Future<void> noChoiceTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // First, the missing required disjunctions should be obtained using an issue wizard.
-  expect(find.text("Collect data"), findsOneWidget);
-  expect(tester.widgetList(findCredentialCards()).length, 1);
+  // First, the missing card is added: one step, with one option.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  expect(find.text("Demo Personal data"), findsWidgets);
+  expectAddButtonFor(tester, "Demo Personal data");
+  await evaluateRequestorHeader(
+    tester,
+    null,
+    localizedRequestorName: "is.demo.staging.yivi.app",
+    isVerified: false,
+  );
 
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
-  // Issue wizard should be completed
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
+  // Everything is added: the share screen follows by itself. There is
+  // nothing to choose, so no "Change".
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  expect(find.byKey(const Key("share_change_0")), findsNothing);
 
-  // Expect the choices screen. It should not show change choice options.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.text("Change choice"), findsNothing);
-
-  final requestorHeaderFinder = find.byType(RequestorHeader);
+  final requestorHeaderFinder = find.byType(SessionRequestorHeader);
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,

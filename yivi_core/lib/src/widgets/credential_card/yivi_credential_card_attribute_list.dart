@@ -41,6 +41,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // Claim paths (see [claimPathKey]) whose value does not match what is
   // needed: they are shown in the error colour.
   final Set<String> mismatched;
+  // Claim paths whose value is exactly what is asked for: shown in the
+  // success colour.
+  final Set<String> matched;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -52,6 +55,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.ageDisplay = AgeDisplay.perAttribute,
     this.layout = CredentialCardLayout.standard,
     this.mismatched = const {},
+    this.matched = const {},
   });
 
   @override
@@ -92,6 +96,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       sorted,
       compareTo: compareTo,
       mismatched: mismatched,
+      matched: matched,
     );
     _insertGroups(tree.children, groups, attributes);
     // Comparing against another credential needs every attribute on its own row.
@@ -151,11 +156,13 @@ class _RowNode extends _Node {
   final schemaless.AttributeValue? compareToValue;
   final bool hasCompareTo;
   final bool mismatch;
+  final bool match;
   _RowNode({
     required this.attribute,
     required this.hasCompareTo,
     this.compareToValue,
     this.mismatch = false,
+    this.match = false,
   });
 }
 
@@ -225,6 +232,7 @@ _GroupNode _buildTree(
   List<schemaless.Attribute> attrs, {
   List<schemaless.Attribute>? compareTo,
   Set<String> mismatched = const {},
+  Set<String> matched = const {},
 }) {
   final headers = <String, schemaless.Attribute>{};
   for (final e in attrs) {
@@ -371,6 +379,7 @@ _GroupNode _buildTree(
         hasCompareTo: compareTo != null,
         compareToValue: lookupCompare(p),
         mismatch: mismatched.contains(_pathKey(p)),
+        match: matched.contains(_pathKey(p)),
       ),
     );
   }
@@ -809,6 +818,7 @@ class _LeafContent extends StatelessWidget {
     IrmaThemeData theme,
   ) {
     if (node.mismatch) return theme.error;
+    if (node.match) return theme.success;
     if (!node.hasCompareTo) return AttributeColors.of(context).value;
     return val?.string == node.compareToValue?.string
         ? theme.success

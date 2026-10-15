@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -46,7 +47,7 @@ Future<void> discloseNestedOrganizationCredentialTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);

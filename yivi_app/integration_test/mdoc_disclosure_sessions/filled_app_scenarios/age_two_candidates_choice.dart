@@ -1,8 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
-import "../../eudi_disclosure_sessions/eudi_choice_helpers.dart";
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -20,7 +19,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// pre-selected here. irmago owns that policy and does not express it yet --
 /// there is no recency signal in the disclosure plan, and both candidates
 /// carry the same issuance_date -- so the app falls back to the first owned
-/// option. When #657 lands, the two `isSelected` expectations below and the
+/// option. When #657 lands, the two selection expectations below and the
 /// shared candidate flip over.
 Future<void> ageTwoCandidatesChoiceTest(
   WidgetTester tester,
@@ -62,39 +61,19 @@ Future<void> ageTwoCandidatesChoiceTest(
     attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanNo)],
   );
 
-  await tapChangeChoicesButton(tester);
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  final choiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-  expect(choiceCardsFinder, findsNWidgets(2));
+  // The Change sheet: both cards are in the app.
+  await changeChoice(tester, 0);
+  final rows = findSheetOwnedRows();
+  expect(rows, findsNWidgets(2));
+  expect(findSheetAddRow("eu.europa.ec.av.1"), findsNothing);
 
   // Oldest first, and the first one is pre-selected.
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(0),
-    attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanNo)],
-    isSelected: true,
-  );
-  await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(1),
-    attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanYes)],
-    isSelected: false,
-  );
+  expect(isSheetRowSelected(tester, rows.at(0)), isTrue);
+  expect(isSheetRowSelected(tester, rows.at(1)), isFalse);
 
-  // Switch to the newer one, confirm, share.
-  await tester.tapAndSettle(choiceCardsFinder.at(1));
-  await evaluateCredentialCard(
-    tester,
-    choiceCardsFinder.at(1),
-    isSelected: true,
-  );
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Switch to the newer one: one tap picks it and closes the sheet.
+  await tester.tapAndSettle(rows.at(1));
+  await tester.waitUntilDisappeared(findChoiceSheet());
 
   await evaluateCredentialCard(
     tester,

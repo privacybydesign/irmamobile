@@ -27,7 +27,8 @@ void main() {
     group("filled-app-scenarios", () {
       // OID4VCI credentials are issued first, then disclosed via OpenID4VP.
       // Direct ports of the SD-JWT-over-OpenID4VP spine adapted for OID4VCI:
-      // any "Obtain new data" affordance is greyed and disabled (no IssueURL).
+      // OID4VCI types have no IssueURL, so the Change sheet never offers them
+      // under "Not in your app yet".
 
       // Selective disclosure of a single attribute.
       testWidgets(
@@ -67,8 +68,8 @@ void main() {
         (tester) => optionalExtraCredentialTest(tester, irmaBinding),
       );
 
-      // Two emails issued; user picks between them on change-choice screen.
-      // Obtainable card is greyed and unselectable.
+      // Two emails issued; user picks between them in the Change sheet.
+      // Nothing can be added there (no IssueURL).
       testWidgets(
         "one-credential-two-choices",
         (tester) => oneCredentialTwoChoicesTest(tester, irmaBinding),

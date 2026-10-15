@@ -35,6 +35,7 @@ Future<void> attributeOrderTest(
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   // Expect the choices screen
   expect(find.byType(DisclosureShareScreen), findsOneWidget);

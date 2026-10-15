@@ -1,7 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -44,15 +46,21 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
-  // No required cred is missing, so the wallet stays on the choices
-  // overview rather than entering the issuance wizard.
+  // No required cred is missing, so the wallet shows the share screen
+  // rather than "Add data first".
   expect(find.byType(AddMissingDataScreen), findsNothing);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
-  // Empty-state copy is rendered when no data is selected.
-  expect(find.text("No data selected"), findsOneWidget);
+  // Nothing is included: the button shares without data.
+  expect(
+    find.descendant(
+      of: find.byKey(const Key("share_button")),
+      matching: find.text("Share without data"),
+    ),
+    findsOneWidget,
+  );
 
   // Share button is enabled; submit empty disclosure and complete.
   await shareAndFinishEudiDisclosure(tester);

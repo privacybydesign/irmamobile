@@ -1,6 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -42,7 +44,7 @@ Future<void> valueOptionsOnePresentOneNotTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
@@ -56,9 +58,9 @@ Future<void> valueOptionsOnePresentOneNotTest(
     attributes: [("Email", "two@example.com"), ("Domain", "example.com")],
   );
 
-  // With one owned option and no obtainable template, the overview hides
-  // the change-choice button.
-  expect(find.text("Change choice"), findsNothing);
+  // With one owned option and nothing to add, there is no Change pill.
+  expect(find.byKey(const Key("share_change_0")), findsNothing);
+  expect(find.text("Change"), findsNothing);
 
   await shareAndFinishEudiDisclosure(tester);
 

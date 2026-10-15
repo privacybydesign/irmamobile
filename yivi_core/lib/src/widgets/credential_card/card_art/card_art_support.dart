@@ -1,3 +1,4 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
@@ -173,6 +174,16 @@ String? imageDataUri(schemaless.AttributeValue? value) {
   if (mime == null) return null;
   return "data:$mime;base64,$data";
 }
+
+/// [attributeText] with "Yes" and "No" in the app's language.
+String? localizedAttributeText(
+  BuildContext context,
+  schemaless.AttributeValue? value,
+) => attributeText(
+  value,
+  yes: FlutterI18n.translate(context, "credential.boolean_yes"),
+  no: FlutterI18n.translate(context, "credential.boolean_no"),
+);
 
 /// The plain-text form of an attribute value, or null when it has none that
 /// fits on a card (images, missing values).

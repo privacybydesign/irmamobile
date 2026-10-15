@@ -1,9 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -31,10 +31,11 @@ Future<void> signingTest(
         }
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
-  final requestorHeaderFinder = find.byType(RequestorHeader);
+  final requestorHeaderFinder = find.byType(SessionRequestorHeader);
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
@@ -42,7 +43,7 @@ Future<void> signingTest(
     isVerified: false,
   );
 
-  expect(find.text("This is the message you're signing:"), findsOneWidget);
+  expect(find.text("You sign this message"), findsOneWidget);
   final quoteFinder = find.byKey(const Key("signature_message"));
   expect(quoteFinder, findsOneWidget);
   expect(
@@ -50,7 +51,7 @@ Future<void> signingTest(
     "Message to be signed by user",
   );
 
-  expect(find.byType(RequestorHeader), findsOneWidget);
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

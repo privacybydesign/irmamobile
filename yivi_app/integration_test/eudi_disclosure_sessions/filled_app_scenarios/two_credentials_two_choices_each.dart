@@ -1,17 +1,16 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
+import "../eudi_choice_helpers.dart";
 
-/// Issues 2 emails + 2 phones, requests email AND phone. Each row on the
-/// overview offers a "Change choice" button; each change-choice screen
-/// shows exactly the two owned options (no obtainable template — irmago
-/// leaves `obtainable_options == null` for OID4VCI cred types).
+/// Issues 2 emails + 2 phones, requests email AND phone. Each card on the
+/// share screen has a "Change" pill; each Change sheet shows exactly the two
+/// owned options and nothing to add (irmago leaves
+/// `obtainable_options == null` for OID4VCI cred types).
 Future<void> twoCredentialsTwoChoicesEachTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -69,67 +68,27 @@ Future<void> twoCredentialsTwoChoicesEachTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  final choiceButtonFinder = find.text("Change choice", skipOffstage: false);
-  expect(choiceButtonFinder, findsNWidgets(2));
+  // One card per requested credential, each with a Change pill.
+  expect(findShareSlot(0), findsOneWidget);
+  expect(findShareSlot(1), findsOneWidget);
 
-  // Email change-choice screen: two owned options only.
-  await tester.scrollUntilVisible(choiceButtonFinder.at(0), 100);
-  await tester.tapAndSettle(choiceButtonFinder.at(0));
+  // Email sheet: two owned options only. Close it without changing.
+  await tapChangeChoicesButton(tester, 0);
+  expectOnlyOwnedInSheet(2);
+  expect(sheetOwnedRowsWith("one@example.com"), findsOneWidget);
+  expect(sheetOwnedRowsWith("two@template.com"), findsOneWidget);
+  await closeChoiceSheet(tester);
 
-  final emailChoiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-  expect(emailChoiceCardsFinder, findsNWidgets(2));
-  expect(
-    find.descendant(
-      of: emailChoiceCardsFinder,
-      matching: find.text("one@example.com", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: emailChoiceCardsFinder,
-      matching: find.text("two@template.com", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(find.text("Obtain new data"), findsNothing);
+  // Phone sheet: two owned options only. Close it without changing.
+  await tapChangeChoicesButton(tester, 1);
+  expectOnlyOwnedInSheet(2);
+  expect(sheetOwnedRowsWith("0612345678"), findsOneWidget);
+  expect(sheetOwnedRowsWith("0687654321"), findsOneWidget);
+  await closeChoiceSheet(tester);
 
-  await tester.tapAndSettle(find.byType(YiviBackButton));
-
-  // Phone change-choice screen: two owned options only.
-  await tester.scrollUntilVisible(choiceButtonFinder.at(1), 100);
-  await tester.tapAndSettle(choiceButtonFinder.at(1));
-
-  final phoneChoiceCardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
-  );
-  expect(phoneChoiceCardsFinder, findsExactly(2));
-  expect(
-    find.descendant(
-      of: phoneChoiceCardsFinder,
-      matching: find.text("0612345678", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(
-      of: phoneChoiceCardsFinder,
-      matching: find.text("0687654321", skipOffstage: false),
-    ),
-    findsOneWidget,
-  );
-  expect(find.text("Obtain new data"), findsNothing);
-
-  await tester.tapAndSettle(find.byType(YiviBackButton));
   await shareAndFinishEudiDisclosure(tester);
 
   await verifyMostRecentActivityLog(

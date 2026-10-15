@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/widgets/irma_icon_button.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -38,88 +37,50 @@ Future<void> optionalsTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Expect a disclose stepper
-  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
-  expect(disConStepperFinder, findsOneWidget);
+  // First the required address is added: one step, with a choice between
+  // the municipality and iDIN. The municipality starts selected.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddOption(0, 0), findsOneWidget);
+  expect(findAddOption(0, 1), findsOneWidget);
+  expect(find.text("Which one do you want to add?"), findsOneWidget);
+  expectAddButtonFor(tester, "Demo Address");
 
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Add one of the required credentials, in this case the address from municipality
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueMunicipalityAddress(tester, irmaBinding);
 
-  // Issue wizard should be completed
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
+  // Everything required is added: the share screen follows, with the
+  // optional data not included yet.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  expect(find.text("OPTIONAL"), findsOneWidget);
+  expect(findShareSlot(1), findsNothing);
 
-  // A card for adding optional data should be present. Tap it.
-  final addOptionalDataCardFinder = find.text("Add optional data");
-  expect(addOptionalDataCardFinder, findsOneWidget);
-  await tester.ensureVisible(addOptionalDataCardFinder);
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(addOptionalDataCardFinder);
-
-  // Expect the make choice screen
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Issue the email
+  // Add the e-mail address as optional data.
+  await addOptional(tester, 1);
+  await startAdding(tester, "irma-demo.sidn-pbdf.email");
   await issueEmailAddress(tester, irmaBinding);
 
-  // Optional data section should have a title now
-  final optionalDataHeaderFinder = find.text("Optional data");
-  expect(optionalDataHeaderFinder, findsOneWidget);
+  // Back from adding it, it is included, with a remove button.
+  await tester.waitFor(findShareSlot(1));
+  expect(findCardText(findShareSlot(1), "Demo Email address"), findsOneWidget);
+  expect(find.byKey(const Key("share_remove_1")), findsOneWidget);
 
-  // The last card should contain text Demo E-mail address
-  final optionalCardFinder = findCredentialCards().last;
-  expect(
-    findCardText(optionalCardFinder, "Demo Email address"),
-    findsOneWidget,
-  );
+  // Leave it out again: the "Add" row comes back.
+  await removeOptional(tester, 1);
+  expect(findShareSlot(1), findsNothing);
+  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
 
-  // Check if this optional card has a remove button
-  final optionalCardCloseButtonFinder = find.descendant(
-    of: optionalCardFinder,
-    matching: find.byType(IrmaIconButton),
-  );
-  expect(optionalCardCloseButtonFinder, findsOneWidget);
-
-  // Remove the optional credential
-  await tester.ensureVisible(optionalCardCloseButtonFinder);
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(optionalCardCloseButtonFinder);
-
-  // Optional data section title should be gone now.
-  expect(optionalDataHeaderFinder, findsNothing);
-
-  // The add optional data should reappear
-  expect(addOptionalDataCardFinder, findsOneWidget);
-
-  // Tap it
-  await tester.tapAndSettle(addOptionalDataCardFinder);
-
-  // Make choice screen should reappear
-  expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-  // Select the mobile number option this time
-  final mobileNumberHeaderFinder = find.text("Demo Mobile phone number");
-  await tester.ensureVisible(mobileNumberHeaderFinder);
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(mobileNumberHeaderFinder);
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
+  // This time add the mobile number.
+  await addOptional(tester, 1);
+  await startAdding(tester, "irma-demo.sidn-pbdf.mobilenumber");
   await issueMobileNumber(tester, irmaBinding);
 
-  // Last (optional) card should be phone number now
+  // The optional card is the phone number now.
+  await tester.waitFor(findShareSlot(1));
   expect(
-    findCardText(optionalCardFinder, "Demo Mobile phone number"),
+    findCardText(findShareSlot(1), "Demo Mobile phone number"),
     findsOneWidget,
   );
 

@@ -1,9 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -14,9 +13,10 @@ import "../disclosure_helpers.dart";
 /// Two-bundle choice with Bundle A partially pre-issued: MijnOverheid.root is
 /// owned, MijnOverheid.fullName is missing. The Go-side createIssuanceBundle
 /// filter removes the owned root from Bundle A in the wizard, so the wizard
-/// only asks the user to issue fullName. After issuance the overview renders
-/// Bundle A's two cards (the pre-existing root and the just-issued fullName);
-/// Bundle B remains obtainable so "Change choice" stays visible.
+/// only asks the user to add fullName. After it is added the share screen
+/// shows Bundle A as one item with two cards (the pre-existing root and the
+/// just-issued fullName); Bundle B remains obtainable so "Change" stays
+/// visible.
 Future<void> multiBundleChoicePartialTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -47,44 +47,52 @@ Future<void> multiBundleChoicePartialTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await waitForRequest(tester);
 
-  // Wizard runs for the missing fullName credential of Bundle A. Bundle B is
+  // The add screen asks for the missing fullName of Bundle A. Bundle B is
   // still fully missing but Bundle A is the default selection, so the user
-  // can complete the discon by issuing only fullName.
-  expect(find.text("Collect data"), findsOneWidget);
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  // can complete the step by adding only fullName.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(
+    find.descendant(of: findAddOption(0, 0), matching: find.text("Demo Name")),
+    // The option's name, and its line in the list of what is added.
+    findsWidgets,
+  );
+  expect(
+    find.descendant(
+      of: findAddOption(0, 1),
+      matching: find.text("Demo iDIN + Demo Address"),
+    ),
+    findsOneWidget,
+  );
+  expectAddButtonFor(tester, "Demo Name");
+
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueMijnOverheidFullName(tester, irmaBinding);
 
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(RequestorHeader));
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(SessionRequestorHeader));
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsNWidgets(2));
-
+  expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Root",
+    findShareSlot(0),
+    credentialName: "Demo Root + Demo Name",
     issuerName: "Demo MijnOverheid.nl",
-    attributes: [("BSN", "999999990")],
+    attributes: [
+      ("BSN", "999999990"),
+      ("First name", "Willeke"),
+      ("Family name", "Bruijn"),
+    ],
     style: IrmaCardStyle.normal,
   );
 
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    credentialName: "Demo Name",
-    issuerName: "Demo MijnOverheid.nl",
-    attributes: [("First name", "Willeke"), ("Family name", "Bruijn")],
-    style: IrmaCardStyle.normal,
-  );
-
-  // Bundle B remains obtainable -> Change choice button is visible.
-  expect(find.text("Change choice"), findsOneWidget);
+  // Bundle B remains obtainable -> the Change button is visible.
+  expect(find.byKey(const Key("share_change_0")), findsOneWidget);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

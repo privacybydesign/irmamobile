@@ -1,10 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -16,10 +13,6 @@ Future<void> specificAttributeValuesTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  const labelColor = Color(0xff484747);
-  const successColor = Color(0xff00973a);
-  const errorColor = Color(0xffbd1919);
-
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:
@@ -42,127 +35,34 @@ Future<void> specificAttributeValuesTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Expect a disclose stepper
-  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
-  expect(disConStepperFinder, findsOneWidget);
+  // Two steps to add: iDIN (the city must be Arnhem), then iDEAL (the BIC
+  // must be RABONL2U).
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsOneWidget);
+  expectAddButtonFor(tester, "Demo iDIN");
 
-  // The discon stepper should two cards
-  final choiceCardsFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: findCredentialCards(),
-  );
-  expect(choiceCardsFinder, findsNWidgets(2));
+  // The current step says which value is needed, in green. The requested
+  // attributes without a value are not listed.
+  final palette = YiviPalette.of(tester.element(findAddScreen()));
+  _expectRequired(tester, 0, "City", "Arnhem", palette.successText);
+  for (final name in ["Initials", "Family name"]) {
+    expect(
+      find.descendant(of: findAddStep(0), matching: find.text(name)),
+      findsNothing,
+    );
+  }
 
-  // First card should be highlighted.
-  final firstCardFinder = choiceCardsFinder.first;
-  expect(
-    (firstCardFinder.evaluate().first.widget as YiviCredentialCard).style,
-    IrmaCardStyle.highlighted,
-  );
-
-  // First card should show an attribute list
-  final firstCardAttListFinder = find.descendant(
-    of: firstCardFinder,
-    matching: find.byType(YiviCredentialCardAttributeList),
-  );
-  expect(firstCardAttListFinder, findsOneWidget);
-
-  // The name of the attribute with a value should be visible and styled normally
-  final firstCardAttNameFinder = find.descendant(
-    of: firstCardAttListFinder,
-    matching: find.text("City"),
-  );
-  expect(firstCardAttNameFinder, findsOneWidget);
-  expect(
-    (firstCardAttNameFinder.evaluate().first.widget as Text).style?.color!,
-    labelColor,
-  );
-
-  // The names of the other requested attributes (without a value) should not be visible
-  expect(
-    find.descendant(
-      of: firstCardAttListFinder,
-      matching: find.text("Initials"),
-    ),
-    findsNothing,
-  );
-  expect(
-    find.descendant(
-      of: firstCardAttListFinder,
-      matching: find.text("Family name"),
-    ),
-    findsNothing,
-  );
-
-  // The value of the attribute should be visible and styled green
-  final firstCardAttValueFinder = find.descendant(
-    of: firstCardAttListFinder,
-    matching: find.text("Arnhem"),
-  );
-  expect(firstCardAttValueFinder, findsOneWidget);
-  expect(
-    (firstCardAttValueFinder.evaluate().first.widget as Text).style?.color!,
-    successColor,
-  );
-
-  // Find the second card and make sure its is not highlighted yet
-  final secondCardFinder = choiceCardsFinder.at(1);
-  await tester.scrollUntilVisible(secondCardFinder, 150, maxScrolls: 300);
-
-  await evaluateCredentialCard(
-    tester,
-    secondCardFinder,
-    style: IrmaCardStyle.normal,
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // Issue the right iDIN credential
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would. First the right iDIN credential.
   await issueIdin(tester, irmaBinding);
 
-  // Tap it and the styling should change.
-  await tester.scrollUntilVisible(secondCardFinder, 150, maxScrolls: 300);
-  await tester.tapAndSettle(secondCardFinder);
-  await evaluateCredentialCard(
-    tester,
-    secondCardFinder,
-    style: IrmaCardStyle.highlighted,
+  // iDIN is in; iDEAL is current, with its required BIC.
+  await tester.waitFor(
+    find.descendant(of: findAddStep(0), matching: find.text("Added")),
   );
-
-  // Second card should also show an attribute list
-  final secondCardAttListFinder = find.descendant(
-    of: secondCardFinder,
-    matching: find.byType(YiviCredentialCardAttributeList),
-  );
-  expect(secondCardAttListFinder, findsOneWidget);
-
-  // The name of the attribute should be visible and styled normally
-  final secondCardAttNameFinder = find.descendant(
-    of: secondCardAttListFinder,
-    matching: find.text("BIC"),
-  );
-  expect(secondCardAttNameFinder, findsOneWidget);
-  expect(
-    (secondCardAttNameFinder.evaluate().first.widget as Text).style?.color!,
-    labelColor,
-  );
-
-  // The value of the attribute should be visible and styled green
-  final secondCardAttValueFinder = find.descendant(
-    of: secondCardAttListFinder,
-    matching: find.text("RABONL2U"),
-  );
-  expect(secondCardAttValueFinder, findsOneWidget);
-  expect(
-    (secondCardAttValueFinder.evaluate().first.widget as Text).style?.color!,
-    successColor,
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  expectAddButtonFor(tester, "Demo iDEAL");
+  _expectRequired(tester, 1, "BIC", "RABONL2U", palette.successText);
 
   // Now obtain the iDEAL credential with the wrong BIC
   await issueCredentials(tester, irmaBinding, {
@@ -171,100 +71,26 @@ Future<void> specificAttributeValuesTest(
     "irma-demo.ideal.ideal.bic": "INGBNL2A",
   });
 
-  // Wrong credentials added dialog should appear
-  final wrongCredAddedDialogFinder = find.byKey(const Key("add_wrong_note"));
-  expect(wrongCredAddedDialogFinder, findsOneWidget);
-
-  // Dialog should show two credential cards
-  final dialogCardsFinder = find.descendant(
-    of: wrongCredAddedDialogFinder,
-    matching: findCredentialCards(),
-  );
-  expect(dialogCardsFinder, findsNWidgets(2));
-
-  // First card should show the added credential not matching this session
-  final firstDialogCardFinder = dialogCardsFinder.first;
-  expect(firstDialogCardFinder, findsOneWidget);
-
-  // First card in dialog should have an attribute list
-  final firstDialogCardAttListFinder = find.descendant(
-    of: firstDialogCardFinder,
-    matching: find.byType(YiviCredentialCardAttributeList),
-  );
-  expect(firstDialogCardAttListFinder, findsOneWidget);
-
-  // The name of the attribute should be visible and styled normally
-  final firstDialogCardAttNameFinder = find.descendant(
-    of: firstDialogCardAttListFinder,
-    matching: find.text("BIC"),
-  );
-  expect(firstDialogCardAttNameFinder, findsOneWidget);
+  // The step says so in place (no dialog): what was added next to what is
+  // needed, and the button adds again.
+  final wrongNoteFinder = find.byKey(const Key("add_wrong_note"));
+  await tester.waitFor(wrongNoteFinder);
+  expect(find.byType(Dialog), findsNothing);
   expect(
-    (firstDialogCardAttNameFinder.evaluate().first.widget as Text)
-        .style
-        ?.color!,
-    labelColor,
+    find.descendant(of: findAddStep(1), matching: find.text("You added")),
+    findsOneWidget,
   );
-
-  // The attribute value should match the added credential and should be styled red
-  final firstDialogCardAttValueFinder = find.descendant(
-    of: firstDialogCardAttListFinder,
+  final addedValue = find.descendant(
+    of: findAddStep(1),
     matching: find.text("INGBNL2A"),
   );
-  expect(firstDialogCardAttValueFinder, findsOneWidget);
+  expect(addedValue, findsOneWidget);
+  expect(tester.widget<Text>(addedValue).style?.color, palette.errorText);
   expect(
-    (firstDialogCardAttValueFinder.evaluate().first.widget as Text)
-        .style
-        ?.color!,
-    errorColor,
+    find.descendant(of: findAddStep(1), matching: find.text("Needed")),
+    findsOneWidget,
   );
-
-  // The second card should also be visible
-  final secondDialogCardFinder = dialogCardsFinder.at(1);
-  expect(secondDialogCardFinder, findsOneWidget);
-
-  // Second card in dialog should also have an attribute list
-  final secondDialogCardAttListFinder = find.descendant(
-    of: secondDialogCardFinder,
-    matching: find.byType(YiviCredentialCardAttributeList),
-  );
-  expect(secondDialogCardAttListFinder, findsOneWidget);
-
-  // The name of the attribute should be visible and styled normally
-  final secondDialogCardAttNameFinder = find.descendant(
-    of: secondDialogCardAttListFinder,
-    matching: find.text("BIC"),
-  );
-  expect(secondDialogCardAttNameFinder, findsOneWidget);
-  expect(
-    (secondDialogCardAttNameFinder.evaluate().first.widget as Text)
-        .style
-        ?.color!,
-    labelColor,
-  );
-
-  // The attribute value should match requested value
-  final secondDialogCardAttValueFinder = find.descendant(
-    of: secondDialogCardAttListFinder,
-    matching: find.text("RABONL2U"),
-  );
-  expect(secondDialogCardAttValueFinder, findsOneWidget);
-  expect(
-    (secondDialogCardAttValueFinder.evaluate().first.widget as Text)
-        .style
-        ?.color!,
-    successColor,
-  );
-
-  // Close the dialog
-  final okButtonFinder = find.text("OK");
-  await tester.ensureVisible(okButtonFinder);
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(okButtonFinder);
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+  expect(addButtonTexts(tester).first, "Add again");
 
   // Now issue the credential with requested BIC
   await issueCredentials(tester, irmaBinding, {
@@ -273,24 +99,32 @@ Future<void> specificAttributeValuesTest(
     "irma-demo.ideal.ideal.bic": "RABONL2U",
   });
 
-  // No dialog should appear
-  expect(wrongCredAddedDialogFinder, findsNothing);
-
-  // The disclosure cards should not have a attribute cards list.
-  expect(
-    find.descendant(
-      of: dialogCardsFinder,
-      matching: find.byType(YiviCredentialCardAttributeList),
-    ),
-    findsNothing,
-  );
-
-  // Issue wizard should be completed
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // Expect the choices screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  // Everything is added: the share screen follows by itself, without the
+  // note.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(wrongNoteFinder, findsNothing);
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
   await tapShare(tester);
   await evaluateFeedback(tester);
+}
+
+/// Checks that step [step] on the add screen lists [label] with "must be
+/// [value]" in [color].
+void _expectRequired(
+  WidgetTester tester,
+  int step,
+  String label,
+  String value,
+  Color color,
+) {
+  expect(
+    find.descendant(of: findAddStep(step), matching: find.text(label)),
+    findsOneWidget,
+  );
+  final mustBe = find.descendant(
+    of: findAddStep(step),
+    matching: find.text("must be $value"),
+  );
+  expect(mustBe, findsOneWidget);
+  expect(tester.widget<Text>(mustBe).style?.color, color);
 }

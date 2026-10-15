@@ -2,8 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -53,11 +53,12 @@ Future<void> revocationTest(
           "revocation": [ "irma-demo.MijnOverheid.root" ]
         }
       ''');
+  await waitForRequest(tester);
 
   // The disclosure permission overview screen should be visible.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.text("Share my data"), findsOneWidget);
-  expect(find.byType(RequestorHeader), findsOneWidget);
+  expect(find.text("Do you want to share this data?"), findsOneWidget);
+  expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
   // Find all credential cards
   final cardsFinder = findCredentialCards();

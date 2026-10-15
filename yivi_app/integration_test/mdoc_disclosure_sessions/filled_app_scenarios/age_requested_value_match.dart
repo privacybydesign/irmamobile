@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -46,7 +47,11 @@ Future<void> ageRequestedValueMatchTest(
     issuerName: eudiIssuerDisplayName,
     attributes: [(avLabel(18), booleanYes)],
   );
-  expect(find.text("Change choice"), findsNothing);
+  // One candidate: nothing to change.
+  expect(
+    find.byKey(const Key("share_change_0"), skipOffstage: false),
+    findsNothing,
+  );
 
   await shareAndFinishEudiDisclosure(tester);
 

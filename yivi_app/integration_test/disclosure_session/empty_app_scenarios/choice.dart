@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
@@ -32,51 +31,44 @@ Future<void> choiceTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // First, the missing required disjunctions should be obtained using an issue wizard.
-  expect(find.text("Collect data"), findsOneWidget);
-
-  // We should have one discon stepper
-  final disConStepperFinder = find.byKey(const Key("add_missing_data_list"));
-  expect(disConStepperFinder, findsOneWidget);
-
-  // The discon stepper should contain one choice
-  final disconChoiceFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byKey(const Key("add_missing_data_list")),
+  // First, the missing data is added: one step, a choice between the
+  // e-mail address and the mobile number. The first starts selected.
+  await tester.waitFor(findAddScreen());
+  expect(findAddStep(0), findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  expect(find.text("Which one do you want to add?"), findsOneWidget);
+  _expectOption(
+    0,
+    0,
+    "Demo Email address",
+    "Demo Privacy by Design Foundation via SIDN",
   );
-  expect(disconChoiceFinder, findsOneWidget);
+  expect(findAddOption(0, 1), findsOneWidget);
+  expectAddButtonFor(tester, "Demo Email address");
 
-  // The choice should consist of two options/cards
-  final cardsFinder = find.descendant(
-    of: disconChoiceFinder,
-    matching: findCredentialCards(),
-  );
-  expect(cardsFinder, findsNWidgets(2));
-
-  // First card should be selected
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    isSelected: true,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-  );
-
-  // Continue and expect the SchemalessAddDataDetailsScreen
-  await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
-
-  // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
-  // Therefore, we mock this behavior using the helper below until we have a better solution.
+  // The button opens the issuer's website; the test issues the card the
+  // way that website would.
   await issueEmailAddress(tester, irmaBinding);
 
-  // The choice should be gone now and the phase should be completed.
-  expect(disconChoiceFinder, findsNothing);
-  expect(find.text("All required data has been added."), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // Expect the choices screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  // Everything is added: the share screen follows by itself.
+  await tester.waitFor(find.byType(DisclosureShareScreen));
+  expect(findAddScreen(), findsNothing);
+  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
   await tapShare(tester);
   await evaluateFeedback(tester);
+}
+
+/// Checks option [option] of step [step] on the add screen: its name and
+/// "{issuer} · on {host}".
+void _expectOption(int step, int option, String name, String issuer) {
+  final row = findAddOption(step, option);
+  expect(row, findsOneWidget);
+  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
+  expect(
+    find.descendant(
+      of: row,
+      matching: find.text("$issuer · on portal.yivi.app"),
+    ),
+    findsOneWidget,
+  );
 }

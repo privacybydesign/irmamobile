@@ -1,10 +1,11 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -18,11 +19,10 @@ import "../../util.dart";
 /// the descriptor's `Name`/`Issuer.Name` from VCT type metadata, while
 /// leaving `DisclosureShareScreen` nil.
 ///
-/// Wallet routing (`session_screen.dart:253-262`) therefore renders the
-/// `AddMissingDataScreen`. Because the descriptor has no IssueURL,
-/// `currentIsObtainable` is false and the bottom-bar primary becomes
-/// "Close" (`issue_during_disclosure_screen.dart:119-122`). Tapping Close
-/// dismisses the session.
+/// Wallet routing therefore renders the `AddMissingDataScreen`. Because the
+/// descriptor has no IssueURL, nothing in the step can be added from Yivi
+/// (`addActionFor` gives `CloseCannotAdd`): the one button is "Close", with
+/// why above it. Tapping Close dismisses the session.
 Future<void> credMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -51,36 +51,45 @@ Future<void> credMissingTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   // Wallet must NOT render the choices overview — the backend hides it
   // when issuance steps exist.
   expect(find.byType(DisclosureShareScreen), findsNothing);
   expect(find.byType(AddMissingDataScreen), findsOneWidget);
 
-  // The missing-cred descriptor card displays the credential name from VCT
-  // type metadata. We use a direct text-finder rather than
-  // `evaluateCredentialCard(credentialName: ...)` because the unobtainable
-  // descriptor's metadata carries no logo, so `IrmaAvatar` falls back to
-  // rendering `credentialName[0]` as initials — making the *first* text in
-  // the header "E", not the full credential name. The bridge payload also
-  // returns `issuer.name == null` for missing-cred descriptors, so no
-  // issuer assertion is meaningful here.
-  final cardFinder = find.byType(YiviCredentialCard);
-  expect(cardFinder, findsOneWidget);
+  // One step with one option: the credential name from VCT type metadata.
+  // The bridge payload returns `issuer.name == null` for missing-cred
+  // descriptors, so no issuer assertion is meaningful here.
+  final step = findAddStep(0);
+  expect(step, findsOneWidget);
+  expect(findAddStep(1), findsNothing);
+  final option = findAddOption(0, 0);
   expect(
     find.descendant(
-      of: cardFinder,
+      of: option,
       matching: find.text("Email Credential (SD-JWT)"),
+    ),
+    findsWidgets,
+  );
+  expect(
+    find.descendant(
+      of: option,
+      matching: find.text("Can't be added from Yivi"),
     ),
     findsOneWidget,
   );
 
-  // No "Obtain data" CTA — the cred type has no IssueURL.
-  expect(find.text("Obtain data"), findsNothing);
-  expect(find.text("Close"), findsOneWidget);
+  // No add button — the cred type has no IssueURL; "Close", and why.
+  expect(addButtonTexts(tester), ["Close"]);
+  expect(find.byKey(const Key("add_reason")), findsOneWidget);
 
-  await tester.tapAndSettle(find.text("Close"));
+  await tester.tapAndSettle(
+    find.descendant(
+      of: find.byKey(const Key("add_button")),
+      matching: find.text("Close"),
+    ),
+  );
 
   // The dismiss flow is async (dispatch → backend → state update → pop);
   // wait for the SessionScreen to fully unmount before ending the test so

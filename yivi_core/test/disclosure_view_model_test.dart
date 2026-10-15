@@ -21,6 +21,7 @@ SelectableCredentialInstance _instance(
   int? expiry = _future,
   CredentialFormat format = CredentialFormat.idemix,
   String issuer = "Gemeente",
+  String? issueUrl,
 }) => SelectableCredentialInstance(
   credentialId: id,
   hash: hash,
@@ -32,6 +33,7 @@ SelectableCredentialInstance _instance(
   revocationSupported: revoked,
   batchInstanceCountRemaining: batch,
   expiryDate: expiry,
+  issueUrl: issueUrl,
 );
 
 CredentialDescriptor _descriptor(
@@ -276,6 +278,27 @@ void main() {
         )?.credentialId,
         "address",
       );
+    });
+
+    test("a revoked card without other options is renewed at its issuer", () {
+      final pickOne = _pickOne(
+        owned: [
+          _bundle([
+            _instance(
+              "root",
+              revoked: true,
+              issueUrl: "https://portal.example/root",
+            ),
+          ]),
+        ],
+      );
+      final fix = fixFor(pickOne, pickOne.ownedOptions!.first);
+      expect(fix?.credentialId, "root");
+      expect(fix?.issueURL, "https://portal.example/root");
+      final button = shareButton(_session([pickOne]), const {});
+      expect(button.label, ShareLabel.share);
+      expect(button.enabled, isFalse);
+      expect(button.blockedBy, CardProblem.revoked);
     });
 
     test("a used-up card that cannot be renewed in Yivi closes", () {

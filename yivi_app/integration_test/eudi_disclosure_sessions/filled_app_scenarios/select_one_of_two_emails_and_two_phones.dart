@@ -1,11 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../eudi_choice_helpers.dart";
 
 /// OR disjunction across two cred types, each with two issued instances.
@@ -77,47 +76,34 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpAndSettle();
+  await waitForRequest(tester);
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
-  final cardsFinder = find.descendant(
-    of: find.byKey(const Key("disclosure_choice_sheet")),
-    matching: findCredentialCards(),
-    skipOffstage: false,
+  // 4 owned options; nothing to add for OID4VCI. With two types in one
+  // sheet, a row shows the type's name and "{value} · {issuer}" below it.
+  expectOnlyOwnedInSheet(4);
+  for (final value in [
+    "one@example.com",
+    "two@template.com",
+    "0612345678",
+    "0687654321",
+  ]) {
+    expect(sheetOwnedRowsWith("$value · Test Issuer"), findsOneWidget);
+  }
+
+  // One tap picks the last phone and closes the sheet.
+  await pickOwned(tester, "0687654321 · Test Issuer");
+  await evaluateCredentialCard(
+    tester,
+    findShareSlot(0),
+    issuerName: "Test Issuer",
+    credentialName: "Phone Credential (SD-JWT)",
+    attributes: [("Phone Number", "0687654321")],
   );
 
-  // 4 owned options; no obtainable templates for OID4VCI.
-  expect(cardsFinder, findsNWidgets(4));
-
-  expect(
-    find.descendant(of: cardsFinder, matching: find.text("one@example.com")),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(of: cardsFinder, matching: find.text("two@template.com")),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(of: cardsFinder, matching: find.text("0612345678")),
-    findsOneWidget,
-  );
-
-  final lastPhoneFinder = find.descendant(
-    of: cardsFinder,
-    matching: find.text("0687654321"),
-  );
-  expect(lastPhoneFinder, findsOneWidget);
-
-  await tester.scrollUntilVisible(lastPhoneFinder, 100);
-  await tester.tapAndSettle(lastPhoneFinder);
-
-  expect(find.text("Obtain new data"), findsNothing);
-
-  // Confirm choice / go back.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishEudiDisclosure(tester);
 
   await verifyMostRecentActivityLog(
