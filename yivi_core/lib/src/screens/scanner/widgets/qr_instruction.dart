@@ -19,41 +19,40 @@ class QRInstruction extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
 
+    // Light glass while scanning; dark glass with white text for the
+    // result, as the dimmed camera around the window turns green or red.
     final (screen, fill, textColor) = error
-        ? ("error", const Color(0xE6BD1919), Colors.white)
+        ? ("error", const Color(0x6B1C1C1E), Colors.white)
         : found
-        ? ("success", const Color(0xE6007A30), Colors.white)
+        ? ("success", const Color(0x6B1C1C1E), Colors.white)
         : ("instruction", null, palette.text);
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: GlassSurface(
-            shape: const RoundedSuperellipseBorder(
-              borderRadius: BorderRadius.all(Radius.circular(28)),
-            ),
-            fill: fill,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TranslatedText(
-                  "qr_scanner.$screen.title",
-                  style: palette.display(18).copyWith(color: textColor),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: GlassSurface(
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(28)),
+          ),
+          fill: fill,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TranslatedText(
+                "qr_scanner.$screen.title",
+                style: palette.display(18).copyWith(color: textColor),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Flexible(
+                child: TranslatedText(
+                  "qr_scanner.$screen.message",
+                  style: palette.body(16).copyWith(color: textColor),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
-                Flexible(
-                  child: TranslatedText(
-                    "qr_scanner.$screen.message",
-                    style: palette.body(16).copyWith(color: textColor),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

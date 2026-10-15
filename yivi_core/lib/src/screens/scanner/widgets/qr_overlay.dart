@@ -1,76 +1,37 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
-
+/// The dimmed camera around the scan window and the window's corner
+/// brackets, as in the design: a 300 pt window with 40 pt corners and 56 pt
+/// brackets, dimmed in dark grey, or green after a Yivi QR code and red after
+/// another code.
 class QROverlay extends CustomPainter {
-  // the width of the view box as a ratio of the screen width
-  static const _widthFactor = 0.78;
+  /// Where the window is, in the painter's coordinates.
+  final Rect window;
 
-  // the view box never gets wider than this
-  static const _maxWindowSize = 320.0;
-
-  // minimum offset to the bottom of the screen as a ratio of the total height
-  static const _minBottomOffsetFactor = 0.05;
-
-  // offset to the top of the screen as a ratio of the total height
-  final double topOffsetFactor;
-
-  // the irma theme
-  final IrmaThemeData theme;
-
-  // QR code found
+  /// QR code found
   final bool found;
 
-  // wrong QR code found
+  /// wrong QR code found
   final bool error;
 
-  QROverlay({
-    required this.found,
-    required this.error,
-    required this.theme,
-    required this.topOffsetFactor,
-  });
+  QROverlay({required this.window, required this.found, required this.error});
+
+  static const _designSize = 300.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    // hole size
-    double windowSize = size.width * _widthFactor;
-    if (windowSize > _maxWindowSize) windowSize = _maxWindowSize;
-    final maxWindowHeight =
-        size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
-    if (windowSize > maxWindowHeight) {
-      windowSize = maxWindowHeight;
-    }
+    // The corners and brackets keep the design's proportions in a smaller
+    // window.
+    final scale = window.width / _designSize;
+    final radius = 40 * scale;
+    final cornerSize = 56 * scale;
+    final rrect = RRect.fromRectAndRadius(window, Radius.circular(radius));
 
-    // hole coordinates
-    final left = (size.width - windowSize) / 2;
-    final right = left + windowSize;
-    final top = size.height * topOffsetFactor;
-    final bottom = top + windowSize;
-    final cornerSize = windowSize * 0.19;
-    final radius = windowSize * 0.13;
-    final window = RRect.fromLTRBR(
-      left,
-      top,
-      right,
-      bottom,
-      Radius.circular(radius),
-    );
-
-    // colors
-    final Color green = theme.success;
-    final Color red = theme.error;
-
-    Color overlayColor = const Color(0xFF121417);
-    Color cornerColor = Colors.white;
-
-    if (error) {
-      overlayColor = const Color(0xFF961414);
-      cornerColor = const Color(0xFFFF6B6B);
-    } else if (found) {
-      overlayColor = const Color(0xFF006E2A);
-      cornerColor = const Color(0xFF3DDC84);
-    }
+    final (overlayColor, cornerColor) = error
+        ? (const Color(0x8C961414), const Color(0xFFFF6B6B))
+        : found
+        ? (const Color(0x8C006E2A), const Color(0xFF3DDC84))
+        : (const Color(0x8C121417), Colors.white);
 
     // Punch the scan window out of the dimming overlay using BlendMode.clear.
     // This must happen inside its own offscreen layer: BlendMode.clear writes
@@ -81,37 +42,20 @@ class QROverlay extends CustomPainter {
     // surface). saveLayer gives us a real RGBA buffer whose transparent hole
     // composites correctly over the camera texture.
     canvas.saveLayer(Offset.zero & size, Paint());
-
-    // transparent overlay
-    final paint = Paint()
-      ..color = overlayColor.withAlpha(140)
-      ..style = PaintingStyle.fill;
-    final Path path = Path();
-    path.lineTo(0, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-    canvas.drawPath(path, paint);
-
-    // add a hole in the overlay
-    final clearPaint = Paint()
-      ..color = const Color(0x00000000)
-      ..style = PaintingStyle.fill
-      ..blendMode = BlendMode.clear;
-    canvas.drawRRect(window, clearPaint);
-
+    canvas.drawRect(Offset.zero & size, Paint()..color = overlayColor);
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..color = const Color(0x00000000)
+        ..blendMode = BlendMode.clear,
+    );
     canvas.restore();
 
-    // add rounded corner brackets that follow the window's corners
-    final cornerPaint = Paint()
-      ..color = cornerColor
-      ..strokeWidth = 4
-      ..strokeJoin = StrokeJoin.round
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
+    // Corner brackets that follow the window's rounded corners.
+    final left = window.left, top = window.top;
+    final right = window.right, bottom = window.bottom;
     final r = Radius.circular(radius);
-    final Path corners = Path()
+    final corners = Path()
       ..moveTo(left, top + cornerSize)
       ..lineTo(left, top + radius)
       ..arcToPoint(Offset(left + radius, top), radius: r)
@@ -128,77 +72,17 @@ class QROverlay extends CustomPainter {
       ..lineTo(left + radius, bottom)
       ..arcToPoint(Offset(left, bottom - radius), radius: r)
       ..lineTo(left, bottom - cornerSize);
-    canvas.drawPath(corners, cornerPaint);
-
-    if (error) {
-      // paint error icon
-      final iconPaint = Paint()
-        ..color = red
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(
-        Offset((left + right) / 2, (top + bottom) / 2),
-        windowSize * 0.2,
-        iconPaint,
-      );
-      final iconShapePaint = Paint()
-        ..color = Colors.white
-        ..strokeWidth = 8
-        ..strokeJoin = StrokeJoin.round
+    canvas.drawPath(
+      corners,
+      Paint()
+        ..color = cornerColor
+        ..strokeWidth = 4
         ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke;
-      final Path iconShape = Path();
-      iconShape.moveTo(
-        (left + right) / 2 - windowSize * 0.06,
-        (top + bottom) / 2 - windowSize * 0.06,
-      );
-      iconShape.lineTo(
-        (left + right) / 2 + windowSize * 0.06,
-        (top + bottom) / 2 + windowSize * 0.06,
-      );
-      iconShape.moveTo(
-        (left + right) / 2 - windowSize * 0.06,
-        (top + bottom) / 2 + windowSize * 0.06,
-      );
-      iconShape.lineTo(
-        (left + right) / 2 + windowSize * 0.06,
-        (top + bottom) / 2 - windowSize * 0.06,
-      );
-      canvas.drawPath(iconShape, iconShapePaint);
-    } else if (found) {
-      // paint found icon
-      final iconPaint = Paint()
-        ..color = green
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(
-        Offset((left + right) / 2, (top + bottom) / 2),
-        windowSize * 0.2,
-        iconPaint,
-      );
-      final iconShapePaint = Paint()
-        ..color = Colors.white
-        ..strokeWidth = 12
-        ..strokeJoin = StrokeJoin.round
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke;
-      final Path iconShape = Path();
-      iconShape.moveTo(
-        (left + right) / 2 - windowSize * 0.11,
-        (top + bottom) / 2,
-      );
-      iconShape.lineTo(
-        (left + right) / 2,
-        (top + bottom) / 2 + windowSize * 0.08,
-      );
-      iconShape.lineTo(
-        (left + right) / 2 + windowSize * 0.09,
-        (top + bottom) / 2 - windowSize * 0.09,
-      );
-      canvas.drawPath(iconShape, iconShapePaint);
-    }
+        ..style = PaintingStyle.stroke,
+    );
   }
 
   @override
-  bool shouldRepaint(QROverlay oldDelegate) {
-    return oldDelegate.found != found || oldDelegate.error != error;
-  }
+  bool shouldRepaint(QROverlay old) =>
+      old.window != window || old.found != found || old.error != error;
 }

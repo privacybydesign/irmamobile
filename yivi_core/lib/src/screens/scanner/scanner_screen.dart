@@ -63,49 +63,62 @@ class ScannerScreenState extends State<ScannerScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF23262A),
+      // Expand: the title row is the only sized child, and without this the
+      // stack (and with it the camera and the scan window) was only as tall
+      // as that row.
       body: Stack(
+        fit: StackFit.expand,
         children: [
           Positioned.fill(child: _buildBody(isLandscape)),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                height: 44,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: TranslatedText(
-                        "qr_scanner.title",
-                        style: palette
-                            .display(18)
-                            .copyWith(
-                              color: Colors.white,
-                              shadows: const [
-                                Shadow(color: Color(0x73000000), blurRadius: 8),
-                              ],
-                            ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GlassIconButton(
-                        key: const Key("irma_app_bar_close"),
-                        semanticsLabel: FlutterI18n.translate(
-                          context,
-                          "ui.close",
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  height: 44,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: TranslatedText(
+                          "qr_scanner.title",
+                          style: palette
+                              .display(18)
+                              .copyWith(
+                                color: Colors.white,
+                                shadows: const [
+                                  Shadow(
+                                    color: Color(0x73000000),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
                         ),
-                        fill: const Color(0x6B1C1C1E),
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        onTap: () => Navigator.of(context).pop(),
                       ),
-                    ),
-                  ],
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GlassIconButton(
+                          key: const Key("irma_app_bar_close"),
+                          semanticsLabel: FlutterI18n.translate(
+                            context,
+                            "ui.close",
+                          ),
+                          fill: const Color(0x6B1C1C1E),
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          onTap: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
