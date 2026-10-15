@@ -136,6 +136,8 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                   YiviPinScreen(
                     key: ValueKey(_resetNonce),
                     instructionKey: "session_pin.subtitle",
+                    // A lock, not the logo, as on the session PIN board.
+                    lockIcon: true,
                     maxPinSize: widget.maxPinSize,
                     enabled: !widget.submitting,
                     displayPinLength: true,

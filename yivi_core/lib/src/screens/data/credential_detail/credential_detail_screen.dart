@@ -813,7 +813,7 @@ class _ActivityRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         border: last
             ? null
@@ -831,15 +831,25 @@ class _ActivityRow extends StatelessWidget {
             ),
             child: Icon(Icons.history, size: 20, color: palette.link),
           ),
+          // The date under what happened, as in the design.
           Expanded(
-            child: Text(
-              title,
-              style: palette.body(14, weight: FontWeight.w600),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: palette
+                      .body(14, weight: FontWeight.w600)
+                      .copyWith(height: 20 / 14),
+                ),
+                Text(
+                  date,
+                  style: palette
+                      .body(12)
+                      .copyWith(color: palette.secondaryText),
+                ),
+              ],
             ),
-          ),
-          Text(
-            date,
-            style: palette.body(12).copyWith(color: palette.secondaryText),
           ),
         ],
       ),

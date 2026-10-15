@@ -6,6 +6,7 @@ import "package:collection/collection.dart";
 import "package:cupertino_ui/cupertino_ui.dart";
 // ignore: depend_on_referenced_packages
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -620,7 +621,15 @@ Future<void> evaluateCredentialCard(
           expect(ownTexts.firstOrNull, credentialName);
         }
         if (issuerName != null) {
-          expect(ownTexts.elementAtOrNull(1), issuerName);
+          // The tile says "by {issuer}".
+          expect(
+            ownTexts.elementAtOrNull(1),
+            FlutterI18n.translate(
+              tester.element(rootFinder),
+              "credential.issued_by",
+              translationParams: {"issuer": issuerName},
+            ),
+          );
         }
       }
 

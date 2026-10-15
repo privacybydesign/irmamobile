@@ -12,7 +12,6 @@ import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/disclosed_card_tile.dart";
-import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
@@ -495,30 +494,7 @@ class _DisclosureChoiceEntry extends ConsumerWidget {
           children: [
             // Instances of one credential share a name, so they get no label.
             if (switchInFooter && names.length > 1)
-              _ChoiceLabel(joinChoiceNames(context, names))
-            else if (changeable && !optional && !singleTapChoice)
-              Padding(
-                padding: .only(
-                  bottom: theme.smallSpacing,
-                  top: theme.smallSpacing,
-                ),
-                child: Row(
-                  mainAxisAlignment: .end,
-                  children: [
-                    PillButton(
-                      key: const Key("change_choice_button"),
-                      label: FlutterI18n.translate(
-                        context,
-                        "disclosure_permission.change_choice",
-                      ),
-                      style: PillStyle.outlined,
-                      height: 40,
-                      expand: false,
-                      onPressed: onChangeChoice,
-                    ),
-                  ],
-                ),
-              ),
+              _ChoiceLabel(joinChoiceNames(context, names)),
             for (var i = 0; i < credentials.length; i++)
               Padding(
                 padding: EdgeInsets.only(
@@ -533,6 +509,15 @@ class _DisclosureChoiceEntry extends ConsumerWidget {
                               ? onChangeChoice
                               : null,
                         )
+                      : null,
+                  // As in the design: a small pill next to the values of
+                  // the last card of the choice.
+                  attributesTrailing:
+                      changeable &&
+                          !optional &&
+                          !singleTapChoice &&
+                          i == credentials.length - 1
+                      ? _ChangeChoicePill(onTap: onChangeChoice)
                       : null,
                   trailing: i == 0 && optional && onRemove != null
                       ? IrmaIconButton(
@@ -611,6 +596,46 @@ class _ChoiceLabel extends StatelessWidget {
             fontWeight: FontWeight.w700,
             color: theme.neutralDark,
             letterSpacing: 0.96,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Change choice": a small outlined pill inside the card.
+class _ChangeChoicePill extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ChangeChoicePill({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Material(
+        color: palette.surface,
+        shape: StadiumBorder(side: BorderSide(color: palette.heading)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: const Key("change_choice_button"),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 36),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  FlutterI18n.translate(
+                    context,
+                    "disclosure_permission.change_choice",
+                  ),
+                  style: palette.display(13).copyWith(color: palette.heading),
+                ),
+              ),
+            ),
           ),
         ),
       ),

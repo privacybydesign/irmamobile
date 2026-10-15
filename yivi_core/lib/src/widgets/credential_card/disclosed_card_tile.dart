@@ -27,12 +27,16 @@ class DisclosedCardTile extends ConsumerWidget {
   /// switch link of a single-tap choice.
   final Widget? footer;
 
+  /// Shown to the right of the attributes, e.g. the "Change choice" pill.
+  final Widget? attributesTrailing;
+
   const DisclosedCardTile({
     super.key,
     required this.instance,
     this.trailing,
     this.selected = false,
     this.footer,
+    this.attributesTrailing,
   });
 
   /// The card picture of [instance]: the wallet card with the same hash
@@ -157,7 +161,11 @@ class DisclosedCardTile extends ConsumerWidget {
                             .copyWith(color: palette.text),
                       ),
                       Text(
-                        instance.issuer.name,
+                        FlutterI18n.translate(
+                          context,
+                          "credential.issued_by",
+                          translationParams: {"issuer": instance.issuer.name},
+                        ),
                         style: palette
                             .body(12)
                             .copyWith(color: palette.heading),
@@ -169,16 +177,31 @@ class DisclosedCardTile extends ConsumerWidget {
                 ?trailing,
               ],
             ),
-            if (instance.attributes.isNotEmpty)
+            // The shared values under a line, as in the design.
+            if (instance.attributes.isNotEmpty ||
+                attributesTrailing != null) ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                child: YiviCredentialCardAttributeList(
-                  instance.attributes,
-                  credentialId: instance.credentialId,
-                  disclosure: true,
-                  showDividers: true,
+                padding: const EdgeInsets.only(top: 8),
+                child: Divider(height: 1, thickness: 1, color: palette.divider),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 4, 0, 4),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: YiviCredentialCardAttributeList(
+                        instance.attributes,
+                        credentialId: instance.credentialId,
+                        disclosure: true,
+                        showDividers: true,
+                      ),
+                    ),
+                    ?attributesTrailing,
+                  ],
                 ),
               ),
+            ],
             if (footer != null) ...[
               Divider(height: 17, thickness: 1, color: palette.divider),
               Padding(
