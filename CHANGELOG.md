@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Amounts in attributes that use irmago's `currency:<code>` display hint (e.g. `displayHint="currency:EUR"`) are shown as currency in the app's language, e.g. "€ 12,50" in Dutch and "€12.50" in English. With an irmago that doesn't send a currency code yet, or with an amount or code that can't be formatted, the raw value is shown as before ([privacybydesign/irmago#752](https://github.com/privacybydesign/irmago/issues/752))
+- Amounts in attributes that use irmago's `currency:<code>` display hint (e.g. `displayHint="currency:EUR"`) are shown as currency in the app's language, e.g. "€ 12,50" in Dutch and "€12.50" in English. With an irmago that doesn't send display hints yet, or with an amount or code that can't be formatted, the raw value is shown as before ([privacybydesign/irmago#752](https://github.com/privacybydesign/irmago/issues/752))
 
 ## [8.3.2] - 2026-10-14
 ### Added

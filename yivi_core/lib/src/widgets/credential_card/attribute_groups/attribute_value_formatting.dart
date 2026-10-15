@@ -43,21 +43,23 @@ String formatAttributeBool(BuildContext context, bool? value) {
   );
 }
 
-/// Formats a string attribute value. A value that carries a currency code is
-/// shown as an amount in that currency for the app's locale (e.g. "€ 12,50");
-/// anything else, including values from irmago versions without currency
-/// support, is shown as the raw string.
+/// Formats a string attribute value. A value with a "currency:<code>" display
+/// hint is shown as an amount in that currency for the app's locale (e.g.
+/// "€ 12,50"); anything else, including values from irmago versions that don't
+/// send display hints, is shown as the raw string.
 String formatAttributeString(
   BuildContext context,
   schemaless.AttributeValue value,
 ) {
   final raw = value.string ?? "";
-  final currency = value.currency;
-  if (currency == null) return raw;
+  final hint = value.displayHint;
+  if (hint == null || !hint.startsWith(_currencyHintPrefix)) return raw;
+  final currency = hint.substring(_currencyHintPrefix.length);
   final locale = FlutterI18n.currentLocale(context)?.toLanguageTag();
   return formatCurrencyAmount(raw, currency, locale) ?? raw;
 }
 
+const _currencyHintPrefix = "currency:";
 final _currencyAmount = RegExp(r"^-?[0-9]+(\.[0-9]+)?$");
 final _currencyCode = RegExp(r"^[A-Z]{3}$");
 

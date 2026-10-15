@@ -6,23 +6,23 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
-// Attributes with irmago's "currency:<code>" display hint arrive as a string
-// value plus a currency code. The app may run against an irmago without
-// currency support (no code) and irmago may send codes or amounts this app
-// can't format; in all those cases the raw string must still be shown.
+// Attributes with the "currency:<code>" display hint arrive as a string value
+// plus that hint. The app may run against an irmago that doesn't send display
+// hints, and a scheme may use codes or amounts this app can't format; in all
+// those cases the raw string must still be shown.
 
 Widget _wrap(Widget child) => IrmaTheme(
   builder: (_) => MaterialApp(home: Scaffold(body: child)),
 );
 
-schemaless.Attribute _amount(String value, {String? currency}) =>
+schemaless.Attribute _amount(String value, {String? hint}) =>
     schemaless.Attribute(
       claimPath: ["balance"],
       displayName: "Saldo",
       value: schemaless.AttributeValue(
         type: schemaless.AttributeType.string,
         string: value,
-        currency: currency,
+        displayHint: hint,
       ),
     );
 
@@ -45,40 +45,51 @@ void main() {
   });
 
   group("AttributeValue JSON", () {
-    test("reads the currency code", () {
+    test("reads the display hint", () {
       final v = schemaless.AttributeValue.fromJson({
         "type": "string",
         "string": "12.50",
-        "currency": "EUR",
+        "display_hint": "currency:EUR",
       });
-      expect(v.currency, "EUR");
+      expect(v.displayHint, "currency:EUR");
       expect(v.string, "12.50");
     });
 
-    test("an irmago without currency support leaves it null", () {
+    test("an irmago without display hints leaves it null", () {
       final v = schemaless.AttributeValue.fromJson({
         "type": "string",
         "string": "12.50",
       });
-      expect(v.currency, isNull);
+      expect(v.displayHint, isNull);
     });
   });
 
   group("attribute list", () {
-    testWidgets("shows an amount with a currency code as currency", (
+    testWidgets("shows an amount with a currency hint as currency", (
       tester,
     ) async {
       await tester.pumpWidget(
         _wrap(
-          YiviCredentialCardAttributeList([_amount("12.50", currency: "EUR")]),
+          YiviCredentialCardAttributeList([
+            _amount("12.50", hint: "currency:EUR"),
+          ]),
         ),
       );
       expect(find.text("€12.50"), findsOneWidget);
     });
 
-    testWidgets("shows the raw string without a currency code", (tester) async {
+    testWidgets("shows the raw string without a currency hint", (tester) async {
       await tester.pumpWidget(
         _wrap(YiviCredentialCardAttributeList([_amount("12.50")])),
+      );
+      expect(find.text("12.50"), findsOneWidget);
+    });
+
+    testWidgets("shows the raw string for other display hints", (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          YiviCredentialCardAttributeList([_amount("12.50", hint: "unit:kg")]),
+        ),
       );
       expect(find.text("12.50"), findsOneWidget);
     });
@@ -89,7 +100,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           YiviCredentialCardAttributeList([
-            _amount("€ 12,50", currency: "EUR"),
+            _amount("€ 12,50", hint: "currency:EUR"),
           ]),
         ),
       );

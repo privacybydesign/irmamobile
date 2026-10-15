@@ -72,10 +72,10 @@ class AttributeValue {
   final String? imagePath;
   final String? base64Image;
 
-  /// ISO 4217 currency code (e.g. "EUR") when [string] holds a decimal amount
-  /// in that currency. Only set by irmago versions that support the
-  /// "currency:<code>" display hint; older versions leave it null.
-  final String? currency;
+  /// The attribute type's display hint from the scheme, e.g. "yesno" or
+  /// "currency:EUR". Older irmago versions don't send it, so it may be null
+  /// for values that have a hint in the scheme.
+  final String? displayHint;
 
   AttributeValue({
     required this.type,
@@ -84,7 +84,7 @@ class AttributeValue {
     this.string,
     this.imagePath,
     this.base64Image,
-    this.currency,
+    this.displayHint,
   });
 
   /// Whether this value has actual data set (not just a type marker).

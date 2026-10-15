@@ -57,7 +57,7 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       string: json['string'] as String?,
       imagePath: json['image_path'] as String?,
       base64Image: json['base64_image'] as String?,
-      currency: json['currency'] as String?,
+      displayHint: json['display_hint'] as String?,
     );
 
 Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
@@ -68,7 +68,7 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
       'string': instance.string,
       'image_path': instance.imagePath,
       'base64_image': instance.base64Image,
-      'currency': instance.currency,
+      'display_hint': instance.displayHint,
     };
 
 const _$AttributeTypeEnumMap = {
