@@ -1,13 +1,11 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/requestor_header.dart";
-import "../../../widgets/section_header.dart";
-import "../../../widgets/signature_message.dart";
+import "activity_detail_parts.dart";
 
+/// A disclosure or a signed message: who it was for, the message, and the
+/// shared attributes per credential.
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;
 
@@ -15,47 +13,40 @@ class ActivityDetailDisclosure extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final kind = ActivityKind.of(logEntry);
+    final credentials = logEntry.type == LogType.disclosure
+        ? logEntry.disclosureLog!.credentials
+        : logEntry.signedMessageLog!.credentials;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader("activity.data_shared"),
-        SizedBox(height: theme.smallSpacing),
-        // If all disclosed attributes are empty render one empty data card
-        if (noDisclosedCredentials(logEntry))
-          IrmaEmptyCredentialCard()
-        else
-          for (var credential
-              in logEntry.type == LogType.disclosure
-                  ? logEntry.disclosureLog!.credentials
-                  : logEntry.signedMessageLog!.credentials)
-            Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard.fromLogCredential(
-                disclosure: true,
-                logCredential: credential,
-                compact: true,
-                hideFooter: true,
+        ActivityPartyCard(logEntry: logEntry),
+        if (logEntry.type == LogType.signature)
+          ActivitySection(
+            titleKey: "activity.signed_message",
+            children: [
+              ActivitySignedMessage(
+                message: logEntry.signedMessageLog!.message,
               ),
-            ),
-        if (logEntry.type == LogType.signature) ...[
-          SizedBox(height: theme.defaultSpacing),
-          SectionHeader("activity.signed_message"),
-          SizedBox(height: theme.smallSpacing),
-          SignatureMessage(message: logEntry.signedMessageLog!.message),
-        ],
-        SizedBox(height: theme.defaultSpacing),
-        SectionHeader("activity.shared_with"),
-        SizedBox(height: theme.smallSpacing),
-        RequestorHeader(requestor: logEntry.requestor),
+            ],
+          ),
+        ActivitySection(
+          titleKey: kind.titleKey,
+          children: [
+            // Nothing was disclosed: one empty data card.
+            if (credentials.isEmpty)
+              IrmaEmptyCredentialCard()
+            else
+              for (final credential in credentials)
+                ActivityCredentialTile(
+                  credential: credential,
+                  disclosure: true,
+                ),
+          ],
+        ),
+        ActivityFootnote(kind: kind),
       ],
     );
-  }
-
-  bool noDisclosedCredentials(LogInfo info) {
-    return info.type == LogType.disclosure
-        ? info.disclosureLog!.credentials.isEmpty
-        : info.signedMessageLog!.credentials.isEmpty;
   }
 }

@@ -10,6 +10,7 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -20,7 +21,6 @@ import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_sc
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -327,12 +327,12 @@ Future<void> testEmptySdJwtStillShowsInOptions(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard),
+    find.byType(ActivityCredentialTile),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [("Email address", "one@example.com")],
   );
-  await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
+  await evaluateRequestor(tester, find.byType(ActivityPartyCard), "Yivi B.V.");
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(
@@ -1087,7 +1087,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   await navigateToLatestActivity(tester, irmaBinding);
 
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = find.byType(ActivityCredentialTile, skipOffstage: false);
   const expectedNumCards = 2;
 
   expect(cardsFinder, findsExactly(expectedNumCards));
@@ -1129,7 +1129,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   expect(emailFound && mobilenumberFound, isTrue);
 
-  await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
+  await evaluateRequestor(tester, find.byType(ActivityPartyCard), "Yivi B.V.");
 }
 
 /// Issue two email addresses and allow the user to pick between them

@@ -2,8 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
@@ -50,7 +49,7 @@ Future<void> activityLogAfterDisclosureTest(
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 
   // Who the data went to.
-  final requestorHeaderFinder = find.byType(RequestorHeader);
+  final requestorHeaderFinder = find.byType(ActivityPartyCard);
   expect(requestorHeaderFinder, findsOneWidget);
   expect(
     find.descendant(
@@ -61,7 +60,7 @@ Future<void> activityLogAfterDisclosureTest(
   );
 
   // What went.
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final cardsFinder = find.byType(ActivityCredentialTile, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

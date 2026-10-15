@@ -45,7 +45,15 @@
     "empty_placeholder": "There are no logged activities yet",
     "yesterday": "Yesterday",
     "search_placeholder": "Search activity",
-    "no_results": "No activity matches your search"
+    "no_results": "No activity matches your search",
+    "deleted_from": "Data deleted from",
+    "signed_for": "Message signed for",
+    "note": {
+      "shared": "Only these attributes were shared. The rest of your data stayed on your phone.",
+      "received": "This data was added to your Yivi app.",
+      "deleted": "You deleted this data from your Yivi app. It cannot be recovered.",
+      "signed": "The message was signed with the data above."
+    }
   },
   "arrow_back": {
     "no_success": "Cancelled",

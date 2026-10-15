@@ -1,10 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/section_header.dart";
+import "activity_detail_parts.dart";
 
+/// A removal: whose data was deleted, and the deleted cards, washed out.
 class ActivityDetailRemoval extends StatelessWidget {
   final LogInfo logEntry;
 
@@ -12,24 +11,20 @@ class ActivityDetailRemoval extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final removedCredentials = logEntry.removalLog?.credentials ?? [];
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader("activity.deleted_data"),
-        SizedBox(height: theme.smallSpacing),
-        for (var removedCredential in removedCredentials)
-          Padding(
-            padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: YiviCredentialCard.fromLogCredential(
-              logCredential: removedCredential,
-              compact: true,
-              hideFooter: true,
-            ),
-          ),
+        ActivityPartyCard(logEntry: logEntry),
+        ActivitySection(
+          titleKey: "activity.deleted_data",
+          children: [
+            for (final credential in removedCredentials)
+              ActivityCredentialTile(credential: credential, faded: true),
+          ],
+        ),
+        const ActivityFootnote(kind: ActivityKind.deleted),
       ],
     );
   }

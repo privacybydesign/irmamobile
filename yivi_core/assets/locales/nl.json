@@ -45,7 +45,15 @@
     "empty_placeholder": "Er zijn momenteel geen activiteiten",
     "yesterday": "Gisteren",
     "search_placeholder": "Zoek in activiteit",
-    "no_results": "Geen activiteit gevonden voor je zoekopdracht"
+    "no_results": "Geen activiteit gevonden voor je zoekopdracht",
+    "deleted_from": "Gegevens verwijderd van",
+    "signed_for": "Bericht ondertekend voor",
+    "note": {
+      "shared": "Alleen deze gegevens zijn gedeeld. De rest van je gegevens bleef op je telefoon.",
+      "received": "Deze gegevens zijn toegevoegd aan je Yivi-app.",
+      "deleted": "Je hebt deze gegevens uit je Yivi-app verwijderd. Ze kunnen niet worden hersteld.",
+      "signed": "Het bericht is ondertekend met de gegevens hierboven."
+    }
   },
   "arrow_back": {
     "no_success": "Afgebroken",

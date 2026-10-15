@@ -2,7 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -94,7 +94,7 @@ Future<void> activityLogAfterDisclosureTest(
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 
   final activityCardsFinder = find.byType(
-    YiviCredentialCard,
+    ActivityCredentialTile,
     skipOffstage: false,
   );
 

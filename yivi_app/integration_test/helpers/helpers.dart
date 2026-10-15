@@ -21,6 +21,7 @@ import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
@@ -414,9 +415,12 @@ Future<void> evaluateRequestor(
   Finder reqeustorInfoFinder,
   String expectedName,
 ) async {
+  // A session shows the RequestorHeader; an activity, its party card.
   final finder = find.descendant(
     of: reqeustorInfoFinder,
-    matching: find.byType(RequestorHeader),
+    matching: find.byWidgetPredicate(
+      (w) => w is RequestorHeader || w is ActivityPartyCard,
+    ),
     matchRoot: true,
   );
   expect(finder, findsAtLeast(1));
@@ -437,13 +441,17 @@ typedef AttrRow = (String label, Object value);
 /// Ordered list of rows, used for nested groups and as item children.
 typedef Block = List<AttrRow>;
 
-/// Finds the credential cards shown in a session: the owned candidates of a
-/// disclosure ([DisclosedCardTile]) and the cards that are still drawn as a
-/// [YiviCredentialCard] (obtainable options in a choice, the activity detail
-/// screen). Tree order is kept, so `.at(i)` follows the screen order.
+/// Finds the credential cards shown in a session or a log: the owned
+/// candidates of a disclosure ([DisclosedCardTile]), the credentials of an
+/// activity ([ActivityCredentialTile]) and the cards still drawn as a
+/// [YiviCredentialCard] (obtainable options in a choice). Tree order is kept,
+/// so `.at(i)` follows the screen order.
 Finder findCredentialCards({bool skipOffstage = true}) =>
     find.byWidgetPredicate(
-      (w) => w is YiviCredentialCard || w is DisclosedCardTile,
+      (w) =>
+          w is YiviCredentialCard ||
+          w is DisclosedCardTile ||
+          w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
     );
 
@@ -463,6 +471,7 @@ Finder findCredentialDetail() => find.byType(CredentialDetailScreen);
 bool _isCardRoot(Widget w) =>
     w is YiviCredentialCard ||
     w is DisclosedCardTile ||
+    w is ActivityCredentialTile ||
     w is CredentialDetailScreen ||
     w is CredentialCardArt;
 
@@ -484,6 +493,7 @@ Element _cardRoot(Finder finder) {
           (w) =>
               w is YiviCredentialCard ||
               w is DisclosedCardTile ||
+              w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
         ),
       )
@@ -646,6 +656,42 @@ Future<void> evaluateCredentialCard(
       if (instancesRemaining != null) {
         // The tile has no instance-count footer: check what it draws.
         expect(instance.batchInstanceCountRemaining, instancesRemaining);
+      }
+
+    case ActivityCredentialTile():
+      final credential = widget.credential;
+      status = CredentialCardStatus(
+        expiryDateUnix: credential.expiryDate,
+        revoked: credential.revoked,
+        batchInstanceCountsRemaining: const {},
+        credentialId: credential.credentialId,
+        issueUrl: credential.issueUrl,
+      );
+      attributeListFinder = find.descendant(
+        of: rootFinder,
+        matching: find.byType(YiviCredentialCardAttributeList),
+      );
+      // The tile's own texts: the credential name, then the issuer name.
+      if (credentialName != null || issuerName != null) {
+        final ownTexts = _textsOutside(rootFinder, [
+          find.descendant(
+            of: rootFinder,
+            matching: find.byType(CredentialCardArt),
+          ),
+          attributeListFinder,
+        ]);
+        if (credentialName != null) {
+          expect(ownTexts.firstOrNull, credentialName);
+        }
+        if (issuerName != null) {
+          expect(ownTexts.elementAtOrNull(1), issuerName);
+        }
+      }
+      if (isSelected != null || style != null || instancesRemaining != null) {
+        throw ArgumentError(
+          "isSelected, style and instancesRemaining do not apply to an "
+          "activity credential",
+        );
       }
 
     case CredentialDetailScreen():

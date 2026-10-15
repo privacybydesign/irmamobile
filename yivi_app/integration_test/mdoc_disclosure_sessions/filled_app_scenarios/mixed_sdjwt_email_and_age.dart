@@ -2,8 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
@@ -97,7 +97,7 @@ Future<void> mixedSdJwtEmailAndAgeTest(
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
   expect(
-    find.byType(YiviCredentialCard, skipOffstage: false),
+    find.byType(ActivityCredentialTile, skipOffstage: false),
     findsNWidgets(2),
   );
   expect(find.text(email, skipOffstage: false), findsOneWidget);

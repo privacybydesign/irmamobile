@@ -1,11 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/requestor_header.dart";
-import "../../../widgets/section_header.dart";
+import "activity_detail_parts.dart";
 
+/// An issuance: who it came from, what was received, and what was shared
+/// with the issuer first (if anything).
 class ActivityDetailIssuance extends StatelessWidget {
   final LogInfo logEntry;
 
@@ -13,51 +12,32 @@ class ActivityDetailIssuance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final issuanceLog = logEntry.issuanceLog!;
-    final requestor = issuanceLog.issuer;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        //If is this issuance also has disclosed attributes
-        if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
-          SectionHeader("activity.data_shared"),
-          SizedBox(height: theme.smallSpacing),
-          for (final cred in issuanceLog.disclosedCredentials)
-            Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard.fromLogCredential(
-                logCredential: cred,
-                compact: true,
-                hideFooter: true,
-              ),
-            ),
-          SizedBox(height: theme.defaultSpacing),
-          SectionHeader("activity.shared_with"),
-          SizedBox(height: theme.smallSpacing),
-          RequestorHeader(
-            requestor: requestor,
-            isVerified: requestor?.verified,
+        ActivityPartyCard(logEntry: logEntry),
+        ActivitySection(
+          titleKey: "activity.received_data",
+          children: [
+            for (final credential in issuanceLog.credentials)
+              ActivityCredentialTile(credential: credential),
+          ],
+        ),
+        // The issuer asked for data before issuing.
+        if (issuanceLog.disclosedCredentials.isNotEmpty)
+          ActivitySection(
+            titleKey: "activity.shared_data",
+            children: [
+              for (final credential in issuanceLog.disclosedCredentials)
+                ActivityCredentialTile(
+                  credential: credential,
+                  disclosure: true,
+                ),
+            ],
           ),
-          SizedBox(height: theme.defaultSpacing),
-        ],
-        SectionHeader("activity.received_data"),
-        SizedBox(height: theme.smallSpacing),
-        for (var rawCredential in issuanceLog.credentials)
-          Padding(
-            padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: YiviCredentialCard.fromLogCredential(
-              logCredential: rawCredential,
-              compact: true,
-              hideFooter: true,
-            ),
-          ),
-        SizedBox(height: theme.defaultSpacing),
-        SectionHeader("activity.received_from"),
-        SizedBox(height: theme.smallSpacing),
-        RequestorHeader(requestor: requestor),
+        const ActivityFootnote(kind: ActivityKind.received),
       ],
     );
   }

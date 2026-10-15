@@ -3,7 +3,6 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
-import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/irma_app_bar.dart";
 import "widgets/activity_detail_disclosure.dart";
@@ -24,32 +23,24 @@ class ActivityDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final dateAtTime = activityDateAtTime(context, logEntry);
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         title: Text(
           dateAtTime,
-          style: theme.themeData.textTheme.displaySmall?.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: theme.dark,
-          ),
+          textAlign: TextAlign.center,
+          style: palette.display(16).copyWith(color: palette.text),
         ),
       ),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [ActivityDetailContent(logEntry: logEntry)],
-            ),
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+          child: SafeArea(child: ActivityDetailContent(logEntry: logEntry)),
         ),
       ),
     );

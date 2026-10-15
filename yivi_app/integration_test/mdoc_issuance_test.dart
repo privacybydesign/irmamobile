@@ -27,13 +27,13 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/eudi_issuance_helpers.dart";
@@ -328,7 +328,7 @@ Future<void> testDeleteAvMdoc(
   expect(find.byType(ActivityDetailRemoval), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
     attributes: _avDefaultExpectedAttributes,
@@ -349,7 +349,7 @@ Future<void> testActivityLogAfterIssuance(
   await tester.pumpAndSettle();
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
     isExpired: false,

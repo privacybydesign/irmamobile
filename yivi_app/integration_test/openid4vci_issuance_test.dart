@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
@@ -11,7 +12,6 @@ import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
@@ -194,7 +194,7 @@ Future<void> testIssueEmailOpenID4VCI(
   expect(find.byType(ActivityDetailIssuance), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     isExpired: false,
@@ -244,7 +244,7 @@ Future<void> testIssueEmailOpenID4VCIWithTxCode(
   expect(find.byType(ActivityDetailIssuance), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     isExpired: false,
@@ -329,7 +329,7 @@ Future<void> testIssueOrganizationOpenID4VCI(
 
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: "Organization Credential (SD-JWT)",
     issuerName: "Test Issuer",
     attributes: _organizationExpectedAttributes,
@@ -713,10 +713,10 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
   expect(find.byType(ActivityDetailRemoval), findsOneWidget);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     attributes: [("Email", "other@example.com"), ("Domain", "example.com")],
@@ -730,10 +730,10 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
   expect(find.byType(ActivityDetailRemoval), findsOneWidget);
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    find.byType(ActivityCredentialTile).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
