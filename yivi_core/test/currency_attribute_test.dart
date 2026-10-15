@@ -30,7 +30,7 @@ void main() {
   group("formatCurrencyAmount", () {
     test("formats an amount for the locale", () {
       // intl separates the symbol with a non-breaking space in Dutch.
-      expect(formatCurrencyAmount("12.50", "EUR", "nl"), "€ 12,50");
+      expect(formatCurrencyAmount("12.50", "EUR", "nl"), "€\u00A012,50");
       expect(formatCurrencyAmount("12.50", "USD", "en"), r"$12.50");
       expect(formatCurrencyAmount("-3", "EUR", "en"), "-€3.00");
     });
