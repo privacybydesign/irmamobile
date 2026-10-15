@@ -3,6 +3,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/widgets/base64_image.dart";
+import "package:yivi_core/src/widgets/glass/glass_surface.dart";
 
 // A 1x1 PNG.
 const _png =
@@ -158,6 +159,61 @@ void main() {
       expect(images, hasLength(2));
       // Equal providers share one entry in the image cache.
       expect(images[0].image, images[1].image);
+    });
+  });
+
+  group("fading glass", () {
+    Future<void> pumpGlass(WidgetTester tester, double opacity) =>
+        tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: GlassPillButton(
+                  label: "Done",
+                  onTap: () {},
+                  opacity: opacity,
+                ),
+              ),
+            ),
+          ),
+        );
+
+    testWidgets("the blur is never inside an opacity layer, so it does not "
+        "darken and pop at the end of the fade", (tester) async {
+      await pumpGlass(tester, 0.5);
+
+      final blur = find.byType(BackdropFilter);
+      expect(blur, findsOneWidget);
+      // No fading layer between the button and its blur.
+      Finder inButton(Type type) => find.descendant(
+        of: find.byType(GlassPillButton),
+        matching: find.byType(type),
+      );
+      for (final layer in [Opacity, FadeTransition]) {
+        expect(
+          find.ancestor(of: blur, matching: inButton(layer)),
+          findsNothing,
+        );
+      }
+      // Only the label fades through a layer.
+      expect(
+        find.ancestor(of: find.text("Done"), matching: find.byType(Opacity)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("fully faded out there is no blur; fully in, no layer", (
+      tester,
+    ) async {
+      await pumpGlass(tester, 0);
+      expect(find.byType(BackdropFilter), findsNothing);
+
+      await pumpGlass(tester, 1);
+      expect(find.byType(BackdropFilter), findsOneWidget);
+      expect(
+        find.ancestor(of: find.text("Done"), matching: find.byType(Opacity)),
+        findsNothing,
+      );
     });
   });
 }

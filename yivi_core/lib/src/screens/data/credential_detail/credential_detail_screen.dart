@@ -215,15 +215,15 @@ class _CredentialDetailScreenState
           Positioned(
             top: padding.top + 16,
             right: 16,
-            child: FadeTransition(
-              opacity: CurvedAnimation(
-                parent: animation,
-                curve: const Interval(0.4, 1),
-              ),
-              child: GlassPillButton(
+            // Faded by the glass itself: a FadeTransition would darken its
+            // blur until the fade ends (see GlassSurface.opacity).
+            child: AnimatedBuilder(
+              animation: animation,
+              builder: (context, _) => GlassPillButton(
                 buttonKey: const Key("credential_detail_done"),
                 label: FlutterI18n.translate(context, "wallet.detail.done"),
                 onTap: _close,
+                opacity: const Interval(0.4, 1).transform(animation.value),
               ),
             ),
           ),

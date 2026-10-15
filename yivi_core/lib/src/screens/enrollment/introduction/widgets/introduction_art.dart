@@ -217,38 +217,38 @@ class _ShareOnly extends StatelessWidget {
             child: _Entrance(
               duration: const Duration(milliseconds: 420),
               delay: const Duration(milliseconds: 200),
-              builder: (context, v) => Opacity(
-                opacity: v,
-                child: Transform.translate(
-                  offset: Offset(0, 16 * (1 - v)),
-                  child: GlassSurface(
-                    shape: const RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(24)),
-                    ),
-                    fill: palette.glassStrongFill,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          t("share_only").toUpperCase(),
-                          style: palette
-                              .body(12, weight: FontWeight.w700)
-                              .copyWith(
-                                letterSpacing: 0.7,
-                                color: palette.secondaryText,
-                              ),
-                        ),
-                        const SizedBox(height: 6),
-                        _Line(label: t("over_18"), shared: true),
-                        const SizedBox(height: 4),
-                        _Line(label: t("date_of_birth"), shared: false),
-                      ],
-                    ),
+              // Faded by the glass itself, not an Opacity, which would
+              // darken its blur (see GlassSurface.opacity).
+              builder: (context, v) => Transform.translate(
+                offset: Offset(0, 16 * (1 - v)),
+                child: GlassSurface(
+                  opacity: v,
+                  shape: const RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                  ),
+                  fill: palette.glassStrongFill,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        t("share_only").toUpperCase(),
+                        style: palette
+                            .body(12, weight: FontWeight.w700)
+                            .copyWith(
+                              letterSpacing: 0.7,
+                              color: palette.secondaryText,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      _Line(label: t("over_18"), shared: true),
+                      const SizedBox(height: 4),
+                      _Line(label: t("date_of_birth"), shared: false),
+                    ],
                   ),
                 ),
               ),
