@@ -1,9 +1,7 @@
-import "dart:io";
-
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/irma_quote.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -56,41 +54,20 @@ Future<void> callingSessionTest(
   );
   expect(appBarHeaderFinder, findsOneWidget);
 
-  // The IrmaQuote widget should be present
-  final quoteFinder = find.byType(IrmaQuote);
-  expect(quoteFinder, findsOneWidget);
+  // Shared, now call: the requestor, the number and the call button.
+  expect(
+    find.text("Shared. Now call is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(
+      of: find.byKey(const Key("call_number")),
+      matching: find.text("+31612345678"),
+    ),
+    findsOneWidget,
+  );
+  expect(find.text("Call is.demo.staging.yivi.app"), findsOneWidget);
 
-  // Check the content of the IrmaQuote
-  final actualQuoteText =
-      (quoteFinder.evaluate().first.widget as IrmaQuote).quote;
-  const expectedQuoteText =
-      "Data has been shared with is.demo.staging.yivi.app";
-  expect(actualQuoteText, expectedQuoteText);
-
-  final actualScreenText = tester.getAllText(callInfoScreenFinder);
-  final Iterable<String> expectedScreenText;
-  if (Platform.isAndroid) {
-    expectedScreenText = [
-      "1. Choose next",
-      "Your phone app now opens automatically. The number is pre-filled, followed by a link code.",
-      "2. Tap the call button in your phone app",
-      "You will hear a few beeps and you will be connected.",
-      "Call via Yivi",
-      "Next",
-    ];
-  } else if (Platform.isIOS) {
-    expectedScreenText = [
-      "Choose next to call",
-      "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link code. If you choose to call, you will hear a few beeps and you will be connected.",
-      "Call via Yivi",
-      "Next",
-    ];
-  } else {
-    throw Exception("Unsupported platform");
-  }
-
-  expect(actualScreenText, expectedScreenText);
-
-  // Note: We don't press next because this will initiate the call,
+  // Note: We don't press the call button because this will initiate the call,
   // which is not supported in integration tests.
 }

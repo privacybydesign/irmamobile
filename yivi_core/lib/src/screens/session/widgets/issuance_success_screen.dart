@@ -1,25 +1,38 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/action_feedback.dart";
+import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../data/wallet/issuance_flight.dart";
 
+/// "Success" after adding cards: the card with a green check, or the pile
+/// of cards with one check for several.
+///
+/// Inside a request ([backTo] is its requestor), it says that the request
+/// comes next and the button goes back to it.
 class IssuanceSuccessScreen extends StatefulWidget {
   final Function(BuildContext) onDismiss;
 
-  /// The credentials just added; the first is shown with a check badge.
+  /// The credentials just added.
   final List<schemaless.Credential> credentials;
 
-  /// On "Done" the card flies into the data tab instead of the screen
-  /// closing as usual. Off when the session returns somewhere else.
+  /// On "OK" a card flies into the data tab instead of the screen closing
+  /// as usual. Off when the session returns somewhere else.
   final bool flyHome;
 
+  /// The requestor of the request this issuance was for, if any.
+  final String? backTo;
+
   const IssuanceSuccessScreen({
+    super.key,
     required this.onDismiss,
     this.credentials = const [],
     this.flyHome = false,
+    this.backTo,
   });
 
   @override
@@ -27,18 +40,13 @@ class IssuanceSuccessScreen extends StatefulWidget {
 }
 
 class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
-  final _cardKey = GlobalKey(debugLabel: "received_card");
+  late final _cardKeys = [
+    for (final (i, _) in widget.credentials.indexed)
+      GlobalKey(debugLabel: "received_card_$i"),
+  ];
 
   void _done() {
-    final flying =
-        widget.flyHome &&
-        widget.credentials.isNotEmpty &&
-        IssuanceFlight.start(
-          context,
-          received: widget.credentials.first,
-          source: _cardKey,
-        );
-    if (flying) {
+    if (widget.flyHome && _fly()) {
       // The curtain hides the switch, so no pop animation.
       context.goHomeScreenWithoutTransition();
     } else {
@@ -46,16 +54,106 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
     }
   }
 
+  /// Flies the received card that now leads the data tab, if any.
+  bool _fly() {
+    final wallet = ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(schemalessCredentialOrderControllerProvider).value;
+    final first = wallet?.firstOrNull;
+    final i = first == null
+        ? 0
+        : widget.credentials.indexWhere(
+            (c) => c.credentialId == first.credentialId,
+          );
+    if (i < 0 || i >= widget.credentials.length) return false;
+    return IssuanceFlight.start(
+      context,
+      received: widget.credentials[i],
+      source: _cardKeys[i],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cards = widget.credentials;
+    final many = cards.length > 1;
+    final back = widget.backTo;
+    final params = {
+      "name": cards.firstOrNull?.name ?? "",
+      "count": "${cards.length}",
+      "requestor": ?back,
+    };
+    final text = cards.isEmpty
+        ? "issuance.success_feedback.text"
+        : "issuance.success_feedback.added_${many ? "many" : "one"}"
+              "${back == null ? "" : "_back"}";
+
     return ActionFeedback(
       success: true,
       titleTranslationKey: "issuance.success_feedback.header",
-      explanationTranslationKey: "issuance.success_feedback.text",
+      explanationTranslationKey: text,
+      explanationTranslationParams: params,
+      buttonTranslationKey: back == null
+          ? "action_feedback.ok"
+          : "issuance.success_feedback.back_to",
+      buttonTranslationParams: params,
       onDismiss: _done,
-      hero: widget.credentials.isEmpty
+      hero: cards.isEmpty
           ? null
-          : _ReceivedCard(widget.credentials.first, cardKey: _cardKey),
+          : many
+          ? _ReceivedPile(cards, cardKeys: _cardKeys)
+          : _ReceivedCard(cards.first, cardKey: _cardKeys.first),
+    );
+  }
+}
+
+/// Settles into place: drops in from above with a slight tilt.
+class _Arrive extends StatelessWidget {
+  final Widget child;
+
+  const _Arrive({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: reduceMotion ? 1 : 0, end: 1),
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeOutBack,
+      builder: (context, t, child) => Opacity(
+        opacity: t.clamp(0.0, 1.0),
+        child: Transform.translate(
+          offset: Offset(0, (1 - t) * -60),
+          child: child,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// The green check on the received card or pile.
+class _CheckBadge extends StatelessWidget {
+  final double size;
+
+  const _CheckBadge({this.size = 56});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key("received_check"),
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFF00973A),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          width: 4,
+        ),
+      ),
+      child: Icon(Icons.check, color: Colors.white, size: size * 0.54),
     );
   }
 }
@@ -69,59 +167,68 @@ class _ReceivedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = (constraints.maxWidth - 48).clamp(0.0, 360.0);
         return Center(
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: reduceMotion ? 1 : 0, end: 1),
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.easeOutBack,
-            builder: (context, t, child) => Opacity(
-              opacity: t.clamp(0.0, 1.0),
-              child: Transform.translate(
-                offset: Offset(0, (1 - t) * -60),
-                child: Transform.rotate(angle: -0.035 * t, child: child),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  CredentialCardArt(
-                    key: cardKey,
-                    credential: credential,
-                    width: width,
-                  ),
-                  Positioned(
-                    right: -12,
-                    top: -16,
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00973A),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          width: 4,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 30,
-                      ),
+          child: _Arrive(
+            child: Transform.rotate(
+              angle: -0.035,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CredentialCardArt(
+                      key: cardKey,
+                      credential: credential,
+                      width: width,
                     ),
-                  ),
-                ],
+                    const Positioned(
+                      right: -12,
+                      top: -16,
+                      child: _CheckBadge(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// Several received cards as the pile from the permission screen, with one
+/// check at its top right.
+class _ReceivedPile extends StatelessWidget {
+  final List<schemaless.Credential> cards;
+  final List<GlobalKey> cardKeys;
+
+  const _ReceivedPile(this.cards, {required this.cardKeys});
+
+  @override
+  Widget build(BuildContext context) {
+    const pile = CardPile(cards: []);
+    return Center(
+      child: _Arrive(
+        child: SizedBox(
+          width: 320,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              CardPile(cards: cards, cardKeys: cardKeys),
+              // Over the right edge of the pile's widest card.
+              Positioned(
+                left: (320 - pile.cardWidth) / 2 + pile.cardWidth + 6,
+                top: -14,
+                child: const _CheckBadge(size: 52),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

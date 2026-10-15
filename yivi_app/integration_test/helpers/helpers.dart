@@ -460,9 +460,14 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
 /// permission screen, one per credential, in screen order. Pass one of them
 /// to [evaluateCredentialCard] to check that credential's name, issuer and
 /// attributes ("You will receive").
+/// The offered cards on the issuance permission: the big card, or the
+/// cards of the pile. Not the small pictures above each card's values.
 Finder findIssuanceCards({bool skipOffstage = false}) => find.descendant(
   of: find.byType(IssuancePermission, skipOffstage: skipOffstage),
-  matching: find.byType(CredentialCardArt, skipOffstage: skipOffstage),
+  matching: find.byWidgetPredicate(
+    (w) => w is CredentialCardArt && w.width > 60,
+    skipOffstage: skipOffstage,
+  ),
   skipOffstage: skipOffstage,
 );
 

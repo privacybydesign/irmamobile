@@ -20,6 +20,10 @@ class ActionFeedback extends StatelessWidget {
   /// Replaces the success illustration, e.g. with the card just received.
   final Widget? hero;
 
+  /// The button's label, "OK" unless set.
+  final String buttonTranslationKey;
+  final Map<String, String>? buttonTranslationParams;
+
   const ActionFeedback({
     this.hero,
     super.key,
@@ -29,6 +33,8 @@ class ActionFeedback extends StatelessWidget {
     required this.explanationTranslationKey,
     this.explanationTranslationParams,
     required this.onDismiss,
+    this.buttonTranslationKey = "action_feedback.ok",
+    this.buttonTranslationParams,
   });
 
   @override
@@ -56,6 +62,7 @@ class ActionFeedback extends StatelessWidget {
             children: [
               TranslatedText(
                 titleTranslationKey,
+                translationParams: titleTranslationParams,
                 style: YiviPalette.of(
                   context,
                 ).display(26, weight: FontWeight.w700),
@@ -72,7 +79,8 @@ class ActionFeedback extends StatelessWidget {
           actions: [
             YiviThemedButton(
               key: const Key("ok_button"),
-              label: "action_feedback.ok",
+              label: buttonTranslationKey,
+              labelParams: buttonTranslationParams,
               onPressed: onDismiss,
             ),
           ],

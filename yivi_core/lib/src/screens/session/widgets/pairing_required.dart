@@ -1,26 +1,38 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "session_requestor_header.dart";
 import "session_scaffold.dart";
 
-/// The pairing code to type on the website: a shield on a tile, the
-/// instruction, the code in four large boxes, and a spinner while the
-/// website has not confirmed it.
+/// The pairing code to type on the website: who asks for it (or a shield
+/// when that is not known), what to do, the code in four large boxes, and
+/// a spinner while the website has not confirmed it.
 class PairingRequired extends StatelessWidget {
   final String pairingCode;
+  final TrustedParty? requestor;
   final Function() onDismiss;
 
-  const PairingRequired({required this.pairingCode, required this.onDismiss});
+  const PairingRequired({
+    super.key,
+    required this.pairingCode,
+    this.requestor,
+    required this.onDismiss,
+  });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final instruction = FlutterI18n.translate(
-      context,
-      "session.pairing.instruction",
-    );
+    final who = requestor;
+    final instruction = who == null
+        ? FlutterI18n.translate(context, "session.pairing.instruction")
+        : FlutterI18n.translate(
+            context,
+            "session.pairing.explanation",
+            translationParams: {"requestor": who.name},
+          );
     final shadow = BoxShadow(
       color: palette.glassShadow,
       blurRadius: 6,
@@ -44,28 +56,47 @@ class PairingRequired extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ExcludeSemantics(
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: ShapeDecoration(
-                    color: palette.surface,
-                    shape: const RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
-                    ),
-                    shadows: [shadow],
-                  ),
-                  child: Icon(
-                    Icons.verified_user_rounded,
-                    size: 48,
-                    color: palette.link,
+                child: who != null
+                    ? SessionRequestorHeader.avatarOf(who, size: 60)
+                    : Container(
+                        width: 96,
+                        height: 96,
+                        decoration: ShapeDecoration(
+                          color: palette.surface,
+                          shape: const RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(32)),
+                          ),
+                          shadows: [shadow],
+                        ),
+                        child: Icon(
+                          Icons.verified_user_rounded,
+                          size: 48,
+                          color: palette.link,
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 24),
+              if (who != null) ...[
+                Semantics(
+                  header: true,
+                  child: Text(
+                    FlutterI18n.translate(context, "session.pairing.heading"),
+                    key: const Key("pairing_heading"),
+                    textAlign: TextAlign.center,
+                    style: palette.display(23).copyWith(color: palette.text),
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
+                const SizedBox(height: 12),
+              ],
               Text(
                 instruction,
                 textAlign: TextAlign.center,
-                style: palette.body(16).copyWith(height: 24 / 16),
+                style: palette
+                    .body(who == null ? 16 : 15)
+                    .copyWith(
+                      height: who == null ? 24 / 16 : 22 / 15,
+                      color: who == null ? null : palette.heading,
+                    ),
               ),
               const SizedBox(height: 32),
               // Read out as one code, character by character.

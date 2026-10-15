@@ -552,7 +552,12 @@
     "cancel": "Annuleren",
     "success_feedback": {
       "header": "Gelukt",
-      "text": "De gegevens zijn successvol aan Yivi toegevoegd."
+      "text": "De gegevens zijn successvol aan Yivi toegevoegd.",
+      "added_one": "{name} is aan Yivi toegevoegd.",
+      "added_many": "Deze {count} kaarten zijn aan Yivi toegevoegd.",
+      "added_one_back": "{name} is aan Yivi toegevoegd. Hierna terug naar {requestor}.",
+      "added_many_back": "Deze {count} kaarten zijn aan Yivi toegevoegd. Hierna terug naar {requestor}.",
+      "back_to": "Terug naar {requestor}"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -870,7 +875,9 @@
     "pairing": {
       "title": "Extra veiligheidscontrole",
       "instruction": "Vul deze extra verificatiecode in op de website.",
-      "waiting": "Wachten op de website…"
+      "waiting": "Wachten op de website…",
+      "heading": "Vul deze code in op de website",
+      "explanation": "{requestor} toont er een veld voor. Zo wordt deze telefoon aan dat scherm gekoppeld en kan niemand anders je QR-code gebruiken."
     },
     "unknown_session_type": {
       "title": "Afgebroken",
@@ -1463,6 +1470,21 @@
       "opens": "Opent {host}",
       "reason_pick": "Kies een kaart die toegevoegd kan worden.",
       "reason_cant": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan daarna de QR-code opnieuw."
+    },
+    "done": {
+      "title": "Gedeeld met {requestor}",
+      "title_signature": "Ondertekend en gedeeld",
+      "title_none": "Klaar",
+      "text": "{requestor} heeft alleen ontvangen wat hier staat. Je vindt dit terug in Activiteit.",
+      "text_second_device": "Ga verder op het andere apparaat. {requestor} heeft alleen ontvangen wat hier staat.",
+      "text_none": "{requestor} heeft geen gegevens van je ontvangen. Je vindt dit terug in Activiteit.",
+      "last_use": "Dit was de laatste keer dat deze {name} gedeeld kon worden. Voeg een nieuwe toe als je hem weer nodig hebt.",
+      "button": "Klaar"
+    },
+    "call": {
+      "title": "Gedeeld. Bel nu {requestor}",
+      "text": "Degene die opneemt ziet de gegevens die je net hebt gedeeld, dus je hoeft niets te spellen.",
+      "button": "Bel {requestor}"
     }
   }
 }

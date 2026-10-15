@@ -523,7 +523,12 @@
     "cancel": "Cancel",
     "success_feedback": {
       "header": "Success",
-      "text": "The data has been successfully added to Yivi"
+      "text": "The data has been successfully added to Yivi",
+      "added_one": "{name} has been added to Yivi.",
+      "added_many": "These {count} cards have been added to Yivi.",
+      "added_one_back": "{name} has been added to Yivi. Next, back to {requestor}.",
+      "added_many_back": "These {count} cards have been added to Yivi. Next, back to {requestor}.",
+      "back_to": "Back to {requestor}"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -841,7 +846,9 @@
     "pairing": {
       "title": "Extra safety check",
       "instruction": "Enter this verification code on the website for extra security.",
-      "waiting": "Waiting for the website…"
+      "waiting": "Waiting for the website…",
+      "heading": "Enter this code on the website",
+      "explanation": "{requestor} shows a field for it. It links this phone to that screen, so nobody else can use your QR code."
     },
     "unknown_session_type": {
       "title": "Cancelled",
@@ -1463,6 +1470,21 @@
       "opens": "Opens {host}",
       "reason_pick": "Pick a card that can be added.",
       "reason_cant": "Yivi can't add {name}. Get it from {issuer} first, then scan the QR code again."
+    },
+    "done": {
+      "title": "Shared with {requestor}",
+      "title_signature": "Signed and shared",
+      "title_none": "Done",
+      "text": "{requestor} received only what is listed here. You can find this in Activity.",
+      "text_second_device": "Continue on the other device. {requestor} received only what is listed here.",
+      "text_none": "{requestor} received no data from you. You can find this in Activity.",
+      "last_use": "That was the last time this {name} could be shared. Add a new one when you need it again.",
+      "button": "Done"
+    },
+    "call": {
+      "title": "Shared. Now call {requestor}",
+      "text": "The person who answers can see the data you just shared, so you don't have to spell anything out.",
+      "button": "Call {requestor}"
     }
   }
 }

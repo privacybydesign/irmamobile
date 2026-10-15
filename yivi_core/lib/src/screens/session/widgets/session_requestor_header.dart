@@ -27,14 +27,11 @@ class SessionRequestorHeader extends StatelessWidget {
     this.progress,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final verified = requestor.verified;
+  /// [requestor]'s logo, or its initial when it has none.
+  static Widget avatarOf(TrustedParty requestor, {double size = 46}) {
     final image = requestor.image;
-
-    final avatar = IrmaAvatar(
-      size: 46,
+    return IrmaAvatar(
+      size: size,
       logoImage: image == null
           ? null
           : Base64Image(base64: image.base64, mimeType: image.mimeType),
@@ -42,6 +39,13 @@ class SessionRequestorHeader extends StatelessWidget {
       logoSemanticsLabel: requestor.name,
       initials: requestor.name.isEmpty ? "?" : requestor.name.characters.first,
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final verified = requestor.verified;
+    final avatar = avatarOf(requestor);
 
     return GlassSurface(
       key: const Key("session_requestor_header"),

@@ -552,7 +552,12 @@
     "cancel": "Abbrechen",
     "success_feedback": {
       "header": "Erfolg",
-      "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt"
+      "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt",
+      "added_one": "{name} wurde zu Yivi hinzugefügt.",
+      "added_many": "Diese {count} Karten wurden zu Yivi hinzugefügt.",
+      "added_one_back": "{name} wurde zu Yivi hinzugefügt. Als Nächstes zurück zu {requestor}.",
+      "added_many_back": "Diese {count} Karten wurden zu Yivi hinzugefügt. Als Nächstes zurück zu {requestor}.",
+      "back_to": "Zurück zu {requestor}"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -870,7 +875,9 @@
     "pairing": {
       "title": "Zusätzliche Sicherheitsprüfung",
       "instruction": "Geben Sie diesen Bestätigungscode auf der Webseite ein, um die Sicherheit zu erhöhen.",
-      "waiting": "Warten auf die Website…"
+      "waiting": "Warten auf die Website…",
+      "heading": "Gib diesen Code auf der Website ein",
+      "explanation": "{requestor} zeigt dafür ein Feld an. So wird dieses Telefon mit dem Bildschirm verbunden und niemand sonst kann deinen QR-Code verwenden."
     },
     "unknown_session_type": {
       "title": "Abgebrochen",
@@ -1463,6 +1470,21 @@
       "opens": "Öffnet {host}",
       "reason_pick": "Wähle eine Karte, die hinzugefügt werden kann.",
       "reason_cant": "Yivi kann {name} nicht hinzufügen. Hol es dir zuerst bei {issuer} und scanne dann den QR-Code erneut."
+    },
+    "done": {
+      "title": "Geteilt mit {requestor}",
+      "title_signature": "Unterschrieben und geteilt",
+      "title_none": "Fertig",
+      "text": "{requestor} hat nur erhalten, was hier steht. Du findest es unter Aktivität.",
+      "text_second_device": "Mach auf dem anderen Gerät weiter. {requestor} hat nur erhalten, was hier steht.",
+      "text_none": "{requestor} hat keine Daten von dir erhalten. Du findest es unter Aktivität.",
+      "last_use": "Das war das letzte Mal, dass diese {name} geteilt werden konnte. Füge eine neue hinzu, wenn du sie wieder brauchst.",
+      "button": "Fertig"
+    },
+    "call": {
+      "title": "Geteilt. Ruf jetzt {requestor} an",
+      "text": "Die Person, die abnimmt, sieht die Daten, die du gerade geteilt hast. Du musst also nichts buchstabieren.",
+      "button": "{requestor} anrufen"
     }
   }
 }

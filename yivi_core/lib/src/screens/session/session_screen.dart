@@ -66,6 +66,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// success screen.
   List<SelectableCredentialInstance> _sharedInstances = const [];
 
+  /// The request this (nested) session runs for, kept once seen: on
+  /// success it is "Back to {requestor}" even if the request is gone.
+  SessionState? _underlying;
+
   bool _hasLongPin = false;
 
   /// Whether issuance-during-disclosure was shown (steps were present at some point).
@@ -144,6 +148,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       sessionAwaitingInteractionProvider(widget.sessionId),
     );
     _lastSession = asyncSession;
+    if (widget.hasUnderlyingSession) {
+      _underlying =
+          ref.watch(underlyingDisclosureProvider(widget.sessionId)).value ??
+          _underlying;
+    }
 
     // Track the latest non-null remainingTxCodeAttempts so that, if the
     // session subsequently errors out, we can detect the tx_code-lockout
@@ -213,6 +222,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         return switch (session.status) {
           .showPairingCode => PairingRequired(
             pairingCode: session.pairingCode ?? "",
+            requestor: session.requestor,
             onDismiss: _dismissSession,
           ),
           .requestPermission => _buildRequestPermission(session),
@@ -278,9 +288,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
         returnedFromIssuer: _returnedFromIssuer(session),
-        forRequest: widget.hasUnderlyingSession
-            ? ref.watch(underlyingDisclosureProvider(widget.sessionId)).value
-            : null,
+        forRequest: _underlying,
         onDismiss: _dismissSession,
         onGivePermission: () => _grantPermission(const []),
       );
@@ -449,13 +457,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       }
     }
 
-    // If this is an issuance session spawned during a disclosure flow,
-    // skip the success screen and pop back to the underlying disclosure session.
+    // An issuance during a request: confirm what was added, then back to
+    // the request ("Back to {requestor}").
     if (widget.hasUnderlyingSession && session.type == .issuance) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.popToUnderlyingSession();
-      });
-      return _buildLoadingScreen(session);
+      return IssuanceSuccessScreen(
+        credentials: session.offeredCredentials ?? const [],
+        backTo: _underlying?.requestor.name,
+        onDismiss: (_) {
+          if (mounted) context.popToUnderlyingSession();
+        },
+      );
     }
 
     // The user originated this issuance from inside the app (add-data tap
@@ -478,6 +489,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (returnUrl != null && returnUrl.isPhoneNumber) {
       return CallInfoScreen(
         otherParty: session.requestor.name,
+        phoneNumber: returnUrl.phoneNumber,
         onContinue: () =>
             _openReturnUrl(returnUrl, alwaysExternal: true, popOnSuccess: true),
         onCancel: _closeSession,
@@ -503,6 +515,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         otherParty: session.requestor.name,
         onDismiss: (_) => pop(),
         shared: _sharedInstances,
+        onOtherDevice: true,
       );
     }
 

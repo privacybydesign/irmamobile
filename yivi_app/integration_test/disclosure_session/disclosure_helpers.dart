@@ -3,7 +3,6 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -50,27 +49,32 @@ Future<void> evaluateFeedback(
   );
 
   if (feedbackType == DisclosureFeedbackType.success) {
-    // Expect the SuccessGraphic in the feedback screen
-    final successGraphicFinder = find.byType(SuccessGraphic);
+    // The result: a check and "Shared with …" or "Signed and shared" (or
+    // "Done" when nothing was shared).
     expect(
-      find.descendant(of: feedbackScreenFinder, matching: successGraphicFinder),
+      find.descendant(
+        of: feedbackScreenFinder,
+        matching: find.byKey(const Key("share_done_check")),
+      ),
       findsOneWidget,
     );
+    final title = find.byKey(const Key("share_done_title"));
+    expect(title, findsOneWidget);
+    final text = tester.widget<Text>(title).data!;
+    if (isSignatureSession) {
+      expect(text, "Signed and shared");
+    } else {
+      expect(text.startsWith("Shared with") || text == "Done", isTrue);
+    }
 
-    expect(
-      find.textContaining("You signed the request"),
-      isSignatureSession ? findsOneWidget : findsNothing,
-    );
-    expect(
-      find.textContaining("Your data is disclosed"),
-      isSignatureSession ? findsNothing : findsOneWidget,
-    );
-  } else if (feedbackType == DisclosureFeedbackType.canceled) {
-    expect(find.text("Canceled"), findsOneWidget);
+    await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+  } else {
+    if (feedbackType == DisclosureFeedbackType.canceled) {
+      expect(find.text("Canceled"), findsOneWidget);
+    }
+    await tester.waitFor(find.text("OK"));
+    await tester.tapAndSettle(find.text("OK"));
   }
-
-  await tester.waitFor(find.text("OK"));
-  await tester.tapAndSettle(find.text("OK"));
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);

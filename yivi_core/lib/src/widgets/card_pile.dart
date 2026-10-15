@@ -14,7 +14,15 @@ class CardPile extends StatelessWidget {
   final List<Credential> cards;
   final double cardWidth;
 
-  const CardPile({super.key, required this.cards, this.cardWidth = 200});
+  /// A key for the card at the same index, e.g. so it can fly elsewhere.
+  final List<Key?> cardKeys;
+
+  const CardPile({
+    super.key,
+    required this.cards,
+    this.cardWidth = 200,
+    this.cardKeys = const [],
+  });
 
   /// How far each card sits below the one before.
   static const double step = 26;
@@ -59,6 +67,7 @@ class CardPile extends StatelessWidget {
                     child: Transform.rotate(
                       angle: placementOf(i).degrees * 3.141592653589793 / 180,
                       child: CredentialCardArt(
+                        key: i < cardKeys.length ? cardKeys[i] : null,
                         credential: card,
                         width: cardWidth,
                       ),

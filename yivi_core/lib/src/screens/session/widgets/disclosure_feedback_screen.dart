@@ -1,16 +1,17 @@
+import "package:collection/collection.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/action_feedback.dart";
-import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
+import "../models/disclosure_view_model.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
-import "success_graphic.dart";
+import "shared_card_tile.dart";
 
 enum DisclosureFeedbackType { success, canceled, notSatisfiable }
 
@@ -30,6 +31,10 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   /// listed under "What you shared" on success.
   final List<SelectableCredentialInstance> shared;
 
+  /// The session continues on another device (the one that showed the QR
+  /// code).
+  final bool onOtherDevice;
+
   final String? _translationKey;
 
   DisclosureFeedbackScreen({
@@ -38,6 +43,7 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     required this.onDismiss,
     bool? isSignatureSession,
     this.shared = const [],
+    this.onOtherDevice = false,
   }) : isSignatureSession = isSignatureSession ?? false,
        _translationKey = _translationKeys[feedbackType];
 
@@ -67,13 +73,8 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     final explanationKey =
         'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}';
 
-    if (widget.feedbackType == DisclosureFeedbackType.success &&
-        widget.shared.isNotEmpty) {
-      return _buildSuccessWithShared(
-        context,
-        otherPartyTranslationParam,
-        explanationKey,
-      );
+    if (widget.feedbackType == DisclosureFeedbackType.success) {
+      return _buildShared(context);
     }
 
     return ActionFeedback(
@@ -87,37 +88,83 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     );
   }
 
-  /// The success feedback followed by the cards the user shared.
-  Widget _buildSuccessWithShared(
-    BuildContext context,
-    Map<String, String> params,
-    String explanationKey,
-  ) {
+  /// "Shared with {requestor}": a check, what was shared, and a note when
+  /// that was a card's last use.
+  Widget _buildShared(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final okButton = YiviThemedButton(
-      key: const Key("ok_button"),
-      label: "action_feedback.ok",
-      onPressed: () => widget.onDismiss(context),
-    );
-    final whatYouShared = <Widget>[
-      Padding(
-        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-        child: Semantics(
-          header: true,
-          child: TranslatedText(
-            "disclosure.what_you_shared",
-            style: palette.display(16),
-          ),
+    final lang = FlutterI18n.currentLocale(context)?.languageCode;
+    String t(String key, [Map<String, String>? params]) =>
+        FlutterI18n.translate(context, key, translationParams: params);
+    final requestor = {"requestor": widget.otherParty};
+    final shared = widget.shared;
+
+    final title = shared.isEmpty
+        ? t("share.done.title_none")
+        : widget.isSignatureSession
+        ? t("share.done.title_signature")
+        : t("share.done.title", requestor);
+    final text = shared.isEmpty
+        ? t("share.done.text_none", requestor)
+        : widget.onOtherDevice
+        ? t("share.done.text_second_device", requestor)
+        : t("share.done.text", requestor);
+    final lastUse = shared.firstWhereOrNull(isLastUse);
+
+    final heading = <Widget>[
+      const Center(child: _DoneCheck()),
+      const SizedBox(height: 12),
+      Semantics(
+        header: true,
+        child: Text(
+          title,
+          key: const Key("share_done_title"),
+          textAlign: TextAlign.center,
+          style: palette.display(25).copyWith(color: palette.text),
         ),
       ),
-      for (final instance in widget.shared)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: DisclosedCardTile(instance: instance),
+      const SizedBox(height: 12),
+      Text(
+        text,
+        textAlign: TextAlign.center,
+        style: palette
+            .body(15)
+            .copyWith(height: 22 / 15, color: palette.heading),
+      ),
+    ];
+    final details = <Widget>[
+      for (final instance in shared)
+        SharedCardTile(
+          bundle: DisclosureBundle(credentials: [instance]),
+          showStatus: false,
+        ),
+      if (lastUse != null)
+        Container(
+          key: const Key("share_done_last_use"),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: ShapeDecoration(
+            color: palette.warningSurface,
+            shape: const RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+          ),
+          child: Text(
+            t("share.done.last_use", {
+              "name": inSentence(lastUse.name, language: lang),
+            }),
+            style: palette
+                .body(14)
+                .copyWith(height: 20 / 14, color: palette.warningText),
+          ),
         ),
     ];
+    final button = YiviThemedButton(
+      key: const Key("ok_button"),
+      label: "share.done.button",
+      onPressed: () => widget.onDismiss(context),
+    );
 
-    // Tablets: the result and OK on the left, what was shared on the right.
+    // Tablets: the result and the button on the left, what was shared on
+    // the right.
     if (useSessionColumns(context)) {
       return PopScope(
         canPop: false,
@@ -132,35 +179,13 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
             gap: 96,
             centreVertically: true,
             start: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 120,
-                  width: 120,
-                  child: SuccessGraphic(),
-                ),
-                const SizedBox(height: 32),
-                TranslatedText(
-                  "disclosure.feedback.header.success",
-                  translationParams: params,
-                  isHeader: true,
-                  style: palette
-                      .display(34, weight: FontWeight.w700)
-                      .copyWith(height: 44 / 34, color: palette.heading),
-                ),
-                const SizedBox(height: 8),
-                TranslatedText(
-                  explanationKey,
-                  translationParams: params,
-                  style: palette.body(18).copyWith(height: 28 / 18),
-                ),
-                const SizedBox(height: 32),
-                okButton,
-              ],
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [...heading, const SizedBox(height: 32), button],
             ),
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: whatYouShared,
+              spacing: 12,
+              children: details,
             ),
           ),
         ),
@@ -175,29 +200,14 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
         scrollsUnderBars: true,
         body: BarInsetsBuilder(
           builder: (context, insets) => ListView(
-            padding: insets + const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            padding: insets + const EdgeInsets.fromLTRB(16, 24, 16, 24),
             children: [
-              const SizedBox(height: 160, child: SuccessGraphic()),
-              const SizedBox(height: 16),
-              TranslatedText(
-                "disclosure.feedback.header.success",
-                translationParams: params,
-                style: palette.display(26, weight: FontWeight.w700),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              TranslatedText(
-                explanationKey,
-                translationParams: params,
-                style: palette.body(16),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              ...whatYouShared,
+              ...heading,
+              for (final d in details) ...[const SizedBox(height: 16), d],
             ],
           ),
         ),
-        bottomNavigationBar: IrmaBottomBarBase(child: okButton),
+        bottomNavigationBar: IrmaBottomBarBase(child: button),
       ),
     );
   }
@@ -208,5 +218,28 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     if (state == AppLifecycleState.resumed) {
       widget.onDismiss(context);
     }
+  }
+}
+
+/// A green check in a ring.
+class _DoneCheck extends StatelessWidget {
+  const _DoneCheck();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return ExcludeSemantics(
+      child: Container(
+        key: const Key("share_done_check"),
+        width: 84,
+        height: 84,
+        decoration: BoxDecoration(
+          color: palette.successTint,
+          shape: BoxShape.circle,
+          border: Border.all(color: palette.successOutline, width: 3),
+        ),
+        child: Icon(Icons.check_rounded, size: 44, color: palette.successText),
+      ),
+    );
   }
 }

@@ -25,12 +25,17 @@ class SharedCardTile extends ConsumerWidget {
   final String? fixLabel;
   final VoidCallback? onFix;
 
+  /// Shows the problem or last-use chip and note. Off after sharing, when
+  /// they no longer apply.
+  final bool showStatus;
+
   const SharedCardTile({
     super.key,
     required this.bundle,
     this.trailing,
     this.fixLabel,
     this.onFix,
+    this.showStatus = true,
   }) : assert((fixLabel == null) == (onFix == null));
 
   /// Width of the small card art, at the card's 358:226 ratio.
@@ -43,8 +48,8 @@ class SharedCardTile extends ConsumerWidget {
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const <schemaless.Credential>[];
     final cards = bundle.credentials;
-    final problem = problemOfBundle(bundle);
-    final lastUse = problem == null && cards.any(isLastUse);
+    final problem = showStatus ? problemOfBundle(bundle) : null;
+    final lastUse = showStatus && problem == null && cards.any(isLastUse);
     final name = cards.map((c) => c.name).join(" + ");
     final issuers = cards.map((c) => c.issuer.name).toSet().join(", ");
 
