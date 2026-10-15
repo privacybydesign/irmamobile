@@ -21,8 +21,18 @@ final _card = testCredential(
   type: "pbdf.sidn-pbdf.email",
   hash: "email",
   name: "Email address",
-  attributes: [stringAttr("email", "s.devries@werk.example")],
+  // Enough to scroll.
+  attributes: [
+    stringAttr("email", "s.devries@werk.example"),
+    for (var i = 0; i < 20; i++) stringAttr("extra$i", "value $i"),
+  ],
 );
+
+/// iOS bounces at the top, Android stretches: the pull works on both.
+final _platforms = TargetPlatformVariant(const {
+  TargetPlatform.iOS,
+  TargetPlatform.android,
+});
 
 void main() {
   late IrmaRepository repo;
@@ -78,7 +88,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CredentialDetailScreen), findsNothing);
-  });
+  }, variant: _platforms);
+
+  testWidgets("a drag that starts scrolled down only scrolls, past the top "
+      "too", (tester) async {
+    await openDetail(tester);
+    final list = find.byType(ListView);
+    final top = tester.getTopLeft(list);
+    final position = tester
+        .state<ScrollableState>(
+          find.descendant(of: list, matching: find.byType(Scrollable)),
+        )
+        .position;
+    position.jumpTo(200);
+    await tester.pump();
+
+    // One drag down: back to the top and on, far enough to dismiss.
+    final gesture = await tester.startGesture(tester.getCenter(list));
+    for (var i = 0; i < 12; i++) {
+      await gesture.moveBy(const Offset(0, 40));
+      await tester.pump();
+    }
+    // At the top, or bouncing past it on iOS.
+    expect(position.pixels, lessThanOrEqualTo(position.minScrollExtent));
+    // The page did not move down: no pull, only the usual stretch.
+    expect(tester.getTopLeft(list), top);
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CredentialDetailScreen), findsOneWidget);
+  }, variant: _platforms);
 
   testWidgets("a short pull springs back", (tester) async {
     await openDetail(tester);
@@ -97,7 +136,7 @@ void main() {
 
     expect(find.byType(CredentialDetailScreen), findsOneWidget);
     expect(tester.getTopLeft(find.byType(ListView)), top);
-  });
+  }, variant: _platforms);
 
   test("scrolled down, a drag scrolls; only at the top it pulls", () {
     final pull = ValueNotifier<double>(0);

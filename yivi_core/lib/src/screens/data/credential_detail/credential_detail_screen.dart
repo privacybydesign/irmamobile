@@ -65,6 +65,19 @@ class _CredentialDetailScreenState extends ConsumerState<CredentialDetailScreen>
   );
   double _springFrom = 0;
 
+  /// As on iOS: only a drag that starts at the top can pull the page down.
+  /// One that starts further down scrolls, and at the top it stretches
+  /// (or bounces) as usual instead of pulling.
+  bool _dragStartedAtTop = false;
+
+  bool _onScrollStart(ScrollStartNotification notification) {
+    if (notification.dragDetails != null) {
+      final metrics = notification.metrics;
+      _dragStartedAtTop = metrics.pixels <= metrics.minScrollExtent + 0.5;
+    }
+    return false;
+  }
+
   /// A pull this far, or a flick down this fast, closes the page.
   static const _dismissDistance = 120.0;
   static const _dismissVelocity = 700.0;
@@ -74,7 +87,8 @@ class _CredentialDetailScreenState extends ConsumerState<CredentialDetailScreen>
     canPull: () {
       // A new drag takes over from a spring back.
       _springBack.stop();
-      return _routeAnimation?.status != AnimationStatus.reverse;
+      return _dragStartedAtTop &&
+          _routeAnimation?.status != AnimationStatus.reverse;
     },
     onRelease: _onPullReleased,
   );
@@ -240,7 +254,10 @@ class _CredentialDetailScreenState extends ConsumerState<CredentialDetailScreen>
                   // The page follows the finger down, shrinking a little.
                   return ValueListenableBuilder<double>(
                     valueListenable: _pull,
-                    child: list,
+                    child: NotificationListener<ScrollStartNotification>(
+                      onNotification: _onScrollStart,
+                      child: list,
+                    ),
                     builder: (context, pull, child) => Transform.translate(
                       offset: Offset(0, pull),
                       child: Transform.scale(
@@ -963,9 +980,11 @@ class _AboutRow extends StatelessWidget {
 }
 
 /// Scroll physics for a page that is dismissed by pulling it down: at the
-/// top, dragging down does not scroll but grows [pull], and dragging back up
-/// first takes the pull away before the content scrolls again. On release
-/// with a pull, [onRelease] gets the velocity and the content does not fling.
+/// top, dragging down does not scroll but grows [pull] (while [canPull], e.g.
+/// for a drag that started at the top), and dragging back up first takes the
+/// pull away before the content scrolls again. Otherwise the platform's own
+/// physics apply, with their stretch or bounce. On release with a pull,
+/// [onRelease] gets the velocity and the content does not fling.
 class PullToDismissPhysics extends ScrollPhysics {
   final ValueNotifier<double> pull;
   final bool Function() canPull;
