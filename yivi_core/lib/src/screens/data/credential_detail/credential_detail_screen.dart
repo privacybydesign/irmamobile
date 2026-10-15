@@ -50,10 +50,54 @@ class CredentialDetailScreen extends ConsumerStatefulWidget {
       _CredentialDetailScreenState();
 }
 
-class _CredentialDetailScreenState
-    extends ConsumerState<CredentialDetailScreen> {
+class _CredentialDetailScreenState extends ConsumerState<CredentialDetailScreen>
+    with SingleTickerProviderStateMixin {
   late String _hash = widget.hash;
   Animation<double>? _routeAnimation;
+
+  /// How far the page is pulled down at its top, to dismiss it.
+  final _pull = ValueNotifier<double>(0);
+
+  /// Springs the pull back when it was not far enough to dismiss.
+  late final _springBack = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+  );
+  double _springFrom = 0;
+
+  /// A pull this far, or a flick down this fast, closes the page.
+  static const _dismissDistance = 120.0;
+  static const _dismissVelocity = 700.0;
+
+  late final _physics = PullToDismissPhysics(
+    pull: _pull,
+    canPull: () {
+      // A new drag takes over from a spring back.
+      _springBack.stop();
+      return _routeAnimation?.status != AnimationStatus.reverse;
+    },
+    onRelease: _onPullReleased,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _springBack.addListener(() {
+      final t = Curves.easeOutBack.transform(_springBack.value);
+      _pull.value = (_springFrom * (1 - t)).clamp(0, double.infinity);
+    });
+  }
+
+  void _onPullReleased(double velocity) {
+    // A downward flick has a negative scroll velocity.
+    if (_pull.value > _dismissDistance || velocity < -_dismissVelocity) {
+      // The card flies back from where it was pulled to.
+      _close();
+    } else {
+      _springFrom = _pull.value;
+      _springBack.forward(from: 0);
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -78,6 +122,8 @@ class _CredentialDetailScreenState
 
   @override
   void dispose() {
+    _springBack.dispose();
+    _pull.dispose();
     _routeAnimation?.removeStatusListener(_onRouteStatus);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (WalletTransition.openHash.value == _hash) {
@@ -88,6 +134,10 @@ class _CredentialDetailScreenState
   }
 
   void _close() => Navigator.of(context).maybePop();
+
+  /// 0 at rest, 1 at twice the dismiss distance.
+  double get _pullProgress =>
+      (_pull.value / (2 * _dismissDistance)).clamp(0.0, 1.0);
 
   void _switchTo(String hash) {
     setState(() => _hash = hash);
@@ -116,10 +166,12 @@ class _CredentialDetailScreenState
           // Transparent while the data tab moves away, opaque once open.
           Positioned.fill(
             child: AnimatedBuilder(
-              animation: animation,
+              animation: Listenable.merge([animation, _pull]),
               builder: (context, _) => ColoredBox(
                 color: palette.background.withValues(
-                  alpha: const Interval(0.6, 1).transform(animation.value),
+                  alpha:
+                      const Interval(0.6, 1).transform(animation.value) *
+                      (1 - _pullProgress * 0.5),
                 ),
               ),
             ),
@@ -129,7 +181,9 @@ class _CredentialDetailScreenState
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
-                  return ListView(
+                  final list = ListView(
+                    // Pulling down at the top dismisses the page.
+                    physics: _physics,
                     padding: EdgeInsets.fromLTRB(
                       16,
                       padding.top + 76,
@@ -183,6 +237,19 @@ class _CredentialDetailScreenState
                       ),
                     ],
                   );
+                  // The page follows the finger down, shrinking a little.
+                  return ValueListenableBuilder<double>(
+                    valueListenable: _pull,
+                    child: list,
+                    builder: (context, pull, child) => Transform.translate(
+                      offset: Offset(0, pull),
+                      child: Transform.scale(
+                        scale: 1 - _pullProgress * 0.06,
+                        alignment: Alignment.topCenter,
+                        child: child,
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
@@ -220,12 +287,14 @@ class _CredentialDetailScreenState
             // Faded by the glass itself: a FadeTransition would darken its
             // blur until the fade ends (see GlassSurface.opacity).
             child: AnimatedBuilder(
-              animation: animation,
+              animation: Listenable.merge([animation, _pull]),
               builder: (context, _) => GlassPillButton(
                 buttonKey: const Key("credential_detail_done"),
                 label: FlutterI18n.translate(context, "wallet.detail.done"),
                 onTap: _close,
-                opacity: const Interval(0.4, 1).transform(animation.value),
+                opacity:
+                    const Interval(0.4, 1).transform(animation.value) *
+                    (1 - _pullProgress),
               ),
             ),
           ),
@@ -891,4 +960,58 @@ class _AboutRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Scroll physics for a page that is dismissed by pulling it down: at the
+/// top, dragging down does not scroll but grows [pull], and dragging back up
+/// first takes the pull away before the content scrolls again. On release
+/// with a pull, [onRelease] gets the velocity and the content does not fling.
+class PullToDismissPhysics extends ScrollPhysics {
+  final ValueNotifier<double> pull;
+  final bool Function() canPull;
+  final ValueChanged<double> onRelease;
+
+  const PullToDismissPhysics({
+    required this.pull,
+    required this.canPull,
+    required this.onRelease,
+    super.parent,
+  });
+
+  @override
+  PullToDismissPhysics applyTo(ScrollPhysics? ancestor) => PullToDismissPhysics(
+    pull: pull,
+    canPull: canPull,
+    onRelease: onRelease,
+    parent: buildParent(ancestor),
+  );
+
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    final atTop = position.pixels <= position.minScrollExtent;
+    // A positive offset drags the content down.
+    if (canPull() && (pull.value > 0 || (atTop && offset > 0))) {
+      // Resists a little, like a rubber band.
+      final delta = offset > 0 ? offset * 0.8 : offset;
+      pull.value = (pull.value + delta).clamp(0.0, double.infinity);
+      return 0;
+    }
+    return super.applyPhysicsToUserOffset(position, offset);
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    if (pull.value > 0) {
+      onRelease(velocity);
+      return null;
+    }
+    return super.createBallisticSimulation(position, velocity);
+  }
+
+  // Pulling down at the top must reach applyPhysicsToUserOffset, not bounce.
+  @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) => true;
 }
