@@ -1,0 +1,231 @@
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
+import "package:pinput/pinput.dart";
+
+import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/translated_text.dart";
+
+/// The top of the e-mail and phone screens: a rounded tile with an envelope
+/// or a phone, the heading and the explanation, centred.
+class ContactIntro extends StatelessWidget {
+  final IconData icon;
+
+  /// The colours of the tile: warning (amber) for e-mail, success (green)
+  /// for a phone number, as their cards.
+  final DialogTone tone;
+  final String headerKey;
+  final String bodyKey;
+  final Map<String, String> bodyParams;
+
+  const ContactIntro({
+    super.key,
+    required this.icon,
+    required this.tone,
+    required this.headerKey,
+    required this.bodyKey,
+    this.bodyParams = const {},
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final (fill, ink) = ToneDisc.colors(palette, tone);
+
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        Center(
+          child: ExcludeSemantics(
+            child: Container(
+              width: 88,
+              height: 88,
+              decoration: ShapeDecoration(
+                color: fill,
+                shape: const RoundedSuperellipseBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                ),
+              ),
+              child: Icon(icon, size: 44, color: ink),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        TranslatedText(
+          headerKey,
+          isHeader: true,
+          textAlign: .center,
+          style: palette
+              .display(24, weight: FontWeight.w700)
+              .copyWith(height: 32 / 24, color: palette.heading),
+        ),
+        const SizedBox(height: 8),
+        TranslatedText(
+          bodyKey,
+          translationParams: bodyParams,
+          textAlign: .center,
+          style: palette.body(16).copyWith(height: 24 / 16),
+        ),
+      ],
+    );
+  }
+}
+
+/// The label above a field on the e-mail and phone screens.
+class ContactFieldLabel extends StatelessWidget {
+  final String labelKey;
+  final TextAlign textAlign;
+
+  const ContactFieldLabel(
+    this.labelKey, {
+    super.key,
+    this.textAlign = TextAlign.start,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 28, 4, 8),
+      child: TranslatedText(
+        labelKey,
+        textAlign: textAlign,
+        style: palette
+            .body(14, weight: FontWeight.w600)
+            .copyWith(height: 20 / 14, color: palette.heading),
+      ),
+    );
+  }
+}
+
+/// The verification code as a row of boxes, the look of [CodeBox]: 48 by 60,
+/// the outline turning link blue at the next box and red for a wrong code.
+/// Pinput stays underneath for the letters in e-mail codes and the SMS
+/// retriever on Android.
+class ContactCodeField extends StatelessWidget {
+  final Key? fieldKey;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final int length;
+  final bool invalid;
+  final SmsRetriever? smsRetriever;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onCompleted;
+
+  const ContactCodeField({
+    super.key,
+    this.fieldKey,
+    required this.controller,
+    required this.focusNode,
+    required this.length,
+    this.invalid = false,
+    this.smsRetriever,
+    this.onChanged,
+    this.onCompleted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+
+    PinTheme box(Color border) => PinTheme(
+      width: 48,
+      height: 60,
+      textStyle: palette
+          .display(26, weight: FontWeight.w700)
+          .copyWith(color: palette.heading),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: border, width: 2),
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        const ContactFieldLabel(
+          "embedded_issuance.code_label",
+          textAlign: TextAlign.center,
+        ),
+        Pinput(
+          key: fieldKey,
+          controller: controller,
+          focusNode: focusNode,
+          smsRetriever: smsRetriever,
+          keyboardType: .text,
+          textCapitalization: .characters,
+          autofocus: true,
+          length: length,
+          mainAxisAlignment: .center,
+          separatorBuilder: (_) => const SizedBox(width: 8),
+          defaultPinTheme: box(invalid ? palette.danger : palette.outline),
+          focusedPinTheme: box(invalid ? palette.danger : palette.link),
+          errorPinTheme: box(palette.danger),
+          forceErrorState: invalid,
+          cursor: Container(width: 2, height: 26, color: palette.link),
+          onChanged: onChanged,
+          onCompleted: onCompleted,
+          pinAnimationType: .scale,
+          hapticFeedbackType: .lightImpact,
+        ),
+      ],
+    );
+  }
+}
+
+/// "No email received?": an underlined link-blue text button, centred.
+class ContactTextLink extends StatelessWidget {
+  final String labelKey;
+  final VoidCallback onTap;
+
+  const ContactTextLink({
+    super.key,
+    required this.labelKey,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: TextButton(
+          onPressed: onTap,
+          style: TextButton.styleFrom(
+            minimumSize: const Size(48, 40),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            shape: const StadiumBorder(),
+            foregroundColor: palette.link,
+          ),
+          child: Text(
+            FlutterI18n.translate(context, labelKey),
+            textAlign: .center,
+            style: palette
+                .body(14, weight: FontWeight.w700)
+                .copyWith(
+                  color: palette.link,
+                  decoration: TextDecoration.underline,
+                  decorationColor: palette.link,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The error under the code boxes, centred.
+class ContactCodeError extends StatelessWidget {
+  final String textKey;
+
+  const ContactCodeError(this.textKey, {super.key});
+
+  @override
+  Widget build(BuildContext context) => FieldError(
+    FlutterI18n.translate(context, textKey),
+    align: TextAlign.center,
+  );
+}

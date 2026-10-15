@@ -5,12 +5,15 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../util/missing_data_flow.dart";
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/yivi_themed_button.dart";
+import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
 bool isValidEmail(String value) {
@@ -137,6 +140,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     }
 
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
 
@@ -146,9 +150,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
+        backgroundColor: palette.background,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
           titleTranslationKey: titleKey,
+          hasBorder: false,
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(
@@ -161,24 +167,24 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
               child: Padding(
                 padding: .all(theme.defaultSpacing),
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: .stretch,
                   children: [
                     SizedBox(height: theme.defaultSpacing),
-                    TranslatedText(
-                      linking
+                    ContactIntro(
+                      icon: Icons.mail_rounded,
+                      tone: DialogTone.warning,
+                      headerKey: linking
                           ? "email_linking.enter_email.header"
                           : "email_issuance.enter_email.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
-                    ),
-                    SizedBox(height: theme.defaultSpacing),
-                    TranslatedText(
-                      linking
+                      bodyKey: linking
                           ? "email_linking.enter_email.body"
                           : "email_issuance.enter_email.body",
                     ),
-                    SizedBox(height: theme.largeSpacing),
+                    ContactFieldLabel(
+                      linking
+                          ? "email_linking.enter_email.label"
+                          : "email_issuance.enter_email.label",
+                    ),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -187,19 +193,13 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                           Container(
                             key: _emailFieldPositionKey,
                             child: TextFormField(
-                              decoration: linking
-                                  ? InputDecoration(
-                                      labelText: FlutterI18n.translate(
-                                        context,
-                                        "email_linking.enter_email.label",
-                                      ),
-                                    )
-                                  : InputDecoration(
-                                      hint: TranslatedText(
-                                        "email_issuance.enter_email.email_hint",
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    ),
+                              decoration: pillInputDecoration(
+                                context,
+                                hint: FlutterI18n.translate(
+                                  context,
+                                  "email_issuance.enter_email.email_hint",
+                                ),
+                              ),
                               controller: _textController,
                               focusNode: _focusNode,
                               key: const Key("email_input_field"),

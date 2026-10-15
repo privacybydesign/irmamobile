@@ -284,7 +284,7 @@ void main() {
   });
 
   group("enter e-mail and code screens", () {
-    testWidgets("link purpose uses the linking copy and a label in the field", (
+    testWidgets("link purpose uses the linking copy and a label above", (
       tester,
     ) async {
       await pumpApp(tester);
@@ -301,8 +301,10 @@ void main() {
           matching: find.byType(TextField),
         ),
       );
-      expect(field.decoration!.labelText, "Email address");
-      expect(field.decoration!.hint, isNull);
+      // The label sits above the field, the hint inside it.
+      expect(find.text("Email address"), findsOneWidget);
+      expect(field.decoration!.labelText, isNull);
+      expect(field.decoration!.hintText, "Enter your email address...");
     });
 
     testWidgets("adding the credential keeps today's copy and hint", (
@@ -319,8 +321,9 @@ void main() {
           matching: find.byType(TextField),
         ),
       );
+      expect(find.text("Email address"), findsOneWidget);
       expect(field.decoration!.labelText, isNull);
-      expect(field.decoration!.hint, isNotNull);
+      expect(field.decoration!.hintText, "Enter your email address...");
     });
 
     testWidgets("sending the address opens the code screen", (tester) async {

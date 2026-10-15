@@ -1,16 +1,16 @@
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../package_name.dart";
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/missing_data_flow.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_dialog.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/status_body.dart";
 import "../../../widgets/yivi_themed_button.dart";
+import "contact_widgets.dart";
 
 class EmbeddedIssuanceErrorScreen extends StatelessWidget {
   const EmbeddedIssuanceErrorScreen({
@@ -28,81 +28,22 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     return Scaffold(
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         bottom: context.missingDataBand,
         titleTranslationKey: titleTranslationKey,
+        hasBorder: false,
       ),
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: .all(theme.defaultSpacing),
-            child: SizedBox(
-              width: .infinity,
-              child: Builder(
-                builder: (context) {
-                  final orientation = MediaQuery.of(context).orientation;
-
-                  if (orientation == .landscape) {
-                    return Row(
-                      mainAxisSize: .max,
-                      mainAxisAlignment: .center,
-                      children: [
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: .start,
-                            children: [
-                              TranslatedText(
-                                contentTranslationKey,
-                                textAlign: .start,
-                              ),
-                              SizedBox(height: theme.largeSpacing),
-                              YiviLinkButton(
-                                textAlign: .start,
-                                labelTranslationKey: "error.button_show_error",
-                                onTap: () {
-                                  _showIrmaDialog(context, errorMessage);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: theme.largeSpacing),
-                        Flexible(
-                          child: SvgPicture.asset(
-                            height: 200,
-                            yiviAsset("error/general_error_illustration.svg"),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Column(
-                    mainAxisSize: .max,
-                    mainAxisAlignment: .center,
-                    crossAxisAlignment: .center,
-                    children: [
-                      SizedBox(height: theme.largeSpacing),
-                      SvgPicture.asset(
-                        yiviAsset("error/general_error_illustration.svg"),
-                      ),
-                      SizedBox(height: theme.largeSpacing),
-                      TranslatedText(contentTranslationKey, textAlign: .center),
-                      SizedBox(height: theme.largeSpacing),
-                      YiviLinkButton(
-                        textAlign: .center,
-                        labelTranslationKey: "error.button_show_error",
-                        onTap: () {
-                          _showIrmaDialog(context, errorMessage);
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+      body: SafeArea(
+        child: StatusBody(
+          icon: Icons.error_outline_rounded,
+          tone: DialogTone.danger,
+          title: FlutterI18n.translate(context, contentTranslationKey),
+          footer: ContactTextLink(
+            labelKey: "error.button_show_error",
+            onTap: () => _showIrmaDialog(context, errorMessage),
           ),
         ),
       ),

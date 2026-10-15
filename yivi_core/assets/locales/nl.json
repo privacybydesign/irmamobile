@@ -586,7 +586,8 @@
       "error": "Er ging iets fout bij het versturen van de verificatiecode.",
       "email_hint": "Voer je e-mailadres in...",
       "next_button": "E-mail versturen",
-      "back_button": "Annuleer"
+      "back_button": "Annuleer",
+      "label": "E-mailadres"
     },
     "verify_code": {
       "title": "E-mailadres verifiëren",
@@ -652,7 +653,8 @@
       "next_button": "Sms versturen",
       "back_button": "Annuleer",
       "search_label": "Zoek land of landnummer",
-      "search_hint": "Voer land naam of nummer in..."
+      "search_hint": "Voer land naam of nummer in...",
+      "label": "Telefoonnummer"
     },
     "verify_code": {
       "title": "Telefoonnummer verifiëren",
@@ -676,6 +678,9 @@
         "cancel": "Annuleer"
       }
     }
+  },
+  "embedded_issuance": {
+    "code_label": "Verificatiecode"
   },
   "external_issuer": {
     "source": "Via de website van {issuer}",

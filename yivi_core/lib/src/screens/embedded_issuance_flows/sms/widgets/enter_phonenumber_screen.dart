@@ -12,12 +12,15 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../util/missing_data_flow.dart";
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
+import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
 /// Alpha-2 codes of countries excluded from the phone number input. Most are
@@ -200,6 +203,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     }
 
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
 
@@ -209,9 +213,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       },
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
+        backgroundColor: palette.background,
         appBar: IrmaAppBar(
           bottom: context.missingDataBand,
           titleTranslationKey: "sms_issuance.enter_phone.title",
+          hasBorder: false,
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(
@@ -224,18 +230,16 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
               child: Padding(
                 padding: .all(theme.defaultSpacing),
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: .stretch,
                   children: [
                     SizedBox(height: theme.defaultSpacing),
-                    TranslatedText(
-                      "sms_issuance.enter_phone.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
+                    const ContactIntro(
+                      icon: Icons.smartphone_rounded,
+                      tone: DialogTone.success,
+                      headerKey: "sms_issuance.enter_phone.header",
+                      bodyKey: "sms_issuance.enter_phone.body",
                     ),
-                    SizedBox(height: theme.defaultSpacing),
-                    TranslatedText("sms_issuance.enter_phone.body"),
-                    SizedBox(height: theme.largeSpacing),
+                    const ContactFieldLabel("sms_issuance.enter_phone.label"),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -248,10 +252,16 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                               spaceBetweenSelectorAndTextField:
                                   theme.smallSpacing,
                               focusNode: _focusNode,
-                              inputDecoration: core.InputDecoration(
-                                hint: TranslatedText(
+                              textStyle: palette.body(16),
+                              selectorTextStyle: palette.body(
+                                16,
+                                weight: FontWeight.w600,
+                              ),
+                              inputDecoration: _pillDecoration(
+                                palette,
+                                FlutterI18n.translate(
+                                  context,
                                   "sms_issuance.enter_phone.phone_hint",
-                                  style: TextStyle(color: Colors.grey),
                                 ),
                               ),
                               searchBoxDecoration: core.InputDecoration(
@@ -327,6 +337,30 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                 onSecondaryPressed: context.missingDataBack(context.pop),
               ),
       ),
+    );
+  }
+
+  /// The pill look of the other fields for the phone number input, which
+  /// takes the core SDK's decoration: the country code sits inside the
+  /// outline as its prefix.
+  static core.InputDecoration _pillDecoration(
+    YiviPalette palette,
+    String hint,
+  ) {
+    core.OutlineInputBorder border(Color color) => core.OutlineInputBorder(
+      borderRadius: const BorderRadius.all(Radius.circular(18)),
+      borderSide: BorderSide(color: color, width: 1.5),
+    );
+    return core.InputDecoration(
+      filled: true,
+      fillColor: palette.surface,
+      hintText: hint,
+      hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+      enabledBorder: border(palette.outline),
+      focusedBorder: border(palette.link),
+      errorBorder: border(palette.danger),
+      focusedErrorBorder: border(palette.danger),
     );
   }
 

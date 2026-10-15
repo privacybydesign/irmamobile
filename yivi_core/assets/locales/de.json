@@ -586,7 +586,8 @@
       "error": "Beim Senden des Bestätigungscodes ist etwas schiefgelaufen.",
       "email_hint": "Geben Sie Ihre E-Mail-Adresse ein...",
       "next_button": "E-Mail senden",
-      "back_button": "Abbrechen"
+      "back_button": "Abbrechen",
+      "label": "E-Mail-Adresse"
     },
     "verify_code": {
       "title": "E-Mail-Adresse verifizieren",
@@ -652,7 +653,8 @@
       "next_button": "SMS senden",
       "back_button": "Abbrechen",
       "search_label": "Land oder Ländervorwahl suchen",
-      "search_hint": "Geben Sie den Namen Ihres Landes ein..."
+      "search_hint": "Geben Sie den Namen Ihres Landes ein...",
+      "label": "Telefonnummer"
     },
     "verify_code": {
       "title": "Telefonnummer verifizieren",
@@ -676,6 +678,9 @@
         "cancel": "Abbrechen"
       }
     }
+  },
+  "embedded_issuance": {
+    "code_label": "Bestätigungscode"
   },
   "external_issuer": {
     "source": "Über die Website von {issuer}",

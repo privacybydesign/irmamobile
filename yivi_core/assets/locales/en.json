@@ -557,7 +557,8 @@
       "error": "Something went wrong while sending the verification code.",
       "email_hint": "Enter your email address...",
       "next_button": "Send email",
-      "back_button": "Cancel"
+      "back_button": "Cancel",
+      "label": "Email address"
     },
     "verify_code": {
       "title": "Verify email address",
@@ -623,7 +624,8 @@
       "next_button": "Send sms",
       "back_button": "Cancel",
       "search_label": "Search country or country code",
-      "search_hint": "Enter the name of your country..."
+      "search_hint": "Enter the name of your country...",
+      "label": "Phone number"
     },
     "verify_code": {
       "title": "Verify phone number",
@@ -647,6 +649,9 @@
         "cancel": "Cancel"
       }
     }
+  },
+  "embedded_issuance": {
+    "code_label": "Verification code"
   },
   "external_issuer": {
     "source": "Via the website of {issuer}",

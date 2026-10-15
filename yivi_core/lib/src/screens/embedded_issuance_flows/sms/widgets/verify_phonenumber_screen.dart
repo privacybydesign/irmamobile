@@ -2,19 +2,19 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:pinput/pinput.dart";
 
 import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../util/missing_data_flow.dart";
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
-import "../../../../widgets/translated_text.dart";
-import "../../../../widgets/yivi_themed_button.dart";
+import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
 class VerifyPhoneScreen extends ConsumerStatefulWidget {
@@ -122,29 +122,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
     final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is SmsIssuanceInvalidCodeError;
 
-    final defaultPinTheme = PinTheme(
-      width: 50,
-      height: 50,
-      textStyle: TextStyle(
-        fontSize: 25,
-        color: Color.fromRGBO(30, 60, 87, 1),
-        fontWeight: FontWeight.w600,
-      ),
-      decoration: BoxDecoration(
-        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
-        borderRadius: .circular(10),
-      ),
-    );
-
-    final focussedPinTheme = defaultPinTheme.copyWith(
-      width: 54,
-      height: 54,
-      decoration: BoxDecoration(
-        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
-        border: .all(color: codeInvalid ? theme.error : theme.link),
-        borderRadius: .circular(10),
-      ),
-    );
+    final palette = YiviPalette.of(context);
 
     final smsRetriever = ref.watch(smsRetrieverProvider);
 
@@ -160,10 +138,12 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
           _focusNode.unfocus();
         },
         child: Scaffold(
+          backgroundColor: palette.background,
           appBar: IrmaAppBar(
             bottom: context.missingDataBand,
             titleTranslationKey: "sms_issuance.verify_code.title",
             leading: YiviBackButton(onTap: _goBack),
+            hasBorder: false,
           ),
           body: SafeArea(
             child: KeyboardAnimationListener(
@@ -175,59 +155,37 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                 child: Padding(
                   padding: .all(theme.defaultSpacing),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: .stretch,
                     children: [
                       SizedBox(height: theme.defaultSpacing),
-                      TranslatedText(
-                        "sms_issuance.verify_code.header",
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          color: theme.neutralExtraDark,
-                        ),
+                      ContactIntro(
+                        icon: Icons.smartphone_rounded,
+                        tone: DialogTone.success,
+                        headerKey: "sms_issuance.verify_code.header",
+                        bodyKey: "sms_issuance.verify_code.body",
+                        bodyParams: {"phone": state.phoneNumber},
                       ),
-                      SizedBox(height: theme.defaultSpacing),
-                      TranslatedText(
-                        "sms_issuance.verify_code.body",
-                        translationParams: {"phone": state.phoneNumber},
-                      ),
-                      SizedBox(height: theme.largeSpacing),
                       Container(
                         key: _codeFieldPositionKey,
-                        child: Pinput(
+                        child: ContactCodeField(
+                          fieldKey: const Key(
+                            "sms_verification_code_input_field",
+                          ),
                           controller: _textController,
-                          smsRetriever: smsRetriever,
-                          key: const Key("sms_verification_code_input_field"),
-                          keyboardType: .text,
-                          textCapitalization: .characters,
                           focusNode: _focusNode,
-                          autofocus: true,
-                          mainAxisAlignment: .start,
-                          defaultPinTheme: defaultPinTheme,
-                          focusedPinTheme: focussedPinTheme,
+                          smsRetriever: smsRetriever,
                           length: 6,
+                          invalid: codeInvalid,
                           onCompleted: _handleCode,
-                          pinAnimationType: .scale,
-                          hapticFeedbackType: .lightImpact,
                         ),
                       ),
-                      if (state.error is SmsIssuanceInvalidCodeError)
-                        TranslatedText(
+                      if (codeInvalid)
+                        const ContactCodeError(
                           "sms_issuance.verify_code.invalid_code_error",
-                          style: TextStyle(color: theme.error),
                         ),
-                      SizedBox(height: theme.largeSpacing),
-                      Row(
-                        mainAxisAlignment: .start,
-                        mainAxisSize: .max,
-                        children: [
-                          YiviLinkButton(
-                            textAlign: .center,
-                            labelTranslationKey:
-                                "sms_issuance.verify_code.no_sms_received",
-                            onTap: () {
-                              showResendSmsDialog(state.phoneNumber);
-                            },
-                          ),
-                        ],
+                      ContactTextLink(
+                        labelKey: "sms_issuance.verify_code.no_sms_received",
+                        onTap: () => showResendSmsDialog(state.phoneNumber),
                       ),
                       SizedBox(height: 100),
                     ],

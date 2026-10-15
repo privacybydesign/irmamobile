@@ -2,21 +2,22 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:pinput/pinput.dart";
 
 import "../../../../../routing.dart";
 import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../util/missing_data_flow.dart";
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
-import "../../../../widgets/yivi_themed_button.dart";
+import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
@@ -171,29 +172,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is EmailIssuanceInvalidCodeError;
 
-    final defaultPinTheme = PinTheme(
-      width: 50,
-      height: 50,
-      textStyle: TextStyle(
-        fontSize: 25,
-        color: Color.fromRGBO(30, 60, 87, 1),
-        fontWeight: FontWeight.w600,
-      ),
-      decoration: BoxDecoration(
-        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
-        borderRadius: .circular(10),
-      ),
-    );
-
-    final focussedPinTheme = defaultPinTheme.copyWith(
-      width: 54,
-      height: 54,
-      decoration: BoxDecoration(
-        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
-        border: .all(color: codeInvalid ? theme.error : theme.link),
-        borderRadius: .circular(10),
-      ),
-    );
+    final palette = YiviPalette.of(context);
 
     return PopScope(
       canPop: false,
@@ -207,10 +186,12 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           _focusNode.unfocus();
         },
         child: Scaffold(
+          backgroundColor: palette.background,
           appBar: IrmaAppBar(
             bottom: context.missingDataBand,
             titleTranslationKey: titleKey,
             leading: YiviBackButton(onTap: _goBack),
+            hasBorder: false,
           ),
           body: SafeArea(
             child: KeyboardAnimationListener(
@@ -222,73 +203,58 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                 child: Padding(
                   padding: .all(theme.defaultSpacing),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: .stretch,
                     children: [
                       SizedBox(height: theme.defaultSpacing),
-                      TranslatedText(
-                        _linking
+                      ContactIntro(
+                        icon: Icons.mail_rounded,
+                        tone: DialogTone.warning,
+                        headerKey: _linking
                             ? "email_linking.verify_code.header"
                             : "email_issuance.verify_code.header",
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          color: theme.neutralExtraDark,
-                        ),
-                      ),
-                      SizedBox(height: theme.defaultSpacing),
-                      TranslatedText(
-                        _linking
+                        bodyKey: _linking
                             ? "email_linking.verify_code.body"
                             : "email_issuance.verify_code.body",
-                        translationParams: {"email": state.email},
+                        bodyParams: {"email": state.email},
                       ),
-                      SizedBox(height: theme.largeSpacing),
                       Container(
                         key: _codeFieldPositionKey,
-                        child: Pinput(
-                          key: const Key("email_verification_code_input_field"),
+                        child: ContactCodeField(
+                          fieldKey: const Key(
+                            "email_verification_code_input_field",
+                          ),
                           controller: _textController,
-                          keyboardType: .text,
-                          textCapitalization: .characters,
                           focusNode: _focusNode,
-                          autofocus: true,
-                          mainAxisAlignment: .start,
-                          defaultPinTheme: defaultPinTheme,
-                          focusedPinTheme: focussedPinTheme,
                           length: emailCodeLength,
+                          invalid: codeInvalid,
                           onChanged: _linking ? _codeChanged : null,
                           onCompleted: _linking ? null : _handleCode,
-                          pinAnimationType: .scale,
-                          hapticFeedbackType: .lightImpact,
                         ),
                       ),
-                      if (state.error is EmailIssuanceInvalidCodeError)
-                        TranslatedText(
+                      if (codeInvalid)
+                        const ContactCodeError(
                           "email_issuance.verify_code.invalid_code_error",
-                          style: TextStyle(color: theme.error),
                         ),
                       if (_codeFromLink)
-                        Semantics(
-                          liveRegion: true,
-                          child: TranslatedText(
-                            "email_linking.verify_code.filled_from_link",
-                            key: const Key("code_filled_from_link"),
-                            style: TextStyle(color: theme.neutralExtraDark),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: TranslatedText(
+                              "email_linking.verify_code.filled_from_link",
+                              key: const Key("code_filled_from_link"),
+                              textAlign: .center,
+                              style: palette
+                                  .body(14)
+                                  .copyWith(color: palette.secondaryText),
+                            ),
                           ),
                         ),
-                      SizedBox(height: theme.largeSpacing),
                       if (!_linking)
-                        Row(
-                          mainAxisAlignment: .start,
-                          mainAxisSize: .max,
-                          children: [
-                            YiviLinkButton(
-                              textAlign: .center,
-                              labelTranslationKey:
-                                  "email_issuance.verify_code.no_email_received",
-                              onTap: () {
-                                showResendSmsDialog(state.email);
-                              },
-                            ),
-                          ],
+                        ContactTextLink(
+                          labelKey:
+                              "email_issuance.verify_code.no_email_received",
+                          onTap: () => showResendSmsDialog(state.email),
                         ),
                       SizedBox(height: 100),
                     ],
