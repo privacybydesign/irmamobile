@@ -32,6 +32,7 @@ import "../../widgets/two_pane.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_routes.dart";
 import "wallet/card_hero.dart";
+import "wallet/issuance_flight.dart";
 import "wallet/wallet_transition.dart";
 import "widgets/email_link_banner.dart";
 
@@ -236,6 +237,19 @@ class _CardList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // While a received card flies in, it joins the list a little late.
+    return ValueListenableBuilder<IssuanceFlightState?>(
+      valueListenable: IssuanceFlight.state,
+      builder: (context, flight, _) =>
+          _build(context, ref, withoutIncomingCard(cards, flight)),
+    );
+  }
+
+  Widget _build(
+    BuildContext context,
+    WidgetRef ref,
+    List<schemaless.Credential> cards,
+  ) {
     final palette = YiviPalette.of(context);
     final hints = ref.watch(instanceHintsProvider);
     final view = ref.watch(walletViewProvider) ?? WalletView.stack;
@@ -506,24 +520,39 @@ class _StackView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardHeight = width / CredentialCardArt.aspectRatio;
+    // When a flight starts the cards close the gap at once, under the
+    // curtain; they slide only to make room for the new card.
+    final flight = IssuanceFlight.state.value;
+    final slide = flight != null && !flight.inserted
+        ? Duration.zero
+        : const Duration(milliseconds: 400);
     return SizedBox(
       height: (cards.length - 1) * _stripHeight + cardHeight,
       child: Stack(
         children: [
           for (final (i, c) in cards.indexed)
-            Positioned(
+            // Animated, so the cards slide down when a received card joins
+            // the top.
+            AnimatedPositioned(
+              key: ValueKey(c.hash),
+              duration: slide,
+              curve: IssuanceFlight.curve,
               top: i * _stripHeight,
               left: 0,
               right: 0,
               child: PushAway(
                 hash: c.hash,
-                child: _CardButton(
-                  credential: c,
-                  hintText: hintTexts[c.hash],
-                  child: CardHero(
+                child: _flightSlot(
+                  first: i == 0,
+                  hash: c.hash,
+                  child: _CardButton(
                     credential: c,
-                    width: width,
                     hintText: hintTexts[c.hash],
+                    child: CardHero(
+                      credential: c,
+                      width: width,
+                      hintText: hintTexts[c.hash],
+                    ),
                   ),
                 ),
               ),
@@ -564,7 +593,14 @@ class _ListView extends ConsumerWidget {
           child: PushAway(
             hash: c.hash,
             fadeWhenOpening: true,
-            child: _ListRow(credential: c, hintText: hintTexts[c.hash]),
+            child: IssuanceFlightHidden(
+              hash: c.hash,
+              child: _ListRow(
+                credential: c,
+                hintText: hintTexts[c.hash],
+                flightTarget: i == 0,
+              ),
+            ),
           ),
         );
         return KeyedSubtree(
@@ -596,7 +632,14 @@ class _ListRow extends StatelessWidget {
   final schemaless.Credential credential;
   final String? hintText;
 
-  const _ListRow({required this.credential, this.hintText});
+  /// The thumbnail is where a received card lands.
+  final bool flightTarget;
+
+  const _ListRow({
+    required this.credential,
+    this.hintText,
+    this.flightTarget = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -621,7 +664,14 @@ class _ListRow extends StatelessWidget {
           child: Row(
             spacing: 16,
             children: [
-              CardHero(credential: credential, width: 88, hintText: hintText),
+              _flightSlot(
+                first: flightTarget,
+                child: CardHero(
+                  credential: credential,
+                  width: 88,
+                  hintText: hintText,
+                ),
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,37 +741,43 @@ class _GridView extends StatelessWidget {
         return PushAway(
           hash: c.hash,
           fadeWhenOpening: true,
-          child: _CardButton(
-            credential: c,
-            hintText: hintTexts[c.hash],
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CardHero(
-                  credential: c,
-                  width: cardWidth,
-                  hintText: hintTexts[c.hash],
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    c.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette.display(14).copyWith(color: palette.text),
+          child: IssuanceFlightHidden(
+            hash: c.hash,
+            child: _CardButton(
+              credential: c,
+              hintText: hintTexts[c.hash],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _flightSlot(
+                    first: i == 0,
+                    child: CardHero(
+                      credential: c,
+                      width: cardWidth,
+                      hintText: hintTexts[c.hash],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    hintTexts[c.hash] ?? "",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette.body(12).copyWith(color: palette.heading),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      c.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette.display(14).copyWith(color: palette.text),
+                    ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      hintTexts[c.hash] ?? "",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette.body(12).copyWith(color: palette.heading),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -1034,3 +1090,12 @@ List<schemaless.Credential> sameTypeCards(
 ) => cards
     .where((c) => c.credentialId == credential.credentialId)
     .sortedBy<num>((c) => cards.indexOf(c));
+
+/// Marks the first card picture as the landing slot of a received card, and
+/// hides the card that is flying in (with [hash]).
+Widget _flightSlot({required bool first, String? hash, required Widget child}) {
+  Widget slot = child;
+  if (hash != null) slot = IssuanceFlightHidden(hash: hash, child: slot);
+  if (first) slot = IssuanceFlightTarget(child: slot);
+  return slot;
+}

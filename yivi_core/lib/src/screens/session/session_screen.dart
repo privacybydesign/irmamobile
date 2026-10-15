@@ -571,6 +571,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return IssuanceSuccessScreen(
         credentials: session.offeredCredentials ?? const [],
         onDismiss: (_) => pop(),
+        flyHome: true,
       );
     }
 
@@ -598,6 +599,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         return IssuanceSuccessScreen(
           credentials: session.offeredCredentials ?? const [],
           onDismiss: (_) => pop(),
+          flyHome: true,
         );
       }
       return DisclosureFeedbackScreen(

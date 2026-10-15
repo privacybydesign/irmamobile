@@ -1,19 +1,50 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../util/navigation.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../data/wallet/issuance_flight.dart";
 
-class IssuanceSuccessScreen extends StatelessWidget {
+class IssuanceSuccessScreen extends StatefulWidget {
   final Function(BuildContext) onDismiss;
 
   /// The credentials just added; the first is shown with a check badge.
   final List<schemaless.Credential> credentials;
 
+  /// On "Done" the card flies into the data tab instead of the screen
+  /// closing as usual. Off when the session returns somewhere else.
+  final bool flyHome;
+
   const IssuanceSuccessScreen({
     required this.onDismiss,
     this.credentials = const [],
+    this.flyHome = false,
   });
+
+  @override
+  State<IssuanceSuccessScreen> createState() => _IssuanceSuccessScreenState();
+}
+
+class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
+  final _cardKey = GlobalKey(debugLabel: "received_card");
+
+  void _done() {
+    final flying =
+        widget.flyHome &&
+        widget.credentials.isNotEmpty &&
+        IssuanceFlight.start(
+          context,
+          received: widget.credentials.first,
+          source: _cardKey,
+        );
+    if (flying) {
+      // The curtain hides the switch, so no pop animation.
+      context.goHomeScreenWithoutTransition();
+    } else {
+      widget.onDismiss(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +52,10 @@ class IssuanceSuccessScreen extends StatelessWidget {
       success: true,
       titleTranslationKey: "issuance.success_feedback.header",
       explanationTranslationKey: "issuance.success_feedback.text",
-      onDismiss: () => onDismiss(context),
-      hero: credentials.isEmpty ? null : _ReceivedCard(credentials.first),
+      onDismiss: _done,
+      hero: widget.credentials.isEmpty
+          ? null
+          : _ReceivedCard(widget.credentials.first, cardKey: _cardKey),
     );
   }
 }
@@ -30,8 +63,9 @@ class IssuanceSuccessScreen extends StatelessWidget {
 /// The received card, settling into place with a green check badge.
 class _ReceivedCard extends StatelessWidget {
   final schemaless.Credential credential;
+  final GlobalKey cardKey;
 
-  const _ReceivedCard(this.credential);
+  const _ReceivedCard(this.credential, {required this.cardKey});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +90,11 @@ class _ReceivedCard extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  CredentialCardArt(credential: credential, width: width),
+                  CredentialCardArt(
+                    key: cardKey,
+                    credential: credential,
+                    width: width,
+                  ),
                   Positioned(
                     right: -12,
                     top: -16,

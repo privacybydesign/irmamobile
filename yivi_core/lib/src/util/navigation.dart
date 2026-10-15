@@ -501,7 +501,8 @@ class TransitionStyleProvider extends StatefulWidget {
 
   static void performInstantTransitionToHomeScreen(BuildContext context) {
     var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToHomeScreen = true;
+    // Without the provider (e.g. in a test) home opens as usual.
+    state?._shouldPerformInstantTransitionToHomeScreen = true;
     context.goHomeScreen();
   }
 
