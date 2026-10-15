@@ -2,13 +2,14 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/yivi_credential_card_header.dart";
+import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_card.dart";
-import "../../widgets/irma_step_indicator.dart";
 import "../../widgets/translated_text.dart";
 
 /// Tells the user they are about to leave Yivi for the issuer's website.
@@ -34,8 +35,10 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
         : credential.credentialId;
     final domain = Uri.tryParse(credential.issueURL ?? "")?.host;
 
+    final palette = YiviPalette.of(context);
+
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(
         titleTranslationKey: "data.add.details.title",
         leading: YiviBackButton(onTap: onBack),
@@ -49,7 +52,8 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
             children: [
               TranslatedText(
                 "external_issuer.heads_up.title",
-                style: theme.textTheme.headlineMedium,
+                isHeader: true,
+                style: palette.display(22),
               ),
               IrmaCard(
                 child: Row(
@@ -80,18 +84,30 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              _Step(
-                number: 1,
-                translationKey: "external_issuer.heads_up.step_1",
-              ),
-              _Step(
-                number: 2,
-                translationKey: "external_issuer.heads_up.step_2",
-                translationParams: {"credential": name},
-              ),
-              _Step(
-                number: 3,
-                translationKey: "external_issuer.heads_up.step_3",
+              GlassGroup(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      spacing: 12,
+                      children: [
+                        _Step(
+                          number: 1,
+                          translationKey: "external_issuer.heads_up.step_1",
+                        ),
+                        _Step(
+                          number: 2,
+                          translationKey: "external_issuer.heads_up.step_2",
+                          translationParams: {"credential": name},
+                        ),
+                        _Step(
+                          number: 3,
+                          translationKey: "external_issuer.heads_up.step_3",
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -119,29 +135,42 @@ class _Step extends StatelessWidget {
     this.translationParams,
   });
 
-  static const _badgeSize = 24.0;
+  static const _badgeSize = 28.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final palette = YiviPalette.of(context);
 
     return MergeSemantics(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: theme.smallSpacing + theme.tinySpacing,
         children: [
-          SizedBox.square(
-            dimension: _badgeSize,
-            child: IrmaStepIndicator(
-              step: number,
-              style: IrmaStepIndicatorStyle.outlined,
+          // A tinted circle with the step number, as in the FAQ steps.
+          Container(
+            width: _badgeSize,
+            height: _badgeSize,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: palette.tint,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              "$number",
+              style: palette
+                  .display(14, weight: FontWeight.w700)
+                  .copyWith(color: palette.link),
             ),
           ),
           Expanded(
-            child: TranslatedText(
-              translationKey,
-              translationParams: translationParams,
-              style: theme.textTheme.bodyMedium,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 3),
+              child: TranslatedText(
+                translationKey,
+                translationParams: translationParams,
+                style: palette.body(15).copyWith(height: 22 / 15),
+              ),
             ),
           ),
         ],

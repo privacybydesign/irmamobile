@@ -8,9 +8,9 @@ import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
@@ -88,13 +88,36 @@ Widget _testWidget({
   );
 }
 
-SchemalessYiviCredentialTypeCard _card(WidgetTester tester, String credId) =>
-    tester.widget<SchemalessYiviCredentialTypeCard>(
-      find.byWidgetPredicate(
-        (w) =>
-            w is SchemalessYiviCredentialTypeCard && w.credentialId == credId,
-      ),
-    );
+Finder _rowFinder(String credId) => find.byWidgetPredicate(
+  (w) => w is AddDataRow && w.item.credential.credentialId == credId,
+);
+
+/// The row of [credId]: whether it is blocked, and the reason it shows (and
+/// announces) when it is.
+({bool disabled, String? disabledHint}) _card(
+  WidgetTester tester,
+  String credId,
+) {
+  final finder = _rowFinder(credId);
+  final row = tester.widget<AddDataRow>(finder);
+  final hint = find.descendant(of: finder, matching: find.text(_nfcHint));
+  final hintSemantics = find.descendant(
+    of: finder,
+    matching: find.byWidgetPredicate(
+      (w) => w is Semantics && w.properties.hint == _nfcHint,
+    ),
+  );
+  return (
+    disabled: row.nfcBlocked,
+    disabledHint:
+        hint.evaluate().isNotEmpty && hintSemantics.evaluate().isNotEmpty
+        ? _nfcHint
+        : null,
+  );
+}
+
+const _nfcHint =
+    "Requires NFC, which this device does not support. This credential cannot be loaded.";
 
 void main() {
   testWidgets(
@@ -210,5 +233,62 @@ void main() {
       find.byKey(const Key("irma-demo.gemeente.address_tile")),
       findsOneWidget,
     );
+  });
+
+  testWidgets("search narrows the list to matching names and issuers", (
+    tester,
+  ) async {
+    await pumpTranslated(tester, _testWidget(nfcAvailable: true));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key("add_data_search")), "pass");
+    await tester.pump();
+    expect(_rowFinder("pbdf.pbdf.passport"), findsOneWidget);
+    expect(_rowFinder("pbdf.sidn-pbdf.email"), findsNothing);
+
+    await tester.enterText(find.byKey(const Key("add_data_search")), "zzz");
+    await tester.pump();
+    expect(find.textContaining("No data found"), findsOneWidget);
+  });
+
+  testWidgets("details: example card, the answers and the disclosure note", (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1400);
+    addTearDown(tester.view.reset);
+    final item = _item("pbdf.sidn-pbdf.email", "Email");
+    await pumpTranslated(
+      tester,
+      IrmaTheme(
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: TestTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
+              ),
+            ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          home: SchemalessAddDataDetailsScreen(
+            credential: item.credential,
+            faq: item.faq,
+            inDisclosure: true,
+            onAdd: () {},
+            onCancel: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Example"), findsOneWidget);
+    expect(find.text("by Issuer"), findsOneWidget);
+    expect(find.text("What can I do with this data?"), findsOneWidget);
+    expect(find.text("Which data do I retrieve?"), findsOneWidget);
+    expect(find.text("How does it work?"), findsOneWidget);
+    expect(find.textContaining("you will only share"), findsOneWidget);
+    expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
   });
 }

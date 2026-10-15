@@ -8,23 +8,36 @@ import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
-import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/navigation.dart";
 import "../../util/nfc_credentials.dart";
 import "../../widgets/base64_image.dart";
-import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "../../widgets/glass/glass_dialog.dart";
+import "../../widgets/glass/glass_group.dart";
+import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_dialog.dart";
-import "../../widgets/section_header.dart";
+import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_themed_button.dart";
 
-class SchemalessAddDataScreen extends ConsumerWidget {
+class SchemalessAddDataScreen extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<SchemalessAddDataScreen> createState() =>
+      _SchemalessAddDataScreenState();
+}
+
+class _SchemalessAddDataScreenState
+    extends ConsumerState<SchemalessAddDataScreen> {
+  String _query = "";
+
   /// Shows an explanation that the credential cannot be loaded because the
   /// device has no NFC hardware.
   void _showNfcUnsupportedDialog(BuildContext context) {
     showDialog<void>(
       context: context,
       builder: (context) => IrmaDialog(
+        icon: const ToneDisc(icon: Icons.nfc_rounded, tone: DialogTone.warning),
         title: FlutterI18n.translate(context, "data.add.nfc_unsupported.title"),
         content: FlutterI18n.translate(
           context,
@@ -38,9 +51,17 @@ class SchemalessAddDataScreen extends ConsumerWidget {
     );
   }
 
+  bool _matches(CredentialStoreItem item) {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return true;
+    final credential = item.credential;
+    return credential.name.toLowerCase().contains(query) ||
+        credential.issuer.name.toLowerCase().contains(query);
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
     final storeItems = ref.watch(groupedCredentialStoreProvider);
 
     // Treat the device as NFC-capable while the check is loading or if it
@@ -52,112 +73,243 @@ class SchemalessAddDataScreen extends ConsumerWidget {
         ref.watch(featureFlagProvider(FeatureFlag.documentFlowV2)).value ??
         false;
 
+    void open(CredentialStoreItem item) {
+      final credential = item.credential;
+      final nfcBlocked =
+          !nfcAvailable && credentialRequiresNfc(credential.credentialId);
+      if (nfcBlocked) {
+        _showNfcUnsupportedDialog(context);
+      } else if (documentFlowV2 &&
+          credentialRequiresNfc(credential.credentialId)) {
+        IrmaRepositoryProvider.of(context).openIssueURL(
+          context,
+          credential.credentialId,
+          credential.issueURL,
+          ref,
+        );
+      } else {
+        context.pushSchemalessDataDetailsScreen(
+          AddDataDetailsRouteParams(credential: credential, faq: item.faq),
+        );
+      }
+    }
+
+    String title(CredentialStoreCategory group) => switch (group.source) {
+      CredentialStoreSource.staging => FlutterI18n.translate(
+        context,
+        "data.add.staging",
+      ),
+      CredentialStoreSource.demo => FlutterI18n.translate(
+        context,
+        "data.add.demo",
+      ),
+      _ => group.category,
+    };
+
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
-      body: SingleChildScrollView(
-        padding: .all(theme.defaultSpacing),
-        child: SafeArea(
-          child: Column(
-            spacing: theme.smallSpacing,
-            crossAxisAlignment: .start,
-            children: [
-              switch (storeItems) {
-                AsyncLoading() => Center(child: CircularProgressIndicator()),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Above the list, not over it: the list stays the last
+            // scrollable on screen.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: GlassSearchField(
+                fieldKey: const Key("add_data_search"),
+                hintKey: "data.add.search",
+                onChanged: (q) => setState(() => _query = q),
+              ),
+            ),
+            Expanded(
+              child: switch (storeItems) {
+                AsyncLoading() => const Center(
+                  child: CircularProgressIndicator(),
+                ),
                 AsyncError(error: final error) => Center(
                   child: Text(
                     error.toString(),
-                    style: TextStyle(color: theme.error),
+                    style: palette.body(14).copyWith(color: palette.danger),
                   ),
                 ),
-                AsyncData(value: final value) => Column(
-                  crossAxisAlignment: .start,
-                  spacing: theme.largeSpacing,
-                  children: [
-                    for (final CredentialStoreCategory(
-                          :category,
-                          :items,
-                          :source,
-                        )
-                        in value)
-                      Column(
-                        crossAxisAlignment: .start,
-                        spacing: theme.smallSpacing,
-                        children: [
-                          if (source == CredentialStoreSource.staging)
-                            const SectionHeader("data.add.staging")
-                          else if (source == CredentialStoreSource.demo)
-                            const SectionHeader("data.add.demo")
-                          // A credential without a category (irmago marshals
-                          // it `omitempty`) groups under "", which would
-                          // otherwise render as a blank gap above the cards.
-                          else if (category.isNotEmpty)
-                            SectionHeader.text(category),
-                          Column(
-                            spacing: theme.smallSpacing,
-                            children: [
-                              for (final CredentialStoreItem(:credential, :faq)
-                                  in items)
-                                () {
-                                  final nfcBlocked =
-                                      !nfcAvailable &&
-                                      credentialRequiresNfc(
-                                        credential.credentialId,
-                                      );
-                                  return SchemalessYiviCredentialTypeCard(
-                                    credentialImageBase64:
-                                        credential.image != null
-                                        ? Base64Image(
-                                            base64: credential.image!.base64,
-                                            mimeType:
-                                                credential.image!.mimeType,
-                                          )
-                                        : null,
-                                    credentialName: credential.name,
-                                    credentialId: credential.credentialId,
-                                    issuerName: credential.issuer.name,
-                                    trailingIcon: Icons.add_circle_sharp,
-                                    disabled: nfcBlocked,
-                                    disabledHint: nfcBlocked
-                                        ? FlutterI18n.translate(
-                                            context,
-                                            "data.add.nfc_unsupported.hint",
-                                          )
-                                        : null,
-                                    onTap: nfcBlocked
-                                        ? () =>
-                                              _showNfcUnsupportedDialog(context)
-                                        : documentFlowV2 &&
-                                              credentialRequiresNfc(
-                                                credential.credentialId,
-                                              )
-                                        ? () =>
-                                              IrmaRepositoryProvider.of(
-                                                context,
-                                              ).openIssueURL(
-                                                context,
-                                                credential.credentialId,
-                                                credential.issueURL,
-                                                ref,
-                                              )
-                                        : () => context
-                                              .pushSchemalessDataDetailsScreen(
-                                                AddDataDetailsRouteParams(
-                                                  credential: credential,
-                                                  faq: faq,
-                                                ),
-                                              ),
-                                  );
-                                }(),
-                            ],
-                          ),
-                        ],
+                AsyncData(value: final value) => () {
+                  final groups = [
+                    for (final group in value)
+                      (group, group.items.where(_matches).toList()),
+                  ].where((g) => g.$2.isNotEmpty).toList();
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 48),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: TranslatedText(
+                          "data.add.choose",
+                          style: palette
+                              .body(16)
+                              .copyWith(color: palette.heading),
+                        ),
                       ),
-                    SizedBox(height: 25),
-                  ],
-                ),
+                      if (groups.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 40),
+                          child: Text(
+                            FlutterI18n.translate(
+                              context,
+                              "data.add.no_results",
+                              translationParams: {"query": _query.trim()},
+                            ),
+                            textAlign: TextAlign.center,
+                            style: palette
+                                .body(16)
+                                .copyWith(color: palette.heading),
+                          ),
+                        ),
+                      for (final (group, items) in groups)
+                        GlassGroup(
+                          // A credential without a category (irmago marshals
+                          // it `omitempty`) gets no header.
+                          header: title(group).isEmpty ? null : title(group),
+                          dividerIndent: 72,
+                          children: [
+                            for (final item in items)
+                              AddDataRow(
+                                item: item,
+                                nfcBlocked:
+                                    !nfcAvailable &&
+                                    credentialRequiresNfc(
+                                      item.credential.credentialId,
+                                    ),
+                                onTap: () => open(item),
+                              ),
+                          ],
+                        ),
+                    ],
+                  );
+                }(),
               },
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One credential type to add: its logo, name and issuer, an NFC chip for
+/// documents, and a chevron. Greyed out when it needs NFC the device lacks.
+class AddDataRow extends StatelessWidget {
+  final CredentialStoreItem item;
+
+  /// Needs NFC the device does not have: greyed out, with the reason under
+  /// the name and as a screen-reader hint.
+  final bool nfcBlocked;
+  final VoidCallback onTap;
+
+  const AddDataRow({
+    super.key,
+    required this.item,
+    required this.nfcBlocked,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final credential = item.credential;
+    final needsNfc = credentialRequiresNfc(credential.credentialId);
+    final image = credential.image;
+
+    return Semantics(
+      button: true,
+      hint: nfcBlocked
+          ? FlutterI18n.translate(context, "data.add.nfc_unsupported.hint")
+          : null,
+      child: Opacity(
+        opacity: nfcBlocked ? 0.5 : 1,
+        child: InkWell(
+          key: Key("${credential.credentialId}_tile"),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 68),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+              child: Row(
+                spacing: 14,
+                children: [
+                  ExcludeSemantics(
+                    child: IrmaAvatar(
+                      size: 44,
+                      initials: credential.name.isEmpty
+                          ? null
+                          : credential.name.characters.first,
+                      logoImage: image == null
+                          ? null
+                          : Base64Image(
+                              base64: image.base64,
+                              mimeType: image.mimeType,
+                            ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          credential.name,
+                          style: palette
+                              .display(16)
+                              .copyWith(color: palette.text),
+                        ),
+                        Text(
+                          nfcBlocked
+                              ? FlutterI18n.translate(
+                                  context,
+                                  "data.add.nfc_unsupported.hint",
+                                )
+                              : credential.issuer.name,
+                          maxLines: nfcBlocked ? 3 : 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: palette
+                              .body(13)
+                              .copyWith(color: palette.secondaryText),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (needsNfc)
+                    ExcludeSemantics(
+                      child: Container(
+                        height: 24,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: ShapeDecoration(
+                          color: palette.tint,
+                          shape: const StadiumBorder(),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 4,
+                          children: [
+                            Icon(
+                              Icons.nfc_rounded,
+                              size: 12,
+                              color: palette.link,
+                            ),
+                            Text(
+                              "NFC",
+                              style: palette
+                                  .body(11, weight: FontWeight.w700)
+                                  .copyWith(color: palette.link),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  Icon(Icons.chevron_right, size: 20, color: palette.faint),
+                ],
+              ),
+            ),
           ),
         ),
       ),

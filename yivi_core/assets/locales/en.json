@@ -176,7 +176,11 @@
         "title": "NFC not supported",
         "body": "This device does not support NFC, so it is not able to load this credential. NFC is required to read your document.",
         "hint": "Requires NFC, which this device does not support. This credential cannot be loaded."
-      }
+      },
+      "example": "Example",
+      "by": "by {issuer}",
+      "search": "Search data to add",
+      "no_results": "No data found for “{query}”"
     },
     "search": {
       "no_results": "No data found for '{query}'."

@@ -176,7 +176,11 @@
         "title": "NFC niet ondersteund",
         "body": "Dit apparaat ondersteunt geen NFC en kan deze kaart daarom niet laden. NFC is nodig om je document te lezen.",
         "hint": "Vereist NFC, wat dit apparaat niet ondersteunt. Deze kaart kan niet worden geladen."
-      }
+      },
+      "example": "Voorbeeld",
+      "by": "van {issuer}",
+      "search": "Zoek gegevens om toe te voegen",
+      "no_results": "Geen gegevens gevonden voor “{query}”"
     },
     "search": {
       "no_results": "Geen gegevens gevonden voor '{query}'."
