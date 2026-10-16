@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- After deleting all data in the settings and enrolling again, the app opens on the data tab, as after a fresh install, instead of on the tab it showed before
+- After deleting all data, the app shows developer mode as off, as it then is. It kept showing it as on, while sessions over http failed with "remote server does not use https"
 
 ## [8.3.3] - 2026-10-16
 ### Added
