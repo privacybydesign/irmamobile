@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.3.3] - 2026-10-16
 ### Added
 - Amounts in attributes that use irmago's `currency:<code>` display hint (e.g. `displayHint="currency:EUR"`) are shown as currency in the app's language, e.g. "€ 12,50" in Dutch and "€12.50" in English. With an irmago that doesn't send display hints yet, or with an amount or code that can't be formatted, the raw value is shown as before ([privacybydesign/irmago#752](https://github.com/privacybydesign/irmago/issues/752))
 
@@ -778,6 +780,8 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.3.3...HEAD
+[8.3.3]: https://github.com/privacybydesign/irmamobile/compare/v8.3.2...v8.3.3
 [8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
