@@ -723,22 +723,13 @@ class _LeafContent extends StatelessWidget {
   Widget _buildValue(BuildContext context, IrmaThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
-    return switch (val.type) {
-      schemaless.AttributeType.string => Text(
-        val.string ?? "",
-        style: attributeValueStyle(theme, _valueColor(val, theme)),
-      ),
-      schemaless.AttributeType.boolean => Text(
-        formatAttributeBool(context, val.boolValue),
-        style: attributeValueStyle(theme, _valueColor(val, theme)),
-      ),
-      schemaless.AttributeType.integer => Text(
-        val.intValue?.toString() ?? "",
-        style: attributeValueStyle(theme, _valueColor(val, theme)),
-      ),
-      schemaless.AttributeType.image || schemaless.AttributeType.base64Image =>
-        TappableAttributeImage(attribute: node.attribute),
-    };
+    if (_isImage(node.attribute)) {
+      return TappableAttributeImage(attribute: node.attribute);
+    }
+    return Text(
+      formatAttributeValue(context, val),
+      style: attributeValueStyle(theme, _valueColor(val, theme)),
+    );
   }
 }
 
@@ -795,23 +786,12 @@ class _PrimArrayContent extends StatelessWidget {
             ),
           ),
           SizedBox(width: theme.tinySpacing),
-          Expanded(child: Text(_formatValue(context, v), style: valueStyle)),
+          Expanded(
+            child: Text(formatAttributeValue(context, v), style: valueStyle),
+          ),
         ],
       ),
     );
-  }
-
-  String _formatValue(BuildContext context, schemaless.AttributeValue v) {
-    return switch (v.type) {
-      schemaless.AttributeType.string => v.string ?? "",
-      schemaless.AttributeType.integer => v.intValue?.toString() ?? "",
-      schemaless.AttributeType.boolean => formatAttributeBool(
-        context,
-        v.boolValue,
-      ),
-      schemaless.AttributeType.image ||
-      schemaless.AttributeType.base64Image => v.string ?? "",
-    };
   }
 }
 

@@ -3,6 +3,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
@@ -245,5 +246,55 @@ void main() {
       // Expect the email tile to be gone
       expect(emailTileFinder, findsNothing);
     });
+
+    // The enablenow amounts carry displayHint="currency:EUR" in the irma-demo
+    // scheme. irmago passes the hint on with each value, and the app formats
+    // the amount for its language; attributes without a hint stay as issued.
+    testWidgets("currency-display-hint", (tester) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      await startIssuanceSession(
+        irmaBinding,
+        groupAttributes(_incomeAttributes),
+      );
+      await tester.waitFor(find.byType(IssuancePermission));
+
+      // The rows run past the bottom of the screen.
+      final card = find.byType(YiviCredentialCard, skipOffstage: false);
+      Finder inCard(String text) => find.descendant(
+        of: card,
+        matching: find.text(text, skipOffstage: false),
+      );
+
+      expect(inCard("€2,450.00"), findsOneWidget);
+      expect(inCard("€1,325.00"), findsOneWidget);
+      expect(inCard("€310.00"), findsOneWidget);
+      expect(inCard("-€75.00"), findsOneWidget);
+      // rent and pensionother.
+      expect(inCard("€0.00"), findsNWidgets(2));
+      expect(inCard("2450"), findsNothing);
+
+      // No display hint: shown as issued.
+      expect(inCard("12"), findsOneWidget);
+      expect(inCard("2025-10-01"), findsOneWidget);
+      expect(inCard("2026-09-30"), findsOneWidget);
+
+      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+      await tester.waitUntilDisappeared(find.byType(IssuancePermission));
+    });
   });
 }
+
+const _incomeCredentialId = "irma-demo.enablenow.income";
+
+const _incomeAttributes = {
+  "$_incomeCredentialId.rent": "0",
+  "$_incomeCredentialId.salary": "2450",
+  "$_incomeCredentialId.pensionstate": "1325",
+  "$_incomeCredentialId.pensionprivate": "310",
+  "$_incomeCredentialId.pensionother": "0",
+  "$_incomeCredentialId.other": "-75",
+  "$_incomeCredentialId.months": "12",
+  "$_incomeCredentialId.periodstart": "2025-10-01",
+  "$_incomeCredentialId.periodend": "2026-09-30",
+};
