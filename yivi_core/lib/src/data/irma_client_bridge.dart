@@ -6,6 +6,7 @@ import "package:flutter/services.dart";
 import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/client_preferences.dart";
+import "../models/digital_credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
@@ -38,6 +39,8 @@ class IrmaClientBridge extends IrmaBridge {
     LogsEvent: (j) => LogsEvent.fromJson(j),
 
     HandleURLEvent: (j) => HandleURLEvent.fromJson(j),
+    HandleDigitalCredentialsRequestEvent: (j) =>
+        HandleDigitalCredentialsRequestEvent.fromJson(j),
 
     AppReadyAckEvent: (j) => AppReadyAckEvent.fromJson(j),
 
