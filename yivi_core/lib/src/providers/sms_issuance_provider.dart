@@ -45,7 +45,9 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     required String phoneNumber,
     required String language,
   }) async {
-    debugPrint("Sending sms for: $phoneNumber");
+    if (kDebugMode) {
+      debugPrint("Sending sms for: $phoneNumber");
+    }
 
     // Solve an ALTCHA proof-of-work challenge before asking the issuer to send
     // an SMS. This taxes automated bulk requests with CPU. Issuers that do not
