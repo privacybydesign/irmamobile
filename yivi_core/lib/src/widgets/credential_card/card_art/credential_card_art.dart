@@ -7,6 +7,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../util/date_formatter.dart";
 import "../../../util/instance_hint.dart";
 import "../../base64_image.dart";
+import "builtin_card_templates.dart";
 import "card_art_support.dart";
 
 /// The text form of an [InstanceHint], e.g. an email address or
@@ -35,8 +36,10 @@ String _date(BuildContext context, DateTime date) => printableDate(
 /// Where the art comes from, in order:
 /// 1. the issuer's SVG template (SD-JWT VC `svg_templates`), filled with the
 ///    claim values;
-/// 2. the Yivi card, in the issuer's colours (SD-JWT VC `simple` rendering);
-/// 3. the Yivi card, tinted with the colour of the logo (IRMA credentials and
+/// 2. a template Yivi ships for its own credentials (the PbDF scheme, see
+///    [builtinCardTemplate]), filled with the attribute values;
+/// 3. the Yivi card, in the issuer's colours (SD-JWT VC `simple` rendering);
+/// 4. the Yivi card, tinted with the colour of the logo (IRMA credentials and
 ///    anything without colours).
 class CredentialCardArt extends StatelessWidget {
   static const double designWidth = 358;
@@ -149,23 +152,29 @@ class CredentialCardArt extends StatelessWidget {
 
   Widget _art(BuildContext context) {
     final yiviCard = _YiviCard(credential: credential, hintText: hintText);
-    final template = pickSvgTemplate(
+    final issuerTemplate = pickSvgTemplate(
       credential.display?.svgTemplates ?? const [],
       brightness: Theme.of(context).brightness,
       highContrast: MediaQuery.highContrastOf(context),
     );
+    final builtin = issuerTemplate == null
+        ? builtinCardTemplate(credential.credentialId)
+        : null;
+    final template = issuerTemplate ?? builtin;
     if (template == null) return yiviCard;
 
     final yes = FlutterI18n.translate(context, "credential.boolean_yes");
     final no = FlutterI18n.translate(context, "credential.boolean_no");
-    final values = {
-      for (final a in credential.attributes)
-        if (a.svgId != null)
-          a.svgId!:
-              imageDataUri(a.value) ??
-              attributeText(a.value, yes: yes, no: no) ??
-              "",
-    };
+    String text(schemaless.Attribute a) =>
+        imageDataUri(a.value) ?? attributeText(a.value, yes: yes, no: no) ?? "";
+    final values = builtin == null
+        // An issuer template names its slots with `svg_id`.
+        ? {
+            for (final a in credential.attributes)
+              if (a.svgId != null) a.svgId!: text(a),
+          }
+        // Ours use the attribute ids of the scheme, plus their names.
+        : builtinTemplateValues(credential, text);
     return SvgPicture.string(
       fillSvgTemplate(template.svg, values),
       width: designWidth,

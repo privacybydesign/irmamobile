@@ -37,6 +37,7 @@ import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.da
 import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/disclosed_card_tile.dart";
@@ -913,11 +914,12 @@ Future<void> evaluateCredentialCard(
         }
       }
 
-      // The name and issuer drawn on the card (unless the issuer's own SVG
-      // design is used, which draws them in its own way).
+      // The name and issuer drawn on the card (unless an SVG design is
+      // used, the issuer's or Yivi's own, which draws them in its own way).
       if (credentialName != null) {
         expect(credential.name, credentialName);
-        if (credential.display?.svgTemplates.isEmpty ?? true) {
+        if ((credential.display?.svgTemplates.isEmpty ?? true) &&
+            builtinCardTemplate(credential.credentialId) == null) {
           expect(
             find.descendant(
               of: rootFinder,
