@@ -6,10 +6,14 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
-import "../irma_app_bar.dart";
+import "attribute_groups/attribute_comparison.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
+import "attribute_groups/attribute_image.dart";
 import "attribute_groups/attribute_value_formatting.dart";
+import "attribute_groups/requested_value.dart";
+import "attribute_groups/sections/card_layout.dart";
+import "attribute_groups/sections/card_sections.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -23,6 +27,8 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<AttributeGroupRenderer>? renderers;
   // The attributes are being shared (a disclosure), not the whole credential.
   final bool disclosure;
+  // Show every attribute as a plain row: no card layout, no attribute groups.
+  final bool rawList;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -31,14 +37,33 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.credentialId,
     this.renderers,
     this.disclosure = false,
+    this.rawList = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Identity credentials with a card layout render as titled sections.
+    final layout = renderers == null && !rawList
+        ? cardLayouts[credentialId]
+        : null;
+    if (layout != null) {
+      return CardSections(
+        attributes: attributes,
+        layout: layout,
+        compareTo: compareTo,
+        disclosure: disclosure,
+      );
+    }
+
     final groups = <_ClaimedGroup>[];
     var remaining = attributes;
     for (final renderer
-        in renderers ?? attributeGroupRenderers[credentialId] ?? const []) {
+        in renderers ??
+            (rawList ? const <AttributeGroupRenderer>[] : null) ??
+            [
+              ...?attributeGroupRenderers[credentialId],
+              ...anyCredentialRenderers,
+            ]) {
       final group = renderer.claim(remaining, compareTo: compareTo);
       if (group == null) continue;
       final claimedKeys = {
@@ -397,6 +422,7 @@ void _insertGroups(
         TopPlacement() => 0,
         BottomPlacement() => bottom,
         EndPlacement() => n,
+        InPlacePlacement() => min(bottom, fallback(g.firstIndex)),
         AfterPlacement(:final attributeId) => min(bottom, switch (children
             .indexWhere((c) => _topSegment(c) == attributeId)) {
           -1 => fallback(g.firstIndex),
@@ -588,6 +614,7 @@ class _RenderItemView extends StatelessWidget {
                 child: _RowContent(
                   node: node,
                   isFirst: item.previousDepth < 0,
+                  isLast: nextDepth < 0,
                   disclosure: disclosure,
                 ),
               ),
@@ -628,10 +655,13 @@ class _RowContent extends StatelessWidget {
   final _Node node;
   // The first row of the list: nothing is drawn above it.
   final bool isFirst;
+  // The last row of the list: nothing is drawn below it.
+  final bool isLast;
   final bool disclosure;
   const _RowContent({
     required this.node,
     required this.isFirst,
+    required this.isLast,
     required this.disclosure,
   });
 
@@ -644,6 +674,7 @@ class _RowContent extends StatelessWidget {
       _ItemNode n => _ItemEyebrowContent(node: n),
       _AttributeGroupNode n => AttributeGroupScope(
         isFirst: isFirst,
+        isLast: isLast,
         isDisclosure: disclosure,
         child: Builder(builder: n.group.build),
       ),
@@ -665,20 +696,26 @@ class _LeafContent extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final attribute = node.attribute;
 
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      spacing: 0,
-      children: [
-        Text(attribute.effectiveDisplayName, style: attributeLabelStyle(theme)),
-        _buildValue(context, theme),
-      ],
+    return WithRequestedValueChip(
+      attributes: [attribute],
+      child: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .start,
+        spacing: 0,
+        children: [
+          Text(
+            attribute.effectiveDisplayName,
+            style: attributeLabelStyle(theme),
+          ),
+          _buildValue(context, theme),
+        ],
+      ),
     );
   }
 
   Color _valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
     if (!node.hasCompareTo) return theme.dark;
-    return attributeValuesEqual(val, node.compareToValue)
+    return sameAttributeValue(val, node.compareToValue)
         ? theme.success
         : theme.error;
   }
@@ -686,38 +723,12 @@ class _LeafContent extends StatelessWidget {
   Widget _buildValue(BuildContext context, IrmaThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
-    if (_isImage(node.attribute)) return _tappableImage(context, theme);
+    if (_isImage(node.attribute)) {
+      return TappableAttributeImage(attribute: node.attribute);
+    }
     return Text(
       formatAttributeValue(context, val),
       style: attributeValueStyle(theme, _valueColor(val, theme)),
-    );
-  }
-
-  Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
-    final attribute = node.attribute;
-    final bytes = decodeAttributeImage(attribute.value);
-    if (bytes == null) return const SizedBox.shrink();
-    final image = Image.memory(
-      bytes,
-      fit: BoxFit.fitWidth,
-      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-    );
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Scaffold(
-              appBar: IrmaAppBar(titleString: attribute.effectiveDisplayName),
-              body: SingleChildScrollView(child: Center(child: image)),
-            ),
-          ),
-        );
-      },
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
-        child: image,
-      ),
     );
   }
 }

@@ -18,6 +18,10 @@ sealed class AttributeGroupPlacement {
   /// After everything, images included.
   const factory AttributeGroupPlacement.end() = EndPlacement;
 
+  /// Where the group's first claimed attribute would have appeared, so the
+  /// group takes that attribute's place among the ordinary rows.
+  const factory AttributeGroupPlacement.inPlace() = InPlacePlacement;
+
   /// Directly after the top-level attribute [attributeId]. When that
   /// attribute is not in the list (e.g. a disclosure subset), the group takes
   /// the position its first claimed attribute would have had.
@@ -35,6 +39,10 @@ class BottomPlacement extends AttributeGroupPlacement {
 
 class EndPlacement extends AttributeGroupPlacement {
   const EndPlacement();
+}
+
+class InPlacePlacement extends AttributeGroupPlacement {
+  const InPlacePlacement();
 }
 
 class AfterPlacement extends AttributeGroupPlacement {
@@ -77,6 +85,13 @@ class AttributeGroupScope extends InheritedWidget {
   /// No attribute row is drawn above the group.
   final bool isFirst;
 
+  /// No attribute row is drawn below the group.
+  final bool isLast;
+
+  /// The group sits inside a card section, which draws the title and the
+  /// dividers; the group then draws neither.
+  final bool inSection;
+
   /// The card is on a disclosure screen (or a disclosure in the activity
   /// log): the attributes are the ones being shared, not the whole
   /// credential.
@@ -85,6 +100,8 @@ class AttributeGroupScope extends InheritedWidget {
   const AttributeGroupScope({
     super.key,
     required this.isFirst,
+    this.isLast = false,
+    this.inSection = false,
     required this.isDisclosure,
     required super.child,
   });
@@ -94,7 +111,10 @@ class AttributeGroupScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AttributeGroupScope oldWidget) =>
-      isFirst != oldWidget.isFirst || isDisclosure != oldWidget.isDisclosure;
+      isFirst != oldWidget.isFirst ||
+      isLast != oldWidget.isLast ||
+      inSection != oldWidget.inSection ||
+      isDisclosure != oldWidget.isDisclosure;
 }
 
 /// Stable key for comparing claim paths.

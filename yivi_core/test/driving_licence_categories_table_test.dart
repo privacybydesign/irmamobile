@@ -5,6 +5,7 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_comparison.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_renderer.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_table.dart";
@@ -41,6 +42,12 @@ Widget _wrap(
 const _toggleKey = Key("driving_licence_categories_toggle");
 
 CompareValue<T> _v<T>(T value) => CompareValue(value, AttributeComparison.none);
+
+/// From the tiles to the full table.
+Future<void> _expand(WidgetTester tester) async {
+  await tester.tap(find.byKey(_toggleKey));
+  await tester.pumpAndSettle();
+}
 
 /// As on the credential detail screen.
 DrivingLicenceCategoriesView _full({required List<CategoryRow> rows}) =>
@@ -87,6 +94,7 @@ void main() {
   ) async {
     await tester.pumpWidget(_wrap(DrivingLicenceCategoriesTable(view: view)));
     await tester.pumpAndSettle();
+    await _expand(tester);
 
     // The detail / issuance layout: no status column, plain ISO dates.
     expect(find.text("CATEGORY"), findsOneWidget);
@@ -104,93 +112,100 @@ void main() {
     expect(find.text("2029-01-01"), findsOneWidget);
   });
 
-  testWidgets("collapsed shows held categories and a summary row", (
+  testWidgets("collapsed: held categories as tiles, a link to the table", (
     tester,
   ) async {
     await tester.pumpWidget(_wrap(DrivingLicenceCategoriesTable(view: view)));
     await tester.pumpAndSettle();
 
-    // Collapsed: B, BE and T (its expiry date makes it a held row), not C.
-    expect(find.text("B"), findsOneWidget);
-    expect(find.text("BE"), findsOneWidget);
-    expect(find.text("T"), findsOneWidget);
+    // B, BE and T (its expiry date makes it held), not C; no table.
+    final tiles = find.byKey(const Key("driving_licence_categories_tiles"));
+    expect(tiles, findsOneWidget);
+    expect(find.byType(Table), findsNothing);
+    for (final code in ["B", "BE", "T"]) {
+      expect(
+        find.byKey(ValueKey("driving_licence_tile_$code")),
+        findsOneWidget,
+        reason: code,
+      );
+    }
     expect(find.text("C"), findsNothing);
-    expect(find.text("-"), findsNothing);
 
-    // The summary row says how many are hidden, below the table, spanning
-    // its full width, with a chevron at the right.
-    final summary = find.text("+ 1 category not held");
-    expect(summary, findsOneWidget);
-    expect(
-      tester.widget<Text>(summary).style?.fontWeight,
-      FontWeight.w400,
-      reason: "not bold",
-    );
-    final linkColor = IrmaTheme.of(tester.element(summary)).link;
-    expect(tester.widget<Text>(summary).style?.color, linkColor);
-    expect(
-      tester.widget<Icon>(find.byIcon(Icons.expand_more)).color,
-      linkColor,
-    );
-    final toggle = find.byKey(_toggleKey);
-    final tableBox = find.byType(Table);
-    expect(
-      tester.getTopLeft(toggle).dy,
-      greaterThanOrEqualTo(tester.getBottomLeft(tableBox).dy),
-    );
-    expect(
-      tester.getSize(toggle).width,
-      closeTo(tester.getSize(tableBox).width, 1),
-    );
-    expect(find.byIcon(Icons.expand_more), findsOneWidget);
+    // The expiry date as given; the issue date only in the table.
+    expect(find.text("until 2030-03-01"), findsNWidgets(2));
+    expect(find.text("until 2029-01-01"), findsOneWidget);
+    expect(find.text("2015-03-01"), findsNothing);
 
-    // The whole row is the tap target: tapping the chevron expands too.
-    await tester.tap(find.byIcon(Icons.expand_more));
-    await tester.pumpAndSettle();
+    // Three to a row, equally wide.
+    final b = tester.getRect(
+      find.byKey(const ValueKey("driving_licence_tile_B")),
+    );
+    final be = tester.getRect(
+      find.byKey(const ValueKey("driving_licence_tile_BE")),
+    );
+    final t = tester.getRect(
+      find.byKey(const ValueKey("driving_licence_tile_T")),
+    );
+    expect(be.top, b.top);
+    expect(t.top, b.top);
+    expect(be.width, b.width);
+    expect(b.width * 3, lessThan(tester.getSize(tiles).width + 1));
 
-    // Expanded: the not-held C row with dashes, like the licence card. The T
-    // row's issue date was not given, so it stays blank rather than a dash.
+    // A quiet link, a comfortable tap target.
+    final link = find.text("View all 4 categories");
+    expect(link, findsOneWidget);
+    expect(tester.widget<Text>(link).style?.fontWeight, FontWeight.w400);
+    expect(
+      tester.getSize(find.byKey(_toggleKey)).height,
+      greaterThanOrEqualTo(48),
+    );
+
+    await _expand(tester);
+
+    // The full table: the not-held C row with dashes, like the licence card.
+    // The T row's issue date was not given, so it stays blank, not a dash.
+    expect(tiles, findsNothing);
     expect(find.text("C"), findsOneWidget);
     expect(find.text("-"), findsNWidgets(2));
-    expect(find.text("Show less"), findsOneWidget);
+    expect(find.text("Only my categories"), findsOneWidget);
 
-    await tester.tap(find.text("Show less"));
-    await tester.pumpAndSettle();
+    await _expand(tester);
     expect(find.text("C"), findsNothing);
-    expect(summary, findsOneWidget);
+    expect(link, findsOneWidget);
   });
 
-  testWidgets("columns do not shift when expanding to longer codes", (
+  testWidgets("everything held: tiles, and the table for the issue dates", (
     tester,
   ) async {
-    // Collapsed shows only "B"; expanding reveals the three-letter "C1E".
     await tester.pumpWidget(
       _wrap(
         DrivingLicenceCategoriesTable(
-          view: _full(
-            rows: [
-              CategoryRow(
-                code: "B",
-                held: _v<bool?>(true),
-                issued: _v("2015-03-01"),
-                expires: _v("2030-03-01"),
-              ),
-              CategoryRow(code: "C1E", held: _v<bool?>(false)),
-            ],
-          ),
+          view: _full(rows: [view.rows[0], view.rows[1]]),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    final before = tester.getTopLeft(find.text("2015-03-01")).dx;
-    final headerBefore = tester.getTopLeft(find.text("ISSUED")).dx;
+    expect(
+      find.byKey(const ValueKey("driving_licence_tile_B")),
+      findsOneWidget,
+    );
+    expect(find.text("Show issue dates"), findsOneWidget);
+    await _expand(tester);
+    expect(find.text("2015-03-01"), findsOneWidget);
+  });
 
-    await tester.tap(find.byKey(_toggleKey));
+  testWidgets("Dutch tiles: t/m and the link", (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        DrivingLicenceCategoriesTable(view: view),
+        locale: const Locale("nl", "NL"),
+      ),
+    );
     await tester.pumpAndSettle();
-    expect(find.text("C1E"), findsOneWidget);
-
-    expect(tester.getTopLeft(find.text("2015-03-01")).dx, before);
-    expect(tester.getTopLeft(find.text("ISSUED")).dx, headerBefore);
+    expect(find.text("t/m 2030-03-01"), findsNWidgets(2));
+    expect(find.text("Alle 4 categorieën bekijken"), findsOneWidget);
+    await _expand(tester);
+    expect(find.text("Alleen mijn categorieën"), findsOneWidget);
   });
 
   group("scrolling on expand / collapse", () {
@@ -306,6 +321,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await _expand(tester);
 
     expect(
       tester.getSize(find.text("D1E")).height,
@@ -319,7 +335,7 @@ void main() {
     );
   });
 
-  testWidgets("summary row counts every hidden category", (tester) async {
+  testWidgets("the link counts every category", (tester) async {
     await tester.pumpWidget(
       _wrap(
         DrivingLicenceCategoriesTable(
@@ -338,7 +354,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text("+ 15 categories not held"), findsOneWidget);
+    expect(find.text("View all 16 categories"), findsOneWidget);
   });
 
   testWidgets("a divider with space above sets the section apart", (
@@ -450,29 +466,25 @@ void main() {
     });
   });
 
-  testWidgets("Dutch summary row", (tester) async {
-    await tester.pumpWidget(
-      _wrap(
-        DrivingLicenceCategoriesTable(view: view),
-        locale: const Locale("nl", "NL"),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text("+ 1 categorie niet in bezit"), findsOneWidget);
-  });
-
   testWidgets("prefixes rows with vehicle pictograms, trailers for E", (
     tester,
   ) async {
     await tester.pumpWidget(_wrap(DrivingLicenceCategoriesTable(view: view)));
     await tester.pumpAndSettle();
+    await _expand(tester);
 
     final pictograms = [
       for (final svg in tester.widgetList<SvgPicture>(find.byType(SvgPicture)))
         (svg.bytesLoader as SvgAssetLoader).assetName.split("/").last,
     ];
-    // B, BE (+ trailer), T, in row order; C is collapsed away.
-    expect(pictograms, ["car.svg", "car.svg", "trailer.svg", "tractor.svg"]);
+    // B, BE (+ trailer), C, T, in row order.
+    expect(pictograms, [
+      "car.svg",
+      "car.svg",
+      "trailer.svg",
+      "truck.svg",
+      "tractor.svg",
+    ]);
 
     // Pictograms are right-aligned against their code: a lone car and a
     // car + trailer both end the same distance before the code.
@@ -503,6 +515,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await _expand(tester);
 
     expect(find.text("CATEGORIE"), findsOneWidget);
     expect(find.text("AFGEGEVEN"), findsOneWidget);
@@ -536,14 +549,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text("ISSUED"), findsOneWidget);
-    expect(find.text("STATUS"), findsNothing);
-    expect(find.text("2015-03-01"), findsOneWidget);
     expect(
       find.byKey(const Key("driving_licence_categories_toggle")),
       findsOneWidget,
       reason: "collapsible on the detail screen",
     );
+    await _expand(tester);
+    expect(find.text("ISSUED"), findsOneWidget);
+    expect(find.text("STATUS"), findsNothing);
+    expect(find.text("2015-03-01"), findsOneWidget);
   });
 
   testWidgets("disclosure with both dates: the detail columns, not collapsed", (
@@ -619,6 +633,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await _expand(tester);
     expect(tester.takeException(), isNull);
   });
 

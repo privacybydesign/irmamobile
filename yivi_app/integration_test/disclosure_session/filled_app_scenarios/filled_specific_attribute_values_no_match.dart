@@ -51,7 +51,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "sidn.nl")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
+    requestedValueChips: [("Email domain name", "Required")],
     style: IrmaCardStyle.highlighted,
   );
 
@@ -85,6 +85,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "demo.com")],
     attributesCompareTo: [("Email domain name", "sidn.nl")],
+    requestedValueChips: [("Email domain name", "Required: sidn.nl")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -93,7 +94,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "sidn.nl")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
+    requestedValueChips: [("Email domain name", "Required")],
     style: IrmaCardStyle.normal,
   );
 
@@ -122,7 +123,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email domain name", "sidn.nl")],
-    attributesCompareTo: [("Email domain name", "sidn.nl")],
+    requestedValueChips: [("Email domain name", "Required")],
     style: IrmaCardStyle.normal,
   );
 

@@ -24,6 +24,7 @@ import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/requested_value.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
@@ -301,17 +302,10 @@ Future<void> issueCredentials(
   );
 
   if (sdJwtBatchSize != null) {
-    if (locale == Locale("nl", "NL")) {
-      expect(
-        find.text("Nog $sdJwtBatchSize keer", skipOffstage: false),
-        findsNWidgets(groupedAttributes.length),
-      );
-    } else {
-      expect(
-        find.text("$sdJwtBatchSize times left", skipOffstage: false),
-        findsNWidgets(groupedAttributes.length),
-      );
-    }
+    expect(
+      sharesLeftFinder(sdJwtBatchSize, locale: locale, skipOffstage: false),
+      findsNWidgets(groupedAttributes.length),
+    );
   }
 
   // Check whether all credential type names are displayed.
@@ -327,9 +321,10 @@ Future<void> issueCredentials(
   }
 
   // Check whether all attributes are displayed (order-independent).
+  // Section titles and group headings (12) are not label/value pairs.
   final attributeTexts = attributeRowTexts(
     find.byType(YiviCredentialCardAttributeList),
-  ).map((t) => t.data!).toList();
+  ).where((t) => t.style?.fontSize != 12).map((t) => t.data!).toList();
 
   // Build a map of displayed attribute name -> value pairs.
   final displayedAttributes = <String, String>{};
@@ -447,6 +442,11 @@ Future<void> evaluateCredentialCard(
   /// rendered text for that label is colored green if it matches, red
   /// otherwise. Flat-only — only `String` values are honored.
   List<AttrRow>? attributesCompareTo,
+
+  /// The requested-value chip on the row of each label: "Satisfies" on an
+  /// owned option, "Required" on a card to obtain, and "Required: " plus the
+  /// value asked for on a value that is not what was asked.
+  List<(String label, String chip)>? requestedValueChips,
   bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
@@ -476,7 +476,7 @@ Future<void> evaluateCredentialCard(
     );
     final instanceCountFinder = find.descendant(
       of: footer,
-      matching: find.text("$instancesRemaining times left"),
+      matching: sharesLeftFinder(instancesRemaining),
     );
     expect(instanceCountFinder, findsOneWidget);
   }
@@ -608,6 +608,24 @@ Future<void> evaluateCredentialCard(
     } else {
       // Expect no attribute list
       expect(cardAttList, findsNothing);
+    }
+  }
+
+  if (requestedValueChips != null) {
+    for (final (label, chip) in requestedValueChips) {
+      final row = find.ancestor(
+        of: find.descendant(
+          of: credentialCardFinder,
+          matching: find.text(label),
+        ),
+        matching: find.byType(WithRequestedValueChip),
+      );
+      expect(row, findsWidgets, reason: "no requested value on '$label'");
+      expect(
+        find.descendant(of: row.first, matching: find.text(chip)),
+        findsOneWidget,
+        reason: "chip '$chip' on '$label'",
+      );
     }
   }
 
@@ -892,4 +910,69 @@ Future<void> openAddCredentialDetailsScreen(
   await tester.tapAndSettle(addCredentialTile);
 
   await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
+}
+
+/// Finds the card status line's "shares left" text for [count], whichever form
+/// it takes: normal, few left, or none left.
+Finder sharesLeftFinder(
+  int count, {
+  Locale locale = const Locale("en", "US"),
+  bool skipOffstage = true,
+}) {
+  final texts = locale.languageCode == "nl"
+      ? {
+          "$count× te delen",
+          "Nog $count× te delen",
+          if (count == 0) "Niet meer te delen",
+        }
+      : {
+          "$count shares left",
+          "Only $count shares left",
+          if (count == 0) "No shares left",
+        };
+  return find.byWidgetPredicate(
+    (w) => w is Text && texts.contains(w.data),
+    description: "shares left text for $count",
+    skipOffstage: skipOffstage,
+  );
+}
+
+/// Checks a card drawn in card sections (identity credentials): the section
+/// [titles] in order, the [texts] shown anywhere on the card (the profile
+/// header's name and details, age chips), and each field grid cell in
+/// [fields], by attribute id, with its label and value.
+void evaluateCardSections(
+  WidgetTester tester,
+  Finder credentialCardFinder, {
+  required List<String> titles,
+  List<String> texts = const [],
+  Map<String, (String label, String value)> fields = const {},
+}) {
+  Finder inCard(Finder f) =>
+      find.descendant(of: credentialCardFinder, matching: f);
+
+  var previousTop = double.negativeInfinity;
+  for (final title in titles) {
+    final finder = inCard(find.text(title));
+    expect(finder, findsOneWidget, reason: "section '$title'");
+    final top = tester.getTopLeft(finder).dy;
+    expect(top, greaterThan(previousTop), reason: "'$title' out of order");
+    previousTop = top;
+  }
+
+  for (final text in texts) {
+    expect(inCard(find.text(text)), findsOneWidget, reason: "text '$text'");
+  }
+
+  for (final MapEntry(key: id, value: (label, value)) in fields.entries) {
+    final cell = inCard(find.byKey(Key("field_$id")));
+    expect(cell, findsOneWidget, reason: "field '$id'");
+    for (final text in [label, value]) {
+      expect(
+        find.descendant(of: cell, matching: find.text(text)),
+        findsOneWidget,
+        reason: "field '$id' shows '$text'",
+      );
+    }
+  }
 }

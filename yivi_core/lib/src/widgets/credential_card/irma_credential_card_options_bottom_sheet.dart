@@ -8,15 +8,25 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onReobtain;
 
+  /// Switches the card between its layout and a plain list of attributes;
+  /// null when the card has no layout to switch from.
+  final VoidCallback? onToggleRawList;
+
+  /// The card currently shows the plain list.
+  final bool rawList;
+
   const IrmaCredentialCardOptionsBottomSheet({
     required this.onDelete,
     required this.onReobtain,
+    this.onToggleRawList,
+    this.rawList = false,
   });
 
   Widget _buildOptionTile({
     required IconData icon,
     required String translationKey,
     required IrmaThemeData theme,
+    Key? key,
     Function()? onTap,
   }) {
     // Wrap in a transparent Material so the tile's ink splashes have a surface
@@ -26,6 +36,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: ListTile(
+        key: key,
         onTap: onTap,
         contentPadding: EdgeInsets.zero,
         minLeadingWidth: 0,
@@ -41,6 +52,32 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final tiles = [
+      if (onToggleRawList != null)
+        _buildOptionTile(
+          theme: theme,
+          key: const Key("card_option_toggle_raw_list"),
+          icon: rawList ? Icons.badge_outlined : Icons.view_list_outlined,
+          translationKey: rawList
+              ? "credential.options.show_as_card"
+              : "credential.options.show_as_list",
+          onTap: onToggleRawList,
+        ),
+      if (onReobtain != null)
+        _buildOptionTile(
+          theme: theme,
+          icon: Icons.cached,
+          translationKey: "credential.options.reobtain",
+          onTap: onReobtain,
+        ),
+      if (onDelete != null)
+        _buildOptionTile(
+          theme: theme,
+          icon: Icons.delete,
+          translationKey: "credential.options.delete",
+          onTap: onDelete,
+        ),
+    ];
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -52,21 +89,10 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (onReobtain != null)
-            _buildOptionTile(
-              theme: theme,
-              icon: Icons.cached,
-              translationKey: "credential.options.reobtain",
-              onTap: onReobtain,
-            ),
-          if (onReobtain != null && onDelete != null) const IrmaDivider(),
-          if (onDelete != null)
-            _buildOptionTile(
-              theme: theme,
-              icon: Icons.delete,
-              translationKey: "credential.options.delete",
-              onTap: onDelete,
-            ),
+          for (final (i, tile) in tiles.indexed) ...[
+            if (i > 0) const IrmaDivider(),
+            tile,
+          ],
         ],
       ),
     );

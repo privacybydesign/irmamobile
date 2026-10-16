@@ -41,6 +41,9 @@ class CredentialCardStatus {
   /// true when the credential has no valid issue URL and is not valid or is a template.
   final bool showNotObtainable;
 
+  /// The card shows a credential still to obtain, not one held.
+  final bool templateMode;
+
   const CredentialCardStatus._({
     required this.expiryDate,
     required this.revoked,
@@ -54,6 +57,7 @@ class CredentialCardStatus {
     required this.issueUrl,
     required this.showReobtain,
     required this.showNotObtainable,
+    required this.templateMode,
   });
 
   factory CredentialCardStatus({
@@ -108,6 +112,7 @@ class CredentialCardStatus {
       issueUrl: issueUrl,
       showReobtain: showReobtain,
       showNotObtainable: showNotObtainable,
+      templateMode: templateMode,
     );
   }
 

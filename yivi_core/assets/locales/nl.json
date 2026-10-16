@@ -90,17 +90,14 @@
   },
   "credential": {
     "no_data": "Geen gegevens",
-    "valid_until": "Geldig tot",
-    "indefinite_validity": "Onbepaalde tijd",
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",
     "issued_by": "via {issuer}",
-    "sharable": "Deelbaar",
-    "sharable_count": "Nog {count} keer",
-    "sharable_unlimited": "Onbeperkt",
     "options": {
       "title": "Opties",
+      "show_as_list": "Toon als lijst",
+      "show_as_card": "Toon als kaart",
       "reobtain": "Opnieuw ophalen",
       "delete": "Verwijder gegevens",
       "confirm_delete": "Weet je zeker dat je deze gegevens wilt verwijderen?",
@@ -112,6 +109,54 @@
     "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
     "boolean_yes": "Ja",
     "boolean_no": "Nee",
+    "sections": {
+      "person": "Persoon",
+      "driving_entitlement": "Rijbevoegdheid",
+      "document": "Document",
+      "name": "Naam",
+      "registration": "Registratie"
+    },
+    "status_line": {
+      "valid_until": "Geldig t/m {date}",
+      "valid_indefinitely": "Onbepaald geldig",
+      "expired_on": "Verlopen op {date}",
+      "expires_in-0": "Verloopt vandaag",
+      "expires_in-1": "Verloopt over {count} dag",
+      "expires_in-2": "Verloopt over {count} dagen",
+      "shares_left": "{count}× te delen",
+      "shares_few": "Nog {count}× te delen",
+      "shares_none": "Niet meer te delen",
+      "shares_unlimited": "Onbeperkt te delen"
+    },
+    "age": {
+      "label": "Leeftijd",
+      "over": "Ouder dan {age}",
+      "not_over": "Niet ouder dan {age}",
+      "over_and_not_over": "Ouder dan {over}, niet ouder dan {notOver}",
+      "show_all": "Toon alle leeftijden",
+      "hide_all": "Verberg leeftijden"
+    },
+    "requested_value": {
+      "satisfied": "Voldoet",
+      "required": "Vereist",
+      "required_value": "Vereist: {value}"
+    },
+    "chip_check": {
+      "genuine": "Chip is echt",
+      "signature_only": "Alleen handtekening gecontroleerd",
+      "info_label": "Wat betekent dit?",
+      "info_title": "Chipcontrole",
+      "info_genuine": "Bij het uitlezen van je document heeft de chip bewezen dat het de originele chip is en geen kopie (actieve authenticatie). Ook zijn de gegevens gecontroleerd met de handtekening van het land dat het document uitgaf, dus ze zijn niet veranderd.",
+      "info_signature_only": "De gegevens zijn gecontroleerd met de handtekening van het land dat het document uitgaf, dus ze zijn niet veranderd. De chip heeft niet bewezen dat het de originele chip is en geen kopie (geen actieve authenticatie). Niet elk document ondersteunt dit."
+    },
+    "profile_header": {
+      "eu_citizen": "EU-burger",
+      "date_of_birth": "Geboortedatum",
+      "place_of_birth": "Geboorteplaats",
+      "nationality": "Nationaliteit",
+      "gender": "Geslacht",
+      "dutch": "Nederlands"
+    },
     "driving_licence_categories": {
       "title": "Rijbewijscategorieën",
       "category": "Categorie",
@@ -121,10 +166,10 @@
       "issued": "Afgegeven",
       "expires": "Verloopt",
       "no_information": "Geen categorie-informatie",
-      "not_held_count-0": "{count} categorieën niet in bezit",
-      "not_held_count-1": "{count} categorie niet in bezit",
-      "not_held_count-2": "{count} categorieën niet in bezit",
-      "show_less": "Toon minder"
+      "show_all": "Alle {count} categorieën bekijken",
+      "only_mine": "Alleen mijn categorieën",
+      "show_details": "Afgiftedatums tonen",
+      "valid_until": "t/m {date}"
     }
   },
   "data": {

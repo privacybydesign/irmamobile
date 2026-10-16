@@ -8,19 +8,19 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
+import "../attribute_comparison.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
+import "../requested_value.dart";
 import "driving_licence_categories_renderer.dart";
 
-/// Driving licence categories laid out like the back of the licence card: a
-/// Category / Issued / Expires table with one row per category, where a
-/// category that is not held shows "-" for its dates.
-///
-/// On the credential detail screen it starts collapsed to the categories
-/// held, ending in a summary row ("+ 14 categories not held") that expands the
-/// rest in place. On a disclosure (a subset) it never collapses: it shows
-/// exactly the categories being shared. When nothing or everything given is
-/// held there is nothing to hide either.
+/// Driving licence categories. On the credential detail and issuance screens
+/// the categories held come first as tiles (pictogram, code, expiry date); a
+/// link swaps in the full table, laid out like the back of the licence card:
+/// Category / Issued / Expires, one row per category, "-" for the dates of a
+/// category that is not held. On a disclosure (a subset) it is always the
+/// table, with exactly the categories being shared. When nothing is held there
+/// are no tiles either, only the table.
 ///
 /// The detail and issuance screens show a Category / Issued / Expires table.
 /// A disclosure shows only the date columns that were requested, or, when no
@@ -98,28 +98,33 @@ class _DrivingLicenceCategoriesTableState
   bool get _disclosure =>
       AttributeGroupScope.maybeOf(context)?.isDisclosure ?? false;
 
+  // Tiles have no room for requested-value chips, so a card compared with a
+  // request (the wrong-credential dialog) shows the table.
   bool get _collapsible =>
       !_disclosure &&
-      view.rows.any((r) => r.notHeld) &&
-      view.rows.any((r) => !r.notHeld);
+      view.rows.any((r) => !r.notHeld) &&
+      !view.rows.any((r) => r.sources.any(hasRequestedValue));
 
-  List<CategoryRow> get _visibleRows => _expanded || !_collapsible
-      ? view.rows
-      : view.rows.where((r) => !r.notHeld).toList();
+  bool get _showsTiles => _collapsible && !_expanded;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     String t(String key) => FlutterI18n.translate(context, "$_prefix.$key");
+    final scope = AttributeGroupScope.maybeOf(context);
+    // In a card section, the section's title and dividers replace ours; the
+    // reveal-on-toggle then scrolls to the top of the table itself.
+    final inSection = scope?.inSection ?? false;
 
     return Column(
+      key: inSection ? _titleKey : null,
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
         // Sets the section apart from the attributes above it; when there
         // are none (e.g. a disclosure of only categories), the card's own
         // divider under its header already does.
-        if (!(AttributeGroupScope.maybeOf(context)?.isFirst ?? false)) ...[
+        if (!inSection && !(scope?.isFirst ?? false)) ...[
           SizedBox(height: theme.smallSpacing),
           Container(
             key: const Key("driving_licence_categories_divider"),
@@ -128,7 +133,8 @@ class _DrivingLicenceCategoriesTableState
           ),
           SizedBox(height: theme.smallSpacing),
         ],
-        Text(key: _titleKey, t("title"), style: attributeLabelStyle(theme)),
+        if (!inSection)
+          Text(key: _titleKey, t("title"), style: attributeLabelStyle(theme)),
         if (view.noInformation)
           Text(
             t("no_information"),
@@ -144,25 +150,26 @@ class _DrivingLicenceCategoriesTableState
               curve: Curves.easeInOut,
               onEnd: _onResized,
               alignment: Alignment.topCenter,
-              child: _table(context, theme, t),
+              child: _showsTiles ? _tiles(theme) : _table(context, theme, t),
             ),
           ),
-        if (_collapsible) _summaryRow(context, theme, t),
+        if (_collapsible) _toggleLink(context, theme),
       ],
     );
   }
 
-  /// The last row of the section: says how many categories are hidden, or
-  /// offers to hide them again. The whole row is the tap target.
-  Widget _summaryRow(
-    BuildContext context,
-    IrmaThemeData theme,
-    String Function(String) t,
-  ) {
-    final hidden = view.rows.where((r) => r.notHeld).length;
+  /// Swaps between the tiles and the full table.
+  Widget _toggleLink(BuildContext context, IrmaThemeData theme) {
+    final allHeld = view.rows.every((r) => !r.notHeld);
     final label = _expanded
-        ? t("show_less")
-        : "+ ${FlutterI18n.plural(context, "$_prefix.not_held_count", hidden)}";
+        ? FlutterI18n.translate(context, "$_prefix.only_mine")
+        : allHeld
+        ? FlutterI18n.translate(context, "$_prefix.show_details")
+        : FlutterI18n.translate(
+            context,
+            "$_prefix.show_all",
+            translationParams: {"count": "${view.rows.length}"},
+          );
 
     return Semantics(
       button: true,
@@ -170,31 +177,44 @@ class _DrivingLicenceCategoriesTableState
       child: InkWell(
         key: const Key("driving_licence_categories_toggle"),
         onTap: _toggle,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: theme.neutralExtraLight)),
-          ),
-          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-          child: Row(
-            children: [
-              // In the link colour, so it reads as tappable.
-              Expanded(
-                child: Text(
-                  label,
-                  style: attributeLabelStyle(theme).copyWith(color: theme.link),
-                ),
+        child: ConstrainedBox(
+          // A comfortable tap target, though the text is small.
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              style: theme.hyperlinkTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.w400,
               ),
-              AnimatedRotation(
-                turns: _expanded ? 0.5 : 0,
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : _resizeDuration,
-                child: Icon(Icons.expand_more, size: 20, color: theme.link),
-              ),
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  /// The categories held as tiles, three to a row.
+  Widget _tiles(IrmaThemeData theme) {
+    final held = view.rows.where((r) => !r.notHeld).toList();
+    final spacing = theme.smallSpacing;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = (constraints.maxWidth - 2 * spacing) / 3;
+        return Wrap(
+          key: const Key("driving_licence_categories_tiles"),
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final row in held)
+              SizedBox(
+                width: width,
+                child: _CategoryTile(row: row),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -228,24 +248,31 @@ class _DrivingLicenceCategoriesTableState
     final codeWidth = _codeWidth(context, theme);
     final disclosure = _disclosure;
     final cellPadding = EdgeInsets.symmetric(vertical: theme.tinySpacing);
+    // Keeps neighbouring columns apart when the table is narrow.
+    final columnPadding = cellPadding.copyWith(right: theme.smallSpacing);
     final dateStyle = attributeValueStyle(
       theme,
       theme.dark,
     ).copyWith(fontSize: 14);
 
+    // Shrinks rather than breaking a word when the column is narrow.
     Widget header(String text) => Padding(
-      padding: cellPadding,
-      child: Text(text.toUpperCase(), style: attributeEyebrowStyle(theme)),
+      padding: columnPadding,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(text.toUpperCase(), style: attributeEyebrowStyle(theme)),
+      ),
     );
 
     Widget date(CategoryRow row, CompareValue<String>? value) => Padding(
-      padding: cellPadding,
+      padding: columnPadding,
       child: Text(
         row.notHeld ? "-" : value?.value ?? "",
         style: dateStyle.copyWith(
           color: value == null
               ? null
-              : _comparisonColor(theme, value.comparison),
+              : comparisonColor(theme, value.comparison),
         ),
       ),
     );
@@ -263,7 +290,7 @@ class _DrivingLicenceCategoriesTableState
             fontWeight: isHeld ? FontWeight.w600 : FontWeight.w400,
             color: held == null || held.comparison == AttributeComparison.none
                 ? (isHeld ? theme.dark : theme.neutralDark)
-                : _comparisonColor(theme, held.comparison),
+                : comparisonColor(theme, held.comparison),
           ),
         ),
       );
@@ -279,11 +306,17 @@ class _DrivingLicenceCategoriesTableState
     final showsIssued = !disclosure || view.showsIssued;
     final showsExpires = !disclosure || view.showsExpires;
     final showsStatus = !showsIssued && !showsExpires;
+    // A last column for requested-value chips, when the verifier asked for
+    // a specific value of any category.
+    final showsRequested = view.rows.any(
+      (r) => r.sources.any(hasRequestedValue),
+    );
     final widths = <TableColumnWidth>[
       const IntrinsicColumnWidth(),
       if (showsStatus) const FlexColumnWidth(),
       if (showsIssued) const FlexColumnWidth(),
       if (showsExpires) const FlexColumnWidth(),
+      if (showsRequested) const IntrinsicColumnWidth(),
     ];
 
     return Table(
@@ -296,9 +329,10 @@ class _DrivingLicenceCategoriesTableState
             if (showsStatus) header(t("status")),
             if (showsIssued) header(t("issued")),
             if (showsExpires) header(t("expires")),
+            if (showsRequested) const SizedBox.shrink(),
           ],
         ),
-        for (final row in _visibleRows)
+        for (final row in view.rows)
           TableRow(
             key: ValueKey("driving_licence_category_${row.code}"),
             decoration: divider,
@@ -310,9 +344,83 @@ class _DrivingLicenceCategoriesTableState
               if (showsStatus) status(row),
               if (showsIssued) date(row, row.issued),
               if (showsExpires) date(row, row.expires),
+              if (showsRequested)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child:
+                      RequestedValueChip.maybe(context, row.sources) ??
+                      const SizedBox.shrink(),
+                ),
             ],
           ),
       ],
+    );
+  }
+}
+
+/// A category held: its pictogram, its code and until when it is valid (the
+/// date as given).
+class _CategoryTile extends StatelessWidget {
+  final CategoryRow row;
+
+  const _CategoryTile({required this.row});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final (vehicle, trailer) = vehicleIcons(row.code);
+    final expires = row.expires;
+
+    return Container(
+      key: ValueKey("driving_licence_tile_${row.code}"),
+      padding: EdgeInsets.symmetric(
+        vertical: theme.smallSpacing + 2,
+        horizontal: theme.smallSpacing,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.neutralExtraLight),
+        borderRadius: theme.borderRadius,
+      ),
+      child: Column(
+        mainAxisSize: .min,
+        spacing: theme.tinySpacing,
+        children: [
+          Row(
+            mainAxisSize: .min,
+            children: [
+              _icon(vehicle, theme, size: 24),
+              if (trailer) _icon("trailer", theme, size: 24),
+            ],
+          ),
+          Text(
+            row.code,
+            style: attributeValueStyle(
+              theme,
+              comparisonColor(
+                theme,
+                row.held?.comparison ?? AttributeComparison.none,
+              ),
+            ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          if (expires != null && expires.value.isNotEmpty)
+            Text(
+              FlutterI18n.translate(
+                context,
+                "credential.driving_licence_categories.valid_until",
+                translationParams: {"date": expires.value},
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: TextStyle(
+                fontFamily: theme.secondaryFontFamily,
+                fontSize: 12,
+                color: expires.comparison == AttributeComparison.none
+                    ? theme.neutralExtraDark
+                    : comparisonColor(theme, expires.comparison),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -359,7 +467,7 @@ class _CategoryCell extends StatelessWidget {
             overflow: TextOverflow.visible,
             style: attributeValueStyle(
               theme,
-              _comparisonColor(
+              comparisonColor(
                 theme,
                 row.held?.comparison ?? AttributeComparison.none,
               ),
@@ -371,10 +479,14 @@ class _CategoryCell extends StatelessWidget {
   }
 }
 
-Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
+Widget _icon(
+  String asset,
+  IrmaThemeData theme, {
+  double size = _CategoryCell._iconSize,
+}) => SvgPicture.asset(
   yiviAsset("vehicles/$asset.svg"),
-  width: _CategoryCell._iconSize,
-  height: _CategoryCell._iconSize,
+  width: size,
+  height: size,
   colorFilter: ColorFilter.mode(theme.neutralDark, BlendMode.srcIn),
 );
 
@@ -401,10 +513,3 @@ Widget _icon(String asset, IrmaThemeData theme) => SvgPicture.asset(
   "T" => ("tractor", false),
   _ => ("car", false),
 };
-
-Color _comparisonColor(IrmaThemeData theme, AttributeComparison comparison) =>
-    switch (comparison) {
-      AttributeComparison.none => theme.dark,
-      AttributeComparison.match => theme.success,
-      AttributeComparison.mismatch => theme.error,
-    };

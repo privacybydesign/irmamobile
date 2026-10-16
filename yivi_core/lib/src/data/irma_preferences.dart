@@ -68,6 +68,10 @@ class IrmaPreferences {
          _credentialOrderKey,
          defaultValue: [],
        ),
+       _rawListCardTypes = preferences.getStringList(
+         _rawListCardTypesKey,
+         defaultValue: [],
+       ),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -171,6 +175,11 @@ class IrmaPreferences {
   static const String _credentialOrderKey = "preference.credential_order";
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
+
+  /// Credential type ids whose card the user switched to the plain list of
+  /// attributes (the "show as list" card option).
+  static const String _rawListCardTypesKey = "preference.raw_list_card_types";
+  final Preference<List<String>> _rawListCardTypes;
 
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
   // All wiped by clearAll(), so a logout/reset restarts the whole flow.
@@ -282,6 +291,16 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  Stream<List<String>> getRawListCardTypes() => _rawListCardTypes;
+
+  /// Shows the card of [credentialTypeId] as a plain list ([rawList] true) or
+  /// with its designed layout.
+  Future<bool> setRawListCard(String credentialTypeId, bool rawList) {
+    final types = {..._rawListCardTypes.getValue()};
+    rawList ? types.add(credentialTypeId) : types.remove(credentialTypeId);
+    return _rawListCardTypes.setValue(types.toList()..sort());
+  }
 
   // --- App-store review prompt ----------------------------------------------
 
