@@ -820,7 +820,7 @@ class _LeafContent extends StatelessWidget {
     if (node.mismatch) return theme.error;
     if (node.match) return theme.success;
     if (!node.hasCompareTo) return AttributeColors.of(context).value;
-    return val?.string == node.compareToValue?.string
+    return attributeValuesEqual(val, node.compareToValue)
         ? theme.success
         : theme.error;
   }
@@ -828,34 +828,15 @@ class _LeafContent extends StatelessWidget {
   Widget _buildValue(BuildContext context, IrmaThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
-    return switch (val.type) {
-      schemaless.AttributeType.string => Text(
-        val.string ?? "",
-        style: attributeValueStyle(
-          context,
-          _valueColor(context, val, theme),
-          layout: layout,
-        ),
+    if (_isImage(node.attribute)) return _tappableImage(context, theme);
+    return Text(
+      formatAttributeValue(context, val),
+      style: attributeValueStyle(
+        context,
+        _valueColor(context, val, theme),
+        layout: layout,
       ),
-      schemaless.AttributeType.boolean => Text(
-        formatAttributeBool(context, val.boolValue),
-        style: attributeValueStyle(
-          context,
-          _valueColor(context, val, theme),
-          layout: layout,
-        ),
-      ),
-      schemaless.AttributeType.integer => Text(
-        val.intValue?.toString() ?? "",
-        style: attributeValueStyle(
-          context,
-          _valueColor(context, val, theme),
-          layout: layout,
-        ),
-      ),
-      schemaless.AttributeType.image ||
-      schemaless.AttributeType.base64Image => _tappableImage(context, theme),
-    };
+    );
   }
 
   Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
@@ -1154,23 +1135,12 @@ class _PrimArrayContent extends StatelessWidget {
             ),
           ),
           SizedBox(width: theme.tinySpacing),
-          Expanded(child: Text(_formatValue(context, v), style: valueStyle)),
+          Expanded(
+            child: Text(formatAttributeValue(context, v), style: valueStyle),
+          ),
         ],
       ),
     );
-  }
-
-  String _formatValue(BuildContext context, schemaless.AttributeValue v) {
-    return switch (v.type) {
-      schemaless.AttributeType.string => v.string ?? "",
-      schemaless.AttributeType.integer => v.intValue?.toString() ?? "",
-      schemaless.AttributeType.boolean => formatAttributeBool(
-        context,
-        v.boolValue,
-      ),
-      schemaless.AttributeType.image ||
-      schemaless.AttributeType.base64Image => v.string ?? "",
-    };
   }
 }
 
