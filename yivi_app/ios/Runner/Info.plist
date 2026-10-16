@@ -70,7 +70,7 @@
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSCameraUsageDescription</key>
-    <string>Can we access your camera to scan a QR code?</string>
+    <string>Yivi uses the camera to scan QR codes and identity documents, and to verify your face when you add an identity document.</string>
     <key>UIBackgroundModes</key>
     <array>
       <string>fetch</string>

@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -88,4 +89,19 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- The Iris SDK's own manifest declares camera and NFC as *required*
+         features, and those merge into this app. Play hides an app from every
+         device that lacks a required feature, which would take Yivi off
+         tablets and other NFC-less devices although only the document flows
+         need either. tools:replace overrides the library's value rather than
+         the merger's OR of the two. -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"
+        tools:replace="android:required" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false"
+        tools:replace="android:required" />
 </manifest>
