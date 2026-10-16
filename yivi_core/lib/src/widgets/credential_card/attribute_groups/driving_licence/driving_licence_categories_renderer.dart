@@ -3,6 +3,7 @@ import "package:flutter/foundation.dart";
 
 import "../../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../attribute_group.dart";
+import "../attribute_value_formatting.dart";
 import "driving_licence_categories_table.dart";
 
 /// Draws the driving licence category attributes (`categoryX`,
@@ -150,13 +151,10 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
       (c) => listEquals(c.claimPath, attribute.claimPath),
     );
     if (other == null) return AttributeComparison.mismatch;
-    return _comparable(other.value) == _comparable(attribute.value)
+    return attributeValuesEqual(other.value, attribute.value)
         ? AttributeComparison.match
         : AttributeComparison.mismatch;
   }
-
-  static Object? _comparable(schemaless.AttributeValue? v) =>
-      v?.string ?? v?.boolValue ?? v?.intValue;
 }
 
 enum _Field { held, issued, expires }
