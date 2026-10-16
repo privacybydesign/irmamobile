@@ -221,7 +221,8 @@ class _TabButton extends StatelessWidget {
 }
 
 /// The round Scan QR action button, in the faceted Yivi red of today's scan
-/// button (`ui/round-btn-bg.svg`) with a glass sheen on top.
+/// button (`ui/round-btn-bg.svg`) with a glass sheen on top (light theme
+/// only), on the same dark shadow as the glass tab bar.
 class GlassQrButton extends StatelessWidget {
   final double size;
 
@@ -231,7 +232,8 @@ class GlassQrButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // No white sheen in the dark variant: against the dark background it
     // washes the red out to pink.
-    final dark = YiviPalette.of(context).isDark;
+    final palette = YiviPalette.of(context);
+    final dark = palette.isDark;
     final sheen = dark ? 0.0 : 0.32;
     final rim = dark ? 0.12 : 0.45;
     return Semantics(
@@ -240,14 +242,21 @@ class GlassQrButton extends StatelessWidget {
       excludeSemantics: true,
       child: PressScale(
         scale: 1.08,
+        // The same dark shadow as the glass tab bar next to it, so it
+        // stands off the cards scrolling behind it.
         child: DecoratedBox(
-          decoration: const ShapeDecoration(
-            shape: CircleBorder(),
+          decoration: ShapeDecoration(
+            shape: const CircleBorder(),
             shadows: [
               BoxShadow(
-                color: Color(0x59E12747),
+                color: palette.glassShadow,
                 blurRadius: 24,
-                offset: Offset(0, 8),
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: palette.glassShadow.withValues(alpha: 0.06),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
               ),
             ],
           ),
