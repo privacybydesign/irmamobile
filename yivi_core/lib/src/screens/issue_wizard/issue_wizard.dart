@@ -14,6 +14,7 @@ import "../../models/schemaless/session_state.dart";
 import "../../models/session.dart";
 import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../screens/issue_wizard/pending_wizard_session.dart";
 import "../../screens/issue_wizard/widgets/wizard_contents.dart";
 import "../../screens/issue_wizard/widgets/wizard_info.dart";
 import "../../util/handle_pointer.dart";
@@ -32,7 +33,7 @@ class IssueWizardScreen extends ConsumerStatefulWidget {
 class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
     with WidgetsBindingObserver {
   bool _showIntro = true;
-  int? _sessionID;
+  final PendingWizardSession _session = PendingWizardSession();
   StreamSubscription<SessionState>? _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
@@ -120,18 +121,24 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
     VisibilityInfo visibility,
     IssueWizardEvent wizard,
   ) async {
-    if (_sessionID == null) return;
+    // Await the id of the session started by the active wizard item. Holding
+    // the pending future (rather than reading a possibly-unset field) means a
+    // visibility change firing before Go has emitted the id waits for it instead
+    // of silently dropping the session (issue #623). Returns null when no
+    // session is being tracked, in which case there is nothing to do.
+    final sessionID = await _session.resolve();
+    if (sessionID == null) return;
 
     // If we became visible and the session that was started by the currently active wizard item
     // is done and has succeeded, we need to progress to the next item or close the wizard.
-    final state = await _repo.getSessionState(_sessionID!).first;
+    final state = await _repo.getSessionState(sessionID).first;
     if (!(visibility.visibleFraction > 0.9 &&
         state.status == SessionStatus.success)) {
       return;
     }
 
     // we're done tracking this session, prevent it from being handled again if we return again
-    _sessionID = null;
+    _session.clear();
 
     final nextEvent = wizard.nextEvent;
     _repo.getIssueWizard().add(nextEvent);
@@ -152,8 +159,10 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
       // If it is not known in advance which credential a wizard item will issue (if it issues anything at all),
       // then the only reasonable condition that we can use to consider the item to be completed is whenever the
       // session that it starts has finished successfully. So when the session starts, we save the session ID,
-      // so that when the user returns to this screen, we can check if it completed.
-      _repo.getNewSessionIds().first.then((id) => _sessionID = id);
+      // so that when the user returns to this screen, we can check if it completed. We store the pending
+      // future synchronously here (rather than assigning the id in a fire-and-forget callback) so that a
+      // visibility change firing before the id is emitted can await it instead of missing it (issue #623).
+      _session.track(_repo.getNewSessionIds().first);
     }
 
     // Handle the different wizard item types
