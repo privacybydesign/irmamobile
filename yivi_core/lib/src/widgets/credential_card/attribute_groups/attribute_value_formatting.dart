@@ -60,20 +60,23 @@ String formatAttributeString(
 }
 
 const _currencyHintPrefix = "currency:";
-final _currencyAmount = RegExp(r"^-?[0-9]+(\.[0-9]+)?$");
+// At most 12 integer digits keep the amount exact in a double, with up to
+// three decimals.
+final _currencyAmount = RegExp(r"^-?[0-9]{1,12}(\.[0-9]+)?$");
 final _currencyCode = RegExp(r"^[A-Z]{3}$");
 
 /// Formats a plain decimal [amount] (e.g. "12.50") in the given ISO 4217
-/// [currency] for [locale], or returns null when either can't be formatted.
+/// [currency] for [locale], or returns null when either can't be formatted
+/// or formatting would round or lose digits of the amount.
 String? formatCurrencyAmount(String amount, String currency, String? locale) {
   if (!_currencyAmount.hasMatch(amount) || !_currencyCode.hasMatch(currency)) {
     return null;
   }
   try {
-    return NumberFormat.simpleCurrency(
-      locale: locale,
-      name: currency,
-    ).format(num.parse(amount));
+    final format = NumberFormat.simpleCurrency(locale: locale, name: currency);
+    final fractionDigits = amount.split(".").elementAtOrNull(1)?.length ?? 0;
+    if (fractionDigits > (format.decimalDigits ?? 2)) return null;
+    return format.format(num.parse(amount));
   } on Object {
     return null;
   }
