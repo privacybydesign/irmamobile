@@ -15,6 +15,7 @@ import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
+import "../../widgets/embedded_issuance_expired_screen.dart";
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   const VerifyEmailScreen();
@@ -104,6 +105,23 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     });
 
     final state = ref.watch(emailIssuanceProvider);
+
+    // The session/code expired on the server (e.g. the user left to fetch their
+    // code and returned too late). Explain what happened and let them restart
+    // directly, rather than showing a generic error or a code field that would
+    // silently keep rejecting the now-dead session.
+    if (state.error is EmailIssuanceSessionExpiredError) {
+      return EmbeddedIssuanceExpiredScreen(
+        titleTranslationKey: "email_issuance.verify_code.title",
+        bodyTranslationKey: "email_issuance.verify_code.expired.body",
+        restartButtonTranslationKey:
+            "email_issuance.verify_code.expired.restart_button",
+        cancelButtonTranslationKey: "email_issuance.verify_code.back_button",
+        onRestart: () {
+          ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
+        },
+      );
+    }
 
     // Handle the more generic errors
     if (state.error is! EmailIssuanceNoError &&
