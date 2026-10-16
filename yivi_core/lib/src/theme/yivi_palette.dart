@@ -195,6 +195,12 @@ class YiviPalette {
 
   bool get isDark => brightness == Brightness.dark;
 
+  /// The Yivi logo (without margins) for this variant: the dark one has the
+  /// colours of the dark iOS app icon.
+  String get logoAsset => yiviAsset(
+    isDark ? "non-free/logo_no_margin_dark.svg" : "non-free/logo_no_margin.svg",
+  );
+
   static YiviPalette of(BuildContext context) =>
       forBrightness(Theme.of(context).brightness);
 

@@ -6,7 +6,6 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../package_name.dart";
 import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../providers/feature_flag_provider.dart";
@@ -225,7 +224,7 @@ class _SigningUp extends StatelessWidget {
             children: [
               ExcludeSemantics(
                 child: SvgPicture.asset(
-                  yiviAsset("non-free/logo_no_margin.svg"),
+                  YiviPalette.of(context).logoAsset,
                   height: 52,
                 ),
               ),

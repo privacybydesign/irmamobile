@@ -2,13 +2,12 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/loading_indicator.dart";
 
 /// The Yivi logo on the plain background, growing in, with the slogan at the
-/// bottom. The logo has no black lettering, so it reads in dark mode too.
+/// bottom, in the dark theme in the colours of the dark app icon.
 class SplashScreen extends StatelessWidget {
   static const routeName = "/splash";
 
@@ -24,7 +23,7 @@ class SplashScreen extends StatelessWidget {
         TestContext.isRunningIntegrationTest(context);
 
     final logo = SvgPicture.asset(
-      yiviAsset("non-free/logo_no_margin.svg"),
+      YiviPalette.of(context).logoAsset,
       width: 168,
       semanticsLabel: FlutterI18n.translate(context, "accessibility.irma_logo"),
     );

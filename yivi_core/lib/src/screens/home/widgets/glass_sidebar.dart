@@ -3,7 +3,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../package_name.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -39,7 +38,7 @@ class GlassSidebar extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: SvgPicture.asset(
-                yiviAsset("non-free/logo_no_margin.svg"),
+                YiviPalette.of(context).logoAsset,
                 height: 36,
                 excludeFromSemantics: true,
               ),

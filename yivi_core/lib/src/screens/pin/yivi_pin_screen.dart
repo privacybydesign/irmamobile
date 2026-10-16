@@ -6,7 +6,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../package_name.dart";
 import "../../data/irma_preferences.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
@@ -609,7 +608,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   Widget _buildHeaderMark(BuildContext context) {
     if (!widget.lockIcon) {
       return SvgPicture.asset(
-        yiviAsset("non-free/logo_no_margin.svg"),
+        YiviPalette.of(context).logoAsset,
         height: 44,
         semanticsLabel: FlutterI18n.translate(
           context,
@@ -641,7 +640,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     // screen size, due to variable nature of phone devices, hence
     // the scaling here
     return SvgPicture.asset(
-      yiviAsset("non-free/logo_no_margin.svg"),
+      YiviPalette.of(context).logoAsset,
       width: 127.scaleToDesignSize(context),
       height: 71.scaleToDesignSize(context),
       semanticsLabel: FlutterI18n.translate(context, "accessibility.irma_logo"),
