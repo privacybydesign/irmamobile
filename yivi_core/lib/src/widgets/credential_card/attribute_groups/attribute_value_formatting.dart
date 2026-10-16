@@ -43,6 +43,33 @@ String formatAttributeBool(BuildContext context, bool? value) {
   );
 }
 
+/// Formats any non-image attribute value as text, by type and display hint.
+/// Image values have no text form and come out as their raw string, if any.
+String formatAttributeValue(
+  BuildContext context,
+  schemaless.AttributeValue value,
+) => switch (value.type) {
+  schemaless.AttributeType.string => formatAttributeString(context, value),
+  schemaless.AttributeType.integer => value.intValue?.toString() ?? "",
+  schemaless.AttributeType.boolean => formatAttributeBool(
+    context,
+    value.boolValue,
+  ),
+  schemaless.AttributeType.image ||
+  schemaless.AttributeType.base64Image => value.string ?? "",
+};
+
+/// Whether two values hold the same data, whatever their type. A boolean or
+/// integer keeps its data outside [schemaless.AttributeValue.string], so
+/// comparing strings alone would call every pair of them equal.
+bool attributeValuesEqual(
+  schemaless.AttributeValue? a,
+  schemaless.AttributeValue? b,
+) => _comparable(a) == _comparable(b);
+
+Object? _comparable(schemaless.AttributeValue? v) =>
+    v?.string ?? v?.boolValue ?? v?.intValue ?? v?.base64Image ?? v?.imagePath;
+
 /// Formats a string attribute value. A value with a "currency:<code>" display
 /// hint is shown as an amount in that currency for the app's locale (e.g.
 /// "€ 12,50"); anything else, including values from irmago versions that don't
