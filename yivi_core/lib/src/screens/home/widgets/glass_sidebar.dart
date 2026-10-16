@@ -92,7 +92,7 @@ class _SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final color = selected ? palette.primary : palette.heading;
+    final color = selected ? palette.selectedTab : palette.heading;
 
     return Semantics(
       button: true,

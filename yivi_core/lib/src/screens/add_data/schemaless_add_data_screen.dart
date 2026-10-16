@@ -180,13 +180,16 @@ class _SchemalessAddDataScreenState
                 );
               }(),
             },
-            // The page colour fading out under the search field, so the
-            // list scrolling underneath it fades away.
+            // The page colour from the top down to the bottom of the search
+            // field, fading out just below it, so the list scrolling
+            // underneath disappears evenly. Only partly opaque beside the
+            // field, it let the list's cards show through there, framed by
+            // the page's dark margins as black bars.
             Positioned(
               left: 0,
               right: 0,
-              top: insets.top,
-              height: _searchHeight + 32,
+              top: 0,
+              height: insets.top + _searchBottom + _searchFade,
               child: IgnorePointer(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -195,9 +198,15 @@ class _SchemalessAddDataScreenState
                       end: Alignment.bottomCenter,
                       colors: [
                         palette.background,
+                        palette.background,
                         palette.background.withValues(alpha: 0),
                       ],
-                      stops: const [0.55, 1],
+                      stops: [
+                        0,
+                        (insets.top + _searchBottom) /
+                            (insets.top + _searchBottom + _searchFade),
+                        1,
+                      ],
                     ),
                   ),
                 ),
@@ -220,11 +229,17 @@ class _SchemalessAddDataScreenState
   }
 }
 
-/// One credential type to add: its logo, name and issuer, an NFC chip for
-/// documents, and a chevron. Greyed out when it needs NFC the device lacks.
 /// Height of the floating search field.
 const double _searchHeight = 48;
 
+/// Bottom of the search field, 8 below the app bar.
+const double _searchBottom = 8 + _searchHeight;
+
+/// How far below the search field the page colour fades out.
+const double _searchFade = 16;
+
+/// One credential type to add: its logo, name and issuer, an NFC chip for
+/// documents, and a chevron. Greyed out when it needs NFC the device lacks.
 class AddDataRow extends StatelessWidget {
   final CredentialStoreItem item;
 

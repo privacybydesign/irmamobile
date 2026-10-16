@@ -157,7 +157,7 @@ class _TabButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final color = selected ? palette.primary : palette.heading;
+    final color = selected ? palette.selectedTab : palette.heading;
 
     Widget iconWidget = Icon(icon, size: 26, color: color);
     if (showDot) {
@@ -229,6 +229,11 @@ class GlassQrButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // No white sheen in the dark variant: against the dark background it
+    // washes the red out to pink.
+    final dark = YiviPalette.of(context).isDark;
+    final sheen = dark ? 0.0 : 0.32;
+    final rim = dark ? 0.12 : 0.45;
     return Semantics(
       button: true,
       label: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
@@ -260,13 +265,13 @@ class GlassQrButton extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.45),
+                        color: Colors.white.withValues(alpha: rim),
                       ),
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.white.withValues(alpha: 0.32),
+                          Colors.white.withValues(alpha: sheen),
                           Colors.white.withValues(alpha: 0),
                         ],
                         stops: const [0, 0.55],

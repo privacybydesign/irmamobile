@@ -1,4 +1,7 @@
+import "dart:math";
 import "dart:ui";
+
+import "package:flutter/foundation.dart" show listEquals;
 
 import "package:material_ui/material_ui.dart";
 
@@ -81,8 +84,8 @@ class GlassSurface extends StatelessWidget {
     );
 
     if (!shadow) return shaped;
-    return DecoratedBox(
-      decoration: ShapeDecoration(
+    return CustomPaint(
+      painter: _OuterShadowPainter(
         shape: shape,
         shadows: [
           BoxShadow(
@@ -127,6 +130,49 @@ class GlassSurface extends StatelessWidget {
       _ => shape,
     };
   }
+}
+
+/// Paints [shadows] around [shape] but not under it. A shadow under the
+/// translucent glass would show through it, and the blur would pick it up,
+/// so the glass looked dark (a black slab in the dark theme) wherever
+/// content scrolled underneath.
+class _OuterShadowPainter extends CustomPainter {
+  _OuterShadowPainter({required this.shape, required this.shadows});
+
+  final ShapeBorder shape;
+  final List<BoxShadow> shadows;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final body = shape.getOuterPath(rect);
+    final reach = shadows.fold<double>(
+      0,
+      (r, s) => max(r, s.blurSigma * 3 + s.offset.distance + s.spreadRadius),
+    );
+    canvas
+      ..save()
+      ..clipPath(
+        Path.combine(
+          PathOperation.difference,
+          Path()..addRect(rect.inflate(reach + 1)),
+          body,
+        ),
+      );
+    for (final shadow in shadows) {
+      canvas.drawPath(
+        shape.getOuterPath(
+          rect.shift(shadow.offset).inflate(shadow.spreadRadius),
+        ),
+        shadow.toPaint(),
+      );
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_OuterShadowPainter old) =>
+      old.shape != shape || !listEquals(old.shadows, shadows);
 }
 
 /// A round glass button with an icon, like the close and plus buttons.

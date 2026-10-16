@@ -890,10 +890,10 @@
         "image_alt": "Die Rückseite eines Personalausweises. Die drei Zeilen unten sind markiert."
       },
       "driving_licence": {
-        "title": "Verwenden Sie die Rückseite Ihres Führerscheins",
-        "body": "Halten Sie Ihren Führerschein vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "title": "Verwenden Sie die Vorderseite Ihres Führerscheins",
+        "body": "Halten Sie Ihren Führerschein vor die Kamera und achten Sie darauf, dass die ganze Vorderseite gut sichtbar ist. Drücken Sie danach auf Start.",
         "tip": "Halten Sie den Führerschein nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
-        "image_alt": "Die Rückseite eines Führerscheins. Die beiden Zeilen unten sind markiert."
+        "image_alt": "Die Vorderseite eines Führerscheins. Die Zeile unten ist markiert."
       }
     },
     "nfc": {
@@ -919,7 +919,7 @@
       "document_nr_hint": "z. B. NXC4R1P72",
       "tip_passport": "Du findest diese auf der Seite mit deinem Passfoto, in den zwei Zeilen unten.",
       "tip_id_card": "Du findest diese auf der Rückseite deines Ausweises, in den Zeilen unten.",
-      "tip_driving_licence": "Du findest dies auf der Rückseite deines Führerscheins, in den Zeilen unten."
+      "tip_driving_licence": "Du findest dies auf der Vorderseite deines Führerscheins, in der Zeile unten."
     }
   },
   "mrz_scanner": {

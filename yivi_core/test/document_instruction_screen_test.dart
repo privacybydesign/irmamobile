@@ -79,11 +79,17 @@ void main() {
     expect(find.text("Annuleer"), findsOneWidget);
   });
 
-  for (final (documentType, title) in [
-    (DocumentType.identityCard, "Use the back of your ID-card"),
-    (DocumentType.drivingLicence, "Use the back of your driving licence"),
+  // The ID card has its machine readable lines on the back, the driving
+  // licence its single line on the front.
+  for (final (documentType, side, title) in [
+    (DocumentType.identityCard, "back", "Use the back of your ID-card"),
+    (
+      DocumentType.drivingLicence,
+      "front",
+      "Use the front of your driving licence",
+    ),
   ]) {
-    testWidgets("$documentType: use the back of the card", (tester) async {
+    testWidgets("$documentType: use the $side of the card", (tester) async {
       await pumpTranslated(
         tester,
         _wrap(documentType: documentType, onStart: () {}, onCancel: () {}),
@@ -91,7 +97,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(title), findsOneWidget);
-      expect(find.textContaining("whole back"), findsOneWidget);
+      expect(find.textContaining("whole $side"), findsOneWidget);
     });
   }
 

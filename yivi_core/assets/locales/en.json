@@ -885,10 +885,10 @@
         "image_alt": "The back of an ID-card. The three lines at the bottom are highlighted."
       },
       "driving_licence": {
-        "title": "Use the back of your driving licence",
-        "body": "Hold your driving licence in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
+        "title": "Use the front of your driving licence",
+        "body": "Hold your driving licence in front of the camera and make sure the whole front is clearly visible. Then press Start to begin.",
         "tip": "Don't hold the driving licence directly under a lamp, it gives less glare.",
-        "image_alt": "The back of a driving licence. The two lines at the bottom are highlighted."
+        "image_alt": "The front of a driving licence. The line at the bottom is highlighted."
       }
     },
     "nfc": {
@@ -914,7 +914,7 @@
       "document_nr_hint": "e.g. NXC4R1P72",
       "tip_passport": "You find these on the photo page, in the two lines at the bottom.",
       "tip_id_card": "You find these on the back of your ID-card, in the lines at the bottom.",
-      "tip_driving_licence": "You find this on the back of your driving licence, in the lines at the bottom."
+      "tip_driving_licence": "You find this on the front of your driving licence, in the line at the bottom."
     }
   },
   "mrz_scanner": {

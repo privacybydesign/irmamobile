@@ -890,10 +890,10 @@
         "image_alt": "De achterkant van een identiteitskaart. De drie regels onderaan zijn gemarkeerd."
       },
       "driving_licence": {
-        "title": "Gebruik de achterkant van je rijbewijs",
-        "body": "Houd je rijbewijs voor de camera en zorg dat de hele achterkant goed zichtbaar is. Druk daarna op Start om te beginnen.",
+        "title": "Gebruik de voorkant van je rijbewijs",
+        "body": "Houd je rijbewijs voor de camera en zorg dat de hele voorkant goed zichtbaar is. Druk daarna op Start om te beginnen.",
         "tip": "Leg het rijbewijs niet direct onder een lamp, dan geeft het minder reflectie.",
-        "image_alt": "De achterkant van een rijbewijs. De twee regels onderaan zijn gemarkeerd."
+        "image_alt": "De voorkant van een rijbewijs. De regel onderaan is gemarkeerd."
       }
     },
     "nfc": {
@@ -919,7 +919,7 @@
       "document_nr_hint": "bijv. NXC4R1P72",
       "tip_passport": "Je vindt deze op de pagina met je pasfoto, in de twee regels onderaan.",
       "tip_id_card": "Je vindt deze op de achterkant van je ID-kaart, in de regels onderaan.",
-      "tip_driving_licence": "Je vindt dit op de achterkant van je rijbewijs, in de regels onderaan."
+      "tip_driving_licence": "Je vindt dit op de voorkant van je rijbewijs, in de regel onderaan."
     }
   },
   "mrz_scanner": {

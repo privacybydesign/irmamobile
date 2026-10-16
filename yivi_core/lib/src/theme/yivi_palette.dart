@@ -63,8 +63,14 @@ class YiviPalette {
   /// Text and icons of destructive actions.
   final Color danger;
 
-  /// Highlight behind the selected tab in the glass tab bar.
+  /// Highlight behind the selected tab in the glass tab bar and sidebar: a
+  /// white lens in the light variant, a red-tinted one in the dark variant
+  /// (red on a grey lens looked dull there).
   final Color lens;
+
+  /// Icon and label of the selected tab: the brand red, in the dark variant
+  /// a fully saturated, brighter red (about 3:1 on its tinted lens).
+  final Color selectedTab;
 
   final Color glassFill;
   final Color glassBorder;
@@ -107,6 +113,7 @@ class YiviPalette {
     required this.errorText,
     required this.danger,
     required this.lens,
+    required this.selectedTab,
     required this.glassFill,
     required this.glassBorder,
     required this.glassHighlight,
@@ -142,6 +149,7 @@ class YiviPalette {
     errorText: Color(0xFF9E1414),
     danger: Color(0xFFBD1919),
     lens: Color(0xD9FFFFFF),
+    selectedTab: Color(0xFFBA3354),
     glassFill: Color(0x8FFFFFFF),
     glassBorder: Color(0xBFFFFFFF),
     glassHighlight: Color(0xF2FFFFFF),
@@ -175,7 +183,8 @@ class YiviPalette {
     errorSurface: Color(0xFF3A1A1C),
     errorText: Color(0xFFFF9A9A),
     danger: Color(0xFFFF7A7A),
-    lens: Color(0x29FFFFFF),
+    lens: Color(0x33FF375F),
+    selectedTab: Color(0xFFFF2D55),
     glassFill: Color(0x8C242830),
     glassBorder: Color(0x24FFFFFF),
     glassHighlight: Color(0x29FFFFFF),

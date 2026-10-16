@@ -5,8 +5,9 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../../util/test_detection.dart";
 
 /// The picture of the instruction screen, as on the design board: a passport
-/// open on its photo page, or the back of an ID card or driving licence, with
-/// the machine readable zone outlined and a red band sweeping over it.
+/// open on its photo page, the back of an ID card or the front of a driving
+/// licence, with the machine readable zone outlined and a red band sweeping
+/// over it.
 ///
 /// The band loops every 2.4 s; it stands still when the platform asks for
 /// less motion and under integration tests (so `pumpAndSettle` can finish).
@@ -70,13 +71,13 @@ class _DocumentInstructionIllustrationState
             "DE<VRIES<<SANNE<<<<<<<<<<<<<",
           ],
         ),
+        // A Dutch driving licence has its single machine readable line on
+        // the front, under the photo.
         DocumentType.drivingLicence => _Card(
           sweep: _sweep,
           fill: const Color(0xFFFCEBE4),
-          mrz: const [
-            "D1NLD15123456789<<<<<<<<<<<",
-            "DE<VRIES<<SANNE<<<<<<<<<<<<",
-          ],
+          front: true,
+          mrz: const ["D1NLD15123456789<<<<<<<<<<<<<4"],
         ),
       },
     );
@@ -176,18 +177,27 @@ class _Passport extends StatelessWidget {
 }
 
 class _Card extends StatelessWidget {
-  const _Card({required this.sweep, required this.fill, required this.mrz});
+  const _Card({
+    required this.sweep,
+    required this.fill,
+    required this.mrz,
+    this.front = false,
+  });
 
   final Animation<double> sweep;
   final Color fill;
   final List<String> mrz;
 
+  /// The front of the card, with a photo and the holder's details next to
+  /// it, instead of the back with the chip.
+  final bool front;
+
   static const _bar = Color(0xFFC3CFDC);
 
   @override
   Widget build(BuildContext context) {
-    Widget bar(double top, double width) => Positioned(
-      left: 16,
+    Widget bar(double top, double width, {double left = 16}) => Positioned(
+      left: left,
       top: top,
       width: width,
       height: 6,
@@ -210,22 +220,48 @@ class _Card extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          bar(16, 80),
-          bar(30, 60),
-          bar(44, 70),
-          // The chip.
-          const Positioned(
-            right: 18,
-            top: 14,
-            width: 48,
-            height: 36,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color(0xFFD6C27A),
-                borderRadius: BorderRadius.all(Radius.circular(6)),
+          if (front) ...[
+            // The photo, with the holder's details next to it.
+            Positioned(
+              left: 16,
+              top: 14,
+              width: 52,
+              height: 66,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFE3B9C7)),
+                ),
+                child: const Icon(
+                  Icons.person,
+                  size: 46,
+                  color: Color(0xFFE3B9C7),
+                ),
               ),
             ),
-          ),
+            bar(18, 96, left: 80),
+            bar(32, 72, left: 80),
+            bar(46, 110, left: 80),
+            bar(60, 64, left: 80),
+          ] else ...[
+            bar(16, 80),
+            bar(30, 60),
+            bar(44, 70),
+            // The chip.
+            const Positioned(
+              right: 18,
+              top: 14,
+              width: 48,
+              height: 36,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Color(0xFFD6C27A),
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                ),
+              ),
+            ),
+          ],
           // The machine readable zone, outlined, with the band sweeping it.
           Positioned(
             left: 8,
