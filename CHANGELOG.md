@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way
+- Read DG12 from ID-cards and passports
 
 ### Fixed
 - A credential with more than 32 attributes keeps the order the scheme gives them. Moving its photo to the bottom of the card used to shuffle the other attributes, which put Over 18 at the top of a driving licence with categories
