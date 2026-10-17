@@ -6,6 +6,7 @@ import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
+import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/translated_text.dart";
 import "../../scanner/scanner_screen.dart";
 import "../../scanner/util/handle_camera_permission.dart";
@@ -52,18 +53,11 @@ Future<void> openQrCodeScanner(BuildContext context) async {
     return;
   }
 
-  await showModalBottomSheet<void>(
+  // The app's one sheet; the scanner draws its own title and close button.
+  await showGlassSheet<void>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(38)),
-    ),
-    clipBehavior: Clip.antiAlias,
-    builder: (sheetCtx) => SizedBox(
-      height: MediaQuery.of(sheetCtx).size.height * 0.9,
-      child: const ScannerScreen(),
-    ),
+    heightFraction: 0.9,
+    builder: (_) => const ScannerScreen(),
   );
 }
 

@@ -284,13 +284,19 @@ class _PressScale extends StatefulWidget {
 class _PressScaleState extends State<_PressScale> {
   bool _down = false;
 
+  // The pointer can lift after the button is gone, e.g. when a pull on the
+  // card closes the sheet it is in.
+  void _press(bool down) {
+    if (mounted && down != _down) setState(() => _down = down);
+  }
+
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Listener(
-      onPointerDown: (_) => setState(() => _down = true),
-      onPointerUp: (_) => setState(() => _down = false),
-      onPointerCancel: (_) => setState(() => _down = false),
+      onPointerDown: (_) => _press(true),
+      onPointerUp: (_) => _press(false),
+      onPointerCancel: (_) => _press(false),
       child: AnimatedScale(
         scale: _down && !reduceMotion ? widget.scale : 1,
         duration: const Duration(milliseconds: 220),

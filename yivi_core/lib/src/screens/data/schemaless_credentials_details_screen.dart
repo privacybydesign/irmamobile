@@ -16,11 +16,11 @@ import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "../../widgets/credential_card/yivi_credential_card.dart";
+import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/progress.dart";
-import "../../widgets/yivi_bottom_sheet.dart";
 
 class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String credentialTypeId;
@@ -191,7 +191,7 @@ class _CredentialsDetailsScreenState
   ) async {
     final isReobtainable = (cred.issueUrl ?? "").isNotEmpty;
 
-    showYiviBottomSheet(
+    showTitledGlassSheet(
       context: context,
       titleKey: "credential.options.title",
       minHeightFraction: 1 / 2,

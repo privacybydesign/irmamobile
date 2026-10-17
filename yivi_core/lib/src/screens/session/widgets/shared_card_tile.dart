@@ -12,6 +12,19 @@ import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../models/disclosure_view_model.dart";
 
+/// Marks a [SharedCardTile] as flying in a hero (or following a drag), so
+/// its trailing control is hidden until it lands.
+class SharedCardTileInFlight extends InheritedWidget {
+  const SharedCardTileInFlight({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SharedCardTileInFlight>() !=
+      null;
+
+  @override
+  bool updateShouldNotify(SharedCardTileInFlight oldWidget) => false;
+}
+
 /// One requested item on the share screen: the selected card (or set of
 /// cards that go together) as small card art, its name and issuer, and only
 /// the values that are shared.
@@ -140,7 +153,16 @@ class SharedCardTile extends ConsumerWidget {
                   ),
                 ),
                 ?chip,
-                ?trailing,
+                if (trailing case final trailing?)
+                  // Kept in place but hidden while the card flies, so the
+                  // "Change" pill or radio shows only once it has landed.
+                  Visibility(
+                    visible: !SharedCardTileInFlight.of(context),
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: trailing,
+                  ),
               ],
             ),
             for (final c in cards)

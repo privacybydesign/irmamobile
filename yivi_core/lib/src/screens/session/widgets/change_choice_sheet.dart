@@ -48,7 +48,6 @@ Future<void> showChangeChoiceSheet({
   CredentialDescriptor? addNew,
 }) => showGlassSheet<void>(
   context: context,
-  attached: true,
   builder: (_) => ChangeChoiceSheet(
     key: const Key("disclosure_choice_sheet"),
     sessionId: sessionId,
@@ -68,7 +67,8 @@ Object choiceHeroTag(int sessionId, int index, DisclosureBundle bundle) => (
 );
 
 /// A card flying between the share screen and the sheet: the destination
-/// card, on a transparent material so its text and ink have one.
+/// card without its "Change" pill or radio, which appear once it has landed,
+/// on a transparent material so its text and ink have one.
 Widget choiceHeroShuttle(
   BuildContext flightContext,
   Animation<double> animation,
@@ -77,7 +77,7 @@ Widget choiceHeroShuttle(
   BuildContext toContext,
 ) => Material(
   type: MaterialType.transparency,
-  child: (toContext.widget as Hero).child,
+  child: SharedCardTileInFlight(child: (toContext.widget as Hero).child),
 );
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
@@ -176,9 +176,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
         ),
         Flexible(
           child: SingleChildScrollView(
+            physics: glassSheetScrollPhysics(context),
             // Runs under the bottom edge of the sheet, clear of the home
             // indicator once scrolled to the end.
             padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
               top: 12,
               bottom: MediaQuery.paddingOf(context).bottom,
             ),
@@ -265,45 +268,65 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
       ),
     );
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 14,
-        children: [
-          GlassSheetHeader(
-            title: t("share.sheet.add_title", {
-              "name": inSentence(
-                d.name,
-                language: FlutterI18n.currentLocale(context)?.languageCode,
-              ),
-            }),
-            subtitle: t("share.sheet.add_subtitle"),
-            onBack: () => setState(() => _adding = null),
-          ),
-          Center(
-            child: ExcludeSemantics(
-              child: CredentialCardArt(credential: _exampleCard(d), width: 200),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GlassSheetHeader(
+          title: t("share.sheet.add_title", {
+            "name": inSentence(
+              d.name,
+              language: FlutterI18n.currentLocale(context)?.languageCode,
             ),
+          }),
+          subtitle: t("share.sheet.add_subtitle"),
+          onBack: () => setState(() => _adding = null),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            14,
+            16,
+            MediaQuery.paddingOf(context).bottom,
           ),
-          _Group(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 14,
             children: [
-              row(t("share.sheet.from"), d.issuer.name),
-              row(t("share.sheet.where"), host),
-              row(t("share.sheet.afterwards"), t("share.sheet.selected_back")),
+              Center(
+                child: ExcludeSemantics(
+                  child: CredentialCardArt(
+                    credential: _exampleCard(d),
+                    width: 200,
+                  ),
+                ),
+              ),
+              _Group(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 4,
+                ),
+                children: [
+                  row(t("share.sheet.from"), d.issuer.name),
+                  row(t("share.sheet.where"), host),
+                  row(
+                    t("share.sheet.afterwards"),
+                    t("share.sheet.selected_back"),
+                  ),
+                ],
+              ),
+              KeyedSubtree(
+                key: const Key("sheet_go_button"),
+                child: FancyPillButton(
+                  label: t("share.sheet.go_to", {"host": host}),
+                  onPressed: () => _go(pickOne, d),
+                ),
+              ),
             ],
           ),
-          KeyedSubtree(
-            key: const Key("sheet_go_button"),
-            child: FancyPillButton(
-              label: t("share.sheet.go_to", {"host": host}),
-              onPressed: () => _go(pickOne, d),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

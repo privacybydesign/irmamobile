@@ -7,17 +7,17 @@ import "../../../../data/feature_flags.dart";
 import "../../../../providers/feature_flag_provider.dart";
 import "../../../../providers/irma_repository_provider.dart";
 import "../../../../theme/theme.dart";
-import "../../../../widgets/yivi_bottom_sheet.dart";
+import "../../../../widgets/glass/glass_sheet.dart";
 import "error_reporting_info_bottom_sheet.dart";
 
 class ErrorReportingCheckBox extends ConsumerWidget {
   Future<void> _showErrorReportingInfoBottomSheet(
     BuildContext context, {
     double? sidePadding,
-  }) => showYiviBottomSheet(
+  }) => showTitledGlassSheet(
     context: context,
     titleKey: "enrollment.error_reporting.dialog.title",
-    sidePadding: sidePadding,
+    sidePadding: sidePadding ?? 16,
     child: ErrorReportingInfoBottomSheet(sidePadding: sidePadding),
   );
 

@@ -6,10 +6,10 @@ import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "base64_image.dart";
 import "credential_card/yivi_credential_card_header.dart";
+import "glass/glass_sheet.dart";
 import "irma_avatar.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
-import "yivi_bottom_sheet.dart";
 
 IrmaAvatar _buildRequestorAvatar({
   required String? title,
@@ -32,15 +32,10 @@ class RequestorHeader extends StatelessWidget {
   const RequestorHeader({this.requestor, this.isVerified});
 
   Future<void> _showCredentialOptionsBottomSheet(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return showYiviBottomSheet(
+    return showTitledGlassSheet(
       context: context,
       titleKey:
           "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
-      titleStyle: credentialNameStyle(
-        theme,
-        18,
-      ).copyWith(fontWeight: FontWeight.w500),
       child: RequestorVerificationExplanationBottomSheet(),
     );
   }

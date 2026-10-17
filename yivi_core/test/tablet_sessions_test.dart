@@ -9,8 +9,8 @@ import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
+import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
-import "package:yivi_core/src/widgets/yivi_bottom_sheet.dart";
 
 import "helpers/credential_factory.dart";
 import "missing_data_fixtures.dart" hide testCredential;
@@ -192,7 +192,7 @@ void main() {
         builder: (context) => Scaffold(
           body: Center(
             child: TextButton(
-              onPressed: () => showYiviBottomSheet(
+              onPressed: () => showTitledGlassSheet(
                 context: context,
                 titleKey: "share.sheet.what",
                 child: const SizedBox(height: 200, child: Text("options")),

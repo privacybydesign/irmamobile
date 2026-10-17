@@ -27,7 +27,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
         ),
       );
     } else {
-      showYiviBottomSheet(
+      showTitledGlassSheet(
         context: context,
         titleKey: "secure_pin.title",
         child: Padding(
