@@ -100,7 +100,7 @@ void main() {
     testWidgets("says who it is for and which step", (tester) async {
       await pumpTranslated(
         tester,
-        _wrap(IssueSheetProgress(requestor: _shop, step: 2)),
+        _wrap(IssueSheetProgress(subject: IssueSheetSubject.request(_shop), step: 2)),
       );
       expect(find.text("For Webshop Noord"), findsOneWidget);
       expect(find.text("2 of 3"), findsOneWidget);
@@ -110,7 +110,7 @@ void main() {
     testWidgets("done: all steps green and 'Done'", (tester) async {
       await pumpTranslated(
         tester,
-        _wrap(IssueSheetProgress(requestor: _shop, step: 3, done: true)),
+        _wrap(IssueSheetProgress(subject: IssueSheetSubject.request(_shop), step: 3, done: true)),
       );
       expect(find.text("Done"), findsOneWidget);
       expect(find.bySemanticsLabel("All steps done"), findsOneWidget);

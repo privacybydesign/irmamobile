@@ -6,7 +6,7 @@ import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
-import "../../providers/irma_repository_provider.dart";
+import "../../screens/add_data/add_data_sheet.dart";
 import "../../theme/theme.dart";
 import "../base64_image.dart";
 import "../information_box.dart";
@@ -381,14 +381,12 @@ class YiviCredentialCard extends ConsumerWidget {
               child: YiviThemedButton(
                 label: "credential.options.reobtain",
                 style: YiviButtonStyle.filled,
-                onPressed: () => ref
-                    .read(irmaRepositoryProvider)
-                    .openIssueURL(
-                      context,
-                      status.credentialId!,
-                      status.issueUrl,
-                      ref,
-                    ),
+                onPressed: () => obtainAgain(
+                  context,
+                  ref,
+                  credentialId: status.credentialId!,
+                  issueUrl: status.issueUrl,
+                ),
               ),
             ),
           if (status.showNotObtainable && !hideNotObtainable)

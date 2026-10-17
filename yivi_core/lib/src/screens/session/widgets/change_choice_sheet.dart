@@ -1,71 +1,33 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
-import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
-import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
-import "../../../providers/email_issuance_provider.dart";
-import "../../../providers/external_issuer_provider.dart";
-import "../../../providers/irma_repository_provider.dart";
-import "../../../providers/nested_issuance_host_provider.dart";
-import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
-import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/card_flight.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/glass_surface.dart";
-import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
-import "../../../widgets/loading_indicator.dart";
-import "../../add_data/schemaless_add_data_details_screen.dart";
-import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
-import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
-import "../../error/session_error_screen.dart";
 import "../models/disclosure_view_model.dart";
-import "issuance_permission.dart";
-import "issuance_success_screen.dart";
+import "issue_flow.dart";
 import "issue_sheet_progress.dart";
-import "session_pin_entry_screen.dart";
 import "shared_card_tile.dart";
 
-/// Sends the user to the issuer of a credential type: its website, or the
-/// app's own flow for the types Yivi issues itself (e-mail, phone,
-/// documents). A provider, so tests can see where the sheet sends the user.
-final issuerOpenerProvider =
-    Provider<
-      Future<void> Function(
-        BuildContext context,
-        CredentialDescriptor descriptor,
-        WidgetRef ref,
-      )
-    >(
-      (ref) =>
-          (context, d, widgetRef) => ref
-              .read(irmaRepositoryProvider)
-              .openIssueURL(context, d.credentialId, d.issueURL, widgetRef),
-    );
+export "issue_flow.dart" show issuerOpenerProvider;
 
 /// The "Change" sheet of the share screen, for pick-one [index]: the cards
 /// in the app (one tap picks one and closes the sheet) and, clearly apart,
 /// the types that are not in the app yet.
 ///
-/// Adding one of those happens in the sheet, in three steps under an
-/// [IssueSheetProgress]: 1 its details (as on the add-data page), 2 the
-/// issuer's website, from which the user comes back to the sheet, and 3 the
-/// issuance itself ("Do you want to add this data?", then "Success").
-/// "Back to {requestor}" then flies the new card into its spot on the share
-/// screen ([landingKey]) as the sheet closes. Once adding has started, closing
-/// the sheet asks first. Cards Yivi issues in its own screens (e-mail,
-/// phone, documents) still open those, with the sheet closed.
+/// Adding one of those happens in the sheet ([IssueFlow]): its details, then
+/// proving it, then the issuance. "Back to {requestor}" then flies the new
+/// card into its spot on the share screen ([landingKey]) as the sheet
+/// closes.
 ///
 /// [addNew] opens it straight on the details of that type, for the "Add a
 /// new …" button of a card that cannot be shared.
@@ -141,81 +103,62 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
 }
 
 class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
-    implements NestedIssuanceHost {
-  /// The type the user is adding; null while choosing.
-  late CredentialDescriptor? _adding = widget.addNew;
-
-  /// The issuer's website was opened for [_adding].
-  bool _opened = false;
-
-  /// Yivi's own e-mail or phone step for [_adding] is shown (step 2).
-  ContactKind? _contact;
-
-  /// The document screens for [_adding] are shown (step 2).
-  DocumentType? _document;
-
-  /// The issuance that came back from the issuer, shown in the sheet.
-  int? _nestedId;
-
-  /// The cards of a finished issuance, kept for "Success" (the session state
-  /// moves on once the request picks them up).
-  List<schemaless.Credential>? _added;
-  List<GlobalKey> _addedKeys = const [];
-
-  /// A full-screen page shown over the sheet for the issuance (an error).
-  bool _overSheet = false;
-
-  /// irmago asks for the PIN for the issuance in the sheet.
-  bool _pin = false;
-
-  // The repository only once something is added, kept for dispose (where
-  // ref is unsafe). The host notifier up front for the same reason.
-  IrmaRepository? _repoRead;
-  IrmaRepository get _repo {
-    final read = _repoRead;
-    if (read != null) return read;
-    final repo = ref.read(irmaRepositoryProvider);
-    _repoRead = repo;
-    return repo;
-  }
-
-  late final NestedIssuanceHostNotifier _hosts;
-
+    with IssueFlow<ChangeChoiceSheet> {
   @override
   void initState() {
     super.initState();
-    _hosts = ref.read(nestedIssuanceHostProvider.notifier);
+    issueAdding = widget.addNew;
   }
 
   @override
   int get underlyingSessionId => widget.sessionId;
 
   @override
-  void attach(int sessionId) {
-    if (!mounted) return;
-    final previous = _nestedId;
-    if (previous != null && previous != sessionId) _dismissNested(previous);
-    setState(() {
-      _nestedId = sessionId;
-      _added = null;
-    });
-  }
+  SessionState? get issueRequest =>
+      ref.read(sessionStateProvider(widget.sessionId)).value;
+
+  schemaless.TrustedParty? get _requestor => issueRequest?.requestor;
 
   @override
-  void dispose() {
-    _hosts.unregister(this);
-    final nested = _nestedId;
-    // A nested id means the repository was read (the website was opened).
-    if (nested != null && _added == null) {
-      _repoRead?.bridgedDispatch(
-        SessionUserInteractionEvent.dismiss(sessionId: nested),
-      );
+  IssueSheetSubject issueSubject(CredentialDescriptor d) =>
+      IssueSheetSubject.request(_requestor ?? d.issuer);
+
+  @override
+  String issueStopText() =>
+      _t("share.sheet.stop_text", {"requestor": _requestor?.name ?? ""});
+
+  @override
+  void beforeIssueAdd(CredentialDescriptor d) {
+    final pickOnes =
+        issueRequest?.disclosurePlan?.disclosureChoicesOverview ?? const [];
+    if (widget.index < pickOnes.length && pickOnes[widget.index].optional) {
+      _choices.includeOptionalWhenAdded(widget.index);
     }
-    super.dispose();
   }
 
-  /// Adding has started: closing asks first.
-  bool get _started => _adding != null && _added == null;
+  Map<String, String> _successParams(List<schemaless.Credential> cards) => {
+    "name": cards.firstOrNull?.name ?? "",
+    "count": "${cards.length}",
+    "requestor": _requestor?.name ?? "",
+  };
+
+  @override
+  Widget issueSuccessBar(List<schemaless.Credential> cards) => SheetActionRow(
+    primaryKey: const Key("sheet_back_to_request"),
+    primaryLabel: _t(
+      "issuance.success_feedback.back_to",
+      _successParams(cards),
+    ),
+    onPrimary: _finish,
+  );
+
+  @override
+  String issueSuccessText(List<schemaless.Credential> cards) => _t(
+    cards.length > 1
+        ? "issuance.success_feedback.added_many_back"
+        : "issuance.success_feedback.added_one_back",
+    _successParams(cards),
+  );
 
   SessionUserChoicesNotifier get _choices =>
       ref.read(sessionUserChoicesProvider(widget.sessionId).notifier);
@@ -228,208 +171,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     language: FlutterI18n.currentLocale(context)?.languageCode,
   );
 
-  void _openAdd(CredentialDescriptor d) => setState(() {
-    _adding = d;
-    _opened = false;
-  });
-
-  /// Back from the details to the choice, leaving nothing behind.
-  void _backToChoice() {
-    _stopAdding();
-    setState(() => _adding = null);
-  }
-
-  /// Ends what adding left running: the issuance, the waiting host, the
-  /// launch record.
-  void _stopAdding() {
-    final nested = _nestedId;
-    if (nested != null && _added == null) _dismissNested(nested);
-    _hosts.unregister(this);
-    if (_opened) _repo.clearInAppLaunches();
-    if (_contact != null) {
-      ref
-        ..invalidate(emailIssuanceProvider)
-        ..invalidate(smsIssuanceProvider);
-    }
-    _nestedId = null;
-    _added = null;
-    _opened = false;
-    _contact = null;
-    _document = null;
-  }
-
-  void _dismissNested(int sessionId) => _repo.bridgedDispatch(
-    SessionUserInteractionEvent.dismiss(sessionId: sessionId),
-  );
-
   void _pick(DisclosurePickOne pickOne, DisclosureBundle bundle) {
     if (pickOne.optional) _choices.addOptional(widget.index);
     _choices.setBundle(widget.index, bundle);
     Navigator.of(context).pop();
   }
-
-  /// "Add" on the details: Yivi's own e-mail, phone or document steps in the
-  /// sheet, or the issuer's website with the sheet waiting for what comes
-  /// back. Either way the issuance then shows in the sheet.
-  Future<void> _add(DisclosurePickOne pickOne, CredentialDescriptor d) async {
-    if (pickOne.optional) _choices.includeOptionalWhenAdded(widget.index);
-    final open = ref.read(issuerOpenerProvider);
-    final flow = _repo.embeddedFlowOf(d.credentialId);
-    if (flow == EmbeddedFlow.email || flow == EmbeddedFlow.phone) {
-      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
-      _hosts.register(this);
-      setState(
-        () => _contact = flow == EmbeddedFlow.email
-            ? ContactKind.email
-            : ContactKind.phone,
-      );
-      return;
-    }
-    final document = flow == EmbeddedFlow.document
-        ? documentTypeOf(d.credentialId)
-        : null;
-    if (document != null) {
-      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
-      _hosts.register(this);
-      setState(() => _document = document);
-      return;
-    }
-    if (flow != null) {
-      // Not one of the documents the sheet knows: its own screens, from the
-      // page behind the sheet.
-      final navigator = Navigator.of(context);
-      final pageContext = navigator.context;
-      navigator.pop();
-      await open(pageContext, d, ref);
-      return;
-    }
-    _hosts.register(this);
-    setState(() => _opened = true);
-    await open(context, d, ref);
-  }
-
-  /// "Stop adding {name}?" before a started adding is left.
-  Future<bool> _confirmStop() async {
-    final d = _adding;
-    if (d == null || !_started) return true;
-    final requestor = ref
-        .read(sessionStateProvider(widget.sessionId))
-        .value
-        ?.requestor;
-    final stop =
-        await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => GlassDialog(
-            cardKey: const Key("sheet_stop_dialog"),
-            title: _t("share.sheet.stop_title", {"name": _inSentence(d.name)}),
-            message: _t("share.sheet.stop_text", {
-              "requestor": requestor?.name ?? "",
-            }),
-            actions: [
-              PillButton(
-                key: const Key("sheet_stop_confirm"),
-                label: _t("share.sheet.stop_confirm"),
-                style: PillStyle.dangerFilled,
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-              ),
-              PillButton(
-                key: const Key("sheet_stop_keep"),
-                label: _t("share.sheet.keep_going"),
-                style: PillStyle.text,
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-    if (stop) _stopAdding();
-    return stop;
-  }
-
-  /// Cancel on a step: asks, then back to the choice.
-  Future<void> _cancel() async {
-    if (await _confirmStop() && mounted) setState(() => _adding = null);
-  }
-
-  // ---------- the issuance in the sheet ----------
-
-  void _onNested(SessionState? previous, SessionState next) {
-    final status = next.status;
-    if (status == SessionStatus.success) {
-      // Kept: the request picks the cards up and the state moves on.
-      final cards = next.offeredCredentials ?? const [];
-      _repo.clearInAppLaunches();
-      _hosts.unregister(this);
-      setState(() {
-        _pin = false;
-        _added = cards;
-        _addedKeys = [
-          for (final (i, _) in cards.indexed)
-            GlobalKey(debugLabel: "sheet_added_$i"),
-        ];
-      });
-      return;
-    }
-    if (status == SessionStatus.dismissed) {
-      // Cancelled on the permission or the PIN: back on the details, to try
-      // again.
-      setState(() {
-        _pin = false;
-        _nestedId = null;
-        _document = null;
-      });
-      return;
-    }
-    // The PIN is a page in the sheet, on top of the issuance, while irmago
-    // asks for it.
-    final pin = status == SessionStatus.requestPin;
-    if (pin != _pin) setState(() => _pin = pin);
-    if (status == previous?.status || _overSheet || pin) return;
-    if (status == SessionStatus.error) {
-      _showOverSheet(
-        (context) => SessionErrorScreen(
-          error: next.error,
-          onTapClose: () => Navigator.of(context).pop(),
-        ),
-        then: () {
-          if (mounted) setState(() => _nestedId = null);
-        },
-      );
-    } else if (!_handledInSheet(next)) {
-      // Anything else (a pairing code, an OpenID4VCI code, a request instead
-      // of an issuance) takes the session screen, as without the sheet.
-      final id = next.id;
-      setState(() => _nestedId = null);
-      context.pushSessionScreen(
-        SessionRouteParams(sessionId: id, hasUnderlyingSession: true),
-      );
-    }
-  }
-
-  bool _handledInSheet(SessionState s) =>
-      s.status == SessionStatus.requestPermission &&
-      s.type == SessionType.issuance &&
-      s.offeredCredentials != null &&
-      (s.disclosurePlan?.disclosureChoicesOverview?.isEmpty ?? true);
-
-  void _showOverSheet(WidgetBuilder builder, {VoidCallback? then}) {
-    _overSheet = true;
-    Navigator.of(
-      context,
-      rootNavigator: true,
-    ).push(MaterialPageRoute<void>(builder: builder)).whenComplete(() {
-      _overSheet = false;
-      then?.call();
-    });
-  }
-
-  void _grant(int sessionId) => _repo.bridgedDispatch(
-    SessionUserInteractionEvent.permission(
-      sessionId: sessionId,
-      granted: true,
-      disclosureChoices: const [],
-    ),
-  );
 
   /// "Back to {requestor}": the new card flies into its spot as the sheet
   /// closes. Without a spot to fly to, or for a card of another type than
@@ -437,13 +183,15 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// the sheet just closes. On a tablet, where the sheet is a dialog over
   /// the page, the card fades into its spot instead (the share screen).
   void _finish() {
-    final cards = _added ?? const <schemaless.Credential>[];
+    final cards = issueAdded ?? const <schemaless.Credential>[];
     final landing = widget.landingKey;
-    final i = cards.indexWhere((c) => c.credentialId == _adding?.credentialId);
+    final i = cards.indexWhere(
+      (c) => c.credentialId == issueAdding?.credentialId,
+    );
     if (landing != null && i >= 0 && !isExpandedLayout(context)) {
       CardFlight.start(
         context,
-        source: _addedKeys[i],
+        source: issueAddedKeys[i],
         card: cards[i],
         landingKey: landing,
         cardKey: const Key("sheet_flight_card"),
@@ -451,8 +199,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             CardFlight.rectOf(landing, overlay),
       );
     }
-    _added = null;
-    _adding = null;
+    issueReset();
     Navigator.of(context).pop();
   }
 
@@ -462,88 +209,24 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final session = ref.watch(sessionStateProvider(widget.sessionId)).value;
     final pickOnes =
         session?.disclosurePlan?.disclosureChoicesOverview ?? const [];
-    final nested = _nestedId;
-    if (nested != null) {
-      ref.listen(sessionStateProvider(nested), (prev, next) {
-        if (next.value case final state?) _onNested(prev?.value, state);
-      });
-    }
+    issueListen();
     if (widget.index >= pickOnes.length || session == null) {
       return const SizedBox.shrink();
     }
     final pickOne = pickOnes[widget.index];
-    final adding = _adding;
     // "Add …" and its steps are subpages inside the sheet, as in a native
     // iOS sheet.
     return GlassSheetConfirmDismiss(
-      ask: _started,
-      confirm: _confirmStop,
+      ask: issueStarted,
+      confirm: issueConfirmStop,
       child: GlassSheetPages(
-        onBack: () {
-          if (_pin && _nestedId != null) {
-            _dismissNested(_nestedId!);
-          } else if (_nestedId != null && _added == null) {
-            // Back on the details: a document is read again from the start.
-            _dismissNested(_nestedId!);
-            setState(() {
-              _nestedId = null;
-              _document = null;
-            });
-          } else if (_document != null) {
-            setState(() => _document = null);
-          } else if (_contact != null) {
-            setState(() => _contact = null);
-          } else {
-            _backToChoice();
-          }
-        },
+        onBack: issueBack,
         pages: [
           KeyedSubtree(
             key: const ValueKey("choose"),
             child: _buildChoose(pickOne),
           ),
-          if (adding != null)
-            KeyedSubtree(
-              key: ValueKey(("add", adding.credentialId)),
-              child: _buildDetails(session, pickOne, adding),
-            ),
-          if (adding != null && _contact != null)
-            KeyedSubtree(
-              key: ValueKey(("prove", _contact)),
-              child: ContactSheetStep(
-                kind: _contact!,
-                requestor: session.requestor,
-                onCancel: _cancel,
-                onBack: () => setState(() => _contact = null),
-              ),
-            ),
-          if (adding != null && _document != null)
-            KeyedSubtree(
-              key: ValueKey(("document", _document)),
-              child: DocumentSheetStep(
-                type: _document!,
-                onBack: () => setState(() => _document = null),
-                onCancel: _cancel,
-                onStopped: () {
-                  _stopAdding();
-                  setState(() => _adding = null);
-                },
-              ),
-            ),
-          if (adding != null && (nested != null || _added != null))
-            KeyedSubtree(
-              key: ValueKey(("issue", nested)),
-              child: _buildIssuance(session, nested),
-            ),
-          if (adding != null && nested != null && _pin)
-            KeyedSubtree(
-              key: ValueKey(("pin", nested)),
-              child: _NestedPin(
-                sessionId: nested,
-                requestor: session.requestor,
-                onCancel: () => _dismissNested(nested),
-              ),
-            ),
+          ...issueFlowPages(),
         ],
       ),
     );
@@ -620,7 +303,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                       "issuer": d.issuer.name,
                       "host": hostOf(d.issueURL)!,
                     }),
-                    onTap: () => _openAdd(d),
+                    onTap: () => issueOpen(d),
                   ),
               ],
             ),
@@ -630,296 +313,8 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
-  /// Step 1 (and 2, while the website is open): what the card is, as on
-  /// the add-data page.
-  Widget _buildDetails(
-    SessionState session,
-    DisclosurePickOne pickOne,
-    CredentialDescriptor d,
-  ) {
-    final palette = YiviPalette.of(context);
-    final host = hostOf(d.issueURL) ?? "";
-    final faq = _faqFor(d.credentialId);
-    return GlassSheetPage(
-      title: _t("data.add.details.title"),
-      onBack: () async {
-        if (!_opened || await _confirmStop()) _backToChoice();
-      },
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: SheetActionRow(
-        secondaryKey: const Key("sheet_cancel_button"),
-        secondaryLabel: _t("data.add.details.back_button"),
-        onSecondary: _cancel,
-        primaryKey: const Key("sheet_go_button"),
-        // The note above says which website.
-        primaryLabel: _opened
-            ? _t("share.sheet.open_again")
-            : _t("data.add.details.get_button"),
-        onPrimary: () => _add(pickOne, d),
-      ),
-      pinned: IssueSheetProgress(
-        requestor: session.requestor,
-        step: _opened ? 2 : 1,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (_opened)
-            Container(
-              key: const Key("sheet_opened_note"),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: ShapeDecoration(
-                color: palette.infoSurface,
-                shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-              ),
-              child: Text(
-                _t("share.sheet.opened_note", {"host": host}),
-                style: palette
-                    .body(14)
-                    .copyWith(height: 20 / 14, color: palette.noteText),
-              ),
-            ),
-          AddDataDetailsContent(credential: d, faq: faq, inDisclosure: true),
-        ],
-      ),
-    );
-  }
-
-  Faq? _faqFor(String credentialId) {
-    final store = ref.watch(groupedCredentialStoreProvider).value;
-    for (final group in store ?? const <CredentialStoreCategory>[]) {
-      for (final item in group.items) {
-        if (item.credential.credentialId == credentialId) return item.faq;
-      }
-    }
-    return null;
-  }
-
-  /// Step 3: the issuance that came back, then "Success".
-  Widget _buildIssuance(SessionState request, int? nestedId) {
-    final added = _added;
-    if (added != null) return _buildSuccess(request, added);
-
-    final state = nestedId == null
-        ? null
-        : ref.watch(sessionStateProvider(nestedId)).value;
-    final awaiting =
-        nestedId != null &&
-        ref.watch(sessionAwaitingInteractionProvider(nestedId));
-    final offer = state != null && _handledInSheet(state) && !awaiting
-        ? state
-        : null;
-    final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
-
-    return GlassSheetPage(
-      title: _t("issuance.title"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: SheetActionRow(
-        secondaryKey: const Key("sheet_issue_cancel"),
-        secondaryLabel: _t("issuance.cancel"),
-        onSecondary: () {
-          if (nestedId != null) _dismissNested(nestedId);
-        },
-        primaryKey: const Key("sheet_issue_add"),
-        primaryLabel: cards.length > 1
-            ? _t("issuance.add_many", {"count": "${cards.length}"})
-            : _t("issuance.add"),
-        onPrimary: offer == null || nestedId == null
-            ? null
-            : () => _grant(nestedId),
-      ),
-      pinned: IssueSheetProgress(requestor: request.requestor, step: 3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (offer == null)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 80),
-              child: Center(child: LoadingIndicator()),
-            )
-          else
-            KeyedSubtree(
-              key: const Key("sheet_issuance"),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: _offer(offer, request),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _offer(SessionState offer, SessionState request) {
-    final palette = YiviPalette.of(context);
-    final cards = offer.offeredCredentials!;
-    final returned = _opened && cards.any((c) => _launched(c.credentialId))
-        ? cards.first.issuer.name
-        : null;
-    final content = IssuanceOffer(
-      cards: cards,
-      forRequest: request,
-      returnedFromIssuer: returned,
-      showRequestChip: false,
-    );
-    return [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Semantics(
-          header: true,
-          child: Text(
-            cards.length > 1
-                ? _t("issuance.question_many", {"count": "${cards.length}"})
-                : _t("issuance.description"),
-            style: palette
-                .display(22)
-                .copyWith(height: 30 / 22, color: palette.heading),
-          ),
-        ),
-      ),
-      ...content.overview(context, cardWidth: 358),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: content.receives(context),
-      ),
-    ];
-  }
-
-  bool _launched(String credentialId) =>
-      ref
-          .watch(websiteLaunchedCredentialsProvider)
-          .value
-          ?.contains(credentialId) ??
-      false;
-
-  Widget _buildSuccess(
-    SessionState request,
-    List<schemaless.Credential> cards,
-  ) {
-    final palette = YiviPalette.of(context);
-    final params = {
-      "name": cards.firstOrNull?.name ?? "",
-      "count": "${cards.length}",
-      "requestor": request.requestor.name,
-    };
-    // The bar keeps the step's title; "Success" is the heading below.
-    return GlassSheetPage(
-      title: _t("issuance.title"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: SheetActionRow(
-        primaryKey: const Key("sheet_back_to_request"),
-        primaryLabel: _t("issuance.success_feedback.back_to", params),
-        onPrimary: _finish,
-      ),
-      pinned: IssueSheetProgress(
-        requestor: request.requestor,
-        step: 3,
-        done: true,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (cards.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: IssuanceReceived(cards: cards, cardKeys: _addedKeys),
-            ),
-          Text(
-            _t("issuance.success_feedback.header"),
-            textAlign: TextAlign.center,
-            style: palette
-                .display(26, weight: FontWeight.w700)
-                .copyWith(color: palette.heading),
-          ),
-          Text(
-            _t(
-              cards.length > 1
-                  ? "issuance.success_feedback.added_many_back"
-                  : "issuance.success_feedback.added_one_back",
-              params,
-            ),
-            key: const Key("sheet_added_text"),
-            textAlign: TextAlign.center,
-            style: palette.body(16).copyWith(height: 24 / 16),
-          ),
-        ],
-      ),
-    );
-  }
-
   static String _nameOf(DisclosureBundle b) =>
       b.credentials.map((c) => c.name).join(" + ");
-}
-
-/// The PIN for an issuance in the sheet, full-screen over it, as for any
-/// session. It goes away once the PIN is accepted (or the session ends).
-/// The PIN for the issuance in the sheet, as a page of the sheet: the PIN
-/// pad without the logo, under the sheet's bar and the progress.
-class _NestedPin extends ConsumerStatefulWidget {
-  final int sessionId;
-  final schemaless.TrustedParty requestor;
-  final VoidCallback onCancel;
-
-  const _NestedPin({
-    required this.sessionId,
-    required this.requestor,
-    required this.onCancel,
-  });
-
-  @override
-  ConsumerState<_NestedPin> createState() => _NestedPinState();
-}
-
-class _NestedPinState extends ConsumerState<_NestedPin> {
-  late final _repo = ref.read(irmaRepositoryProvider);
-  bool _longPin = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _repo.preferences.getLongPin().first.then((value) {
-      if (mounted) setState(() => _longPin = value);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(sessionStateProvider(widget.sessionId)).value;
-    final awaiting = ref.watch(
-      sessionAwaitingInteractionProvider(widget.sessionId),
-    );
-    return GlassSheetPage(
-      title: FlutterI18n.translate(context, "issuance.title"),
-      onBack: widget.onCancel,
-      pinned: IssueSheetProgress(requestor: widget.requestor, step: 3),
-      // The pad fills the page and scales itself to it; it does not scroll.
-      scrolls: false,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: SessionPinEntryScreen(
-        key: const Key("sheet_pin"),
-        inSheet: true,
-        title: "issuance.title",
-        remainingAttempts: state?.remainingPinAttempts,
-        blockedTimeSeconds: state?.pinBlockedTimeSeconds,
-        submitting: awaiting,
-        maxPinSize: _longPin ? 16 : 5,
-        onPinEntered: (pin) => _repo.bridgedDispatch(
-          SessionUserInteractionEvent.pin(
-            sessionId: widget.sessionId,
-            pin: pin,
-            proceed: true,
-          ),
-        ),
-        onCancel: widget.onCancel,
-      ),
-    );
-  }
 }
 
 class _Label extends StatelessWidget {

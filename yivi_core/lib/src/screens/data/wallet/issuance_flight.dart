@@ -55,10 +55,14 @@ class IssuanceFlight {
   /// session as usual.
   ///
   /// With reduce motion on only the curtain fades.
+  ///
+  /// Without [curtain] the card only flies: for a start from the Add data
+  /// sheet, which closes over the data tab that is already on screen.
   static bool start(
     BuildContext context, {
     required schemaless.Credential received,
     required GlobalKey source,
+    bool curtain = true,
   }) {
     final box = source.currentContext?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize || CardFlight.isFlying) return false;
@@ -101,8 +105,8 @@ class IssuanceFlight {
       target: (overlay, {required first}) =>
           _targetRect(overlay, scroll: first),
       total: stack ? stackEnd : end,
-      curtain: true,
-      curtainDuration: curtain,
+      curtain: curtain,
+      curtainDuration: IssuanceFlight.curtain,
       // Slides under the card below its place in the stack (the first card,
       // until it joins the list), so it tucks in as it lands instead of
       // jumping under at the end.
@@ -119,6 +123,31 @@ class IssuanceFlight {
         }
       },
       onDone: () => _finish(container, card.hash),
+    );
+  }
+
+  /// Flies whichever of the [received] cards (drawn at [sources], one key
+  /// per card) now leads the data tab, if any; see [start].
+  static bool startFirstOf(
+    BuildContext context, {
+    required List<schemaless.Credential> received,
+    required List<GlobalKey> sources,
+    bool curtain = true,
+  }) {
+    final wallet = ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(schemalessCredentialOrderControllerProvider).value;
+    final first = wallet?.firstOrNull;
+    final i = first == null
+        ? 0
+        : received.indexWhere((c) => c.credentialId == first.credentialId);
+    if (i < 0 || i >= received.length || i >= sources.length) return false;
+    return start(
+      context,
+      received: received[i],
+      source: sources[i],
+      curtain: curtain,
     );
   }
 

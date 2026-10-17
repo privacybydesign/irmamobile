@@ -1,14 +1,10 @@
-import "dart:convert";
-
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
-import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/mrz.dart";
-import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -24,10 +20,6 @@ extension RoutingHelpers on BuildContext {
 
   Future<bool?> pushModalPin() async {
     return await push("/modal_pin");
-  }
-
-  void pushAddDataScreen() {
-    push("/home/add_data");
   }
 
   void pushResetPinScreen() {
@@ -123,18 +115,6 @@ extension RoutingHelpers on BuildContext {
     TranslatedValue? contentTranslation,
   }) {
     go("/issue_wizard_success", extra: (headerTranslation, contentTranslation));
-  }
-
-  void pushDataDetailsScreen(CredentialType credentialType) {
-    push("/home/add_data/details", extra: credentialType);
-  }
-
-  void pushSchemalessDataDetailsScreen(AddDataDetailsRouteParams params) {
-    final url = Uri(
-      path: "/home/add_data/details",
-      queryParameters: params.toQueryParams(),
-    );
-    push(url.toString());
   }
 
   void pushLanguageSettingsScreen() {
@@ -355,37 +335,6 @@ class CredentialsDetailsRouteParams {
   ) {
     return CredentialsDetailsRouteParams(
       credentialTypeId: params["credential_type_id"]!,
-    );
-  }
-}
-
-// =============================================================================================
-
-class AddDataDetailsRouteParams {
-  final CredentialDescriptor credential;
-  final Faq? faq;
-
-  AddDataDetailsRouteParams({required this.credential, this.faq});
-
-  Map<String, String> toQueryParams() {
-    final credJson = jsonEncode(credential.toJson());
-    String? faqJson;
-    if (faq != null) {
-      faqJson = jsonEncode(faq!.toJson());
-    }
-    return {"credential": credJson, "faq": ?faqJson};
-  }
-
-  static AddDataDetailsRouteParams fromQueryParams(Map<String, String> params) {
-    final credJson = params["credential"]!;
-    final faqJson = params["faq"];
-    Faq? faq;
-    if (faqJson != null) {
-      faq = Faq.fromJson(jsonDecode(faqJson));
-    }
-    return AddDataDetailsRouteParams(
-      credential: CredentialDescriptor.fromJson(jsonDecode(credJson)),
-      faq: faq,
     );
   }
 }

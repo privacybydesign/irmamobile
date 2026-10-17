@@ -187,6 +187,48 @@ void main() {
     expect(IssuanceFlight.state.value, isNull);
   });
 
+  testWidgets("from the Add data sheet: the card that leads the wallet flies", (
+    tester,
+  ) async {
+    await pump(tester, wallet: [_received, ..._older]);
+
+    // Of several received cards, the one that is first in the wallet.
+    expect(
+      IssuanceFlight.startFirstOf(
+        sourceContext,
+        received: [_older.last, _received],
+        sources: [GlobalKey(), sourceKey],
+        curtain: false,
+      ),
+      isTrue,
+    );
+    await tester.pump();
+    expect(tester.getTopLeft(flyingCard), const Offset(40, 700));
+    await tester.pumpAndSettle();
+    expect(flyingCard, findsNothing);
+    expect(tile(_received), findsOneWidget);
+    expect(hidden(tester, _received), isFalse);
+  });
+
+  testWidgets("from the Add data sheet with reduce motion: nothing at all", (
+    tester,
+  ) async {
+    await pump(tester, wallet: [_received, ..._older], reduceMotion: true);
+    expect(
+      IssuanceFlight.startFirstOf(
+        sourceContext,
+        received: [_received],
+        sources: [sourceKey],
+        curtain: false,
+      ),
+      isTrue,
+    );
+    await tester.pump();
+    expect(flyingCard, findsNothing);
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(IssuanceFlight.state.value, isNull);
+  });
+
   testWidgets("no flight when the new card is not the first one", (
     tester,
   ) async {

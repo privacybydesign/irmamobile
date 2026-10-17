@@ -18,9 +18,6 @@ import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
-import "src/screens/add_data/add_data_details_route.dart";
-import "src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "src/screens/add_data/schemaless_add_data_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
@@ -192,47 +189,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             mode: PresentationMode.sheet,
             path: "help",
             builder: (context, state) => HelpScreen(),
-          ),
-          _adaptive(
-            mode: PresentationMode.sheet,
-            phone: PhoneTransition.push,
-            path: "add_data",
-            builder: (context, state) => SchemalessAddDataScreen(),
-            routes: [
-              _adaptive(
-                mode: PresentationMode.sheet,
-                phone: PhoneTransition.push,
-                path: "details",
-                builder: (context, state) {
-                  final params = AddDataDetailsRouteParams.fromQueryParams(
-                    state.uri.queryParameters,
-                  );
-
-                  Future<void> openIssueURL() =>
-                      IrmaRepositoryProvider.of(context).openIssueURL(
-                        context,
-                        params.credential.credentialId,
-                        params.credential.issueURL,
-                        ref,
-                      );
-
-                  return AddDataDetailsRoute(
-                    credential: params.credential,
-                    onBack: context.pop,
-                    onOpenWebsite: () async {
-                      await openIssueURL();
-                      if (context.mounted) context.pop();
-                    },
-                    details: SchemalessAddDataDetailsScreen(
-                      credential: params.credential,
-                      faq: params.faq,
-                      onCancel: context.pop,
-                      onAdd: openIssueURL,
-                    ),
-                  );
-                },
-              ),
-            ],
           ),
           _adaptive(
             mode: PresentationMode.sheet,

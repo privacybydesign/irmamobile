@@ -7,7 +7,6 @@ import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
@@ -409,8 +408,8 @@ void main() {
       await tester.waitFor(find.text("Cancel passport reading?"));
       await tester.tapAndSettle(find.text("Yes"));
 
-      // cancelling the flow should return to the home page
-      await tester.waitFor(find.byType(DataTab).hitTestable());
+      // cancelling the flow returns to the list in the Add data sheet
+      await tester.waitFor(find.byKey(const Key("add_data_search")));
 
       expect(fakeReader.cancelCount, 1);
     });

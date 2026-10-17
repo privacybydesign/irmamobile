@@ -30,6 +30,7 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
+import "../add_data/add_data_sheet.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_routes.dart";
 import "wallet/card_hero.dart";
@@ -118,7 +119,7 @@ class _DataTabState extends ConsumerState<DataTab> {
                         "wallet.add_data",
                       ),
                       icon: Icon(Icons.add, size: 26, color: palette.text),
-                      onTap: context.pushAddDataScreen,
+                      onTap: () => showAddDataSheet(context),
                     ),
                   ],
                 ),

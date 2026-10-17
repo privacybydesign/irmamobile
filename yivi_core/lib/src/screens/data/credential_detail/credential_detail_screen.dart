@@ -19,6 +19,7 @@ import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dar
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
+import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
 import "../wallet/wallet_transition.dart";
 
@@ -689,11 +690,12 @@ class _Details extends ConsumerWidget {
               context,
               "credential.options.reobtain",
             ),
-            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
+            onPressed: () => obtainAgain(
               context,
-              credential.credentialId,
-              credential.issueUrl,
               ref,
+              credentialId: credential.credentialId,
+              issueUrl: credential.issueUrl,
+              card: credential,
             ),
           ),
         if (canDelete)

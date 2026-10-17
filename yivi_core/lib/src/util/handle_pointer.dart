@@ -88,8 +88,9 @@ int _startSession(
     NewSessionEvent(sessionId: sessionId, request: sessionPointer),
   );
 
-  // The user is adding a card for a waiting request in its Change sheet:
-  // the issuance shows there, so no session screen is pushed.
+  // The user is adding a card in a sheet (the Change sheet of a waiting
+  // request, or Add data): the issuance shows there, so no session screen is
+  // pushed.
   final host = hostForNewSession(
     ProviderScope.containerOf(
       context,

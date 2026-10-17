@@ -21,6 +21,7 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/progress.dart";
+import "../add_data/add_data_sheet.dart";
 
 class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String credentialTypeId;
@@ -249,9 +250,13 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential credential,
   ) {
-    IrmaRepositoryProvider.of(
+    obtainAgain(
       context,
-    ).openIssueURL(context, credential.credentialId, credential.issueUrl, ref);
+      ref,
+      credentialId: credential.credentialId,
+      issueUrl: credential.issueUrl,
+      card: credential,
+    );
   }
 }
 

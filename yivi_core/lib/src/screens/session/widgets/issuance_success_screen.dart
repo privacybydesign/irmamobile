@@ -1,8 +1,6 @@
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/card_pile.dart";
@@ -55,24 +53,11 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
   }
 
   /// Flies the received card that now leads the data tab, if any.
-  bool _fly() {
-    final wallet = ProviderScope.containerOf(
-      context,
-      listen: false,
-    ).read(schemalessCredentialOrderControllerProvider).value;
-    final first = wallet?.firstOrNull;
-    final i = first == null
-        ? 0
-        : widget.credentials.indexWhere(
-            (c) => c.credentialId == first.credentialId,
-          );
-    if (i < 0 || i >= widget.credentials.length) return false;
-    return IssuanceFlight.start(
-      context,
-      received: widget.credentials[i],
-      source: _cardKeys[i],
-    );
-  }
+  bool _fly() => IssuanceFlight.startFirstOf(
+    context,
+    received: widget.credentials,
+    sources: _cardKeys,
+  );
 
   @override
   Widget build(BuildContext context) {

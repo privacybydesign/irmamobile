@@ -173,7 +173,8 @@
         "back_button": "Abbrechen",
         "get_button": "Hinzufügen",
         "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
-        "obtain": "{credential} zu meiner Yivi-App hinzufügen"
+        "obtain": "{credential} zu meiner Yivi-App hinzufügen",
+        "external_note": "Das Hinzufügen geschieht auf {host}. Folge dort den Schritten; Yivi öffnet sich danach von selbst wieder, zurück hier."
       },
       "nfc_unsupported": {
         "title": "NFC nicht unterstützt",
@@ -183,7 +184,12 @@
       "example": "Beispiel",
       "by": "von {issuer}",
       "search": "Daten zum Hinzufügen suchen",
-      "no_results": "Keine Daten gefunden für „{query}“"
+      "no_results": "Keine Daten gefunden für „{query}“",
+      "stop_text": "Was du bisher eingegeben hast, geht verloren, und es wird nichts hinzugefügt.",
+      "add_more": "Weitere hinzufügen",
+      "done": "Fertig",
+      "added_more": "{name} hinzugefügt. Noch etwas anderes hinzufügen?",
+      "in_your_app": "In deiner App"
     },
     "search": {
       "no_results": "Keine Daten gefunden für '{query}'."
@@ -593,15 +599,7 @@
     "code_label": "Bestätigungscode"
   },
   "external_issuer": {
-    "returned": "Sie sind zurück von der Website von {issuer}",
-    "heads_up": {
-      "title": "Sie wechseln kurz zu einer anderen Website",
-      "step_1": "Folgen Sie den Schritten auf dieser Website.",
-      "step_2": "Danach öffnet sich Yivi von selbst, um {credential} hinzuzufügen.",
-      "step_3": "Sie kehren zu dieser Liste zurück.",
-      "to_website": "Zur Website",
-      "back_to_list": "Zurück zur Liste"
-    }
+    "returned": "Sie sind zurück von der Website von {issuer}"
   },
   "issue_wizard": {
     "back": "Abbrechen",

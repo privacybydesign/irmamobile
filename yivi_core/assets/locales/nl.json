@@ -173,7 +173,8 @@
         "back_button": "Annuleer",
         "get_button": "Voeg toe",
         "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
-        "obtain": "Voeg {credential} toe aan mijn Yivi-app"
+        "obtain": "Voeg {credential} toe aan mijn Yivi-app",
+        "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier."
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",
@@ -183,7 +184,12 @@
       "example": "Voorbeeld",
       "by": "van {issuer}",
       "search": "Zoek gegevens om toe te voegen",
-      "no_results": "Geen gegevens gevonden voor “{query}”"
+      "no_results": "Geen gegevens gevonden voor “{query}”",
+      "stop_text": "Wat je tot nu toe hebt ingevuld gaat verloren en er wordt niets toegevoegd.",
+      "add_more": "Meer toevoegen",
+      "done": "Klaar",
+      "added_more": "{name} toegevoegd. Nog iets anders toevoegen?",
+      "in_your_app": "In je app"
     },
     "search": {
       "no_results": "Geen gegevens gevonden voor '{query}'."
@@ -593,15 +599,7 @@
     "code_label": "Verificatiecode"
   },
   "external_issuer": {
-    "returned": "Je bent terug van de website van {issuer}",
-    "heads_up": {
-      "title": "Je gaat even naar een andere website",
-      "step_1": "Volg de stappen op die website.",
-      "step_2": "Daarna opent Yivi vanzelf om je {credential} toe te voegen.",
-      "step_3": "Je komt terug in deze lijst.",
-      "to_website": "Naar de website",
-      "back_to_list": "Terug naar de lijst"
-    }
+    "returned": "Je bent terug van de website van {issuer}"
   },
   "issue_wizard": {
     "back": "Annuleer",

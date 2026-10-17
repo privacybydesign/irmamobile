@@ -2,9 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../helpers/helpers.dart";
@@ -29,63 +28,35 @@ void main() {
     ) async {
       final api = FakeEmailIssuerApi(errorOnSendEmail: "Not working");
       await _goToEnterEmailScreen(tester, irmaBinding, api: api);
-
-      await tester.enterText(
-        find.byKey(const Key("email_input_field")),
-        "test@example.com",
-      );
-
-      // tap somewhere else to remove focus from input field
-      await tester.tapAndSettle(find.text("Add email address"));
-      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+      await _enterEmail(tester);
+      await tester.tapAndSettle(find.byKey(const Key("contact_sheet_send")));
 
       expect(api.numEmailsSent, 1);
 
       await tester.waitFor(
         find.text("Something went wrong while sending the verification code."),
       );
-
-      // Expect a technical details button to be present
-      expect(find.text("Show technical details"), findsOneWidget);
-
-      // Expect there to be a cancel button as the secondary button
+      // Cancel on the left, Try again on the right.
       expect(
-        find.ancestor(
-          of: find.text("Cancel"),
-          matching: find.byKey(const Key("bottom_bar_secondary")),
-        ),
+        find.descendant(of: _sheet, matching: find.text("Cancel")),
         findsOneWidget,
       );
+      await tester.tapAndSettle(find.byKey(const Key("contact_sheet_retry")));
 
-      // Expect the try again button to be present and to be the primary button
-      await tester.tap(
-        find.ancestor(
-          of: find.text("Try again"),
-          matching: find.byKey(const Key("bottom_bar_primary")),
-        ),
-      );
-      expect(api.numEmailsSent, 2);
-
-      // This time the code should be succesfull and thus we can proceed
+      // Back on the address: this time sending works and we can proceed.
+      await _enterEmail(tester);
+      await tester.tap(find.byKey(const Key("contact_sheet_send")));
       await tester.pumpUntilFound(find.text("Verify email address"));
+      expect(api.numEmailsSent, 2);
     });
 
     testWidgets("incomplete email cannot proceed", (tester) async {
       await _goToEnterEmailScreen(tester, irmaBinding);
+      await _enterEmail(tester, "test@example");
 
-      await tester.enterText(
-        find.byKey(const Key("email_input_field")),
-        "test@example",
+      final button = tester.widget<FancyPillButton>(
+        find.byKey(const Key("contact_sheet_send")),
       );
-
-      // tap somewhere else to remove focus from input field
-      await tester.tapAndSettle(find.text("Add email address"));
-
-      // Make sure the Send email button cannot be pressed
-      final button = tester.widget<YiviThemedButton>(
-        find.byKey(const Key("bottom_bar_primary")),
-      );
-
       expect(button.onPressed, isNull);
     });
 
@@ -111,31 +82,18 @@ void main() {
       expect(api.numEmailsSent, 2);
     });
 
-    testWidgets("cancel during entering email goes back to add data screen", (
+    testWidgets("cancel during entering email goes back to the list", (
       tester,
     ) async {
-      await openAddCredentialDetailsScreen(
-        tester,
-        irmaBinding,
-        fullCredentialId: "pbdf-staging.sidn-pbdf.email",
-        overrides: [
-          emailIssuerApiProvider.overrideWithValue(FakeEmailIssuerApi()),
-        ],
-      );
-      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(EmailIssuanceScreen));
-
-      await tester.tapAndSettle(find.text("Cancel"));
-      expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+      await _goToEnterEmailScreen(tester, irmaBinding);
+      await _stop(tester);
     });
 
     testWidgets(
-      "cancel during entering verification code goes back to data screen",
+      "cancel during entering verification code goes back to the list",
       (tester) async {
         await _goToVerifyCodeScreen(tester, irmaBinding);
-
-        await tester.tapAndSettle(find.text("Cancel"));
-        expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
+        await _stop(tester);
       },
     );
 
@@ -152,26 +110,8 @@ void main() {
           "Something went wrong while verifying the verification code.",
         ),
       );
-
-      // Expect a technical details button to be present
-      expect(find.text("Show technical details"), findsOneWidget);
-
-      // Expect there to be a cancel button as the secondary button
-      expect(
-        find.ancestor(
-          of: find.text("Cancel"),
-          matching: find.byKey(const Key("bottom_bar_secondary")),
-        ),
-        findsOneWidget,
-      );
-
-      // Expect the try again button to be present and to be the primary button
-      await tester.tap(
-        find.ancestor(
-          of: find.text("Try again"),
-          matching: find.byKey(const Key("bottom_bar_primary")),
-        ),
-      );
+      // The code field takes focus again; its cursor never settles.
+      await tester.tap(find.byKey(const Key("contact_sheet_retry")));
 
       await tester.pumpUntilFound(
         find.byKey(const Key("email_verification_code_input_field")),
@@ -183,8 +123,8 @@ void main() {
         _correctPin,
       );
 
-      // After which the issuance screen should appear
-      await tester.pumpUntilFound(find.text("Add data"));
+      // After which the issuance shows in the sheet (step 3)
+      await tester.pumpUntilFound(find.byKey(const Key("sheet_issuance")));
     });
 
     testWidgets("happy flow", (tester) async {
@@ -195,17 +135,36 @@ void main() {
         _correctPin,
       );
 
-      // expect issuance screen to pop up
-      await tester.pumpUntilFound(find.text("Add data"));
+      // The issuance shows in the sheet
+      await tester.pumpUntilFound(find.byKey(const Key("sheet_issuance")));
       await tester.pumpAndSettle();
-      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+      await tester.tapAndSettle(find.byKey(const Key("sheet_issue_add")));
 
-      await tester.tapAndSettle(find.text("OK"));
-
-      // expect to go to home screen after issuing the credential
+      // Success in the sheet; Done closes it on the Data tab
+      await tester.pumpUntilFound(find.byKey(const Key("sheet_done")));
+      await tester.tapAndSettle(find.byKey(const Key("sheet_done")));
+      await tester.waitUntilDisappeared(_sheet);
       await tester.waitFor(find.byType(HomeScreen));
     });
   });
+}
+
+final _sheet = find.byKey(const Key("add_data_sheet"));
+
+Future<void> _enterEmail(
+  WidgetTester tester, [
+  String email = "test@example.com",
+]) async {
+  await tester.enterText(find.byKey(const Key("email_input_field")), email);
+  // tap somewhere else to remove focus from input field
+  await tester.tapAndSettle(find.text("Add email address"));
+}
+
+/// Cancel on the step asks "Stop adding …?"; stopping goes back to the list.
+Future<void> _stop(WidgetTester tester) async {
+  await tester.tapAndSettle(find.byKey(const Key("contact_sheet_cancel")));
+  await tester.tapAndSettle(find.byKey(const Key("sheet_stop_confirm")));
+  await tester.waitFor(find.byKey(const Key("add_data_search")));
 }
 
 Future<void> _goToEnterEmailScreen(
@@ -222,8 +181,8 @@ Future<void> _goToEnterEmailScreen(
     ],
   );
 
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-  await tester.waitFor(find.byType(EmailIssuanceScreen));
+  await tapAddOnSheetDetails(tester);
+  await tester.waitFor(find.byKey(const Key("email_input_field")));
 }
 
 Future<void> _goToVerifyCodeScreen(
@@ -232,14 +191,8 @@ Future<void> _goToVerifyCodeScreen(
   FakeEmailIssuerApi? api,
 }) async {
   await _goToEnterEmailScreen(tester, binding, api: api);
-  await tester.enterText(
-    find.byKey(const Key("email_input_field")),
-    "test@example.com",
-  );
-
-  // tap somewhere else to remove focus from input field
-  await tester.tapAndSettle(find.text("Add email address"));
-  await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+  await _enterEmail(tester);
+  await tester.tap(find.byKey(const Key("contact_sheet_send")));
   await tester.pumpUntilFound(find.text("Verify email address"));
 }
 

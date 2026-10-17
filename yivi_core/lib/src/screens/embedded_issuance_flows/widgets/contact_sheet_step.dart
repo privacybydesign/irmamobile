@@ -3,7 +3,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/email_code_pointer.dart";
-import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
@@ -22,14 +21,16 @@ import "contact_widgets.dart";
 /// Which contact detail a [ContactSheetStep] adds.
 enum ContactKind { email, phone }
 
-/// Step 2 of adding an e-mail address or phone number in the Change sheet of
-/// a request: the address or number, then the code sent to it, as on the
+/// Step 2 of adding an e-mail address or phone number in a sheet (the Change
+/// sheet of a request, or Add data): the address or number, then the code sent to it, as on the
 /// full screens (the same fields, the same issuer calls), with the buttons in
 /// a row. The checked code starts the issuance through [handlePointer], which
 /// hands it to the sheet waiting for it (step 3).
 class ContactSheetStep extends ConsumerStatefulWidget {
   final ContactKind kind;
-  final TrustedParty requestor;
+
+  /// What the progress tag names: the request, or the card being added.
+  final IssueSheetSubject subject;
 
   /// "Cancel": the sheet asks whether to stop adding.
   final VoidCallback onCancel;
@@ -40,7 +41,7 @@ class ContactSheetStep extends ConsumerStatefulWidget {
   const ContactSheetStep({
     super.key,
     required this.kind,
-    required this.requestor,
+    required this.subject,
     required this.onCancel,
     required this.onBack,
   });
@@ -344,7 +345,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       onBack: code ? _backToEntering : widget.onBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: bar,
-      pinned: IssueSheetProgress(requestor: widget.requestor, step: 2),
+      pinned: IssueSheetProgress(subject: widget.subject, step: 2),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {

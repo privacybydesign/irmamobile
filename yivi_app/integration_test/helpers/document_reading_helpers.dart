@@ -141,19 +141,21 @@ Future<void> navigateToPassportNfcReadingScreen(
   await tester.pump(const Duration(seconds: 1));
 }
 
-/// Taps the document on the add data screen, which opens its instructions.
+/// Taps the document in the Add data sheet, then "Add" on its details,
+/// which opens its instructions in the sheet.
 Future<void> openDocumentInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   required String fullCredentialId,
   List<Override> overrides = const [],
 }) async {
-  await tapAddCredentialTile(
+  await openAddCredentialDetailsScreen(
     tester,
     binding,
     fullCredentialId: fullCredentialId,
     overrides: overrides,
   );
+  await tester.tap(find.byKey(const Key("sheet_go_button")));
   await tester.waitFor(find.byType(DocumentInstructionScreen));
 }
 

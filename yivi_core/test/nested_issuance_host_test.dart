@@ -4,7 +4,7 @@ import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 
 class _Host implements NestedIssuanceHost {
   @override
-  final int underlyingSessionId;
+  final int? underlyingSessionId;
   final attached = <int>[];
 
   _Host(this.underlyingSessionId);
@@ -45,6 +45,19 @@ void main() {
     );
     expect(
       hostForNewSession(_Host(2), hasUnderlying: true, isActive: active),
+      isNull,
+    );
+  });
+
+  test("a host without a request takes a session only when none is active", () {
+    final alone = _Host(null);
+    expect(
+      hostForNewSession(alone, hasUnderlying: false, isActive: active),
+      alone,
+    );
+    // A request that started meanwhile gets its own screen.
+    expect(
+      hostForNewSession(alone, hasUnderlying: true, isActive: active),
       isNull,
     );
   });

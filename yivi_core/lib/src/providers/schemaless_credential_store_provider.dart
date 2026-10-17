@@ -12,7 +12,7 @@ final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
   // Credentials that require onboard NFC issuance (passport, ID card, driving
   // licence) stay in the store on devices without NFC hardware (e.g. iPads).
   // The add-data screen greys them out and explains, on tap, that the device
-  // cannot load them without NFC — see `SchemalessAddDataScreen` and
+  // cannot load them without NFC — see `AddDataSheet` and
   // `nfcAvailableProvider`.
   yield* repo.getCredentialStoreItems();
 });

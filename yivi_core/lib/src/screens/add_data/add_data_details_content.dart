@@ -8,91 +8,12 @@ import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_close_button.dart";
 import "../../widgets/irma_markdown.dart";
 
-class SchemalessAddDataDetailsScreen extends StatefulWidget {
-  final CredentialDescriptor credential;
-  final Faq? faq;
-  final VoidCallback onAdd;
-  final VoidCallback onCancel;
-  final VoidCallback? onDismiss;
-  final bool inDisclosure;
-
-  const SchemalessAddDataDetailsScreen({
-    required this.credential,
-    required this.onAdd,
-    required this.onCancel,
-    this.onDismiss,
-    this.faq,
-    this.inDisclosure = false,
-  });
-
-  @override
-  State<SchemalessAddDataDetailsScreen> createState() =>
-      _AddDataDetailsScreenState();
-}
-
-class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
-  final ScrollController _controller = ScrollController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "data.add.details.title",
-        leading: YiviBackButton(
-          onTap: widget.inDisclosure ? widget.onCancel : null,
-        ),
-        actions: [
-          if (widget.onDismiss != null)
-            IrmaCloseButton(onTap: widget.onDismiss),
-        ],
-      ),
-      body: SizedBox(
-        height: double.infinity,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          controller: _controller,
-          // Starts below the bar's fade, so the card is not faded at rest.
-          padding: const EdgeInsets.fromLTRB(16, IrmaAppBar.fadeHeight, 16, 32),
-          child: SafeArea(
-            child: AddDataDetailsContent(
-              credential: widget.credential,
-              faq: widget.faq,
-              inDisclosure: widget.inDisclosure,
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        alignment: IrmaBottomBarAlignment.vertical,
-        primaryButtonLabel: "data.add.details.get_button",
-        onPrimaryPressed: widget.onAdd,
-        secondaryButtonLabel: "data.add.details.back_button",
-        onSecondaryPressed: widget.onCancel,
-      ),
-    );
-  }
-}
-
-/// What the details screen shows about a credential type, without its bars:
-/// an example card, the name, "by {issuer}", the intro and the answers to
-/// what it is for, what it holds and how it is added. [inDisclosure] adds the
-/// note that only the requested data is shared. Also the first step of
-/// adding a card in the Change sheet of a request.
+/// What a credential type is: an example card, the name, "by {issuer}", the
+/// intro and the answers to what it is for, what it holds and how it is
+/// added. [inDisclosure] adds the note that only the requested data is
+/// shared. The first step of adding a card in a sheet ([IssueFlow]).
 class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;

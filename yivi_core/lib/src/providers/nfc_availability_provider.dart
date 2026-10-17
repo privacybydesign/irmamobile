@@ -11,7 +11,7 @@ import "package:vcmrtd/vcmrtd.dart";
 /// If the NFC status check fails or is unavailable for any reason, the device
 /// is treated as NFC-capable (`true`). This is the safe default: greying out a
 /// credential the user can actually obtain is worse than showing it normally,
-/// so `SchemalessAddDataScreen` only greys out the NFC-requiring credentials on
+/// so `AddDataSheet` only greys out the NFC-requiring credentials on
 /// a confirmed "no NFC chip" result, never while the check is loading or after
 /// a failure.
 final nfcAvailableProvider = FutureProvider<bool>((ref) async {

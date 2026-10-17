@@ -23,7 +23,7 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_content.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/loading/loading_screen.dart";
@@ -1620,10 +1620,18 @@ Future<void> openAddCredentialDetailsScreen(
     fullCredentialId: fullCredentialId,
     overrides: overrides,
   );
-  await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
+  await tester.waitFor(find.byType(AddDataDetailsContent));
 }
 
-/// Opens the add data screen and taps the tile of [fullCredentialId].
+/// "Add" on the details in the Add data sheet: the next step opens in the
+/// sheet.
+Future<void> tapAddOnSheetDetails(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key("sheet_go_button")));
+  await tester.pumpAndSettle();
+}
+
+/// Opens the Add data sheet and taps the tile of [fullCredentialId], which
+/// opens its details in the sheet.
 Future<void> tapAddCredentialTile(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
@@ -1647,12 +1655,14 @@ Future<void> tapAddCredentialTile(
   await tester.scrollUntilVisible(
     addCredentialTile,
     300,
-    // The list's own scrollable: the floating search field above it has
-    // one as well.
+    // The list's own scrollable in the sheet: the search field above it has
+    // a (sideways) one as well.
     scrollable: find
         .descendant(
-          of: find.byType(ListView),
-          matching: find.byType(Scrollable),
+          of: find.byKey(const Key("add_data_sheet")),
+          matching: find.byWidgetPredicate(
+            (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+          ),
         )
         .first,
   );
