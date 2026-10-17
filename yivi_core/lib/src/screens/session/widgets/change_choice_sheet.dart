@@ -1,19 +1,23 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/external_issuer_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -23,6 +27,8 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../add_data/schemaless_add_data_details_screen.dart";
+import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
+import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../error/session_error_screen.dart";
 import "../models/disclosure_view_model.dart";
 import "issuance_permission.dart";
@@ -142,6 +148,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// The issuer's website was opened for [_adding].
   bool _opened = false;
 
+  /// Yivi's own e-mail or phone step for [_adding] is shown (step 2).
+  ContactKind? _contact;
+
+  /// The document screens for [_adding] are shown (step 2).
+  DocumentType? _document;
+
   /// The issuance that came back from the issuer, shown in the sheet.
   int? _nestedId;
 
@@ -231,9 +243,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     if (nested != null && _added == null) _dismissNested(nested);
     _hosts.unregister(this);
     if (_opened) _repo.clearInAppLaunches();
+    if (_contact != null) {
+      ref
+        ..invalidate(emailIssuanceProvider)
+        ..invalidate(smsIssuanceProvider);
+    }
     _nestedId = null;
     _added = null;
     _opened = false;
+    _contact = null;
+    _document = null;
   }
 
   void _dismissNested(int sessionId) => _repo.bridgedDispatch(
@@ -246,13 +265,35 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     Navigator.of(context).pop();
   }
 
-  /// "Add" on the details: the issuer's website, with the sheet waiting for
-  /// what comes back. A card Yivi issues in its own screens opens those, from
-  /// the page behind the sheet, as before.
+  /// "Add" on the details: Yivi's own e-mail, phone or document steps in the
+  /// sheet, or the issuer's website with the sheet waiting for what comes
+  /// back. Either way the issuance then shows in the sheet.
   Future<void> _add(DisclosurePickOne pickOne, CredentialDescriptor d) async {
     if (pickOne.optional) _choices.includeOptionalWhenAdded(widget.index);
     final open = ref.read(issuerOpenerProvider);
-    if (_repo.hasEmbeddedFlow(d.credentialId)) {
+    final flow = _repo.embeddedFlowOf(d.credentialId);
+    if (flow == EmbeddedFlow.email || flow == EmbeddedFlow.phone) {
+      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
+      _hosts.register(this);
+      setState(
+        () => _contact = flow == EmbeddedFlow.email
+            ? ContactKind.email
+            : ContactKind.phone,
+      );
+      return;
+    }
+    final document = flow == EmbeddedFlow.document
+        ? documentTypeOf(d.credentialId)
+        : null;
+    if (document != null) {
+      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
+      _hosts.register(this);
+      setState(() => _document = document);
+      return;
+    }
+    if (flow != null) {
+      // Not one of the documents the sheet knows: its own screens, from the
+      // page behind the sheet.
       final navigator = Navigator.of(context);
       final pageContext = navigator.context;
       navigator.pop();
@@ -327,7 +368,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     }
     if (status == SessionStatus.dismissed) {
       // Cancelled on the permission: back on the details, to try again.
-      setState(() => _nestedId = null);
+      setState(() {
+        _nestedId = null;
+        _document = null;
+      });
       return;
     }
     if (status == previous?.status || _overSheet) return;
@@ -382,12 +426,13 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// "Back to {requestor}": the new card flies into its spot as the sheet
   /// closes. Without a spot to fly to, or for a card of another type than
   /// the one being added (an issuance that happened to come in meanwhile),
-  /// the sheet just closes.
+  /// the sheet just closes. On a tablet, where the sheet is a dialog over
+  /// the page, the card fades into its spot instead (the share screen).
   void _finish() {
     final cards = _added ?? const <schemaless.Credential>[];
     final landing = widget.landingKey;
     final i = cards.indexWhere((c) => c.credentialId == _adding?.credentialId);
-    if (landing != null && i >= 0) {
+    if (landing != null && i >= 0 && !isExpandedLayout(context)) {
       CardFlight.start(
         context,
         source: _addedKeys[i],
@@ -428,8 +473,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       child: GlassSheetPages(
         onBack: () {
           if (_nestedId != null && _added == null) {
+            // Back on the details: a document is read again from the start.
             _dismissNested(_nestedId!);
-            setState(() => _nestedId = null);
+            setState(() {
+              _nestedId = null;
+              _document = null;
+            });
+          } else if (_document != null) {
+            setState(() => _document = null);
+          } else if (_contact != null) {
+            setState(() => _contact = null);
           } else {
             _backToChoice();
           }
@@ -443,6 +496,29 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             KeyedSubtree(
               key: ValueKey(("add", adding.credentialId)),
               child: _buildDetails(session, pickOne, adding),
+            ),
+          if (adding != null && _contact != null)
+            KeyedSubtree(
+              key: ValueKey(("prove", _contact)),
+              child: ContactSheetStep(
+                kind: _contact!,
+                requestor: session.requestor,
+                onCancel: _cancel,
+                onBack: () => setState(() => _contact = null),
+              ),
+            ),
+          if (adding != null && _document != null)
+            KeyedSubtree(
+              key: ValueKey(("document", _document)),
+              child: DocumentSheetStep(
+                type: _document!,
+                onBack: () => setState(() => _document = null),
+                onCancel: _cancel,
+                onStopped: () {
+                  _stopAdding();
+                  setState(() => _adding = null);
+                },
+              ),
             ),
           if (adding != null && (nested != null || _added != null))
             KeyedSubtree(

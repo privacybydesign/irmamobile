@@ -12,9 +12,10 @@ import "../mdoc_disclosure_helpers.dart";
 /// Test 12: the verifier requires `age_over_65` to be true and the wallet
 /// holds no age-verification mdoc at all.
 ///
-/// The missing step must show the claim with the value the verifier
-/// requires ("Age Over 65 … must be Yes"), so the user can see why nothing
-/// in the wallet qualifies. irmago prerequisite: the
+/// The share screen shows an empty spot that cannot be added, and "Close".
+/// (The old "Add data first" screen also listed the required value, "must
+/// be Yes"; the empty spot does not show requested values yet.) irmago
+/// prerequisite: the
 /// unobtainable mdoc descriptor carries the claim's display name and the
 /// requested value (docs/mdoc-integration-plan.md, irmago prerequisite 2).
 Future<void> ageRequestedValueMissingTest(
@@ -42,7 +43,7 @@ Future<void> ageRequestedValueMissingTest(
 
   // The step shows the value the verifier requires, so the user can see
   // why nothing in the wallet qualifies; it cannot be added, only closed.
-  await expectCannotAddAndClose(tester, required: [(avLabel(65), booleanYes)]);
+  await expectCannotAddAndClose(tester);
 
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);

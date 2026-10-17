@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -15,10 +14,9 @@ import "../disclosure_helpers.dart";
 /// - Bundle A: MijnOverheid.root + MijnOverheid.fullName (2 singletons)
 /// - Bundle B: idin.idin + gemeente.address (2 singletons)
 ///
-/// Default selection is Bundle A (option index 0). The user does not tap the
-/// other option; they add Bundle A's credentials one by one. After both are
-/// added, the share screen shows Bundle A. Bundle B remains obtainable so
-/// "Change" is visible.
+/// The request shows at once with an empty spot. The user adds Bundle A's
+/// credentials one by one; the spot stays empty until the set is complete,
+/// then shows Bundle A. Bundle B remains obtainable so "Change" is visible.
 Future<void> multiBundleChoiceTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -49,49 +47,30 @@ Future<void> multiBundleChoiceTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // One step to add, with two options that are each a set of two cards.
-  // Bundle A starts selected.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
+  // One empty spot: neither set is in the app. Share waits for it.
+  await waitForRequest(tester);
+  expect(findEmptySpot(0), findsOneWidget);
   expect(
     find.descendant(
-      of: findAddOption(0, 0),
-      matching: find.text("Demo Root + Demo Name"),
+      of: findEmptySpot(0),
+      matching: find.text("Tap to choose which one to add"),
     ),
     findsOneWidget,
   );
-  expect(
-    find.descendant(
-      of: findAddOption(0, 1),
-      matching: find.text("Demo iDIN + Demo Address"),
-    ),
-    findsOneWidget,
-  );
+  expect(shareButtonEnabled(tester), isFalse);
 
-  // The cards of a set are added one by one: root first.
-  expect(find.byKey(const Key("add_checklist")), findsOneWidget);
-  expectAddButtonFor(tester, "Demo Root");
-
-  // The button opens the issuer's website; the test issues the cards the
-  // way that website would.
+  // The cards of a set come in one by one (here without the sheet, as from
+  // the issuer's own QR codes): root first. One card of the set does not
+  // fill the spot yet.
   await issueMijnOverheidRoot(tester, irmaBinding);
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(shareButtonEnabled(tester), isFalse);
 
-  // Root is in; the name is next.
-  await tester.waitFor(
-    find.descendant(
-      of: find.byKey(const Key("add_checklist")),
-      matching: find.text("Added"),
-    ),
-  );
-  expectAddButtonFor(tester, "Demo Name");
+  // With the name the set is complete: Bundle A is in its place, as one
+  // item of two cards.
   await issueMijnOverheidFullName(tester, irmaBinding);
-
-  // Everything is added: the share screen follows by itself, with Bundle A
-  // as one item of two cards.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await expectAddedInPlace(tester, 0);
   await tester.waitFor(find.byType(SessionRequestorHeader));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

@@ -1,76 +1,19 @@
-// intl_phone_number_input still takes the core SDK's InputDecoration.
-import "package:flutter/material.dart" as core;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
-import "package:intl_phone_number_input/intl_phone_number_input.dart";
-// ignore: implementation_imports
-import "package:intl_phone_number_input/src/models/country_list.dart";
-// ignore: implementation_imports
-import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
-import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
-
-/// Alpha-2 codes of countries excluded from the phone number input. Most are
-/// excluded because CM (the SMS provider) does not support their phone numbers;
-/// Bolivia, Cambodia and Ecuador are excluded because they carry a
-/// higher-than-average risk of SMS pumping fraud.
-const excludedSmsCountryCodes = {
-  "AF", // Afghanistan
-  "AO", // Angola
-  "DZ", // Algeria
-  "AZ", // Azerbaijan
-  "BD", // Bangladesh
-  "BY", // Belarus
-  "BT", // Bhutan
-  "BO", // Bolivia (SMS pumping fraud risk)
-  "BI", // Burundi
-  "KH", // Cambodia (SMS pumping fraud risk)
-  "EC", // Ecuador (SMS pumping fraud risk)
-  "EG", // Egypt
-  "ET", // Ethiopia
-  "GM", // Gambia
-  "ID", // Indonesia
-  "IR", // Iran
-  "IQ", // Iraq
-  "JO", // Jordan
-  "KZ", // Kazakhstan
-  "XK", // Kosovo
-  "KG", // Kyrgyzstan
-  "LB", // Lebanon
-  "LY", // Libya
-  "MG", // Madagascar
-  "MW", // Malawi
-  "MR", // Mauritania
-  "MN", // Mongolia
-  "ME", // Montenegro
-  "MZ", // Mozambique
-  "NP", // Nepal
-  "PK", // Pakistan
-  "RU", // Russia
-  "SN", // Senegal
-  "SI", // Slovenia
-  "LK", // Sri Lanka
-  "SY", // Syria
-  "TJ", // Tajikistan
-  "TZ", // Tanzania
-  "TN", // Tunisia
-  "TM", // Turkmenistan
-  "UZ", // Uzbekistan
-  "YE", // Yemen
-};
+import "phone_number_entry.dart";
 
 class EnterPhoneScreen extends ConsumerStatefulWidget {
   const EnterPhoneScreen();
@@ -82,8 +25,7 @@ class EnterPhoneScreen extends ConsumerStatefulWidget {
 }
 
 class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  final _entryKey = GlobalKey<PhoneNumberEntryState>();
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _phoneFieldPositionKey = GlobalKey();
@@ -92,12 +34,10 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   // and thus voids its own state
   final _scrollableKey = GlobalKey();
 
-  var _currentPhone = PhoneNumber(isoCode: "NL");
   var _validPhoneNumber = false;
 
   @override
   void dispose() {
-    _phoneController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -106,44 +46,15 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void initState() {
     super.initState();
-    _ensureCaribbeanCountriesRegistered();
-    _removeExcludedCountries();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
-
-      final phone = ref.read(smsIssuanceProvider).phoneNumber;
-
-      // Prefill the phone number box with the phone number for when we're coming back from
-      // the code verification page
-      if (phone.isNotEmpty) {
-        _currentPhone = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
-
-        // There's a bug in PhoneNumber that doesn't add the + to the dialCode while it should.
-        // This is a workaround for that that will also keep working if the bug gets fixed.
-        if (!_currentPhone.dialCode!.startsWith("+")) {
-          _currentPhone = PhoneNumber(
-            phoneNumber: _currentPhone.phoneNumber,
-            isoCode: _currentPhone.isoCode,
-            dialCode: "+${_currentPhone.dialCode}",
-          );
-        }
-
-        _phoneController.text = _currentPhone.parseNumber();
-        setState(() {
-          _validPhoneNumber = _formKey.currentState!.validate();
-        });
-      }
     });
   }
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      final phone = _currentPhone.phoneNumber;
-      if (phone == null) {
-        return;
-      }
-
+    final phone = _entryKey.currentState?.submittable();
+    if (phone != null) {
       ref
           .read(smsIssuanceProvider.notifier)
           .sendSms(
@@ -217,7 +128,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         key: Key("$onScreenKeyboardShown"),
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
-          bottom: context.missingDataBand,
           titleTranslationKey: "sms_issuance.enter_phone.title",
           hasBorder: false,
         ),
@@ -242,64 +152,16 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                       bodyKey: "sms_issuance.enter_phone.body",
                     ),
                     const ContactFieldLabel("sms_issuance.enter_phone.label"),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: .stretch,
-                        children: [
-                          Container(
-                            key: _phoneFieldPositionKey,
-                            child: InternationalPhoneNumberInput(
-                              key: const Key("phone_number_input_field"),
-                              spaceBetweenSelectorAndTextField:
-                                  theme.smallSpacing,
-                              focusNode: _focusNode,
-                              textStyle: palette.body(16),
-                              selectorTextStyle: palette.body(
-                                16,
-                                weight: FontWeight.w600,
-                              ),
-                              inputDecoration: _pillDecoration(
-                                palette,
-                                FlutterI18n.translate(
-                                  context,
-                                  "sms_issuance.enter_phone.phone_hint",
-                                ),
-                              ),
-                              searchBoxDecoration: core.InputDecoration(
-                                label: TranslatedText(
-                                  "sms_issuance.enter_phone.search_label",
-                                ),
-                                hint: TranslatedText(
-                                  "sms_issuance.enter_phone.search_hint",
-                                ),
-                              ),
-                              initialValue: PhoneNumber(
-                                isoCode: _currentPhone.isoCode,
-                              ),
-                              locale:
-                                  FlutterI18n.currentLocale(
-                                    context,
-                                  )?.languageCode ??
-                                  "en",
-                              selectorConfig: SelectorConfig(
-                                trailingSpace: false,
-                                setSelectorButtonAsPrefixIcon: true,
-                                countryComparator: countryComparator,
-                                selectorType: .BOTTOM_SHEET,
-                                useBottomSheetSafeArea: true,
-                              ),
-                              textFieldController: _phoneController,
-                              onInputValidated: (valid) {
-                                setState(() => _validPhoneNumber = valid);
-                              },
-                              onInputChanged: (phone) {
-                                _currentPhone = phone;
-                              },
-                              validator: (value) => null,
-                            ),
-                          ),
-                        ],
+                    Container(
+                      key: _phoneFieldPositionKey,
+                      child: PhoneNumberEntry(
+                        key: _entryKey,
+                        focusNode: _focusNode,
+                        onValidChanged: (valid) {
+                          if (mounted) {
+                            setState(() => _validPhoneNumber = valid);
+                          }
+                        },
                       ),
                     ),
                     SizedBox(height: 100),
@@ -332,132 +194,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
             ? null
             : IrmaBottomBar(
                 primaryButtonLabel: "sms_issuance.enter_phone.next_button",
-                secondaryButtonLabel: context.missingDataBackLabel(
-                  "sms_issuance.enter_phone.back_button",
-                ),
+                secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
                 onPrimaryPressed: _validPhoneNumber ? _submit : null,
-                onSecondaryPressed: context.missingDataBack(context.pop),
+                onSecondaryPressed: context.pop,
               ),
       ),
     );
   }
-
-  /// The pill look of the other fields for the phone number input, which
-  /// takes the core SDK's decoration: the country code sits inside the
-  /// outline as its prefix.
-  static core.InputDecoration _pillDecoration(
-    YiviPalette palette,
-    String hint,
-  ) {
-    core.OutlineInputBorder border(Color color) => core.OutlineInputBorder(
-      borderRadius: const BorderRadius.all(Radius.circular(18)),
-      borderSide: BorderSide(color: color, width: 1.5),
-    );
-    return core.InputDecoration(
-      filled: true,
-      fillColor: palette.surface,
-      hintText: hint,
-      hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
-      enabledBorder: border(palette.outline),
-      focusedBorder: border(palette.link),
-      errorBorder: border(palette.danger),
-      focusedErrorBorder: border(palette.danger),
-    );
-  }
-
-  /// Adds Caribbean countries that are missing from the intl_phone_number_input package.
-  static void _ensureCaribbeanCountriesRegistered() {
-    final existing = Countries.countryList
-        .map((c) => c["alpha_2_code"] as String)
-        .toSet();
-
-    const missingCountries = [
-      {
-        "num_code": "534",
-        "alpha_2_code": "SX",
-        "alpha_3_code": "SXM",
-        "en_short_name": "Sint Maarten",
-        "nationality": "Sint Maartener",
-        "dial_code": "+1721",
-        "nameTranslations": {
-          "nl": "Sint Maarten",
-          "en": "Sint Maarten",
-          "de": "Sint Maarten",
-          "fr": "Saint-Martin (partie néerlandaise)",
-          "es": "San Martín",
-        },
-      },
-      {
-        "num_code": "531",
-        "alpha_2_code": "CW",
-        "alpha_3_code": "CUW",
-        "en_short_name": "Curaçao",
-        "nationality": "Curaçaoan",
-        "dial_code": "+5999",
-        "nameTranslations": {
-          "nl": "Curaçao",
-          "en": "Curaçao",
-          "de": "Curaçao",
-          "fr": "Curaçao",
-          "es": "Curazao",
-        },
-      },
-      {
-        "num_code": "535",
-        "alpha_2_code": "BQ",
-        "alpha_3_code": "BES",
-        "en_short_name": "Caribbean Netherlands",
-        "nationality": "Dutch Caribbean",
-        "dial_code": "+599",
-        "nameTranslations": {
-          "nl": "Caribisch Nederland",
-          "en": "Caribbean Netherlands",
-          "de": "Karibische Niederlande",
-          "fr": "Pays-Bas caribéens",
-          "es": "Caribe Neerlandés",
-        },
-      },
-    ];
-
-    for (final country in missingCountries) {
-      if (!existing.contains(country["alpha_2_code"])) {
-        Countries.countryList.add(country);
-      }
-    }
-  }
-
-  int countryComparator(Country a, Country b) {
-    // alpha2Code is nullable on Country; a country without one can never be
-    // preferred and sorts ahead of the rest.
-    final codeA = a.alpha2Code ?? "";
-    final codeB = b.alpha2Code ?? "";
-
-    final indexA = preferredOrder.indexOf(codeA);
-    final indexB = preferredOrder.indexOf(codeB);
-
-    // If both are preferred countries
-    if (indexA != -1 && indexB != -1) {
-      return indexA.compareTo(indexB);
-    }
-
-    // If only A is preferred
-    if (indexA != -1) return -1;
-
-    // If only B is preferred
-    if (indexB != -1) return 1;
-
-    // Neither preferred → sort alphabetically.
-    return codeA.compareTo(codeB);
-  }
-
-  /// Removes countries that should not be available in the phone number input.
-  static void _removeExcludedCountries() {
-    Countries.countryList.removeWhere(
-      (c) => excludedSmsCountryCodes.contains(c["alpha_2_code"]),
-    );
-  }
-
-  // Some countries that should appear on the top of the list
-  static const preferredOrder = ["NL", "DE", "BE", "GB", "US", "FR"];
 }

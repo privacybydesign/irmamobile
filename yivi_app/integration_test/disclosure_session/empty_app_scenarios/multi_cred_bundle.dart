@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -10,11 +9,10 @@ import "../../irma_binding.dart";
 import "../../util.dart";
 import "../disclosure_helpers.dart";
 
-/// Empty wallet. The add screen asks for MijnOverheid.root +
-/// MijnOverheid.fullName (the two singletons that together satisfy the first
-/// discon's inner con) and then email (to satisfy the second discon). Then the
-/// share screen shows the 2-card bundle for the first discon and the email
-/// card for the second.
+/// Empty wallet. The share screen shows two empty spots: one for
+/// MijnOverheid.root + MijnOverheid.fullName (the two singletons that together
+/// satisfy the first discon's inner con) and one for email or mobile. Once
+/// they are added, the spots show the 2-card bundle and the email card.
 Future<void> multiCredBundleTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -37,38 +35,25 @@ Future<void> multiCredBundleTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Two steps to add: the set of root + name, then e-mail or mobile.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsOneWidget);
-  expect(find.text("These cards are only accepted together."), findsOneWidget);
-  expect(find.byKey(const Key("add_checklist")), findsOneWidget);
-  expectAddButtonFor(tester, "Demo Root");
+  // Two empty spots: the set of root + name, and e-mail or mobile.
+  await waitForRequest(tester);
+  expect(findEmptySpot(0), findsOneWidget);
+  expectEmptySpot(1, "Demo Email address or Demo Mobile phone number");
+  expect(shareButtonEnabled(tester), isFalse);
 
-  // The button opens the issuer's website; the test issues the cards the
-  // way that website would. The cards of the set go one by one.
+  // The cards of the set come in one by one (as from the issuer's own QR
+  // codes); the first spot fills once both are there.
   await issueMijnOverheidRoot(tester, irmaBinding);
-  await tester.waitFor(
-    find.descendant(
-      of: find.byKey(const Key("add_checklist")),
-      matching: find.text("Added"),
-    ),
-  );
-  expectAddButtonFor(tester, "Demo Name");
+  expect(findEmptySpot(0), findsOneWidget);
   await issueMijnOverheidFullName(tester, irmaBinding);
+  await expectAddedInPlace(tester, 0);
 
-  // The set is done; e-mail or mobile is next, e-mail selected. Mobile
-  // remains obtainable on the share screen.
-  await tester.waitFor(
-    find.descendant(of: findAddStep(0), matching: find.text("Added")),
-  );
-  expectAddButtonFor(tester, "Demo Email address");
+  // E-mail or mobile is what Share waits for now. Mobile remains
+  // obtainable once the e-mail address is in.
+  expectShareWaitsFor(tester, "Demo Email address or Demo Mobile phone number");
   await issueEmailAddress(tester, irmaBinding);
-
-  // Everything is added: the share screen follows by itself.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await expectAddedInPlace(tester, 1);
   await tester.waitFor(find.byType(SessionRequestorHeader));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));

@@ -1,8 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -12,9 +10,8 @@ import "../../irma_binding.dart";
 import "../../util.dart";
 
 /// AND request for two creds (email + phone); wallet empty. Both missing
-/// descriptors appear as steps of `AddMissingDataScreen`: the first is
-/// current, the second waits. Neither can be added, so the button is
-/// "Close".
+/// descriptors are empty spots on the share screen. Neither can be added,
+/// so the button is "Close".
 Future<void> multipleCredsAllMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -54,33 +51,21 @@ Future<void> multipleCredsAllMissingTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
+  // One empty spot per missing credential.
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(findEmptySpot(1), findsOneWidget);
 
-  // One step per missing credential: the first is current (its option
-  // row), the second is a later step.
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsOneWidget);
-  expect(findAddOption(0, 0), findsOneWidget);
-  expect(findAddOption(1, 0), findsNothing);
+  // Neither cred can be added; "Close", and why.
+  expectCannotAdd(tester, 0);
   expect(
     find.descendant(
-      of: findAddOption(0, 0),
-      matching: find.text("Can't be added from Yivi"),
+      of: findEmptySpot(1),
+      matching: find.textContaining("Can't be added in Yivi."),
     ),
-    findsWidgets,
+    findsOneWidget,
   );
-
-  // No add button — neither cred can be added; "Close", and why.
-  expect(addButtonTexts(tester), ["Close"]);
-  expect(find.byKey(const Key("add_reason")), findsOneWidget);
-
-  await tester.tapAndSettle(
-    find.descendant(
-      of: find.byKey(const Key("add_button")),
-      matching: find.text("Close"),
-    ),
-  );
+  await tapShare(tester);
 
   // Wait for the SessionScreen to unmount before ending the test (the
   // dismiss flow is async; see cred_missing.dart for the full explanation).

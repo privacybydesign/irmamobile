@@ -8,6 +8,7 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_surface.dart";
@@ -27,6 +28,9 @@ import "shared_card_tile.dart";
 /// requested item with only the values that are shared, optional data, the
 /// message to sign or the card offered in return, and one button.
 ///
+/// A required card that is not in the app yet is an empty spot: tapping it
+/// adds the card in the Change sheet, and the new card flies into the spot.
+///
 /// The button is the consent: there is no confirmation dialog after it. It
 /// is disabled with the reason above it while a selected card cannot be
 /// shared, and closes the session when such a card cannot be renewed in Yivi.
@@ -45,17 +49,12 @@ class DisclosureShareScreen extends ConsumerStatefulWidget {
   final VoidCallback onClose;
   final ValueChanged<List<DisclosureDisconSelection>> onShare;
 
-  /// Shows "Everything is added" at the top, after the user added missing
-  /// data for this request.
-  final bool showAddedBanner;
-
   const DisclosureShareScreen({
     super.key,
     required this.session,
     required this.onDismiss,
     required this.onClose,
     required this.onShare,
-    this.showAddedBanner = false,
   });
 
   @override
@@ -130,14 +129,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
     final requestorPart = <Widget>[
       SessionRequestorHeader(requestor: session.requestor),
-      if (widget.showAddedBanner)
-        _Note(
-          key: const Key("share_added_banner"),
-          text: t("share.everything_added"),
-          icon: Icons.check_rounded,
-          background: palette.successSurface,
-          foreground: palette.successText,
-        ),
       if (isSignature && session.messageToSign != null)
         _Surface(
           child: Column(
@@ -198,6 +189,18 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
     final bar = _ShareBar(
       reason: switch (button) {
+        ShareButtonState(cannotAdd: final p?) =>
+          _issuersOf(p).isEmpty
+              ? t("share.reason.cant_add_unknown", {
+                  "name": _inSentence(_spotName(p)),
+                })
+              : t("share.reason.cant_add", {
+                  "name": _inSentence(_spotName(p)),
+                  "issuer": _issuersOf(p),
+                }),
+        ShareButtonState(missing: final p?) => t("share.reason.missing", {
+          "name": _inSentence(_spotName(p)),
+        }),
         ShareButtonState(cannotRenewFrom: final issuer?) => t(
           "share.reason.cant_renew",
           {"requestor": requestor, "issuer": issuer},
@@ -270,12 +273,131 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
   }
 
+  String _spotName(DisclosurePickOne p) => spotName(
+    p,
+    FlutterI18n.translate(context, "share.or"),
+    together: spotTogether(
+      p,
+      widget.session.disclosurePlan?.issueDuringDisclosure,
+    ),
+  );
+
+  String _inSentence(String name) => inSentence(
+    name,
+    language: FlutterI18n.currentLocale(context)?.languageCode,
+  );
+
+  static String _issuersOf(DisclosurePickOne p) => {
+    for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
+      if (d.issuer.name.isNotEmpty) d.issuer.name,
+  }.join(", ");
+
   Widget _requiredTile(int i, DisclosurePickOne p, Map<int, int> selections) {
+    final tile = _requiredContent(i, p, selections);
+    if (!useSessionColumns(context)) return tile;
+    // On a tablet the Change sheet is a dialog and nothing flies: the card
+    // that was added fades into its spot.
+    return AnimatedSwitcher(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 300),
+      child: KeyedSubtree(
+        key: ValueKey((i, selectionOf(p, selections[i]) < 0)),
+        child: tile,
+      ),
+    );
+  }
+
+  Widget _requiredContent(
+    int i,
+    DisclosurePickOne p,
+    Map<int, int> selections,
+  ) {
     final k = selectionOf(p, selections[i]);
-    // A required item always has a card in the overview; irmago sends the
-    // missing-data steps instead otherwise.
-    if (k < 0) return const SizedBox.shrink();
+    if (k < 0) return _emptySpot(i, p);
     final bundle = p.ownedOptions![k];
+    final tile = _filledTile(i, p, bundle);
+    if (!addedDuringRequest(
+      p,
+      bundle,
+      widget.session.disclosurePlan?.issueDuringDisclosure,
+    )) {
+      return tile;
+    }
+    final palette = YiviPalette.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        tile,
+        _Note(
+          key: Key("share_added_$i"),
+          text: FlutterI18n.translate(
+            context,
+            "share.added_selected",
+            translationParams: {
+              "name": bundle.credentials.map((c) => c.name).join(" + "),
+            },
+          ),
+          icon: Icons.check_rounded,
+          background: palette.successSurface,
+          foreground: palette.successText,
+        ),
+      ],
+    );
+  }
+
+  /// A required card that is not in the app yet. With one way to get it,
+  /// tapping goes straight to adding it; with more, to the choice first.
+  Widget _emptySpot(int i, DisclosurePickOne p) {
+    String t(String key, [Map<String, String>? params]) =>
+        FlutterI18n.translate(context, key, translationParams: params);
+    final addable = addableOptions(p);
+    final plan = widget.session.disclosurePlan?.issueDuringDisclosure;
+    final mismatch = spotMismatch(p, plan);
+    final together = spotTogether(p, plan);
+    final issuers = _issuersOf(p);
+    final subtitle = addable.isEmpty
+        ? issuers.isEmpty
+              ? t("share.spot.cant_unknown")
+              : t("share.spot.cant", {"issuer": issuers})
+        : together
+        ? t("share.spot.together")
+        : addable.length == 1
+        ? t("share.spot.one", {"issuer": addable.single.issuer.name})
+        : t("share.spot.many");
+    return _EmptySpot(
+      key: Key("share_spot_$i"),
+      // Where the added card flies to; on a tablet it fades in instead, and
+      // the spot fading out must not hold the key the card then has.
+      landingKey: useSessionColumns(context) ? null : _landingKey(i),
+      title: spotName(p, t("share.or"), together: together),
+      subtitle: subtitle,
+      requirements: [
+        for (final (field, value) in spotRequiredValues(p))
+          t("share.spot.must_be", {
+            "field": field,
+            "value": localizedAttributeText(context, value) ?? "",
+          }),
+      ],
+      wrong: mismatch == null
+          ? null
+          : t("share.spot.wrong", {
+              "offered":
+                  localizedAttributeText(context, mismatch.offered) ?? "–",
+              "needed":
+                  localizedAttributeText(context, mismatch.required) ?? "",
+            }),
+      onTap: addable.isEmpty
+          ? null
+          : () => _openChoice(
+              i,
+              addNew: addable.length == 1 && !together ? addable.single : null,
+            ),
+    );
+  }
+
+  Widget _filledTile(int i, DisclosurePickOne p, DisclosureBundle bundle) {
     final fix = problemOfBundle(bundle) == null ? null : fixFor(p, bundle);
     final tile = SharedCardTile(
       key: Key("share_slot_$i"),
@@ -538,6 +660,157 @@ class _RemoveButton extends StatelessWidget {
       icon: Icon(Icons.close_rounded, size: 16, color: palette.heading),
     );
   }
+}
+
+/// A required card that is not in the app yet: a dashed spot where the card
+/// lands once it is added, what is asked for, and how to add it.
+class _EmptySpot extends StatelessWidget {
+  final GlobalKey? landingKey;
+  final String title;
+  final String subtitle;
+
+  /// "{field} must be {value}" for each value the request needs.
+  final List<String> requirements;
+
+  /// "You added …, needed …" after a card with the wrong value was added.
+  final String? wrong;
+
+  /// Null when it cannot be added from Yivi.
+  final VoidCallback? onTap;
+
+  const _EmptySpot({
+    super.key,
+    this.landingKey,
+    required this.title,
+    required this.subtitle,
+    this.requirements = const [],
+    this.wrong,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      button: onTap != null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: GlassSurface(
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(22)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            spacing: 12,
+            children: [
+              ExcludeSemantics(
+                child: SizedBox(
+                  key: landingKey,
+                  width: SharedCardTile.miniWidth,
+                  height: SharedCardTile.miniWidth * 226 / 358,
+                  child: CustomPaint(
+                    painter: _DashedCardPainter(color: palette.secondaryText),
+                    child: Icon(
+                      onTap == null ? Icons.block_rounded : Icons.add_rounded,
+                      size: 18,
+                      color: onTap == null
+                          ? palette.secondaryText
+                          : palette.link,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Text(
+                      title,
+                      style: palette
+                          .body(15, weight: FontWeight.w600)
+                          .copyWith(color: palette.text),
+                    ),
+                    Text(
+                      FlutterI18n.translate(context, "share.not_in_app_yet"),
+                      style: palette
+                          .body(12.5)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                    Text(
+                      subtitle,
+                      style: palette
+                          .body(12.5, weight: FontWeight.w600)
+                          .copyWith(
+                            color: onTap == null
+                                ? palette.secondaryText
+                                : palette.link,
+                          ),
+                    ),
+                    for (final r in requirements)
+                      Text(
+                        r,
+                        style: palette
+                            .body(12.5)
+                            .copyWith(color: palette.secondaryText),
+                      ),
+                    if (wrong != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          wrong!,
+                          key: const Key("share_spot_wrong"),
+                          style: palette
+                              .body(12.5, weight: FontWeight.w600)
+                              .copyWith(color: palette.errorText),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: palette.secondaryText,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The dashed outline of a card that is not there yet.
+class _DashedCardPainter extends CustomPainter {
+  final Color color;
+
+  const _DashedCardPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.6)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final outline = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          (Offset.zero & size).deflate(0.75),
+          const Radius.circular(9),
+        ),
+      );
+    for (final metric in outline.computeMetrics()) {
+      for (var d = 0.0; d < metric.length; d += 7) {
+        canvas.drawPath(metric.extractPath(d, d + 4), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedCardPainter old) => old.color != color;
 }
 
 /// An optional item that is not included: what can be added, and "Add".

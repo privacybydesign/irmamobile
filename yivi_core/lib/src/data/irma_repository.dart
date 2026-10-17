@@ -934,6 +934,45 @@ class IrmaRepository {
   bool hasEmbeddedFlow(String credentialId) =>
       _embeddedFlows.containsKey(credentialId);
 
+  /// Which of Yivi's own flows issues [credentialId], if any.
+  EmbeddedFlow? embeddedFlowOf(String credentialId) {
+    final type = credentialId.split(".").skip(1).join(".");
+    return switch (type) {
+      _ when !hasEmbeddedFlow(credentialId) => null,
+      "sidn-pbdf.email" => EmbeddedFlow.email,
+      "sidn-pbdf.mobilenumber" => EmbeddedFlow.phone,
+      _ => EmbeddedFlow.document,
+    };
+  }
+
+  /// Points Yivi's own flow for [credentialId] at the issuer of [issueURL],
+  /// as opening it does, but without opening its screens: for the Change
+  /// sheet, which shows the steps itself. False without an issue URL.
+  bool prepareEmbeddedFlow(
+    String credentialId,
+    String? issueURL,
+    WidgetRef ref,
+  ) {
+    final flow = embeddedFlowOf(credentialId);
+    final url = issueURL ?? "";
+    if (flow == null || url.isEmpty) return false;
+    final uri = Uri.parse(url);
+    final base = Uri(
+      scheme: uri.scheme,
+      host: uri.host,
+      port: uri.hasPort ? uri.port : null,
+    ).toString();
+    switch (flow) {
+      case EmbeddedFlow.email:
+        ref.read(emailIssuerUrlProvider.notifier).set(base);
+      case EmbeddedFlow.phone:
+        ref.read(smsIssuerUrlProvider.notifier).set(base);
+      case EmbeddedFlow.document:
+        ref.read(passportIssuerUrlProvider.notifier).set(base);
+    }
+    return true;
+  }
+
   bool issuesViaWebsite(String credentialId) {
     if (_embeddedFlows.containsKey(credentialId)) return false;
     final cred =
@@ -1147,3 +1186,6 @@ Future<SessionPointer> createTestSession(
   sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
   return sessionPtr;
 }
+
+/// Yivi's own flows for the credentials it issues itself.
+enum EmbeddedFlow { email, phone, document }

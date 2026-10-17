@@ -1,11 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 Future<void> noChoiceMultipleCredsTest(
@@ -33,48 +31,32 @@ Future<void> noChoiceMultipleCredsTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Two steps to add: the e-mail address first, then the mobile number.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsOneWidget);
-  expect(
-    find.descendant(
-      of: findAddStep(0),
-      matching: find.text(
-        "Demo Privacy by Design Foundation via SIDN · on portal.yivi.app",
-      ),
-    ),
-    findsOneWidget,
+  // Two empty spots, each with one way to fill it. Share waits for the
+  // e-mail address first.
+  const sidn = "Demo Privacy by Design Foundation via SIDN";
+  await waitForRequest(tester);
+  expectEmptySpot(0, "Demo Email address", hint: "Tap to add it from $sidn");
+  expectEmptySpot(
+    1,
+    "Demo Mobile phone number",
+    hint: "Tap to add it from $sidn",
   );
-  expect(
-    find.descendant(
-      of: findAddStep(1),
-      matching: find.text("Demo Mobile phone number"),
-    ),
-    findsOneWidget,
-  );
-  expect(
-    find.descendant(of: findAddStep(1), matching: find.text("Next")),
-    findsOneWidget,
-  );
-  expectAddButtonFor(tester, "Demo Email address");
+  expectShareWaitsFor(tester, "Demo Email address");
 
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would.
+  // The e-mail spot opens its details at once; "Add" opens the website
+  // while the sheet waits, and the issuance shows in the sheet.
+  await tapSpot(tester, 0);
+  await tapAddOnDetails(tester);
   await issueEmailAddress(tester, irmaBinding);
+  await expectAddedInPlace(tester, 0);
 
-  // The e-mail step is done, the mobile number is current now.
-  await tester.waitFor(
-    find.descendant(of: findAddStep(0), matching: find.text("Added")),
-  );
-  expectAddButtonFor(tester, "Demo Mobile phone number");
-
+  // The mobile number is next; it comes in without the sheet.
+  expectShareWaitsFor(tester, "Demo Mobile phone number");
   await issueMobileNumber(tester, irmaBinding);
+  await expectAddedInPlace(tester, 1);
 
-  // Everything is added: the share screen follows by itself, with a Change
-  // button on both (another e-mail address or number can still be added).
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  // A Change button on both: another e-mail address or number can still be
+  // added.
   expect(find.byKey(const Key("share_change_0")), findsOneWidget);
   expect(find.byKey(const Key("share_change_1")), findsOneWidget);
   await tapShare(tester);

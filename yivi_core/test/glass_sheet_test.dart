@@ -228,4 +228,88 @@ void main() {
       expect(find.text("Sheet"), findsOneWidget);
     });
   });
+
+  group("pages in the sheet", () {
+    /// A sheet with a second page that [push] adds.
+    late StateSetter push;
+    var pages = 1;
+    void openPages() {
+      pages = 1;
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            push = setState;
+            return GlassSheetPages(
+              onBack: () => setState(() => pages = 1),
+              pages: [
+                const GlassSheetPage(
+                  key: ValueKey("one"),
+                  title: "First",
+                  child: Text("first page"),
+                ),
+                if (pages > 1)
+                  GlassSheetPage(
+                    key: const ValueKey("two"),
+                    title: "Second",
+                    onBack: () => setState(() => pages = 1),
+                    child: const Text("second page"),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+
+    testWidgets("a new page is a route of its own, named by its title", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      openPages();
+      await tester.pumpAndSettle();
+      push(() => pages = 2);
+      await tester.pumpAndSettle();
+      final title = tester.getSemantics(find.text("Second"));
+      expect(title.flagsCollection.namesRoute, isTrue);
+      expect(title.flagsCollection.isHeader, isTrue);
+      var node = title.parent;
+      while (node != null && !node.flagsCollection.scopesRoute) {
+        node = node.parent;
+      }
+      expect(node, isNotNull, reason: "the page scopes a route");
+      semantics.dispose();
+    });
+
+    testWidgets("with reduced motion the page fades in instead of sliding", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(400, 800),
+            disableAnimations: true,
+          ),
+          child: _app(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      openPages();
+      await tester.pumpAndSettle();
+      push(() => pages = 2);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final page = find.text("second page");
+      // Not moved sideways: where it ends up, only not fully opaque yet.
+      final x = tester.getTopLeft(page).dx;
+      final opacity = tester.widget<Opacity>(
+        find.ancestor(of: page, matching: find.byType(Opacity)).first,
+      );
+      expect(opacity.opacity, lessThan(1));
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(page).dx, x);
+    });
+  });
 }

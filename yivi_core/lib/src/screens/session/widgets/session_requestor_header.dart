@@ -10,21 +10,16 @@ import "../../../widgets/irma_avatar.dart";
 /// Who is asking, at the top of the session screens: the party's logo (or
 /// initial), its name, and whether it is registered with Yivi. An unknown
 /// party gets an amber warning under it.
-///
-/// [progress] (e.g. "Step 1 of 2" with its bar) goes at the bottom, inside
-/// the same glass.
 class SessionRequestorHeader extends StatelessWidget {
   final TrustedParty requestor;
 
   /// A line under the name and status, e.g. what the screen is for.
   final String? description;
-  final Widget? progress;
 
   const SessionRequestorHeader({
     super.key,
     required this.requestor,
     this.description,
-    this.progress,
   });
 
   /// [requestor]'s logo, or its initial when it has none.
@@ -143,58 +138,6 @@ class SessionRequestorHeader extends StatelessWidget {
                   .body(14)
                   .copyWith(height: 21 / 14, color: palette.heading),
             ),
-          ?progress,
-        ],
-      ),
-    );
-  }
-}
-
-/// Dots for the steps of adding missing data, with "Step 1 of 2" next to
-/// them: done steps green, the current one blue, later ones faint.
-class StepProgress extends StatelessWidget {
-  final int total;
-
-  /// 0-based; the steps before it are done.
-  final int current;
-
-  const StepProgress({super.key, required this.total, required this.current});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final label = FlutterI18n.translate(
-      context,
-      "share.step_count",
-      translationParams: {"step": "${current + 1}", "total": "$total"},
-    );
-    return Semantics(
-      label: label,
-      excludeSemantics: true,
-      child: Row(
-        spacing: 6,
-        children: [
-          for (var i = 0; i < total; i++)
-            Expanded(
-              child: Container(
-                height: 6,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(3),
-                  color: i < current
-                      ? palette.successText
-                      : i == current
-                      ? palette.link
-                      : palette.link.withValues(alpha: 0.15),
-                ),
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.only(left: 6),
-            child: Text(
-              label,
-              style: palette.body(12.5).copyWith(color: palette.secondaryText),
-            ),
-          ),
         ],
       ),
     );

@@ -1,11 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 Future<void> choiceMixedTest(
@@ -35,60 +32,45 @@ Future<void> choiceMixedTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Two steps to add: first the address (a choice), then the AGB code.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsOneWidget);
-  expect(find.text("Which one do you want to add?"), findsOneWidget);
+  // The request shows at once with two empty spots: the address (from the
+  // municipality or from iDIN) and the AGB code. Share waits for the first.
+  await waitForRequest(tester);
+  expectEmptySpot(
+    0,
+    "Demo Address or Demo iDIN",
+    hint: "Tap to choose which one to add",
+  );
+  expectEmptySpot(1, "Demo Vektis agb by Nuts");
+  expectShareWaitsFor(tester, "Demo Address or Demo iDIN");
 
-  // The address can come from the municipality or from iDIN, each saying
-  // where it is added. The municipality starts selected.
-  _expectOption(0, 0, "Demo Address", "Demo Municipality");
-  _expectOption(0, 1, "Demo iDIN", "Demo iDIN");
-  expectAddButtonFor(tester, "Demo Address");
+  // The address spot offers both, each saying where it is added. iDIN is
+  // picked: its details, then "Add" opens the website while the sheet
+  // waits.
+  await tapSpot(tester, 0);
+  expectSheetAddRow(
+    "irma-demo.gemeente.address",
+    "Demo Address",
+    "Demo Municipality",
+  );
+  expectSheetAddRow("irma-demo.idin.idin", "Demo iDIN", "Demo iDIN");
+  await startAdding(tester, "irma-demo.idin.idin");
 
-  // Pick iDIN: the button follows.
-  await pickSource(tester, 0, 1);
-  expectAddButtonFor(tester, "Demo iDIN");
-
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would.
+  // The test issues the card the way that website would; it shows in the
+  // sheet and lands in its spot.
   await issueIdin(tester, irmaBinding);
+  await expectAddedInPlace(tester, 0);
+  // Its name and its issuer are both "Demo iDIN".
+  expect(findCardText(findShareSlot(0), "Demo iDIN"), findsWidgets);
 
-  // The first step is done, the AGB code is next.
-  await tester.waitFor(
-    find.descendant(of: findAddStep(0), matching: find.text("Added")),
-  );
-  expect(
-    find.descendant(of: findAddStep(0), matching: find.text("Demo iDIN")),
-    findsOneWidget,
-  );
-  expectAddButtonFor(tester, "Demo Vektis agb by Nuts");
+  // The AGB code is what Share waits for now.
+  expectShareWaitsFor(tester, "Demo Vektis agb by Nuts");
 
-  // Obtain the data from Nuts
+  // It comes in without the sheet, on top of the request.
   await issueCredentials(tester, irmaBinding, {
     "irma-demo.nuts.agb.agbcode": "7722255556",
   });
-
-  // Everything is added: the share screen follows by itself.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  await expectAddedInPlace(tester, 1);
 
   await tapShare(tester);
   await evaluateFeedback(tester);
-}
-
-/// Checks option [option] of step [step] on the add screen: its name and
-/// "{issuer} · on {host}".
-void _expectOption(int step, int option, String name, String issuer) {
-  final row = findAddOption(step, option);
-  expect(row, findsOneWidget);
-  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
-  expect(
-    find.descendant(
-      of: row,
-      matching: find.text("$issuer · on portal.yivi.app"),
-    ),
-    findsOneWidget,
-  );
 }

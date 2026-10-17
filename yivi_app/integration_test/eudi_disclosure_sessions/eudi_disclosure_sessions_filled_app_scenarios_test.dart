@@ -87,8 +87,8 @@ void main() {
         (tester) => selectOneOfTwoEmailsAndTwoPhonesTest(tester, irmaBinding),
       );
 
-      // Email owned, phone missing. Backend hides the choices overview;
-      // wallet shows AddMissingDataScreen with "Close" CTA.
+      // Email owned, phone missing: the email in place, an empty spot for
+      // the phone, and the "Close" CTA.
       testWidgets(
         "partial-overlap-one-owned-one-missing",
         (tester) => partialOverlapOneOwnedOneMissingTest(tester, irmaBinding),

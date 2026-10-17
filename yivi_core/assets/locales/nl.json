@@ -242,9 +242,7 @@
     }
   },
   "missing_data": {
-    "known_party": "Bekende partij",
-    "band": "Voor {requestor} · {x} van {n} klaar",
-    "back_to_list": "Terug naar de lijst"
+    "known_party": "Bekende partij"
   },
   "enrollment": {
     "introduction": {
@@ -1291,7 +1289,10 @@
       "revoked": "Vervang de ingetrokken kaart om te delen.",
       "used_up": "Vervang de opgebruikte kaart om te delen.",
       "expired": "Vervang de verlopen kaart om te delen.",
-      "cant_renew": "{requestor} heeft een kaart nodig die je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe."
+      "cant_renew": "{requestor} heeft een kaart nodig die je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe.",
+      "missing": "Voeg eerst {name} toe.",
+      "cant_add": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan dan de QR-code opnieuw.",
+      "cant_add_unknown": "Yivi kan {name} niet toevoegen. Haal het eerst bij de uitgever en scan dan de QR-code opnieuw."
     },
     "section": {
       "you_share": "Je deelt",
@@ -1313,7 +1314,6 @@
     "message_label": "Je ondertekent dit bericht",
     "footnote": "{requestor} krijgt alleen dit. Velden die hier niet staan blijven op je telefoon.",
     "footnote_none": "Het bezoek staat wel in je Activiteit.",
-    "everything_added": "Alles is toegevoegd. Controleer wat je deelt.",
     "sheet": {
       "add_optional": "Optionele gegevens toevoegen",
       "which": "Welk(e) {name}?",
@@ -1333,31 +1333,6 @@
       "stop_confirm": "Stoppen",
       "keep_going": "Doorgaan"
     },
-    "add_data": {
-      "bar": "Eerst gegevens toevoegen",
-      "intro_one": "{requestor} vraagt om gegevens die nog niet in je app staan. Voeg ze eerst toe; daarna controleer je alles en deel je.",
-      "intro_many": "{requestor} vraagt om gegevens die nog niet in je app staan. Voeg ze stap voor stap toe; daarna controleer je alles en deel je.",
-      "which": "Welke wil je toevoegen?",
-      "accepts_any": "{requestor} accepteert elk van deze. Je hebt er maar één nodig.",
-      "title": "Voeg {name} toe",
-      "only_together": "Deze kaarten worden alleen samen geaccepteerd.",
-      "from": "Van {issuer}.",
-      "cant_be_added": "Kan niet vanuit Yivi worden toegevoegd",
-      "one_by_one": "Deze worden één voor één toegevoegd",
-      "state_added": "Toegevoegd",
-      "state_next": "Volgende",
-      "state_to_add": "Nog toevoegen",
-      "must_be": "moet {value} zijn",
-      "wrong_note": "De kaart die je toevoegde past niet bij wat {requestor} nodig heeft. Hij blijft in je app, maar je hebt een passende nodig.",
-      "you_added": "Je voegde toe",
-      "needed": "Nodig",
-      "button_add": "Voeg {name} toe",
-      "button_add_again": "Opnieuw toevoegen",
-      "button_add_plain": "Toevoegen",
-      "opens": "Opent {host}",
-      "reason_pick": "Kies een kaart die toegevoegd kan worden.",
-      "reason_cant": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan daarna de QR-code opnieuw."
-    },
     "done": {
       "title": "Gedeeld met {requestor}",
       "title_signature": "Ondertekend en gedeeld",
@@ -1372,6 +1347,16 @@
       "title": "Gedeeld. Bel nu {requestor}",
       "text": "Degene die opneemt ziet de gegevens die je net hebt gedeeld, dus je hoeft niets te spellen.",
       "button": "Bel {requestor}"
+    },
+    "added_selected": "{name} toegevoegd en gekozen",
+    "spot": {
+      "one": "Tik om toe te voegen via {issuer}",
+      "many": "Tik om te kiezen wat je toevoegt",
+      "cant": "Kan niet in Yivi worden toegevoegd. Haal het eerst bij {issuer}.",
+      "wrong": "Je voegde {offered} toe, nodig is {needed}. Tik om opnieuw toe te voegen.",
+      "together": "Alleen samen geldig. Tik om ze een voor een toe te voegen.",
+      "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
+      "must_be": "{field} moet {value} zijn"
     }
   }
 }

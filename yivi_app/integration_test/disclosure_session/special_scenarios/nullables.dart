@@ -2,7 +2,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 Future<void> nullablesTest(
@@ -24,21 +23,20 @@ Future<void> nullablesTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The member card is missing: one step to add it first, with its name
-  // and issuer.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
+  // The member card is missing: the request shows an empty spot for it,
+  // with its name and issuer.
+  await waitForRequest(tester);
+  expect(findEmptySpot(0), findsOneWidget);
   expect(
     find.descendant(
-      of: findAddStep(0),
+      of: findEmptySpot(0),
       matching: find.textContaining("IRMATube Member"),
     ),
     findsWidgets,
   );
   expect(
     find.descendant(
-      of: findAddStep(0),
+      of: findEmptySpot(0),
       matching: find.textContaining("Demo IRMATube"),
     ),
     findsWidgets,
@@ -47,7 +45,7 @@ Future<void> nullablesTest(
 
   // TODO Add non matching credential
 
-  // TODO Expect the wrong-card note (Key("add_wrong_note")) and evaluate it
+  // TODO Expect the wrong-value line (Key("share_spot_wrong")) and evaluate it
 
   // TODO Add matching credential
 

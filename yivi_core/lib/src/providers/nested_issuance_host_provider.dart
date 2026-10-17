@@ -33,14 +33,15 @@ class NestedIssuanceHostNotifier extends Notifier<NestedIssuanceHost?> {
 
 /// The host that takes a session starting now, or null when it gets its own
 /// session screen as usual: only while a request waits ([hasUnderlying]),
-/// only for the request the registered host belongs to ([isActive]), and not
-/// for a session that replaces the current screen.
+/// and only for the request the registered host belongs to ([isActive]). A
+/// session that would replace the current screen (the document read after a
+/// face check) goes to the host too: in the sheet there is nothing to
+/// replace.
 NestedIssuanceHost? hostForNewSession(
   NestedIssuanceHost? host, {
   required bool hasUnderlying,
-  required bool replacing,
   required bool Function(int sessionId) isActive,
 }) {
-  if (host == null || !hasUnderlying || replacing) return null;
+  if (host == null || !hasUnderlying) return null;
   return isActive(host.underlyingSessionId) ? host : null;
 }

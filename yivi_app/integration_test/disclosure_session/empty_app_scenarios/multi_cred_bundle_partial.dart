@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -11,10 +10,11 @@ import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 /// Partial bundle: MijnOverheid.root + email pre-issued, MijnOverheid.fullName
-/// needs to be issued during disclosure. After issuing fullName, the
-/// auto-issuance flow must find the bundle whose credentialHashes contains the
-/// new fullName hash and pre-select it. Then the share screen shows root +
-/// fullName as one 2-card item, plus the pre-existing email.
+/// needs to be issued during disclosure. Its spot has one way to fill it, so
+/// tapping it opens the name's details at once. After issuing fullName, the
+/// bundle whose credentialHashes contains the new fullName hash is selected:
+/// the spot shows root + fullName as one 2-card item, next to the
+/// pre-existing email.
 Future<void> multiCredBundlePartialTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -39,20 +39,23 @@ Future<void> multiCredBundlePartialTest(
 
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The add screen asks only for the missing fullName.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  expectAddButtonFor(tester, "Demo Name");
+  // Only the set is missing: one empty spot, the e-mail address in place.
+  await waitForRequest(tester);
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(findShareSlot(1), findsOneWidget);
+  expect(shareButtonEnabled(tester), isFalse);
 
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would.
+  // One way to fill the spot: the sheet opens on the name's details, and
+  // "Add" opens the website while the sheet waits.
+  await tapSpot(tester, 0);
+  await tapAddOnDetails(tester);
+
+  // The test issues the card the way that website would; it shows in the
+  // sheet and the set lands in its spot.
   await issueMijnOverheidFullName(tester, irmaBinding);
-
-  // Everything is added: the share screen follows by itself.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await expectAddedInPlace(tester, 0);
+  expect(findAddedNote(1), findsNothing);
   await tester.waitFor(find.byType(SessionRequestorHeader));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));

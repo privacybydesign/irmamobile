@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
@@ -31,19 +30,28 @@ Future<void> randomBlindTest(
       ''';
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The voting card is missing and cannot be added from Yivi: the button
-  // closes, and says where to get it first.
-  await tester.waitFor(find.byType(AddMissingDataScreen));
+  // The voting card is missing and cannot be added from Yivi: its spot says
+  // where to get it, and the button closes the session.
+  await waitForRequest(tester);
+  expectEmptySpot(
+    0,
+    "Demo Voting Card",
+    hint: "Can't be added in Yivi. Get it from Demo Voting Card Issuer first.",
+  );
   expect(
-    find.text(
-      "Yivi can't add demo Voting Card. Get it from Demo Voting Card Issuer "
-      "first, then scan the QR code again.",
+    shareReason(tester),
+    "Yivi can't add demo Voting Card. Get it from Demo Voting Card Issuer "
+    "first, then scan the QR code again.",
+  );
+  expect(
+    find.descendant(
+      of: find.byKey(const Key("share_button")),
+      matching: find.text("Close"),
     ),
     findsOneWidget,
   );
-  expect(addButtonTexts(tester), ["Close"]);
 
-  await tester.tapAndSettle(find.byKey(const Key("add_button")));
+  await tapShare(tester);
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);

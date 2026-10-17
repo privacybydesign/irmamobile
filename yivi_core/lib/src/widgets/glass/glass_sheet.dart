@@ -419,8 +419,11 @@ class GlassSheetHeader extends StatelessWidget {
             Padding(
               // Clear of the buttons on both sides, so it stays centred.
               padding: const EdgeInsets.symmetric(horizontal: 56),
+              // Names the page (see GlassSheetPages): a screen reader reads
+              // it when the page comes in.
               child: Semantics(
                 header: true,
+                namesRoute: true,
                 child: Text(
                   title,
                   key: const Key("glass_sheet_title"),
@@ -610,6 +613,9 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
           builder: (context, _) {
             final t = _slide.value;
             final moving = t < 1;
+            // With reduced motion the pages fade into each other instead of
+            // sliding.
+            final reduce = MediaQuery.disableAnimationsOf(context);
             return Stack(
               fit: StackFit.expand,
               children: [
@@ -626,36 +632,45 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                           // Its heroes stay out of flights while it is hidden.
                           child: HeroMode(
                             enabled: moving,
-                            child: FractionalTranslation(
-                              translation: Offset(-0.3 * t, 0),
-                              child: page,
-                            ),
+                            child: reduce
+                                ? page
+                                : FractionalTranslation(
+                                    translation: Offset(-0.3 * t, 0),
+                                    child: page,
+                                  ),
                           ),
                         ),
                       ),
                     ),
                 KeyedSubtree(
                   key: ValueKey(("top", top.key)),
-                  child: FractionalTranslation(
-                    translation: Offset(1 - t, 0),
-                    // While it moves it has the sheet's colour behind it, as
-                    // a page in a native sheet does, so the page under it
-                    // does not show through the glass.
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: moving && under != null
-                            ? palette.sheet
-                            : const Color(0x00000000),
-                        boxShadow: moving && under != null
-                            ? const [
-                                BoxShadow(
-                                  color: Color(0x1F000000),
-                                  blurRadius: 16,
-                                ),
-                              ]
-                            : null,
+                  // Each page is a route of its own for screen readers, so a
+                  // new step is announced by its title and focused.
+                  child: Semantics(
+                    scopesRoute: true,
+                    explicitChildNodes: true,
+                    child: _PageMotion(
+                      reduce: reduce,
+                      t: t,
+                      // While it moves it has the sheet's colour behind it, as
+                      // a page in a native sheet does, so the page under it
+                      // does not show through the glass.
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: moving && under != null
+                              ? palette.sheet
+                              : const Color(0x00000000),
+                          boxShadow: moving && under != null
+                              ? const [
+                                  BoxShadow(
+                                    color: Color(0x1F000000),
+                                    blurRadius: 16,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: top,
                       ),
-                      child: top,
                     ),
                   ),
                 ),
@@ -666,6 +681,25 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
       ),
     );
   }
+}
+
+/// The top page coming in or going out: sliding from the right, or with
+/// [reduce] fading.
+class _PageMotion extends StatelessWidget {
+  final bool reduce;
+  final double t;
+  final Widget child;
+
+  const _PageMotion({
+    required this.reduce,
+    required this.t,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => reduce
+      ? Opacity(opacity: t, child: child)
+      : FractionalTranslation(translation: Offset(1 - t, 0), child: child);
 }
 
 /// One page of a sheet: its [GlassSheetHeader], [child] in a

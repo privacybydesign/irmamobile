@@ -19,52 +19,32 @@ void main() {
 
   test("a session started while its request waits goes to the host", () {
     expect(
-      hostForNewSession(
-        host,
-        hasUnderlying: true,
-        replacing: false,
-        isActive: active,
-      ),
+      hostForNewSession(host, hasUnderlying: true, isActive: active),
+      host,
+    );
+  });
+
+  test("also when it replaces the screen it starts from", () {
+    // The document read with a face check replaces its route; in the sheet
+    // there is no route to replace.
+    expect(
+      hostForNewSession(host, hasUnderlying: true, isActive: active),
       host,
     );
   });
 
   test("otherwise it gets its own session screen", () {
-    // No host, no waiting request, a replacing session, another request.
+    // No host, no waiting request, another request.
     expect(
-      hostForNewSession(
-        null,
-        hasUnderlying: true,
-        replacing: false,
-        isActive: active,
-      ),
+      hostForNewSession(null, hasUnderlying: true, isActive: active),
       isNull,
     );
     expect(
-      hostForNewSession(
-        host,
-        hasUnderlying: false,
-        replacing: false,
-        isActive: active,
-      ),
+      hostForNewSession(host, hasUnderlying: false, isActive: active),
       isNull,
     );
     expect(
-      hostForNewSession(
-        host,
-        hasUnderlying: true,
-        replacing: true,
-        isActive: active,
-      ),
-      isNull,
-    );
-    expect(
-      hostForNewSession(
-        _Host(2),
-        hasUnderlying: true,
-        replacing: false,
-        isActive: active,
-      ),
+      hostForNewSession(_Host(2), hasUnderlying: true, isActive: active),
       isNull,
     );
   });

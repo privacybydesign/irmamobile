@@ -1,8 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -13,8 +11,8 @@ import "../../util.dart";
 
 /// OR disjunction (`credential_sets.options: [[email], [phone]]`); wallet
 /// empty. Neither option is owned and neither can be added from Yivi. The
-/// add screen shows one step with both options as radio rows, neither
-/// selectable; the user can only Close.
+/// share screen shows one empty spot for either, which cannot be tapped; the
+/// user can only Close.
 Future<void> disjunctionBothOptionsMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -62,27 +60,21 @@ Future<void> disjunctionBothOptionsMissingTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
-
-  // One step, two options; neither can be added (no IssueURL).
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  expect(find.text("Which one do you want to add?"), findsOneWidget);
-  expect(findAddOption(0, 0), findsOneWidget);
-  expect(findAddOption(0, 1), findsOneWidget);
-  expect(find.text("Can't be added from Yivi"), findsNWidgets(2));
-
-  // No add button; "Close", and why.
-  expect(addButtonTexts(tester), ["Close"]);
-  expect(find.byKey(const Key("add_reason")), findsOneWidget);
-
-  await tester.tapAndSettle(
+  // One empty spot for either option; neither can be added (no IssueURL).
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(findEmptySpot(1), findsNothing);
+  expect(
     find.descendant(
-      of: find.byKey(const Key("add_button")),
-      matching: find.text("Close"),
+      of: findEmptySpot(0),
+      matching: find.textContaining(" or "),
     ),
+    findsOneWidget,
   );
+
+  // "Close", and why.
+  expectCannotAdd(tester, 0);
+  await tapShare(tester);
 
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);

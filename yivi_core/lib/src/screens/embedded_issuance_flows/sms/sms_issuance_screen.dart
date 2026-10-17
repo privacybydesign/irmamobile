@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "widgets/enter_phonenumber_screen.dart";
@@ -37,7 +36,6 @@ class _WaitingScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: IrmaAppBar(
-        bottom: context.missingDataBand,
         titleTranslationKey: "sms_issuance.enter_phone.title",
       ),
       body: Padding(
@@ -45,10 +43,8 @@ class _WaitingScreen extends StatelessWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: context.missingDataBackLabel(
-          "sms_issuance.enter_phone.back_button",
-        ),
-        onSecondaryPressed: context.missingDataBack(context.pop),
+        secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
+        onSecondaryPressed: context.pop,
       ),
     );
   }

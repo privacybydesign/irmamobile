@@ -1,8 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -10,14 +8,14 @@ import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
 
-/// Wallet has email; verifier asks for email AND phone. Backend hides the
-/// `DisclosureShareScreen` whenever any issuance step exists, so the
-/// wallet renders `AddMissingDataScreen` with the missing phone
-/// descriptor — the owned email is **not visible at this stage**.
+/// Wallet has email; verifier asks for email AND phone. The backend sends
+/// the choices together with the issuance step, so the share screen shows
+/// the owned email in place and an empty spot for the missing phone.
 ///
 /// On the IRMA-issued spine, the user could add the missing phone from the
-/// app. For OID4VCI the same descriptor has no `IssueURL`, so the one button
-/// is "Close" (with why above it). The session can only be dismissed.
+/// app. For OID4VCI the same descriptor has no `IssueURL`, so the share
+/// button is "Close" (with why above it). The session can only be
+/// dismissed.
 Future<void> partialOverlapOneOwnedOneMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -63,41 +61,16 @@ Future<void> partialOverlapOneOwnedOneMissingTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(AddMissingDataScreen), findsOneWidget);
+  // The owned email in place, the missing phone an empty spot with its
+  // name from VCT metadata. The bridge payload returns `issuer.name ==
+  // null` — see cred_missing.dart.
+  expect(findShareSlot(0), findsOneWidget);
+  expect(find.text("test@example.com"), findsOneWidget);
+  expectEmptySpot(1, "Phone Credential (SD-JWT)");
 
-  // One step: the missing phone, with its name from VCT metadata. The
-  // bridge payload returns `issuer.name == null` — see cred_missing.dart.
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  expect(
-    find.descendant(
-      of: findAddOption(0, 0),
-      matching: find.text("Phone Credential (SD-JWT)"),
-    ),
-    findsWidgets,
-  );
-  expect(
-    find.descendant(
-      of: findAddOption(0, 0),
-      matching: find.text("Can't be added from Yivi"),
-    ),
-    findsWidgets,
-  );
-
-  // The owned email is intentionally not visible — backend hides the
-  // choices overview while issuance steps exist.
-  expect(find.text("test@example.com"), findsNothing);
-
-  // No add button: "Close", because the missing cred has no IssueURL.
-  expect(addButtonTexts(tester), ["Close"]);
-  expect(find.byKey(const Key("add_reason")), findsOneWidget);
-
-  await tester.tapAndSettle(
-    find.descendant(
-      of: find.byKey(const Key("add_button")),
-      matching: find.text("Close"),
-    ),
-  );
+  // "Close", because the missing cred has no IssueURL, and why.
+  expectCannotAdd(tester, 1);
+  await tapShare(tester);
 
   // Wait for the SessionScreen to unmount before ending the test.
   await tester.waitUntilDisappeared(find.byType(SessionScreen));

@@ -21,7 +21,6 @@ import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
-import "widgets/add_missing_data_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
@@ -29,7 +28,6 @@ import "widgets/disclosure_share_screen.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
-import "widgets/missing_data_flow_reset.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
@@ -71,9 +69,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   SessionState? _underlying;
 
   bool _hasLongPin = false;
-
-  /// Whether issuance-during-disclosure was shown (steps were present at some point).
-  bool _hadIssueDuringDisclosure = false;
 
   /// True after the OID4VCI pre-auth auto-grant has fired for the current
   /// session, so we don't fire it again on rebuilds.
@@ -255,32 +250,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final plan = session.disclosurePlan;
     final hasDisclosureChoices =
         plan?.disclosureChoicesOverview?.isNotEmpty ?? false;
-
-    final needsIssueBeforeDisclosure =
-        !hasDisclosureChoices &&
-        plan?.issueDuringDisclosure != null &&
-        plan!.issueDuringDisclosure!.steps.isNotEmpty;
-
-    // Track that issuance-during-disclosure was shown.
-    if (needsIssueBeforeDisclosure) {
-      _hadIssueDuringDisclosure = true;
-    }
-
     final isIssuanceSession =
         session.type == .issuance && session.offeredCredentials != null;
-
-    // Something is missing: add it first. The share screen follows as soon
-    // as irmago sends the plan without missing steps.
-    if (needsIssueBeforeDisclosure) {
-      return MissingDataFlowReset(
-        sessionId: widget.sessionId,
-        child: AddMissingDataScreen(
-          sessionId: widget.sessionId,
-          onDismiss: _showDismissDialog,
-          onClose: _dismissSession,
-        ),
-      );
-    }
 
     // An issuance that asks for data first: one screen with what is shared
     // and the card that is received, and one button for both.
@@ -294,23 +265,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    // Wrapped like the add screen while the user may still be inside an
-    // issuance flow that started from it.
-    final share = _buildShareScreen(session);
-    return _hadIssueDuringDisclosure
-        ? MissingDataFlowReset(sessionId: widget.sessionId, child: share)
-        : share;
+    // The whole request at once; a card that is not in the app yet is an
+    // empty spot, added in the Change sheet.
+    return DisclosureShareScreen(
+      session: session,
+      onDismiss: _showDismissDialog,
+      onClose: _dismissSession,
+      onShare: _grantPermission,
+    );
   }
-
-  /// The share screen. The button is the consent, so it grants permission
-  /// directly (there is no confirmation dialog).
-  Widget _buildShareScreen(SessionState session) => DisclosureShareScreen(
-    session: session,
-    showAddedBanner: _hadIssueDuringDisclosure,
-    onDismiss: _showDismissDialog,
-    onClose: _dismissSession,
-    onShare: _grantPermission,
-  );
 
   /// The issuer whose website the user opened from the app and who now offers
   /// the credential.

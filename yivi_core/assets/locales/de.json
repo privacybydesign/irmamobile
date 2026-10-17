@@ -242,9 +242,7 @@
     }
   },
   "missing_data": {
-    "known_party": "Bekannte Partei",
-    "band": "Für {requestor} · {x} von {n} bereit",
-    "back_to_list": "Zurück zur Liste"
+    "known_party": "Bekannte Partei"
   },
   "enrollment": {
     "introduction": {
@@ -1291,7 +1289,10 @@
       "revoked": "Ersetze die widerrufene Karte, um zu teilen.",
       "used_up": "Ersetze die aufgebrauchte Karte, um zu teilen.",
       "expired": "Ersetze die abgelaufene Karte, um zu teilen.",
-      "cant_renew": "{requestor} braucht eine Karte, die du in Yivi nicht erneuern kannst. Bitte {issuer} um eine neue."
+      "cant_renew": "{requestor} braucht eine Karte, die du in Yivi nicht erneuern kannst. Bitte {issuer} um eine neue.",
+      "missing": "Füge zuerst {name} hinzu.",
+      "cant_add": "Yivi kann {name} nicht hinzufügen. Hol es zuerst bei {issuer} und scanne dann den QR-Code erneut.",
+      "cant_add_unknown": "Yivi kann {name} nicht hinzufügen. Hol es zuerst beim Herausgeber und scanne dann den QR-Code erneut."
     },
     "section": {
       "you_share": "Du teilst",
@@ -1313,7 +1314,6 @@
     "message_label": "Du unterschreibst diese Nachricht",
     "footnote": "{requestor} bekommt nur das. Felder, die hier nicht stehen, bleiben auf deinem Telefon.",
     "footnote_none": "Der Besuch steht trotzdem in deiner Aktivität.",
-    "everything_added": "Alles ist hinzugefügt. Prüfe, was du teilst.",
     "sheet": {
       "add_optional": "Optionale Daten hinzufügen",
       "which": "Welche(s) {name}?",
@@ -1333,31 +1333,6 @@
       "stop_confirm": "Abbrechen",
       "keep_going": "Weitermachen"
     },
-    "add_data": {
-      "bar": "Zuerst Daten hinzufügen",
-      "intro_one": "{requestor} fragt nach Daten, die noch nicht in deiner App sind. Füge sie zuerst hinzu; dann prüfst du alles und teilst.",
-      "intro_many": "{requestor} fragt nach Daten, die noch nicht in deiner App sind. Füge sie Schritt für Schritt hinzu; dann prüfst du alles und teilst.",
-      "which": "Welche möchtest du hinzufügen?",
-      "accepts_any": "{requestor} akzeptiert jede davon. Du brauchst nur eine.",
-      "title": "{name} hinzufügen",
-      "only_together": "Diese Karten werden nur zusammen akzeptiert.",
-      "from": "Von {issuer}.",
-      "cant_be_added": "Kann nicht über Yivi hinzugefügt werden",
-      "one_by_one": "Diese werden nacheinander hinzugefügt",
-      "state_added": "Hinzugefügt",
-      "state_next": "Als Nächstes",
-      "state_to_add": "Noch hinzufügen",
-      "must_be": "muss {value} sein",
-      "wrong_note": "Die hinzugefügte Karte passt nicht zu dem, was {requestor} braucht. Sie bleibt in deiner App, aber du brauchst eine passende.",
-      "you_added": "Hinzugefügt",
-      "needed": "Benötigt",
-      "button_add": "{name} hinzufügen",
-      "button_add_again": "Erneut hinzufügen",
-      "button_add_plain": "Hinzufügen",
-      "opens": "Öffnet {host}",
-      "reason_pick": "Wähle eine Karte, die hinzugefügt werden kann.",
-      "reason_cant": "Yivi kann {name} nicht hinzufügen. Hol es dir zuerst bei {issuer} und scanne dann den QR-Code erneut."
-    },
     "done": {
       "title": "Geteilt mit {requestor}",
       "title_signature": "Unterschrieben und geteilt",
@@ -1372,6 +1347,16 @@
       "title": "Geteilt. Ruf jetzt {requestor} an",
       "text": "Die Person, die abnimmt, sieht die Daten, die du gerade geteilt hast. Du musst also nichts buchstabieren.",
       "button": "{requestor} anrufen"
+    },
+    "added_selected": "{name} hinzugefügt und ausgewählt",
+    "spot": {
+      "one": "Tippe, um es von {issuer} hinzuzufügen",
+      "many": "Tippe, um zu wählen, was du hinzufügst",
+      "cant": "Kann nicht in Yivi hinzugefügt werden. Hol es zuerst bei {issuer}.",
+      "wrong": "Du hast {offered} hinzugefügt, nötig ist {needed}. Tippe, um es erneut hinzuzufügen.",
+      "together": "Nur zusammen gültig. Tippe, um sie einzeln hinzuzufügen.",
+      "cant_unknown": "Kann nicht in Yivi hinzugefügt werden.",
+      "must_be": "{field} muss {value} sein"
     }
   }
 }

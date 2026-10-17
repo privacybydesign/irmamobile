@@ -7,6 +7,7 @@ import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
+import "../models/mrz.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
 import "../providers/email_issuance_provider.dart";
@@ -291,6 +292,41 @@ extension RoutingHelpers on BuildContext {
 
     if (current != uri) {
       push(uri);
+    }
+  }
+
+  /// Opens the chip reading for what the camera or the manual entry read.
+  void pushNfcReadingScreenFor(ScannedMrz mrz) {
+    final countryCode = mrz.countryCode.isEmpty ? null : mrz.countryCode;
+    switch (mrz) {
+      case ScannedPassportMrz():
+        pushPassportNfcReadingScreen(
+          PassportNfcReadingRouteParams(
+            documentNumber: mrz.documentNumber,
+            dateOfBirth: mrz.dateOfBirth,
+            dateOfExpiry: mrz.dateOfExpiry,
+            countryCode: countryCode,
+          ),
+        );
+      case ScannedIdCardMrz():
+        pushIdCardNfcReadingScreen(
+          PassportNfcReadingRouteParams(
+            documentNumber: mrz.documentNumber,
+            dateOfBirth: mrz.dateOfBirth,
+            dateOfExpiry: mrz.dateOfExpiry,
+            countryCode: countryCode,
+          ),
+        );
+      case ScannedDrivingLicenceMrz():
+        pushDrivingLicenceNfcReadingScreen(
+          DrivingLicenceNfcReadingRouteParams(
+            documentNumber: mrz.documentNumber,
+            version: mrz.version,
+            randomData: mrz.randomData,
+            configuration: mrz.configuration,
+            countryCode: mrz.countryCode,
+          ),
+        );
     }
   }
 

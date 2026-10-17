@@ -2,9 +2,7 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
@@ -13,7 +11,6 @@ import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
-import "missing_data_fixtures.dart" hide testCredential;
 import "support/onboarding_v2_harness.dart";
 
 const _tablet = Size(1180, 820);
@@ -87,40 +84,6 @@ void main() {
       final receive = tester.getRect(find.text("You will receive"));
       expect(receive.top, greaterThan(card.bottom));
     });
-  });
-
-  testWidgets("add data first, tablet: the question left, the steps and "
-      "the button right", (tester) async {
-    await pump(
-      tester,
-      _tablet,
-      AddMissingDataScreen(
-        sessionId: testSessionId,
-        onDismiss: () {},
-        onClose: () {},
-      ),
-      overrides: [
-        sessionStateProvider(testSessionId).overrideWith(
-          (ref) => Stream.value(
-            testSession(
-              steps: [
-                testStep([
-                  [testDescriptor("email")],
-                ]),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-
-    expect(find.byType(SessionColumns), findsOneWidget);
-    final title = tester.getRect(find.byKey(const Key("large_title")));
-    final step = tester.getRect(find.byKey(const Key("add_step_0")));
-    final add = tester.getRect(find.byKey(const Key("add_button")));
-    expect(step.left, greaterThan(title.right));
-    expect(add.left, greaterThan(title.right));
-    expect(add.bottom, lessThan(_tablet.height - 100));
   });
 
   for (final (name, screen, button) in [

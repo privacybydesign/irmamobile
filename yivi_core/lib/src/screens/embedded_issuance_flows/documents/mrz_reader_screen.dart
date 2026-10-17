@@ -9,7 +9,6 @@ import "package:permission_handler/permission_handler.dart";
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../util/missing_data_flow.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -97,7 +96,7 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
             title: widget.translationKeys.title,
             body: body,
             manualLabel: widget.translationKeys.manualEntryButton,
-            cancelLabel: context.missingDataBackLabel("document_flow.cancel"),
+            cancelLabel: "document_flow.cancel",
             onManual: widget.onManualAdd,
             onCancel: widget.onCancel,
           );
@@ -106,7 +105,6 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
         return Scaffold(
           backgroundColor: theme.backgroundTertiary,
           appBar: IrmaAppBar(
-            bottom: context.missingDataBand,
             titleTranslationKey: widget.translationKeys.title,
             leading: YiviBackButton(
               key: const Key("bottom_bar_secondary"),
@@ -195,7 +193,6 @@ class _CameraScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    final band = context.missingDataBand;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Light status bar icons over the dark camera.
@@ -252,8 +249,6 @@ class _CameraScaffold extends StatelessWidget {
                 ],
               ),
             ),
-            if (band != null)
-              Positioned(left: 0, right: 0, top: padding.top + 68, child: band),
             Positioned(
               left: 16 + padding.left,
               right: 16 + padding.right,

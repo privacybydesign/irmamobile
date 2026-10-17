@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/email/widgets/enter_email_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/email/widgets/email_address_entry.dart";
 
 void main() {
   test("valid email addresses", () {

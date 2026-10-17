@@ -43,7 +43,9 @@ class IssueSheetProgress extends StatelessWidget {
           label: t("share.sheet.for_requestor", {"requestor": requestor.name}),
         ),
         Expanded(
+          // Read out when the step changes.
           child: Semantics(
+            liveRegion: true,
             label: done
                 ? t("share.sheet.progress_done_label")
                 : t("share.step_count", params),

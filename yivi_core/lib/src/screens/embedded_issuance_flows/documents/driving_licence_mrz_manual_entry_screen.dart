@@ -2,7 +2,6 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "widgets/driving_licence_mrz_field.dart";
@@ -86,7 +85,6 @@ class _DrivingLicencetMrzManualEntryScreenState
         extendBody: true,
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
-          bottom: context.missingDataBand,
           titleTranslationKey: "driving_licence.scan.title",
         ),
         body: SizedBox(
@@ -115,7 +113,7 @@ class _DrivingLicencetMrzManualEntryScreenState
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
+          secondaryButtonLabel: "ui.cancel",
           onSecondaryPressed: widget.onCancel,
         ),
       ),

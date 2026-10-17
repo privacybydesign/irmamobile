@@ -16,7 +16,6 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_read
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -170,15 +169,22 @@ Future<void> testDisclosePassportOpensPassportScanner(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
+  // The passport is missing: an empty spot with one way to fill it.
+  await waitForRequest(tester);
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(shareButtonEnabled(tester), isFalse);
 
-  // The passport is added in the app (an embedded flow, no website), so the
-  // add button can be used: it opens the passport instructions, and from
-  // there the scanner.
-  expect(addButtonTexts(tester).first, startsWith("Add "));
-  await tester.tapAndSettle(find.byKey(const Key("add_button")));
-  await tester.waitFor(find.byType(DocumentInstructionScreen));
+  // The passport is added in the app (an embedded flow, no website), inside
+  // the Change sheet: the spot opens its details, "Add" the passport
+  // instructions, and from there the scanner.
+  await tapSpot(tester, 0);
+  await tester.tapAndSettle(find.byKey(const Key("sheet_go_button")));
+  await tester.waitFor(
+    find.descendant(
+      of: findChoiceSheet(),
+      matching: find.byType(DocumentInstructionScreen),
+    ),
+  );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
@@ -214,20 +220,21 @@ Future<void> testDisclosePassportOpensPassportScanner(
   expect(fakeReader.lastExpiryDate, fakeMrz.expiryDate);
   expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
 
-  // after reading passport an issuance session will start
-  await tester.waitFor(find.byType(SessionScreen));
-
-  // press the continue button
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // The issuance ran inside the request: its success screen leads back.
-  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  // After reading the passport an issuance session starts; it shows in the
+  // sheet (step 3), as does its success page.
+  final issuance = find.byKey(const Key("sheet_issuance"));
+  await tester.waitFor(issuance);
+  await tester.tapAndSettle(find.byKey(const Key("sheet_issue_add")));
+  final back = find.byKey(const Key("sheet_back_to_request"));
+  await tester.waitFor(back);
   expect(find.textContaining("Back to "), findsOneWidget);
-  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+  await tester.tapAndSettle(back);
+  await tester.waitUntilDisappeared(findChoiceSheet());
 
-  // Back at "Add data first": the issued card is not the passport.
-  await tester.waitFor(findAddScreen());
-  expect(findAddScreen(), findsOneWidget);
+  // Back on the request: the issued card is not the passport, so the spot
+  // is still empty.
+  expect(find.byType(SessionScreen), findsOneWidget);
+  expect(findEmptySpot(0), findsOneWidget);
 }
 
 Future<void> navigateToLatestActivity(
@@ -1121,21 +1128,21 @@ Future<void> testOneMissingOnePresent(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  // The phone number is missing: one step that adds it.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  _expectAddOption(0, 0, "Demo Mobile phone number", _sidn);
-  expectAddButtonFor(tester, "Demo Mobile phone number");
+  // The phone number is missing: the e-mail address is in place, the phone
+  // number an empty spot that Share waits for.
+  await waitForRequest(tester);
+  expect(findShareSlot(0), findsOneWidget);
+  expectEmptySpot(
+    1,
+    "Demo Mobile phone number",
+    hint: "Tap to add it from $_sidn",
+  );
+  expectShareWaitsFor(tester, "Demo Mobile phone number");
 
-  // The button opens the issuer's website; the test issues the card the way
-  // that website would.
+  // The test issues the card the way the issuer's website would: it lands
+  // in its spot.
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10);
-
-  // Everything is added: the share screen follows by itself.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(findAddScreen(), findsNothing);
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  await expectAddedInPlace(tester, 1);
 
   await evaluateCredentialCard(
     tester,
@@ -1181,19 +1188,18 @@ Future<void> testDiscloseSdJwtThatsNotThere(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  // The e-mail address is missing: one step that adds it.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  _expectAddOption(0, 0, "Demo Email address", _sidn);
-  expectAddButtonFor(tester, "Demo Email address");
+  // The e-mail address is missing: an empty spot with one way to fill it.
+  await waitForRequest(tester);
+  expectEmptySpot(0, "Demo Email address", hint: "Tap to add it from $_sidn");
+  expectShareWaitsFor(tester, "Demo Email address");
 
-  // The button opens the issuer's website; the test issues the card the way
-  // that website would.
+  // The spot opens its details in the sheet; "Add" opens the website while
+  // the sheet waits. The test issues the card the way that website would:
+  // the issuance shows in the sheet and the card lands in its spot.
+  await tapSpot(tester, 0);
+  await tapAddOnDetails(tester);
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
-
-  // Everything is added: the share screen follows by itself.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(findAddScreen(), findsNothing);
+  await expectAddedInPlace(tester, 0);
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -1654,18 +1660,6 @@ Future<void> _pickOwnedContaining(WidgetTester tester, String text) async {
   );
   await tester.tapAndSettle(row);
   await tester.waitUntilDisappeared(findChoiceSheet());
-}
-
-/// Checks option [option] of step [step] on "Add data first": the card's
-/// name, and "{issuer} · on {host}".
-void _expectAddOption(int step, int option, String name, String issuer) {
-  final row = findAddOption(step, option);
-  expect(row, findsOneWidget);
-  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
-  expect(
-    find.descendant(of: row, matching: find.textContaining("$issuer · on ")),
-    findsOneWidget,
-  );
 }
 
 /// The index of the one optional item on the share screen that is not

@@ -10,7 +10,6 @@ import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/handle_pointer.dart";
-import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
@@ -190,7 +189,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           extendBody: true,
           backgroundColor: palette.background,
           appBar: IrmaAppBar(
-            bottom: context.missingDataBand,
             titleTranslationKey: titleKey,
             leading: YiviBackButton(onTap: _goBack),
             hasBorder: false,
@@ -276,10 +274,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                   onSecondaryPressed: () => showResendSmsDialog(state.email),
                 )
               : IrmaBottomBar(
-                  secondaryButtonLabel: context.missingDataBackLabel(
-                    "email_issuance.verify_code.back_button",
-                  ),
-                  onSecondaryPressed: context.missingDataBack(context.pop),
+                  secondaryButtonLabel: "email_issuance.verify_code.back_button",
+                  onSecondaryPressed: context.pop,
                 ),
         ),
       ),

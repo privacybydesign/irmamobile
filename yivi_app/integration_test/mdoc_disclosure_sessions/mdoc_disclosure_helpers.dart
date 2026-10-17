@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../disclosure_session/disclosure_helpers.dart";
@@ -15,8 +14,8 @@ const booleanNo = "No";
 
 /// Starts an OpenID4VP transaction for [dcql] at the EUDI verifier and opens
 /// it in the wallet. Returns once the request is on screen: the share screen,
-/// or "Add data first" when something is missing. Returns the session so the
-/// test can read the verifier's side back afterwards.
+/// also when something is missing (an empty spot). Returns the session so
+/// the test can read the verifier's side back afterwards.
 Future<EudiVerifierSession> startMdocDisclosure(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -24,64 +23,22 @@ Future<EudiVerifierSession> startMdocDisclosure(
 ) async {
   final session = await startEudiVerifierSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session.uri);
-  await tester.waitFor(
-    find.byWidgetPredicate(
-      (w) => w is DisclosureShareScreen || w is AddMissingDataScreen,
-    ),
-  );
+  await tester.waitFor(find.byType(DisclosureShareScreen));
   await tester.pumpAndSettle();
   return session;
 }
 
-/// Checks "Add data first" for an mdoc that nothing in the wallet satisfies
-/// and that Yivi cannot add (an mdoc descriptor has no issue URL): one step
-/// that "Can't be added from Yivi", the [required] values as "must be …"
-/// rows (label, value), and "Close" with where to get it. Then taps Close.
-Future<void> expectCannotAddAndClose(
-  WidgetTester tester, {
-  List<(String, String)> required = const [],
-}) async {
-  expect(find.byType(DisclosureShareScreen), findsNothing);
-  expect(findAddScreen(), findsOneWidget);
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  expect(findAddOption(0, 0), findsOneWidget);
-  expect(
-    find.descendant(
-      of: findAddStep(0),
-      matching: find.text("Can't be added from Yivi"),
-    ),
-    findsOneWidget,
-  );
-  for (final (label, value) in required) {
-    expect(
-      find.descendant(of: findAddStep(0), matching: find.text(label)),
-      findsOneWidget,
-      reason: "required value label '$label'",
-    );
-    expect(
-      find.descendant(
-        of: findAddStep(0),
-        matching: find.text("must be $value"),
-      ),
-      findsOneWidget,
-      reason: "required value '$value' of '$label'",
-    );
-  }
-
-  // Nothing to add from here: the button closes, and says why.
-  expect(find.byKey(const Key("add_reason")), findsOneWidget);
-  expect(
-    tester.widget<Text>(find.byKey(const Key("add_reason"))).data,
-    contains("Get it from"),
-  );
-  expect(addButtonTexts(tester), ["Close"]);
-  await tester.tapAndSettle(
-    find.descendant(
-      of: find.byKey(const Key("add_button")),
-      matching: find.text("Close"),
-    ),
-  );
+/// Checks the share screen for an mdoc that nothing in the wallet satisfies
+/// and that Yivi cannot add (an mdoc descriptor has no issue URL): one empty
+/// spot that "Can't be added in Yivi", and "Close" with where to get it.
+/// Then taps Close.
+Future<void> expectCannotAddAndClose(WidgetTester tester) async {
+  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(findEmptySpot(1), findsNothing);
+  expectCannotAdd(tester, 0);
+  expect(shareReason(tester), contains("Get it from"));
+  await tapShare(tester);
 }
 
 /// Polls the verifier for the wallet response of [session] for up to

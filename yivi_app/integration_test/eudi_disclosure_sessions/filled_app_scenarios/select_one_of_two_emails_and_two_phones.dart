@@ -83,7 +83,7 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
   await tapChangeChoicesButton(tester);
 
   // 4 owned options; nothing to add for OID4VCI. With two types in one
-  // sheet, a row shows the type's name and "{value} · {issuer}" below it.
+  // sheet, each row is the card with its values.
   expectOnlyOwnedInSheet(4);
   for (final value in [
     "one@example.com",
@@ -91,11 +91,11 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
     "0612345678",
     "0687654321",
   ]) {
-    expect(sheetOwnedRowsWith("$value · Test Issuer"), findsOneWidget);
+    expect(sheetOwnedRowsWith("$value"), findsOneWidget);
   }
 
   // One tap picks the last phone and closes the sheet.
-  await pickOwned(tester, "0687654321 · Test Issuer");
+  await pickOwned(tester, "0687654321");
   await evaluateCredentialCard(
     tester,
     findShareSlot(0),

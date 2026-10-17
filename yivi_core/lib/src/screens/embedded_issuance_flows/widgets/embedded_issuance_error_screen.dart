@@ -3,7 +3,6 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../util/missing_data_flow.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -32,7 +31,6 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       extendBody: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
-        bottom: context.missingDataBand,
         titleTranslationKey: titleTranslationKey,
         hasBorder: false,
       ),
@@ -44,11 +42,9 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "error.button_retry",
-        secondaryButtonLabel: context.missingDataBackLabel(
-          "email_issuance.enter_email.back_button",
-        ),
+        secondaryButtonLabel: "email_issuance.enter_email.back_button",
         onPrimaryPressed: onTryAgain,
-        onSecondaryPressed: context.missingDataBack(context.pop),
+        onSecondaryPressed: context.pop,
       ),
     );
   }

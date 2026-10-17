@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -37,24 +36,21 @@ Future<void> optionalsTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // First the required address is added: one step, with a choice between
-  // the municipality and iDIN. The municipality starts selected.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddOption(0, 0), findsOneWidget);
-  expect(findAddOption(0, 1), findsOneWidget);
-  expect(find.text("Which one do you want to add?"), findsOneWidget);
-  expectAddButtonFor(tester, "Demo Address");
-
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would.
-  await issueMunicipalityAddress(tester, irmaBinding);
-
-  // Everything required is added: the share screen follows, with the
-  // optional data not included yet.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  // The request shows at once: the required address is an empty spot (the
+  // municipality or iDIN), the optional data an "Add" row, not included.
+  await waitForRequest(tester);
+  expectEmptySpot(
+    0,
+    "Demo Address or Demo iDIN",
+    hint: "Tap to choose which one to add",
+  );
   expect(find.text("OPTIONAL"), findsOneWidget);
+  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
+  expectShareWaitsFor(tester, "Demo Address or Demo iDIN");
+
+  // The address comes in without the sheet; it lands in its spot.
+  await issueMunicipalityAddress(tester, irmaBinding);
+  await expectAddedInPlace(tester, 0);
   expect(findShareSlot(1), findsNothing);
 
   // Add the e-mail address as optional data.

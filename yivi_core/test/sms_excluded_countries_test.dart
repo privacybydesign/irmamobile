@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_list.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/sms/widgets/enter_phonenumber_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/sms/widgets/phone_number_entry.dart";
 
 /// Every country that should be excluded from the SMS phone number picker. Most
 /// are excluded because CM (the SMS provider) does not support their phone

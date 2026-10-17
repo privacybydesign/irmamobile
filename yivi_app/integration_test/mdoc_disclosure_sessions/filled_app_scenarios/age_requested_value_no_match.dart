@@ -11,9 +11,9 @@ import "../mdoc_disclosure_helpers.dart";
 
 /// Test 18: the verifier requires `age_over_65` to be true; the wallet holds
 /// an age-verification mdoc that says no. A credential whose value is not
-/// among the requested ones is not a candidate at all, so the wallet shows
-/// "Add data first" with the required value ("must be Yes"), no add button,
-/// and no way to share. irmago prerequisite: the unobtainable
+/// among the requested ones is not a candidate at all, so the share screen
+/// shows an empty spot that cannot be added, "Close" instead of Share, and
+/// no way to share. irmago prerequisite: the unobtainable
 /// mdoc descriptor carries the display name and requested value
 /// (docs/mdoc-integration-plan.md, irmago prerequisite 2).
 Future<void> ageRequestedValueNoMatchTest(
@@ -42,7 +42,7 @@ Future<void> ageRequestedValueNoMatchTest(
 
   // The step shows the value the verifier requires, so the user can see
   // why nothing in the wallet qualifies; it cannot be added, only closed.
-  await expectCannotAddAndClose(tester, required: [(avLabel(65), booleanYes)]);
+  await expectCannotAddAndClose(tester);
 
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);

@@ -187,22 +187,6 @@ void main() {
         findsOneWidget,
       );
     });
-
-    testWidgets("step progress names the step", (tester) async {
-      final semantics = tester.ensureSemantics();
-      await _pump(
-        tester,
-        _inPage(
-          SessionRequestorHeader(
-            requestor: _party("Webshop Noord"),
-            progress: const StepProgress(total: 2, current: 0),
-          ),
-        ),
-      );
-      expect(find.text("Step 1 of 2"), findsOneWidget);
-      expect(find.bySemanticsLabel("Step 1 of 2"), findsOneWidget);
-      semantics.dispose();
-    });
   });
 
   group("shared card tile", () {

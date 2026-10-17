@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 
 import "../../helpers/helpers.dart";
@@ -35,34 +34,18 @@ Future<void> specificAttributeValuesTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Two steps to add: iDIN (the city must be Arnhem), then iDEAL (the BIC
-  // must be RABONL2U).
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsOneWidget);
-  expectAddButtonFor(tester, "Demo iDIN");
+  // Two empty spots: iDIN (the city must be Arnhem) and iDEAL (the BIC must
+  // be RABONL2U).
+  await waitForRequest(tester);
+  expectEmptySpot(0, "Demo iDIN");
+  expectEmptySpot(1, "Demo iDEAL");
+  expectShareWaitsFor(tester, "Demo iDIN");
 
-  // The current step says which value is needed, in green. The requested
-  // attributes without a value are not listed.
-  final palette = YiviPalette.of(tester.element(findAddScreen()));
-  _expectRequired(tester, 0, "City", "Arnhem", palette.successText);
-  for (final name in ["Initials", "Family name"]) {
-    expect(
-      find.descendant(of: findAddStep(0), matching: find.text(name)),
-      findsNothing,
-    );
-  }
-
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would. First the right iDIN credential.
+  // The test issues the cards the way the issuers' websites would. First
+  // the right iDIN credential: it lands in its spot.
   await issueIdin(tester, irmaBinding);
-
-  // iDIN is in; iDEAL is current, with its required BIC.
-  await tester.waitFor(
-    find.descendant(of: findAddStep(0), matching: find.text("Added")),
-  );
-  expectAddButtonFor(tester, "Demo iDEAL");
-  _expectRequired(tester, 1, "BIC", "RABONL2U", palette.successText);
+  await expectAddedInPlace(tester, 0);
+  expectShareWaitsFor(tester, "Demo iDEAL");
 
   // Now obtain the iDEAL credential with the wrong BIC
   await issueCredentials(tester, irmaBinding, {
@@ -71,26 +54,21 @@ Future<void> specificAttributeValuesTest(
     "irma-demo.ideal.ideal.bic": "INGBNL2A",
   });
 
-  // The step says so in place (no dialog): what was added next to what is
-  // needed, and the button adds again.
-  final wrongNoteFinder = find.byKey(const Key("add_wrong_note"));
-  await tester.waitFor(wrongNoteFinder);
+  // The spot says so in place (no dialog): what was added next to what is
+  // needed. It stays empty, and Share keeps waiting.
+  final wrongFinder = find.descendant(
+    of: findEmptySpot(1),
+    matching: find.byKey(const Key("share_spot_wrong")),
+  );
+  await tester.waitFor(wrongFinder);
   expect(find.byType(Dialog), findsNothing);
   expect(
-    find.descendant(of: findAddStep(1), matching: find.text("You added")),
-    findsOneWidget,
+    tester.widget<Text>(wrongFinder).data,
+    "You added INGBNL2A, needed RABONL2U. Tap to add it again.",
   );
-  final addedValue = find.descendant(
-    of: findAddStep(1),
-    matching: find.text("INGBNL2A"),
-  );
-  expect(addedValue, findsOneWidget);
-  expect(tester.widget<Text>(addedValue).style?.color, palette.errorText);
-  expect(
-    find.descendant(of: findAddStep(1), matching: find.text("Needed")),
-    findsOneWidget,
-  );
-  expect(addButtonTexts(tester).first, "Add again");
+  final palette = YiviPalette.of(tester.element(wrongFinder));
+  expect(tester.widget<Text>(wrongFinder).style?.color, palette.errorText);
+  expect(shareButtonEnabled(tester), isFalse);
 
   // Now issue the credential with requested BIC
   await issueCredentials(tester, irmaBinding, {
@@ -99,32 +77,9 @@ Future<void> specificAttributeValuesTest(
     "irma-demo.ideal.ideal.bic": "RABONL2U",
   });
 
-  // Everything is added: the share screen follows by itself, without the
-  // note.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(wrongNoteFinder, findsNothing);
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  // The right card is in its place, without the note.
+  await expectAddedInPlace(tester, 1);
+  expect(find.byKey(const Key("share_spot_wrong")), findsNothing);
   await tapShare(tester);
   await evaluateFeedback(tester);
-}
-
-/// Checks that step [step] on the add screen lists [label] with "must be
-/// [value]" in [color].
-void _expectRequired(
-  WidgetTester tester,
-  int step,
-  String label,
-  String value,
-  Color color,
-) {
-  expect(
-    find.descendant(of: findAddStep(step), matching: find.text(label)),
-    findsOneWidget,
-  );
-  final mustBe = find.descendant(
-    of: findAddStep(step),
-    matching: find.text("must be $value"),
-  );
-  expect(mustBe, findsOneWidget);
-  expect(tester.widget<Text>(mustBe).style?.color, color);
 }

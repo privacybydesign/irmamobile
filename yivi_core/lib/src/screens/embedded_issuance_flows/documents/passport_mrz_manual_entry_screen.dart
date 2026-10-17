@@ -2,7 +2,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "widgets/date_input_field.dart";
@@ -133,7 +132,6 @@ class _PassportMrzManualEntryScreenState
         extendBody: true,
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
-          bottom: context.missingDataBand,
           titleTranslationKey: widget.translationKeys.appBarTitle,
         ),
         body: SizedBox(
@@ -210,7 +208,7 @@ class _PassportMrzManualEntryScreenState
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
+          secondaryButtonLabel: "ui.cancel",
           onSecondaryPressed: widget.onCancel,
         ),
       ),

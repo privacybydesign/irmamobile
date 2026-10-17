@@ -14,9 +14,9 @@ import "../mdoc_disclosure_helpers.dart";
 ///
 /// irmago answers a query nothing owns with a URL-less descriptor built from
 /// the query itself (there is no discovery document for an mdoc docType), so
-/// the wallet shows "Add data first" with one step that "Can't be added from
-/// Yivi" and, because the descriptor has no issue URL, a "Close" button with
-/// where to get it instead of an "Add …" button. Nothing can be shared and
+/// the share screen shows one empty spot that "Can't be added in Yivi" and,
+/// because the descriptor has no issue URL, a "Close" button with where to
+/// get it instead of Share. Nothing can be shared and
 /// nothing reaches the verifier.
 Future<void> ageMissingTest(
   WidgetTester tester,

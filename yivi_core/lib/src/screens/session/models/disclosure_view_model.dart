@@ -149,6 +149,83 @@ List<DisclosureDisconSelection> disclosureChoicesFor(
     ),
 ];
 
+/// Whether [pickOne] is an empty spot on the share screen: required, and
+/// nothing in the app fills it yet (irmago sends the choices from the start,
+/// with no owned options for a card that is still to be added).
+bool isEmptySpot(DisclosurePickOne pickOne) =>
+    !pickOne.optional && (pickOne.ownedOptions ?? const []).isEmpty;
+
+/// What an empty spot asks for: its types, "Email address or Phone number",
+/// or "Root + Name" when they are only accepted [together].
+String spotName(
+  DisclosurePickOne pickOne,
+  String or, {
+  bool together = false,
+}) => (pickOne.obtainableOptions ?? const [])
+    .map((d) => d.name)
+    .join(together ? " + " : or);
+
+/// Whether [pickOne]'s types are only accepted together: the missing-data
+/// steps offer exactly these types as one option, a set of cards.
+bool spotTogether(DisclosurePickOne pickOne, IssueDuringDisclosure? plan) {
+  final ids = {
+    for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[])
+      d.credentialId,
+  };
+  if (ids.length < 2 || plan == null) return false;
+  return plan.steps.any(
+    (s) =>
+        s.options.length == 1 &&
+        const SetEquality<String>().equals(
+          s.options.single.credentials.map((c) => c.credentialId).toSet(),
+          ids,
+        ),
+  );
+}
+
+/// The values the request needs on the card for [pickOne] ("must be …"), as
+/// field and value.
+List<(String, AttributeValue)> spotRequiredValues(
+  DisclosurePickOne pickOne,
+) => [
+  for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[])
+    for (final a in d.attributes)
+      if (a.requestedValue case final v? when v.hasConcreteValue)
+        (a.effectiveDisplayName, v),
+];
+
+/// The value of a card that was added for [pickOne] but does not match what
+/// the request needs, compared with what it needs; null when there is none.
+IssuanceMismatch? spotMismatch(
+  DisclosurePickOne pickOne,
+  IssueDuringDisclosure? plan,
+) {
+  final wrong = plan?.wrongCredentialIssued;
+  if (wrong == null || !isEmptySpot(pickOne)) return null;
+  final templates = [
+    for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[])
+      if (d.credentialId == wrong.credentialId) d,
+  ];
+  if (templates.isEmpty) return null;
+  return issuanceMismatches(
+    [wrong],
+    [
+      IssuanceStep(options: [IssuanceBundle(credentials: templates)]),
+    ],
+  ).firstOrNull;
+}
+
+/// Whether the card selected for [pickOne] was added during this request.
+bool addedDuringRequest(
+  DisclosurePickOne pickOne,
+  DisclosureBundle bundle,
+  IssueDuringDisclosure? plan,
+) {
+  final issued = plan?.issuedCredentialIds?.keys.toSet() ?? const {};
+  return !pickOne.optional &&
+      bundle.credentials.any((c) => issued.contains(c.credentialId));
+}
+
 /// Whether the share screen shows "Change" on [pickOne]: there is more
 /// than one thing to choose from (cards in the app plus types that can be
 /// added).
@@ -200,11 +277,20 @@ class ShareButtonState {
   /// the button closes the session, with "Ask {issuer} for a new one."
   final String? cannotRenewFrom;
 
+  /// The first empty spot, for "Add {name} first."
+  final DisclosurePickOne? missing;
+
+  /// An empty spot nothing can be added for from Yivi: the button closes
+  /// the session, with "Get it from {issuer} first."
+  final DisclosurePickOne? cannotAdd;
+
   const ShareButtonState({
     required this.label,
     required this.enabled,
     this.blockedBy,
     this.cannotRenewFrom,
+    this.missing,
+    this.cannotAdd,
   });
 }
 
@@ -214,9 +300,19 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
   final pickOnes = state.disclosurePlan?.disclosureChoicesOverview ?? const [];
   CardProblem? blockedBy;
   String? cannotRenewFrom;
+  DisclosurePickOne? missing;
+  DisclosurePickOne? cannotAdd;
   var anyShared = false;
 
   for (final (i, pickOne) in pickOnes.indexed) {
+    if (isEmptySpot(pickOne)) {
+      if (addableOptions(pickOne).isEmpty) {
+        cannotAdd ??= pickOne;
+      } else {
+        missing ??= pickOne;
+      }
+      continue;
+    }
     final k = selectionOf(pickOne, selections[i]);
     if (k < 0) continue;
     anyShared = true;
@@ -228,6 +324,13 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
     if (stuck) cannotRenewFrom ??= bundle.credentials.first.issuer.name;
   }
 
+  if (cannotAdd != null) {
+    return ShareButtonState(
+      label: ShareLabel.close,
+      enabled: true,
+      cannotAdd: cannotAdd,
+    );
+  }
   if (cannotRenewFrom != null) {
     return ShareButtonState(
       label: ShareLabel.close,
@@ -245,87 +348,10 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
       : ShareLabel.shareWithoutData;
   return ShareButtonState(
     label: label,
-    enabled: blockedBy == null,
+    enabled: blockedBy == null && missing == null,
     blockedBy: blockedBy,
+    missing: missing,
   );
-}
-
-// --- Adding missing data (issue during disclosure) --------------------------
-
-/// Whether [step] is satisfied: one of its options was added in full.
-bool isStepDone(IssuanceStep step, Set<String> issuedCredentialIds) =>
-    step.options.any(
-      (b) => b.credentials.every(
-        (c) => issuedCredentialIds.contains(c.credentialId),
-      ),
-    );
-
-/// Whether every type in [bundle] can be added from Yivi.
-bool canBeAddedBundle(IssuanceBundle bundle) =>
-    bundle.credentials.every(canBeAdded);
-
-/// The option of [step] that starts selected: the first that can be added.
-int defaultStepOption(IssuanceStep step) =>
-    step.options.indexWhere(canBeAddedBundle).clamp(0, step.options.length);
-
-/// What the single button of the "Add data first" screen does for the
-/// current step.
-sealed class AddAction {
-  const AddAction();
-}
-
-/// Open the issuer of [descriptor] ("Add mobile number" / "Opens …").
-/// [again] after a card with the wrong value was added.
-class AddCredential extends AddAction {
-  final CredentialDescriptor descriptor;
-  final bool again;
-
-  const AddCredential(this.descriptor, {this.again = false});
-
-  String get host => hostOf(descriptor.issueURL)!;
-}
-
-/// The selected option cannot be added, but another one can: the button
-/// is disabled until the user picks that one.
-class PickAddable extends AddAction {
-  const PickAddable();
-}
-
-/// Nothing in this step can be added from Yivi: close the session, telling
-/// the user to get it from [issuers] first.
-class CloseCannotAdd extends AddAction {
-  final List<String> issuers;
-
-  /// The name of what cannot be added ("Voting card").
-  final String name;
-
-  const CloseCannotAdd(this.issuers, {this.name = ""});
-}
-
-/// The button for [step] with option [selected] chosen, given what was
-/// added so far and the card with the wrong value, if any.
-AddAction addActionFor(
-  IssuanceStep step,
-  int selected,
-  Set<String> issuedCredentialIds, {
-  Credential? wrongCredentialIssued,
-}) {
-  final bundle = step.options[selected.clamp(0, step.options.length - 1)];
-  if (!canBeAddedBundle(bundle)) {
-    if (step.options.any(canBeAddedBundle)) return const PickAddable();
-    return CloseCannotAdd(
-      bundle.credentials.map((c) => c.issuer.name).toSet().toList(),
-      name: bundle.credentials.map((c) => c.name).join(" + "),
-    );
-  }
-  final next = bundle.credentials.firstWhere(
-    (c) => !issuedCredentialIds.contains(c.credentialId),
-    orElse: () => bundle.credentials.first,
-  );
-  final again =
-      wrongCredentialIssued != null &&
-      wrongCredentialIssued.credentialId == next.credentialId;
-  return AddCredential(next, again: again);
 }
 
 // --- The issuance permission inside a request -------------------------------

@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -11,12 +10,11 @@ import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 /// Two-bundle choice with Bundle A partially pre-issued: MijnOverheid.root is
-/// owned, MijnOverheid.fullName is missing. The Go-side createIssuanceBundle
-/// filter removes the owned root from Bundle A in the wizard, so the wizard
-/// only asks the user to add fullName. After it is added the share screen
-/// shows Bundle A as one item with two cards (the pre-existing root and the
-/// just-issued fullName); Bundle B remains obtainable so "Change" stays
-/// visible.
+/// owned, MijnOverheid.fullName is missing. The share screen shows an empty
+/// spot; its sheet offers what is still missing, and only fullName needs to
+/// be added. After it is added the spot shows Bundle A as one item with two
+/// cards (the pre-existing root and the just-issued fullName); Bundle B
+/// remains obtainable so "Change" stays visible.
 Future<void> multiBundleChoicePartialTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -49,32 +47,23 @@ Future<void> multiBundleChoicePartialTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
   await waitForRequest(tester);
 
-  // The add screen asks for the missing fullName of Bundle A. Bundle B is
-  // still fully missing but Bundle A is the default selection, so the user
-  // can complete the step by adding only fullName.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(
-    find.descendant(of: findAddOption(0, 0), matching: find.text("Demo Name")),
-    // The option's name, and its line in the list of what is added.
-    findsWidgets,
-  );
-  expect(
-    find.descendant(
-      of: findAddOption(0, 1),
-      matching: find.text("Demo iDIN + Demo Address"),
-    ),
-    findsOneWidget,
-  );
-  expectAddButtonFor(tester, "Demo Name");
+  // The owned root alone does not fill the spot.
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(shareButtonEnabled(tester), isFalse);
 
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would.
+  // Its sheet offers the missing name (the owned root is not offered again)
+  // and Bundle B's cards. The name is added in the sheet.
+  await tapSpot(tester, 0);
+  expect(findSheetAddRow("irma-demo.MijnOverheid.fullName"), findsOneWidget);
+  expect(findSheetAddRow("irma-demo.MijnOverheid.root"), findsNothing);
+  expect(findSheetAddRow("irma-demo.idin.idin"), findsOneWidget);
+  await startAdding(tester, "irma-demo.MijnOverheid.fullName");
+
+  // The test issues the card the way the website would; the issuance shows
+  // in the sheet and the set lands in its spot.
   await issueMijnOverheidFullName(tester, irmaBinding);
-
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await expectAddedInPlace(tester, 0);
   await tester.waitFor(find.byType(SessionRequestorHeader));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

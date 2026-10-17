@@ -1,13 +1,11 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 import "sheet_checks.dart";
 
@@ -37,19 +35,17 @@ Future<void> filledOptionalDisjunctionTest(
         }
       ''');
 
-  // First, the missing e-mail address is added (one step).
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  expectAddButtonFor(tester, "Demo Email address");
+  // The request shows at once: the e-mail address is an empty spot, the
+  // optional mobile number an "Add" row.
+  await waitForRequest(tester);
+  expectEmptySpot(0, "Demo Email address");
+  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
+  expectShareWaitsFor(tester, "Demo Email address");
 
-  // The button opens the issuer's website; the test issues the card the
-  // way that website would.
+  // The test issues the card the way the issuer's website would: it lands
+  // in its spot.
   await issueEmailAddress(tester, irmaBinding);
-
-  // Everything required is added: the share screen follows by itself.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  await expectAddedInPlace(tester, 0);
   expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
   // The mobile number is optional and starts left out.

@@ -3,24 +3,32 @@ import "dart:async";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/log_entry.dart";
+import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/schemaless/session_user_interaction.dart";
+import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/document_flow_footer.dart";
+import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -111,6 +119,7 @@ class _Calls {
 
   /// What the sheet sent to Go (for an issuance in it).
   final bridge = RecordingBridge();
+  late final IrmaRepository repo;
 
   Iterable<SessionUserInteractionEvent> get interactions =>
       bridge.dispatched.whereType<SessionUserInteractionEvent>();
@@ -118,9 +127,8 @@ class _Calls {
 
 class _Screen extends ConsumerWidget {
   final _Calls calls;
-  final bool banner;
 
-  const _Screen(this.calls, {this.banner = false});
+  const _Screen(this.calls);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -128,7 +136,6 @@ class _Screen extends ConsumerWidget {
     if (session == null) return const SizedBox();
     return DisclosureShareScreen(
       session: session,
-      showAddedBanner: banner,
       onDismiss: () => calls.dismissed++,
       onClose: () => calls.closed++,
       onShare: calls.shared.add,
@@ -141,8 +148,8 @@ Future<_Calls> _pump(
   SessionState? session,
   Stream<SessionState>? sessions,
   Map<int, Stream<SessionState>> nested = const {},
+  List<Override> overrides = const [],
   Size size = const Size(390, 844),
-  bool banner = false,
 }) async {
   tester.view
     ..physicalSize = size
@@ -156,12 +163,10 @@ Future<_Calls> _pump(
     ),
   ))!;
   addTearDown(() => tester.runAsync(repo.close));
+  calls.repo = repo;
   final router = GoRouter(
     routes: [
-      GoRoute(
-        path: "/",
-        builder: (_, _) => _Screen(calls, banner: banner),
-      ),
+      GoRoute(path: "/", builder: (_, _) => _Screen(calls)),
       GoRoute(
         path: _detailsPath,
         builder: (_, state) {
@@ -185,23 +190,33 @@ Future<_Calls> _pump(
         ),
         for (final MapEntry(key: id, value: states) in nested.entries)
           sessionStateProvider(id).overrideWith((ref) => states),
+        ...overrides,
         // Where "Go to …" sends the user, recorded instead of opened.
         issuerOpenerProvider.overrideWithValue(
           (context, d, ref) async => calls.obtained.add(d.credentialId),
         ),
       ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp.router(
-          routerConfig: router,
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
+      // As in the app, the repository also as an inherited widget (which
+      // handlePointer reads).
+      child: IrmaRepositoryProvider(
+        repository: repo,
+        child: IrmaTheme(
+          builder: (_) => MaterialApp.router(
+            routerConfig: router,
+            // As the app does: the core Material that the code fields (pinput)
+            // look for.
+            builder: (context, child) =>
+                LegacyMaterialBridge(child: child ?? const SizedBox.shrink()),
+            localizationsDelegates: [
+              FlutterI18nDelegate(
+                translationLoader: FileTranslationLoader(
+                  basePath: "assets/locales",
+                  forcedLocale: const Locale("en", "US"),
+                ),
               ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
+              ...GlobalMaterialLocalizations.delegates,
+            ],
+          ),
         ),
       ),
     ),
@@ -543,12 +558,194 @@ void main() {
     expect(find.text("Share and add card"), findsOneWidget);
   });
 
-  testWidgets("after adding missing data: Everything is added", (tester) async {
-    await _pump(tester, session: _session([_passportOrIdCard()]), banner: true);
-    expect(
-      find.text("Everything is added. Check what you share."),
-      findsOneWidget,
+  group("a card not in the app yet", () {
+    SessionState withPlan(
+      List<DisclosurePickOne> choices,
+      IssueDuringDisclosure plan,
+    ) => SessionState(
+      id: _sessionId,
+      protocol: "irma",
+      type: SessionType.disclosure,
+      status: SessionStatus.requestPermission,
+      requestor: _party("Webshop Noord"),
+      disclosurePlan: DisclosurePlan(
+        disclosureChoicesOverview: choices,
+        issueDuringDisclosure: plan,
+      ),
     );
+    final email = DisclosurePickOne(
+      optional: false,
+      ownedOptions: [_bundle(_instance("email", "Email address", "a@b.nl"))],
+    );
+
+    testWidgets("is an empty spot; Share waits for it", (tester) async {
+      final calls = await _pump(
+        tester,
+        session: _session([
+          email,
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
+      expect(find.byKey(const Key("share_spot_1")), findsOneWidget);
+      expect(find.text("Tap to add it from Issuer"), findsOneWidget);
+      expect(find.text("Add ID card first."), findsOneWidget);
+      await tester.tap(_share);
+      await tester.pump();
+      expect(calls.shared, isEmpty);
+    });
+
+    testWidgets("one way to get it: the spot opens its details at once", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_spot_0")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.byKey(const Key("sheet_go_button")), findsOneWidget);
+    });
+
+    testWidgets("several ways: which one to add first", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              _descriptor("passport", "Passport"),
+              _descriptor("idcard", "ID card"),
+            ],
+          ),
+        ]),
+      );
+      expect(find.text("Tap to choose which one to add"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("share_spot_0")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_add_passport")), findsOneWidget);
+      expect(find.byKey(const Key("sheet_add_idcard")), findsOneWidget);
+    });
+
+    testWidgets("nothing to add it from: Close, and where to get it", (
+      tester,
+    ) async {
+      final calls = await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              CredentialDescriptor(
+                credentialId: "voting",
+                name: "Voting card",
+                issuer: _party("Demo Voting Card Issuer"),
+                category: null,
+                attributes: const [],
+                issueURL: null,
+              ),
+            ],
+          ),
+        ]),
+      );
+      expect(
+        find.text(
+          "Yivi can't add voting card. Get it from Demo Voting Card Issuer "
+          "first, then scan the QR code again.",
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(_share);
+      await tester.pump();
+      expect(calls.closed, 1);
+    });
+
+    testWidgets("a card with the wrong value: what was added, what is needed", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: withPlan(
+          [
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: const [],
+              obtainableOptions: [
+                CredentialDescriptor(
+                  credentialId: "ideal",
+                  name: "iDEAL",
+                  issuer: _party("Issuer"),
+                  category: null,
+                  attributes: [
+                    Attribute(
+                      claimPath: ["bic"],
+                      displayName: "BIC",
+                      requestedValue: AttributeValue(
+                        type: AttributeType.string,
+                        string: "RABONL2U",
+                      ),
+                    ),
+                  ],
+                  issueURL: "https://www.issuer.example/ideal",
+                ),
+              ],
+            ),
+          ],
+          IssueDuringDisclosure(
+            steps: const [],
+            wrongCredentialIssued: testCredential(
+              type: "ideal",
+              hash: "wrong-ideal",
+              name: "iDEAL",
+              attributes: [
+                Attribute(
+                  claimPath: ["bic"],
+                  displayName: "BIC",
+                  value: AttributeValue(
+                    type: AttributeType.string,
+                    string: "INGBNL2A",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(
+        find.text("You added INGBNL2A, needed RABONL2U. Tap to add it again."),
+        findsOneWidget,
+      );
+      expect(find.text("BIC must be RABONL2U"), findsOneWidget);
+    });
+
+    testWidgets("once added: in its place, added and selected", (tester) async {
+      await _pump(
+        tester,
+        session: withPlan(
+          [email],
+          IssueDuringDisclosure(
+            steps: const [],
+            issuedCredentialIds: const {"email": <String, dynamic>{}},
+          ),
+        ),
+      );
+      expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
+      expect(find.text("Email address added and selected"), findsOneWidget);
+    });
   });
 
   testWidgets("tablet: the question, who asks and the footnote left, what "
@@ -896,6 +1093,43 @@ void main() {
       );
     });
 
+    testWidgets("tablet: the same steps in the dialog, and nothing flies", (
+      tester,
+    ) async {
+      final nested = StreamController<SessionState>();
+      addTearDown(nested.close);
+      await _pump(
+        tester,
+        size: const Size(1180, 820),
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+        nested: {nestedId: nested.stream},
+      );
+      await tester.tap(find.byKey(const Key("share_spot_0")));
+      await tester.pumpAndSettle();
+      expect(find.text("1 of 3"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      expect(find.text("3 of 3"), findsOneWidget);
+      nested.add(issuance(SessionStatus.success));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key("sheet_back_to_request")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+    });
+
     testWidgets("choosing does not ask: the choice list just closes", (
       tester,
     ) async {
@@ -908,4 +1142,308 @@ void main() {
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
   });
+
+  group("adding an e-mail address in the sheet", () {
+    const nestedId = 2;
+    final email = CredentialDescriptor(
+      credentialId: "pbdf.sidn-pbdf.email",
+      name: "Email address",
+      issuer: _party("Yivi"),
+      category: null,
+      attributes: [],
+      issueURL: "https://email-issuer.example/issue",
+    );
+    final request = _session([
+      DisclosurePickOne(
+        optional: false,
+        ownedOptions: [_bundle(_instance("passport", "Passport", "Jansen"))],
+        obtainableOptions: [email],
+      ),
+    ]);
+
+    /// The sheet on the e-mail step, with the issuer faked.
+    Future<(_Calls, _FakeEmailApi, StreamController<SessionState>)> open(
+      WidgetTester tester,
+    ) async {
+      final api = _FakeEmailApi();
+      final nested = StreamController<SessionState>();
+      // Not awaited: without a listener (no issuance started) close() never
+      // completes.
+      addTearDown(() {
+        nested.close();
+      });
+      final calls = await _pump(
+        tester,
+        session: request,
+        nested: {nestedId: nested.stream},
+        overrides: [emailIssuerApiProvider.overrideWithValue(api)],
+      );
+      // The request waits, as far as the repository knows; and the next
+      // session id is not the request's.
+      await tester.runAsync(() async {
+        calls.repo.dispatch(SessionStateEvent(sessionState: request));
+        await Future<void>.delayed(Duration.zero);
+      });
+      expect(calls.repo.isActiveSession(_sessionId), isTrue);
+      calls.repo.allocateSessionId();
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_add_pbdf.sidn-pbdf.email")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await _pumpFor(tester);
+      return (calls, api, nested);
+    }
+
+    testWidgets("address, code, then the issuance: all in the sheet", (
+      tester,
+    ) async {
+      final (calls, api, nested) = await open(tester);
+      // Step 2: the address, in the sheet (no e-mail screen is pushed).
+      expect(find.text("Add email address"), findsOneWidget);
+      expect(find.text("2 of 3"), findsOneWidget);
+      expect(calls.obtained, isEmpty);
+
+      await tester.enterText(
+        find.byKey(const Key("email_input_field")),
+        "sanne@devries.example",
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const Key("contact_sheet_send")));
+      // The code page's cursor blinks, so it never settles: pump a while.
+      await _pumpFor(tester);
+      expect(api.sent, ["sanne@devries.example"]);
+      expect(find.text("We've sent you an email"), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key("email_verification_code_input_field")),
+        "ABC123",
+      );
+      await _pumpFor(tester);
+      expect(api.verified, ["ABC123"]);
+
+      // The checked code starts the issuance, which shows in the sheet.
+      nested.add(
+        SessionState(
+          id: nestedId,
+          protocol: "irma",
+          type: SessionType.issuance,
+          status: SessionStatus.requestPermission,
+          requestor: _party("Yivi"),
+          offeredCredentials: [
+            testCredential(
+              type: "pbdf.sidn-pbdf.email",
+              hash: "new-email",
+              name: "Email address",
+            ),
+          ],
+        ),
+      );
+      await _pumpFor(tester);
+      expect(find.text("3 of 3"), findsOneWidget);
+      expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
+    });
+
+    testWidgets("Cancel on the e-mail step asks first", (tester) async {
+      await open(tester);
+      // A focused field's cursor blinks, so the pages never settle.
+      await tester.tap(find.byKey(const Key("contact_sheet_cancel")));
+      await _pumpFor(tester);
+      expect(find.text("Stop adding email address?"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+      await _pumpFor(tester);
+      // Back on the choice, nothing added.
+      expect(find.text("What do you want to share?"), findsOneWidget);
+    });
+
+    testWidgets("back from the e-mail step returns to the details", (
+      tester,
+    ) async {
+      await open(tester);
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await _pumpFor(tester);
+      expect(find.text("Adding data"), findsOneWidget);
+      expect(find.text("1 of 3"), findsOneWidget);
+    });
+  });
+
+  group("adding a document in the sheet", () {
+    const nestedId = 2;
+    final passport = CredentialDescriptor(
+      credentialId: "pbdf.pbdf.passport",
+      name: "Passport",
+      issuer: _party("Yivi"),
+      category: null,
+      attributes: [],
+      issueURL: "https://passport-issuer.example/issue",
+    );
+    final request = _session([
+      DisclosurePickOne(
+        optional: false,
+        ownedOptions: [_bundle(_instance("idcard", "ID card", "Jansen"))],
+        obtainableOptions: [passport],
+      ),
+    ]);
+    Finder inSheet(Finder f) => find.descendant(
+      of: find.byKey(const Key("disclosure_choice_sheet")),
+      matching: f,
+    );
+
+    /// The sheet on the passport's instruction (its picture's sweep never
+    /// settles).
+    Future<(_Calls, StreamController<SessionState>)> open(
+      WidgetTester tester,
+    ) async {
+      final nested = StreamController<SessionState>();
+      addTearDown(() {
+        nested.close();
+      });
+      final calls = await _pump(
+        tester,
+        session: request,
+        nested: {nestedId: nested.stream},
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_add_pbdf.pbdf.passport")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await _pumpFor(tester);
+      return (calls, nested);
+    }
+
+    testWidgets("the instruction and the manual entry open in the sheet", (
+      tester,
+    ) async {
+      final (calls, _) = await open(tester);
+      expect(
+        inSheet(find.byKey(const Key("document_instruction_picture"))),
+        findsOneWidget,
+      );
+      expect(calls.obtained, isEmpty);
+      // The sheet waits for the issuance the chip read starts.
+      expect(
+        ProviderScope.containerOf(
+          tester.element(find.byType(ChangeChoiceSheet)),
+        ).read(nestedIssuanceHostProvider)?.underlyingSessionId,
+        _sessionId,
+      );
+
+      // No camera here: Start goes to typing it in.
+      await tester.tap(inSheet(find.byKey(DocumentFlowButton.primaryKey)));
+      await _pumpFor(tester);
+      expect(
+        inSheet(find.byType(PassportMrzManualEntryScreen)),
+        findsOneWidget,
+      );
+
+      // Back steps back in the flow, then to the details.
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await _pumpFor(tester);
+      expect(
+        inSheet(find.byKey(const Key("document_instruction_picture"))),
+        findsOneWidget,
+      );
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await _pumpFor(tester);
+      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.byType(DocumentInstructionScreen), findsNothing);
+    });
+
+    testWidgets("Cancel on the instruction asks first", (tester) async {
+      await open(tester);
+      await tester.tap(inSheet(find.byKey(DocumentFlowButton.secondaryKey)));
+      await _pumpFor(tester);
+      expect(find.text("Stop adding passport?"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+      await _pumpFor(tester);
+      expect(find.text("What do you want to share?"), findsOneWidget);
+    });
+
+    testWidgets("the chip read's issuance is step 3; cancelled, the details", (
+      tester,
+    ) async {
+      final (_, nested) = await open(tester);
+      // What the chip screen's handlePointer does once the issuer is called.
+      ProviderScope.containerOf(
+        tester.element(find.byType(ChangeChoiceSheet)),
+      ).read(nestedIssuanceHostProvider)!.attach(nestedId);
+      nested.add(
+        SessionState(
+          id: nestedId,
+          protocol: "irma",
+          type: SessionType.issuance,
+          status: SessionStatus.requestPermission,
+          requestor: _party("Yivi"),
+          offeredCredentials: [
+            testCredential(
+              type: "pbdf.pbdf.passport",
+              hash: "new-passport",
+              name: "Passport",
+            ),
+          ],
+        ),
+      );
+      await _pumpFor(tester);
+      expect(find.text("3 of 3"), findsOneWidget);
+      expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
+
+      // Cancelled there: back on the details, the document to be read again.
+      await tester.tap(find.byKey(const Key("sheet_issue_cancel")));
+      await tester.pump();
+      nested.add(
+        SessionState(
+          id: nestedId,
+          protocol: "irma",
+          type: SessionType.issuance,
+          status: SessionStatus.dismissed,
+          requestor: _party("Yivi"),
+        ),
+      );
+      await _pumpFor(tester);
+      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.byType(DocumentInstructionScreen), findsNothing);
+    });
+  });
+}
+
+/// Pumps frames for [duration], for a page that never settles (a blinking
+/// cursor).
+Future<void> _pumpFor(
+  WidgetTester tester, [
+  Duration duration = const Duration(seconds: 1),
+]) async {
+  for (
+    var t = Duration.zero;
+    t < duration;
+    t += const Duration(milliseconds: 50)
+  ) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
+
+/// The e-mail issuer, faked: sending always works; any code gives a session.
+class _FakeEmailApi implements EmailIssuerApi {
+  final sent = <String>[];
+  final verified = <String>[];
+
+  @override
+  Future<void> sendEmail({
+    required String emailAddress,
+    required String language,
+  }) async => sent.add(emailAddress);
+
+  @override
+  Future<SessionPointer> verifyCode({
+    required String email,
+    required String verificationCode,
+  }) async {
+    verified.add(verificationCode);
+    return SessionPointer(
+      u: "https://irma.example/session/abc",
+      irmaqr: "issuing",
+      protocol: Protocol.irma,
+      continueOnSecondDevice: true,
+    );
+  }
 }

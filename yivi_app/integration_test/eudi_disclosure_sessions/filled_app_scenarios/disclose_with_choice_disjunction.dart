@@ -82,10 +82,10 @@ Future<void> discloseWithChoiceDisjunctionTest(
 
   // 2 owned options; nothing to add for OID4VCI (the irmago backend leaves
   // `obtainable_options == null` for cred types without an IssueURL). Two
-  // types: each row has the name, and "{value} · {issuer}" below it.
+  // types: each row is the card with its values.
   expectOnlyOwnedInSheet(2);
-  final emailRow = sheetOwnedRowsWith("test@example.com · Test Issuer");
-  final phoneRow = sheetOwnedRowsWith("0612345678 · Test Issuer");
+  final emailRow = sheetOwnedRowsWith("test@example.com");
+  final phoneRow = sheetOwnedRowsWith("0612345678");
   expect(emailRow, findsOneWidget);
   expect(phoneRow, findsOneWidget);
   expect(
@@ -104,7 +104,7 @@ Future<void> discloseWithChoiceDisjunctionTest(
   );
 
   // Pick the phone (the sheet closes), share.
-  await pickOwned(tester, "0612345678 · Test Issuer");
+  await pickOwned(tester, "0612345678");
   await evaluateCredentialCard(
     tester,
     findShareSlot(0),

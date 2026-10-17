@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -39,10 +38,10 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  // No required credential is missing, so the wallet goes straight to the
-  // share screen rather than "Add data first": nothing is required, the age
-  // mdoc is an optional row, and the button shares nothing.
-  expect(find.byType(AddMissingDataScreen), findsNothing);
+  // No required credential is missing, so the share screen has no empty
+  // spot: nothing is required, the age mdoc is an optional row, and the
+  // button shares nothing.
+  expect(find.byKey(const Key("share_spot_0")), findsNothing);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   expect(find.text("Nothing required"), findsOneWidget);
   expect(

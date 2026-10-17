@@ -352,68 +352,164 @@ void main() {
     });
   });
 
-  group("adding missing data", () {
-    IssuanceStep step(List<List<CredentialDescriptor>> options) => IssuanceStep(
-      options: [for (final o in options) IssuanceBundle(credentials: o)],
+  group("empty spots", () {
+    test("a required item with no card in the app is an empty spot", () {
+      expect(isEmptySpot(_pickOne(obtainable: [_descriptor("email")])), isTrue);
+      expect(
+        isEmptySpot(
+          _pickOne(
+            owned: [
+              _bundle([_instance("email")]),
+            ],
+          ),
+        ),
+        isFalse,
+      );
+      // Optional data that is not in the app is an "Add" row instead.
+      expect(
+        isEmptySpot(
+          _pickOne(obtainable: [_descriptor("email")], optional: true),
+        ),
+        isFalse,
+      );
+    });
+
+    test("Share waits for it: Add {name} first", () {
+      final spot = _pickOne(
+        obtainable: [_descriptor("email"), _descriptor("mobile")],
+      );
+      final state = _session([
+        _pickOne(
+          owned: [
+            _bundle([_instance("name")]),
+          ],
+        ),
+        spot,
+      ]);
+      final button = shareButton(state, const {});
+      expect(button.enabled, isFalse);
+      expect(button.label, ShareLabel.share);
+      expect(button.missing, spot);
+      expect(spotName(spot, " or "), "email or mobile");
+    });
+
+    test("nothing to add it from in Yivi: Close, and where to get it", () {
+      final spot = _pickOne(
+        obtainable: [
+          _descriptor("voting", url: null, issuer: "Demo Voting Card Issuer"),
+        ],
+      );
+      final button = shareButton(_session([spot]), const {});
+      expect(button.label, ShareLabel.close);
+      expect(button.enabled, isTrue);
+      expect(button.cannotAdd, spot);
+    });
+
+    test(
+      "a card added with the wrong value: what was added, what is needed",
+      () {
+        final spot = _pickOne(
+          obtainable: [
+            _descriptor(
+              "ideal",
+              attributes: [_string("bic", "", requested: "RABONL2U")],
+            ),
+          ],
+        );
+        final plan = IssueDuringDisclosure(
+          steps: const [],
+          wrongCredentialIssued: _offered("ideal", [
+            _string("bic", "INGBNL2A"),
+          ]),
+        );
+        final mismatch = spotMismatch(spot, plan);
+        expect(mismatch?.offered?.string, "INGBNL2A");
+        expect(mismatch?.required.string, "RABONL2U");
+        // A wrong card of another type is not this spot's.
+        expect(
+          spotMismatch(_pickOne(obtainable: [_descriptor("email")]), plan),
+          isNull,
+        );
+      },
     );
 
-    test("a step is done once one option is fully added", () {
-      final s = step([
-        [_descriptor("root"), _descriptor("fullname")],
-        [_descriptor("idin")],
-      ]);
-      expect(isStepDone(s, {"root"}), isFalse);
-      expect(isStepDone(s, {"root", "fullname"}), isTrue);
-      expect(isStepDone(s, {"idin"}), isTrue);
-    });
-
-    test("the first option that can be added starts selected", () {
-      final s = step([
-        [_descriptor("member", url: null)],
-        [_descriptor("mobile")],
-      ]);
-      expect(defaultStepOption(s), 1);
-    });
-
-    test("one button: add the next card of the selected option", () {
-      final s = step([
-        [_descriptor("root"), _descriptor("fullname")],
-      ]);
-      final action = addActionFor(s, 0, {"root"});
-      expect(action, isA<AddCredential>());
-      expect((action as AddCredential).descriptor.credentialId, "fullname");
-      expect(action.host, "issuer.example");
-      expect(action.again, isFalse);
-    });
-
-    test("after a wrong value the button adds again", () {
-      final s = step([
-        [_descriptor("ideal")],
-      ]);
-      final action = addActionFor(
-        s,
-        0,
-        const {},
-        wrongCredentialIssued: _offered("ideal", const []),
+    test("types only accepted together are one set", () {
+      final spot = _pickOne(
+        obtainable: [_descriptor("root"), _descriptor("name")],
       );
-      expect((action as AddCredential).again, isTrue);
+      IssueDuringDisclosure steps(List<List<String>> options) =>
+          IssueDuringDisclosure(
+            steps: [
+              IssuanceStep(
+                options: [
+                  for (final o in options)
+                    IssuanceBundle(
+                      credentials: [for (final id in o) _descriptor(id)],
+                    ),
+                ],
+              ),
+            ],
+          );
+      expect(
+        spotTogether(
+          spot,
+          steps([
+            ["root", "name"],
+          ]),
+        ),
+        isTrue,
+      );
+      expect(spotName(spot, " or ", together: true), "root + name");
+      // Either one is enough: a choice, not a set.
+      expect(
+        spotTogether(
+          spot,
+          steps([
+            ["root"],
+            ["name"],
+          ]),
+        ),
+        isFalse,
+      );
+      expect(spotTogether(spot, null), isFalse);
     });
 
-    test("an option that cannot be added waits for another pick", () {
-      final s = step([
-        [_descriptor("member", url: null)],
-        [_descriptor("mobile")],
-      ]);
-      expect(addActionFor(s, 0, const {}), isA<PickAddable>());
+    test("the values the request needs", () {
+      final spot = _pickOne(
+        obtainable: [
+          _descriptor(
+            "ideal",
+            attributes: [
+              _string("bic", "", requested: "RABONL2U"),
+              _string("iban", ""),
+            ],
+          ),
+        ],
+      );
+      final values = spotRequiredValues(spot);
+      expect(values, hasLength(1));
+      expect(values.single.$1, "bic");
+      expect(values.single.$2.string, "RABONL2U");
     });
 
-    test("nothing that can be added: close, and say where to get it", () {
-      final s = step([
-        [_descriptor("voting", url: null, issuer: "Demo Voting Card Issuer")],
-      ]);
-      final action = addActionFor(s, 0, const {});
-      expect(action, isA<CloseCannotAdd>());
-      expect((action as CloseCannotAdd).issuers, ["Demo Voting Card Issuer"]);
+    test("a card added during the request is marked", () {
+      final pickOne = _pickOne(
+        owned: [
+          _bundle([_instance("email")]),
+        ],
+      );
+      final plan = IssueDuringDisclosure(
+        steps: const [],
+        issuedCredentialIds: const {"email": <String, dynamic>{}},
+      );
+      expect(
+        addedDuringRequest(pickOne, pickOne.ownedOptions![0], plan),
+        isTrue,
+      );
+      expect(
+        addedDuringRequest(pickOne, pickOne.ownedOptions![0], null),
+        isFalse,
+      );
     });
   });
 

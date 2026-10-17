@@ -19,7 +19,6 @@ import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/handle_pointer.dart";
-import "../../../util/missing_data_flow.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -659,7 +658,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
+        secondaryButtonLabel: "ui.cancel",
         onSecondaryPressed: cancel,
       ),
     );
@@ -682,7 +681,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
+        secondaryButtonLabel: "ui.cancel",
         onSecondaryPressed: cancel,
       ),
     );
@@ -886,7 +885,6 @@ class _NfcScaffold extends StatelessWidget {
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: titleTranslationKey,
-        bottom: context.missingDataBand,
       ),
       body: SafeArea(
         child: Center(

@@ -6,22 +6,14 @@ import "package:material_ui/material_ui.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
-import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
-
-bool isValidEmail(String value) {
-  if (value.isEmpty) return false;
-  return RegExp(
-    r"^(?:[a-zA-Z0-9_+-])+(?:[\.+](?:[a-zA-Z0-9_-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
-  ).hasMatch(value);
-}
+import "email_address_entry.dart";
 
 class EnterEmailScreen extends ConsumerStatefulWidget {
   final EmailIssuancePurpose purpose;
@@ -35,19 +27,16 @@ class EnterEmailScreen extends ConsumerStatefulWidget {
 }
 
 class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _textController = TextEditingController();
+  final _entryKey = GlobalKey<EmailAddressEntryState>();
   final _focusNode = FocusNode();
   final _scrollableKey = GlobalKey();
   final _scrollController = ScrollController();
   final _emailFieldPositionKey = GlobalKey();
 
   var _validEmail = false;
-  var _showErrors = false;
 
   @override
   void dispose() {
-    _textController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -59,15 +48,6 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
-
-      // set text to previously entered email (for when coming back from verification screen)
-      final email = ref.read(emailIssuanceProvider).email;
-      _textController.text = email;
-      if (isValidEmail(email)) {
-        setState(() {
-          _validEmail = true;
-        });
-      }
     });
   }
 
@@ -100,11 +80,8 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   }
 
   void _submit() {
-    setState(() {
-      _showErrors = true;
-    });
-    if (_formKey.currentState!.validate()) {
-      final email = _textController.text;
+    final email = _entryKey.currentState?.submittable();
+    if (email != null) {
       ref
           .read(emailIssuanceProvider.notifier)
           .sendEmail(
@@ -154,7 +131,6 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         key: Key("$onScreenKeyboardShown"),
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
-          bottom: context.missingDataBand,
           titleTranslationKey: titleKey,
           hasBorder: false,
         ),
@@ -187,61 +163,13 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                           ? "email_linking.enter_email.label"
                           : "email_issuance.enter_email.label",
                     ),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: .stretch,
-                        children: [
-                          Container(
-                            key: _emailFieldPositionKey,
-                            child: TextFormField(
-                              decoration: pillInputDecoration(
-                                context,
-                                hint: FlutterI18n.translate(
-                                  context,
-                                  "email_issuance.enter_email.email_hint",
-                                ),
-                              ),
-                              controller: _textController,
-                              focusNode: _focusNode,
-                              key: const Key("email_input_field"),
-                              keyboardType: .emailAddress,
-                              autofillHints: const [AutofillHints.email],
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              textCapitalization: .none,
-                              autovalidateMode: _showErrors
-                                  ? .onUserInteraction
-                                  : .disabled,
-                              onChanged: (v) {
-                                final lower = v.toLowerCase();
-                                if (v != lower) {
-                                  _textController.value = _textController.value
-                                      .copyWith(
-                                        text: lower,
-                                        selection: TextSelection.collapsed(
-                                          offset: _textController
-                                              .selection
-                                              .baseOffset,
-                                        ),
-                                      );
-                                }
-                                final ok = isValidEmail(lower);
-                                if (ok != _validEmail) {
-                                  setState(() => _validEmail = ok);
-                                }
-                              },
-                              validator: (v) {
-                                final value = (v ?? "").trim();
-                                if (value.isEmpty) return "Enter your email";
-                                if (!isValidEmail(value)) {
-                                  return "Enter a valid email";
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
+                    Container(
+                      key: _emailFieldPositionKey,
+                      child: EmailAddressEntry(
+                        key: _entryKey,
+                        focusNode: _focusNode,
+                        onValidChanged: (valid) =>
+                            setState(() => _validEmail = valid),
                       ),
                     ),
                     SizedBox(height: 100),
@@ -274,11 +202,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
             ? null
             : IrmaBottomBar(
                 primaryButtonLabel: "email_issuance.enter_email.next_button",
-                secondaryButtonLabel: context.missingDataBackLabel(
-                  "email_issuance.enter_email.back_button",
-                ),
+                secondaryButtonLabel: "email_issuance.enter_email.back_button",
                 onPrimaryPressed: _validEmail ? _submit : null,
-                onSecondaryPressed: context.missingDataBack(context.pop),
+                onSecondaryPressed: context.pop,
               ),
       ),
     );

@@ -1249,9 +1249,7 @@
     }
   },
   "missing_data": {
-    "known_party": "Known party",
-    "band": "For {requestor} · {x} of {n} ready",
-    "back_to_list": "Back to the list"
+    "known_party": "Known party"
   },
   "share": {
     "requestor": {
@@ -1291,7 +1289,10 @@
       "revoked": "Replace the revoked card to share.",
       "used_up": "Replace the used-up card to share.",
       "expired": "Replace the expired card to share.",
-      "cant_renew": "{requestor} needs a card you can't renew in Yivi. Ask {issuer} for a new one."
+      "cant_renew": "{requestor} needs a card you can't renew in Yivi. Ask {issuer} for a new one.",
+      "missing": "Add {name} first.",
+      "cant_add": "Yivi can't add {name}. Get it from {issuer} first, then scan the QR code again.",
+      "cant_add_unknown": "Yivi can't add {name}. Get it from its issuer first, then scan the QR code again."
     },
     "section": {
       "you_share": "You share",
@@ -1313,7 +1314,6 @@
     "message_label": "You sign this message",
     "footnote": "{requestor} gets only this. Fields that are not listed stay on your phone.",
     "footnote_none": "The visit is still kept in your Activity.",
-    "everything_added": "Everything is added. Check what you share.",
     "sheet": {
       "add_optional": "Add optional data",
       "which": "Which {name}?",
@@ -1333,31 +1333,6 @@
       "stop_confirm": "Stop adding",
       "keep_going": "Keep going"
     },
-    "add_data": {
-      "bar": "Add data first",
-      "intro_one": "{requestor} asks for data that is not in your app yet. Add it first; then you check everything and share.",
-      "intro_many": "{requestor} asks for data that is not in your app yet. Add it step by step; then you check everything and share.",
-      "which": "Which one do you want to add?",
-      "accepts_any": "{requestor} accepts any of these. You only need one.",
-      "title": "Add {name}",
-      "only_together": "These cards are only accepted together.",
-      "from": "From {issuer}.",
-      "cant_be_added": "Can't be added from Yivi",
-      "one_by_one": "These are added one by one",
-      "state_added": "Added",
-      "state_next": "Next",
-      "state_to_add": "To add",
-      "must_be": "must be {value}",
-      "wrong_note": "The card you added doesn't match what {requestor} needs. It's kept in your app, but you need a matching one.",
-      "you_added": "You added",
-      "needed": "Needed",
-      "button_add": "Add {name}",
-      "button_add_again": "Add again",
-      "button_add_plain": "Add",
-      "opens": "Opens {host}",
-      "reason_pick": "Pick a card that can be added.",
-      "reason_cant": "Yivi can't add {name}. Get it from {issuer} first, then scan the QR code again."
-    },
     "done": {
       "title": "Shared with {requestor}",
       "title_signature": "Signed and shared",
@@ -1372,6 +1347,16 @@
       "title": "Shared. Now call {requestor}",
       "text": "The person who answers can see the data you just shared, so you don't have to spell anything out.",
       "button": "Call {requestor}"
+    },
+    "added_selected": "{name} added and selected",
+    "spot": {
+      "one": "Tap to add it from {issuer}",
+      "many": "Tap to choose which one to add",
+      "cant": "Can't be added in Yivi. Get it from {issuer} first.",
+      "wrong": "You added {offered}, needed {needed}. Tap to add it again.",
+      "together": "Only accepted together. Tap to add them one by one.",
+      "cant_unknown": "Can't be added in Yivi.",
+      "must_be": "{field} must be {value}"
     }
   }
 }

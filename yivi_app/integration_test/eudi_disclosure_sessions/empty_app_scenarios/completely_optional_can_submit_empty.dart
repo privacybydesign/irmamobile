@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -48,9 +47,8 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  // No required cred is missing, so the wallet shows the share screen
-  // rather than "Add data first".
-  expect(find.byType(AddMissingDataScreen), findsNothing);
+  // No required cred is missing, so the share screen has no empty spot.
+  expect(findEmptySpot(0), findsNothing);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
   // Nothing is included: the button shares without data.

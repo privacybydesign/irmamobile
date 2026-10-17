@@ -96,7 +96,6 @@ int _startSession(
       listen: false,
     ).read(nestedIssuanceHostProvider),
     hasUnderlying: hasUnderlying,
-    replacing: pushReplacement,
     isActive: repo.isActiveSession,
   );
   if (host != null) {

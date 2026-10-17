@@ -1,5 +1,4 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
@@ -7,7 +6,6 @@ import "package:yivi_core/src/widgets/irma_card.dart";
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 import "sheet_checks.dart";
 
@@ -37,22 +35,21 @@ Future<void> filledNoChoiceMultipleCredsTest(
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The mobile number is missing: one step to add it first.
-  await tester.waitFor(findAddScreen());
-  expect(findAddStep(0), findsOneWidget);
-  expect(findAddStep(1), findsNothing);
-  expect(find.text("Add demo Mobile phone number"), findsWidgets);
-  expectAddButtonFor(tester, "Demo Mobile phone number");
+  // The request shows at once: the e-mail address in place, the mobile
+  // number an empty spot that Share waits for.
+  await waitForRequest(tester);
+  expect(findShareSlot(0), findsOneWidget);
+  expectEmptySpot(1, "Demo Mobile phone number");
+  expectShareWaitsFor(tester, "Demo Mobile phone number");
 
-  // Something unrelated is added first: the step stays.
+  // Something unrelated is added first: the spot stays.
   await issueMunicipalityPersonalData(tester, irmaBinding);
-  expect(findAddScreen(), findsOneWidget);
-  expectAddButtonFor(tester, "Demo Mobile phone number");
+  expect(findEmptySpot(1), findsOneWidget);
+  expectShareWaitsFor(tester, "Demo Mobile phone number");
 
-  // The issuer adds the mobile number: the share screen follows by itself.
+  // The issuer adds the mobile number: it lands in its spot.
   await issueMobileNumber(tester, irmaBinding);
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byKey(const Key("share_added_banner")), findsOneWidget);
+  await expectAddedInPlace(tester, 1);
 
   // The requestor header should be present
   expect(find.byType(SessionRequestorHeader), findsOneWidget);

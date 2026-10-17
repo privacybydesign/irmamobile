@@ -1,11 +1,11 @@
 import "dart:async";
 
-import "package:collection/collection.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
+import "package:yivi_core/src/screens/session/models/disclosure_view_model.dart"
+    show inSentence;
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/add_missing_data_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
@@ -85,7 +85,7 @@ Future<void> evaluateFeedback(
   expect(find.byType(SessionScreen), findsNothing);
 }
 
-/// Checks the requestor header of the add and share screens: the name,
+/// Checks the requestor header of the share screen: the name,
 /// "Registered with Yivi" or "Not registered with Yivi", and the warning
 /// note for an unregistered requestor. [requestorHeaderFinder] defaults to
 /// the one header on screen.
@@ -152,51 +152,97 @@ Finder activityScrollable() => find
     .first;
 
 // ---------------------------------------------------------------------------
-// "Add data first": the steps of what is missing.
+// Cards that are not in the app yet: empty spots on the share screen.
 // ---------------------------------------------------------------------------
 
-/// The "Add data first" screen.
-Finder findAddScreen() => find.byType(AddMissingDataScreen);
+/// The empty spot of requested item [i]: a required card that is not in the
+/// app yet. Tapping it adds the card in the Change sheet.
+Finder findEmptySpot(int i) => find.byKey(Key("share_spot_$i"));
 
-/// Step [i] (0-based) of the add screen: done, current or later.
-Finder findAddStep(int i) => find.byKey(Key("add_step_$i"));
+/// "{name} added and selected" under requested item [i], once a card was
+/// added for it during the request.
+Finder findAddedNote(int i) => find.byKey(Key("share_added_$i"));
 
-/// The radio row of option [option] in step [step].
-Finder findAddOption(int step, int option) =>
-    find.byKey(Key("add_option_${step}_$option"));
-
-/// The texts on the add screen's one button, e.g. ["Add demo Email
-/// address", "Opens …"].
-List<String> addButtonTexts(WidgetTester tester) => tester
-    .widgetList<Text>(
-      find.descendant(
-        of: find.byKey(const Key("add_button")),
-        matching: find.byType(Text),
-      ),
-    )
-    .map((t) => t.data ?? t.textSpan?.toPlainText() ?? "")
-    .toList();
-
-/// Checks that the add screen's button adds [credentialName] (compared
-/// without case: inside the label the name starts in lower case).
-///
-/// The button itself opens the issuer's website, which a test cannot use;
-/// tests then issue the card directly (e.g. with [issueEmailAddress]), as
-/// the issuer would.
-void expectAddButtonFor(WidgetTester tester, String credentialName) {
-  final label = addButtonTexts(tester).firstOrNull ?? "";
-  expect(
-    label.toLowerCase(),
-    "add ${credentialName.toLowerCase()}",
-    reason: "add button label",
-  );
+/// The reason above the share button ("Add … first."), if any.
+String? shareReason(WidgetTester tester) {
+  final reason = find.byKey(const Key("share_reason"));
+  return reason.evaluate().isEmpty ? null : tester.widget<Text>(reason).data;
 }
 
-/// Picks option [option] of the current step [step] (a radio row).
-Future<void> pickSource(WidgetTester tester, int step, int option) async {
-  final row = findAddOption(step, option);
-  await _scrollToCentre(tester, row);
-  await tester.tapAndSettle(row);
+/// Checks that requested item [i] is an empty spot for [title] (the types
+/// it can be filled with, joined with " or "), with [hint] ("Tap to add it
+/// from …", "Tap to choose which one to add", "Can't be added in Yivi. …")
+/// when given.
+void expectEmptySpot(int i, String title, {String? hint}) {
+  final spot = findEmptySpot(i);
+  expect(spot, findsOneWidget, reason: "empty spot $i");
+  expect(find.descendant(of: spot, matching: find.text(title)), findsOneWidget);
+  expect(
+    find.descendant(of: spot, matching: find.text("Not in your app yet")),
+    findsOneWidget,
+  );
+  if (hint != null) {
+    expect(
+      find.descendant(of: spot, matching: find.text(hint)),
+      findsOneWidget,
+      reason: "hint of empty spot $i",
+    );
+  }
+}
+
+/// Checks that Share waits for [name] (the first empty spot's title):
+/// disabled, with "Add {name} first." above it.
+void expectShareWaitsFor(WidgetTester tester, String name) {
+  expect(shareButtonEnabled(tester), isFalse, reason: "share button");
+  expect(shareReason(tester), "Add ${inSentence(name)} first.");
+}
+
+/// Checks that empty spot [i] cannot be filled from Yivi ("Can't be added
+/// in Yivi. …", not tappable), and that the share button is "Close" with
+/// "Yivi can't add …" above it.
+void expectCannotAdd(WidgetTester tester, int i) {
+  expect(
+    find.descendant(
+      of: findEmptySpot(i),
+      matching: find.textContaining("Can't be added in Yivi."),
+    ),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(
+      of: find.byKey(const Key("share_button")),
+      matching: find.text("Close"),
+    ),
+    findsOneWidget,
+  );
+  expect(shareReason(tester), startsWith("Yivi can't add "));
+}
+
+/// Checks that requested item [i] was filled with a card added during the
+/// request: the card in its place, "… added and selected" under it.
+Future<void> expectAddedInPlace(WidgetTester tester, int i) async {
+  await tester.waitFor(findAddedNote(i));
+  expect(findEmptySpot(i), findsNothing);
+  expect(findShareSlot(i), findsOneWidget);
+}
+
+/// Taps the empty spot of requested item [i]: the Change sheet opens, on
+/// the details of the one type that fills it, or on the choice when there
+/// are several.
+Future<void> tapSpot(WidgetTester tester, int i) async {
+  final spot = find.byKey(Key("share_spot_$i"), skipOffstage: false);
+  await _scrollToCentre(tester, spot);
+  await tester.tapAndSettle(spot);
+  expect(findChoiceSheet(), findsOneWidget);
+}
+
+/// Taps "Add" on the details in the open sheet (step 1 of 3): the issuer's
+/// website opens while the sheet waits (see [startAdding]).
+Future<void> tapAddOnDetails(WidgetTester tester) async {
+  final go = find.byKey(const Key("sheet_go_button"));
+  expect(go, findsOneWidget);
+  await tester.tapAndSettle(go);
+  expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
 }
 
 // ---------------------------------------------------------------------------
@@ -247,6 +293,21 @@ Finder findSheetAddRow(String credentialId) => find.descendant(
   of: findChoiceSheet(),
   matching: find.byKey(Key("sheet_add_$credentialId")),
 );
+
+/// Checks the open sheet's "Not in your app yet" row for [credentialId]:
+/// its [name] and "{issuer} · on portal.yivi.app".
+void expectSheetAddRow(String credentialId, String name, String issuer) {
+  final row = findSheetAddRow(credentialId);
+  expect(row, findsOneWidget, reason: "sheet row for $credentialId");
+  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
+  expect(
+    find.descendant(
+      of: row,
+      matching: find.text("$issuer · on portal.yivi.app"),
+    ),
+    findsOneWidget,
+  );
+}
 
 /// The "In your app" rows of the open sheet that show [text] (or, with
 /// [partial], a text containing it). Each row once, however often the text
@@ -302,11 +363,8 @@ Future<void> startAdding(WidgetTester tester, String credentialId) async {
         .first,
   );
   await tester.tapAndSettle(row);
-  final go = find.byKey(const Key("sheet_go_button"));
-  expect(go, findsOneWidget);
-  await tester.tapAndSettle(go);
   // The sheet waits for the user to come back from the website.
-  expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
+  await tapAddOnDetails(tester);
 }
 
 /// Closes the open sheet without changing anything.
@@ -330,10 +388,7 @@ Future<void> _scrollToCentre(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-/// Waits for a started request to show: the share screen, or "Add data
-/// first" when something is missing.
-Future<void> waitForRequest(WidgetTester tester) => tester.waitFor(
-  find.byWidgetPredicate(
-    (w) => w is DisclosureShareScreen || w is AddMissingDataScreen,
-  ),
-);
+/// Waits for a started request to show: the share screen, also when a card
+/// is still missing (an empty spot).
+Future<void> waitForRequest(WidgetTester tester) =>
+    tester.waitFor(find.byType(DisclosureShareScreen));
