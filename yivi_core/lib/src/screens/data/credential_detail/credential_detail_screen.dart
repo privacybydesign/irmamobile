@@ -684,6 +684,7 @@ class _Details extends ConsumerWidget {
         if (canReobtain)
           PillButton(
             key: const Key("credential_detail_reobtain"),
+            style: PillStyle.neutral,
             label: FlutterI18n.translate(
               context,
               "credential.options.reobtain",

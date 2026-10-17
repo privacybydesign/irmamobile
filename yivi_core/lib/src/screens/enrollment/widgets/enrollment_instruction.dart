@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/floating_bar_placement.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_progress_indicator.dart";
@@ -67,7 +68,12 @@ class EnrollmentInstruction extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            24,
+            16,
+            FloatingBarPlacement.buttonPadding(context),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 4,

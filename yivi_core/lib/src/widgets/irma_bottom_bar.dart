@@ -35,9 +35,8 @@ class IrmaBottomBar extends StatelessWidget {
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: IrmaTheme.of(context).tinySpacing,
-        ),
+        // Nothing under it, so a bar of one button ends where every bar does.
+        padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing),
         child: primaryDanger
             ? PillButton(
                 key: const Key("bottom_bar_primary"),
@@ -86,7 +85,7 @@ class IrmaBottomBar extends StatelessWidget {
                 if (primaryButtonLabel != null)
                   Row(children: [_buildPrimaryButton(context)]),
                 if (secondaryButtonLabel != null) ...[
-                  SizedBox(height: theme.tinySpacing),
+                  SizedBox(height: theme.smallSpacing),
                   Row(children: [_buildSecondaryButton(context)]),
                 ],
               ],

@@ -197,7 +197,21 @@ class PillButton extends StatelessWidget {
           color: fill,
           shape: StadiumBorder(side: side),
           clipBehavior: Clip.antiAlias,
-          child: InkWell(onTap: onPressed, child: content),
+          child: InkWell(
+            onTap: onPressed,
+            // A text or red text pill has no surface for ink to show on; it
+            // gives feedback by scaling, like the other glass buttons.
+            splashFactory: fill == Colors.transparent
+                ? NoSplash.splashFactory
+                : null,
+            highlightColor: fill == Colors.transparent
+                ? Colors.transparent
+                : null,
+            overlayColor: fill == Colors.transparent
+                ? const WidgetStatePropertyAll(Colors.transparent)
+                : null,
+            child: content,
+          ),
         ),
       ),
     );

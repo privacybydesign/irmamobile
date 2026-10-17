@@ -98,7 +98,8 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           controller: _controller,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          // Starts below the bar's fade, so the card is not faded at rest.
+          padding: const EdgeInsets.fromLTRB(16, IrmaAppBar.fadeHeight, 16, 32),
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

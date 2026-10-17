@@ -192,7 +192,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     // The page colour behind the status bar and the buttons, fading out
-    // over [_fade] below the bar, so content scrolling underneath fades
+    // over [fadeHeight] below the bar, so content scrolling underneath fades
     // away instead of running into the title.
     return Stack(
       key: const Key("irma_app_bar"),
@@ -202,7 +202,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           left: 0,
           right: 0,
           top: 0,
-          bottom: -_fade,
+          bottom: -fadeHeight,
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -225,7 +225,9 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  static const double _fade = 24;
+  /// How far below the bar content scrolling underneath fades out: content
+  /// that starts this far below it is clear at rest.
+  static const double fadeHeight = 24;
 
   @override
   Size get preferredSize =>

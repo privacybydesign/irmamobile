@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "glass/floating_bar_placement.dart";
 
 class IrmaBottomBarBase extends StatelessWidget {
   final Widget child;
@@ -42,7 +43,8 @@ class IrmaBottomBarBase extends StatelessWidget {
             padding: .only(
               left: theme.defaultSpacing + mediaQuery.padding.left,
               right: theme.defaultSpacing + mediaQuery.padding.right,
-              bottom: theme.defaultSpacing + mediaQuery.padding.bottom,
+              // The same place on every screen (see buttonBottom).
+              bottom: FloatingBarPlacement.buttonPadding(context),
             ),
             child: child,
           ),
