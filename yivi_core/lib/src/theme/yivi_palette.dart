@@ -64,12 +64,12 @@ class YiviPalette {
   final Color danger;
 
   /// Highlight behind the selected tab in the glass tab bar and sidebar: a
-  /// white lens in the light variant, a red-tinted one in the dark variant
-  /// (red on a grey lens looked dull there).
+  /// white lens in the light variant; in the dark variant a lens darker than
+  /// the bar, so the selected red stands out against it.
   final Color lens;
 
   /// Icon and label of the selected tab: the brand red, in the dark variant
-  /// a fully saturated, brighter red (about 3:1 on its tinted lens).
+  /// a fully saturated, brighter red (about 5.4:1 on its dark lens).
   final Color selectedTab;
 
   final Color glassFill;
@@ -183,7 +183,7 @@ class YiviPalette {
     errorSurface: Color(0xFF3A1A1C),
     errorText: Color(0xFFFF9A9A),
     danger: Color(0xFFFF7A7A),
-    lens: Color(0x33FF375F),
+    lens: Color(0x8C000000),
     selectedTab: Color(0xFFFF2D55),
     glassFill: Color(0x8C242830),
     glassBorder: Color(0x24FFFFFF),

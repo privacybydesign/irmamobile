@@ -25,6 +25,7 @@ import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
+import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/translated_text.dart";
@@ -57,6 +58,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
+    final top = padding.top + FloatingBarPlacement.topGap(context);
 
     final list = Stack(
       children: [
@@ -64,7 +66,7 @@ class _DataTabState extends ConsumerState<DataTab> {
           child: _Content(
             query: _query,
             addDataButtonKey: _addDataButtonKey,
-            topInset: padding.top + 16 + _topBarHeight + 8,
+            topInset: top + _topBarHeight + 8,
           ),
         ),
         // Fades the cards out under the floating search row.
@@ -72,7 +74,7 @@ class _DataTabState extends ConsumerState<DataTab> {
           left: 0,
           right: 0,
           top: 0,
-          height: padding.top + 72,
+          height: top + 56,
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -92,7 +94,7 @@ class _DataTabState extends ConsumerState<DataTab> {
         Positioned(
           left: 16,
           right: 16,
-          top: padding.top + 16,
+          top: top,
           child: PushAway(
             direction: PushAwayDirection.up,
             child: Center(

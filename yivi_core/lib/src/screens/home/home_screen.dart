@@ -5,6 +5,7 @@ import "../../models/native_events.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../widgets/glass/floating_bar_placement.dart";
 import "../activity/activity_tab.dart";
 import "../data/data_tab.dart";
 import "../data/wallet/wallet_transition.dart";
@@ -87,8 +88,7 @@ class HomeScreen extends StatelessWidget {
                         Positioned(
                           left: 16,
                           right: 16,
-                          bottom:
-                              16 + (bottomPadding > 0 ? bottomPadding - 8 : 8),
+                          bottom: FloatingBarPlacement.tabBarBottom(context),
                           child: PushAway(
                             direction: PushAwayDirection.down,
                             child: Center(

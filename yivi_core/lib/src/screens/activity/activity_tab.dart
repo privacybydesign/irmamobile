@@ -15,6 +15,7 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/string.dart";
 import "../../widgets/end_of_list_indicator.dart";
+import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
@@ -152,7 +153,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(
         16,
-        padding.top + 76,
+        padding.top + FloatingBarPlacement.topGap(context) + 60,
         16,
         padding.bottom + bottomBarSpace(context),
       ),
@@ -254,7 +255,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           left: 0,
           right: 0,
           top: 0,
-          height: padding.top + 72,
+          height: padding.top + FloatingBarPlacement.topGap(context) + 56,
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -274,7 +275,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         Positioned(
           left: 16,
           right: 16,
-          top: padding.top + 16,
+          top: padding.top + FloatingBarPlacement.topGap(context),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 640),
