@@ -83,7 +83,9 @@ TextStyle _styleOf(WidgetTester tester, String text) =>
     tester.widget<Text>(find.text(text)).style!;
 
 /// The footers of the redesign: a 56 high main pill and 48 high text pills,
-/// 4 apart, 24 from the bottom, 16 on the sides.
+/// 4 apart, 16 on the sides. On this phone (no home indicator) the lowest
+/// button ends 8 from the bottom when it is a text pill, 16 when it is the
+/// main one (FloatingBarPlacement.buttonBottom).
 void _expectFooterButton(
   WidgetTester tester,
   Finder button, {
@@ -186,10 +188,10 @@ void main() {
       _expectFooterButton(
         tester,
         _primary(),
-        top: _phone.height - 24 - 48 - 4 - 56,
+        top: _phone.height - 8 - 48 - 4 - 56,
       );
       _expectFooterButton(tester, _secondary(), height: 48);
-      expect(tester.getRect(_secondary()).bottom, _phone.height - 24);
+      expect(tester.getRect(_secondary()).bottom, _phone.height - 8);
       expect(
         tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
         4,
@@ -307,7 +309,7 @@ void main() {
       _expectFooterButton(
         tester,
         _secondary(),
-        top: _phone.height - 24 - 48,
+        top: _phone.height - 8 - 48,
         height: 48,
       );
     });
@@ -362,9 +364,9 @@ void main() {
       expect(find.text("Je kunt je telefoon weer oppakken."), findsOneWidget);
       expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
       expect(tester.getSize(find.byType(NfcDoneCheck)), const Size(180, 180));
-      // The empty footer keeps the room of one text pill (16 + 48 + 24), so
+      // The empty footer keeps the room of one text pill (16 + 48 + 8), so
       // the page does not jump when the stage changes.
-      expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 88);
+      expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 72);
     });
 
     testWidgets("G9: NFC off, 220 picture, two buttons", (tester) async {
@@ -395,7 +397,7 @@ void main() {
         tester.getSize(find.byType(NfcOffIllustration)),
         const Size(220, 220),
       );
-      // 16 above, the two pills 4 apart, 24 under. The test font is wide, so
+      // 16 above, the two pills 4 apart, 8 under. The test font is wide, so
       // the longer label wraps and its pill grows past 56.
       expect(
         tester.getSize(find.byType(DocumentFlowFooter)).height,
@@ -403,7 +405,7 @@ void main() {
             tester.getSize(_primary()).height +
             4 +
             tester.getSize(_secondary()).height +
-            24,
+            8,
       );
       expect(
         tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
@@ -581,7 +583,7 @@ void main() {
 
       expect(find.text("Start verificatie"), findsOneWidget);
       expect(_secondary(), findsNothing);
-      _expectFooterButton(tester, _primary(), top: _phone.height - 24 - 56);
+      _expectFooterButton(tester, _primary(), top: _phone.height - 16 - 56);
     });
 
     testWidgets("the tips are 12 + 12 apart with a line between, in a group", (
@@ -760,7 +762,7 @@ void main() {
       _expectFooterButton(
         tester,
         _secondary(),
-        top: _phone.height - 24 - 48,
+        top: _phone.height - 8 - 48,
         height: 48,
       );
     });

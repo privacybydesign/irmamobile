@@ -72,7 +72,8 @@ class EnrollmentInstruction extends StatelessWidget {
             16,
             24,
             16,
-            FloatingBarPlacement.buttonPadding(context),
+            // "Previous" (or room for it) is the lowest, a text button.
+            FloatingBarPlacement.buttonPadding(context, text: true),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

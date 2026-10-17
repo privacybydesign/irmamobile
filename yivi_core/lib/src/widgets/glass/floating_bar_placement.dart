@@ -26,16 +26,24 @@ abstract final class FloatingBarPlacement {
   /// iPhone 17 Pro, iOS 26), 5 pt above the home indicator's inset, else 16.
   /// It reads the device's inset ([MediaQuery.viewPaddingOf]), which a
   /// [SafeArea] or a sheet does not change.
-  static double buttonBottom(BuildContext context) {
+  ///
+  /// A plain [text] button ("Cancel" under the main one) has no surface, so
+  /// it sits lower, in the home indicator's area: its 48 pt touch area ends
+  /// 24 pt above the bottom, its label about 38 pt above.
+  static double buttonBottom(BuildContext context, {bool text = false}) {
     final inset = MediaQuery.viewPaddingOf(context).bottom;
+    if (text) return inset > 0 ? 24 : 8;
     return inset > 0 ? inset + 5 : 16;
   }
 
   /// The padding under the lowest button that puts it at [buttonBottom], less
   /// what a [SafeArea] around it already takes of the inset.
-  static double buttonPadding(BuildContext context) {
+  static double buttonPadding(BuildContext context, {bool text = false}) {
     final media = MediaQuery.of(context);
     final taken = media.viewPadding.bottom - media.padding.bottom;
-    return (buttonBottom(context) - taken).clamp(0.0, double.infinity);
+    return (buttonBottom(context, text: text) - taken).clamp(
+      0.0,
+      double.infinity,
+    );
   }
 }

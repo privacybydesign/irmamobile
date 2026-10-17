@@ -1,10 +1,9 @@
-import "dart:math" as math;
-
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "glass/floating_bar_placement.dart";
 import "glass/pill_buttons.dart";
 
 /// Button look in the document flow screens: 56 high pills, 16 bold.
@@ -91,9 +90,13 @@ class _UnderlinedTextButton extends StatelessWidget {
       label: label,
       child: Material(
         type: MaterialType.transparency,
+        // No ink: a text button has no surface for it (see PillButton).
         child: InkWell(
           customBorder: const StadiumBorder(),
           onTap: onPressed,
+          splashFactory: NoSplash.splashFactory,
+          highlightColor: Colors.transparent,
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -135,6 +138,12 @@ class DocumentFlowFooter extends StatelessWidget {
   final List<Widget> buttons;
   final DocumentFlowFooterStyle style;
 
+  /// The lowest button is a plain text one, which sits lower.
+  bool get _endsWithText => switch (buttons.lastOrNull) {
+    DocumentFlowButton b => b.style != DocumentFlowButtonStyle.primary,
+    _ => false,
+  };
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -163,7 +172,8 @@ class DocumentFlowFooter extends StatelessWidget {
           theme.defaultSpacing + inset.left,
           theme.defaultSpacing,
           theme.defaultSpacing + inset.right,
-          math.max(theme.mediumSpacing, theme.defaultSpacing + inset.bottom),
+          // Where every bottom bar ends its buttons (see buttonBottom).
+          FloatingBarPlacement.buttonPadding(context, text: _endsWithText),
         ),
         child: Column(
           mainAxisSize: .min,

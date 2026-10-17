@@ -7,7 +7,14 @@ import "glass/floating_bar_placement.dart";
 class IrmaBottomBarBase extends StatelessWidget {
   final Widget child;
 
-  const IrmaBottomBarBase({required this.child});
+  /// The lowest button is a plain text one, which sits lower (see
+  /// [FloatingBarPlacement.buttonBottom]).
+  final bool endsWithTextButton;
+
+  const IrmaBottomBarBase({
+    required this.child,
+    this.endsWithTextButton = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +51,10 @@ class IrmaBottomBarBase extends StatelessWidget {
               left: theme.defaultSpacing + mediaQuery.padding.left,
               right: theme.defaultSpacing + mediaQuery.padding.right,
               // The same place on every screen (see buttonBottom).
-              bottom: FloatingBarPlacement.buttonPadding(context),
+              bottom: FloatingBarPlacement.buttonPadding(
+                context,
+                text: endsWithTextButton,
+              ),
             ),
             child: child,
           ),
