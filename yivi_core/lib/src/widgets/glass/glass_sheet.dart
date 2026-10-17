@@ -14,6 +14,9 @@ import "glass_surface.dart";
 /// or a drag down. It is a page route, so a [Hero] can fly into it. On
 /// tablets it is a centred dialog with the same look.
 ///
+/// To ask before it closes (for example while something is under way in it),
+/// wrap the content in a [GlassSheetConfirmDismiss].
+///
 /// The sheet adds no padding of its own: the content starts with a
 /// [GlassSheetHeader] (or is a [GlassSheetPage]) and pads its body 16 from
 /// the sides. Its bottom padding, clear of the home indicator, is in
@@ -144,17 +147,26 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 
   /// Closes the sheet, or springs it back open, and ends the gesture once it
   /// has settled, so the curve does not take over half way.
+  ///
+  /// A close that a [PopScope] in the sheet does not allow (see
+  /// [GlassSheetConfirmDismiss]) springs back and is handed to that scope
+  /// instead, as a tap outside the sheet or the system back is.
   void _settle({required bool close}) {
+    final vetoed = close && popDisposition == RoutePopDisposition.doNotPop;
     var settled = false;
     void done(AnimationStatus status) {
       if (settled || status.isAnimating) return;
       settled = true;
       controller?.removeStatusListener(done);
       _stopGesture();
+      // Asks once the sheet is back and the gesture has ended: while a
+      // gesture is open the navigator ignores touches, so a dialog could not
+      // be tapped.
+      if (vetoed) onPopInvokedWithResult(false, null);
     }
 
     controller!.addStatusListener(done);
-    if (close) {
+    if (close && !vetoed) {
       navigator!.pop();
     } else {
       controller!.forward();
@@ -265,7 +277,11 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
             type: MaterialType.transparency,
             child: LayoutBuilder(
               builder: (context, _) => GestureDetector(
-                // Dragging the sheet outside its list (its header).
+                // Dragging the sheet outside its list (its header). Kept out
+                // of the semantics tree: as a scroll action it hid the whole
+                // sheet (title, close button, content) from screen readers.
+                // They close it with the close button or the barrier.
+                excludeFromSemantics: true,
                 behavior: HitTestBehavior.opaque,
                 onVerticalDragStart: (_) => _startGesture(),
                 onVerticalDragUpdate: (d) =>
@@ -430,15 +446,46 @@ class GlassSheetHeader extends StatelessWidget {
                   ),
                 ),
               ),
-            const Align(
+            Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: IrmaCloseButton(),
+              // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
+              child: IrmaCloseButton(
+                onTap: () => Navigator.of(context).maybePop(),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+/// Asks before the sheet around it closes, while [ask] is true: a tap outside
+/// the sheet, a drag or pull down, its close button or the system back then
+/// runs [confirm] instead, and the sheet closes only when that returns true.
+/// While [ask] is false the sheet closes as usual.
+class GlassSheetConfirmDismiss extends StatelessWidget {
+  final bool ask;
+  final Future<bool> Function() confirm;
+  final Widget child;
+
+  const GlassSheetConfirmDismiss({
+    super.key,
+    required this.ask,
+    required this.confirm,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => PopScope<Object?>(
+    canPop: !ask,
+    onPopInvokedWithResult: (didPop, _) async {
+      if (didPop) return;
+      final navigator = Navigator.of(context);
+      if (await confirm() && navigator.mounted) navigator.pop();
+    },
+    child: child,
+  );
 }
 
 /// Pages inside one sheet, as the navigation stack of a native iOS sheet.

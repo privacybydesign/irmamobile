@@ -1328,7 +1328,11 @@
       "where": "Waar",
       "afterwards": "Daarna",
       "selected_back": "Terug hier, al geselecteerd",
-      "go_to": "Naar {host}"
+      "go_to": "Naar {host}",
+      "for_requestor": "Voor {requestor}",
+      "progress_short": "{step} van {total}",
+      "progress_done": "Klaar",
+      "progress_done_label": "Alle stappen klaar"
     },
     "add_data": {
       "bar": "Eerst gegevens toevoegen",

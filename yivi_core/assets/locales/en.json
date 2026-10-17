@@ -1328,7 +1328,11 @@
       "where": "Where",
       "afterwards": "Afterwards",
       "selected_back": "Back here, already selected",
-      "go_to": "Go to {host}"
+      "go_to": "Go to {host}",
+      "for_requestor": "For {requestor}",
+      "progress_short": "{step} of {total}",
+      "progress_done": "Done",
+      "progress_done_label": "All steps done"
     },
     "add_data": {
       "bar": "Add data first",
