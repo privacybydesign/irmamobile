@@ -628,6 +628,49 @@ void main() {
       expect(flying, greaterThan(to));
     });
 
+    testWidgets("adding is a subpage: swiped back, its button at the bottom", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(_instance("passport", "Passport", "Jansen")),
+            ],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+      await tester.pumpAndSettle();
+
+      // Pinned to the bottom of the sheet, not under the content.
+      final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
+      final button = tester.getRect(find.byKey(const Key("sheet_go_button")));
+      expect(sheet.bottom - button.bottom, lessThan(40));
+
+      // A short swipe springs back; a long one goes back to the choice.
+      await tester.timedDragFrom(
+        const Offset(40, 400),
+        const Offset(80, 0),
+        const Duration(milliseconds: 600),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_go_button")), findsOneWidget);
+      await tester.timedDragFrom(
+        const Offset(40, 400),
+        const Offset(300, 0),
+        const Duration(milliseconds: 600),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_go_button")), findsNothing);
+      expect(find.text("What do you want to share?"), findsOneWidget);
+    });
+
     testWidgets("back from adding returns to the choice", (tester) async {
       await _pump(
         tester,

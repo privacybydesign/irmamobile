@@ -14,7 +14,7 @@ import "glass_surface.dart";
 /// tablets it is a centred dialog with the same look.
 ///
 /// The sheet adds no padding of its own: the content starts with a
-/// [GlassSheetHeader] (or is a [GlassSheetContent]) and pads its body 16 from
+/// [GlassSheetHeader] (or is a [GlassSheetPage]) and pads its body 16 from
 /// the sides. Its bottom padding, clear of the home indicator, is in
 /// `MediaQuery.paddingOf(context).bottom`, so a list can scroll under the
 /// bottom edge.
@@ -119,22 +119,37 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 
   // From the start of a drag or pull until the sheet has settled after it:
   // the sheet then follows the finger one to one, without its curve.
+  //
+  // Every start must be ended exactly once. While a navigator has a user
+  // gesture in progress, all its routes ignore touches and heroes wait for
+  // the gesture to end, so a gesture left open freezes the app (and leaves
+  // the card that flies back without its "Change" pill).
   bool _gesture = false;
+  NavigatorState? _gestureNavigator;
 
   void _startGesture() {
     if (_gesture) return;
     _gesture = true;
-    navigator!.didStartUserGesture();
+    _gestureNavigator = navigator;
+    _gestureNavigator!.didStartUserGesture();
+  }
+
+  void _stopGesture() {
+    if (!_gesture) return;
+    _gesture = false;
+    _gestureNavigator?.didStopUserGesture();
+    _gestureNavigator = null;
   }
 
   /// Closes the sheet, or springs it back open, and ends the gesture once it
   /// has settled, so the curve does not take over half way.
   void _settle({required bool close}) {
+    var settled = false;
     void done(AnimationStatus status) {
-      if (status.isAnimating) return;
-      controller!.removeStatusListener(done);
-      _gesture = false;
-      navigator?.didStopUserGesture();
+      if (settled || status.isAnimating) return;
+      settled = true;
+      controller?.removeStatusListener(done);
+      _stopGesture();
     }
 
     controller!.addStatusListener(done);
@@ -147,7 +162,16 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   }
 
   void _followPull() {
-    if (_pull.value <= 0) return;
+    if (_pull.value <= 0) {
+      // Pulled back up past where it started: the list scrolls again, and
+      // the sheet is back in place.
+      if (_pulling) {
+        _pulling = false;
+        controller!.value = 1;
+        _stopGesture();
+      }
+      return;
+    }
     if (!_pulling) {
       _pulling = true;
       _startGesture();
@@ -157,6 +181,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 
   void _onPullReleased(double velocity) {
     final pulled = _pull.value;
+    // Before the reset, which would otherwise read as a pull taken back.
     _pulling = false;
     _pull.value = 0;
     // A downward flick has a negative scroll velocity.
@@ -173,6 +198,8 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 
   @override
   void dispose() {
+    // Closed in the middle of a gesture (e.g. by the session ending).
+    _stopGesture();
     _pull.dispose();
     super.dispose();
   }
@@ -244,6 +271,10 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                     _drag(d.primaryDelta ?? 0, _measure(context)),
                 onVerticalDragEnd: (d) =>
                     _release(d.velocity.pixelsPerSecond.dy),
+                // Interrupted by the system: back in place.
+                onVerticalDragCancel: () {
+                  if (_gesture && !_pulling) _release(0);
+                },
                 child: NotificationListener<ScrollStartNotification>(
                   onNotification: (n) {
                     _measure(context);
@@ -404,48 +435,238 @@ class GlassSheetHeader extends StatelessWidget {
   }
 }
 
-/// Pages inside one sheet, as the navigation stack of a native iOS sheet:
-/// a subpage slides in from the right over the page it was opened from, which
-/// moves a little to the left, and slides back out to the right. [page] needs
-/// a key of its own per page; [forward] says which way the last change went.
-class GlassSheetPages extends StatelessWidget {
-  final Widget page;
-  final bool forward;
+/// Pages inside one sheet, as the navigation stack of a native iOS sheet.
+/// [pages] is the stack, the first at the bottom, each with a key of its own;
+/// the last is shown. A new last page slides in from the right over the one
+/// under it, which moves a third of the way left; a removed one slides back
+/// out. A horizontal swipe on a subpage takes it back the iOS way: it follows
+/// the finger, and past half way or with a flick it calls [onBack], which
+/// removes it.
+class GlassSheetPages extends StatefulWidget {
+  final List<Widget> pages;
+  final VoidCallback onBack;
 
-  const GlassSheetPages({super.key, required this.page, required this.forward});
+  const GlassSheetPages({super.key, required this.pages, required this.onBack});
+
+  @override
+  State<GlassSheetPages> createState() => _GlassSheetPagesState();
+}
+
+class _GlassSheetPagesState extends State<GlassSheetPages>
+    with SingleTickerProviderStateMixin {
+  /// 1 when the top page is fully in, 0 when it is out to the right.
+  late final _slide = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 340),
+    value: 1,
+  );
+
+  /// What is on screen: [GlassSheetPages.pages], plus a page that is sliding
+  /// out after it was removed.
+  late List<Widget> _shown = widget.pages;
+
+  /// The top page was swiped out; its removal needs no animation of its own.
+  bool _swipedOut = false;
+  bool _dragging = false;
+
+  /// Only a subpage (not one sliding out) can be swiped back.
+  bool get _canSwipe => widget.pages.length > 1 && _shown.length > 1;
+
+  @override
+  void didUpdateWidget(GlassSheetPages oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final added = widget.pages.length > oldWidget.pages.length;
+    final removed = widget.pages.length < oldWidget.pages.length;
+    if (added) {
+      _shown = widget.pages;
+      _slide.value = 0;
+      _slide.animateTo(1, curve: Curves.easeOutCubic);
+    } else if (removed && !_swipedOut) {
+      // Slides the removed page out over the page under it, then drops it.
+      _shown = [...widget.pages, oldWidget.pages.last];
+      _slide.animateBack(0, curve: Curves.easeInOutCubic).whenCompleteOrCancel(
+        () {
+          if (!mounted) return;
+          setState(() => _shown = widget.pages);
+          _slide.value = 1;
+        },
+      );
+    } else {
+      _swipedOut = false;
+      _shown = widget.pages;
+      _slide.value = 1;
+    }
+  }
+
+  @override
+  void dispose() {
+    _slide.dispose();
+    super.dispose();
+  }
+
+  void _dragUpdate(DragUpdateDetails d, double width) {
+    _slide.value -= (d.primaryDelta ?? 0) / width;
+  }
+
+  void _dragEnd(double velocity) {
+    _dragging = false;
+    final back = velocity > 500 || (velocity >= -100 && _slide.value < 0.5);
+    if (!back) {
+      _slide.animateTo(1, curve: Curves.easeOutCubic);
+      return;
+    }
+    _slide.animateBack(0, curve: Curves.easeOutCubic).whenComplete(() {
+      if (!mounted) return;
+      _swipedOut = true;
+      widget.onBack();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 340),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      layoutBuilder: (current, previous) =>
-          Stack(fit: StackFit.expand, children: [...previous, ?current]),
-      // A new closure each build, so the page going out follows [forward] too.
-      transitionBuilder: (child, animation) => AnimatedBuilder(
-        animation: animation,
-        child: child,
-        builder: (context, child) {
-          final shown = animation.value;
-          final current = child!.key == page.key;
-          // The page on top moves all the way; the one under it a third.
-          final onTop = current == forward;
-          // The pages are see-through glass, so the one under the moving page
-          // is only there at the quiet end of the slide: it fades out early
-          // when covered and in late when uncovered.
-          final opacity = onTop
-              // Leaving (back): gone before the page under it shows.
-              ? (current ? 1.0 : ((shown - 0.5) / 0.5).clamp(0.0, 1.0))
-              : ((shown - (current ? 0.9 : 0.65)) / (current ? 0.1 : 0.35))
-                    .clamp(0.0, 1.0);
-          return FractionalTranslation(
-            translation: Offset(onTop ? 1 - shown : -(1 - shown) * 0.3, 0),
-            child: Opacity(opacity: opacity, child: child),
-          );
-        },
+    final palette = YiviPalette.of(context);
+    final top = _shown.last;
+    final under = _shown.length > 1 ? _shown[_shown.length - 2] : null;
+    return LayoutBuilder(
+      builder: (context, constraints) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragStart: _canSwipe
+            ? (_) {
+                // Takes over from a slide, as on iOS.
+                _slide.stop();
+                _dragging = true;
+              }
+            : null,
+        onHorizontalDragUpdate: _canSwipe
+            ? (d) {
+                if (_dragging) _dragUpdate(d, constraints.maxWidth);
+              }
+            : null,
+        onHorizontalDragEnd: _canSwipe
+            ? (d) {
+                if (_dragging) _dragEnd(d.velocity.pixelsPerSecond.dx);
+              }
+            : null,
+        onHorizontalDragCancel: _canSwipe
+            ? () {
+                if (_dragging) _dragEnd(0);
+              }
+            : null,
+        child: AnimatedBuilder(
+          animation: _slide,
+          builder: (context, _) {
+            final t = _slide.value;
+            final moving = t < 1;
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                // The page under the top one: kept (and so its scroll), shown
+                // only while the top one moves.
+                for (final page in _shown)
+                  if (page == under)
+                    KeyedSubtree(
+                      key: ValueKey(("under", page.key)),
+                      child: Offstage(
+                        offstage: !moving,
+                        child: TickerMode(
+                          enabled: moving,
+                          // Its heroes stay out of flights while it is hidden.
+                          child: HeroMode(
+                            enabled: moving,
+                            child: FractionalTranslation(
+                              translation: Offset(-0.3 * t, 0),
+                              child: page,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                KeyedSubtree(
+                  key: ValueKey(("top", top.key)),
+                  child: FractionalTranslation(
+                    translation: Offset(1 - t, 0),
+                    // While it moves it has the sheet's colour behind it, as
+                    // a page in a native sheet does, so the page under it
+                    // does not show through the glass.
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: moving && under != null
+                            ? palette.sheet
+                            : const Color(0x00000000),
+                        boxShadow: moving && under != null
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x1F000000),
+                                  blurRadius: 16,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: top,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
-      child: page,
+    );
+  }
+}
+
+/// One page of a sheet: its [GlassSheetHeader], [child] in a
+/// [GlassSheetScrollView], and [bottom] (a button) pinned to the bottom of
+/// the sheet, as on a full screen.
+class GlassSheetPage extends StatelessWidget {
+  final String title;
+  final VoidCallback? onBack;
+  final Widget child;
+  final Widget? bottom;
+
+  /// Around [child] in the scroll view; zero when [child] pads itself.
+  final EdgeInsets padding;
+
+  const GlassSheetPage({
+    super.key,
+    required this.title,
+    this.onBack,
+    required this.child,
+    this.bottom,
+    this.padding = EdgeInsets.zero,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = this.bottom;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GlassSheetHeader(title: title, onBack: onBack),
+        if (bottom == null)
+          Flexible(
+            child: GlassSheetScrollView(padding: padding, child: child),
+          )
+        else ...[
+          Expanded(
+            child: GlassSheetScrollView(
+              padding: padding,
+              clearBottom: false,
+              child: child,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              MediaQuery.paddingOf(context).bottom,
+            ),
+            child: bottom,
+          ),
+        ],
+      ],
     );
   }
 }
@@ -458,10 +679,14 @@ class GlassSheetScrollView extends StatelessWidget {
   final Widget child;
   final EdgeInsets padding;
 
+  /// Ends clear of the home indicator; off when a button sits under it.
+  final bool clearBottom;
+
   const GlassSheetScrollView({
     super.key,
     required this.child,
     this.padding = EdgeInsets.zero,
+    this.clearBottom = true,
   });
 
   /// How far the content fades out under the header.
@@ -481,7 +706,9 @@ class GlassSheetScrollView extends StatelessWidget {
         physics: glassSheetScrollPhysics(context),
         padding: padding.copyWith(
           top: padding.top + _fade / 2,
-          bottom: padding.bottom + MediaQuery.paddingOf(context).bottom,
+          bottom:
+              padding.bottom +
+              (clearBottom ? MediaQuery.paddingOf(context).bottom : 16),
         ),
         child: child,
       ),
@@ -489,31 +716,7 @@ class GlassSheetScrollView extends StatelessWidget {
   }
 }
 
-/// A sheet of a [GlassSheetHeader] with [title] over [child], which scrolls
-/// when it is too tall. [child] pads itself from the sides.
-class GlassSheetContent extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const GlassSheetContent({
-    super.key,
-    required this.title,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        GlassSheetHeader(title: title),
-        Flexible(child: GlassSheetScrollView(child: child)),
-      ],
-    );
-  }
-}
-
-/// A sheet with the title [titleKey] over [child]: [GlassSheetContent] in
+/// A sheet with the title [titleKey] over [child]: a [GlassSheetPage] in
 /// [showGlassSheet].
 Future<void> showTitledGlassSheet({
   required BuildContext context,
@@ -523,7 +726,7 @@ Future<void> showTitledGlassSheet({
 }) => showGlassSheet<void>(
   context: context,
   minHeightFraction: minHeightFraction,
-  builder: (context) => GlassSheetContent(
+  builder: (context) => GlassSheetPage(
     title: FlutterI18n.translate(context, titleKey),
     child: child,
   ),
