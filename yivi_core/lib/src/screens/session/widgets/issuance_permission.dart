@@ -56,6 +56,12 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 
   List<schemaless.Credential> get _cards => widget.issuedCredentials;
 
+  IssuanceOffer get _offer => IssuanceOffer(
+    cards: widget.issuedCredentials,
+    forRequest: widget.forRequest,
+    returnedFromIssuer: widget.returnedFromIssuer,
+  );
+
   @override
   void dispose() {
     _barTitleVisible.dispose();
@@ -83,10 +89,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     final title = many
         ? _t("issuance.question_many", {"count": "${_cards.length}"})
         : _t("issuance.description");
-    final steps =
-        widget.forRequest?.disclosurePlan?.issueDuringDisclosure?.steps ??
-        const <IssuanceStep>[];
-    final mismatches = issuanceMismatches(_cards, steps);
+    final offer = _offer;
 
     // Tablets: the card or pile on the left, the values and buttons on the
     // right.
@@ -103,14 +106,14 @@ class _IssuancePermissionState extends State<IssuancePermission> {
             spacing: 16,
             children: [
               SessionColumnsTitle(title),
-              ..._overview(context, steps, mismatches, cardWidth: 460),
+              ...offer.overview(context, cardWidth: 460),
             ],
           ),
           end: Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _receives(context, mismatches),
+              children: offer.receives(context),
             ),
           ),
           actions: _bar(),
@@ -135,15 +138,13 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           ),
           spacing: 16,
           children: [
-            ..._overview(
+            ...offer.overview(
               context,
-              steps,
-              mismatches,
               cardWidth: (constraints.maxWidth - 32).clamp(0.0, 460.0),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _receives(context, mismatches),
+              children: offer.receives(context),
             ),
           ],
         ),
@@ -167,36 +168,86 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       onSecondaryPressed: () => widget.onDismiss?.call(),
     );
   }
+}
+
+/// What an issuer offers, for the screens that ask whether to add it: the
+/// card or the pile with its chips and the mismatch note ([overview]), and
+/// "You will receive" with every value ([receives]). The permission screen
+/// lays them out full-screen (in two columns on a tablet); the Change sheet
+/// shows them as the last step of adding a card for a request.
+class IssuanceOffer {
+  final List<schemaless.Credential> cards;
+
+  /// The request waiting underneath this issuance, if any.
+  final SessionState? forRequest;
+
+  /// Name of the issuer whose website the user just came back from, if any.
+  final String? returnedFromIssuer;
+
+  /// The tinted "For {requestor} · step n of m" chip. Off in the Change
+  /// sheet, which says who it is for above its pages; the "back from the
+  /// website" chip stays.
+  final bool showRequestChip;
+
+  const IssuanceOffer({
+    required this.cards,
+    this.forRequest,
+    this.returnedFromIssuer,
+    this.showRequestChip = true,
+  });
+
+  List<schemaless.Credential> get _cards => cards;
+
+  List<IssuanceStep> get _steps =>
+      forRequest?.disclosurePlan?.issueDuringDisclosure?.steps ??
+      const <IssuanceStep>[];
+
+  static String t(
+    BuildContext context,
+    String key, [
+    Map<String, String>? params,
+  ]) => FlutterI18n.translate(context, key, translationParams: params);
+
+  String? _returnedChip(BuildContext context) {
+    final issuer = returnedFromIssuer;
+    return issuer == null
+        ? null
+        : t(context, "issuance.returned_from", {"issuer": issuer});
+  }
 
   /// The card (or the pile), its chips and the mismatch note.
-  List<Widget> _overview(
-    BuildContext context,
-    List<IssuanceStep> steps,
-    List<IssuanceMismatch> mismatches, {
-    required double cardWidth,
-  }) {
+  List<Widget> overview(BuildContext context, {required double cardWidth}) {
+    final steps = _steps;
+    final mismatches = issuanceMismatches(_cards, steps);
     final many = _cards.length > 1;
     final issuers = _cards.map((c) => c.issuer.name).toSet();
     final first = _cards.firstOrNull;
-    final until = first == null || many ? null : _validUntil(first);
+    final until = first == null || many ? null : _validUntil(context, first);
 
     final chips = [
       InfoChip(
         label: issuers.length > 1
-            ? _t("issuance.from_issuers", {"count": "${issuers.length}"})
-            : _t("credential.issued_by", {"issuer": issuers.firstOrNull ?? ""}),
+            ? t(context, "issuance.from_issuers", {
+                "count": "${issuers.length}",
+              })
+            : t(context, "credential.issued_by", {
+                "issuer": issuers.firstOrNull ?? "",
+              }),
       ),
       if (many)
         InfoChip(
-          label: _t("issuance.card_count", {"count": "${_cards.length}"}),
+          label: t(context, "issuance.card_count", {
+            "count": "${_cards.length}",
+          }),
         ),
       if (until != null) InfoChip(label: until),
       if (!many && (first?.display?.svgTemplates.isNotEmpty ?? false))
         InfoChip(
-          label: _t("credential_card.source.issuer_design"),
+          label: t(context, "credential_card.source.issuer_design"),
           tinted: true,
         ),
-      if (_context(steps) case final label?)
+      if (showRequestChip ? _context(context, steps) : _returnedChip(context)
+          case final label?)
         InfoChip(
           key: const Key("issuance_context"),
           label: label,
@@ -212,38 +263,42 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           child: CredentialCardArt(credential: first, width: cardWidth),
         ),
       InfoChipRow(chips: chips),
-      if (_mismatchText(mismatches) case final text?)
+      if (_mismatchText(context, mismatches) case final text?)
         _Note(key: const Key("issuance_mismatch"), text: text),
     ];
   }
 
   /// "For {requestor} · step n of m" inside a request, "Back from the
   /// website of {issuer}" after the user went there from the app.
-  String? _context(List<IssuanceStep> steps) {
-    final request = widget.forRequest;
+  String? _context(BuildContext context, List<IssuanceStep> steps) {
+    final request = forRequest;
     if (request != null) {
       final step = stepNumberFor(_cards, steps);
       final requestor = request.requestor.name;
       return step == null
-          ? _t("issuance.for_request", {"requestor": requestor})
-          : _t("issuance.for_request_step", {
+          ? t(context, "issuance.for_request", {"requestor": requestor})
+          : t(context, "issuance.for_request_step", {
               "requestor": requestor,
               "step": "$step",
               "total": "${steps.length}",
             });
     }
-    final issuer = widget.returnedFromIssuer;
+    final issuer = returnedFromIssuer;
     return issuer == null
         ? null
-        : _t("issuance.returned_from", {"issuer": issuer});
+        : t(context, "issuance.returned_from", {"issuer": issuer});
   }
 
-  String? _mismatchText(List<IssuanceMismatch> mismatches) {
+  String? _mismatchText(
+    BuildContext context,
+    List<IssuanceMismatch> mismatches,
+  ) {
     final miss = mismatches.firstOrNull;
-    final request = widget.forRequest;
+    final request = forRequest;
     if (miss == null || request == null) return null;
     final offered = localizedAttributeText(context, miss.offered);
-    return _t(
+    return t(
+      context,
       offered == null ? "issuance.mismatch_none" : "issuance.mismatch",
       {
         "requestor": request.requestor.name,
@@ -254,11 +309,11 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     );
   }
 
-  String? _validUntil(schemaless.Credential card) {
+  String? _validUntil(BuildContext context, schemaless.Credential card) {
     final expiry = card.expiryDate ?? 0;
     if (expiry <= 0) return null;
     final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
-    return _t("wallet.detail.valid_until", {
+    return t(context, "wallet.detail.valid_until", {
       "date": printableDate(
         DateTime.fromMillisecondsSinceEpoch(expiry * 1000),
         lang,
@@ -268,10 +323,8 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 
   /// "You will receive" and every value: one list for one card, a group
   /// per card for several.
-  List<Widget> _receives(
-    BuildContext context,
-    List<IssuanceMismatch> mismatches,
-  ) {
+  List<Widget> receives(BuildContext context) {
+    final mismatches = issuanceMismatches(_cards, _steps);
     final palette = YiviPalette.of(context);
     final many = _cards.length > 1;
 
@@ -289,7 +342,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         );
 
     final heading = Text(
-      _t("issuance.you_will_receive"),
+      t(context, "issuance.you_will_receive"),
       style: palette.display(16),
     );
 
@@ -307,7 +360,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
                     Expanded(child: heading),
                     Flexible(
                       child: Text(
-                        _t("issuance.all_together"),
+                        t(context, "issuance.all_together"),
                         textAlign: TextAlign.end,
                         style: palette
                             .body(13)
@@ -338,7 +391,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _GroupHeader(card: card, until: _validUntil(card)),
+                    _GroupHeader(card: card, until: _validUntil(context, card)),
                     Divider(height: 1, color: palette.divider),
                     values(card),
                   ],

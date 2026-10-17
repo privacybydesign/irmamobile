@@ -61,8 +61,9 @@ Future<void> filledChoiceTest(
     addable: [_email, _mobile],
   );
 
-  // Add a mobile number: the confirm view, then (as the issuer would)
-  // issue it. Something unrelated is issued first; it changes nothing.
+  // Add a mobile number: its details, then (as the issuer would) issue it.
+  // Something unrelated is issued first; it shows in the sheet too and
+  // changes nothing on the share screen.
   await startAdding(tester, _mobile);
   await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMobileNumber(tester, irmaBinding);

@@ -1042,9 +1042,10 @@ Future<void> testOneCredentialTwoChoices(
   _expectOwnedRows(tester, ["one@example.com", "two@template.com"]);
   expect(findSheetAddRow(_emailId), findsOneWidget);
 
-  // Add a new one: the confirm view says where it is added. "Go to …" opens
-  // the issuer's website, so the test issues the card the way that website
-  // would. Coming back closes the sheet and selects the new card.
+  // Add a new one: its details in the sheet, then "Add" opens the issuer's
+  // website, so the test issues the card the way that website would. The
+  // issuance shows in the sheet; "Back to …" closes it with the new card
+  // selected.
   await startAdding(tester, _emailId);
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
   await tester.waitUntilDisappeared(findChoiceSheet());

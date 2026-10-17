@@ -316,8 +316,11 @@ Future<void> issueCredentials(
     sdJwtBatchSize: sdJwtBatchSize,
   );
 
-  var issuancePageFinder = find.byType(IssuancePermission);
+  // Full-screen, or in the Change sheet when the user is adding a card for
+  // a request there (the sheet waits for the issuer and shows the issuance).
+  final issuancePageFinder = _issuancePage();
   await tester.waitFor(issuancePageFinder);
+  final inSheet = find.byKey(const Key("sheet_issuance")).evaluate().isNotEmpty;
 
   // On top of another session (the issuer's link opened a second session),
   // the success screen leads back to it: "Back to {requestor}" when that is
@@ -392,17 +395,34 @@ Future<void> issueCredentials(
   }
 
   final buttonFinder = find.byKey(
-    declineOffer
+    inSheet
+        ? (declineOffer
+              ? const Key("sheet_issue_cancel")
+              : const Key("sheet_issue_add"))
+        : declineOffer
         ? const Key("bottom_bar_secondary")
         : const Key("bottom_bar_primary"),
   );
   expect(buttonFinder, findsOneWidget);
 
   final forRequest =
+      inSheet ||
       tester.widget<IssuancePermission>(issuancePageFinder).forRequest != null;
   await tester.tapAndSettle(buttonFinder);
 
   await tester.waitUntilDisappeared(issuancePageFinder);
+
+  // In the sheet: "Success", then "Back to {requestor}" closes it.
+  if (inSheet && !declineOffer) {
+    final back = find.byKey(const Key("sheet_back_to_request"));
+    await tester.waitFor(back);
+    expect(find.textContaining("Back to "), findsOneWidget);
+    await tester.tapAndSettle(back);
+    await tester.waitUntilDisappeared(
+      find.byKey(const Key("disclosure_choice_sheet")),
+    );
+    return;
+  }
 
   if (nested && !declineOffer) {
     await tester.waitFor(find.byType(IssuanceSuccessScreen));
@@ -495,8 +515,15 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
 /// attributes ("You will receive").
 /// The offered cards on the issuance permission: the big card, or the
 /// cards of the pile. Not the small pictures above each card's values.
+/// The issuance permission: the full-screen one, or its content in the
+/// Change sheet.
+Finder _issuancePage({bool skipOffstage = true}) => find.byWidgetPredicate(
+  (w) => w is IssuancePermission || w.key == const Key("sheet_issuance"),
+  skipOffstage: skipOffstage,
+);
+
 Finder findIssuanceCards({bool skipOffstage = false}) => find.descendant(
-  of: find.byType(IssuancePermission, skipOffstage: skipOffstage),
+  of: _issuancePage(skipOffstage: skipOffstage),
   matching: find.byWidgetPredicate(
     (w) => w is CredentialCardArt && w.width > 60,
     skipOffstage: skipOffstage,

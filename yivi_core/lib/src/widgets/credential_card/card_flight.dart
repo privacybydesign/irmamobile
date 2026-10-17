@@ -28,6 +28,10 @@ class CardFlight {
 
   static bool get isFlying => _entry != null;
 
+  /// The [CardFlightLanding] a card is flying to: it hides its own copy
+  /// until the card has landed.
+  static final landing = ValueNotifier<GlobalKey?>(null);
+
   /// Starts a flight of [card] from the box of [source] to [target]. Returns
   /// false without doing anything when it cannot: no source on screen, or a
   /// flight under way.
@@ -53,6 +57,7 @@ class CardFlight {
     void Function(Duration elapsed)? onTick,
     VoidCallback? onDone,
     Key? cardKey,
+    GlobalKey? landingKey,
   }) {
     final box = source.currentContext?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize || _entry != null) return false;
@@ -81,10 +86,12 @@ class CardFlight {
         onDone: () {
           _entry?.remove();
           _entry = null;
+          if (landing.value == landingKey) landing.value = null;
           onDone?.call();
         },
       ),
     );
+    if (landingKey != null) landing.value = landingKey;
     overlay.insert(_entry!);
     return true;
   }
@@ -101,7 +108,30 @@ class CardFlight {
   static void reset() {
     _entry?.remove();
     _entry = null;
+    landing.value = null;
   }
+}
+
+/// Where a [CardFlight] can land: marks its [child] with [landingKey] (pass
+/// it to [CardFlight.start] as the target and as its `landingKey`), and hides
+/// the child while a card flies to it, so the card does not show twice.
+class CardFlightLanding extends StatelessWidget {
+  final GlobalKey landingKey;
+  final Widget child;
+
+  const CardFlightLanding({
+    super.key,
+    required this.landingKey,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<GlobalKey?>(
+    valueListenable: CardFlight.landing,
+    child: KeyedSubtree(key: landingKey, child: child),
+    builder: (context, target, child) =>
+        Opacity(opacity: target == landingKey ? 0 : 1, child: child),
+  );
 }
 
 class _FlightOverlay extends StatefulWidget {

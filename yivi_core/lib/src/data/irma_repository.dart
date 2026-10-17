@@ -601,6 +601,11 @@ class IrmaRepository {
     );
   }
 
+  /// Whether session [sessionId] waits for the user's permission (a request
+  /// that a card can be added for).
+  bool isActiveSession(int sessionId) =>
+      _sessionRepository.isActiveSession(sessionId);
+
   /// Whether any session is currently in flight (started, not yet terminal).
   /// Synchronous companion to [getHasInFlightSession] for the biometric backstop.
   bool get hasInFlightSession => _sessionRepository.hasInFlightSession;
@@ -924,6 +929,11 @@ class IrmaRepository {
   /// Whether obtaining [credentialId] (given an issue URL) sends the user to
   /// the issuer's website: no embedded in-app flow handles it and it does not
   /// open a native app through a universal link.
+  /// Whether Yivi issues [credentialId] itself, in its own screens (e-mail,
+  /// phone number, documents), instead of on the issuer's website.
+  bool hasEmbeddedFlow(String credentialId) =>
+      _embeddedFlows.containsKey(credentialId);
+
   bool issuesViaWebsite(String credentialId) {
     if (_embeddedFlows.containsKey(credentialId)) return false;
     final cred =

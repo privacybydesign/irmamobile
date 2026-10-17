@@ -8,6 +8,7 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../models/disclosure_view_model.dart";
@@ -43,6 +44,10 @@ class SharedCardTile extends ConsumerWidget {
   /// they no longer apply.
   final bool showStatus;
 
+  /// Marks the small card art as where a card added in the Change sheet
+  /// lands (a [CardFlightLanding]).
+  final GlobalKey? landingKey;
+
   const SharedCardTile({
     super.key,
     required this.bundle,
@@ -50,7 +55,17 @@ class SharedCardTile extends ConsumerWidget {
     this.fixLabel,
     this.onFix,
     this.showStatus = true,
+    this.landingKey,
   }) : assert((fixLabel == null) == (onFix == null));
+
+  /// The art, marked as a landing spot. Not the copy in a hero flight: the
+  /// flight builds the tile a second time, and a key can be in the tree once.
+  Widget _landing(BuildContext context, Widget art) {
+    final key = landingKey;
+    return key == null || SharedCardTileInFlight.of(context)
+        ? art
+        : CardFlightLanding(landingKey: key, child: art);
+  }
 
   /// Width of the small card art, at the card's 358:226 ratio.
   static const double miniWidth = 58;
@@ -122,11 +137,14 @@ class SharedCardTile extends ConsumerWidget {
               spacing: 12,
               children: [
                 ExcludeSemantics(
-                  child: _MiniCards(
-                    cards: [
-                      for (final c in cards)
-                        DisclosedCardTile.cardFor(c, wallet),
-                    ],
+                  child: _landing(
+                    context,
+                    _MiniCards(
+                      cards: [
+                        for (final c in cards)
+                          DisclosedCardTile.cardFor(c, wallet),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(

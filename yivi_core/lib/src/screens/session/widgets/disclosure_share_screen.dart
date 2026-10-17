@@ -66,6 +66,12 @@ class DisclosureShareScreen extends ConsumerStatefulWidget {
 class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   final _barTitleVisible = ValueNotifier(false);
 
+  /// Per pick-one, where a card added for it in the sheet lands.
+  final _landingKeys = <int, GlobalKey>{};
+
+  GlobalKey _landingKey(int i) =>
+      _landingKeys[i] ??= GlobalKey(debugLabel: "share_landing_$i");
+
   int get _sessionId => widget.session.id;
 
   List<DisclosurePickOne> get _pickOnes =>
@@ -86,6 +92,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         sessionId: _sessionId,
         index: i,
         addNew: addNew,
+        landingKey: _landingKey(i),
       );
 
   @override
@@ -273,6 +280,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final tile = SharedCardTile(
       key: Key("share_slot_$i"),
       bundle: bundle,
+      landingKey: _landingKey(i),
       trailing: canChange(p)
           ? _ChangePill(
               key: Key("share_change_$i"),
@@ -312,6 +320,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       final tile = SharedCardTile(
         key: Key("share_slot_$i"),
         bundle: bundle,
+        landingKey: _landingKey(i),
         trailing: _RemoveButton(
           key: Key("share_remove_$i"),
           label: FlutterI18n.translate(

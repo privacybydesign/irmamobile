@@ -101,11 +101,29 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
       onDismiss: _done,
       hero: cards.isEmpty
           ? null
-          : many
-          ? _ReceivedPile(cards, cardKeys: _cardKeys)
-          : _ReceivedCard(cards.first, cardKey: _cardKeys.first),
+          : IssuanceReceived(cards: cards, cardKeys: _cardKeys),
     );
   }
+}
+
+/// The received card with a green check, or the pile of cards with one
+/// check for several: the hero of the success screen, and of the last page
+/// of adding a card in the Change sheet. [cardKeys] (one per card) mark
+/// where a card flies from afterwards.
+class IssuanceReceived extends StatelessWidget {
+  final List<schemaless.Credential> cards;
+  final List<GlobalKey> cardKeys;
+
+  const IssuanceReceived({
+    super.key,
+    required this.cards,
+    required this.cardKeys,
+  }) : assert(cards.length == cardKeys.length);
+
+  @override
+  Widget build(BuildContext context) => cards.length > 1
+      ? _ReceivedPile(cards, cardKeys: cardKeys)
+      : _ReceivedCard(cards.first, cardKey: cardKeys.first);
 }
 
 /// Settles into place: drops in from above with a slight tilt.

@@ -7,6 +7,7 @@ import "../models/session_events.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/email_linking_provider.dart";
 import "../providers/irma_repository_provider.dart";
+import "../providers/nested_issuance_host_provider.dart";
 import "navigation.dart";
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.
@@ -66,7 +67,8 @@ void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
   }
 }
 
-/// Dispatches a NewSessionEvent to Go and pushes [SessionScreen] synchronously.
+/// Dispatches a NewSessionEvent to Go and pushes [SessionScreen] synchronously,
+/// or hands the session to the [NestedIssuanceHost] waiting for it.
 /// The session id is allocated Dart-side so the screen can mount immediately
 /// and render its existing "no state yet" loading branch while Go contacts
 /// the relying party.
@@ -85,6 +87,22 @@ int _startSession(
   repo.bridgedDispatch(
     NewSessionEvent(sessionId: sessionId, request: sessionPointer),
   );
+
+  // The user is adding a card for a waiting request in its Change sheet:
+  // the issuance shows there, so no session screen is pushed.
+  final host = hostForNewSession(
+    ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(nestedIssuanceHostProvider),
+    hasUnderlying: hasUnderlying,
+    replacing: pushReplacement,
+    isActive: repo.isActiveSession,
+  );
+  if (host != null) {
+    host.attach(sessionId);
+    return sessionId;
+  }
 
   final params = SessionRouteParams(
     sessionId: sessionId,

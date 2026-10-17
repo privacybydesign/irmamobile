@@ -191,6 +191,10 @@ class SessionRepository {
     );
   }
 
+  /// Whether session [sessionId] waits for the user's permission.
+  bool isActiveSession(int sessionId) =>
+      _states.value[sessionId]?.status == .requestPermission;
+
   /// Whether any session is currently in flight (started, not yet terminal).
   bool get hasInFlightSession => _inFlightSessionIds.value.isNotEmpty;
 

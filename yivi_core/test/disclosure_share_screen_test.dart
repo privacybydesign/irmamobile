@@ -6,11 +6,15 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/schemaless/session_user_interaction.dart";
+import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
+import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
@@ -18,6 +22,8 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.da
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
+import "helpers/credential_factory.dart";
+import "support/onboarding_v2_harness.dart";
 import "support/pump_translated.dart";
 
 const _sessionId = 1;
@@ -102,6 +108,12 @@ class _Calls {
   final obtained = <String>[];
   var closed = 0;
   var dismissed = 0;
+
+  /// What the sheet sent to Go (for an issuance in it).
+  final bridge = RecordingBridge();
+
+  Iterable<SessionUserInteractionEvent> get interactions =>
+      bridge.dispatched.whereType<SessionUserInteractionEvent>();
 }
 
 class _Screen extends ConsumerWidget {
@@ -128,6 +140,7 @@ Future<_Calls> _pump(
   WidgetTester tester, {
   SessionState? session,
   Stream<SessionState>? sessions,
+  Map<int, Stream<SessionState>> nested = const {},
   Size size = const Size(390, 844),
   bool banner = false,
 }) async {
@@ -136,6 +149,13 @@ Future<_Calls> _pump(
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final calls = _Calls();
+  final repo = (await tester.runAsync(
+    () async => IrmaRepository(
+      client: calls.bridge,
+      preferences: await freshPreferences(),
+    ),
+  ))!;
+  addTearDown(() => tester.runAsync(repo.close));
   final router = GoRouter(
     routes: [
       GoRoute(
@@ -159,6 +179,12 @@ Future<_Calls> _pump(
           _sessionId,
         ).overrideWith((ref) => sessions ?? Stream.value(session!)),
         schemalessCredentialOrderControllerProvider.overrideWith(_NoWallet.new),
+        irmaRepositoryProvider.overrideWithValue(repo),
+        groupedCredentialStoreProvider.overrideWith(
+          (ref) => Stream.value(const []),
+        ),
+        for (final MapEntry(key: id, value: states) in nested.entries)
+          sessionStateProvider(id).overrideWith((ref) => states),
         // Where "Go to …" sends the user, recorded instead of opened.
         issuerOpenerProvider.overrideWithValue(
           (context, d, ref) async => calls.obtained.add(d.credentialId),
@@ -261,22 +287,23 @@ void main() {
     expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
     expect(find.text("Issuer · on issuer.example"), findsOneWidget);
 
-    // First where the user goes, then there.
+    // First its details, step 1 of 3, as on the add-data page.
     await tester.tap(find.byKey(const Key("sheet_add_idcard")));
     await tester.pumpAndSettle();
-    expect(find.text("Add ID card"), findsOneWidget);
-    expect(find.text("Back here, already selected"), findsOneWidget);
+    expect(find.text("Adding data"), findsOneWidget);
+    expect(find.text("1 of 3"), findsOneWidget);
+    expect(find.text("For Webshop Noord"), findsOneWidget);
+    expect(find.byKey(const Key("add_data_disclosure_note")), findsOneWidget);
     expect(calls.obtained, isEmpty);
 
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(const Key("sheet_go_button")),
-        matching: find.text("Go to issuer.example"),
-      ),
-    );
+    // Then the website, with the sheet waiting for the user to come back.
+    await tester.tap(find.byKey(const Key("sheet_go_button")));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     expect(calls.obtained, ["idcard"]);
+    expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+    expect(find.text("2 of 3"), findsOneWidget);
+    expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
+    expect(find.text("Open again"), findsOneWidget);
   });
 
   group("optional data", () {
@@ -370,7 +397,8 @@ void main() {
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
       expect(calls.obtained, ["idcard"]);
-      // Not included before the card is there.
+      // Not included before the card is there (behind the sheet, which
+      // waits for the user to come back).
       expect(find.byKey(const Key("share_slot_0")), findsNothing);
 
       sessions.add(
@@ -426,10 +454,11 @@ void main() {
       await tester.tap(_share);
       expect(calls.shared, isEmpty);
 
-      // The fix opens the sheet straight on adding a new one.
+      // The fix opens the sheet straight on adding a new one: its details.
       await tester.tap(find.byKey(const Key("shared_card_fix")));
       await tester.pumpAndSettle();
-      expect(find.text("Add address"), findsOneWidget);
+      expect(find.text("Adding data"), findsOneWidget);
+      expect(find.text("Address"), findsWidgets);
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
       expect(calls.obtained, ["address"]);
@@ -721,6 +750,162 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("What do you want to share?"), findsOneWidget);
+    });
+  });
+
+  group("adding a card in the sheet", () {
+    const nestedId = 99;
+    final idCard = testCredential(
+      type: "idcard",
+      hash: "issued-idcard",
+      name: "ID card",
+      issuerName: "Issuer",
+    );
+    SessionState issuance(SessionStatus status) => SessionState(
+      id: nestedId,
+      protocol: "irma",
+      type: SessionType.issuance,
+      status: status,
+      requestor: _party("Issuer"),
+      offeredCredentials: [idCard],
+    );
+
+    /// The sheet on the ID card's details, its website opened.
+    Future<(_Calls, StreamController<SessionState>)> openWebsite(
+      WidgetTester tester,
+    ) async {
+      final nested = StreamController<SessionState>();
+      addTearDown(nested.close);
+      final calls = await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(_instance("passport", "Passport", "Jansen")),
+            ],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+        nested: {nestedId: nested.stream},
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      return (calls, nested);
+    }
+
+    /// What the issuer's pointer does when the user comes back: the session
+    /// starts and goes to the sheet waiting for it.
+    void comeBack(WidgetTester tester) {
+      final host = ProviderScope.containerOf(
+        tester.element(find.byType(ChangeChoiceSheet)),
+      ).read(nestedIssuanceHostProvider);
+      expect(host?.underlyingSessionId, _sessionId);
+      host!.attach(nestedId);
+    }
+
+    testWidgets("back from the website, the issuance is step 3 in the sheet", (
+      tester,
+    ) async {
+      final (calls, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+
+      expect(find.text("3 of 3"), findsOneWidget);
+      expect(
+        find.text("Do you want to add this data to your Yivi app?"),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const Key("sheet_issue_add")));
+      await tester.pump();
+      final granted = calls.interactions.last;
+      expect(
+        (granted.sessionId, granted.type),
+        (nestedId, UserInteractionType.permission),
+      );
+
+      nested.add(issuance(SessionStatus.success));
+      await tester.pumpAndSettle();
+      expect(find.text("Done"), findsOneWidget);
+      expect(find.text("Back to Webshop Noord"), findsOneWidget);
+      // Done: no host waits any more, and closing does not ask.
+      expect(
+        ProviderScope.containerOf(
+          tester.element(find.byType(ChangeChoiceSheet)),
+        ).read(nestedIssuanceHostProvider),
+        isNull,
+      );
+
+      // The card flies into its spot as the sheet closes.
+      await tester.tap(find.byKey(const Key("sheet_back_to_request")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key("sheet_flight_card")), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+    });
+
+    testWidgets("cancelled on step 3: back on the details, to try again", (
+      tester,
+    ) async {
+      final (calls, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key("sheet_issue_cancel")));
+      await tester.pump();
+      expect(calls.interactions.last.type, UserInteractionType.dismiss);
+      nested.add(issuance(SessionStatus.dismissed));
+      await tester.pumpAndSettle();
+      expect(find.text("2 of 3"), findsOneWidget);
+      expect(find.text("Open again"), findsOneWidget);
+    });
+
+    testWidgets("closing once adding has started asks first", (tester) async {
+      final (calls, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.pumpAndSettle();
+      expect(find.text("Stop adding ID card?"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("sheet_stop_keep")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+
+      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+      // The issuance in the sheet is ended with it.
+      expect(
+        calls.interactions.where(
+          (e) =>
+              e.sessionId == nestedId && e.type == UserInteractionType.dismiss,
+        ),
+        isNotEmpty,
+      );
+    });
+
+    testWidgets("choosing does not ask: the choice list just closes", (
+      tester,
+    ) async {
+      await _pump(tester, session: _session([_passportOrIdCard()]));
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_stop_dialog")), findsNothing);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
   });
 }

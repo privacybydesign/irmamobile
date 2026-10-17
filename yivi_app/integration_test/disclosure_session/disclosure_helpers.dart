@@ -285,12 +285,13 @@ Future<void> pickOwned(WidgetTester tester, String text) async {
   await tester.waitUntilDisappeared(findChoiceSheet());
 }
 
-/// Adds [credentialId] from the open sheet: opens its confirm view and taps
-/// "Go to {host}", which closes the sheet.
+/// Adds [credentialId] from the open sheet: opens its details (step 1 of 3)
+/// and taps "Add", which opens the issuer's website while the sheet waits.
 ///
-/// In tests the issuer's website does not open (see [pumpYiviApp]); tests
-/// then issue the card directly, as the website would. Back from that
-/// issuance the new card is selected (and an optional item included).
+/// In tests the website does not open (see [pumpYiviApp]); tests then issue
+/// the card directly, as the website would. That issuance shows in the
+/// sheet (step 3), and "Back to {requestor}" closes it with the new card
+/// selected (and an optional item included); [issueCredentials] does both.
 Future<void> startAdding(WidgetTester tester, String credentialId) async {
   final row = findSheetAddRow(credentialId);
   await tester.scrollUntilVisible(
@@ -304,7 +305,8 @@ Future<void> startAdding(WidgetTester tester, String credentialId) async {
   final go = find.byKey(const Key("sheet_go_button"));
   expect(go, findsOneWidget);
   await tester.tapAndSettle(go);
-  await tester.waitUntilDisappeared(findChoiceSheet());
+  // The sheet waits for the user to come back from the website.
+  expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
 }
 
 /// Closes the open sheet without changing anything.
