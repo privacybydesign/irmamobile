@@ -263,9 +263,11 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     final height = heightFraction == null
         ? null
         : (screen * heightFraction!).clamp(0.0, maxHeight);
-    return Padding(
-      // Rides up on the keyboard.
-      padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
+    // The sheet keeps its place and size when the keyboard comes up: only
+    // its content ends above the keyboard (see _GlassSheet).
+    return MediaQuery.removeViewInsets(
+      context: context,
+      removeBottom: true,
       child: Align(
         alignment: Alignment.bottomCenter,
         child: ConstrainedBox(
@@ -302,6 +304,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                     child: _GlassSheet(
                       attached: true,
                       height: height,
+                      keyboard: media.viewInsets.bottom,
                       bottomInset: media.viewInsets.bottom > 0
                           ? 0
                           : media.padding.bottom,
@@ -350,12 +353,17 @@ class _GlassSheet extends StatelessWidget {
   final double? height;
   // Room for the home indicator, handed to the content as its bottom padding.
   final double bottomInset;
+
+  /// The keyboard's height: the content (its scroll view and pinned buttons)
+  /// ends above it, the sheet itself does not move or grow.
+  final double keyboard;
   final Widget child;
 
   const _GlassSheet({
     required this.attached,
     required this.height,
     this.bottomInset = 0,
+    this.keyboard = 0,
     required this.child,
   });
 
@@ -378,17 +386,23 @@ class _GlassSheet extends StatelessWidget {
         clipper: ShapeBorderClipper(shape: shape),
         child: SizedBox(
           height: height,
-          child: MediaQuery(
-            data: media.copyWith(
-              padding: media.padding.copyWith(top: 0, bottom: 20 + bottomInset),
-              // The device's inset where the sheet meets the bottom edge, so a
-              // button lands where it does on a full screen.
-              viewPadding: media.viewPadding.copyWith(
-                top: 0,
-                bottom: attached ? media.viewPadding.bottom : 0,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: keyboard),
+            child: MediaQuery(
+              data: media.copyWith(
+                padding: media.padding.copyWith(
+                  top: 0,
+                  bottom: 20 + bottomInset,
+                ),
+                // The device's inset where the sheet meets the bottom edge, so a
+                // button lands where it does on a full screen.
+                viewPadding: media.viewPadding.copyWith(
+                  top: 0,
+                  bottom: attached ? media.viewPadding.bottom : 0,
+                ),
               ),
+              child: child,
             ),
-            child: child,
           ),
         ),
       ),
@@ -616,6 +630,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
             // With reduced motion the pages fade into each other instead of
             // sliding.
             final reduce = MediaQuery.disableAnimationsOf(context);
+            final leaving = _shown.length > widget.pages.length;
             return Stack(
               fit: StackFit.expand,
               children: [
@@ -625,19 +640,23 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   if (page == under)
                     KeyedSubtree(
                       key: ValueKey(("under", page.key)),
-                      child: Offstage(
-                        offstage: !moving,
-                        child: TickerMode(
-                          enabled: moving,
-                          // Its heroes stay out of flights while it is hidden.
-                          child: HeroMode(
+                      // A field on it gives up focus (and its keyboard), and
+                      // an autofocus field on it can't take it.
+                      child: ExcludeFocus(
+                        child: Offstage(
+                          offstage: !moving,
+                          child: TickerMode(
                             enabled: moving,
-                            child: reduce
-                                ? page
-                                : FractionalTranslation(
-                                    translation: Offset(-0.3 * t, 0),
-                                    child: page,
-                                  ),
+                            // Its heroes stay out of flights while it is hidden.
+                            child: HeroMode(
+                              enabled: moving,
+                              child: reduce
+                                  ? page
+                                  : FractionalTranslation(
+                                      translation: Offset(-0.3 * t, 0),
+                                      child: page,
+                                    ),
+                            ),
                           ),
                         ),
                       ),
@@ -649,27 +668,31 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   child: Semantics(
                     scopesRoute: true,
                     explicitChildNodes: true,
-                    child: _PageMotion(
-                      reduce: reduce,
-                      t: t,
-                      // While it moves it has the sheet's colour behind it, as
-                      // a page in a native sheet does, so the page under it
-                      // does not show through the glass.
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: moving && under != null
-                              ? palette.sheet
-                              : const Color(0x00000000),
-                          boxShadow: moving && under != null
-                              ? const [
-                                  BoxShadow(
-                                    color: Color(0x1F000000),
-                                    blurRadius: 16,
-                                  ),
-                                ]
-                              : null,
+                    // A page on its way out lets go of the keyboard at once.
+                    child: ExcludeFocus(
+                      excluding: leaving,
+                      child: _PageMotion(
+                        reduce: reduce,
+                        t: t,
+                        // While it moves it has the sheet's colour behind it, as
+                        // a page in a native sheet does, so the page under it
+                        // does not show through the glass.
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: moving && under != null
+                                ? palette.sheet
+                                : const Color(0x00000000),
+                            boxShadow: moving && under != null
+                                ? const [
+                                    BoxShadow(
+                                      color: Color(0x1F000000),
+                                      blurRadius: 16,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: top,
                         ),
-                        child: top,
                       ),
                     ),
                   ),

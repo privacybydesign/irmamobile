@@ -312,4 +312,90 @@ void main() {
       expect(tester.getTopLeft(page).dx, x);
     });
   });
+
+  group("the keyboard", () {
+    void openWithField() => showGlassSheet<void>(
+      context: _page,
+      heightFraction: 0.9,
+      builder: (_) => GlassSheetPage(
+        title: "Sheet",
+        bottom: const SizedBox(
+          key: Key("sheet_buttons"),
+          height: 52,
+          width: double.infinity,
+        ),
+        child: Column(
+          children: [
+            const TextField(key: Key("field")),
+            for (var i = 0; i < 30; i++) Text("row $i"),
+          ],
+        ),
+      ),
+    );
+
+    testWidgets("the sheet keeps its size and place; its buttons ride up", (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      openWithField();
+      await tester.pumpAndSettle();
+      final sheet = find.byKey(const Key("glass_sheet"));
+      final before = tester.getRect(sheet);
+
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+
+      expect(tester.getRect(sheet), before);
+      expect(
+        tester.getRect(find.byKey(const Key("sheet_buttons"))).bottom,
+        lessThanOrEqualTo(800 - 300),
+      );
+      // The rows still scroll, above the keyboard.
+      expect(find.byType(Scrollable), findsWidgets);
+    });
+
+    testWidgets("a page underneath can't hold or take focus", (tester) async {
+      late StateSetter push;
+      var pages = 1;
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            push = setState;
+            return GlassSheetPages(
+              onBack: () => setState(() => pages = 1),
+              pages: [
+                const GlassSheetPage(
+                  key: ValueKey("code"),
+                  title: "Code",
+                  child: TextField(key: Key("code_field"), autofocus: true),
+                ),
+                if (pages > 1)
+                  const GlassSheetPage(
+                    key: ValueKey("next"),
+                    title: "Next",
+                    child: Text("no fields here"),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      bool fieldFocused() => tester
+          .widget<EditableText>(find.byType(EditableText, skipOffstage: false))
+          .focusNode
+          .hasFocus;
+      expect(fieldFocused(), isTrue);
+
+      push(() => pages = 2);
+      await tester.pumpAndSettle();
+      expect(fieldFocused(), isFalse);
+      expect(tester.testTextInput.isVisible, isFalse);
+    });
+  });
 }

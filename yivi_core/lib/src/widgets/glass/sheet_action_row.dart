@@ -3,7 +3,8 @@ import "package:material_ui/material_ui.dart";
 import "pill_buttons.dart";
 
 /// The buttons of a step in a sheet, side by side so they take little height:
-/// the way back ([secondaryLabel], outlined) on the left and the way on
+/// the way back ([secondaryLabel], a text pill like every other Cancel) on
+/// the left and the way on
 /// ([primaryLabel], the fancy red button) on the right, always equally wide.
 /// With only one of them it takes the whole width. A label that wraps (at a
 /// large text size) makes both buttons taller, never just one.
@@ -51,6 +52,7 @@ class SheetActionRow extends StatelessWidget {
                 key: secondaryKey,
                 label: secondary,
                 onPressed: onSecondary,
+                style: PillStyle.text,
                 height: height,
               ),
             ),
