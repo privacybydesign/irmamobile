@@ -270,7 +270,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     if (k < 0) return const SizedBox.shrink();
     final bundle = p.ownedOptions![k];
     final fix = problemOfBundle(bundle) == null ? null : fixFor(p, bundle);
-    return SharedCardTile(
+    final tile = SharedCardTile(
       key: Key("share_slot_$i"),
       bundle: bundle,
       trailing: canChange(p)
@@ -292,6 +292,15 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               },
             ),
       onFix: fix == null ? null : () => _openChoice(i, addNew: fix),
+    );
+    if (!canChange(p)) return tile;
+    // Flies into the Change sheet, where the same card is the checked one.
+    return Hero(
+      tag: choiceHeroTag(_sessionId, i, bundle),
+      flightShuttleBuilder: choiceHeroShuttle,
+      // Also back into the overview when the sheet is dragged closed.
+      transitionOnUserGestures: true,
+      child: tile,
     );
   }
 

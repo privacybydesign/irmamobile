@@ -6,14 +6,12 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../models/disclosure_view_model.dart";
 import "shared_card_tile.dart";
@@ -50,12 +48,36 @@ Future<void> showChangeChoiceSheet({
   CredentialDescriptor? addNew,
 }) => showGlassSheet<void>(
   context: context,
+  attached: true,
   builder: (_) => ChangeChoiceSheet(
     key: const Key("disclosure_choice_sheet"),
     sessionId: sessionId,
     index: index,
     addNew: addNew,
   ),
+);
+
+/// The hero tag of [bundle] as the choice for pick-one [index]: the card on
+/// the share screen and the same card in the sheet, so the chosen card flies
+/// into the sheet and the picked one back.
+Object choiceHeroTag(int sessionId, int index, DisclosureBundle bundle) => (
+  "disclosure_choice",
+  sessionId,
+  index,
+  bundle.credentials.map((c) => c.hash).join("+"),
+);
+
+/// A card flying between the share screen and the sheet: the destination
+/// card, on a transparent material so its text and ink have one.
+Widget choiceHeroShuttle(
+  BuildContext flightContext,
+  Animation<double> animation,
+  HeroFlightDirection direction,
+  BuildContext fromContext,
+  BuildContext toContext,
+) => Material(
+  type: MaterialType.transparency,
+  child: (toContext.widget as Hero).child,
 );
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
@@ -154,25 +176,31 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
         ),
         Flexible(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(top: 12),
+            // Runs under the bottom edge of the sheet, clear of the home
+            // indicator once scrolled to the end.
+            padding: EdgeInsets.only(
+              top: 12,
+              bottom: MediaQuery.paddingOf(context).bottom,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 8,
               children: [
                 if (owned.isNotEmpty) ...[
                   _Label(t("share.in_your_app")),
-                  _Group(
-                    children: [
-                      for (final (k, b) in owned.indexed)
-                        _OwnedRow(
-                          key: Key("sheet_owned_${b.credentials.first.hash}"),
-                          bundle: b,
-                          sameType: sameType,
-                          selected: k == selected,
-                          onTap: () => _pick(pickOne, b),
-                        ),
-                    ],
-                  ),
+                  for (final (k, b) in owned.indexed)
+                    Hero(
+                      tag: choiceHeroTag(widget.sessionId, widget.index, b),
+                      flightShuttleBuilder: choiceHeroShuttle,
+                      // Also back into the overview when the sheet is dragged closed.
+                      transitionOnUserGestures: true,
+                      child: _OwnedCard(
+                        key: Key("sheet_owned_${b.credentials.first.hash}"),
+                        bundle: b,
+                        selected: k == selected,
+                        onTap: () => _pick(pickOne, b),
+                      ),
+                    ),
                 ],
                 if (addable.isNotEmpty) ...[
                   _Label(t("share.not_in_app_yet")),
@@ -237,42 +265,45 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
       ),
     );
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 14,
-      children: [
-        GlassSheetHeader(
-          title: t("share.sheet.add_title", {
-            "name": inSentence(
-              d.name,
-              language: FlutterI18n.currentLocale(context)?.languageCode,
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 14,
+        children: [
+          GlassSheetHeader(
+            title: t("share.sheet.add_title", {
+              "name": inSentence(
+                d.name,
+                language: FlutterI18n.currentLocale(context)?.languageCode,
+              ),
+            }),
+            subtitle: t("share.sheet.add_subtitle"),
+            onBack: () => setState(() => _adding = null),
+          ),
+          Center(
+            child: ExcludeSemantics(
+              child: CredentialCardArt(credential: _exampleCard(d), width: 200),
             ),
-          }),
-          subtitle: t("share.sheet.add_subtitle"),
-          onBack: () => setState(() => _adding = null),
-        ),
-        Center(
-          child: ExcludeSemantics(
-            child: CredentialCardArt(credential: _exampleCard(d), width: 200),
           ),
-        ),
-        _Group(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-          children: [
-            row(t("share.sheet.from"), d.issuer.name),
-            row(t("share.sheet.where"), host),
-            row(t("share.sheet.afterwards"), t("share.sheet.selected_back")),
-          ],
-        ),
-        KeyedSubtree(
-          key: const Key("sheet_go_button"),
-          child: FancyPillButton(
-            label: t("share.sheet.go_to", {"host": host}),
-            onPressed: () => _go(pickOne, d),
+          _Group(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            children: [
+              row(t("share.sheet.from"), d.issuer.name),
+              row(t("share.sheet.where"), host),
+              row(t("share.sheet.afterwards"), t("share.sheet.selected_back")),
+            ],
           ),
-        ),
-      ],
+          KeyedSubtree(
+            key: const Key("sheet_go_button"),
+            child: FancyPillButton(
+              label: t("share.sheet.go_to", {"host": host}),
+              onPressed: () => _go(pickOne, d),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -355,129 +386,39 @@ class _Group extends StatelessWidget {
   }
 }
 
-/// A card in the app: tap to use it. Shown as a radio row.
-class _OwnedRow extends ConsumerWidget {
+/// A card in the app, drawn as on the share screen with every value it
+/// would share, and a radio: tap to use it.
+class _OwnedCard extends StatelessWidget {
   final DisclosureBundle bundle;
-  final bool sameType;
   final bool selected;
   final VoidCallback onTap;
 
-  const _OwnedRow({
+  const _OwnedCard({
     super.key,
     required this.bundle,
-    required this.sameType,
     required this.selected,
     required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = YiviPalette.of(context);
-    final wallet =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
-    final cards = bundle.credentials;
-    final name = cards.map((c) => c.name).join(" + ");
-    final issuers = cards.map((c) => c.issuer.name).toSet().join(", ");
-    final value = _firstValue(context, bundle);
-    final problem = problemOfBundle(bundle);
-
+  Widget build(BuildContext context) {
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: selected,
       button: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            spacing: 12,
-            children: [
-              ExcludeSemantics(
-                child: SizedBox(
-                  width: SharedCardTile.miniWidth + (cards.length - 1) * 20,
-                  height:
-                      SharedCardTile.miniWidth * 226 / 358 +
-                      (cards.length - 1) * 6,
-                  child: Stack(
-                    children: [
-                      for (final (i, c) in cards.indexed)
-                        Positioned(
-                          left: i * 20.0,
-                          top: i * 6.0,
-                          child: CredentialCardArt(
-                            credential: DisclosedCardTile.cardFor(c, wallet),
-                            width: SharedCardTile.miniWidth,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      sameType ? (value ?? name) : name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette
-                          .body(15, weight: FontWeight.w600)
-                          .copyWith(color: palette.text),
-                    ),
-                    Text(
-                      sameType || value == null ? issuers : "$value · $issuers",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette
-                          .body(12.5)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ],
-                ),
-              ),
-              if (problem != null)
-                Container(
-                  height: 24,
-                  padding: const EdgeInsets.symmetric(horizontal: 9),
-                  alignment: Alignment.center,
-                  decoration: ShapeDecoration(
-                    color: palette.errorSurface,
-                    shape: const StadiumBorder(),
-                  ),
-                  child: Text(
-                    FlutterI18n.translate(
-                      context,
-                      "share.problem.${switch (problem) {
-                        CardProblem.revoked => "revoked",
-                        CardProblem.usedUp => "used_up",
-                        CardProblem.expired => "expired",
-                      }}",
-                    ),
-                    style: palette
-                        .body(12, weight: FontWeight.w700)
-                        .copyWith(color: palette.errorText),
-                  ),
-                ),
-              _Radio(selected: selected),
-            ],
+      onTap: onTap,
+      child: PressScale(
+        scale: 0.98,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: SharedCardTile(
+            bundle: bundle,
+            trailing: _Radio(selected: selected),
           ),
         ),
       ),
     );
-  }
-
-  /// The first shown value of the bundle, to tell instances of one type
-  /// apart ("s.devries@werk.example").
-  static String? _firstValue(BuildContext context, DisclosureBundle bundle) {
-    for (final c in bundle.credentials) {
-      for (final a in c.attributes) {
-        final text = localizedAttributeText(context, a.value);
-        if (text != null && text.isNotEmpty) return text;
-      }
-    }
-    return null;
   }
 }
 

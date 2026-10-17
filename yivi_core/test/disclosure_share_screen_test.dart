@@ -576,6 +576,56 @@ void main() {
       semantics.dispose();
     });
 
+    testWidgets("sits on the bottom edge, the chosen card shared as a hero", (
+      tester,
+    ) async {
+      await _pump(tester, session: _session([_passportOrIdCard()]));
+      Object heroTagOf(Finder f) => tester
+          .widget<Hero>(find.ancestor(of: f, matching: find.byType(Hero)).first)
+          .tag;
+      final slotTag = heroTagOf(find.byKey(const Key("share_slot_0")));
+
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getRect(find.byKey(const Key("glass_sheet"))).bottom,
+        tester.view.physicalSize.height / tester.view.devicePixelRatio,
+      );
+      // The card in the sheet has every value it would share. (The one on
+      // the share screen is hidden while its hero is in the sheet.)
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("sheet_owned_hash-passport-Jansen")),
+          matching: find.text("Jansen"),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        heroTagOf(find.byKey(const Key("sheet_owned_hash-passport-Jansen"))),
+        slotTag,
+      );
+    });
+
+    testWidgets("the picked card flies back into the overview", (tester) async {
+      await _pump(tester, session: _session([_passportOrIdCard()]));
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      final picked = find.byKey(const Key("sheet_owned_hash-idcard-de Vries"));
+      final from = tester.getRect(picked).top;
+
+      await tester.tap(picked);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+      // Mid-flight: the one card showing the new choice is on its way up.
+      final flying = tester.getRect(find.text("de Vries")).top;
+
+      await tester.pumpAndSettle();
+      final to = tester.getRect(find.text("de Vries")).top;
+      expect(flying, lessThan(from));
+      expect(flying, greaterThan(to));
+    });
+
     testWidgets("back from adding returns to the choice", (tester) async {
       await _pump(
         tester,

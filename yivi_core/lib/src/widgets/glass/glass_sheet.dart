@@ -10,9 +10,13 @@ import "glass_surface.dart";
 /// design. On tablets it is a centred dialog with the same look.
 ///
 /// The content usually starts with a [GlassSheetHeader].
+///
+/// With [attached] it is a full-width sheet attached to the bottom of the
+/// screen instead, shown in a page route so a [Hero] can fly into it.
 Future<T?> showGlassSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
+  bool attached = false,
 }) {
   if (isExpandedLayout(context)) {
     return showDialog<T>(
@@ -31,6 +35,16 @@ Future<T?> showGlassSheet<T>({
             ),
           ),
         ),
+      ),
+    );
+  }
+  if (attached) {
+    return Navigator.of(context).push(
+      _AttachedSheetRoute<T>(
+        builder: builder,
+        barrierLabel: MaterialLocalizations.of(
+          context,
+        ).modalBarrierDismissLabel,
       ),
     );
   }
@@ -53,11 +67,118 @@ Future<T?> showGlassSheet<T>({
   );
 }
 
+/// The route of an attached sheet: it slides up from the bottom over a dim
+/// barrier, closes on a tap outside it or a drag down, and is a [PageRoute],
+/// so heroes fly into it (a modal bottom sheet is not).
+class _AttachedSheetRoute<T> extends PageRoute<T> {
+  final WidgetBuilder builder;
+
+  _AttachedSheetRoute({required this.builder, required this.barrierLabel});
+
+  @override
+  final String barrierLabel;
+
+  @override
+  bool get opaque => false;
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  Color get barrierColor => const Color(0x470C1824);
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 420);
+
+  @override
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 320);
+
+  /// Follows a drag of [delta] logical pixels on a sheet [height] tall.
+  void _drag(double delta, double height) {
+    controller!.value -= delta / height;
+  }
+
+  /// Ends a drag: closes on a fling down or past half way, else springs back.
+  void _release(double velocity) {
+    final close = velocity > 700 || (velocity >= 0 && controller!.value < 0.5);
+    if (close) {
+      navigator!.pop();
+    } else {
+      controller!.forward();
+    }
+    navigator!.didStopUserGesture();
+  }
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    final padding = MediaQuery.paddingOf(context);
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height - padding.top - 8,
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: LayoutBuilder(
+            builder: (context, _) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onVerticalDragStart: (_) => navigator!.didStartUserGesture(),
+              onVerticalDragUpdate: (d) =>
+                  _drag(d.primaryDelta ?? 0, context.size?.height ?? 1),
+              onVerticalDragEnd: (d) => _release(d.velocity.pixelsPerSecond.dy),
+              child: _GlassSheet(
+                handle: true,
+                attached: true,
+                bottomInset: padding.bottom,
+                child: builder(context),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => SlideTransition(
+    position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      ),
+    ),
+    child: child,
+  );
+}
+
 class _GlassSheet extends StatelessWidget {
   final bool handle;
+  // Full width at the bottom edge: square bottom corners, which the screen's
+  // own corners round off, and room for the home indicator.
+  final bool attached;
+  final double bottomInset;
   final Widget child;
 
-  const _GlassSheet({required this.handle, required this.child});
+  const _GlassSheet({
+    required this.handle,
+    this.attached = false,
+    this.bottomInset = 0,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +186,14 @@ class _GlassSheet extends StatelessWidget {
     return GlassSurface(
       key: const Key("glass_sheet"),
       fill: palette.glassStrongFill,
-      shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(38)),
+      shape: RoundedSuperellipseBorder(
+        borderRadius: attached
+            ? const BorderRadius.vertical(top: Radius.circular(38))
+            : const BorderRadius.all(Radius.circular(38)),
       ),
-      padding: EdgeInsets.fromLTRB(16, handle ? 10 : 18, 16, 20),
+      // Attached, the content runs to the bottom edge, so a list scrolls
+      // under it; it finds its bottom padding in MediaQuery.padding.
+      padding: EdgeInsets.fromLTRB(16, handle ? 10 : 18, 16, attached ? 0 : 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -85,7 +210,18 @@ class _GlassSheet extends StatelessWidget {
                 ),
               ),
             ),
-          Flexible(child: child),
+          Flexible(
+            child: attached
+                ? MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      padding: MediaQuery.paddingOf(
+                        context,
+                      ).copyWith(top: 0, bottom: 20 + bottomInset),
+                    ),
+                    child: child,
+                  )
+                : child,
+          ),
         ],
       ),
     );
