@@ -17,7 +17,6 @@ class ErrorReportingCheckBox extends ConsumerWidget {
   }) => showTitledGlassSheet(
     context: context,
     titleKey: "enrollment.error_reporting.dialog.title",
-    sidePadding: sidePadding ?? 16,
     child: ErrorReportingInfoBottomSheet(sidePadding: sidePadding),
   );
 

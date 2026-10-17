@@ -612,7 +612,9 @@ void main() {
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
       final picked = find.byKey(const Key("sheet_owned_hash-idcard-de Vries"));
-      final from = tester.getRect(picked).top;
+      final from = tester
+          .getRect(find.descendant(of: picked, matching: find.text("de Vries")))
+          .top;
 
       await tester.tap(picked);
       await tester.pump();

@@ -48,6 +48,7 @@ Future<void> showChangeChoiceSheet({
   CredentialDescriptor? addNew,
 }) => showGlassSheet<void>(
   context: context,
+  heightFraction: 0.9,
   builder: (_) => ChangeChoiceSheet(
     key: const Key("disclosure_choice_sheet"),
     sessionId: sessionId,
@@ -67,7 +68,8 @@ Object choiceHeroTag(int sessionId, int index, DisclosureBundle bundle) => (
 );
 
 /// A card flying between the share screen and the sheet: the destination
-/// card without its "Change" pill or radio, which appear once it has landed,
+/// card without its "Change" pill or selection outline, which appear once it
+/// has landed,
 /// on a transparent material so its text and ink have one.
 Widget choiceHeroShuttle(
   BuildContext flightContext,
@@ -100,6 +102,19 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
   /// The type the user is about to add; null while choosing.
   late CredentialDescriptor? _adding = widget.addNew;
 
+  /// Whether the last page change went to a subpage (or back).
+  bool _forward = true;
+
+  void _openAdd(CredentialDescriptor d) => setState(() {
+    _forward = true;
+    _adding = d;
+  });
+
+  void _back() => setState(() {
+    _forward = false;
+    _adding = null;
+  });
+
   SessionUserChoicesNotifier get _choices =>
       ref.read(sessionUserChoicesProvider(widget.sessionId).notifier);
 
@@ -128,7 +143,19 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
     if (widget.index >= pickOnes.length) return const SizedBox.shrink();
     final pickOne = pickOnes[widget.index];
     final adding = _adding;
-    return adding == null ? _buildChoose(pickOne) : _buildAdd(pickOne, adding);
+    // "Add …" is a subpage inside the sheet, as in a native iOS sheet.
+    return GlassSheetPages(
+      forward: _forward,
+      page: adding == null
+          ? KeyedSubtree(
+              key: const ValueKey("choose"),
+              child: _buildChoose(pickOne),
+            )
+          : KeyedSubtree(
+              key: ValueKey(("add", adding.credentialId)),
+              child: _buildAdd(pickOne, adding),
+            ),
+    );
   }
 
   Widget _buildChoose(DisclosurePickOne pickOne) {
@@ -168,27 +195,20 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GlassSheetHeader(
-          title: title,
-          subtitle: owned.isEmpty
-              ? t("share.sheet.subtitle_add")
-              : t("share.sheet.subtitle"),
-        ),
+        GlassSheetHeader(title: title),
         Flexible(
-          child: SingleChildScrollView(
-            physics: glassSheetScrollPhysics(context),
-            // Runs under the bottom edge of the sheet, clear of the home
-            // indicator once scrolled to the end.
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 12,
-              bottom: MediaQuery.paddingOf(context).bottom,
-            ),
+          child: GlassSheetScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 8,
+              // Room for the selection outline around a card.
+              spacing: 12,
               children: [
+                _Intro(
+                  owned.isEmpty
+                      ? t("share.sheet.subtitle_add")
+                      : t("share.sheet.subtitle"),
+                ),
                 if (owned.isNotEmpty) ...[
                   _Label(t("share.in_your_app")),
                   for (final (k, b) in owned.indexed)
@@ -226,7 +246,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
                             "issuer": d.issuer.name,
                             "host": hostOf(d.issueURL)!,
                           }),
-                          onTap: () => setState(() => _adding = d),
+                          onTap: () => _openAdd(d),
                         ),
                     ],
                   ),
@@ -279,51 +299,48 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet> {
               language: FlutterI18n.currentLocale(context)?.languageCode,
             ),
           }),
-          subtitle: t("share.sheet.add_subtitle"),
-          onBack: () => setState(() => _adding = null),
+          onBack: _back,
         ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            14,
-            16,
-            MediaQuery.paddingOf(context).bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 14,
-            children: [
-              Center(
-                child: ExcludeSemantics(
-                  child: CredentialCardArt(
-                    credential: _exampleCard(d),
-                    width: 200,
+        Flexible(
+          child: GlassSheetScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 14,
+              children: [
+                _Intro(t("share.sheet.add_subtitle")),
+                Center(
+                  child: ExcludeSemantics(
+                    child: CredentialCardArt(
+                      credential: _exampleCard(d),
+                      width: 200,
+                    ),
                   ),
                 ),
-              ),
-              _Group(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 4,
-                ),
-                children: [
-                  row(t("share.sheet.from"), d.issuer.name),
-                  row(t("share.sheet.where"), host),
-                  row(
-                    t("share.sheet.afterwards"),
-                    t("share.sheet.selected_back"),
+                _Group(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 4,
                   ),
-                ],
-              ),
-              KeyedSubtree(
-                key: const Key("sheet_go_button"),
-                child: FancyPillButton(
-                  label: t("share.sheet.go_to", {"host": host}),
-                  onPressed: () => _go(pickOne, d),
+                  children: [
+                    row(t("share.sheet.from"), d.issuer.name),
+                    row(t("share.sheet.where"), host),
+                    row(
+                      t("share.sheet.afterwards"),
+                      t("share.sheet.selected_back"),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                KeyedSubtree(
+                  key: const Key("sheet_go_button"),
+                  child: FancyPillButton(
+                    label: t("share.sheet.go_to", {"host": host}),
+                    onPressed: () => _go(pickOne, d),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -409,8 +426,31 @@ class _Group extends StatelessWidget {
   }
 }
 
+/// The text under a sheet's title, at the top of its scrolling content.
+class _Intro extends StatelessWidget {
+  final String text;
+
+  const _Intro(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        text,
+        style: palette
+            .body(15)
+            .copyWith(height: 21 / 15, color: palette.secondaryText),
+      ),
+    );
+  }
+}
+
 /// A card in the app, drawn as on the share screen with every value it
-/// would share, and a radio: tap to use it.
+/// would share: tap to use it. The one in use has the outline of the current
+/// card on the credential's page, drawn just outside the card so it keeps the
+/// share screen's size (and hidden while the card flies).
 class _OwnedCard extends StatelessWidget {
   final DisclosureBundle bundle;
   final bool selected;
@@ -423,8 +463,15 @@ class _OwnedCard extends StatelessWidget {
     required this.onTap,
   });
 
+  /// The outline's 2 pt line, 3 pt from the card, as on the credential page.
+  static const _ring = 2.0;
+  static const _gap = 3.0;
+
   @override
   Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final outlined = selected && !SharedCardTileInFlight.of(context);
+    const out = -(_ring + _gap);
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: selected,
@@ -435,45 +482,36 @@ class _OwnedCard extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: SharedCardTile(
-            bundle: bundle,
-            trailing: _Radio(selected: selected),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              SharedCardTile(bundle: bundle),
+              if (outlined)
+                Positioned(
+                  left: out,
+                  top: out,
+                  right: out,
+                  bottom: out,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: ShapeDecoration(
+                        shape: RoundedSuperellipseBorder(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(24 + _ring + _gap),
+                          ),
+                          side: BorderSide(
+                            color: palette.primary,
+                            width: _ring,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Radio extends StatelessWidget {
-  final bool selected;
-
-  const _Radio({required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: selected ? palette.primary : palette.outline,
-          width: 2,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: selected
-          ? Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: palette.primary,
-              ),
-            )
-          : null,
     );
   }
 }

@@ -151,17 +151,18 @@ void main() {
 
       final explanation = find.textContaining("By enabling error reporting");
 
-      testWidgets("flag off: 16 px from the side", (tester) async {
+      testWidgets("flag off: text 16 px from the side, title centred", (tester) async {
         usePhoneScreen(tester);
         await pumpErrorReporting(tester);
 
         await openSheet(tester);
 
-        expect(leftOf(tester, find.text(title)), 16);
+        // The title is centred, as in a native iOS sheet.
+        expect(tester.getCenter(find.text(title)).dx, 200);
         expect(leftOf(tester, explanation), 16);
       });
 
-      testWidgets("flag on: 24 px from the side", (tester) async {
+      testWidgets("flag on: text 24 px from the side, title centred", (tester) async {
         usePhoneScreen(tester);
         await enableOnboardingV2(prefs);
         await pumpErrorReporting(tester);
@@ -169,7 +170,8 @@ void main() {
 
         await openSheet(tester);
 
-        expect(leftOf(tester, find.text(title)), 24);
+        // The title is centred, as in a native iOS sheet.
+        expect(tester.getCenter(find.text(title)).dx, 200);
         expect(leftOf(tester, explanation), 24);
         expect(tester.getTopRight(explanation).dx, 400 - 24);
       });

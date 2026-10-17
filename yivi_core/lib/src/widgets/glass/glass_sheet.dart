@@ -343,75 +343,147 @@ class _GlassSheet extends StatelessWidget {
   }
 }
 
-/// The top of a sheet: its title (and subtitle), the same round glass close
-/// button as on a full screen, and a back button when [onBack] is set.
+/// The top of a sheet, as the navigation bar of a native iOS sheet: a
+/// short centred title, the same round glass close button as on a full
+/// screen, and a back button when [onBack] is set. Explanatory text goes at
+/// the top of the sheet's scrolling content, not here.
 class GlassSheetHeader extends StatelessWidget {
   final String title;
-  final String? subtitle;
   final VoidCallback? onBack;
 
-  /// Space from the sides of the sheet to the title.
-  final double sidePadding;
-
-  const GlassSheetHeader({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.onBack,
-    this.sidePadding = 16,
-  });
+  const GlassSheetHeader({super.key, required this.title, this.onBack});
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(sidePadding, 16, 16, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 12,
-        children: [
-          if (onBack != null)
-            GlassIconButton(
-              semanticsLabel: FlutterI18n.translate(context, "ui.go_back"),
-              onTap: onBack,
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                size: 22,
-                color: palette.text,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Padding(
+              // Clear of the buttons on both sides, so it stays centred.
+              padding: const EdgeInsets.symmetric(horizontal: 56),
+              child: Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  key: const Key("glass_sheet_title"),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: palette
+                      .display(17)
+                      .copyWith(height: 22 / 17, color: palette.text),
+                ),
               ),
             ),
-          Expanded(
-            child: Padding(
-              // Centres a one-line title on the 44 buttons.
-              padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      title,
-                      key: const Key("glass_sheet_title"),
-                      style: palette.display(19).copyWith(color: palette.text),
-                    ),
+            if (onBack != null)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: GlassIconButton(
+                  semanticsLabel: FlutterI18n.translate(context, "ui.go_back"),
+                  onTap: onBack,
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
+                    size: 22,
+                    color: palette.text,
                   ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      style: palette
-                          .body(14)
-                          .copyWith(
-                            height: 20 / 14,
-                            color: palette.secondaryText,
-                          ),
-                    ),
-                ],
+                ),
               ),
+            const Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: IrmaCloseButton(),
             ),
-          ),
-          const IrmaCloseButton(),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Pages inside one sheet, as the navigation stack of a native iOS sheet:
+/// a subpage slides in from the right over the page it was opened from, which
+/// moves a little to the left, and slides back out to the right. [page] needs
+/// a key of its own per page; [forward] says which way the last change went.
+class GlassSheetPages extends StatelessWidget {
+  final Widget page;
+  final bool forward;
+
+  const GlassSheetPages({super.key, required this.page, required this.forward});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 340),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (current, previous) =>
+          Stack(fit: StackFit.expand, children: [...previous, ?current]),
+      // A new closure each build, so the page going out follows [forward] too.
+      transitionBuilder: (child, animation) => AnimatedBuilder(
+        animation: animation,
+        child: child,
+        builder: (context, child) {
+          final shown = animation.value;
+          final current = child!.key == page.key;
+          // The page on top moves all the way; the one under it a third.
+          final onTop = current == forward;
+          // The pages are see-through glass, so the one under the moving page
+          // is only there at the quiet end of the slide: it fades out early
+          // when covered and in late when uncovered.
+          final opacity = onTop
+              // Leaving (back): gone before the page under it shows.
+              ? (current ? 1.0 : ((shown - 0.5) / 0.5).clamp(0.0, 1.0))
+              : ((shown - (current ? 0.9 : 0.65)) / (current ? 0.1 : 0.35))
+                    .clamp(0.0, 1.0);
+          return FractionalTranslation(
+            translation: Offset(onTop ? 1 - shown : -(1 - shown) * 0.3, 0),
+            child: Opacity(opacity: opacity, child: child),
+          );
+        },
+      ),
+      child: page,
+    );
+  }
+}
+
+/// The scrolling body of a sheet, under its [GlassSheetHeader]: it pulls the
+/// sheet down from its top (see [GlassSheetScope]), fades out under the
+/// header, and ends clear of the home indicator. [child] pads itself from the
+/// sides unless [padding] does.
+class GlassSheetScrollView extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+
+  const GlassSheetScrollView({
+    super.key,
+    required this.child,
+    this.padding = EdgeInsets.zero,
+  });
+
+  /// How far the content fades out under the header.
+  static const _fade = 12.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (bounds) => LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: const [Color(0x00000000), Color(0xFF000000)],
+        stops: [0, (_fade / bounds.height).clamp(0.0, 1.0)],
+      ).createShader(bounds),
+      child: SingleChildScrollView(
+        physics: glassSheetScrollPhysics(context),
+        padding: padding.copyWith(
+          top: padding.top + _fade / 2,
+          bottom: padding.bottom + MediaQuery.paddingOf(context).bottom,
+        ),
+        child: child,
       ),
     );
   }
@@ -422,13 +494,10 @@ class GlassSheetHeader extends StatelessWidget {
 class GlassSheetContent extends StatelessWidget {
   final String title;
   final Widget child;
-  final double sidePadding;
-
   const GlassSheetContent({
     super.key,
     required this.title,
     required this.child,
-    this.sidePadding = 16,
   });
 
   @override
@@ -437,17 +506,8 @@ class GlassSheetContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GlassSheetHeader(title: title, sidePadding: sidePadding),
-        Flexible(
-          child: SingleChildScrollView(
-            physics: glassSheetScrollPhysics(context),
-            padding: EdgeInsets.only(
-              top: 8,
-              bottom: MediaQuery.paddingOf(context).bottom,
-            ),
-            child: child,
-          ),
-        ),
+        GlassSheetHeader(title: title),
+        Flexible(child: GlassSheetScrollView(child: child)),
       ],
     );
   }
@@ -460,13 +520,11 @@ Future<void> showTitledGlassSheet({
   required String titleKey,
   required Widget child,
   double minHeightFraction = 0.5,
-  double sidePadding = 16,
 }) => showGlassSheet<void>(
   context: context,
   minHeightFraction: minHeightFraction,
   builder: (context) => GlassSheetContent(
     title: FlutterI18n.translate(context, titleKey),
-    sidePadding: sidePadding,
     child: child,
   ),
 );
