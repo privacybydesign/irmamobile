@@ -8,11 +8,11 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
-import "../irma_app_bar.dart";
 import "../translated_text.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
 import "attribute_groups/attribute_value_formatting.dart";
+import "attribute_photo.dart";
 import "models/credential_card_layout.dart";
 
 part "yivi_credential_card_attribute_list_nested.dart";
@@ -648,29 +648,11 @@ class _LeafContent extends StatelessWidget {
     final attribute = node.attribute;
     final bytes = decodeAttributeImage(attribute.value);
     if (bytes == null) return const SizedBox.shrink();
-    final image = Image.memory(
-      bytes,
-      fit: BoxFit.fitWidth,
-      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-    );
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Scaffold(
-              extendBodyBehindAppBar: true,
-              appBar: IrmaAppBar(titleString: attribute.effectiveDisplayName),
-              body: SingleChildScrollView(
-                child: SafeArea(child: Center(child: image)),
-              ),
-            ),
-          ),
-        );
-      },
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
-        child: image,
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: AttributePhoto(
+        bytes: bytes,
+        title: attribute.effectiveDisplayName,
       ),
     );
   }
