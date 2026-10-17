@@ -315,6 +315,35 @@ void main() {
       expect(_hashes(calls.shared.single), [<String>[]]);
     });
 
+    testWidgets("a card picked for it flies from the sheet into its place", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([_passportOrIdCard(optional: true)]),
+      );
+      await tester.tap(find.byKey(const Key("share_add_optional_0")));
+      await tester.pumpAndSettle();
+      final picked = find.byKey(const Key("sheet_owned_hash-idcard-de Vries"));
+      final from = tester
+          .getRect(find.descendant(of: picked, matching: find.text("de Vries")))
+          .top;
+
+      await tester.tap(picked);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+      // Mid-flight: one card, on its way up to the optional section.
+      expect(find.text("de Vries"), findsOneWidget);
+      final flying = tester.getRect(find.text("de Vries")).top;
+
+      await tester.pumpAndSettle();
+      final to = tester.getRect(find.text("de Vries")).top;
+      expect(flying, lessThan(from));
+      expect(flying, greaterThan(to));
+      // Landed: the included card has its leave-out button back.
+      expect(find.byKey(const Key("share_remove_0")), findsOneWidget);
+    });
+
     testWidgets("a card added for it is included once it arrives", (
       tester,
     ) async {

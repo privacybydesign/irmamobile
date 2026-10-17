@@ -309,7 +309,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     if (k >= 0) {
       final bundle = p.ownedOptions![k];
       final name = bundle.credentials.map((c) => c.name).join(" + ");
-      return SharedCardTile(
+      final tile = SharedCardTile(
         key: Key("share_slot_$i"),
         bundle: bundle,
         trailing: _RemoveButton(
@@ -323,6 +323,14 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               .read(sessionUserChoicesProvider(_sessionId).notifier)
               .removeOptional(i),
         ),
+      );
+      // A card picked for it in the sheet flies into its place, as a
+      // required card does.
+      return Hero(
+        tag: choiceHeroTag(_sessionId, i, bundle),
+        flightShuttleBuilder: choiceHeroShuttle,
+        transitionOnUserGestures: true,
+        child: tile,
       );
     }
     final owned = p.ownedOptions ?? const [];

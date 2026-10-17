@@ -69,8 +69,11 @@ Object choiceHeroTag(int sessionId, int index, DisclosureBundle bundle) => (
 
 /// A card flying between the share screen and the sheet: the destination
 /// card without its "Change" pill or selection outline, which appear once it
-/// has landed,
-/// on a transparent material so its text and ink have one.
+/// has landed, on a transparent material so its text and ink have one.
+///
+/// The flight's box goes from the size of one card to the other; the card
+/// keeps its own height in it, so two that differ a little (an
+/// optional card has its leave-out button) do not overflow on the way.
 Widget choiceHeroShuttle(
   BuildContext flightContext,
   Animation<double> animation,
@@ -79,7 +82,12 @@ Widget choiceHeroShuttle(
   BuildContext toContext,
 ) => Material(
   type: MaterialType.transparency,
-  child: SharedCardTileInFlight(child: (toContext.widget as Hero).child),
+  child: OverflowBox(
+    alignment: Alignment.topCenter,
+    minHeight: 0,
+    maxHeight: double.infinity,
+    child: SharedCardTileInFlight(child: (toContext.widget as Hero).child),
+  ),
 );
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
