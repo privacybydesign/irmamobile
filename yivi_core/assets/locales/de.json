@@ -146,6 +146,9 @@
       "over_label": "Älter als",
       "chip_yes": "Älter als {age}: ja",
       "chip_no": "Älter als {age}: nein"
+    },
+    "nested": {
+      "item": "{label} {number}"
     }
   },
   "data": {

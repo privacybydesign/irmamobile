@@ -7,12 +7,15 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../irma_app_bar.dart";
 import "../translated_text.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
 import "attribute_groups/attribute_value_formatting.dart";
 import "models/credential_card_layout.dart";
+
+part "yivi_credential_card_attribute_list_nested.dart";
 
 /// How `overNN` age attributes are listed.
 enum AgeDisplay {
@@ -103,22 +106,14 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     if (ageDisplay == AgeDisplay.collapsed && compareTo == null) {
       _collapseAges(tree.children);
     }
-    final items = _flatten(tree);
-
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      children: [
-        for (var i = 0; i < items.length; i++)
-          _RenderItemView(
-            item: items[i],
-            nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
-            showDivider: showDividers,
-            disclosure: disclosure,
-            layout: layout,
-          ),
-      ],
+    final ctx = _Ctx(
+      // Shared or compared values are never folded away.
+      foldable: !disclosure && compareTo == null,
+      showDividers: showDividers,
+      disclosure: disclosure,
+      layout: layout,
     );
+    return _NestedList(nodes: _normalize(tree.children), ctx: ctx);
   }
 }
 
@@ -140,7 +135,6 @@ class _GroupNode extends _Node {
 class _ItemNode extends _Node {
   final String? parentLabel;
   final int itemIndex;
-  int totalItems;
   final List<dynamic> path;
   final List<_Node> children;
   _ItemNode({
@@ -148,7 +142,7 @@ class _ItemNode extends _Node {
     required this.itemIndex,
     required this.path,
     required this.children,
-  }) : totalItems = 0;
+  });
 }
 
 class _RowNode extends _Node {
@@ -385,7 +379,6 @@ _GroupNode _buildTree(
   }
 
   flushAllPrims();
-  _stampItemTotals(root);
   return root;
 }
 
@@ -441,19 +434,6 @@ void _collapseAges(List<_Node> children) {
   for (final child in children) {
     if (child is _GroupNode) _collapseAges(child.children);
     if (child is _ItemNode) _collapseAges(child.children);
-  }
-}
-
-void _stampItemTotals(_Node node) {
-  List<_Node>? children;
-  if (node is _GroupNode) children = node.children;
-  if (node is _ItemNode) children = node.children;
-  if (children == null) return;
-
-  final itemCount = children.whereType<_ItemNode>().length;
-  for (final c in children) {
-    if (c is _ItemNode) c.totalItems = itemCount;
-    _stampItemTotals(c);
   }
 }
 
@@ -530,123 +510,26 @@ void _insertGroups(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Flatten — walk the tree depth-first and produce a list of rows. Each row
-// is a single _RenderItem that knows its depth and whether it's the last
-// child of its parent (used to suppress the bottom divider, matching the
-// design's "borderBottom: isLast ? 'none'" rule).
+// Flat row — one value, list of plain values, ages or attribute group, with
+// its padding. The divider below it is drawn by the list (see _EntriesView).
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _RenderItem {
+bool _rowDrawsBorder(_Node node) => switch (node) {
+  _RowNode() || _PrimArrayNode() || _AttributeGroupNode() || _AgeNode() => true,
+  // A header without values is drawn as a labelled row.
+  _GroupNode n => n.children.isEmpty,
+  _ItemNode() => false,
+};
+
+class _FlatRow extends StatelessWidget {
   final _Node node;
-  final int depth;
-  final bool isLast;
-  // Depth of the previously emitted row, or -1 if this is the first row.
-  // Used by the renderer to decide which guide-line segments are newly
-  // introduced (and should be inset slightly from the row top) versus
-  // continuations from the row above (which stay flush so the line connects).
-  final int previousDepth;
-  _RenderItem({
+  // The first row of the list: nothing is drawn above it.
+  final bool isFirst;
+  final _Ctx ctx;
+  const _FlatRow({
     required this.node,
-    required this.depth,
-    required this.isLast,
-    required this.previousDepth,
-  });
-}
-
-List<_RenderItem> _flatten(_GroupNode root) {
-  final out = <_RenderItem>[];
-  var lastDepth = -1;
-
-  void emit(_Node node, int depth, bool isLast) {
-    out.add(
-      _RenderItem(
-        node: node,
-        depth: depth,
-        isLast: isLast,
-        previousDepth: lastDepth,
-      ),
-    );
-    lastDepth = depth;
-  }
-
-  void visit(List<_Node> children, int depth) {
-    for (var i = 0; i < children.length; i++) {
-      final c = children[i];
-      final isLast = i == children.length - 1;
-
-      if (c is _RowNode ||
-          c is _PrimArrayNode ||
-          c is _AttributeGroupNode ||
-          c is _AgeNode) {
-        emit(c, depth, isLast);
-        continue;
-      }
-
-      if (c is _GroupNode) {
-        // Empty group → render as a single labelled row.
-        if (c.children.isEmpty) {
-          emit(c, depth, isLast);
-          continue;
-        }
-        // Collapse: only child is a same-label primarray → drop the eyebrow.
-        if (c.children.length == 1 &&
-            c.children.first is _PrimArrayNode &&
-            c.label != null &&
-            (c.children.first as _PrimArrayNode).label == c.label) {
-          emit(c.children.first, depth, isLast);
-          continue;
-        }
-        // All-items: suppress the eyebrow (each item carries the parent
-        // label, e.g. "DEPARTMENTS 1/2"). Don't add an indent level either —
-        // the items render at the same depth as the suppressed group so they
-        // sit at their parent's level instead of one step deeper.
-        final allItems = c.children.every((cc) => cc is _ItemNode);
-        if (allItems) {
-          visit(c.children, depth);
-          continue;
-        }
-        if (c.label != null) {
-          emit(c, depth, false);
-        }
-        visit(c.children, depth + 1);
-        continue;
-      }
-
-      if (c is _ItemNode) {
-        emit(c, depth, false);
-        visit(c.children, depth + 1);
-        continue;
-      }
-    }
-  }
-
-  visit(root.children, 0);
-  return out;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Render — every row is a full-width container. Indent and guide-line
-// segments are drawn INSIDE each row so the bottom divider can span the
-// card's content edge-to-edge.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _RenderItemView extends StatelessWidget {
-  final _RenderItem item;
-  // Depth of the row that follows this one in the flat list, or -1 if this
-  // is the last row. Used to decide which guide-line segments end in this
-  // row (so they should stop at the value bottom rather than continue down).
-  final int nextDepth;
-  // When false, suppresses the horizontal divider line entirely — guide
-  // lines and indent are unaffected.
-  final bool showDivider;
-  final bool disclosure;
-  final CredentialCardLayout layout;
-  const _RenderItemView({
-    required this.item,
-    required this.nextDepth,
-    required this.showDivider,
-    required this.disclosure,
-    required this.layout,
+    required this.isFirst,
+    required this.ctx,
   });
 
   // Space above and below a row in the document layout.
@@ -655,97 +538,18 @@ class _RenderItemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final node = item.node;
-    final drawDivider = showDivider && !item.isLast && _rowDrawsBorder(node);
-    final indentLeft = item.depth * theme.defaultSpacing;
-    final isEyebrow = _isEyebrow(node);
-    final isFirstAtDepth =
-        item.previousDepth >= 0 && item.depth > item.previousDepth;
-    // Eyebrows get more breathing room above. First-at-depth claims drop top
-    // padding to 0 so the visible glyph top of the label aligns with the
-    // top of the freshly-introduced vertical line (which itself is inset by
-    // tinySpacing from the row top).
-    double topPad;
-    if (isEyebrow) {
-      topPad = theme.smallSpacing;
-    } else if (isFirstAtDepth) {
-      topPad = 0;
-    } else {
-      topPad = theme.tinySpacing;
-    }
-    var bottomPad = theme.tinySpacing;
-    if (layout == .document && !isEyebrow && !isFirstAtDepth) {
-      topPad = _documentRowPadding;
-      bottomPad = _documentRowPadding;
-    }
-    // Inset from the Stack bottom up to the bottom of the value content (i.e.,
-    // skipping the row's bottom padding and the divider, if any). Used as the
-    // `bottom` for guide-line segments that end in this row.
-    final endingLineBottom = bottomPad + (drawDivider ? 1.0 : 0.0);
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Vertical guide-line segments — one per ancestor level. Newly
-        // introduced segments are inset slightly from the row top so the
-        // line "starts" a tiny bit below where it appears. Continuation
-        // segments stay flush at top: 0 so the line connects across rows.
-        // A segment ending in this row (no subsequent row has depth > i)
-        // stops at the value bottom so the line doesn't trail past the
-        // last attribute.
-        for (var i = 0; i < item.depth; i++)
-          Positioned(
-            left: i * theme.defaultSpacing,
-            top: i >= item.previousDepth ? theme.tinySpacing : 0,
-            bottom: i >= nextDepth ? endingLineBottom : 0,
-            width: 1,
-            child: Container(color: AttributeColors.of(context).divider),
-          ),
-        Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: .stretch,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
-              child: Padding(
-                padding: EdgeInsets.only(left: indentLeft),
-                child: _RowContent(
-                  node: node,
-                  isFirst: item.previousDepth < 0,
-                  disclosure: disclosure,
-                  layout: layout,
-                ),
-              ),
-            ),
-            if (drawDivider)
-              Padding(
-                padding: EdgeInsets.only(left: indentLeft),
-                child: Container(
-                  height: 1,
-                  color: AttributeColors.of(context).divider,
-                ),
-              ),
-          ],
-        ),
-      ],
+    final pad = ctx.layout == .document
+        ? _documentRowPadding
+        : theme.tinySpacing;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: pad),
+      child: _RowContent(
+        node: node,
+        isFirst: isFirst,
+        disclosure: ctx.disclosure,
+        layout: ctx.layout,
+      ),
     );
-  }
-
-  static bool _rowDrawsBorder(_Node node) {
-    // Eyebrows (group/item headings) don't draw their own border — only leaves
-    // and primarrays (and empty-group fallbacks rendered as labelled rows).
-    if (node is _RowNode) return true;
-    if (node is _PrimArrayNode) return true;
-    if (node is _AttributeGroupNode) return true;
-    if (node is _AgeNode) return true;
-    if (node is _GroupNode) return node.children.isEmpty;
-    return false;
-  }
-
-  static bool _isEyebrow(_Node node) {
-    if (node is _GroupNode) return node.children.isNotEmpty;
-    if (node is _ItemNode) return true;
-    return false;
   }
 }
 
@@ -772,8 +576,9 @@ class _RowContent extends StatelessWidget {
       _RowNode n => _LeafContent(node: n, layout: layout),
       _AgeNode n => _AgeContent(node: n, layout: layout),
       _PrimArrayNode n => _PrimArrayContent(node: n),
-      _GroupNode n => _EyebrowContent(node: n),
-      _ItemNode n => _ItemEyebrowContent(node: n),
+      // Only a header without values gets here (see _rowDrawsBorder).
+      _GroupNode n => Text(n.label ?? "", style: attributeLabelStyle(context)),
+      _ItemNode() => const SizedBox.shrink(),
       _AttributeGroupNode n => AttributeGroupScope(
         isFirst: isFirst,
         isDisclosure: disclosure,
@@ -1083,7 +888,7 @@ class _ChevronPainter extends CustomPainter {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Array of primitives — stacked list with • bullets.
+// Array of primitives — label over one chip per value.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PrimArrayContent extends StatelessWidget {
@@ -1092,91 +897,42 @@ class _PrimArrayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
+    final palette = YiviPalette.of(context);
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
-      spacing: 0,
       children: [
         Text(node.label, style: attributeLabelStyle(context)),
-        for (final v in node.values) _bulletRow(context, theme, v),
+        Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 4),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final v in node.values)
+                Container(
+                  constraints: const BoxConstraints(minHeight: 30),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: ShapeDecoration(
+                    color: palette.tint,
+                    shape: StadiumBorder(
+                      side: BorderSide(color: palette.outline),
+                    ),
+                  ),
+                  child: Text(
+                    formatAttributeValue(context, v),
+                    style: palette
+                        .body(14, weight: FontWeight.w600)
+                        .copyWith(color: palette.heading),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
-  }
-
-  Widget _bulletRow(
-    BuildContext context,
-    IrmaThemeData theme,
-    schemaless.AttributeValue v,
-  ) {
-    final valueStyle = attributeValueStyle(
-      context,
-      AttributeColors.of(context).value,
-    ).copyWith(height: 1.2);
-    final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
-    return Padding(
-      padding: EdgeInsets.only(top: theme.tinySpacing / 2),
-      child: Row(
-        crossAxisAlignment: .start,
-        children: [
-          SizedBox(
-            width: 12,
-            height: lineHeight,
-            child: Center(
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AttributeColors.of(context).muted,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: theme.tinySpacing),
-          Expanded(
-            child: Text(formatAttributeValue(context, v), style: valueStyle),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Eyebrow content — uppercase group/item heading.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _EyebrowContent extends StatelessWidget {
-  final _GroupNode node;
-  const _EyebrowContent({required this.node});
-
-  @override
-  Widget build(BuildContext context) {
-    // Empty groups (header without descendants) fall through here when they
-    // were rendered as labelled rows by the flatten step. Render as a plain
-    // bodyMedium-like label.
-    if (node.children.isEmpty) {
-      return Text(node.label ?? "", style: attributeLabelStyle(context));
-    }
-    return Text(
-      (node.label ?? "").toUpperCase(),
-      style: attributeEyebrowStyle(context),
-    );
-  }
-}
-
-class _ItemEyebrowContent extends StatelessWidget {
-  final _ItemNode node;
-  const _ItemEyebrowContent({required this.node});
-
-  @override
-  Widget build(BuildContext context) {
-    final parentLabel = node.parentLabel?.toUpperCase() ?? "ITEM";
-    final text = node.totalItems > 1
-        ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
-        : parentLabel;
-    return Text(text, style: attributeEyebrowStyle(context));
   }
 }
