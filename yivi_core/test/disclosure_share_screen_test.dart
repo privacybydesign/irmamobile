@@ -25,6 +25,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
@@ -1046,6 +1047,62 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+    });
+
+    testWidgets("the PIN is a page in the sheet, without the logo", (
+      tester,
+    ) async {
+      final (calls, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_issue_add")));
+      await tester.pump();
+      nested.add(issuance(SessionStatus.requestPin));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key("disclosure_choice_sheet"));
+      expect(
+        find.descendant(
+          of: sheet,
+          matching: find.byKey(const Key("sheet_pin")),
+        ),
+        findsOneWidget,
+      );
+      // No full-screen PIN route, and no logo or lock above the pad.
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
+      expect(find.text("3 of 3"), findsOneWidget);
+
+      for (final digit in ["1", "2", "3", "4", "5"]) {
+        await tester.tap(find.text(digit).last);
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.pump();
+      expect(
+        calls.interactions.map((e) => e.type),
+        contains(UserInteractionType.enteredPin),
+      );
+
+      nested.add(issuance(SessionStatus.success));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_pin")), findsNothing);
+      expect(find.text("Done"), findsOneWidget);
+    });
+
+    testWidgets("the progress stays put while the page scrolls", (
+      tester,
+    ) async {
+      final (_, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      final progress = find.byType(IssueSheetProgress);
+      expect(progress, findsOneWidget);
+      expect(
+        find.ancestor(of: progress, matching: find.byType(Scrollable)),
+        findsNothing,
+      );
     });
 
     testWidgets("cancelled on step 3: back on the details, to try again", (

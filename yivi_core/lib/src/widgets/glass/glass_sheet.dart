@@ -734,8 +734,16 @@ class GlassSheetPage extends StatelessWidget {
   final Widget child;
   final Widget? bottom;
 
+  /// Under the title bar and above the scrolling [child], staying put while
+  /// the page scrolls (e.g. the progress of adding a card).
+  final Widget? pinned;
+
   /// Around [child] in the scroll view; zero when [child] pads itself.
   final EdgeInsets padding;
+
+  /// False for a [child] that fills the page and fits itself to it (a PIN
+  /// pad) instead of scrolling.
+  final bool scrolls;
 
   const GlassSheetPage({
     super.key,
@@ -743,7 +751,9 @@ class GlassSheetPage extends StatelessWidget {
     this.onBack,
     required this.child,
     this.bottom,
+    this.pinned,
     this.padding = EdgeInsets.zero,
+    this.scrolls = true,
   });
 
   @override
@@ -754,7 +764,21 @@ class GlassSheetPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GlassSheetHeader(title: title, onBack: onBack),
-        if (bottom == null)
+        if (pinned case final pinned?)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: pinned,
+          ),
+        if (!scrolls)
+          Expanded(
+            child: Padding(
+              padding: padding.add(
+                EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+              ),
+              child: child,
+            ),
+          )
+        else if (bottom == null)
           Flexible(
             child: GlassSheetScrollView(padding: padding, child: child),
           )

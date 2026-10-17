@@ -344,20 +344,14 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       onBack: code ? _backToEntering : widget.onBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: bar,
+      pinned: IssueSheetProgress(requestor: widget.requestor, step: 2),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
           _focusNode.unfocus();
           _codeFocus.unfocus();
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 16,
-          children: [
-            IssueSheetProgress(requestor: widget.requestor, step: 2),
-            body,
-          ],
-        ),
+        child: body,
       ),
     );
   }

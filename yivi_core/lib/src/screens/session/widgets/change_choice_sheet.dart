@@ -162,8 +162,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   List<schemaless.Credential>? _added;
   List<GlobalKey> _addedKeys = const [];
 
-  /// A full-screen page shown over the sheet for the issuance (PIN, error).
+  /// A full-screen page shown over the sheet for the issuance (an error).
   bool _overSheet = false;
+
+  /// irmago asks for the PIN for the issuance in the sheet.
+  bool _pin = false;
 
   // The repository only once something is added, kept for dispose (where
   // ref is unsafe). The host notifier up front for the same reason.
@@ -358,6 +361,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       _repo.clearInAppLaunches();
       _hosts.unregister(this);
       setState(() {
+        _pin = false;
         _added = cards;
         _addedKeys = [
           for (final (i, _) in cards.indexed)
@@ -367,17 +371,21 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       return;
     }
     if (status == SessionStatus.dismissed) {
-      // Cancelled on the permission: back on the details, to try again.
+      // Cancelled on the permission or the PIN: back on the details, to try
+      // again.
       setState(() {
+        _pin = false;
         _nestedId = null;
         _document = null;
       });
       return;
     }
-    if (status == previous?.status || _overSheet) return;
-    if (status == SessionStatus.requestPin) {
-      _showOverSheet((_) => _NestedPin(sessionId: next.id));
-    } else if (status == SessionStatus.error) {
+    // The PIN is a page in the sheet, on top of the issuance, while irmago
+    // asks for it.
+    final pin = status == SessionStatus.requestPin;
+    if (pin != _pin) setState(() => _pin = pin);
+    if (status == previous?.status || _overSheet || pin) return;
+    if (status == SessionStatus.error) {
       _showOverSheet(
         (context) => SessionErrorScreen(
           error: next.error,
@@ -472,7 +480,9 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       confirm: _confirmStop,
       child: GlassSheetPages(
         onBack: () {
-          if (_nestedId != null && _added == null) {
+          if (_pin && _nestedId != null) {
+            _dismissNested(_nestedId!);
+          } else if (_nestedId != null && _added == null) {
             // Back on the details: a document is read again from the start.
             _dismissNested(_nestedId!);
             setState(() {
@@ -524,6 +534,15 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             KeyedSubtree(
               key: ValueKey(("issue", nested)),
               child: _buildIssuance(session, nested),
+            ),
+          if (adding != null && nested != null && _pin)
+            KeyedSubtree(
+              key: ValueKey(("pin", nested)),
+              child: _NestedPin(
+                sessionId: nested,
+                requestor: session.requestor,
+                onCancel: () => _dismissNested(nested),
+              ),
             ),
         ],
       ),
@@ -638,14 +657,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             : _t("data.add.details.get_button"),
         onPrimary: () => _add(pickOne, d),
       ),
+      pinned: IssueSheetProgress(
+        requestor: session.requestor,
+        step: _opened ? 2 : 1,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
-          IssueSheetProgress(
-            requestor: session.requestor,
-            step: _opened ? 2 : 1,
-          ),
           if (_opened)
             Container(
               key: const Key("sheet_opened_note"),
@@ -712,11 +731,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             ? null
             : () => _grant(nestedId),
       ),
+      pinned: IssueSheetProgress(requestor: request.requestor, step: 3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
-          IssueSheetProgress(requestor: request.requestor, step: 3),
           if (offer == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 80),
@@ -797,11 +816,15 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         primaryLabel: _t("issuance.success_feedback.back_to", params),
         onPrimary: _finish,
       ),
+      pinned: IssueSheetProgress(
+        requestor: request.requestor,
+        step: 3,
+        done: true,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
-          IssueSheetProgress(requestor: request.requestor, step: 3, done: true),
           if (cards.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 24),
@@ -836,10 +859,18 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
 
 /// The PIN for an issuance in the sheet, full-screen over it, as for any
 /// session. It goes away once the PIN is accepted (or the session ends).
+/// The PIN for the issuance in the sheet, as a page of the sheet: the PIN
+/// pad without the logo, under the sheet's bar and the progress.
 class _NestedPin extends ConsumerStatefulWidget {
   final int sessionId;
+  final schemaless.TrustedParty requestor;
+  final VoidCallback onCancel;
 
-  const _NestedPin({required this.sessionId});
+  const _NestedPin({
+    required this.sessionId,
+    required this.requestor,
+    required this.onCancel,
+  });
 
   @override
   ConsumerState<_NestedPin> createState() => _NestedPinState();
@@ -847,7 +878,6 @@ class _NestedPin extends ConsumerStatefulWidget {
 
 class _NestedPinState extends ConsumerState<_NestedPin> {
   late final _repo = ref.read(irmaRepositoryProvider);
-  bool _closed = false;
   bool _longPin = false;
 
   @override
@@ -858,36 +888,35 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
     });
   }
 
-  void _close() {
-    if (_closed) return;
-    _closed = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) Navigator.of(context).pop();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sessionStateProvider(widget.sessionId)).value;
     final awaiting = ref.watch(
       sessionAwaitingInteractionProvider(widget.sessionId),
     );
-    if (state != null && state.status != SessionStatus.requestPin) _close();
-    return SessionPinEntryScreen(
-      title: "issuance.title",
-      remainingAttempts: state?.remainingPinAttempts,
-      blockedTimeSeconds: state?.pinBlockedTimeSeconds,
-      submitting: awaiting,
-      maxPinSize: _longPin ? 16 : 5,
-      onPinEntered: (pin) => _repo.bridgedDispatch(
-        SessionUserInteractionEvent.pin(
-          sessionId: widget.sessionId,
-          pin: pin,
-          proceed: true,
+    return GlassSheetPage(
+      title: FlutterI18n.translate(context, "issuance.title"),
+      onBack: widget.onCancel,
+      pinned: IssueSheetProgress(requestor: widget.requestor, step: 3),
+      // The pad fills the page and scales itself to it; it does not scroll.
+      scrolls: false,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: SessionPinEntryScreen(
+        key: const Key("sheet_pin"),
+        inSheet: true,
+        title: "issuance.title",
+        remainingAttempts: state?.remainingPinAttempts,
+        blockedTimeSeconds: state?.pinBlockedTimeSeconds,
+        submitting: awaiting,
+        maxPinSize: _longPin ? 16 : 5,
+        onPinEntered: (pin) => _repo.bridgedDispatch(
+          SessionUserInteractionEvent.pin(
+            sessionId: widget.sessionId,
+            pin: pin,
+            proceed: true,
+          ),
         ),
-      ),
-      onCancel: () => _repo.bridgedDispatch(
-        SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
+        onCancel: widget.onCancel,
       ),
     );
   }

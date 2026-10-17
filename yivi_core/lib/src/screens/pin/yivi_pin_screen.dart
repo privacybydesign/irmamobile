@@ -96,6 +96,9 @@ class YiviPinScreen extends StatefulWidget {
   /// Shows a lock on a disc above the title instead of the Yivi logo, for
   /// choosing, confirming and changing a PIN.
   final bool lockIcon;
+
+  /// Shows the logo (or lock) at all; off in a sheet, under its title bar.
+  final bool showMark;
   final String? instructionKey;
   final String? instruction;
 
@@ -121,6 +124,7 @@ class YiviPinScreen extends StatefulWidget {
     this.onTogglePinSize,
     this.checkSecurePin = false,
     this.lockIcon = false,
+    this.showMark = true,
     this.submitLabel = "choose_pin.next",
     this.enabled = true,
     this.listener,
@@ -299,8 +303,10 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 16),
-          _buildHeaderMark(context),
-          const SizedBox(height: 24),
+          if (widget.showMark) ...[
+            _buildHeaderMark(context),
+            const SizedBox(height: 24),
+          ],
           _buildInstructionText(context),
           const SizedBox(height: 24),
           _buildDecoratedPinDots(context),
@@ -359,8 +365,9 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     final theme = IrmaTheme.of(context);
     // Landscape is short: reclaim the logo's space when the Next button shows.
     final hideLogo =
+        !widget.showMark ||
         isLandscape &&
-        _nextButtonVisibility(context) == WidgetVisibility.visible;
+            _nextButtonVisibility(context) == WidgetVisibility.visible;
     // On short screens (an iPhone SE, landscape) the block is taller than its
     // half of the screen; it then scales down as a whole instead of
     // overflowing into the keypad.

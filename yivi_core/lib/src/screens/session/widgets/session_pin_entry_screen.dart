@@ -28,6 +28,10 @@ class SessionPinEntryScreen extends StatefulWidget {
   final ValueChanged<String> onPinEntered;
   final VoidCallback onCancel;
 
+  /// Only the PIN pad, without the screen around it and without the logo:
+  /// for a page in a sheet, which has its own title bar and close button.
+  final bool inSheet;
+
   const SessionPinEntryScreen({
     super.key,
     required this.title,
@@ -37,6 +41,7 @@ class SessionPinEntryScreen extends StatefulWidget {
     this.blockedTimeSeconds,
     this.submitting = false,
     this.maxPinSize = shortPinSize,
+    this.inSheet = false,
   });
 
   @override
@@ -108,6 +113,42 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final paddingSize = theme.screenPadding;
+    final pad = Stack(
+      alignment: Alignment.center,
+      children: [
+        // Hide the keypad/dots while the PIN is being verified — only the
+        // spinner shows. Comes back (with a fresh buffer) if the PIN was
+        // wrong.
+        if (!widget.submitting)
+          YiviPinScreen(
+            key: ValueKey(_resetNonce),
+            instructionKey: "session_pin.subtitle",
+            // A lock, not the logo, as on the session PIN board; in a sheet
+            // neither (the sheet's bar says what it is for).
+            lockIcon: true,
+            showMark: !widget.inSheet,
+            maxPinSize: widget.maxPinSize,
+            enabled: !widget.submitting,
+            displayPinLength: true,
+            onSubmit: _submit,
+            onForgotPin: context.pushResetPinScreen,
+            submitButtonVisibilityListener: (context, _) =>
+                autoSubmitButtonVisibility(widget.maxPinSize),
+            listener: (context, state) {
+              if (widget.maxPinSize == shortPinSize &&
+                  state.pin.length == widget.maxPinSize) {
+                _submit(state.toString());
+              }
+            },
+          ),
+        if (widget.submitting)
+          Padding(
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: const CircularProgressIndicator(),
+          ),
+      ],
+    );
+    if (widget.inSheet) return pad;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -125,42 +166,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             right: paddingSize,
             bottom: paddingSize,
           ),
-          child: _applyTabletSupport(
-            context,
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Hide the keypad/dots while the PIN is being verified — only
-                // the spinner shows. Comes back (with a fresh buffer) if the
-                // PIN was wrong.
-                if (!widget.submitting)
-                  YiviPinScreen(
-                    key: ValueKey(_resetNonce),
-                    instructionKey: "session_pin.subtitle",
-                    // A lock, not the logo, as on the session PIN board.
-                    lockIcon: true,
-                    maxPinSize: widget.maxPinSize,
-                    enabled: !widget.submitting,
-                    displayPinLength: true,
-                    onSubmit: _submit,
-                    onForgotPin: context.pushResetPinScreen,
-                    submitButtonVisibilityListener: (context, _) =>
-                        autoSubmitButtonVisibility(widget.maxPinSize),
-                    listener: (context, state) {
-                      if (widget.maxPinSize == shortPinSize &&
-                          state.pin.length == widget.maxPinSize) {
-                        _submit(state.toString());
-                      }
-                    },
-                  ),
-                if (widget.submitting)
-                  Padding(
-                    padding: EdgeInsets.all(theme.defaultSpacing),
-                    child: const CircularProgressIndicator(),
-                  ),
-              ],
-            ),
-          ),
+          child: _applyTabletSupport(context, pad),
         ),
       ),
     );
