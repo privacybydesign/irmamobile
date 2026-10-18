@@ -16,7 +16,7 @@ void main() {
     late BuildContext tappedCard;
 
     setUp(() {
-      WalletTransition.openHash.value = null;
+      WalletTransition.openKey.value = null;
       router = GoRouter(
         routes: [
           GoRoute(
@@ -123,7 +123,7 @@ void main() {
       // And back again when the detail closes, with a slight bounce: the
       // card below runs a little past its place before settling.
       router.pop();
-      WalletTransition.openHash.value = "tapped";
+      WalletTransition.openKey.value = "tapped";
       WalletTransition.closing = true;
       var highest = double.infinity;
       for (var i = 0; i < 40; i++) {

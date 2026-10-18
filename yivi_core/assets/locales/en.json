@@ -49,10 +49,54 @@
     "deleted_from": "Data deleted from",
     "signed_for": "Message signed for",
     "note": {
-      "shared": "Only these attributes were shared. The rest of your data stayed on your phone.",
-      "received": "This data was added to your Yivi app.",
+      "shared": "{name} got only this. Fields that are not listed stayed on your phone.",
+      "received": "The new cards were added to your Yivi app.",
       "deleted": "You deleted this data from your Yivi app. It cannot be recovered.",
-      "signed": "The message was signed with the data above."
+      "signed": "The message was signed with the data above. {name} got only this."
+    },
+    "kind": {
+      "all": "All",
+      "shared": "Shared",
+      "received": "Received",
+      "signed": "Signed",
+      "deleted": "Deleted"
+    },
+    "section": {
+      "received": "You received",
+      "shared": "You shared",
+      "shared_to_receive": "You shared to receive it",
+      "signed_with": "You signed with",
+      "deleted": "You deleted"
+    },
+    "date": "Date",
+    "time": "Time",
+    "cards-0": "{count} cards",
+    "cards-1": "{count} card",
+    "cards-2": "{count} cards",
+    "ago": {
+      "today": "Today",
+      "days-0": "{count} days ago",
+      "days-1": "{count} day ago",
+      "days-2": "{count} days ago",
+      "weeks-0": "{count} weeks ago",
+      "weeks-1": "{count} week ago",
+      "weeks-2": "{count} weeks ago",
+      "months-0": "{count} months ago",
+      "months-1": "{count} month ago",
+      "months-2": "{count} months ago",
+      "years-0": "{count} years ago",
+      "years-1": "{count} year ago",
+      "years-2": "{count} years ago"
+    },
+    "signed_by_you": "Signed by you, {date} at {time}",
+    "chip_new": "New",
+    "back_to_activity": "Back to activity",
+    "filter_label": "Show activity",
+    "filter_empty": {
+      "shared": "Nothing shared yet",
+      "received": "Nothing received yet",
+      "signed": "Nothing signed yet",
+      "deleted": "Nothing deleted yet"
     }
   },
   "arrow_back": {

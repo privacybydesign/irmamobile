@@ -2,9 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -43,23 +42,16 @@ void main() {
 
       // Check if the correct detail screen is rendered
       expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-      expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+      expect(find.byType(ActivityPartyCard), findsOneWidget);
 
-      // Expect headers: the app bar title is the activity timestamp formatted
-      // as "<month> <day>, <year> at <h>:<mm> <AM/PM>", e.g.
-      // "April 10, 2026 at 1:23 PM". The separator before AM/PM is matched with
-      // `\s` (not a literal space): intl's en CLDR data (`jm` = 'h:mm a')
-      // emits a narrow no-break space (U+202F) there, which `\s` covers.
-      expect(
-        find.textContaining(
-          RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2}\s(AM|PM)$"),
-        ),
-        findsOneWidget,
-      );
-      expect(find.text("Received data"), findsOneWidget);
+      // The pass header: what happened, the date and the time.
+      expect(find.text("RECEIVED"), findsOneWidget);
+      expect(find.text("DATE"), findsOneWidget);
+      expect(find.text("TIME"), findsOneWidget);
+      expect(find.text("YOU RECEIVED"), findsOneWidget);
 
       // Find the activity card and check the content
-      final activityCardFinder = find.byType(YiviCredentialCard).first;
+      final activityCardFinder = find.byType(ActivityCredentialTile).first;
       await evaluateCredentialCard(
         tester,
         activityCardFinder,

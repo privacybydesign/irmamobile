@@ -16,7 +16,6 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
@@ -171,7 +170,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
 
   // Verify activity log
   await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+  expect(find.text("YOU RECEIVED"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,
@@ -275,7 +274,7 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
   await tester.tapAndSettle(find.text("OK"));
 
   await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+  expect(find.text("YOU RECEIVED"), findsOneWidget);
   await tester.pumpAndSettle();
 
   final activityScrollable = find.byType(Scrollable).first;

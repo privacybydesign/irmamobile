@@ -9,7 +9,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 /// below it is pushed down.
 ///
 /// The home route's `secondaryAnimation` runs for every route pushed on top of
-/// it, so [PushAway] only moves while [openHash] is set: from the moment a
+/// it, so [PushAway] only moves while [openKey] is set: from the moment a
 /// card is tapped until its detail route has closed again.
 class WalletTransition {
   WalletTransition._();
@@ -34,8 +34,9 @@ class WalletTransition {
   static double eased(double value) =>
       closing ? 1 - closeCurve.transform(1 - value) : curve.transform(value);
 
-  /// Hash of the card whose detail is open (or opening/closing).
-  static final openHash = ValueNotifier<String?>(null);
+  /// Key of what is open (or opening/closing): a card's hash, or an
+  /// activity entry's key.
+  static final openKey = ValueNotifier<String?>(null);
 
   /// Global y-coordinate of the tapped card's top edge; items above it move
   /// up, items below move down.
@@ -47,26 +48,41 @@ class WalletTransition {
   static void begin(BuildContext cardContext, String hash) {
     final box = cardContext.findRenderObject() as RenderBox?;
     anchorY = box?.localToGlobal(Offset.zero).dy ?? 0;
-    openHash.value = hash;
+    openKey.value = hash;
   }
 
   /// Hero rect tween that follows [curve] in a straight line, instead of the
   /// default Material arc.
   static RectTween rectTween(Rect? begin, Rect? end) =>
       _CurvedRectTween(begin: begin, end: end);
+
+  /// [rectTween] for the [index]th of several cards that fly together: each
+  /// starts a little later (about 30 ms each), so they fan out one by one.
+  static CreateRectTween staggeredRectTween(int index) =>
+      (begin, end) => _CurvedRectTween(
+        begin: begin,
+        end: end,
+        start: (index * 0.065).clamp(0.0, 0.3),
+      );
 }
 
 class _CurvedRectTween extends RectTween {
-  _CurvedRectTween({super.begin, super.end});
+  /// Fraction of the flight this card waits before it moves.
+  final double start;
+
+  _CurvedRectTween({super.begin, super.end, this.start = 0});
 
   // A popping hero flies from the detail (t = 0) to the card in the list
   // (t = 1), so closing uses [WalletTransition.closeCurve] forwards.
   @override
-  Rect? lerp(double t) => super.lerp(
-    WalletTransition.closing
-        ? WalletTransition.closeCurve.transform(t)
-        : WalletTransition.curve.transform(t),
-  );
+  Rect? lerp(double t) {
+    final delayed = start == 0 ? t : Interval(start, 1).transform(t);
+    return super.lerp(
+      WalletTransition.closing
+          ? WalletTransition.closeCurve.transform(delayed)
+          : WalletTransition.curve.transform(delayed),
+    );
+  }
 }
 
 enum PushAwayDirection {
@@ -104,10 +120,10 @@ class PushAway extends StatelessWidget {
       return child;
     }
     return ValueListenableBuilder<String?>(
-      valueListenable: WalletTransition.openHash,
-      builder: (context, openHash, child) {
-        if (openHash == null) return child!;
-        if (openHash == hash) {
+      valueListenable: WalletTransition.openKey,
+      builder: (context, openKey, child) {
+        if (openKey == null) return child!;
+        if (openKey == hash) {
           if (!fadeWhenOpening) return child!;
           return FadeTransition(
             opacity: ReverseAnimation(

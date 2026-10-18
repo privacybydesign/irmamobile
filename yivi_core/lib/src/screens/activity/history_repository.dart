@@ -16,21 +16,28 @@ class HistoryState {
   final bool loading;
   final bool moreLogsAvailable;
 
+  /// Time of the oldest entry loaded so far, hidden ones included: the next
+  /// page starts before it.
+  final DateTime? oldestLoaded;
+
   HistoryState({
     List<LogInfo> logEntries = const [],
     this.loading = false,
     this.moreLogsAvailable = false,
+    this.oldestLoaded,
   }) : logEntries = UnmodifiableListView(logEntries);
 
   HistoryState copyWith({
     List<LogInfo>? logEntries,
     bool? loading,
     bool? moreLogsAvailable,
+    DateTime? Function()? oldestLoaded,
   }) {
     return HistoryState(
       logEntries: logEntries ?? this.logEntries,
       loading: loading ?? this.loading,
       moreLogsAvailable: moreLogsAvailable ?? this.moreLogsAvailable,
+      oldestLoaded: oldestLoaded == null ? this.oldestLoaded : oldestLoaded(),
     );
   }
 }
@@ -57,6 +64,9 @@ class HistoryRepository {
             return prevState.copyWith(
               loading: true,
               logEntries: event.before == null ? [] : prevState.logEntries,
+              oldestLoaded: event.before == null
+                  ? () => null
+                  : () => prevState.oldestLoaded,
             );
           } else if (event is LogsEvent) {
             bool containsKeyshareCredential(LogInfo e) {
@@ -73,7 +83,11 @@ class HistoryRepository {
             return prevState.copyWith(
               loading: false,
               logEntries: [...prevState.logEntries, ...activityLogEntries],
-              moreLogsAvailable: activityLogEntries.isNotEmpty,
+              // Judged on the page as loaded: a page of only hidden
+              // (keyshare) entries does not mean the log has ended.
+              moreLogsAvailable: event.logEntries.isNotEmpty,
+              oldestLoaded: () =>
+                  event.logEntries.lastOrNull?.time ?? prevState.oldestLoaded,
             );
           }
 

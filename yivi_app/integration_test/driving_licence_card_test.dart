@@ -3,7 +3,6 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_disclosure.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 
@@ -224,7 +223,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
         await tester.tapAndSettle(find.byType(ActivityCard).first);
         expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-        expect(find.byType(ActivityDetailDisclosure), findsOneWidget);
+        expect(find.text("YOU SHARED"), findsOneWidget);
 
         await _expectSharedCategories(tester);
       },

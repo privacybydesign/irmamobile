@@ -4,172 +4,110 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
+import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/pane_selection_provider.dart";
+import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
-import "../../../util/string.dart";
-import "../../../widgets/base64_image.dart";
-import "../../../widgets/irma_avatar.dart";
+import "../../../widgets/glass/glass_surface.dart";
+import "../../data/wallet/wallet_transition.dart";
+import "../activity_entry.dart";
+import "activity_detail_parts.dart";
 
-/// What a log entry is about: who the other party is and what happened.
-class ActivitySummary {
-  final String title;
-  final String subtitleKey;
-  final String semanticsKey;
-  final IconData icon;
-  final LogoImageRef? logo;
-
-  const ActivitySummary({
-    required this.title,
-    required this.subtitleKey,
-    required this.semanticsKey,
-    required this.icon,
-    this.logo,
-  });
-}
-
-/// A logo as it comes from the log, without depending on its model class.
-class LogoImageRef {
-  final String base64;
-  final String? mimeType;
-
-  const LogoImageRef(this.base64, this.mimeType);
-}
-
-ActivitySummary activitySummary(LogInfo logEntry) {
-  switch (logEntry.type) {
-    case LogType.removal:
-      final first = logEntry.removalLog!.credentials.first;
-      return ActivitySummary(
-        title: first.issuer.name,
-        subtitleKey: "activity.data_deleted",
-        semanticsKey: "activity.data_deleted_semantics",
-        icon: Icons.delete_outline,
-        logo: first.image == null
-            ? null
-            : LogoImageRef(first.image!.base64, first.image!.mimeType),
-      );
-    case LogType.issuance:
-      final issuer = logEntry.issuanceLog!.issuer;
-      return ActivitySummary(
-        title: (issuer?.name ?? "").replaceBreakingHyphens(),
-        subtitleKey: "activity.data_received",
-        semanticsKey: "activity.data_received_semantics",
-        icon: Icons.arrow_downward,
-        logo: issuer?.image == null
-            ? null
-            : LogoImageRef(issuer!.image!.base64, issuer.image!.mimeType),
-      );
-    case LogType.disclosure:
-      final verifier = logEntry.disclosureLog!.verifier;
-      return ActivitySummary(
-        title: (verifier?.name ?? "").replaceBreakingHyphens(),
-        subtitleKey: "activity.data_shared",
-        semanticsKey: "activity.data_shared_semantics",
-        icon: Icons.arrow_upward,
-        logo: verifier?.image == null
-            ? null
-            : LogoImageRef(verifier!.image!.base64, verifier.image!.mimeType),
-      );
-    case LogType.signature:
-      final verifier = logEntry.signedMessageLog!.verifier;
-      return ActivitySummary(
-        title: (verifier?.name ?? "").replaceBreakingHyphens(),
-        subtitleKey: "activity.message_signed",
-        semanticsKey: "activity.signed_message_semantics",
-        icon: Icons.edit_outlined,
-        logo: verifier?.image == null
-            ? null
-            : LogoImageRef(verifier!.image!.base64, verifier.image!.mimeType),
-      );
-  }
-}
-
-/// One log entry, as a row inside a month group of the Activity tab.
-class ActivityCard extends StatelessWidget {
+/// One log entry as a row of the Activity tab: a small stack of its cards
+/// with a badge for what happened, the other party, what happened and to
+/// which cards, and when.
+///
+/// Opening it pushes the other rows away while each card of the stack flies
+/// into its tile in the details ([ActivityCardHero]).
+class ActivityCard extends ConsumerWidget {
   final LogInfo logEntry;
 
-  /// Draws a divider above the row (all rows but the first of a group).
-  final bool showDivider;
-
-  const ActivityCard({required this.logEntry, this.showDivider = false});
+  const ActivityCard({super.key, required this.logEntry});
 
   @override
-  Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final summary = activitySummary(logEntry);
-    final timestamp = formatActivityTimestamp(
-      context,
-      logEntry.time.toLocal(),
-      lang,
-    );
-    final semanticLabel = FlutterI18n.translate(
-      context,
-      summary.semanticsKey,
-      translationParams: {
-        "otherParty": summary.title,
-        "issuerName": summary.title,
-        "date": timestamp,
-      },
-    );
-    final iconColor = switch (logEntry.type) {
-      LogType.disclosure => palette.link,
-      LogType.issuance => palette.successText,
-      LogType.removal => palette.danger,
-      LogType.signature => palette.heading,
-    };
+    final wallet =
+        ref.watch(schemalessCredentialOrderControllerProvider).value ??
+        const <schemaless.Credential>[];
+    final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
+    final kind = entry.kind;
+    final time = entry.localTime;
+    final timestamp = formatActivityTimestamp(context, time);
+    final titles = [for (final c in entry.cards) c.credential.name];
+    final cardsText = titles.length > 2
+        ? "${titles.take(2).join(", ")} +${titles.length - 2}"
+        : titles.join(", ");
 
-    return Semantics(
-      label: semanticLabel,
-      button: true,
-      excludeSemantics: true,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: () => openActivity(context, logEntry),
-          child: Container(
-            decoration: BoxDecoration(
-              border: showDivider
-                  ? Border(top: BorderSide(color: palette.divider))
-                  : null,
+    return PushAway(
+      hash: entry.key,
+      fadeWhenOpening: true,
+      child: Semantics(
+        label: FlutterI18n.translate(
+          context,
+          kind.semanticsKey,
+          translationParams: {
+            "otherParty": entry.party.name,
+            "issuerName": entry.party.name,
+            "date": timestamp,
+          },
+        ),
+        button: true,
+        excludeSemantics: true,
+        child: PressScale(
+          scale: 0.98,
+          child: Material(
+            color: palette.surface,
+            shape: const RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.all(Radius.circular(24)),
             ),
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-            child: Row(
-              spacing: 12,
-              children: [
-                IrmaAvatar(
-                  size: 48,
-                  logoImage: summary.logo == null
-                      ? null
-                      : Base64Image(
-                          base64: summary.logo!.base64,
-                          mimeType: summary.logo!.mimeType,
-                        ),
-                  initials: summary.title.isNotEmpty ? summary.title[0] : "?",
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            shadowColor: const Color(0x17000000),
+            elevation: 1,
+            clipBehavior: Clip.antiAlias,
+            child: Builder(
+              builder: (rowContext) => InkWell(
+                onTap: () {
+                  if (!isExpandedLayout(context)) {
+                    WalletTransition.begin(rowContext, entry.key);
+                  }
+                  openActivity(context, logEntry);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  child: Row(
+                    spacing: 14,
                     children: [
-                      Text(
-                        summary.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .display(16)
-                            .copyWith(color: palette.text),
-                      ),
-                      Row(
-                        spacing: 4,
-                        children: [
-                          Icon(summary.icon, size: 14, color: iconColor),
-                          Flexible(
-                            child: Text(
-                              FlutterI18n.translate(
-                                context,
-                                summary.subtitleKey,
+                      ActivityCardStack(entry: entry),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.party.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: palette
+                                  .display(16)
+                                  .copyWith(color: palette.text),
+                            ),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: FlutterI18n.translate(
+                                      context,
+                                      kind.labelKey,
+                                    ),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: activityKindInk(palette, kind),
+                                    ),
+                                  ),
+                                  if (cardsText.isNotEmpty)
+                                    TextSpan(text: " · $cardsText"),
+                                ],
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -177,22 +115,29 @@ class ActivityCard extends StatelessWidget {
                                   .body(14)
                                   .copyWith(color: palette.heading),
                             ),
+                          ],
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 88),
+                            child: Text(
+                              timestamp,
+                              textAlign: TextAlign.right,
+                              style: palette
+                                  .body(12)
+                                  .copyWith(color: palette.heading),
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 104),
-                  child: Text(
-                    timestamp,
-                    textAlign: TextAlign.right,
-                    style: palette.body(12).copyWith(color: palette.heading),
-                  ),
-                ),
-                Icon(Icons.chevron_right, size: 20, color: palette.faint),
-              ],
+              ),
             ),
           ),
         ),
@@ -201,11 +146,126 @@ class ActivityCard extends StatelessWidget {
   }
 }
 
-String formatActivityTimestamp(
-  BuildContext context,
-  DateTime time,
-  String lang,
-) {
+/// Up to three of an entry's cards as a small pile, like the wallet seen
+/// from the front: each card behind sits a little higher and smaller. More
+/// than three get a "+n"; a badge in the corner says what happened.
+class ActivityCardStack extends StatelessWidget {
+  final ActivityEntry entry;
+
+  const ActivityCardStack({super.key, required this.entry});
+
+  static const double width = 64;
+  static const double height = 56;
+  static const double cardWidth = 52;
+  static const double _cardHeight = cardWidth * 226 / 358;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final cards = entry.cards;
+    final shown = cards.length.clamp(0, 3);
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (cards.isEmpty)
+              Positioned(
+                left: (width - cardWidth) / 2,
+                top: 38 - _cardHeight / 2,
+                child: Container(
+                  width: cardWidth,
+                  height: _cardHeight,
+                  decoration: ShapeDecoration(
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      side: BorderSide(color: palette.outline, width: 1.5),
+                    ),
+                  ),
+                ),
+              ),
+            // Back to front: the first card is on top.
+            for (var i = shown - 1; i >= 0; i--)
+              Positioned(
+                left: (width - cardWidth) / 2,
+                top: 38 - 8.0 * i - _cardHeight / 2,
+                child: Transform.scale(
+                  scale: 1 - 0.12 * i,
+                  child: ActivityCardHero(
+                    entry: entry,
+                    index: i,
+                    width: cardWidth,
+                  ),
+                ),
+              ),
+            // The cards past the third have no place in the pile; their
+            // heroes come out from behind it.
+            for (var i = 3; i < cards.length; i++)
+              Positioned(
+                left: (width - cardWidth) / 2,
+                top: 22 - _cardHeight / 2,
+                child: Opacity(
+                  opacity: 0,
+                  child: Transform.scale(
+                    scale: 0.76,
+                    child: ActivityCardHero(
+                      entry: entry,
+                      index: i,
+                      width: cardWidth,
+                    ),
+                  ),
+                ),
+              ),
+            if (cards.length > 3)
+              Positioned(
+                left: -6,
+                top: 0,
+                child: Container(
+                  height: 18,
+                  constraints: const BoxConstraints(minWidth: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  alignment: Alignment.center,
+                  decoration: ShapeDecoration(
+                    color: palette.heading,
+                    shape: StadiumBorder(
+                      side: BorderSide(color: palette.surface, width: 2),
+                    ),
+                  ),
+                  child: Text(
+                    "+${cards.length - 3}",
+                    style: palette
+                        .body(10, weight: FontWeight.w700)
+                        .copyWith(color: palette.surface, height: 1),
+                  ),
+                ),
+              ),
+            Positioned(
+              right: -6,
+              bottom: -2,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: entry.kind.badge,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: palette.surface, width: 2),
+                ),
+                child: Icon(entry.kind.icon, size: 12, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// When an entry happened, for its row: the time today, "Yesterday", or
+/// else the day and month ("11 Oct").
+String formatActivityTimestamp(BuildContext context, DateTime time) {
+  final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final entryDay = DateTime(time.year, time.month, time.day);
@@ -213,7 +273,8 @@ String formatActivityTimestamp(
 
   if (daysAgo == 0) return DateFormat.jm(lang).format(time);
   if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
-  return DateFormat.yMMMMd(lang).format(time);
+  if (time.year == now.year) return DateFormat.MMMd(lang).format(time);
+  return DateFormat.yMMMd(lang).format(time);
 }
 
 /// Opens the details of [logEntry]: in the detail pane in the tablet layout,

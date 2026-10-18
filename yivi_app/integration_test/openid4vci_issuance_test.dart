@@ -3,9 +3,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
@@ -191,7 +189,7 @@ Future<void> testIssueEmailOpenID4VCI(
 
   // Verify activity log
   await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+  expect(find.text("YOU RECEIVED"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(ActivityCredentialTile).first,
@@ -241,7 +239,7 @@ Future<void> testIssueEmailOpenID4VCIWithTxCode(
 
   // Verify activity log
   await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+  expect(find.text("YOU RECEIVED"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(ActivityCredentialTile).first,
@@ -324,7 +322,7 @@ Future<void> testIssueOrganizationOpenID4VCI(
 
   // Verify activity log — same nested-claim assertion.
   await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+  expect(find.text("YOU RECEIVED"), findsOneWidget);
   await tester.pumpAndSettle();
 
   await evaluateCredentialCard(
@@ -712,7 +710,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(ActivityCard, skipOffstage: false).at(0),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.byType(ActivityDetailRemoval), findsOneWidget);
+  expect(find.text("YOU DELETED"), findsOneWidget);
   expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -729,7 +727,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(ActivityCard, skipOffstage: false).at(1),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.byType(ActivityDetailRemoval), findsOneWidget);
+  expect(find.text("YOU DELETED"), findsOneWidget);
   expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,

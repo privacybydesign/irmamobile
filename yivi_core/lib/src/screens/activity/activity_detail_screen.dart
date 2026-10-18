@@ -1,13 +1,12 @@
-import "package:flutter_i18n/flutter_i18n.dart";
-import "package:intl/intl.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
-import "../../theme/yivi_palette.dart";
-import "../../widgets/irma_app_bar.dart";
-import "widgets/activity_detail_disclosure.dart";
-import "widgets/activity_detail_issuance.dart";
-import "widgets/activity_detail_removal.dart";
+import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/schemaless_credentials_list_provider.dart";
+import "../data/wallet/wallet_detail_scaffold.dart";
+import "activity_entry.dart";
+import "widgets/activity_detail_parts.dart";
 
 class ActivityDetailsScreenArgs {
   final LogInfo logEntry;
@@ -15,98 +14,126 @@ class ActivityDetailsScreenArgs {
   ActivityDetailsScreenArgs({required this.logEntry});
 }
 
-class ActivityDetailsScreen extends StatelessWidget {
+/// The details of one log entry. Opens with the Wallet-style transition: the
+/// cards of the row's stack fly into their tiles while the activity list
+/// moves away, then the rest fades up. Pull down, Done, or a tap on a card
+/// closes it again.
+class ActivityDetailsScreen extends ConsumerStatefulWidget {
   final LogInfo logEntry;
 
   ActivityDetailsScreen({required ActivityDetailsScreenArgs args})
     : logEntry = args.logEntry;
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final dateAtTime = activityDateAtTime(context, logEntry);
+  ConsumerState<ActivityDetailsScreen> createState() =>
+      _ActivityDetailsScreenState();
+}
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        title: Text(
-          dateAtTime,
-          textAlign: TextAlign.center,
-          style: palette.display(16).copyWith(color: palette.text),
+class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
+  final _scroll = ScrollController();
+
+  /// Whether the pass header has scrolled away under the top bar.
+  final _scrolledPast = ValueNotifier(false);
+
+  /// About the height of the pass header.
+  static const _headerHeight = 170.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(() {
+      _scrolledPast.value = _scroll.offset > _headerHeight;
+    });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _scrolledPast.dispose();
+    super.dispose();
+  }
+
+  void _close() => Navigator.of(context).maybePop();
+
+  @override
+  Widget build(BuildContext context) {
+    final padding = MediaQuery.paddingOf(context);
+    final wallet =
+        ref.watch(schemalessCredentialOrderControllerProvider).value ??
+        const <schemaless.Credential>[];
+    final entry = ActivityEntry.fromLog(widget.logEntry, wallet: wallet);
+
+    return WalletDetailScaffold(
+      openKey: entry.key,
+      doneKey: const Key("activity_detail_done"),
+      barBuilder: (context, opacity) => ValueListenableBuilder<bool>(
+        valueListenable: _scrolledPast,
+        builder: (context, shown, _) => TweenAnimationBuilder<double>(
+          tween: Tween(end: shown ? 1 : 0),
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOut,
+          builder: (context, t, _) => t == 0
+              ? const SizedBox.shrink()
+              : IgnorePointer(
+                  child: Transform.translate(
+                    offset: Offset(0, (1 - t) * -8),
+                    child: ActivityCompactBar(
+                      entry: entry,
+                      opacity: opacity * t,
+                    ),
+                  ),
+                ),
         ),
       ),
-      body: SizedBox(
-        height: double.infinity,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-          child: SafeArea(child: ActivityDetailContent(logEntry: logEntry)),
+      builder: (context, physics, animation) => ListView(
+        controller: _scroll,
+        // Pulling down at the top dismisses the page.
+        physics: physics,
+        padding: EdgeInsets.fromLTRB(
+          16,
+          padding.top + 76,
+          16,
+          padding.bottom + 32,
         ),
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: ActivityDetailBody(
+                entry: entry,
+                animation: animation,
+                heroes: true,
+                onArtTap: _close,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// The "date at time" title of [logEntry], the title of its detail view.
-String activityDateAtTime(BuildContext context, LogInfo logEntry) {
-  final lang = FlutterI18n.currentLocale(context)!.languageCode;
-  final localTime = logEntry.time.toLocal();
-  return FlutterI18n.translate(
-    context,
-    "credential.date_at_time",
-    translationParams: {
-      "date": DateFormat.yMMMMd(lang).format(localTime),
-      "time": DateFormat.jm(lang).format(localTime),
-    },
-  );
-}
-
-/// What happened in [logEntry]: the body of [ActivityDetailsScreen], also
-/// shown in the detail pane of the tablet layout.
-class ActivityDetailContent extends StatelessWidget {
-  final LogInfo logEntry;
-
-  const ActivityDetailContent({super.key, required this.logEntry});
-
-  @override
-  Widget build(BuildContext context) => switch (logEntry.type) {
-    LogType.disclosure ||
-    LogType.signature => ActivityDetailDisclosure(logEntry: logEntry),
-    LogType.issuance => ActivityDetailIssuance(logEntry: logEntry),
-    LogType.removal => ActivityDetailRemoval(logEntry: logEntry),
-  };
-}
-
-/// The detail pane of the activity tab in the tablet layout.
-class ActivityDetailPane extends StatelessWidget {
+/// The detail pane of the activity tab in the tablet layout: the same
+/// content, without the transition.
+class ActivityDetailPane extends ConsumerWidget {
   final LogInfo logEntry;
 
   const ActivityDetailPane({super.key, required this.logEntry});
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final wallet =
+        ref.watch(schemalessCredentialOrderControllerProvider).value ??
+        const <schemaless.Credential>[];
+    final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
     return ListView(
+      key: Key("activity_detail_pane_${entry.key}"),
       padding: const EdgeInsets.all(32),
       children: [
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    activityDateAtTime(context, logEntry),
-                    style: palette.display(18),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ActivityDetailContent(logEntry: logEntry),
-              ],
-            ),
+            child: ActivityDetailBody(entry: entry),
           ),
         ),
       ],

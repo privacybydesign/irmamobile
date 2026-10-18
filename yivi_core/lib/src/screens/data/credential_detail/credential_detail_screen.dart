@@ -16,12 +16,10 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/pull_to_dismiss_physics.dart";
 import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
-import "../wallet/wallet_transition.dart";
+import "../wallet/wallet_detail_scaffold.dart";
 
 /// One entry in a card's activity section.
 class CardActivityItem {
@@ -52,273 +50,90 @@ class CredentialDetailScreen extends ConsumerStatefulWidget {
       _CredentialDetailScreenState();
 }
 
-class _CredentialDetailScreenState extends ConsumerState<CredentialDetailScreen>
-    with SingleTickerProviderStateMixin {
+class _CredentialDetailScreenState
+    extends ConsumerState<CredentialDetailScreen> {
   late String _hash = widget.hash;
-  Animation<double>? _routeAnimation;
-
-  /// How far the page is pulled down at its top, to dismiss it.
-  final _pull = ValueNotifier<double>(0);
-
-  /// Springs the pull back when it was not far enough to dismiss.
-  late final _springBack = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 420),
-  );
-  double _springFrom = 0;
-
-  /// As on iOS: only a drag that starts at the top can pull the page down.
-  /// One that starts further down scrolls, and at the top it stretches
-  /// (or bounces) as usual instead of pulling.
-  bool _dragStartedAtTop = false;
-
-  bool _onScrollStart(ScrollStartNotification notification) {
-    if (notification.dragDetails != null) {
-      final metrics = notification.metrics;
-      _dragStartedAtTop = metrics.pixels <= metrics.minScrollExtent + 0.5;
-    }
-    return false;
-  }
-
-  /// A pull this far, or a flick down this fast, closes the page.
-  static const _dismissDistance = 120.0;
-  static const _dismissVelocity = 700.0;
-
-  late final _physics = PullToDismissPhysics(
-    pull: _pull,
-    canPull: () {
-      // A new drag takes over from a spring back.
-      _springBack.stop();
-      return _dragStartedAtTop &&
-          _routeAnimation?.status != AnimationStatus.reverse;
-    },
-    onRelease: _onPullReleased,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _springBack.addListener(() {
-      final t = Curves.easeOutBack.transform(_springBack.value);
-      _pull.value = (_springFrom * (1 - t)).clamp(0, double.infinity);
-    });
-  }
-
-  void _onPullReleased(double velocity) {
-    // A downward flick has a negative scroll velocity.
-    if (_pull.value > _dismissDistance || velocity < -_dismissVelocity) {
-      // The card flies back from where it was pulled to.
-      _close();
-    } else {
-      _springFrom = _pull.value;
-      _springBack.forward(from: 0);
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation != _routeAnimation) {
-      _routeAnimation?.removeStatusListener(_onRouteStatus);
-      _routeAnimation = animation?..addStatusListener(_onRouteStatus);
-    }
-    // Opened without a tap on a card (e.g. from a notification): still let
-    // the data tab know which card is open.
-    WalletTransition.openHash.value ??= _hash;
-  }
-
-  void _onRouteStatus(AnimationStatus status) {
-    // Closing bounces into place (WalletTransition.closeCurve).
-    WalletTransition.closing = status == AnimationStatus.reverse;
-    if (status == AnimationStatus.dismissed) {
-      WalletTransition.openHash.value = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    _springBack.dispose();
-    _pull.dispose();
-    _routeAnimation?.removeStatusListener(_onRouteStatus);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (WalletTransition.openHash.value == _hash) {
-        WalletTransition.openHash.value = null;
-      }
-    });
-    super.dispose();
-  }
 
   void _close() => Navigator.of(context).maybePop();
 
-  /// 0 at rest, 1 at twice the dismiss distance.
-  double get _pullProgress =>
-      (_pull.value / (2 * _dismissDistance)).clamp(0.0, 1.0);
-
-  void _switchTo(String hash) {
-    setState(() => _hash = hash);
-    WalletTransition.openHash.value = hash;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final cards =
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const <schemaless.Credential>[];
     final credential = cards.firstWhereOrNull((c) => c.hash == _hash);
-    final animation = _routeAnimation ?? kAlwaysCompleteAnimation;
 
     final hints = ref.watch(instanceHintsProvider);
     final hintText = credential == null
         ? null
         : instanceHintText(context, hints[_hash] ?? const NoHint());
 
-    return Material(
-      type: MaterialType.transparency,
-      child: Stack(
-        children: [
-          // Transparent while the data tab moves away, opaque once open.
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: Listenable.merge([animation, _pull]),
-              builder: (context, _) => ColoredBox(
-                color: palette.background.withValues(
-                  alpha:
-                      const Interval(0.6, 1).transform(animation.value) *
-                      (1 - _pullProgress * 0.5),
-                ),
+    return WalletDetailScaffold(
+      openKey: _hash,
+      doneKey: const Key("credential_detail_done"),
+      builder: (context, physics, animation) {
+        if (credential == null) return const SizedBox.shrink();
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
+            return ListView(
+              // Pulling down at the top dismisses the page.
+              physics: physics,
+              padding: EdgeInsets.fromLTRB(
+                16,
+                padding.top + 76,
+                16,
+                padding.bottom + 32,
               ),
-            ),
-          ),
-          if (credential != null)
-            Positioned.fill(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
-                  final list = ListView(
-                    // Pulling down at the top dismisses the page.
-                    physics: _physics,
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      padding.top + 76,
-                      16,
-                      padding.bottom + 32,
+              children: [
+                Center(
+                  child: Semantics(
+                    button: true,
+                    label: FlutterI18n.translate(
+                      context,
+                      "wallet.detail.back_to_cards",
                     ),
-                    children: [
-                      Center(
-                        child: Semantics(
-                          button: true,
-                          label: FlutterI18n.translate(
-                            context,
-                            "wallet.detail.back_to_cards",
-                          ),
-                          child: GestureDetector(
-                            onTap: _close,
-                            child: CardHero(
-                              credential: credential,
-                              width: width,
-                              hintText: hintText,
-                            ),
-                          ),
-                        ),
+                    child: GestureDetector(
+                      onTap: _close,
+                      child: CardHero(
+                        credential: credential,
+                        width: width,
+                        hintText: hintText,
                       ),
-                      _Reveal(
-                        animation: animation,
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 460),
-                            child: _Details(
-                              credential: credential,
-                              siblings: cards
-                                  .where(
-                                    (c) =>
-                                        c.credentialId ==
-                                        credential.credentialId,
-                                  )
-                                  .toList(),
-                              hintTexts: {
-                                for (final c in cards)
-                                  c.hash: instanceHintText(
-                                    context,
-                                    hints[c.hash] ?? const NoHint(),
-                                  ),
-                              },
-                              onSwitch: _switchTo,
-                              onDeleted: _close,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                  // The page follows the finger down, shrinking a little.
-                  return ValueListenableBuilder<double>(
-                    valueListenable: _pull,
-                    child: NotificationListener<ScrollStartNotification>(
-                      onNotification: _onScrollStart,
-                      child: list,
-                    ),
-                    builder: (context, pull, child) => Transform.translate(
-                      offset: Offset(0, pull),
-                      child: Transform.scale(
-                        scale: 1 - _pullProgress * 0.06,
-                        alignment: Alignment.topCenter,
-                        child: child,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          // Fades the content out under the floating Done button.
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            height: padding.top + 72,
-            child: IgnorePointer(
-              child: FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: const Interval(0.6, 1),
-                ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        palette.background,
-                        palette.background.withValues(alpha: 0),
-                      ],
-                      stops: const [0.45, 1],
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: padding.top + 16,
-            right: 16,
-            // Faded by the glass itself: a FadeTransition would darken its
-            // blur until the fade ends (see GlassSurface.opacity).
-            child: AnimatedBuilder(
-              animation: Listenable.merge([animation, _pull]),
-              builder: (context, _) => GlassPillButton(
-                buttonKey: const Key("credential_detail_done"),
-                label: FlutterI18n.translate(context, "wallet.detail.done"),
-                onTap: _close,
-                opacity:
-                    const Interval(0.4, 1).transform(animation.value) *
-                    (1 - _pullProgress),
-              ),
-            ),
-          ),
-        ],
-      ),
+                WalletReveal(
+                  animation: animation,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 460),
+                      child: _Details(
+                        credential: credential,
+                        siblings: cards
+                            .where(
+                              (c) => c.credentialId == credential.credentialId,
+                            )
+                            .toList(),
+                        hintTexts: {
+                          for (final c in cards)
+                            c.hash: instanceHintText(
+                              context,
+                              hints[c.hash] ?? const NoHint(),
+                            ),
+                        },
+                        onSwitch: (hash) => setState(() => _hash = hash),
+                        onDeleted: _close,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -397,40 +212,6 @@ class CredentialDetailPane extends ConsumerWidget {
           ],
         );
       },
-    );
-  }
-}
-
-/// Fades its child in and moves it up from below as the route opens.
-class _Reveal extends StatelessWidget {
-  final Animation<double> animation;
-  final Widget child;
-
-  const _Reveal({required this.animation, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    final opening = animation.status != AnimationStatus.reverse;
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        final t = opening
-            ? const Interval(
-                0.25,
-                1,
-                curve: WalletTransition.curve,
-              ).transform(animation.value)
-            : const Interval(0.5, 1).transform(animation.value);
-        return Opacity(
-          opacity: t,
-          child: Transform.translate(
-            offset: Offset(0, reduceMotion ? 0 : (1 - t) * 56),
-            child: child,
-          ),
-        );
-      },
-      child: child,
     );
   }
 }

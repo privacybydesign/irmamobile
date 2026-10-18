@@ -20,9 +20,12 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
+import "../data/wallet/wallet_transition.dart";
 import "activity_detail_screen.dart";
+import "activity_entry.dart";
 import "history_repository.dart";
 import "widgets/activity_card.dart";
+import "widgets/activity_kind_tags.dart";
 
 class ActivityTab extends ConsumerStatefulWidget {
   @override
@@ -34,6 +37,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   final _scrollController = ScrollController();
   late StreamSubscription _repoStateSubscription;
   String _query = "";
+
+  /// The picked tag; null shows everything.
+  ActivityKind? _filter;
 
   /// The entries shown last, for the default of the tablet detail pane.
   List<LogInfo> _latestEntries = const [];
@@ -84,7 +90,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final historyState = await _historyRepo.getHistoryState().first;
     if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
       IrmaRepositoryProvider.of(context).bridgedDispatch(
-        LoadLogsEvent(before: historyState.logEntries.last.time, max: 10),
+        LoadLogsEvent(
+          before:
+              historyState.oldestLoaded ?? historyState.logEntries.last.time,
+          max: 10,
+        ),
       );
     }
   }
@@ -113,6 +123,27 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     }
   }
 
+  /// The floating search field, and the tags under it once there is
+  /// activity.
+  double _headerHeight(bool withTags) =>
+      60 + (withTags ? ActivityKindTags.height + 8 : 0);
+
+  bool _matches(LogInfo log, String query) {
+    final kind = ActivityKind.of(log.type);
+    if (_filter != null && kind != _filter) return false;
+    if (query.isEmpty) return true;
+    final entry = ActivityEntry.fromLog(log);
+    final text = normaliseForSearch(
+      [
+        entry.party.name,
+        FlutterI18n.translate(context, kind.subtitleKey),
+        FlutterI18n.translate(context, kind.labelKey),
+        for (final c in entry.cards) c.credential.name,
+      ].join(" "),
+    );
+    return text.contains(query);
+  }
+
   Widget _buildLogEntries(
     BuildContext context,
     List<LogInfo> logEntries,
@@ -125,17 +156,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final padding = MediaQuery.paddingOf(context);
 
     final query = normaliseForSearch(_query);
-    final shown = query.isEmpty
-        ? logEntries
-        : logEntries.where((entry) {
-            final summary = activitySummary(entry);
-            final text = normaliseForSearch(
-              "${summary.title} ${FlutterI18n.translate(context, summary.subtitleKey)}",
-            );
-            return text.contains(query);
-          }).toList();
+    final shown = logEntries.where((e) => _matches(e, query)).toList();
 
-    // One rounded group per month.
+    // A header per month, then its rows.
     final groups = <List<LogInfo>>[];
     for (final entry in shown) {
       final last = groups.lastOrNull;
@@ -148,80 +171,71 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       }
     }
 
+    Widget message(String key) => Padding(
+      padding: const EdgeInsets.only(top: 32),
+      child: TranslatedText(
+        key,
+        textAlign: TextAlign.center,
+        style: palette.body(16).copyWith(color: palette.heading),
+      ),
+    );
+
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(
         16,
-        padding.top + FloatingBarPlacement.topGap(context) + 60,
+        padding.top +
+            FloatingBarPlacement.topGap(context) +
+            _headerHeight(logEntries.isNotEmpty),
         16,
         padding.bottom + bottomBarSpace(context),
       ),
       children: [
         if (logEntries.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 32),
-            child: TranslatedText(
-              "activity.empty_placeholder",
-              textAlign: TextAlign.center,
-              style: palette.body(16).copyWith(color: palette.heading),
-            ),
-          )
+          message("activity.empty_placeholder")
+        else if (shown.isEmpty && query.isEmpty && _filter != null)
+          // Keeps loading older pages while there is more (see
+          // _addPostFrameCallback), so this shows only once the log ended.
+          moreLogsAvailable
+              ? const Padding(
+                  padding: EdgeInsets.only(top: 32),
+                  child: Center(child: EndOfListIndicator(isLoading: true)),
+                )
+              : message("activity.filter_empty.${_filter!.name}")
         else if (shown.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 32),
-            child: TranslatedText(
-              "activity.no_results",
-              textAlign: TextAlign.center,
-              style: palette.body(16).copyWith(color: palette.heading),
-            ),
-          )
+          message("activity.no_results")
         else ...[
           for (final group in groups) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  DateFormat(
-                    "MMMM",
-                    local,
-                  ).format(group.first.time.toLocal()).toCapitalized(),
-                  style: palette.display(18),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: DecoratedBox(
-                decoration: ShapeDecoration(
-                  color: palette.surface,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(24)),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x17000000),
-                      blurRadius: 6,
-                      offset: Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: ClipRSuperellipse(
-                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                  child: Column(
-                    children: [
-                      for (final (i, entry) in group.indexed)
-                        ActivityCard(logEntry: entry, showDivider: i > 0),
-                    ],
+            PushAway(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    DateFormat(
+                      "MMMM",
+                      local,
+                    ).format(group.first.time.toLocal()).toCapitalized(),
+                    style: palette.display(18),
                   ),
                 ),
               ),
             ),
+            for (final entry in group)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ActivityCard(
+                  key: ValueKey(ActivityEntry.fromLog(entry).key),
+                  logEntry: entry,
+                ),
+              ),
           ],
-          Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 16),
-            child: EndOfListIndicator(isLoading: moreLogsAvailable),
+          PushAway(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              child: EndOfListIndicator(isLoading: moreLogsAvailable),
+            ),
           ),
         ],
       ],
@@ -233,61 +247,85 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _scrollController.addListener(_listenToScroll);
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    final list = Stack(
-      children: [
-        Positioned.fill(
-          child: StreamBuilder<HistoryState>(
-            stream: _historyRepo.getHistoryState(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: LoadingIndicator());
-              }
-              final historyState = snapshot.data!;
-              return _buildLogEntries(
-                context,
-                historyState.logEntries,
-                historyState.moreLogsAvailable,
-              );
-            },
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          height: padding.top + FloatingBarPlacement.topGap(context) + 56,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    palette.background,
-                    palette.background.withValues(alpha: 0),
-                  ],
-                  stops: const [0.4, 1],
+    final top = padding.top + FloatingBarPlacement.topGap(context);
+    final list = StreamBuilder<HistoryState>(
+      stream: _historyRepo.getHistoryState(),
+      builder: (context, snapshot) {
+        final historyState = snapshot.data;
+        final withTags = historyState?.logEntries.isNotEmpty ?? false;
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: historyState == null
+                  ? Center(child: LoadingIndicator())
+                  : _buildLogEntries(
+                      context,
+                      historyState.logEntries,
+                      historyState.moreLogsAvailable,
+                    ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              height: top + _headerHeight(withTags) - 4,
+              child: PushAway(
+                direction: PushAwayDirection.up,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          palette.background,
+                          palette.background.withValues(alpha: 0),
+                        ],
+                        stops: const [0.5, 1],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-        Positioned(
-          left: 16,
-          right: 16,
-          top: padding.top + FloatingBarPlacement.topGap(context),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 640),
-              child: GlassSearchField(
-                fieldKey: const Key("activity_search_field"),
-                hintKey: "activity.search_placeholder",
-                onChanged: (q) => setState(() => _query = q),
+            Positioned(
+              left: 16,
+              right: 16,
+              top: top,
+              child: PushAway(
+                direction: PushAwayDirection.up,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 640),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        GlassSearchField(
+                          fieldKey: const Key("activity_search_field"),
+                          hintKey: "activity.search_placeholder",
+                          onChanged: (q) => setState(() => _query = q),
+                        ),
+                        if (withTags) ...[
+                          const SizedBox(height: 8),
+                          ActivityKindTags(
+                            selected: _filter,
+                            onSelected: (kind) {
+                              setState(() => _filter = kind);
+                              if (_scrollController.hasClients) {
+                                _scrollController.jumpTo(0);
+                              }
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
 
     return Scaffold(

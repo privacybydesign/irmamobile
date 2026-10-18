@@ -96,15 +96,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets("shared: who, what and the note", (tester) async {
+  testWidgets("shared: the pass header, the tile and the note", (tester) async {
     await pump(tester, _log(LogType.disclosure));
 
     expect(find.text("Shared with"), findsOneWidget);
     expect(find.text("Webshop Noord"), findsOneWidget);
     expect(find.text("Known party"), findsOneWidget);
+    // The three fields of the pass: what, when and the time.
+    expect(find.text("SHARED"), findsOneWidget);
+    expect(find.text("1 card"), findsOneWidget);
+    expect(find.text("DATE"), findsOneWidget);
+    expect(find.text("TIME"), findsOneWidget);
+    expect(find.text("YOU SHARED"), findsOneWidget);
     expect(find.byType(ActivityCredentialTile), findsOneWidget);
     expect(find.text("s.devries@werk.example"), findsOneWidget);
-    expect(find.textContaining("Only these attributes were shared"), findsOne);
+    expect(find.textContaining("Webshop Noord got only this"), findsOne);
   });
 
   testWidgets("signed: the message above the data", (tester) async {
@@ -114,6 +120,7 @@ void main() {
     );
 
     expect(find.text("Message signed for"), findsOneWidget);
+    expect(find.text("YOU SIGNED WITH"), findsOneWidget);
     final message = tester.getRect(find.text("I apply for a parking permit."));
     final card = tester.getRect(find.byType(ActivityCredentialTile));
     expect(message.top, lessThan(card.top));
@@ -122,10 +129,27 @@ void main() {
   testWidgets("received and deleted read differently", (tester) async {
     await pump(tester, _log(LogType.issuance));
     expect(find.text("Received from"), findsOneWidget);
-    expect(find.text("Received data"), findsOneWidget);
+    expect(find.text("YOU RECEIVED"), findsOneWidget);
+    expect(find.text("New"), findsOneWidget);
 
     await pump(tester, _log(LogType.removal));
     expect(find.text("Data deleted from"), findsOneWidget);
+    expect(find.text("YOU DELETED"), findsOneWidget);
+    expect(find.text("Deleted"), findsOneWidget);
     expect(find.textContaining("cannot be recovered"), findsOneWidget);
+  });
+
+  testWidgets("the compact bar shows once the header scrolled away", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _log(LogType.signature, message: List.filled(600, "word").join(" ")),
+    );
+    expect(find.byType(ActivityCompactBar), findsNothing);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    expect(find.byType(ActivityCompactBar), findsOneWidget);
   });
 }

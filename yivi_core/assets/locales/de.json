@@ -49,10 +49,54 @@
     "deleted_from": "Daten gelöscht von",
     "signed_for": "Nachricht signiert für",
     "note": {
-      "shared": "Nur diese Daten wurden geteilt. Ihre übrigen Daten sind auf Ihrem Telefon geblieben.",
-      "received": "Diese Daten wurden zu Ihrer Yivi-App hinzugefügt.",
+      "shared": "{name} hat nur das erhalten. Nicht aufgeführte Angaben blieben auf deinem Telefon.",
+      "received": "Die neuen Karten wurden deiner Yivi-App hinzugefügt.",
       "deleted": "Sie haben diese Daten aus Ihrer Yivi-App gelöscht. Sie können nicht wiederhergestellt werden.",
-      "signed": "Die Nachricht wurde mit den obigen Daten signiert."
+      "signed": "Die Nachricht wurde mit den obigen Daten signiert. {name} hat nur das erhalten."
+    },
+    "kind": {
+      "all": "Alle",
+      "shared": "Geteilt",
+      "received": "Erhalten",
+      "signed": "Signiert",
+      "deleted": "Gelöscht"
+    },
+    "section": {
+      "received": "Du hast erhalten",
+      "shared": "Du hast geteilt",
+      "shared_to_receive": "Du hast geteilt, um dies zu erhalten",
+      "signed_with": "Du hast signiert mit",
+      "deleted": "Du hast gelöscht"
+    },
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "cards-0": "{count} Karten",
+    "cards-1": "{count} Karte",
+    "cards-2": "{count} Karten",
+    "ago": {
+      "today": "Heute",
+      "days-0": "vor {count} Tagen",
+      "days-1": "vor {count} Tag",
+      "days-2": "vor {count} Tagen",
+      "weeks-0": "vor {count} Wochen",
+      "weeks-1": "vor {count} Woche",
+      "weeks-2": "vor {count} Wochen",
+      "months-0": "vor {count} Monaten",
+      "months-1": "vor {count} Monat",
+      "months-2": "vor {count} Monaten",
+      "years-0": "vor {count} Jahren",
+      "years-1": "vor {count} Jahr",
+      "years-2": "vor {count} Jahren"
+    },
+    "signed_by_you": "Von dir signiert, {date} um {time}",
+    "chip_new": "Neu",
+    "back_to_activity": "Zurück zur Aktivität",
+    "filter_label": "Aktivität anzeigen",
+    "filter_empty": {
+      "shared": "Noch nichts geteilt",
+      "received": "Noch nichts erhalten",
+      "signed": "Noch nichts signiert",
+      "deleted": "Noch nichts gelöscht"
     }
   },
   "arrow_back": {

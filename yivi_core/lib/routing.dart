@@ -174,16 +174,20 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          _adaptive(
-            mode: PresentationMode.sheet,
-            phone: PhoneTransition.push,
+          GoRoute(
             path: "activity_details",
-            builder: (context, state) {
-              final logEntry = state.extra as LogInfo;
-              return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(logEntry: logEntry),
-              );
-            },
+            // The cards of the row fly into the details while the activity
+            // list moves away (see WalletTransition). On tablets the details
+            // show in the pane instead.
+            pageBuilder: (context, state) => WalletDetailPage(
+              key: state.pageKey,
+              name: "/home/activity_details",
+              child: ActivityDetailsScreen(
+                args: ActivityDetailsScreenArgs(
+                  logEntry: state.extra as LogInfo,
+                ),
+              ),
+            ),
           ),
           _adaptive(
             mode: PresentationMode.sheet,

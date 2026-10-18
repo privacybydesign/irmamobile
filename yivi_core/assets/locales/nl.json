@@ -49,10 +49,54 @@
     "deleted_from": "Gegevens verwijderd van",
     "signed_for": "Bericht ondertekend voor",
     "note": {
-      "shared": "Alleen deze gegevens zijn gedeeld. De rest van je gegevens bleef op je telefoon.",
-      "received": "Deze gegevens zijn toegevoegd aan je Yivi-app.",
+      "shared": "{name} kreeg alleen dit. Gegevens die hier niet staan, bleven op je telefoon.",
+      "received": "De nieuwe kaarten zijn toegevoegd aan je Yivi-app.",
       "deleted": "Je hebt deze gegevens uit je Yivi-app verwijderd. Ze kunnen niet worden hersteld.",
-      "signed": "Het bericht is ondertekend met de gegevens hierboven."
+      "signed": "Het bericht is ondertekend met de gegevens hierboven. {name} kreeg alleen dit."
+    },
+    "kind": {
+      "all": "Alles",
+      "shared": "Gedeeld",
+      "received": "Ontvangen",
+      "signed": "Ondertekend",
+      "deleted": "Verwijderd"
+    },
+    "section": {
+      "received": "Je ontving",
+      "shared": "Je deelde",
+      "shared_to_receive": "Je deelde om dit te ontvangen",
+      "signed_with": "Je ondertekende met",
+      "deleted": "Je verwijderde"
+    },
+    "date": "Datum",
+    "time": "Tijd",
+    "cards-0": "{count} kaarten",
+    "cards-1": "{count} kaart",
+    "cards-2": "{count} kaarten",
+    "ago": {
+      "today": "Vandaag",
+      "days-0": "{count} dagen geleden",
+      "days-1": "{count} dag geleden",
+      "days-2": "{count} dagen geleden",
+      "weeks-0": "{count} weken geleden",
+      "weeks-1": "{count} week geleden",
+      "weeks-2": "{count} weken geleden",
+      "months-0": "{count} maanden geleden",
+      "months-1": "{count} maand geleden",
+      "months-2": "{count} maanden geleden",
+      "years-0": "{count} jaar geleden",
+      "years-1": "{count} jaar geleden",
+      "years-2": "{count} jaar geleden"
+    },
+    "signed_by_you": "Door jou ondertekend, {date} om {time}",
+    "chip_new": "Nieuw",
+    "back_to_activity": "Terug naar activiteit",
+    "filter_label": "Toon activiteit",
+    "filter_empty": {
+      "shared": "Nog niets gedeeld",
+      "received": "Nog niets ontvangen",
+      "signed": "Nog niets ondertekend",
+      "deleted": "Nog niets verwijderd"
     }
   },
   "arrow_back": {

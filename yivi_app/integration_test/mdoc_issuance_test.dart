@@ -26,9 +26,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
-import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
@@ -325,7 +323,7 @@ Future<void> testDeleteAvMdoc(
     find.byType(ActivityCard, skipOffstage: false).at(0),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.byType(ActivityDetailRemoval), findsOneWidget);
+  expect(find.text("YOU DELETED"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(ActivityCredentialTile).first,
@@ -345,7 +343,7 @@ Future<void> testActivityLogAfterIssuance(
   await issueAvMdoc(tester, irmaBinding);
 
   await _navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+  expect(find.text("YOU RECEIVED"), findsOneWidget);
   await tester.pumpAndSettle();
   await evaluateCredentialCard(
     tester,
