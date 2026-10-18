@@ -394,15 +394,16 @@ Future<void> issueCredentials(
     );
   }
 
-  final buttonFinder = find.byKey(
-    inSheet
-        ? (declineOffer
-              ? const Key("sheet_issue_cancel")
-              : const Key("sheet_issue_add"))
-        : declineOffer
-        ? const Key("bottom_bar_secondary")
-        : const Key("bottom_bar_primary"),
-  );
+  // In the sheet there is no Cancel: back on step 3 declines.
+  final buttonFinder = inSheet && declineOffer
+      ? find.bySemanticsLabel("Go back").last
+      : find.byKey(
+          inSheet
+              ? const Key("sheet_issue_add")
+              : declineOffer
+              ? const Key("bottom_bar_secondary")
+              : const Key("bottom_bar_primary"),
+        );
   expect(buttonFinder, findsOneWidget);
 
   final forRequest =
@@ -1627,7 +1628,11 @@ Future<void> openAddCredentialDetailsScreen(
 /// sheet.
 Future<void> tapAddOnSheetDetails(WidgetTester tester) async {
   await tester.tap(find.byKey(const Key("sheet_go_button")));
-  await tester.pumpAndSettle();
+  // The next step can start with a focused field (e-mail, phone), whose
+  // cursor never settles: pump a fixed while.
+  for (var i = 0; i < 20; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
 }
 
 /// Opens the Add data sheet and taps the tile of [fullCredentialId], which

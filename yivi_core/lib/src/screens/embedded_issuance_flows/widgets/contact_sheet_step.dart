@@ -11,8 +11,7 @@ import "../../../util/handle_pointer.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
-import "../../../widgets/loading_indicator.dart";
+import "../../../widgets/pill_text_field.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
@@ -22,27 +21,28 @@ import "contact_widgets.dart";
 enum ContactKind { email, phone }
 
 /// Step 2 of adding an e-mail address or phone number in a sheet (the Change
-/// sheet of a request, or Add data): the address or number, then the code sent to it, as on the
-/// full screens (the same fields, the same issuer calls), with the buttons in
-/// a row. The checked code starts the issuance through [handlePointer], which
-/// hands it to the sheet waiting for it (step 3).
+/// sheet of a request, or Add data), made for a sheet with the keyboard up:
+/// one page with a line on what happens, the address or number, and after
+/// "Send code" the code boxes under a folded "Code sent to …" row. The code
+/// checks itself once it is complete; errors show where they happen. The
+/// sheet's close button and back are the way out, so there is one button.
+///
+/// The same issuer calls as the full screens (`emailIssuanceProvider`,
+/// `smsIssuanceProvider`). The checked code starts the issuance through
+/// [handlePointer], which hands it to the sheet waiting for it (step 3).
 class ContactSheetStep extends ConsumerStatefulWidget {
   final ContactKind kind;
 
   /// What the progress tag names: the request, or the card being added.
   final IssueSheetSubject subject;
 
-  /// "Cancel": the sheet asks whether to stop adding.
-  final VoidCallback onCancel;
-
-  /// Back from entering the address: to the details.
+  /// Back: to the details.
   final VoidCallback onBack;
 
   const ContactSheetStep({
     super.key,
     required this.kind,
     required this.subject,
-    required this.onCancel,
     required this.onBack,
   });
 
@@ -63,19 +63,31 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   var _valid = false;
   var _verifying = false;
 
+  /// A new code was sent from the code stage.
+  var _sentAgain = false;
+
   bool get _email => widget.kind == ContactKind.email;
 
-  /// "email_issuance.enter_email" or "sms_issuance.enter_phone", for one
-  /// of their [part]s, and the same for the code.
-  String _key(String screen, String part) => _email
-      ? "email_issuance.${screen == "enter" ? "enter_email" : "verify_code"}.$part"
-      : "sms_issuance.${screen == "enter" ? "enter_phone" : "verify_code"}.$part";
+  /// The `contact_sheet.<part>_email` or `_phone` text.
+  String _k(String part) =>
+      _t("contact_sheet.${part}_${_email ? "email" : "phone"}");
 
   String _t(String key, [Map<String, String>? params]) =>
       FlutterI18n.translate(context, key, translationParams: params);
 
   String get _language =>
       FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+
+  @override
+  void initState() {
+    super.initState();
+    // The keyboard comes up at once: the field is what the page is for.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _stageNow() == _Stage.entering) {
+        _focusNode.requestFocus();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -87,38 +99,44 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   // ---------- the two flows, through their providers ----------
 
-  ({_Stage stage, String target, Object error, bool invalidCode}) _read() {
+  ({_Stage stage, String target, Object error}) _read() {
     if (_email) {
       final s = ref.watch(emailIssuanceProvider);
-      return (
-        stage: switch (s.stage) {
-          EmailIssuanceStage.enteringEmail => _Stage.entering,
-          EmailIssuanceStage.waiting => _Stage.sending,
-          EmailIssuanceStage.enteringVerificationCode => _Stage.code,
-        },
-        target: s.email,
-        error: s.error,
-        invalidCode: s.error is EmailIssuanceInvalidCodeError,
-      );
+      return (stage: _emailStage(s.stage), target: s.email, error: s.error);
     }
     final s = ref.watch(smsIssuanceProvider);
-    return (
-      stage: switch (s.stage) {
-        SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
-        SmsIssuanceStage.waiting => _Stage.sending,
-        SmsIssuanceStage.enteringVerificationCode => _Stage.code,
-      },
-      target: s.phoneNumber,
-      error: s.error,
-      invalidCode: s.error is SmsIssuanceInvalidCodeError,
-    );
+    return (stage: _smsStage(s.stage), target: s.phoneNumber, error: s.error);
   }
 
-  bool _isError(Object error) =>
-      error is! EmailIssuanceNoError &&
-      error is! SmsIssuanceNoError &&
-      error is! EmailIssuanceInvalidCodeError &&
-      error is! SmsIssuanceInvalidCodeError;
+  /// The stage outside build, where watching is not allowed.
+  _Stage _stageNow() => _email
+      ? _emailStage(ref.read(emailIssuanceProvider).stage)
+      : _smsStage(ref.read(smsIssuanceProvider).stage);
+
+  static _Stage _emailStage(EmailIssuanceStage s) => switch (s) {
+    EmailIssuanceStage.enteringEmail => _Stage.entering,
+    EmailIssuanceStage.waiting => _Stage.sending,
+    EmailIssuanceStage.enteringVerificationCode => _Stage.code,
+  };
+
+  static _Stage _smsStage(SmsIssuanceStage s) => switch (s) {
+    SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
+    SmsIssuanceStage.waiting => _Stage.sending,
+    SmsIssuanceStage.enteringVerificationCode => _Stage.code,
+  };
+
+  bool _errorNow() => !_none(
+    _email
+        ? ref.read(emailIssuanceProvider).error
+        : ref.read(smsIssuanceProvider).error,
+  );
+
+  static bool _none(Object error) =>
+      error is EmailIssuanceNoError || error is SmsIssuanceNoError;
+
+  static bool _wrongCode(Object error) =>
+      error is EmailIssuanceInvalidCodeError ||
+      error is SmsIssuanceInvalidCodeError;
 
   void _send(String target) {
     if (_email) {
@@ -136,7 +154,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     final target = _email
         ? _emailKey.currentState?.submittable()
         : _phoneKey.currentState?.submittable();
-    if (target != null) _send(target);
+    if (target == null) return;
+    _sentAgain = false;
+    _send(target);
   }
 
   Future<void> _verify(String code) async {
@@ -152,7 +172,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     if (!mounted) return;
     setState(() => _verifying = false);
     if (session == null) {
-      // A wrong code: empty boxes, ready for another try.
+      // Not right: empty boxes, ready for another try; the error stays
+      // under them until the next character.
       _codeController.clear();
       _codeFocus.requestFocus();
       return;
@@ -168,44 +189,31 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     }
   }
 
-  /// Back from the code to the address, as on the full screen: asks first.
-  Future<void> _backToEntering() async {
-    final back =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => IrmaConfirmationDialog(
-            titleTranslationKey: _key("verify", "back_dialog.title"),
-            contentTranslationKey: _key("verify", "back_dialog.body"),
-            confirmTranslationKey: _key("verify", "back_dialog.confirm"),
-            cancelTranslationKey: _key("verify", "back_dialog.cancel"),
-          ),
-        ) ??
-        false;
-    if (!back || !mounted) return;
+  /// Back on the address, filled in, to change it.
+  void _change() {
     _codeController.clear();
+    _sentAgain = false;
     if (_email) {
       ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
     } else {
       ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
   }
 
-  Future<void> _askResend(String target) async {
-    final resend =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => IrmaConfirmationDialog(
-            titleTranslationKey: _key("verify", "resend_dialog.title"),
-            contentTranslationKey: _key("verify", "resend_dialog.body"),
-            confirmTranslationKey: _key("verify", "resend_dialog.confirm"),
-            cancelTranslationKey: _key("verify", "resend_dialog.cancel"),
-          ),
-        ) ??
-        false;
-    if (resend && mounted) {
-      _codeController.clear();
-      _send(target);
-    }
+  void _sendAgain(String target) {
+    _codeController.clear();
+    setState(() => _sentAgain = true);
+    _send(target);
+  }
+
+  /// Back leaves the step for the details; coming back starts at the
+  /// address again.
+  void _back() {
+    if (_stageNow() == _Stage.code) _change();
+    widget.onBack();
   }
 
   // ---------- the page ----------
@@ -213,58 +221,32 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   @override
   Widget build(BuildContext context) {
     final state = _read();
-    final palette = YiviPalette.of(context);
     final code = state.stage == _Stage.code;
-    final error = _isError(state.error);
-    final icon = _email ? Icons.mail_rounded : Icons.smartphone_rounded;
-    final tone = _email ? DialogTone.warning : DialogTone.success;
+    final sending = state.stage == _Stage.sending;
+    final error = state.error;
+    final String? errorText = _none(error)
+        ? null
+        : code
+        ? _wrongCode(error)
+              ? _t("contact_sheet.wrong_code")
+              : _t("contact_sheet.not_checked")
+        : _k("not_sent");
 
     final Widget body;
     final SheetActionRow bar;
-    if (error) {
-      body = Container(
-        key: const Key("contact_sheet_error"),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: ShapeDecoration(
-          color: palette.errorSurface,
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-          ),
-        ),
-        child: Text(
-          _t(code ? _key("verify", "error") : _key("enter", "error")),
-          style: palette
-              .body(14, weight: FontWeight.w600)
-              .copyWith(height: 20 / 14, color: palette.errorText),
-        ),
-      );
-      bar = SheetActionRow(
-        secondaryLabel: _t(_key("enter", "back_button")),
-        onSecondary: widget.onCancel,
-        primaryKey: const Key("contact_sheet_retry"),
-        primaryLabel: _t("ui.retry"),
-        onPrimary: _resetError,
-      );
-    } else if (state.stage == _Stage.sending) {
-      body = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 80),
-        child: Center(child: LoadingIndicator()),
-      );
-      bar = SheetActionRow(
-        secondaryLabel: _t(_key("enter", "back_button")),
-        onSecondary: widget.onCancel,
-        primaryLabel: _t(_key("enter", "next_button")),
-      );
-    } else if (code) {
+    if (code) {
+      final complete =
+          _codeController.text.length == (_email ? emailCodeLength : 6);
       body = Column(
+        key: const Key("contact_sheet_code"),
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ContactIntro(
-            icon: icon,
-            tone: tone,
-            headerKey: _key("verify", "header"),
-            bodyKey: _key("verify", "body"),
-            bodyParams: {_email ? "email" : "phone": state.target},
+          _SentTo(
+            label: _k("sent_to"),
+            target: state.target,
+            email: _email,
+            changeLabel: _t("contact_sheet.change"),
+            onChange: _change,
           ),
           ContactCodeField(
             fieldKey: Key(
@@ -272,32 +254,36 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
                   ? "email_verification_code_input_field"
                   : "sms_verification_code_input_field",
             ),
+            labelKey: "contact_sheet.code_label_${_email ? "email" : "phone"}",
             controller: _codeController,
             focusNode: _codeFocus,
             length: _email ? emailCodeLength : 6,
-            invalid: state.invalidCode,
+            invalid: errorText != null,
             smsRetriever: _email ? null : ref.watch(smsRetrieverProvider),
-            onChanged: (_) => setState(() {}),
+            onChanged: (text) {
+              // Typing again clears the error; emptying the boxes after a
+              // failed check does not.
+              if (text.isNotEmpty && _errorNow()) _resetError();
+              setState(() {});
+            },
             onCompleted: _verify,
           ),
-          if (state.invalidCode)
-            ContactCodeError(_key("verify", "invalid_code_error")),
-          ContactTextLink(
-            labelKey: _email
-                ? "email_issuance.verify_code.no_email_received"
-                : "sms_issuance.verify_code.no_sms_received",
-            onTap: () => _askResend(state.target),
-          ),
+          if (errorText != null)
+            KeyedSubtree(
+              key: const Key("contact_sheet_error"),
+              child: FieldError(errorText, align: TextAlign.center),
+            )
+          else
+            _ResendRow(
+              hint: _sentAgain ? _t("contact_sheet.sent_again") : _k("hint"),
+              label: _t("contact_sheet.send_again"),
+              onTap: () => _sendAgain(state.target),
+            ),
         ],
       );
-      final complete =
-          _codeController.text.length == (_email ? emailCodeLength : 6);
       bar = SheetActionRow(
-        secondaryKey: const Key("contact_sheet_cancel"),
-        secondaryLabel: _t(_key("verify", "back_button")),
-        onSecondary: widget.onCancel,
         primaryKey: const Key("contact_sheet_verify"),
-        primaryLabel: _t(_key("verify", "next_button")),
+        primaryLabel: _t("contact_sheet.check_code"),
         primaryLeading: _verifying ? const _Spinner() : null,
         onPrimary: complete && !_verifying
             ? () => _verify(_codeController.text)
@@ -307,13 +293,18 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ContactIntro(
-            icon: icon,
-            tone: tone,
-            headerKey: _key("enter", "header"),
-            bodyKey: _key("enter", "body"),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              _k("intro"),
+              style: YiviPalette.of(context).body(15).copyWith(height: 22 / 15),
+            ),
           ),
-          ContactFieldLabel(_key("enter", "label")),
+          ContactFieldLabel(
+            _email
+                ? "email_issuance.enter_email.label"
+                : "sms_issuance.enter_phone.label",
+          ),
           if (_email)
             EmailAddressEntry(
               key: _emailKey,
@@ -328,31 +319,197 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
                 if (mounted) setState(() => _valid = valid);
               },
             ),
+          if (errorText != null)
+            KeyedSubtree(
+              key: const Key("contact_sheet_error"),
+              child: FieldError(errorText),
+            ),
         ],
       );
       bar = SheetActionRow(
-        secondaryKey: const Key("contact_sheet_cancel"),
-        secondaryLabel: _t(_key("enter", "back_button")),
-        onSecondary: widget.onCancel,
         primaryKey: const Key("contact_sheet_send"),
-        primaryLabel: _t(_key("enter", "next_button")),
-        onPrimary: _valid ? _submitTarget : null,
+        primaryLabel: _t("contact_sheet.send_code"),
+        primaryLeading: sending ? const _Spinner() : null,
+        onPrimary: _valid && !sending ? _submitTarget : null,
       );
     }
 
     return GlassSheetPage(
-      title: _t(code ? _key("verify", "title") : _key("enter", "title")),
-      onBack: code ? _backToEntering : widget.onBack,
+      title: _t(
+        _email
+            ? "email_issuance.enter_email.title"
+            : "sms_issuance.enter_phone.title",
+      ),
+      onBack: _back,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: bar,
       pinned: IssueSheetProgress(subject: widget.subject, step: 2),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          _focusNode.unfocus();
-          _codeFocus.unfocus();
-        },
-        child: body,
+      child: Padding(padding: const EdgeInsets.only(top: 8), child: body),
+    );
+  }
+}
+
+/// Where the code went, folded into one row, with "Change".
+class _SentTo extends StatelessWidget {
+  final String label;
+  final String target;
+  final bool email;
+  final String changeLabel;
+  final VoidCallback onChange;
+
+  const _SentTo({
+    required this.label,
+    required this.target,
+    required this.email,
+    required this.changeLabel,
+    required this.onChange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final (fill, ink) = ToneDisc.colors(
+      palette,
+      email ? DialogTone.warning : DialogTone.success,
+    );
+    return Container(
+      key: const Key("contact_sheet_sent_to"),
+      padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+        ),
+        shadows: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 6,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        spacing: 12,
+        children: [
+          ExcludeSemantics(
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: ShapeDecoration(
+                color: fill,
+                shape: const RoundedSuperellipseBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+              ),
+              child: Icon(
+                email ? Icons.mail_rounded : Icons.smartphone_rounded,
+                size: 20,
+                color: ink,
+              ),
+            ),
+          ),
+          Expanded(
+            child: MergeSemantics(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: palette
+                        .body(12.5)
+                        .copyWith(color: palette.secondaryText),
+                  ),
+                  Text(
+                    target,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette
+                        .body(15, weight: FontWeight.w600)
+                        .copyWith(color: palette.text),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Semantics(
+            button: true,
+            child: Material(
+              color: palette.tint,
+              shape: const StadiumBorder(),
+              child: InkWell(
+                key: const Key("contact_sheet_change"),
+                customBorder: const StadiumBorder(),
+                onTap: onChange,
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minHeight: 32,
+                    minWidth: 44,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  alignment: Alignment.center,
+                  child: Text(
+                    changeLabel,
+                    style: palette
+                        .body(13, weight: FontWeight.w600)
+                        .copyWith(color: palette.link),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A hint under the code ("Not there? Check your spam.") and "Send again".
+class _ResendRow extends StatelessWidget {
+  final String hint;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ResendRow({
+    required this.hint,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                hint,
+                style: palette
+                    .body(13.5)
+                    .copyWith(color: palette.secondaryText),
+              ),
+            ),
+          ),
+          TextButton(
+            key: const Key("contact_sheet_send_again"),
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+              minimumSize: const Size(48, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              shape: const StadiumBorder(),
+              foregroundColor: palette.link,
+            ),
+            child: Text(
+              label,
+              style: palette
+                  .body(13.5, weight: FontWeight.w700)
+                  .copyWith(color: palette.link),
+            ),
+          ),
+        ],
       ),
     );
   }

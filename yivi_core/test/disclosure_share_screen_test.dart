@@ -1105,15 +1105,17 @@ void main() {
       );
     });
 
-    testWidgets("cancelled on step 3: back on the details, to try again", (
+    testWidgets("back on step 3: on the details again, to try again", (
       tester,
     ) async {
       final (calls, nested) = await openWebsite(tester);
       comeBack(tester);
       nested.add(issuance(SessionStatus.requestPermission));
       await tester.pumpAndSettle();
+      // No Cancel: back (or close) is the way out.
+      expect(find.byKey(const Key("sheet_issue_cancel")), findsNothing);
 
-      await tester.tap(find.byKey(const Key("sheet_issue_cancel")));
+      await tester.tap(find.bySemanticsLabel("Go back").last);
       await tester.pump();
       expect(calls.interactions.last.type, UserInteractionType.dismiss);
       nested.add(issuance(SessionStatus.dismissed));
@@ -1267,10 +1269,15 @@ void main() {
       );
       await tester.pump();
       await tester.tap(find.byKey(const Key("contact_sheet_send")));
-      // The code page's cursor blinks, so it never settles: pump a while.
+      // The code's cursor blinks, so it never settles: pump a while.
       await _pumpFor(tester);
       expect(api.sent, ["sanne@devries.example"]);
-      expect(find.text("We've sent you an email"), findsOneWidget);
+      // The same page: the address folds into "Code sent to", the code
+      // boxes come under it.
+      expect(find.text("Add email address"), findsOneWidget);
+      expect(find.text("Code sent to"), findsOneWidget);
+      expect(find.text("sanne@devries.example"), findsOneWidget);
+      expect(find.byKey(const Key("email_input_field")), findsNothing);
 
       await tester.enterText(
         find.byKey(const Key("email_verification_code_input_field")),
@@ -1301,16 +1308,74 @@ void main() {
       expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
     });
 
-    testWidgets("Cancel on the e-mail step asks first", (tester) async {
+    testWidgets("one button; closing asks first", (tester) async {
       await open(tester);
+      final sheet = find.byKey(const Key("disclosure_choice_sheet"));
+      expect(
+        find.descendant(of: sheet, matching: find.text("Cancel")),
+        findsNothing,
+      );
+      // The field has focus at once: the keyboard is up.
+      expect(tester.testTextInput.isVisible, isTrue);
       // A focused field's cursor blinks, so the pages never settle.
-      await tester.tap(find.byKey(const Key("contact_sheet_cancel")));
+      await tester.tap(find.bySemanticsLabel("Close").last);
       await _pumpFor(tester);
       expect(find.text("Stop adding email address?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await _pumpFor(tester);
-      // Back on the choice, nothing added.
-      expect(find.text("What do you want to share?"), findsOneWidget);
+      // The sheet closes; nothing added.
+      expect(sheet, findsNothing);
+    });
+
+    Future<void> sendCode(WidgetTester tester) async {
+      await tester.enterText(
+        find.byKey(const Key("email_input_field")),
+        "sanne@devries.example",
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const Key("contact_sheet_send")));
+      await _pumpFor(tester);
+    }
+
+    testWidgets("Change: back on the address, filled in", (tester) async {
+      await open(tester);
+      await sendCode(tester);
+      await tester.tap(find.byKey(const Key("contact_sheet_change")));
+      await _pumpFor(tester);
+      expect(find.byKey(const Key("contact_sheet_code")), findsNothing);
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key("email_input_field")))
+            .controller!
+            .text,
+        "sanne@devries.example",
+      );
+    });
+
+    testWidgets("a code that can't be checked: said under the boxes", (
+      tester,
+    ) async {
+      final (_, api, _) = await open(tester);
+      api.failCodes = true;
+      await sendCode(tester);
+      await tester.enterText(
+        find.byKey(const Key("email_verification_code_input_field")),
+        "WRONG1",
+      );
+      await _pumpFor(tester);
+      expect(find.byKey(const Key("contact_sheet_error")), findsOneWidget);
+      expect(
+        find.text("We could not check the code. Try again."),
+        findsOneWidget,
+      );
+      // Typing again clears it.
+      await tester.enterText(
+        find.byKey(const Key("email_verification_code_input_field")),
+        "A",
+      );
+      await _pumpFor(tester);
+      expect(find.byKey(const Key("contact_sheet_error")), findsNothing);
+      expect(find.text("Not there? Check your spam."), findsOneWidget);
     });
 
     testWidgets("back from the e-mail step returns to the details", (
@@ -1445,8 +1510,8 @@ void main() {
       expect(find.text("3 of 3"), findsOneWidget);
       expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
 
-      // Cancelled there: back on the details, the document to be read again.
-      await tester.tap(find.byKey(const Key("sheet_issue_cancel")));
+      // Back there: on the details, the document to be read again.
+      await tester.tap(find.bySemanticsLabel("Go back").last);
       await tester.pump();
       nested.add(
         SessionState(
@@ -1484,6 +1549,9 @@ class _FakeEmailApi implements EmailIssuerApi {
   final sent = <String>[];
   final verified = <String>[];
 
+  /// Every code fails to verify.
+  var failCodes = false;
+
   @override
   Future<void> sendEmail({
     required String emailAddress,
@@ -1496,6 +1564,7 @@ class _FakeEmailApi implements EmailIssuerApi {
     required String verificationCode,
   }) async {
     verified.add(verificationCode);
+    if (failCodes) throw Exception("could not verify");
     return SessionPointer(
       u: "https://irma.example/session/abc",
       irmaqr: "issuing",

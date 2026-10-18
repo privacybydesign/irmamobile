@@ -23,30 +23,23 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets("error during sending email gives try again button", (
-      tester,
-    ) async {
+    testWidgets("an error while sending shows under the field", (tester) async {
       final api = FakeEmailIssuerApi(errorOnSendEmail: "Not working");
       await _goToEnterEmailScreen(tester, irmaBinding, api: api);
       await _enterEmail(tester);
-      await tester.tapAndSettle(find.byKey(const Key("contact_sheet_send")));
-
+      await tester.tap(find.byKey(const Key("contact_sheet_send")));
+      await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_error")));
       expect(api.numEmailsSent, 1);
-
-      await tester.waitFor(
-        find.text("Something went wrong while sending the verification code."),
-      );
-      // Cancel on the left, Try again on the right.
+      // One button, no Cancel: the field stays, filled in.
       expect(
         find.descendant(of: _sheet, matching: find.text("Cancel")),
-        findsOneWidget,
+        findsNothing,
       );
-      await tester.tapAndSettle(find.byKey(const Key("contact_sheet_retry")));
 
-      // Back on the address: this time sending works and we can proceed.
-      await _enterEmail(tester);
+      // Sending again works (only the first send fails); the code comes on
+      // the same page.
       await tester.tap(find.byKey(const Key("contact_sheet_send")));
-      await tester.pumpUntilFound(find.text("Verify email address"));
+      await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_code")));
       expect(api.numEmailsSent, 2);
     });
 
@@ -60,42 +53,31 @@ void main() {
       expect(button.onPressed, isNull);
     });
 
-    testWidgets("can send code again on verify screen", (tester) async {
+    testWidgets("can send the code again", (tester) async {
       final api = FakeEmailIssuerApi();
       await _goToVerifyCodeScreen(tester, irmaBinding, api: api);
 
       expect(api.numEmailsSent, 1);
 
-      final finder = find.text("No email received?");
-      final scrollable = find.ancestor(
-        of: finder,
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
-      await tester.tapAndSettle(finder);
-
-      // expect dialog
-      expect(find.text("Send new code"), findsOneWidget);
-      await tester.tap(find.text("Send email"));
-
-      // expect a new email to be sent
+      // "Send again" next to the hint: no question first.
+      await tester.tap(find.byKey(const Key("contact_sheet_send_again")));
+      await tester.pumpUntilFound(find.text("We sent a new code."));
       expect(api.numEmailsSent, 2);
     });
 
-    testWidgets("cancel during entering email goes back to the list", (
+    testWidgets("closing while entering the email asks, then closes", (
       tester,
     ) async {
       await _goToEnterEmailScreen(tester, irmaBinding);
       await _stop(tester);
     });
 
-    testWidgets(
-      "cancel during entering verification code goes back to the list",
-      (tester) async {
-        await _goToVerifyCodeScreen(tester, irmaBinding);
-        await _stop(tester);
-      },
-    );
+    testWidgets("closing while entering the code asks, then closes", (
+      tester,
+    ) async {
+      await _goToVerifyCodeScreen(tester, irmaBinding);
+      await _stop(tester);
+    });
 
     testWidgets("invalid code, can try again", (tester) async {
       await _goToVerifyCodeScreen(tester, irmaBinding);
@@ -105,17 +87,8 @@ void main() {
         _incorrectPin,
       );
 
-      await tester.waitFor(
-        find.text(
-          "Something went wrong while verifying the verification code.",
-        ),
-      );
-      // The code field takes focus again; its cursor never settles.
-      await tester.tap(find.byKey(const Key("contact_sheet_retry")));
-
-      await tester.pumpUntilFound(
-        find.byKey(const Key("email_verification_code_input_field")),
-      );
+      // The error under the boxes; they are empty for another try.
+      await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_error")));
 
       // Now should be able to enter correct pin
       await tester.enterText(
@@ -156,15 +129,20 @@ Future<void> _enterEmail(
   String email = "test@example.com",
 ]) async {
   await tester.enterText(find.byKey(const Key("email_input_field")), email);
-  // tap somewhere else to remove focus from input field
-  await tester.tapAndSettle(find.text("Add email address"));
+  // The field has focus from the start (the keyboard is up), so the page
+  // never settles: pump a while for the button to follow.
+  await _pumpFor(tester);
 }
 
-/// Cancel on the step asks "Stop adding …?"; stopping goes back to the list.
+/// Closing the sheet on the step asks "Stop adding …?"; stopping closes it.
 Future<void> _stop(WidgetTester tester) async {
-  await tester.tapAndSettle(find.byKey(const Key("contact_sheet_cancel")));
-  await tester.tapAndSettle(find.byKey(const Key("sheet_stop_confirm")));
-  await tester.waitFor(find.byKey(const Key("add_data_search")));
+  await tester.tap(
+    find.descendant(of: _sheet, matching: find.bySemanticsLabel("Close")).last,
+  );
+  // The field keeps its blinking cursor under the question: no settling.
+  await tester.pumpUntilFound(find.byKey(const Key("sheet_stop_confirm")));
+  await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+  await tester.waitUntilDisappeared(_sheet);
 }
 
 Future<void> _goToEnterEmailScreen(
@@ -182,7 +160,7 @@ Future<void> _goToEnterEmailScreen(
   );
 
   await tapAddOnSheetDetails(tester);
-  await tester.waitFor(find.byKey(const Key("email_input_field")));
+  await tester.pumpUntilFound(find.byKey(const Key("email_input_field")));
 }
 
 Future<void> _goToVerifyCodeScreen(
@@ -193,7 +171,7 @@ Future<void> _goToVerifyCodeScreen(
   await _goToEnterEmailScreen(tester, binding, api: api);
   await _enterEmail(tester);
   await tester.tap(find.byKey(const Key("contact_sheet_send")));
-  await tester.pumpUntilFound(find.text("Verify email address"));
+  await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_code")));
 }
 
 // ===========================================================================
@@ -238,5 +216,17 @@ class FakeEmailIssuerApi implements EmailIssuerApi {
       );
     }
     throw Exception("Wrong code");
+  }
+}
+
+/// Pumps frames for [duration]: a page with a focused field never settles
+/// (its cursor blinks).
+Future<void> _pumpFor(
+  WidgetTester tester, [
+  Duration duration = const Duration(seconds: 1),
+]) async {
+  final end = DateTime.now().add(duration);
+  while (DateTime.now().isBefore(end)) {
+    await tester.pump(const Duration(milliseconds: 50));
   }
 }

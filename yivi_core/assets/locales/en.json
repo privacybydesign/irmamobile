@@ -1400,5 +1400,24 @@
       "cant_unknown": "Can't be added in Yivi.",
       "must_be": "{field} must be {value}"
     }
+  },
+  "contact_sheet": {
+    "intro_email": "We email you a code to check that this address is yours.",
+    "intro_phone": "We text you a code to check that this number is yours.",
+    "send_code": "Send code",
+    "sent_to_email": "Code sent to",
+    "sent_to_phone": "Code texted to",
+    "change": "Change",
+    "code_label_email": "Code from the email",
+    "code_label_phone": "Code from the text message",
+    "hint_email": "Not there? Check your spam.",
+    "hint_phone": "It can take a minute.",
+    "send_again": "Send again",
+    "sent_again": "We sent a new code.",
+    "check_code": "Check code",
+    "wrong_code": "That code is not right. Check it, or send a new one.",
+    "not_checked": "We could not check the code. Try again.",
+    "not_sent_email": "We could not send the email. Check the address and try again.",
+    "not_sent_phone": "We could not send a text to this number. Check it and try again."
   }
 }

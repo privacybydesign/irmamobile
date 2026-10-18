@@ -91,7 +91,7 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
     "0612345678",
     "0687654321",
   ]) {
-    expect(sheetOwnedRowsWith("$value"), findsOneWidget);
+    expect(sheetOwnedRowsWith(value), findsOneWidget);
   }
 
   // One tap picks the last phone and closes the sheet.

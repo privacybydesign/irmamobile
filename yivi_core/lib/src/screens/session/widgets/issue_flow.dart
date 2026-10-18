@@ -423,7 +423,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           child: ContactSheetStep(
             kind: _contact!,
             subject: subject,
-            onCancel: _cancel,
             onBack: () => setState(() => _contact = null),
           ),
         ),
@@ -479,10 +478,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         if (!_opened || await issueConfirmStop()) issueLeave();
       },
       padding: const EdgeInsets.symmetric(horizontal: 16),
+      // One button: the close button and back are the way out.
       bottom: SheetActionRow(
-        secondaryKey: const Key("sheet_cancel_button"),
-        secondaryLabel: _t("data.add.details.back_button"),
-        onSecondary: _cancel,
         primaryKey: const Key("sheet_go_button"),
         // The note above says which website.
         primaryLabel: _opened
@@ -543,13 +540,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
     return GlassSheetPage(
       title: _t("issuance.title"),
+      // Back declines this issuance: on the details again, to try again.
+      onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: SheetActionRow(
-        secondaryKey: const Key("sheet_issue_cancel"),
-        secondaryLabel: _t("issuance.cancel"),
-        onSecondary: () {
-          if (nestedId != null) _dismissNested(nestedId);
-        },
         primaryKey: const Key("sheet_issue_add"),
         primaryLabel: cards.length > 1
             ? _t("issuance.add_many", {"count": "${cards.length}"})

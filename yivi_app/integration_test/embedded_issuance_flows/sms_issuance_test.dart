@@ -23,30 +23,23 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets("error during sending sms gives try again button", (
-      tester,
-    ) async {
+    testWidgets("an error while sending shows under the field", (tester) async {
       final api = FakeSmsIssuerApi(errorOnSendSms: "Not working");
       await _goToEnterPhoneScreen(tester, irmaBinding, api: api);
       await _enterPhone(tester);
-      await tester.tapAndSettle(find.byKey(const Key("contact_sheet_send")));
-
+      await tester.tap(find.byKey(const Key("contact_sheet_send")));
+      await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_error")));
       expect(api.numSmsSent, 1);
-
-      await tester.waitFor(
-        find.text("Something went wrong while sending the verification code."),
-      );
-      // Cancel on the left, Try again on the right.
+      // One button, no Cancel: the field stays, filled in.
       expect(
         find.descendant(of: _sheet, matching: find.text("Cancel")),
-        findsOneWidget,
+        findsNothing,
       );
-      await tester.tapAndSettle(find.byKey(const Key("contact_sheet_retry")));
 
-      // Back on the number: this time sending works and we can proceed.
-      await _enterPhone(tester);
+      // Sending again works (only the first send fails); the code comes on
+      // the same page.
       await tester.tap(find.byKey(const Key("contact_sheet_send")));
-      await tester.pumpUntilFound(find.text("Verify phone number"));
+      await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_code")));
       expect(api.numSmsSent, 2);
     });
 
@@ -60,25 +53,15 @@ void main() {
       expect(button.onPressed, isNull);
     });
 
-    testWidgets("can send code again on verify screen", (tester) async {
+    testWidgets("can send the code again", (tester) async {
       final api = FakeSmsIssuerApi();
       await _goToVerifyCodeScreen(tester, irmaBinding, api: api);
 
       expect(api.numSmsSent, 1);
 
-      final finder = find.text("No sms received?");
-      final scrollable = find.ancestor(
-        of: finder,
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
-      await tester.tapAndSettle(finder);
-
-      // expect dialog
-      expect(find.text("Send new code"), findsOneWidget);
-      await tester.tap(find.text("Send sms"));
-
-      // expect a new sms to be sent
+      // "Send again" next to the hint: no question first.
+      await tester.tap(find.byKey(const Key("contact_sheet_send_again")));
+      await tester.pumpUntilFound(find.text("We sent a new code."));
       expect(api.numSmsSent, 2);
     });
 
@@ -106,15 +89,17 @@ void main() {
       addTearDown(() => FlutterError.onError = previousOnError);
 
       // Press the country selector button
-      await tester.tapAndSettle(find.byKey(const Key("intl_dropdown_key")));
+      await tester.tap(find.byKey(const Key("intl_dropdown_key")));
+      await _pumpFor(tester);
 
       // Search for Germany
       final searchField = find.byKey(const Key("intl_search_input_key"));
       await tester.ensureVisible(searchField);
-      await tester.pumpAndSettle();
-      await tester.tapAndSettle(searchField);
+      await _pumpFor(tester);
+      await tester.tap(searchField);
+      await _pumpFor(tester);
       await tester.enterText(searchField, "Germany");
-      await tester.pumpAndSettle();
+      await _pumpFor(tester);
 
       // Select the German code
       final finder = find.text("+49");
@@ -123,7 +108,8 @@ void main() {
         matching: find.byType(Scrollable),
       );
       await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
-      await tester.tapAndSettle(finder);
+      await tester.tap(finder);
+      await _pumpFor(tester);
 
       // Enter rest of phone number
       await tester.enterText(
@@ -131,8 +117,7 @@ void main() {
         "0612345678",
       );
 
-      // tap somewhere else to remove focus from input field
-      await tester.tapAndSettle(find.text("Add phone number"));
+      await _pumpFor(tester);
 
       // send sms
       await tester.tap(find.byKey(const Key("contact_sheet_send")));
@@ -142,20 +127,19 @@ void main() {
       expect(api.enteredPhone, "+49612345678");
     });
 
-    testWidgets("cancel during entering phone goes back to the list", (
+    testWidgets("closing while entering the phone asks, then closes", (
       tester,
     ) async {
       await _goToEnterPhoneScreen(tester, irmaBinding);
       await _stop(tester);
     });
 
-    testWidgets(
-      "cancel during entering verification code goes back to the list",
-      (tester) async {
-        await _goToVerifyCodeScreen(tester, irmaBinding);
-        await _stop(tester);
-      },
-    );
+    testWidgets("closing while entering the code asks, then closes", (
+      tester,
+    ) async {
+      await _goToVerifyCodeScreen(tester, irmaBinding);
+      await _stop(tester);
+    });
 
     testWidgets("invalid code, can try again", (tester) async {
       await _goToVerifyCodeScreen(tester, irmaBinding);
@@ -165,17 +149,8 @@ void main() {
         _incorrectPin,
       );
 
-      await tester.waitFor(
-        find.text(
-          "Something went wrong while verifying the verification code.",
-        ),
-      );
-      // The code field takes focus again; its cursor never settles.
-      await tester.tap(find.byKey(const Key("contact_sheet_retry")));
-
-      await tester.pumpUntilFound(
-        find.byKey(const Key("sms_verification_code_input_field")),
-      );
+      // The error under the boxes; they are empty for another try.
+      await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_error")));
 
       // Now should be able to enter correct pin
       await tester.enterText(
@@ -219,15 +194,20 @@ Future<void> _enterPhone(
     find.byKey(const Key("phone_number_input_field")),
     phone,
   );
-  // tap somewhere else to remove focus from input field
-  await tester.tapAndSettle(find.text("Add phone number"));
+  // The field has focus from the start (the keyboard is up), so the page
+  // never settles: pump a while for the button to follow.
+  await _pumpFor(tester);
 }
 
-/// Cancel on the step asks "Stop adding …?"; stopping goes back to the list.
+/// Closing the sheet on the step asks "Stop adding …?"; stopping closes it.
 Future<void> _stop(WidgetTester tester) async {
-  await tester.tapAndSettle(find.byKey(const Key("contact_sheet_cancel")));
-  await tester.tapAndSettle(find.byKey(const Key("sheet_stop_confirm")));
-  await tester.waitFor(find.byKey(const Key("add_data_search")));
+  await tester.tap(
+    find.descendant(of: _sheet, matching: find.bySemanticsLabel("Close")).last,
+  );
+  // The field keeps its blinking cursor under the question: no settling.
+  await tester.pumpUntilFound(find.byKey(const Key("sheet_stop_confirm")));
+  await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+  await tester.waitUntilDisappeared(_sheet);
 }
 
 Future<void> _goToEnterPhoneScreen(
@@ -245,7 +225,9 @@ Future<void> _goToEnterPhoneScreen(
   );
 
   await tapAddOnSheetDetails(tester);
-  await tester.waitFor(find.byKey(const Key("phone_number_input_field")));
+  await tester.pumpUntilFound(
+    find.byKey(const Key("phone_number_input_field")),
+  );
 }
 
 Future<void> _goToVerifyCodeScreen(
@@ -256,7 +238,7 @@ Future<void> _goToVerifyCodeScreen(
   await _goToEnterPhoneScreen(tester, binding, api: api);
   await _enterPhone(tester);
   await tester.tap(find.byKey(const Key("contact_sheet_send")));
-  await tester.pumpUntilFound(find.text("Verify phone number"));
+  await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_code")));
 }
 
 // ===========================================================================
@@ -300,5 +282,17 @@ class FakeSmsIssuerApi implements SmsIssuerApi {
       );
     }
     throw Exception("Wrong code");
+  }
+}
+
+/// Pumps frames for [duration]: a page with a focused field never settles
+/// (its cursor blinks).
+Future<void> _pumpFor(
+  WidgetTester tester, [
+  Duration duration = const Duration(seconds: 1),
+]) async {
+  final end = DateTime.now().add(duration);
+  while (DateTime.now().isBefore(end)) {
+    await tester.pump(const Duration(milliseconds: 50));
   }
 }

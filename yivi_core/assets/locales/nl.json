@@ -1400,5 +1400,24 @@
       "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
       "must_be": "{field} moet {value} zijn"
     }
+  },
+  "contact_sheet": {
+    "intro_email": "We mailen je een code om te controleren dat dit adres van jou is.",
+    "intro_phone": "We sms'en je een code om te controleren dat dit nummer van jou is.",
+    "send_code": "Code versturen",
+    "sent_to_email": "Code gestuurd naar",
+    "sent_to_phone": "Code ge-sms't naar",
+    "change": "Wijzigen",
+    "code_label_email": "Code uit de e-mail",
+    "code_label_phone": "Code uit de sms",
+    "hint_email": "Niet ontvangen? Kijk ook in je spam.",
+    "hint_phone": "Het kan een minuutje duren.",
+    "send_again": "Opnieuw sturen",
+    "sent_again": "We hebben een nieuwe code gestuurd.",
+    "check_code": "Code controleren",
+    "wrong_code": "Die code klopt niet. Controleer hem, of vraag een nieuwe aan.",
+    "not_checked": "We konden de code niet controleren. Probeer het opnieuw.",
+    "not_sent_email": "We konden de e-mail niet versturen. Controleer het adres en probeer het opnieuw.",
+    "not_sent_phone": "We konden geen sms naar dit nummer sturen. Controleer het en probeer het opnieuw."
   }
 }
