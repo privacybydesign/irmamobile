@@ -36,6 +36,9 @@ class ContactSheetStep extends ConsumerStatefulWidget {
   /// What the progress tag names: the request, or the card being added.
   final IssueSheetSubject subject;
 
+  /// The flow's number of steps; the address is step 2, the code step 3.
+  final int total;
+
   /// Back: to the details.
   final VoidCallback onBack;
 
@@ -43,6 +46,7 @@ class ContactSheetStep extends ConsumerStatefulWidget {
     super.key,
     required this.kind,
     required this.subject,
+    this.total = 4,
     required this.onBack,
   });
 
@@ -343,7 +347,12 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       onBack: _back,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: bar,
-      pinned: IssueSheetProgress(subject: widget.subject, step: 2),
+      // Two steps of their own: the address, then the code.
+      pinned: IssueSheetProgress(
+        subject: widget.subject,
+        step: code ? 3 : 2,
+        total: widget.total,
+      ),
       child: Padding(padding: const EdgeInsets.only(top: 8), child: body),
     );
   }

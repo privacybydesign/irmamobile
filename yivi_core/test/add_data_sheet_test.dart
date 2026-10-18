@@ -628,7 +628,7 @@ void main() {
     await tester.tap(find.byKey(const Key("sheet_go_button")));
     await _pumpFor(tester);
     expect(find.text("Add email address"), findsOneWidget);
-    expect(find.text("2 of 3"), findsOneWidget);
+    expect(find.text("2 of 4"), findsOneWidget);
     expect(
       find.descendant(
         of: find.byKey(const Key("issue_sheet_progress_tag")),
@@ -663,7 +663,7 @@ void main() {
       );
       await tester.tap(find.byKey(Key("${credentialId}_tile")));
       await tester.pumpAndSettle();
-      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.text("1 of 5"), findsOneWidget);
       expect(find.byType(DocumentInstructionScreen), findsNothing);
 
       await tester.tap(find.byKey(const Key("sheet_go_button")));

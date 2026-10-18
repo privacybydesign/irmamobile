@@ -211,6 +211,18 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     SessionUserInteractionEvent.dismiss(sessionId: sessionId),
   );
 
+  /// How many steps adding [d] takes, for the progress: the details, the
+  /// steps that prove it, and adding it. A website is one step (3 in all);
+  /// an e-mail address or phone number two, the address and the code (4); a
+  /// document three, how to hold it, scanning or typing it in, and the chip
+  /// (5).
+  int _stepsOf(CredentialDescriptor d) =>
+      switch (_repo.embeddedFlowOf(d.credentialId)) {
+        EmbeddedFlow.email || EmbeddedFlow.phone => 4,
+        EmbeddedFlow.document when documentTypeOf(d.credentialId) != null => 5,
+        _ => 3,
+      };
+
   /// "Add" on the details: Yivi's own e-mail, phone or document steps in the
   /// sheet, or the issuer's website with the sheet waiting for what comes
   /// back. Either way the issuance then shows in the sheet.
@@ -412,10 +424,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (adding == null) return const [];
     final nested = _nestedId;
     final subject = issueSubject(adding);
+    final total = _stepsOf(adding);
     return [
       KeyedSubtree(
         key: ValueKey(("add", adding.credentialId)),
-        child: _buildDetails(adding, subject),
+        child: _buildDetails(adding, subject, total),
       ),
       if (_contact != null)
         KeyedSubtree(
@@ -423,6 +436,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           child: ContactSheetStep(
             kind: _contact!,
             subject: subject,
+            total: total,
             onBack: () => setState(() => _contact = null),
           ),
         ),
@@ -433,6 +447,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           child: GlassSheetPageMotion(
             child: DocumentSheetStep(
               type: _document!,
+              subject: subject,
+              total: total,
               onBack: () => setState(() => _document = null),
               onCancel: _cancel,
               onStopped: () {
@@ -445,7 +461,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       if (nested != null || issueAdded != null)
         KeyedSubtree(
           key: ValueKey(("issue", nested)),
-          child: _buildIssuance(nested, subject),
+          child: _buildIssuance(nested, subject, total),
         ),
       if (nested != null && _pin)
         KeyedSubtree(
@@ -453,6 +469,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           child: _NestedPin(
             sessionId: nested,
             subject: subject,
+            total: total,
             onCancel: () => _dismissNested(nested),
           ),
         ),
@@ -461,7 +478,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// Step 1 (and 2, while the website is open): what the card is, as on
   /// the add-data page.
-  Widget _buildDetails(CredentialDescriptor d, IssueSheetSubject subject) {
+  Widget _buildDetails(
+    CredentialDescriptor d,
+    IssueSheetSubject subject,
+    int total,
+  ) {
     final host = hostOf(d.issueURL) ?? "";
     final faq = _faqFor(d.credentialId);
     // A card from an issuer's website: say up front that "Add" leaves Yivi
@@ -490,7 +511,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             : _t("data.add.details.get_button"),
         onPrimary: () => _add(d),
       ),
-      pinned: IssueSheetProgress(subject: subject, step: _opened ? 2 : 1),
+      pinned: IssueSheetProgress(
+        subject: subject,
+        step: _opened ? 2 : 1,
+        total: total,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -526,9 +551,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   /// Step 3: the issuance that came back, then "Success".
-  Widget _buildIssuance(int? nestedId, IssueSheetSubject subject) {
+  Widget _buildIssuance(int? nestedId, IssueSheetSubject subject, int total) {
     final added = issueAdded;
-    if (added != null) return _buildSuccess(added, subject);
+    if (added != null) return _buildSuccess(added, subject, total);
 
     final state = nestedId == null
         ? null
@@ -555,7 +580,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             ? null
             : () => _grant(nestedId),
       ),
-      pinned: IssueSheetProgress(subject: subject, step: 3),
+      pinned: IssueSheetProgress(subject: subject, step: total, total: total),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -624,6 +649,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   Widget _buildSuccess(
     List<schemaless.Credential> cards,
     IssueSheetSubject subject,
+    int total,
   ) {
     final palette = YiviPalette.of(context);
     // The bar keeps the step's title; "Success" is the heading below.
@@ -631,7 +657,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       title: _t("issuance.title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: issueSuccessBar(cards),
-      pinned: IssueSheetProgress(subject: subject, step: 3, done: true),
+      pinned: IssueSheetProgress(
+        subject: subject,
+        step: total,
+        total: total,
+        done: true,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -692,11 +723,15 @@ class _Note extends StatelessWidget {
 class _NestedPin extends ConsumerStatefulWidget {
   final int sessionId;
   final IssueSheetSubject subject;
+
+  /// The flow's number of steps; the PIN is part of the last (adding it).
+  final int total;
   final VoidCallback onCancel;
 
   const _NestedPin({
     required this.sessionId,
     required this.subject,
+    required this.total,
     required this.onCancel,
   });
 
@@ -725,7 +760,11 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
     return GlassSheetPage(
       title: FlutterI18n.translate(context, "issuance.title"),
       onBack: widget.onCancel,
-      pinned: IssueSheetProgress(subject: widget.subject, step: 3),
+      pinned: IssueSheetProgress(
+        subject: widget.subject,
+        step: widget.total,
+        total: widget.total,
+      ),
       // The pad fills the page and scales itself to it; it does not scroll.
       scrolls: false,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

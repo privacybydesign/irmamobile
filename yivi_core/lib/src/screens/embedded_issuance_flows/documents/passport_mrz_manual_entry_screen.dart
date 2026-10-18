@@ -63,10 +63,14 @@ class PassportMrzManualEntryScreen extends StatefulWidget {
   final VoidCallback onCancel;
   final PassportMrzManualEntryTranslationKeys translationKeys;
 
+  /// The progress under the bar, when the screen is a step in a sheet.
+  final PreferredSizeWidget? band;
+
   const PassportMrzManualEntryScreen({
     required this.onContinue,
     required this.onCancel,
     required this.translationKeys,
+    this.band,
     super.key,
   });
 
@@ -133,6 +137,7 @@ class _PassportMrzManualEntryScreenState
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
           titleTranslationKey: widget.translationKeys.appBarTitle,
+          bottom: widget.band,
         ),
         body: SizedBox(
           height: .infinity,

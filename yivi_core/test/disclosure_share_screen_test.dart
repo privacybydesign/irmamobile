@@ -1260,7 +1260,7 @@ void main() {
       final (calls, api, nested) = await open(tester);
       // Step 2: the address, in the sheet (no e-mail screen is pushed).
       expect(find.text("Add email address"), findsOneWidget);
-      expect(find.text("2 of 3"), findsOneWidget);
+      expect(find.text("2 of 4"), findsOneWidget);
       expect(calls.obtained, isEmpty);
 
       await tester.enterText(
@@ -1276,6 +1276,8 @@ void main() {
       // boxes come under it.
       expect(find.text("Add email address"), findsOneWidget);
       expect(find.text("Code sent to"), findsOneWidget);
+      // The code is a step of its own.
+      expect(find.text("3 of 4"), findsOneWidget);
       expect(find.text("sanne@devries.example"), findsOneWidget);
       expect(find.byKey(const Key("email_input_field")), findsNothing);
 
@@ -1304,7 +1306,7 @@ void main() {
         ),
       );
       await _pumpFor(tester);
-      expect(find.text("3 of 3"), findsOneWidget);
+      expect(find.text("4 of 4"), findsOneWidget);
       expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
     });
 
@@ -1385,7 +1387,7 @@ void main() {
       await tester.tap(find.bySemanticsLabel("Go back").last);
       await _pumpFor(tester);
       expect(find.text("Adding data"), findsOneWidget);
-      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.text("1 of 4"), findsOneWidget);
     });
   });
 
@@ -1443,6 +1445,8 @@ void main() {
         findsOneWidget,
       );
       expect(calls.obtained, isEmpty);
+      // A document takes five steps; how to hold it is the second.
+      expect(inSheet(find.text("2 of 5")), findsOneWidget);
       // The sheet waits for the issuance the chip read starts.
       expect(
         ProviderScope.containerOf(
@@ -1458,6 +1462,7 @@ void main() {
         inSheet(find.byType(PassportMrzManualEntryScreen)),
         findsOneWidget,
       );
+      expect(inSheet(find.text("3 of 5")), findsOneWidget);
 
       // Back steps back in the flow, then to the details.
       await tester.tap(find.bySemanticsLabel("Go back").last);
@@ -1468,7 +1473,7 @@ void main() {
       );
       await tester.tap(find.bySemanticsLabel("Go back").last);
       await _pumpFor(tester);
-      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.text("1 of 5"), findsOneWidget);
       expect(find.byType(DocumentInstructionScreen), findsNothing);
     });
 
@@ -1482,50 +1487,51 @@ void main() {
       expect(find.text("What do you want to share?"), findsOneWidget);
     });
 
-    testWidgets("the chip read's issuance is step 3; cancelled, the details", (
-      tester,
-    ) async {
-      final (_, nested) = await open(tester);
-      // What the chip screen's handlePointer does once the issuer is called.
-      ProviderScope.containerOf(
-        tester.element(find.byType(ChangeChoiceSheet)),
-      ).read(nestedIssuanceHostProvider)!.attach(nestedId);
-      nested.add(
-        SessionState(
-          id: nestedId,
-          protocol: "irma",
-          type: SessionType.issuance,
-          status: SessionStatus.requestPermission,
-          requestor: _party("Yivi"),
-          offeredCredentials: [
-            testCredential(
-              type: "pbdf.pbdf.passport",
-              hash: "new-passport",
-              name: "Passport",
-            ),
-          ],
-        ),
-      );
-      await _pumpFor(tester);
-      expect(find.text("3 of 3"), findsOneWidget);
-      expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
+    testWidgets(
+      "the chip read's issuance is the last step; back, the details",
+      (tester) async {
+        final (_, nested) = await open(tester);
+        // What the chip screen's handlePointer does once the issuer is called.
+        ProviderScope.containerOf(
+          tester.element(find.byType(ChangeChoiceSheet)),
+        ).read(nestedIssuanceHostProvider)!.attach(nestedId);
+        nested.add(
+          SessionState(
+            id: nestedId,
+            protocol: "irma",
+            type: SessionType.issuance,
+            status: SessionStatus.requestPermission,
+            requestor: _party("Yivi"),
+            offeredCredentials: [
+              testCredential(
+                type: "pbdf.pbdf.passport",
+                hash: "new-passport",
+                name: "Passport",
+              ),
+            ],
+          ),
+        );
+        await _pumpFor(tester);
+        expect(find.text("5 of 5"), findsOneWidget);
+        expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
 
-      // Back there: on the details, the document to be read again.
-      await tester.tap(find.bySemanticsLabel("Go back").last);
-      await tester.pump();
-      nested.add(
-        SessionState(
-          id: nestedId,
-          protocol: "irma",
-          type: SessionType.issuance,
-          status: SessionStatus.dismissed,
-          requestor: _party("Yivi"),
-        ),
-      );
-      await _pumpFor(tester);
-      expect(find.text("1 of 3"), findsOneWidget);
-      expect(find.byType(DocumentInstructionScreen), findsNothing);
-    });
+        // Back there: on the details, the document to be read again.
+        await tester.tap(find.bySemanticsLabel("Go back").last);
+        await tester.pump();
+        nested.add(
+          SessionState(
+            id: nestedId,
+            protocol: "irma",
+            type: SessionType.issuance,
+            status: SessionStatus.dismissed,
+            requestor: _party("Yivi"),
+          ),
+        );
+        await _pumpFor(tester);
+        expect(find.text("1 of 5"), findsOneWidget);
+        expect(find.byType(DocumentInstructionScreen), findsNothing);
+      },
+    );
   });
 }
 

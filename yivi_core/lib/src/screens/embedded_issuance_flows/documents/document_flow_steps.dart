@@ -11,7 +11,8 @@ import "passport_mrz_manual_entry_screen.dart";
 
 /// The steps of adding a document (passport, ID card, driving licence), each
 /// with its callbacks: the full-screen routes and the Change sheet show the
-/// same screens and only differ in where the next step goes.
+/// same screens and only differ in where the next step goes, and in the
+/// sheet each screen shows the progress ([band]) under its bar.
 abstract final class DocumentFlowSteps {
   static String _segment(DocumentType type) => switch (type) {
     .passport => "passport",
@@ -25,10 +26,12 @@ abstract final class DocumentFlowSteps {
     DocumentType type, {
     required VoidCallback onStart,
     required VoidCallback onCancel,
+    PreferredSizeWidget? band,
   }) => DocumentInstructionScreen(
     documentType: type,
     onStart: onStart,
     onCancel: onCancel,
+    band: band,
   );
 
   /// The camera reading the MRZ; [onRead] gets what it read.
@@ -37,6 +40,7 @@ abstract final class DocumentFlowSteps {
     required ValueChanged<ScannedMrz> onRead,
     required VoidCallback onManual,
     required VoidCallback onCancel,
+    PreferredSizeWidget? band,
   }) {
     final s = _segment(type);
     final keys = MrzReaderTranslationKeys(
@@ -54,6 +58,7 @@ abstract final class DocumentFlowSteps {
         ),
         onManualAdd: onManual,
         onCancel: onCancel,
+        band: band,
         mrzParser: DrivingLicenceMrzParser(),
       ),
       .passport => MrzReaderScreen(
@@ -62,6 +67,7 @@ abstract final class DocumentFlowSteps {
             onRead(ScannedPassportMrz.fromMRZResult(r as PassportMrzResult)),
         onManualAdd: onManual,
         onCancel: onCancel,
+        band: band,
         mrzParser: PassportMrzParser(),
       ),
       .identityCard => MrzReaderScreen(
@@ -70,6 +76,7 @@ abstract final class DocumentFlowSteps {
             onRead(ScannedIdCardMrz.fromMRZResult(r as PassportMrzResult)),
         onManualAdd: onManual,
         onCancel: onCancel,
+        band: band,
         mrzParser: IdCardMrzParser(),
       ),
     };
@@ -80,10 +87,12 @@ abstract final class DocumentFlowSteps {
     DocumentType type, {
     required ValueChanged<ScannedMrz> onRead,
     required VoidCallback onCancel,
+    PreferredSizeWidget? band,
   }) {
     if (type == .drivingLicence) {
       return DrivingLicenceMrzManualEntryScreen(
         onCancel: onCancel,
+        band: band,
         onContinue: (data) => onRead(
           ScannedDrivingLicenceMrz(
             documentNumber: data.documentNumber,
@@ -110,6 +119,7 @@ abstract final class DocumentFlowSteps {
         dateInvalid: "$s.manual.fields.date_invalid",
       ),
       onCancel: onCancel,
+      band: band,
       onContinue: (data) => onRead(
         type == .passport
             ? ScannedPassportMrz.fromManualEntry(
@@ -127,7 +137,11 @@ abstract final class DocumentFlowSteps {
   }
 
   /// Reading the chip, then starting the issuance (`handlePointer`).
-  static Widget nfc(ScannedMrz mrz, {required VoidCallback onCancel}) {
+  static Widget nfc(
+    ScannedMrz mrz, {
+    required VoidCallback onCancel,
+    PreferredSizeWidget? band,
+  }) {
     final s = _segment(mrz.documentType);
     return NfcReadingScreen(
       translationKeys: NfcReadingTranslationKeys(
@@ -159,6 +173,7 @@ abstract final class DocumentFlowSteps {
       ),
       mrz: mrz,
       onCancel: onCancel,
+      band: band,
     );
   }
 }

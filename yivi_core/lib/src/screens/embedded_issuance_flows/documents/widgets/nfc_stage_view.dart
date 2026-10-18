@@ -40,8 +40,12 @@ class NfcStageScaffold extends StatelessWidget {
     required this.textParams,
     required this.actions,
     this.leading = const YiviBackButton(),
+    this.band,
     super.key,
   });
+
+  /// The progress under the bar, when the screen is a step in a sheet.
+  final PreferredSizeWidget? band;
 
   /// As on the canvas: the picture area starts 16 below the app bar and is
   /// 360 high; the title starts 24 under it.
@@ -107,6 +111,7 @@ class NfcStageScaffold extends StatelessWidget {
         titleTranslationKey: appBarTitleKey,
         leading: leading,
         hasBorder: false,
+        bottom: band,
       ),
       body: SafeArea(
         child: isLandscape

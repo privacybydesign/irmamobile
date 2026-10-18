@@ -16,6 +16,7 @@ class DocumentInstructionScreen extends StatelessWidget {
     required this.documentType,
     required this.onStart,
     required this.onCancel,
+    this.band,
     super.key,
   });
 
@@ -25,6 +26,9 @@ class DocumentInstructionScreen extends StatelessWidget {
   final DocumentType documentType;
   final VoidCallback onStart;
   final VoidCallback onCancel;
+
+  /// The progress under the bar, when the screen is a step in a sheet.
+  final PreferredSizeWidget? band;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +42,7 @@ class DocumentInstructionScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: documentType.scanTitleKey,
         hasBorder: false,
+        bottom: band,
       ),
       body: SingleChildScrollView(
         // 24 below the floating app bar and from the sides, as on the board.

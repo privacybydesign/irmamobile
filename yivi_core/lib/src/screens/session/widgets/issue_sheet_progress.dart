@@ -32,9 +32,9 @@ class _ForCard extends IssueSheetSubject {
 /// Where adding a card stands, under the bar of the sheet it is added in:
 /// a tag ([subject]): "For {requestor}", so it is clear the card is for the
 /// request behind the sheet, or the card itself when there is no request;
-/// then three segments (1 the card's details, 2 proving it, 3 adding it)
-/// and "1 of 3". The segments fill blue up to the step; once the card is
-/// added ([done]) all three are green and it says "Done".
+/// then a segment per step of the flow ([total]: the details, the steps that
+/// prove it, adding it) and "1 of 4". The segments fill blue up to the step;
+/// once the card is added ([done]) all are green and it says "Done".
 ///
 /// Each step of the sheet has a progress of its own, so the bar remembers
 /// where it stood ([GlassSheetPages.memoryOf]) and fills (or empties) on from
@@ -42,25 +42,47 @@ class _ForCard extends IssueSheetSubject {
 class IssueSheetProgress extends StatefulWidget {
   final IssueSheetSubject subject;
 
-  /// 1, 2 or 3: the step on screen. The ones up to it are filled.
+  /// The step on screen, from 1 to [total]. The ones up to it are filled.
   final int step;
-  final bool done;
 
-  static const int total = 3;
+  /// How many steps the flow has: 3 for a website, 4 for an e-mail address
+  /// or phone number (the address and the code), 5 for a document.
+  final int total;
+  final bool done;
 
   const IssueSheetProgress({
     super.key,
     required this.subject,
     required this.step,
+    this.total = 3,
     this.done = false,
   }) : assert(step >= 1 && step <= total);
+
+  /// The progress as a band under a screen's own app bar (the document
+  /// screens inside a sheet).
+  static PreferredSizeWidget band({
+    required IssueSheetSubject subject,
+    required int step,
+    required int total,
+  }) => PreferredSize(
+    preferredSize: const Size.fromHeight(36),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: IssueSheetProgress(subject: subject, step: step, total: total),
+    ),
+  );
 
   @override
   State<IssueSheetProgress> createState() => _IssueSheetProgressState();
 }
 
-/// Where a bar stood: how far it was filled, and whether it was green.
+/// Where a bar stood: how far it was filled (in steps), and whether it was
+/// green.
 typedef _Shown = ({double fill, bool done});
+
+/// What a bar leaves for the next one: the part filled, so a flow with
+/// another number of steps carries on from the same point.
+typedef _Left = ({double part, bool done});
 
 class _IssueSheetProgressState extends State<IssueSheetProgress>
     with SingleTickerProviderStateMixin {
@@ -80,7 +102,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   bool _started = false;
 
   _Shown get _to => (
-    fill: (widget.done ? IssueSheetProgress.total : widget.step).toDouble(),
+    fill: (widget.done ? widget.total : widget.step).toDouble(),
     done: widget.done,
   );
 
@@ -91,13 +113,19 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     _started = true;
     // From where the previous step's bar stood; a first bar fills from empty.
     final last = GlassSheetPages.memoryOf(context)?[_memoryKey];
-    _go(from: last is _Shown ? last : (fill: 0, done: false));
+    _go(
+      from: last is _Left
+          ? (fill: last.part * widget.total, done: last.done)
+          : (fill: 0, done: false),
+    );
   }
 
   @override
   void didUpdateWidget(IssueSheetProgress old) {
     super.didUpdateWidget(old);
-    if (old.step != widget.step || old.done != widget.done) {
+    if (old.step != widget.step ||
+        old.done != widget.done ||
+        old.total != widget.total) {
       _go(from: _now);
     }
   }
@@ -124,7 +152,11 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     // The page on top tells the next one where it ends up; the one under it
     // (shown only while pages change) does not.
     if (GlassSheetPages.isTopPage(context)) {
-      GlassSheetPages.memoryOf(context)?[_memoryKey] = _to;
+      final to = _to;
+      GlassSheetPages.memoryOf(context)?[_memoryKey] = (
+        part: to.fill / widget.total,
+        done: to.done,
+      );
     }
     final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final still = reduce || (from.fill == _to.fill && from.done == _to.done);
@@ -142,7 +174,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
         FlutterI18n.translate(context, key, translationParams: params);
     final step = widget.step;
     final done = widget.done;
-    final params = {"step": "$step", "total": "${IssueSheetProgress.total}"};
+    final params = {"step": "$step", "total": "${widget.total}"};
     final track = palette.link.withValues(alpha: 0.15);
 
     return Row(
@@ -182,7 +214,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
             child: Row(
               spacing: 5,
               children: [
-                for (var i = 1; i <= IssueSheetProgress.total; i++)
+                for (var i = 1; i <= widget.total; i++)
                   Expanded(
                     child: AnimatedBuilder(
                       animation: _curve,

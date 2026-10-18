@@ -41,12 +41,16 @@ class MrzReaderScreen<Parser extends MrzParser> extends ConsumerStatefulWidget {
   final Parser mrzParser;
   final MrzReaderTranslationKeys translationKeys;
 
+  /// The progress under the bar, when the screen is a step in a sheet.
+  final PreferredSizeWidget? band;
+
   const MrzReaderScreen({
     required this.translationKeys,
     required this.onSuccess,
     required this.onManualAdd,
     required this.onCancel,
     required this.mrzParser,
+    this.band,
   });
 
   @override
@@ -99,6 +103,7 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
             cancelLabel: "document_flow.cancel",
             onManual: widget.onManualAdd,
             onCancel: widget.onCancel,
+            band: widget.band,
           );
         }
 
@@ -106,6 +111,7 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
           backgroundColor: theme.backgroundTertiary,
           appBar: IrmaAppBar(
             titleTranslationKey: widget.translationKeys.title,
+            bottom: widget.band,
             leading: YiviBackButton(
               key: const Key("bottom_bar_secondary"),
               onTap: widget.onCancel,
@@ -180,6 +186,9 @@ class _CameraScaffold extends StatelessWidget {
   final VoidCallback onManual;
   final VoidCallback onCancel;
 
+  /// The progress on a glass strip under the title, in a sheet.
+  final PreferredSizeWidget? band;
+
   const _CameraScaffold({
     required this.title,
     required this.body,
@@ -187,6 +196,7 @@ class _CameraScaffold extends StatelessWidget {
     required this.cancelLabel,
     required this.onManual,
     required this.onCancel,
+    this.band,
   });
 
   @override
@@ -249,6 +259,26 @@ class _CameraScaffold extends StatelessWidget {
                 ],
               ),
             ),
+            if (band case final band?)
+              Positioned(
+                left: 16 + padding.left,
+                right: 16 + padding.right,
+                top: padding.top + 68,
+                // A light strip, readable over the camera picture.
+                child: DecoratedBox(
+                  decoration: const ShapeDecoration(
+                    color: Color(0xE6FFFFFF),
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(22)),
+                    ),
+                  ),
+                  // The band pads its sides and bottom; the top matches.
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: band,
+                  ),
+                ),
+              ),
             Positioned(
               left: 16 + padding.left,
               right: 16 + padding.right,

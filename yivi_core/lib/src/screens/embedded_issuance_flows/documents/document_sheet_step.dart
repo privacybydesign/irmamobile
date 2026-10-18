@@ -4,6 +4,7 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../models/mrz.dart";
 import "../../../providers/ocr_processor_provider.dart";
+import "../../session/widgets/issue_sheet_progress.dart";
 import "document_flow_steps.dart";
 
 /// Which document issues [credentialId] (`pbdf.pbdf.passport` and its
@@ -23,8 +24,17 @@ DocumentType? documentTypeOf(String credentialId) =>
 /// read starts the issuance through `handlePointer`, which hands it to the
 /// sheet waiting for it. The face check, when the issuer asks for one, opens
 /// full-screen above the sheet.
+///
+/// Each screen shows the progress under its own bar: how to hold it is step
+/// 2, scanning or typing it in step 3, the chip step 4 (of [total]).
 class DocumentSheetStep extends ConsumerStatefulWidget {
   final DocumentType type;
+
+  /// What the progress tag names: the request, or the card being added.
+  final IssueSheetSubject subject;
+
+  /// The flow's number of steps.
+  final int total;
 
   /// Back from the instruction, to the details.
   final VoidCallback onBack;
@@ -38,6 +48,8 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
   const DocumentSheetStep({
     super.key,
     required this.type,
+    required this.subject,
+    this.total = 5,
     required this.onBack,
     required this.onCancel,
     required this.onStopped,
@@ -65,6 +77,12 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
 
   void _pop() => _navigator.currentState?.maybePop();
 
+  PreferredSizeWidget _band(int step) => IssueSheetProgress.band(
+    subject: widget.subject,
+    step: step,
+    total: widget.total,
+  );
+
   /// Start on the instruction: the camera, or typing it in on a device
   /// without one.
   void _capture() {
@@ -74,6 +92,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
       _push(
         (_) => DocumentFlowSteps.reader(
           widget.type,
+          band: _band(3),
           onRead: _read,
           onManual: () => _push((_) => _manual()),
           onCancel: _pop,
@@ -82,8 +101,12 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
     }
   }
 
-  Widget _manual() =>
-      DocumentFlowSteps.manualEntry(widget.type, onRead: _read, onCancel: _pop);
+  Widget _manual() => DocumentFlowSteps.manualEntry(
+    widget.type,
+    band: _band(3),
+    onRead: _read,
+    onCancel: _pop,
+  );
 
   void _read(ScannedMrz mrz) {
     if (_reading) return;
@@ -91,8 +114,11 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
     _navigator.currentState
         ?.push(
           MaterialPageRoute<void>(
-            builder: (_) =>
-                DocumentFlowSteps.nfc(mrz, onCancel: widget.onStopped),
+            builder: (_) => DocumentFlowSteps.nfc(
+              mrz,
+              band: _band(4),
+              onCancel: widget.onStopped,
+            ),
           ),
         )
         .whenComplete(() => _reading = false);
@@ -115,6 +141,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
             MaterialPageRoute<void>(
               builder: (_) => DocumentFlowSteps.instruction(
                 widget.type,
+                band: _band(2),
                 onStart: _capture,
                 onCancel: widget.onCancel,
               ),

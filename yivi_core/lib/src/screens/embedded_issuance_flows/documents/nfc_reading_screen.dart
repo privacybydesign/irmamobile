@@ -90,10 +90,14 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   final NfcReadingTranslationKeys translationKeys;
   final VoidCallback? onCancel;
 
+  /// The progress under the bar, when the screen is a step in a sheet.
+  final PreferredSizeWidget? band;
+
   const NfcReadingScreen({
     required this.mrz,
     required this.translationKeys,
     this.onCancel,
+    this.band,
     super.key,
   });
 
@@ -526,6 +530,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     return NfcStageScaffold(
       appBarTitleKey: widget.translationKeys.title,
+      band: widget.band,
       picture: picture,
       // Nothing to go back to once the read is done.
       leading: stage == _NfcStage.done ? null : const YiviBackButton(),
@@ -576,7 +581,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
-      appBar: IrmaAppBar(titleTranslationKey: "face_verification.title"),
+      appBar: IrmaAppBar(
+        titleTranslationKey: "face_verification.title",
+        bottom: widget.band,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -883,9 +891,7 @@ class _NfcScaffold extends StatelessWidget {
       extendBody: true,
       // The redesign's page background (backgroundTertiary is the same colour).
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: titleTranslationKey,
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: SafeArea(
         child: Center(
           child: OrientationBuilder(
