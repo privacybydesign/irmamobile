@@ -429,14 +429,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       if (_document != null)
         KeyedSubtree(
           key: ValueKey(("document", _document)),
-          child: DocumentSheetStep(
-            type: _document!,
-            onBack: () => setState(() => _document = null),
-            onCancel: _cancel,
-            onStopped: () {
-              _stopAdding();
-              setState(() => issueAdding = null);
-            },
+          // Its own screens: they slide in and out as a whole.
+          child: GlassSheetPageMotion(
+            child: DocumentSheetStep(
+              type: _document!,
+              onBack: () => setState(() => _document = null),
+              onCancel: _cancel,
+              onStopped: () {
+                _stopAdding();
+                setState(() => issueAdding = null);
+              },
+            ),
           ),
         ),
       if (nested != null || issueAdded != null)

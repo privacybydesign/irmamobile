@@ -283,6 +283,30 @@ void main() {
       semantics.dispose();
     });
 
+    testWidgets("only the body slides; the bar stays and the titles fade", (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      openPages();
+      await tester.pumpAndSettle();
+      push(() => pages = 2);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 120));
+      final titleMid = tester.getRect(find.text("Second"));
+      final bodyMid = tester.getTopLeft(find.text("second page"));
+      final fading = tester.widget<Opacity>(
+        find.ancestor(of: find.text("Second"), matching: find.byType(Opacity)),
+      );
+      expect(fading.opacity, lessThan(1));
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.text("Second")), titleMid);
+      expect(
+        tester.getTopLeft(find.text("second page")).dx,
+        lessThan(bodyMid.dx),
+      );
+    });
+
     testWidgets("with reduced motion the page fades in instead of sliding", (
       tester,
     ) async {
