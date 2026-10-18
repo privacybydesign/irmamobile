@@ -16,8 +16,8 @@ import "../activity_entry.dart";
 import "activity_detail_parts.dart";
 
 /// One log entry as a row of the Activity tab: a small stack of its cards
-/// with a badge for what happened, the other party, what happened and to
-/// which cards, and when.
+/// with the other party's logo on it, the party, what happened (in its
+/// colour) and to which cards, and when.
 ///
 /// Opening it pushes the other rows away while each card of the stack flies
 /// into its tile in the details ([ActivityCardHero]).
@@ -148,7 +148,7 @@ class ActivityCard extends ConsumerWidget {
 
 /// Up to three of an entry's cards as a small pile, like the wallet seen
 /// from the front: each card behind sits a little higher and smaller. More
-/// than three get a "+n"; a badge in the corner says what happened.
+/// than three get a "+n"; the other party's logo sits on the corner.
 class ActivityCardStack extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -241,18 +241,16 @@ class ActivityCardStack extends StatelessWidget {
                   ),
                 ),
               ),
+            // Who it was with, on the corner of the pile. What happened is
+            // the coloured word in the row's subtitle.
             Positioned(
-              right: -6,
-              bottom: -2,
-              child: Container(
-                width: 22,
-                height: 22,
-                decoration: BoxDecoration(
-                  color: entry.kind.badge,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: palette.surface, width: 2),
-                ),
-                child: Icon(entry.kind.icon, size: 12, color: Colors.white),
+              right: -8,
+              bottom: -4,
+              child: ActivityPartyLogo(
+                party: entry.party,
+                size: 30,
+                circle: true,
+                ring: palette.surface,
               ),
             ),
           ],

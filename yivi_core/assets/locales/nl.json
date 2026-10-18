@@ -68,11 +68,6 @@
       "signed_with": "Je ondertekende met",
       "deleted": "Je verwijderde"
     },
-    "date": "Datum",
-    "time": "Tijd",
-    "cards-0": "{count} kaarten",
-    "cards-1": "{count} kaart",
-    "cards-2": "{count} kaarten",
     "ago": {
       "today": "Vandaag",
       "days-0": "{count} dagen geleden",

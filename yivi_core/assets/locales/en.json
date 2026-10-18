@@ -68,11 +68,6 @@
       "signed_with": "You signed with",
       "deleted": "You deleted"
     },
-    "date": "Date",
-    "time": "Time",
-    "cards-0": "{count} cards",
-    "cards-1": "{count} card",
-    "cards-2": "{count} cards",
     "ago": {
       "today": "Today",
       "days-0": "{count} days ago",

@@ -32,18 +32,30 @@ class ActivityDetailsScreen extends ConsumerStatefulWidget {
 class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
   final _scroll = ScrollController();
 
-  /// Whether the pass header has scrolled away under the top bar.
+  /// Whether the header has scrolled away under the top bar: then the
+  /// compact bar shows who and when instead.
   final _scrolledPast = ValueNotifier(false);
 
-  /// About the height of the pass header.
-  static const _headerHeight = 170.0;
+  final _headerKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _scroll.addListener(() {
-      _scrolledPast.value = _scroll.offset > _headerHeight;
-    });
+    // Measured after the frame: during the scroll notification the header
+    // still has the position of the previous frame.
+    _scroll.addListener(
+      () => WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader()),
+    );
+  }
+
+  /// Measured from the header itself, not a fixed offset: it grows when a
+  /// long name or the date and time pills wrap.
+  void _checkHeader() {
+    final box = _headerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize || !mounted) return;
+    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+    final barBottom = MediaQuery.paddingOf(context).top + 60;
+    _scrolledPast.value = bottom < barBottom;
   }
 
   @override
@@ -62,6 +74,9 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const <schemaless.Credential>[];
     final entry = ActivityEntry.fromLog(widget.logEntry, wallet: wallet);
+    // The header can change size (rotation, text size): check again after
+    // this layout.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader());
 
     return WalletDetailScaffold(
       openKey: entry.key,
@@ -104,6 +119,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
                 animation: animation,
                 heroes: true,
                 onArtTap: _close,
+                headerKey: _headerKey,
               ),
             ),
           ),

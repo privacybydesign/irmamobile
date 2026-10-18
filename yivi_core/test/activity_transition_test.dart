@@ -165,6 +165,31 @@ void main() {
     expect(WalletTransition.openKey.value, isNull);
   });
 
+  testWidgets("each pile carries the party's logo, its first letter when "
+      "there is no image", (tester) async {
+    await pump(tester);
+    for (final name in ["Above", "Tapped", "Below"]) {
+      final pile = find.descendant(
+        of: row(name),
+        matching: find.byType(ActivityCardStack),
+      );
+      final logo = find.descendant(
+        of: pile,
+        matching: find.byType(ActivityPartyLogo),
+      );
+      expect(logo, findsOneWidget);
+      expect(
+        find.descendant(of: logo, matching: find.text(name[0])),
+        findsOneWidget,
+      );
+      // On the corner, over the cards.
+      final pileRect = tester.getRect(pile);
+      final logoRect = tester.getRect(logo);
+      expect(logoRect.right, greaterThan(pileRect.right));
+      expect(logoRect.bottom, greaterThan(pileRect.bottom));
+    }
+  });
+
   testWidgets("a short pull springs back", (tester) async {
     await pump(tester);
     await tester.tap(row("Tapped"));

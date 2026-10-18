@@ -1,4 +1,3 @@
-import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
@@ -58,24 +57,47 @@ class ActivityPartyLogo extends StatelessWidget {
   final ActivityParty party;
   final double size;
 
-  const ActivityPartyLogo({super.key, required this.party, required this.size});
+  /// Round instead of a rounded square, e.g. as the badge on a row's pile.
+  final bool circle;
+
+  /// A ring around the logo, drawn inside [size], that sets it apart from
+  /// what is under it.
+  final Color? ring;
+  final double ringWidth;
+
+  const ActivityPartyLogo({
+    super.key,
+    required this.party,
+    required this.size,
+    this.circle = false,
+    this.ring,
+    this.ringWidth = 2,
+  });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final logo = party.logo;
+    final side = ring == null
+        ? BorderSide.none
+        : BorderSide(color: ring!, width: ringWidth);
+    final ShapeBorder shape = circle
+        ? CircleBorder(side: side)
+        : RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(size * 0.3)),
+            side: side,
+          );
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
+      clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         color: logo == null ? palette.tint : palette.surface,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(size * 0.3)),
-        ),
+        shape: shape,
         shadows: const [
           BoxShadow(
-            color: Color(0x1A000000),
+            color: Color(0x2E000000),
             blurRadius: 4,
             offset: Offset(0, 1),
           ),
@@ -90,15 +112,15 @@ class ActivityPartyLogo extends StatelessWidget {
               party.name.isEmpty ? "?" : party.name.characters.first,
               style: palette
                   .display(size * 0.43, weight: FontWeight.w700)
-                  .copyWith(color: palette.link),
+                  .copyWith(color: palette.link, height: 1),
             ),
     );
   }
 }
 
-/// The top of the details, shaped like a ticket: the other party on a band
-/// in the colour of what happened, a perforated line, then what happened,
-/// the date and the time as three fields.
+/// The top of the details, centred: the other party's logo with a badge for
+/// what happened, "Shared with" in that colour, its name, whether Yivi knows
+/// it, and when it happened as a date and a time pill.
 class ActivityPartyCard extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -107,274 +129,188 @@ class ActivityPartyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final lang = _lang(context);
     final kind = entry.kind;
     final party = entry.party;
     final time = entry.localTime;
-    final ink = activityKindInk(palette, kind);
-    // What the kind is about: the received cards of an issuance, not what
-    // was shared to get them.
-    final count = entry.sections.firstOrNull?.cards.length ?? 0;
-    const shape = RoundedSuperellipseBorder(
-      borderRadius: BorderRadius.all(Radius.circular(28)),
-    );
+    final fullDate = DateFormat.yMMMMEEEEd(lang).format(time);
+    final clock = activityTime(context, time);
 
-    return DecoratedBox(
-      key: const Key("activity_party_card"),
-      decoration: const ShapeDecoration(
-        shape: shape,
-        shadows: [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: ClipPath(
-        clipper: const ShapeBorderClipper(shape: shape),
-        child: ColoredBox(
-          color: palette.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ColoredBox(
-                color: Color.alphaBlend(
-                  kind.badge.withValues(alpha: 0.09),
-                  palette.surface,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-                  child: Row(
-                    spacing: 16,
-                    children: [
-                      ExcludeSemantics(
-                        child: ActivityPartyLogo(party: party, size: 60),
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Column(
+        children: [
+          ExcludeSemantics(
+            child: SizedBox.square(
+              dimension: 80,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  ActivityPartyLogo(party: party, size: 80),
+                  Positioned(
+                    right: -6,
+                    bottom: -6,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: kind.badge,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: palette.background, width: 3),
                       ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              FlutterI18n.translate(context, kind.relationKey),
-                              style: palette
-                                  .body(13)
-                                  .copyWith(color: palette.secondaryText),
-                            ),
-                            Semantics(
-                              header: true,
-                              child: Text(
-                                party.name,
-                                style: palette
-                                    .display(20, weight: FontWeight.w700)
-                                    .copyWith(color: palette.text),
-                              ),
-                            ),
-                            if (party.verified || party.host != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Row(
-                                  spacing: 4,
-                                  children: [
-                                    if (party.verified)
-                                      Icon(
-                                        Icons.verified_user_rounded,
-                                        size: 14,
-                                        color: palette.successText,
-                                        semanticLabel: FlutterI18n.translate(
-                                          context,
-                                          "missing_data.known_party",
-                                        ),
-                                      ),
-                                    Flexible(
-                                      child: Text(
-                                        party.host ??
-                                            FlutterI18n.translate(
-                                              context,
-                                              "missing_data.known_party",
-                                            ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: palette
-                                            .body(12)
-                                            .copyWith(color: palette.heading),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      child: Icon(kind.icon, size: 15, color: Colors.white),
+                    ),
                   ),
-                ),
+                ],
               ),
-              _Perforation(notch: palette.background, line: palette.outline),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
-                  children: [
-                    Expanded(
-                      flex: 105,
-                      child: _PassField(
-                        label: FlutterI18n.translate(context, kind.labelKey),
-                        labelColor: ink,
-                        icon: kind.icon,
-                        value: FlutterI18n.plural(
-                          context,
-                          "activity.cards",
-                          count,
-                        ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            FlutterI18n.translate(context, kind.relationKey),
+            textAlign: TextAlign.center,
+            style: palette
+                .body(14, weight: FontWeight.w600)
+                .copyWith(color: activityKindInk(palette, kind)),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Semantics(
+              header: true,
+              child: Text(
+                party.name,
+                textAlign: TextAlign.center,
+                style: palette
+                    .display(26, weight: FontWeight.w700)
+                    .copyWith(color: palette.heading, height: 32 / 26),
+              ),
+            ),
+          ),
+          if (party.verified || party.host != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  if (party.verified)
+                    Icon(
+                      Icons.verified_user_rounded,
+                      size: 14,
+                      color: palette.successText,
+                      semanticLabel: FlutterI18n.translate(
+                        context,
+                        "missing_data.known_party",
                       ),
                     ),
-                    Expanded(
-                      flex: 145,
-                      child: _PassField(
-                        label: FlutterI18n.translate(context, "activity.date"),
-                        value: activityShortDate(context, time),
-                        below: "${time.year} · ${activityAgo(context, time)}",
-                      ),
+                  Flexible(
+                    child: Text(
+                      party.host ??
+                          FlutterI18n.translate(
+                            context,
+                            "missing_data.known_party",
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette
+                          .body(13)
+                          .copyWith(color: palette.secondaryText),
                     ),
-                    Expanded(
-                      flex: 80,
-                      child: _PassField(
-                        label: FlutterI18n.translate(context, "activity.time"),
-                        value: activityTime(context, time),
-                        large: true,
-                        end: true,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 20),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _HeaderPill(
+                key: const Key("activity_date_pill"),
+                icon: Icons.calendar_month_rounded,
+                label: fullDate,
+              ),
+              _HeaderPill(
+                key: const Key("activity_time_pill"),
+                icon: Icons.schedule_rounded,
+                label: clock,
+                strong: true,
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            activityAgo(context, time),
+            style: palette.body(12).copyWith(color: palette.secondaryText),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// A dashed line across the card with a round notch at each edge.
-class _Perforation extends StatelessWidget {
-  final Color notch;
-  final Color line;
-
-  const _Perforation({required this.notch, required this.line});
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 2,
-    child: CustomPaint(painter: _PerforationPainter(notch, line)),
-  );
-}
-
-class _PerforationPainter extends CustomPainter {
-  final Color notch;
-  final Color line;
-
-  _PerforationPainter(this.notch, this.line);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final y = size.height / 2;
-    final dash = Paint()
-      ..color = line
-      ..strokeWidth = 2;
-    for (var x = 22.0; x < size.width - 22; x += 10) {
-      canvas.drawLine(
-        Offset(x, y),
-        Offset((x + 5).clamp(0, size.width - 22), y),
-        dash,
-      );
-    }
-    final fill = Paint()..color = notch;
-    canvas.drawCircle(Offset(0, y), 11, fill);
-    canvas.drawCircle(Offset(size.width, y), 11, fill);
-  }
-
-  @override
-  bool shouldRepaint(_PerforationPainter old) =>
-      old.notch != notch || old.line != line;
-}
-
-class _PassField extends StatelessWidget {
+/// A white pill with an icon, for the date and the time in the header.
+class _HeaderPill extends StatelessWidget {
+  final IconData icon;
   final String label;
-  final Color? labelColor;
-  final IconData? icon;
-  final String value;
-  final String? below;
-  final bool large;
-  final bool end;
 
-  const _PassField({
+  /// Bold, with figures of equal width (the time).
+  final bool strong;
+
+  const _HeaderPill({
+    super.key,
+    required this.icon,
     required this.label,
-    this.labelColor,
-    this.icon,
-    required this.value,
-    this.below,
-    this.large = false,
-    this.end = false,
+    this.strong = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final color = labelColor ?? palette.secondaryText;
-    return Column(
-      crossAxisAlignment: end
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
-      children: [
-        Row(
+    return Semantics(
+      label: label,
+      excludeSemantics: true,
+      child: Container(
+        // At least 40 high; a date too long for the width wraps instead of
+        // running out of the pill.
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
+        decoration: ShapeDecoration(
+          color: palette.surface,
+          shape: const StadiumBorder(),
+          shadows: const [
+            BoxShadow(
+              color: Color(0x17000000),
+              blurRadius: 6,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: 4,
+          spacing: 8,
           children: [
-            if (icon != null) Icon(icon, size: 12, color: color),
+            Icon(icon, size: 18, color: palette.secondaryText),
             Flexible(
               child: Text(
-                label.toUpperCase(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                label,
                 style: palette
-                    .body(11, weight: FontWeight.w700)
+                    .body(
+                      14,
+                      weight: strong ? FontWeight.w700 : FontWeight.w600,
+                    )
                     .copyWith(
-                      color: color,
-                      letterSpacing: 0.9,
-                      height: 16 / 11,
+                      color: palette.text,
+                      fontFeatures: strong
+                          ? const [FontFeature.tabularFigures()]
+                          : null,
                     ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 2),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: end ? Alignment.centerRight : Alignment.centerLeft,
-          child: Text(
-            value,
-            maxLines: 1,
-            style: palette
-                .display(
-                  large ? 22 : 16,
-                  weight: large ? FontWeight.w700 : FontWeight.w600,
-                )
-                .copyWith(
-                  color: palette.text,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-          ),
-        ),
-        if (below != null)
-          Text(
-            below!,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: palette.body(12).copyWith(color: palette.secondaryText),
-          ),
-      ],
+      ),
     );
   }
 }
@@ -709,12 +645,17 @@ class ActivityDetailBody extends StatelessWidget {
   /// Called on a tap on a card's art (back to the activity list).
   final VoidCallback? onArtTap;
 
+  /// On the header, so the details screen can tell when it has scrolled
+  /// away (and show the compact bar).
+  final Key? headerKey;
+
   const ActivityDetailBody({
     super.key,
     required this.entry,
     this.animation = kAlwaysCompleteAnimation,
     this.heroes = false,
     this.onArtTap,
+    this.headerKey,
   });
 
   @override
@@ -742,7 +683,7 @@ class ActivityDetailBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        reveal(ActivityPartyCard(entry: entry)),
+        reveal(ActivityPartyCard(key: headerKey, entry: entry)),
         if (entry.message != null) reveal(ActivitySignedMessage(entry: entry)),
         if (entry.sections.isEmpty)
           reveal(

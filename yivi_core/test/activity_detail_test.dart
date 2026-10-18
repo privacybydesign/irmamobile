@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/log_entry.dart";
@@ -30,13 +31,17 @@ LogCredential _credential(String name, List<Attribute> attributes) =>
       revocationSupported: false,
     );
 
-LogInfo _log(LogType type, {String message = ""}) {
+LogInfo _log(
+  LogType type, {
+  String message = "",
+  String verifier = "Webshop Noord",
+}) {
   final credentials = [
     _credential("Email address", [
       stringAttr("email", "s.devries@werk.example"),
     ]),
   ];
-  final verifier = _party("Webshop Noord");
+  final party = _party(verifier);
   return LogInfo(
     type: type,
     time: DateTime.utc(2026, 10, 11, 14, 32),
@@ -52,14 +57,14 @@ LogInfo _log(LogType type, {String message = ""}) {
         ? DisclosureLog(
             protocol: Protocol.irma,
             credentials: credentials,
-            verifier: verifier,
+            verifier: party,
           )
         : null,
     signedMessageLog: type == LogType.signature
         ? SignedMessageLog(
             protocol: Protocol.irma,
             credentials: credentials,
-            verifier: verifier,
+            verifier: party,
             message: message,
           )
         : null,
@@ -96,17 +101,30 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets("shared: the pass header, the tile and the note", (tester) async {
+  testWidgets("shared: the centred header, the tile and the note", (
+    tester,
+  ) async {
     await pump(tester, _log(LogType.disclosure));
 
+    expect(find.byKey(const Key("activity_party_card")), findsNothing);
     expect(find.text("Shared with"), findsOneWidget);
     expect(find.text("Webshop Noord"), findsOneWidget);
     expect(find.text("Known party"), findsOneWidget);
-    // The three fields of the pass: what, when and the time.
-    expect(find.text("SHARED"), findsOneWidget);
-    expect(find.text("1 card"), findsOneWidget);
-    expect(find.text("DATE"), findsOneWidget);
-    expect(find.text("TIME"), findsOneWidget);
+    // When, as a date pill and a time pill, and how long ago.
+    final date = DateFormat.yMMMMEEEEd(
+      "en",
+    ).format(DateTime.utc(2026, 10, 11, 14, 32).toLocal());
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("activity_date_pill")),
+        matching: find.text(date),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key("activity_time_pill")), findsOneWidget);
+    expect(find.textContaining("ago"), findsOneWidget);
+    // The pass is gone.
+    expect(find.text("DATE"), findsNothing);
     expect(find.text("YOU SHARED"), findsOneWidget);
     expect(find.byType(ActivityCredentialTile), findsOneWidget);
     expect(find.text("s.devries@werk.example"), findsOneWidget);
@@ -139,17 +157,78 @@ void main() {
     expect(find.textContaining("cannot be recovered"), findsOneWidget);
   });
 
-  testWidgets("the compact bar shows once the header scrolled away", (
-    tester,
-  ) async {
+  /// Scrolls down and back in small steps; at each step the compact bar
+  /// shows exactly when the whole header is above the top bar.
+  Future<void> expectBarFollowsHeader(WidgetTester tester) async {
+    bool barShown() => find.byType(ActivityCompactBar).evaluate().isNotEmpty;
+    double headerBottom() =>
+        tester.getRect(find.byType(ActivityPartyCard)).bottom;
+    // No safe area in the test: the top bar ends at 60.
+    const barBottom = 60.0;
+
+    expect(barShown(), isFalse);
+    var sawShown = false;
+    for (final dy in [...List.filled(18, -40.0), ...List.filled(18, 40.0)]) {
+      await tester.drag(find.byType(ListView), Offset(0, dy));
+      await tester.pumpAndSettle();
+      final gone = headerBottom() < barBottom;
+      expect(barShown(), gone, reason: "header bottom ${headerBottom()}");
+      sawShown |= gone;
+    }
+    expect(sawShown, isTrue, reason: "never scrolled the header away");
+    expect(barShown(), isFalse);
+  }
+
+  testWidgets("the compact bar shows once the header has scrolled away, and "
+      "hides again", (tester) async {
     await pump(
       tester,
       _log(LogType.signature, message: List.filled(600, "word").join(" ")),
     );
-    expect(find.byType(ActivityCompactBar), findsNothing);
+    await expectBarFollowsHeader(tester);
+  });
 
-    await tester.drag(find.byType(ListView), const Offset(0, -400));
+  testWidgets("with a name on two lines the bar waits for the whole header", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _log(
+        LogType.signature,
+        verifier: "Gemeentelijke Belastingsamenwerking Voorbeeldstad",
+        message: List.filled(600, "word").join(" "),
+      ),
+    );
+    final nameLines =
+        tester
+            .getSize(
+              find.text("Gemeentelijke Belastingsamenwerking Voorbeeldstad"),
+            )
+            .height /
+        32;
+    expect(nameLines, greaterThan(1.5), reason: "the name should wrap");
+    await expectBarFollowsHeader(tester);
+
+    // The bar still says who and when.
+    await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();
-    expect(find.byType(ActivityCompactBar), findsOneWidget);
+    final bar = find.byType(ActivityCompactBar);
+    expect(
+      find.descendant(
+        of: bar,
+        matching: find.text(
+          "Gemeentelijke Belastingsamenwerking Voorbeeldstad",
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: bar, matching: find.byType(ActivityPartyLogo)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: bar, matching: find.textContaining("Signed")),
+      findsOneWidget,
+    );
   });
 }

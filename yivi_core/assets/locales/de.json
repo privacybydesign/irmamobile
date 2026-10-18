@@ -68,11 +68,6 @@
       "signed_with": "Du hast signiert mit",
       "deleted": "Du hast gelöscht"
     },
-    "date": "Datum",
-    "time": "Uhrzeit",
-    "cards-0": "{count} Karten",
-    "cards-1": "{count} Karte",
-    "cards-2": "{count} Karten",
     "ago": {
       "today": "Heute",
       "days-0": "vor {count} Tagen",

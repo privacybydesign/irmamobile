@@ -44,10 +44,19 @@ void main() {
       expect(find.byType(ActivityDetailsScreen), findsOneWidget);
       expect(find.byType(ActivityPartyCard), findsOneWidget);
 
-      // The pass header: what happened, the date and the time.
-      expect(find.text("RECEIVED"), findsOneWidget);
-      expect(find.text("DATE"), findsOneWidget);
-      expect(find.text("TIME"), findsOneWidget);
+      // The centred header: who, and when as a date pill and a time pill,
+      // e.g. "Saturday, October 18, 2026".
+      expect(find.text("Received from"), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("activity_date_pill")),
+          matching: find.textContaining(
+            RegExp(r"^[A-Z][a-z]+day, [A-Z][a-z]+ \d{1,2}, \d{4}$"),
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("activity_time_pill")), findsOneWidget);
       expect(find.text("YOU RECEIVED"), findsOneWidget);
 
       // Find the activity card and check the content
