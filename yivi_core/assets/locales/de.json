@@ -1289,11 +1289,6 @@
     }
   },
   "share": {
-    "requestor": {
-      "registered": "Bei Yivi registriert",
-      "not_registered": "Nicht bei Yivi registriert",
-      "unknown_note": "Yivi kann nicht bestätigen, wer das ist. Teile nur, wenn du der Website vertraust, von der du kommst."
-    },
     "step_count": "Schritt {step} von {total}",
     "problem": {
       "revoked": "Widerrufen",
@@ -1305,18 +1300,13 @@
       "last_use": "Letztes Mal",
       "last_use_note": "Danach kann die Karte nicht mehr geteilt werden. Du kannst danach eine neue hinzufügen."
     },
-    "title": {
-      "share": "Möchtest du diese Daten teilen?",
-      "sign": "Möchtest du diese Nachricht unterschreiben?",
-      "share_receive": "Möchtest du diese Daten teilen und eine Karte hinzufügen?"
-    },
     "bar": {
       "share": "Daten teilen",
       "sign": "Unterschreiben",
       "share_receive": "Teilen und erhalten"
     },
     "button": {
-      "share": "Teilen",
+      "share": "Mit {requestor} teilen",
       "sign_and_share": "Unterschreiben und teilen",
       "share_and_add": "Teilen und Karte hinzufügen",
       "share_without_data": "Ohne Daten teilen",
@@ -1339,7 +1329,8 @@
       "you_receive": "Du erhältst",
       "from": "Von {issuer}",
       "nothing_required": "Nichts erforderlich",
-      "nothing_required_text": "{requestor} fragt nichts, was du teilen musst."
+      "nothing_required_text": "{requestor} fragt nichts, was du teilen musst.",
+      "gets": "{requestor} bekommt"
     },
     "change": "Ändern",
     "leave_out": "{name} weglassen",
@@ -1349,7 +1340,7 @@
     "or": " oder ",
     "add_new": "Neue {name} hinzufügen",
     "message_label": "Du unterschreibst diese Nachricht",
-    "footnote": "{requestor} bekommt nur das. Felder, die hier nicht stehen, bleiben auf deinem Telefon.",
+    "footnote": "{requestor} bekommt nur das. Alles andere bleibt auf deinem Telefon.",
     "footnote_none": "Der Besuch steht trotzdem in deiner Aktivität.",
     "sheet": {
       "add_optional": "Optionale Daten hinzufügen",
@@ -1395,6 +1386,138 @@
       "cant_unknown": "Kann nicht in Yivi hinzugefügt werden.",
       "must_be": "{field} muss {value} sein",
       "must_be_value": "Muss {value} sein"
+    },
+    "heading": {
+      "share": "Teile deine Daten mit",
+      "sign": "Unterschreibe und teile mit",
+      "share_receive": "Teile deine Daten mit"
+    },
+    "trust": {
+      "pill": {
+        "yivi": "Bei Yivi registriert",
+        "eu": "In der EU verifiziert",
+        "anchor": "Verifiziert von {anchor}",
+        "confirmed": "Identität bestätigt",
+        "unknown": "Yivi nicht bekannt"
+      },
+      "card_semantics": "{name}, {status}. Was bedeutet das?",
+      "banner": {
+        "title": "Yivi weiß nicht, wer das ist",
+        "text": "Niemand hat geprüft, wer das ist. Es gibt keine Gewissheit, wer deine Daten bekommt.",
+        "more": "Was bedeutet das?"
+      },
+      "risky": {
+        "reason": "Teile nur, wenn du {requestor} vertraust",
+        "share_anyway": "Trotzdem teilen",
+        "sign_anyway": "Trotzdem unterschreiben"
+      },
+      "confirm": {
+        "title": "Mit einer Partei teilen, die Yivi nicht kennt?",
+        "text": "{requestor} bekommt die Daten auf dieser Seite. Du kannst das nicht rückgängig machen.",
+        "dont_share": "Nicht teilen"
+      },
+      "sheet": {
+        "name": "Bekannte und unbekannte Organisationen",
+        "yivi": {
+          "head": "Bei Yivi registriert",
+          "body": "Yivi hat geprüft, wer {requestor} ist.",
+          "fact_checked": "Yivi hat geprüft, wer das ist",
+          "fact_verified": "Name und Logo sind verifiziert",
+          "fact_listed": "Sie stehen im Yivi-Portal"
+        },
+        "elsewhere": {
+          "head_eu": "Von einem EU-Vertrauensdienst verifiziert",
+          "head_anchor": "Verifiziert von {anchor}",
+          "head_confirmed": "Identität bestätigt",
+          "body_eu": "Ein Vertrauensdienst auf der EU-Vertrauensliste hat geprüft, wer {requestor} ist.",
+          "body_anchor": "{anchor} hat geprüft, wer {requestor} ist.",
+          "body_confirmed": "Eine vertrauenswürdige Partei außer Yivi hat geprüft, wer {requestor} ist.",
+          "fact_checked_eu": "Ein Vertrauensdienst hat geprüft, wer das ist",
+          "fact_checked_anchor": "{anchor} hat geprüft, wer das ist",
+          "fact_checked_confirmed": "Eine vertrauenswürdige Partei hat geprüft, wer das ist",
+          "fact_name": "Ihr Name stammt aus dieser Prüfung",
+          "fact_not_yivi": "Sie sind nicht bei Yivi selbst registriert"
+        },
+        "unknown": {
+          "head": "Yivi unbekannt",
+          "body": "Niemand bürgt für {requestor}.",
+          "fact_unchecked": "Niemand hat geprüft, wer das ist",
+          "fact_self": "Name und Logo stammen von ihnen selbst",
+          "fact_responsibility": "Teilen ist deine eigene Verantwortung"
+        },
+        "do": {
+          "good_to_know": "Gut zu wissen",
+          "unsure": "Unsicher? Das kannst du tun",
+          "decide": "Du entscheidest",
+          "decide_text": "Teile nur, womit du dich wohlfühlst.",
+          "portal": "Alle registrierten Organisationen ansehen",
+          "portal_text": "Im Yivi-Portal",
+          "eu_list": "Was ist die EU-Vertrauensliste?",
+          "eu_list_text": "Vertrauensdienste, die EU-Länder beaufsichtigen",
+          "dont_share": "Nicht teilen",
+          "dont_share_text": "Schließe diese Anfrage. Es wird nichts gesendet.",
+          "contact": "{requestor} kontaktieren",
+          "contact_text": "Frag über einen Kanal, dem du schon vertraust.",
+          "register": "Bitte sie, sich zu registrieren",
+          "register_text": "Auf portal.yivi.app"
+        }
+      }
+    },
+    "tech": {
+      "link": "Technische Details",
+      "title": "Technische Details",
+      "intro": "Für Neugierige. Du brauchst nichts davon, um zu entscheiden.",
+      "copy": "Alle Details kopieren",
+      "copied": "Kopiert",
+      "card": "{format} · von {issuer}",
+      "group": {
+        "who": "Wer fragt",
+        "how": "Wie du teilst",
+        "what": "Was sie bekommen"
+      },
+      "row": {
+        "name": "Name",
+        "identifier": "Kennung",
+        "trust_level": "Vertrauensstufe",
+        "trust_source": "Vertrauenssystem",
+        "trust_anchor": "Bürgt für diese Partei",
+        "registration": "Registriert als",
+        "cert_subject": "Zertifikat für",
+        "cert_issuer": "Zertifikat ausgestellt von",
+        "cert_valid": "Zertifikat gültig bis",
+        "protocol": "Protokoll",
+        "session": "Sitzung",
+        "response": "Antwort"
+      },
+      "level": {
+        "high": "Hoch · Yivi bürgt für diese Partei",
+        "medium": "Mittel · eine andere vertrauenswürdige Partei bürgt für diese Partei",
+        "low": "Niedrig · niemand bürgt für diese Partei",
+        "verified": "Yivi bürgt für diese Partei",
+        "not_verified": "Niemand bürgt für diese Partei",
+        "unevaluated": "Nicht bewertet"
+      },
+      "source": {
+        "yivi_scheme": "Yivi requestor scheme",
+        "yivi_trust_list": "Yivi-Vertrauensliste",
+        "eu_trusted_list": "EU-Vertrauensliste"
+      },
+      "protocol": {
+        "irma": "IRMA",
+        "openid4vp": "OpenID for Verifiable Presentations (OpenID4VP)",
+        "openid4vci": "OpenID for Verifiable Credential Issuance (OpenID4VCI)"
+      },
+      "session": {
+        "disclosure": "Teilen",
+        "issuance": "Ausstellung",
+        "signature": "Unterschrift"
+      },
+      "format": {
+        "idemix": "Idemix",
+        "sdjwtvc": "SD-JWT VC",
+        "mdoc": "mdoc",
+        "unknown": "Unbekanntes Format"
+      }
     }
   },
   "contact_sheet": {

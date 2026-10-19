@@ -112,11 +112,17 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   parent: json['parent'] == null
       ? null
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
-  verified: json['verified'] as bool,
+  verified: json['verified'] as bool? ?? false,
   imagePath: json['image_path'] as String?,
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  trustLevel: json['trust_level'] as String?,
+  trustSource: json['trust_source'] as String?,
+  trustAnchor: json['trust_anchor'] as String?,
+  evidence: json['evidence'] == null
+      ? null
+      : TrustEvidence.fromJson(json['evidence'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
@@ -128,6 +134,40 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
       'image': instance.image,
       'parent': instance.parent,
       'verified': instance.verified,
+      'trust_level': instance.trustLevel,
+      'trust_source': instance.trustSource,
+      'trust_anchor': instance.trustAnchor,
+      'evidence': instance.evidence,
+    };
+
+TrustEvidence _$TrustEvidenceFromJson(Map<String, dynamic> json) =>
+    TrustEvidence(
+      registrationId: json['registration_id'] as String?,
+      certificate: json['certificate'] == null
+          ? null
+          : TrustCertificate.fromJson(
+              json['certificate'] as Map<String, dynamic>,
+            ),
+    );
+
+Map<String, dynamic> _$TrustEvidenceToJson(TrustEvidence instance) =>
+    <String, dynamic>{
+      'registration_id': instance.registrationId,
+      'certificate': instance.certificate,
+    };
+
+TrustCertificate _$TrustCertificateFromJson(Map<String, dynamic> json) =>
+    TrustCertificate(
+      subject: json['subject'] as String,
+      issuer: json['issuer'] as String,
+      notAfter: (json['not_after'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$TrustCertificateToJson(TrustCertificate instance) =>
+    <String, dynamic>{
+      'subject': instance.subject,
+      'issuer': instance.issuer,
+      'not_after': instance.notAfter,
     };
 
 LogoImage _$LogoImageFromJson(Map<String, dynamic> json) => LogoImage(

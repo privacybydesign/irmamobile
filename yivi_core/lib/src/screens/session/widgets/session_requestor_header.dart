@@ -1,25 +1,131 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/irma_avatar.dart";
 
-/// Who is asking, at the top of the session screens: the party's logo (or
-/// initial), its name, and whether it is registered with Yivi. An unknown
-/// party gets an amber warning under it.
+/// The colours and words of a [RequestorTrust] tier, in one place: the badge
+/// on the logo, the pill under the name, and the trust sheet.
+class RequestorTrustStyle {
+  final RequestorTrust trust;
+
+  /// Fill of the badge on the logo; null for no badge (unevaluated).
+  final Color? badge;
+  final Color pillFill;
+  final Color pillInk;
+
+  /// The one-line label under the name; null for none (unevaluated).
+  final String? label;
+
+  const RequestorTrustStyle._({
+    required this.trust,
+    required this.badge,
+    required this.pillFill,
+    required this.pillInk,
+    required this.label,
+  });
+
+  factory RequestorTrustStyle.of(BuildContext context, TrustedParty party) {
+    final palette = YiviPalette.of(context);
+    final trust = requestorTrustOf(party);
+    String t(String key, [Map<String, String>? params]) =>
+        FlutterI18n.translate(context, key, translationParams: params);
+    return switch (trust) {
+      RequestorTrust.yivi => RequestorTrustStyle._(
+        trust: trust,
+        badge: palette.successText,
+        pillFill: palette.successSurface,
+        pillInk: palette.successText,
+        label: t("share.trust.pill.yivi"),
+      ),
+      RequestorTrust.elsewhere => RequestorTrustStyle._(
+        trust: trust,
+        badge: palette.link,
+        pillFill: palette.infoSurface,
+        pillInk: palette.noteText,
+        label: switch (elsewhereSourceOf(party)) {
+          ElsewhereSource.euTrustedList => t("share.trust.pill.eu"),
+          ElsewhereSource.namedAnchor => t("share.trust.pill.anchor", {
+            "anchor": party.trustAnchor!,
+          }),
+          ElsewhereSource.unspecified => t("share.trust.pill.confirmed"),
+        },
+      ),
+      RequestorTrust.unknown => RequestorTrustStyle._(
+        trust: trust,
+        badge: palette.dangerFill,
+        pillFill: palette.errorSurface,
+        pillInk: palette.errorText,
+        label: t("share.trust.pill.unknown"),
+      ),
+      RequestorTrust.unevaluated => RequestorTrustStyle._(
+        trust: trust,
+        badge: null,
+        pillFill: palette.surface,
+        pillInk: palette.secondaryText,
+        label: null,
+      ),
+    };
+  }
+}
+
+/// The round badge on a requestor's logo: a check when someone vouches, an
+/// exclamation mark when nobody does, nothing when it was not evaluated.
+class RequestorTrustBadge extends StatelessWidget {
+  final RequestorTrustStyle style;
+  final double size;
+
+  const RequestorTrustBadge({super.key, required this.style, this.size = 26});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final fill = style.badge;
+    if (fill == null) return const SizedBox.shrink();
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: fill,
+          shape: BoxShape.circle,
+          border: Border.all(color: palette.surface, width: size / 10),
+        ),
+        child: Icon(
+          style.trust.vouched
+              ? Icons.check_rounded
+              : Icons.priority_high_rounded,
+          size: size * 0.55,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+/// Who is asking, at the top of the share screen and the pairing screen:
+/// the party as the subject of the page. A 60 pt logo with a trust badge on
+/// its corner, the name, and a one-line pill saying who vouches. The whole
+/// card is a button that explains what that means ([onTap], the trust
+/// sheet).
+///
+/// When nobody vouches the card gets a red ring and a tinted fill; the
+/// share screen adds the banner under it.
 class SessionRequestorHeader extends StatelessWidget {
   final TrustedParty requestor;
 
-  /// A line under the name and status, e.g. what the screen is for.
-  final String? description;
+  /// Opens the trust sheet. Without it (or for an unevaluated party) the
+  /// card is not a button.
+  final VoidCallback? onTap;
 
   const SessionRequestorHeader({
     super.key,
     required this.requestor,
-    this.description,
+    this.onTap,
   });
 
   /// [requestor]'s logo, or its initial when it has none.
@@ -39,105 +145,144 @@ class SessionRequestorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final verified = requestor.verified;
-    final avatar = avatarOf(requestor);
+    final style = RequestorTrustStyle.of(context, requestor);
+    final risky = style.trust.risky;
+    final label = style.label;
+    final tap = style.trust == RequestorTrust.unevaluated ? null : onTap;
 
-    return GlassSurface(
+    final card = GlassSurface(
       key: const Key("session_requestor_header"),
-      shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(26)),
+      shape: RoundedSuperellipseBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(28)),
+        side: risky
+            ? BorderSide(color: palette.danger, width: 2)
+            : BorderSide.none,
       ),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 10,
+      fill: risky ? palette.errorSurface.withValues(alpha: 0.55) : null,
+      padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+      child: Row(
+        spacing: 14,
         children: [
-          Row(
-            spacing: 12,
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  avatar,
-                  if (verified)
-                    Positioned(
-                      right: -4,
-                      bottom: -4,
-                      child: ExcludeSemantics(
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: palette.successText,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: palette.surface,
-                              width: 2,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.check_rounded,
-                            size: 12,
-                            color: palette.surface,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      requestor.name,
-                      key: const Key("session_requestor_name"),
-                      style: palette.display(17).copyWith(color: palette.text),
-                    ),
-                    Text(
-                      FlutterI18n.translate(
-                        context,
-                        verified
-                            ? "share.requestor.registered"
-                            : "share.requestor.not_registered",
-                      ),
-                      style: palette
-                          .body(13, weight: FontWeight.w600)
-                          .copyWith(
-                            color: verified
-                                ? palette.successText
-                                : palette.warningText,
-                          ),
-                    ),
-                  ],
-                ),
+              ExcludeSemantics(child: avatarOf(requestor, size: 60)),
+              Positioned(
+                right: -6,
+                bottom: -6,
+                child: RequestorTrustBadge(style: style),
               ),
             ],
           ),
-          if (!verified)
-            Container(
-              key: const Key("session_requestor_warning"),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: ShapeDecoration(
-                color: palette.warningSurface,
-                shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(14)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 6,
+              children: [
+                Text(
+                  requestor.name,
+                  key: const Key("session_requestor_name"),
+                  style: palette
+                      .display(20, weight: FontWeight.w700)
+                      .copyWith(height: 26 / 20, color: palette.text),
+                ),
+                if (label != null)
+                  _TrustPill(
+                    key: const Key("session_requestor_trust"),
+                    style: style,
+                    label: label,
+                  ),
+              ],
+            ),
+          ),
+          if (tap != null)
+            ExcludeSemantics(
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: palette.tint,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.info_outline_rounded,
+                  size: 20,
+                  color: palette.link,
                 ),
               ),
-              child: Text(
-                FlutterI18n.translate(context, "share.requestor.unknown_note"),
-                style: palette
-                    .body(13)
-                    .copyWith(height: 19 / 13, color: palette.warningText),
-              ),
             ),
-          if (description != null)
-            Text(
-              description!,
+        ],
+      ),
+    );
+
+    final status = label ?? "";
+    if (tap == null) {
+      return Semantics(
+        container: true,
+        label: [requestor.name, status].where((s) => s.isNotEmpty).join(", "),
+        excludeSemantics: true,
+        child: card,
+      );
+    }
+    return Semantics(
+      button: true,
+      label: FlutterI18n.translate(
+        context,
+        "share.trust.card_semantics",
+        translationParams: {"name": requestor.name, "status": status},
+      ),
+      excludeSemantics: true,
+      child: PressScale(
+        scale: 0.98,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: tap,
+          child: card,
+        ),
+      ),
+    );
+  }
+}
+
+/// The one-line pill under the name. A label too long for the line ends in
+/// "…": the trust sheet spells it out.
+class _TrustPill extends StatelessWidget {
+  final RequestorTrustStyle style;
+  final String label;
+
+  const _TrustPill({super.key, required this.style, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Container(
+      height: 26,
+      padding: const EdgeInsetsDirectional.fromSTEB(6, 0, 10, 0),
+      decoration: ShapeDecoration(
+        color: style.pillFill,
+        shape: const StadiumBorder(),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 6,
+        children: [
+          Icon(
+            style.trust.vouched
+                ? Icons.check_circle_rounded
+                : Icons.warning_rounded,
+            size: 16,
+            color: style.badge ?? style.pillInk,
+          ),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: palette
-                  .body(14)
-                  .copyWith(height: 21 / 14, color: palette.heading),
+                  .body(12.5, weight: FontWeight.w700)
+                  .copyWith(color: style.pillInk),
             ),
+          ),
         ],
       ),
     );

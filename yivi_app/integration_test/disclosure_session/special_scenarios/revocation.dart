@@ -57,7 +57,7 @@ Future<void> revocationTest(
 
   // The disclosure permission overview screen should be visible.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.text("Do you want to share this data?"), findsOneWidget);
+  expect(find.text("Share your data with"), findsOneWidget);
   expect(find.byType(SessionRequestorHeader), findsOneWidget);
 
   // Find all credential cards

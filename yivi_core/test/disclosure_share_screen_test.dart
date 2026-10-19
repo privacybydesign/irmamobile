@@ -105,12 +105,13 @@ SessionState _session(
   SessionType type = SessionType.disclosure,
   String? message,
   List<Credential>? offered,
+  TrustedParty? requestor,
 }) => SessionState(
   id: _sessionId,
   protocol: "irma",
   type: type,
   status: SessionStatus.requestPermission,
-  requestor: _party("Webshop Noord"),
+  requestor: requestor ?? _party("Webshop Noord"),
   disclosurePlan: DisclosurePlan(disclosureChoicesOverview: choices),
   messageToSign: message,
   offeredCredentials: offered,
@@ -252,16 +253,23 @@ void main() {
       ]),
     );
 
-    expect(find.text("Do you want to share this data?"), findsOneWidget);
+    // One sentence: share your data with this party; this is what they get.
+    expect(find.text("Share your data with"), findsOneWidget);
     expect(find.text("Webshop Noord"), findsOneWidget);
-    expect(find.text("YOU SHARE"), findsOneWidget);
+    expect(find.text("Registered with Yivi"), findsOneWidget);
+    expect(find.text("WEBSHOP NOORD GETS"), findsOneWidget);
     expect(find.text("s@werk.example"), findsOneWidget);
     // Only one option: nothing to change.
     expect(find.byKey(const Key("share_change_0")), findsNothing);
     expect(find.byKey(const Key("share_reason")), findsNothing);
 
     // The button is the consent: no dialog, the choices are sent at once.
-    await tester.tap(find.descendant(of: _share, matching: find.text("Share")));
+    await tester.tap(
+      find.descendant(
+        of: _share,
+        matching: find.text("Share with Webshop Noord"),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.byType(Dialog), findsNothing);
     expect(_hashes(calls.shared.single), [
@@ -353,7 +361,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("de Vries"), findsOneWidget);
-      expect(find.text("Share"), findsOneWidget);
+      expect(find.text("Share with Webshop Noord"), findsOneWidget);
 
       await tester.tap(find.byKey(const Key("share_remove_0")));
       await tester.pumpAndSettle();
@@ -525,7 +533,7 @@ void main() {
       ),
     );
 
-    expect(find.text("Do you want to sign this message?"), findsOneWidget);
+    expect(find.text("Sign and share with"), findsOneWidget);
     expect(find.text("You sign this message"), findsOneWidget);
     expect(find.text("WITH YOUR SIGNATURE"), findsOneWidget);
     expect(find.text("Sign and share"), findsOneWidget);
@@ -556,10 +564,7 @@ void main() {
       ),
     );
 
-    expect(
-      find.text("Do you want to share this data and add a card?"),
-      findsOneWidget,
-    );
+    expect(find.text("Share your data with"), findsOneWidget);
     expect(find.text("YOU RECEIVE"), findsOneWidget);
     expect(find.text("Share and add card"), findsOneWidget);
   });
@@ -1690,6 +1695,176 @@ void main() {
         expect(find.byType(DocumentInstructionScreen), findsNothing);
       },
     );
+  });
+
+  group("who you share with", () {
+    TrustedParty party({
+      bool verified = false,
+      String? level,
+      String? source,
+    }) => TrustedParty(
+      id: "shop",
+      name: "Webshop Noord",
+      url: null,
+      parent: null,
+      verified: verified,
+      trustLevel: level,
+      trustSource: source,
+    );
+    List<DisclosurePickOne> email() => [
+      DisclosurePickOne(
+        optional: false,
+        ownedOptions: [_bundle(_instance("email", "Email", "s@werk.example"))],
+      ),
+    ];
+    final wash = find.byKey(const Key("share_trust_wash"));
+    final banner = find.byKey(const Key("share_trust_banner"));
+
+    testWidgets("registered: calm, and Share names who gets it", (
+      tester,
+    ) async {
+      await _pump(tester, session: _session(email()));
+      expect(find.text("Registered with Yivi"), findsOneWidget);
+      expect(wash, findsNothing);
+      expect(banner, findsNothing);
+      expect(find.text("Share with Webshop Noord"), findsOneWidget);
+    });
+
+    testWidgets("medium: just as calm, verified in the EU", (tester) async {
+      await _pump(
+        tester,
+        session: _session(
+          email(),
+          requestor: party(level: "medium", source: "eu_trusted_list"),
+        ),
+      );
+      expect(find.text("Verified in the EU"), findsOneWidget);
+      expect(wash, findsNothing);
+      expect(banner, findsNothing);
+      expect(find.text("Share with Webshop Noord"), findsOneWidget);
+    });
+
+    testWidgets("unknown: the red page, Share anyway, and it asks first", (
+      tester,
+    ) async {
+      final calls = await _pump(
+        tester,
+        session: _session(email(), requestor: party()),
+      );
+      expect(find.text("Not known by Yivi"), findsOneWidget);
+      expect(wash, findsOneWidget);
+      expect(banner, findsOneWidget);
+      expect(
+        find.text("Only share if you trust Webshop Noord"),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: _share, matching: find.text("Share anyway")),
+        findsOneWidget,
+      );
+
+      // "Don't share" is the safe, big answer: nothing is sent.
+      await tester.tap(_share);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("share_anyway_dialog")), findsOneWidget);
+      await tester.tap(find.byKey(const Key("share_anyway_cancel")));
+      await tester.pumpAndSettle();
+      expect(calls.shared, isEmpty);
+
+      await tester.tap(_share);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("share_anyway_confirm")));
+      await tester.pumpAndSettle();
+      expect(calls.shared, hasLength(1));
+    });
+
+    testWidgets("not evaluated: no colour, no claim, nothing to tap", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session(email(), requestor: party(level: "")),
+      );
+      expect(find.byKey(const Key("session_requestor_trust")), findsNothing);
+      expect(banner, findsNothing);
+      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("requestor_trust_sheet")), findsNothing);
+    });
+
+    testWidgets("the party opens what registered means", (tester) async {
+      await _pump(tester, session: _session(email()));
+      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("requestor_trust_sheet")), findsOneWidget);
+      expect(find.byKey(const Key("trust_sheet_head")), findsOneWidget);
+      expect(find.text("Yivi checked who they are"), findsOneWidget);
+      expect(find.text("They are listed on the Yivi Portal"), findsOneWidget);
+    });
+
+    testWidgets("unknown: the banner explains, and Don't share closes", (
+      tester,
+    ) async {
+      final calls = await _pump(
+        tester,
+        session: _session(email(), requestor: party()),
+      );
+      await tester.tap(find.byKey(const Key("share_trust_banner_more")));
+      await tester.pumpAndSettle();
+      expect(find.text("Unknown to Yivi"), findsOneWidget);
+      expect(find.text("Nobody checked who they are"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("trust_sheet_dont_share")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("requestor_trust_sheet")), findsNothing);
+      expect(calls.closed, 1);
+      expect(calls.shared, isEmpty);
+    });
+
+    testWidgets("medium: the sheet says who vouches, without a red cross", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session(
+          email(),
+          requestor: party(level: "medium", source: "eu_trusted_list"),
+        ),
+      );
+      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.pumpAndSettle();
+      expect(find.text("Verified by an EU trust service"), findsOneWidget);
+      expect(
+        find.text("They are not registered with Yivi itself"),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.close_rounded), findsNothing);
+      expect(find.byKey(const Key("trust_sheet_eu_list")), findsOneWidget);
+    });
+
+    testWidgets("technical details: last on the page, in their own sheet", (
+      tester,
+    ) async {
+      await _pump(tester, session: _session(email()));
+      final link = find.byKey(const Key("share_technical_details"));
+      await tester.scrollUntilVisible(
+        link,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(link);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("technical_details_sheet")), findsOneWidget);
+      expect(find.text("IRMA"), findsOneWidget);
+      expect(find.text("Idemix · from RvIG"), findsOneWidget);
+      // Nothing personal in it.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("technical_details_sheet")),
+          matching: find.text("s@werk.example"),
+        ),
+        findsNothing,
+      );
+    });
   });
 }
 

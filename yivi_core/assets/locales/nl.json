@@ -1289,11 +1289,6 @@
     }
   },
   "share": {
-    "requestor": {
-      "registered": "Geregistreerd bij Yivi",
-      "not_registered": "Niet geregistreerd bij Yivi",
-      "unknown_note": "Yivi kan niet bevestigen wie dit is. Deel alleen als je de website waar je vandaan komt vertrouwt."
-    },
     "step_count": "Stap {step} van {total}",
     "problem": {
       "revoked": "Ingetrokken",
@@ -1305,18 +1300,13 @@
       "last_use": "Laatste keer",
       "last_use_note": "Hierna kan de kaart niet meer gedeeld worden. Je kunt daarna een nieuwe toevoegen."
     },
-    "title": {
-      "share": "Wil je deze gegevens delen?",
-      "sign": "Wil je dit bericht ondertekenen?",
-      "share_receive": "Wil je deze gegevens delen en een kaart toevoegen?"
-    },
     "bar": {
       "share": "Gegevens delen",
       "sign": "Ondertekenen",
       "share_receive": "Delen en ontvangen"
     },
     "button": {
-      "share": "Delen",
+      "share": "Delen met {requestor}",
       "sign_and_share": "Ondertekenen en delen",
       "share_and_add": "Delen en kaart toevoegen",
       "share_without_data": "Delen zonder gegevens",
@@ -1339,7 +1329,8 @@
       "you_receive": "Je ontvangt",
       "from": "Van {issuer}",
       "nothing_required": "Niets verplicht",
-      "nothing_required_text": "{requestor} vraagt niets wat je moet delen."
+      "nothing_required_text": "{requestor} vraagt niets wat je moet delen.",
+      "gets": "{requestor} krijgt"
     },
     "change": "Wijzig",
     "leave_out": "{name} weglaten",
@@ -1349,7 +1340,7 @@
     "or": " of ",
     "add_new": "Voeg een nieuwe {name} toe",
     "message_label": "Je ondertekent dit bericht",
-    "footnote": "{requestor} krijgt alleen dit. Velden die hier niet staan blijven op je telefoon.",
+    "footnote": "{requestor} krijgt alleen dit. Al het andere blijft op je telefoon.",
     "footnote_none": "Het bezoek staat wel in je Activiteit.",
     "sheet": {
       "add_optional": "Optionele gegevens toevoegen",
@@ -1395,6 +1386,138 @@
       "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
       "must_be": "{field} moet {value} zijn",
       "must_be_value": "Moet {value} zijn"
+    },
+    "heading": {
+      "share": "Deel je gegevens met",
+      "sign": "Onderteken en deel met",
+      "share_receive": "Deel je gegevens met"
+    },
+    "trust": {
+      "pill": {
+        "yivi": "Geregistreerd bij Yivi",
+        "eu": "Geverifieerd in de EU",
+        "anchor": "Geverifieerd door {anchor}",
+        "confirmed": "Identiteit bevestigd",
+        "unknown": "Niet bekend bij Yivi"
+      },
+      "card_semantics": "{name}, {status}. Wat betekent dit?",
+      "banner": {
+        "title": "Yivi weet niet wie dit is",
+        "text": "Niemand heeft gecontroleerd wie dit is. Er is geen zekerheid over wie je gegevens krijgt.",
+        "more": "Wat betekent dit?"
+      },
+      "risky": {
+        "reason": "Deel alleen als je {requestor} vertrouwt",
+        "share_anyway": "Toch delen",
+        "sign_anyway": "Toch ondertekenen"
+      },
+      "confirm": {
+        "title": "Delen met een partij die Yivi niet kent?",
+        "text": "{requestor} krijgt de gegevens op deze pagina. Je kunt dit niet terugdraaien.",
+        "dont_share": "Niet delen"
+      },
+      "sheet": {
+        "name": "Bekende en onbekende organisaties",
+        "yivi": {
+          "head": "Geregistreerd bij Yivi",
+          "body": "Yivi heeft gecontroleerd wie {requestor} is.",
+          "fact_checked": "Yivi heeft gecontroleerd wie dit is",
+          "fact_verified": "Hun naam en logo zijn geverifieerd",
+          "fact_listed": "Ze staan op het Yivi Portal"
+        },
+        "elsewhere": {
+          "head_eu": "Geverifieerd door een Europese vertrouwensdienst",
+          "head_anchor": "Geverifieerd door {anchor}",
+          "head_confirmed": "Identiteit bevestigd",
+          "body_eu": "Een vertrouwensdienst op de Europese vertrouwenslijst heeft gecontroleerd wie {requestor} is.",
+          "body_anchor": "{anchor} heeft gecontroleerd wie {requestor} is.",
+          "body_confirmed": "Een vertrouwde partij anders dan Yivi heeft gecontroleerd wie {requestor} is.",
+          "fact_checked_eu": "Een vertrouwensdienst heeft gecontroleerd wie dit is",
+          "fact_checked_anchor": "{anchor} heeft gecontroleerd wie dit is",
+          "fact_checked_confirmed": "Een vertrouwde partij heeft gecontroleerd wie dit is",
+          "fact_name": "Hun naam komt uit die controle",
+          "fact_not_yivi": "Ze zijn niet bij Yivi zelf geregistreerd"
+        },
+        "unknown": {
+          "head": "Onbekend bij Yivi",
+          "body": "Niemand staat in voor {requestor}.",
+          "fact_unchecked": "Niemand heeft gecontroleerd wie dit is",
+          "fact_self": "Hun naam en logo komen van henzelf",
+          "fact_responsibility": "Delen is je eigen verantwoordelijkheid"
+        },
+        "do": {
+          "good_to_know": "Goed om te weten",
+          "unsure": "Twijfel je? Dit kun je doen",
+          "decide": "Jij beslist",
+          "decide_text": "Deel alleen waar je je prettig bij voelt.",
+          "portal": "Bekijk alle geregistreerde organisaties",
+          "portal_text": "Op het Yivi Portal",
+          "eu_list": "Wat is de Europese vertrouwenslijst?",
+          "eu_list_text": "Vertrouwensdiensten waar EU-landen toezicht op houden",
+          "dont_share": "Niet delen",
+          "dont_share_text": "Sluit dit verzoek. Er wordt niets verstuurd.",
+          "contact": "Neem contact op met {requestor}",
+          "contact_text": "Vraag het via een kanaal dat je al vertrouwt.",
+          "register": "Vraag ze zich te registreren",
+          "register_text": "Op portal.yivi.app"
+        }
+      }
+    },
+    "tech": {
+      "link": "Technische details",
+      "title": "Technische details",
+      "intro": "Voor wie het wil weten. Je hebt dit niet nodig om te beslissen.",
+      "copy": "Alle details kopiëren",
+      "copied": "Gekopieerd",
+      "card": "{format} · van {issuer}",
+      "group": {
+        "who": "Wie vraagt",
+        "how": "Hoe je deelt",
+        "what": "Wat ze krijgen"
+      },
+      "row": {
+        "name": "Naam",
+        "identifier": "Kenmerk",
+        "trust_level": "Vertrouwensniveau",
+        "trust_source": "Vertrouwenssysteem",
+        "trust_anchor": "Staat in voor deze partij",
+        "registration": "Geregistreerd als",
+        "cert_subject": "Certificaat voor",
+        "cert_issuer": "Certificaat uitgegeven door",
+        "cert_valid": "Certificaat geldig tot",
+        "protocol": "Protocol",
+        "session": "Sessie",
+        "response": "Antwoord"
+      },
+      "level": {
+        "high": "Hoog · Yivi staat in voor deze partij",
+        "medium": "Midden · een andere vertrouwde partij staat in voor deze partij",
+        "low": "Laag · niemand staat in voor deze partij",
+        "verified": "Yivi staat in voor deze partij",
+        "not_verified": "Niemand staat in voor deze partij",
+        "unevaluated": "Niet beoordeeld"
+      },
+      "source": {
+        "yivi_scheme": "Yivi requestor scheme",
+        "yivi_trust_list": "Yivi vertrouwenslijst",
+        "eu_trusted_list": "Europese vertrouwenslijst"
+      },
+      "protocol": {
+        "irma": "IRMA",
+        "openid4vp": "OpenID for Verifiable Presentations (OpenID4VP)",
+        "openid4vci": "OpenID for Verifiable Credential Issuance (OpenID4VCI)"
+      },
+      "session": {
+        "disclosure": "Delen",
+        "issuance": "Uitgifte",
+        "signature": "Ondertekening"
+      },
+      "format": {
+        "idemix": "Idemix",
+        "sdjwtvc": "SD-JWT VC",
+        "mdoc": "mdoc",
+        "unknown": "Onbekend formaat"
+      }
     }
   },
   "contact_sheet": {

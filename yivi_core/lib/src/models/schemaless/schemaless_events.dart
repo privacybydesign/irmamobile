@@ -167,7 +167,26 @@ class TrustedParty {
   final String? imagePath;
   final LogoImage? image;
   final TrustedParty? parent;
+
+  /// Whether Yivi vouches for the party, as irmago sent it before the trust
+  /// ladder. irmago with the ladder sends [trustLevel] instead, and no
+  /// `verified`.
+  @JsonKey(defaultValue: false)
   final bool verified;
+
+  /// The rung of irmago's trust ladder: "low", "medium" or "high". Absent
+  /// when nothing was evaluated, or from an irmago without the ladder.
+  final String? trustLevel;
+
+  /// Where the trust comes from: "yivi_scheme", "yivi_trust_list",
+  /// "eu_trusted_list" or "other". Absent when unknown.
+  final String? trustSource;
+
+  /// The display name of the list or authority that vouches, if any.
+  final String? trustAnchor;
+
+  /// What the trust rests on, for the technical details.
+  final TrustEvidence? evidence;
 
   TrustedParty({
     required this.id,
@@ -177,12 +196,53 @@ class TrustedParty {
     required this.verified,
     this.imagePath,
     this.image,
+    this.trustLevel,
+    this.trustSource,
+    this.trustAnchor,
+    this.evidence,
   });
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>
       _$TrustedPartyFromJson(json);
 
   Map<String, dynamic> toJson() => _$TrustedPartyToJson(this);
+}
+
+/// What a party's trust rests on: its registration in a Yivi scheme, or the
+/// certificate it presented. Shown in the technical details only.
+@JsonSerializable(fieldRename: .snake)
+class TrustEvidence {
+  /// The identifier under which the party is registered, e.g.
+  /// `pbdf-requestors.webshopnoord`.
+  final String? registrationId;
+  final TrustCertificate? certificate;
+
+  TrustEvidence({this.registrationId, this.certificate});
+
+  factory TrustEvidence.fromJson(Map<String, dynamic> json) =>
+      _$TrustEvidenceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TrustEvidenceToJson(this);
+}
+
+/// The certificate a party presented (OpenID4VP): who it names, who issued
+/// it, and until when (seconds since the epoch).
+@JsonSerializable(fieldRename: .snake)
+class TrustCertificate {
+  final String subject;
+  final String issuer;
+  final int? notAfter;
+
+  TrustCertificate({
+    required this.subject,
+    required this.issuer,
+    this.notAfter,
+  });
+
+  factory TrustCertificate.fromJson(Map<String, dynamic> json) =>
+      _$TrustCertificateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TrustCertificateToJson(this);
 }
 
 @JsonSerializable(fieldRename: .snake)

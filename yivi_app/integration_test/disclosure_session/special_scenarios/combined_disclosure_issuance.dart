@@ -40,14 +40,13 @@ Future<void> combinedDisclosureIssuanceSessionTest(
 
   // One screen for both: what is shared, and the card that is received.
   await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(
-    find.text("Do you want to share this data and add a card?"),
-    findsOneWidget,
-  );
+  expect(find.text("Share your data with"), findsOneWidget);
   expect(find.text("YOU RECEIVE"), findsOneWidget);
   expect(find.text("Demo Login data"), findsWidgets);
   expect(find.text("1234"), findsOneWidget);
-  expect(find.text("Share and add card"), findsOneWidget);
+  // The staging requestor is not registered with Yivi: "Share anyway", which
+  // tapShare confirms.
+  expect(find.text("Share anyway"), findsOneWidget);
 
   await tapShare(tester);
 

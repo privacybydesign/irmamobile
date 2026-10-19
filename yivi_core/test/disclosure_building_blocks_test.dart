@@ -169,7 +169,6 @@ void main() {
       );
       expect(find.text("Webshop Noord"), findsOneWidget);
       expect(find.text("Registered with Yivi"), findsOneWidget);
-      expect(find.byKey(const Key("session_requestor_warning")), findsNothing);
     });
 
     testWidgets("an unknown party gets the warning", (tester) async {
@@ -181,11 +180,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text("Not registered with Yivi"), findsOneWidget);
-      expect(
-        find.byKey(const Key("session_requestor_warning")),
-        findsOneWidget,
-      );
+      expect(find.text("Not known by Yivi"), findsOneWidget);
     });
   });
 

@@ -67,8 +67,9 @@ void main() {
       await irmaBinding.repository.startTestSession(sessionRequest);
 
       // The signing screen rendered (i.e. did not freeze).
+      await tester.waitFor(find.byType(DisclosureShareScreen));
       expect(find.byType(DisclosureShareScreen), findsOneWidget);
-      expect(find.text("This is the message you're signing:"), findsOneWidget);
+      expect(find.text("You sign this message"), findsOneWidget);
 
       // The message is shown truncated to a few lines with an ellipsis, plus a
       // bold, tappable "Read more" link to reveal the full text (chat-app
@@ -100,8 +101,14 @@ void main() {
         greaterThan(collapsedText.data!.runes.length),
       );
 
-      // Tapping "Read less" collapses it again.
-      await tester.ensureVisible(toggleFinder);
+      // Tapping "Read less" collapses it again. Centred, so it is clear of
+      // the bottom bar (taller when the requestor isn't known: the bar then
+      // says to share only if you trust them).
+      await Scrollable.ensureVisible(
+        tester.element(toggleFinder),
+        alignment: 0.5,
+      );
+      await tester.pumpAndSettle();
       await tester.tapAndSettle(toggleFinder);
       expect(find.text("Read more"), findsOneWidget);
       expect(find.text("Read less"), findsNothing);

@@ -112,12 +112,9 @@ Future<void> randomBlindTest(
   const expectedFirstAttributeName = "Anonymous voting number";
   expect(firstAttributeName, expectedFirstAttributeName);
 
-  final confirmButtonFinder = find.text("Sign and share");
-  await tester.waitFor(
-    confirmButtonFinder,
-    timeout: const Duration(seconds: 5),
-  );
-  await tester.tapAndSettle(confirmButtonFinder);
+  // "Sign and share", or "Sign anyway" (with a confirm) when nobody vouches
+  // for the requestor.
+  await tapShare(tester);
 
   await evaluateFeedback(tester, isSignatureSession: true);
 }

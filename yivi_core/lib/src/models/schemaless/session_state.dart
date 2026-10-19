@@ -58,6 +58,11 @@ class SessionState {
   transactionCodeParameters;
   final int? remainingTxCodeAttempts;
 
+  /// How an OpenID4VP response travels to the verifier (e.g.
+  /// `direct_post.jwt`), for the technical details. Absent for IRMA, or
+  /// when irmago does not send it.
+  final String? responseMode;
+
   SessionState({
     required this.id,
     required this.protocol,
@@ -78,6 +83,7 @@ class SessionState {
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
     this.remainingTxCodeAttempts,
+    this.responseMode,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>

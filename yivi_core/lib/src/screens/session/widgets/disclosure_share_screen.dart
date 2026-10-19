@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
@@ -11,6 +12,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -18,12 +20,15 @@ import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/large_title_scroll_view.dart";
 import "../../../widgets/signature_message.dart";
 import "../models/disclosure_view_model.dart";
+import "../models/technical_details.dart";
 import "change_choice_sheet.dart";
 import "empty_card_spot.dart";
+import "requestor_trust_sheet.dart";
 import "session_columns.dart";
 import "session_requestor_header.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
+import "technical_details_sheet.dart";
 
 /// The share screen: the question as a large title, who asks, one card per
 /// requested item with only the values that are shared, optional data, the
@@ -127,9 +132,22 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         if (p.optional) _optionalItem(i, p, selections),
     ];
     final anyShared = selections.values.any((k) => k >= 0);
+    final trust = requestorTrustOf(session.requestor);
+    void openTrust() => showRequestorTrustSheet(
+      context: context,
+      requestor: session.requestor,
+      onDontShare: widget.onClose,
+    );
 
     final requestorPart = <Widget>[
-      SessionRequestorHeader(requestor: session.requestor),
+      SessionRequestorHeader(requestor: session.requestor, onTap: openTrust),
+      if (trust.risky)
+        _TrustBanner(
+          title: t("share.trust.banner.title"),
+          text: t("share.trust.banner.text"),
+          more: t("share.trust.banner.more"),
+          onMore: openTrust,
+        ),
       if (isSignature && session.messageToSign != null)
         _Surface(
           child: Column(
@@ -151,11 +169,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final requestedPart = <Widget>[
       if (required.isNotEmpty) ...[
         _SectionLabel(
-          title: t(
-            isSignature
-                ? "share.section.with_signature"
-                : "share.section.you_share",
-          ),
+          title: isSignature
+              ? t("share.section.with_signature")
+              : t("share.section.gets", {"requestor": requestor}),
+          arrow: !isSignature,
         ),
         ...required,
       ],
@@ -187,7 +204,28 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           ? t("share.footnote", {"requestor": requestor})
           : t("share.footnote_none"),
     );
+    // For the curious: last on the page, small and grey, out of the way of
+    // the button.
+    final techLink = _TechLink(
+      label: t("share.tech.link"),
+      onTap: () => showTechnicalDetailsSheet(
+        context: context,
+        groups: technicalDetailsOf(
+          session,
+          _sharedCredentials(pickOnes, selections),
+          t,
+        ),
+      ),
+    );
 
+    // Nobody vouches for the requestor: Share becomes "Share anyway", asks
+    // once more, and says above it to share only if you trust them.
+    final risky =
+        trust.risky &&
+        button.enabled &&
+        button.label != ShareLabel.close &&
+        button.label != ShareLabel.shareWithoutData;
+    void share() => widget.onShare(disclosureChoicesFor(pickOnes, selections));
     final bar = _ShareBar(
       reason: switch (button) {
         ShareButtonState(cannotAdd: final p?) =>
@@ -209,15 +247,29 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         ShareButtonState(blockedBy: final p?) => t(
           "share.reason.${_problemName(p)}",
         ),
+        _ when risky => t("share.trust.risky.reason", {"requestor": requestor}),
         _ => null,
       },
-      label: t("share.button.${_labelName(button.label)}"),
-      primary: button.label != ShareLabel.close,
+      label: risky
+          ? t(
+              button.label == ShareLabel.signAndShare
+                  ? "share.trust.risky.sign_anyway"
+                  : "share.trust.risky.share_anyway",
+            )
+          : t("share.button.${_labelName(button.label)}", {
+              "requestor": requestor,
+            }),
+      primary: button.label != ShareLabel.close && !risky,
+      risky: risky,
       onPressed: !button.enabled
           ? null
           : button.label == ShareLabel.close
           ? widget.onClose
-          : () => widget.onShare(disclosureChoicesFor(pickOnes, selections)),
+          : risky
+          ? () async {
+              if (await _confirmShareAnyway(requestor)) share();
+            }
+          : share,
     );
 
     // Tablets: the question, who asks and what it means on the left; what
@@ -229,25 +281,29 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         wide: true,
         scrollsUnderBars: true,
         barTitleVisibility: hiddenBarTitle,
-        body: SessionColumns(
-          startWidth: 400,
-          endWidth: 520,
-          gap: 56,
-          start: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 14,
-            children: [
-              SessionColumnsTitle(t("share.title.$kind")),
-              ...requestorPart,
-              footnote,
-            ],
+        body: _TrustWash(
+          on: trust.risky,
+          child: SessionColumns(
+            startWidth: 400,
+            endWidth: 520,
+            gap: 56,
+            start: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 14,
+              children: [
+                SessionColumnsTitle(t("share.heading.$kind")),
+                ...requestorPart,
+                footnote,
+                techLink,
+              ],
+            ),
+            end: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: requestedPart,
+            ),
+            actions: bar,
           ),
-          end: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 10,
-            children: requestedPart,
-          ),
-          actions: bar,
         ),
       );
     }
@@ -258,20 +314,69 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       scrollsUnderBars: true,
       barTitleVisibility: _barTitleVisible,
       bottomNavigationBar: bar,
-      body: Builder(
-        builder: (context) => LargeTitleScrollView(
-          key: const Key("share_scroll_view"),
-          title: t("share.title.$kind"),
-          barTitleVisible: _barTitleVisible,
-          padding: BarInsets.of(
-            context,
-            const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      body: _TrustWash(
+        on: trust.risky,
+        child: Builder(
+          builder: (context) => LargeTitleScrollView(
+            key: const Key("share_scroll_view"),
+            title: t("share.heading.$kind"),
+            barTitleVisible: _barTitleVisible,
+            padding: BarInsets.of(
+              context,
+              const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            ),
+            spacing: 12,
+            children: [...requestorPart, ...requestedPart, footnote, techLink],
           ),
-          spacing: 12,
-          children: [...requestorPart, ...requestedPart, footnote],
         ),
       ),
     );
+  }
+
+  /// The cards that would be shared with the current selection.
+  static List<SelectableCredentialInstance> _sharedCredentials(
+    List<DisclosurePickOne> pickOnes,
+    Map<int, int> selections,
+  ) => [
+    for (final (i, p) in pickOnes.indexed)
+      if (selectionOf(p, selections[i]) case final k when k >= 0)
+        ...p.ownedOptions![k].credentials,
+  ];
+
+  /// "Share with a party Yivi doesn't know?": the safe answer is the big
+  /// button.
+  Future<bool> _confirmShareAnyway(String requestor) async {
+    String t(String key) => FlutterI18n.translate(
+      context,
+      key,
+      translationParams: {"requestor": requestor},
+    );
+    return await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => GlassDialog(
+            cardKey: const Key("share_anyway_dialog"),
+            icon: const ToneDisc(
+              icon: Icons.warning_rounded,
+              tone: DialogTone.danger,
+            ),
+            title: t("share.trust.confirm.title"),
+            message: t("share.trust.confirm.text"),
+            actions: [
+              FancyPillButton(
+                key: const Key("share_anyway_cancel"),
+                label: t("share.trust.confirm.dont_share"),
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+              ),
+              PillButton(
+                key: const Key("share_anyway_confirm"),
+                label: t("share.trust.risky.share_anyway"),
+                style: PillStyle.danger,
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   String _spotName(DisclosurePickOne p) => spotName(
@@ -509,7 +614,11 @@ class _SectionLabel extends StatelessWidget {
   final String title;
   final String? aside;
 
-  const _SectionLabel({required this.title, this.aside});
+  /// A small down arrow before the title: "↓ {requestor} gets", which reads
+  /// on from the party card above it.
+  final bool arrow;
+
+  const _SectionLabel({required this.title, this.aside, this.arrow = false});
 
   @override
   Widget build(BuildContext context) {
@@ -520,6 +629,17 @@ class _SectionLabel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
+          if (arrow)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: ExcludeSemantics(
+                child: Icon(
+                  Icons.arrow_downward_rounded,
+                  size: 15,
+                  color: palette.secondaryText,
+                ),
+              ),
+            ),
           Expanded(
             child: Semantics(
               header: true,
@@ -825,12 +945,17 @@ class _ShareBar extends StatelessWidget {
   final String? reason;
   final String label;
   final bool primary;
+
+  /// Nobody vouches for the requestor: a sober dark "Share anyway" with the
+  /// reason in red above it, instead of the celebratory red button.
+  final bool risky;
   final VoidCallback? onPressed;
 
   const _ShareBar({
     required this.reason,
     required this.label,
     required this.primary,
+    this.risky = false,
     required this.onPressed,
   });
 
@@ -849,17 +974,233 @@ class _ShareBar extends StatelessWidget {
               reason!,
               key: const Key("share_reason"),
               textAlign: TextAlign.center,
-              style: palette
-                  .body(13.5)
-                  .copyWith(height: 19 / 13.5, color: palette.heading),
+              style: risky
+                  ? palette
+                        .body(13.5, weight: FontWeight.w600)
+                        .copyWith(height: 19 / 13.5, color: palette.errorText)
+                  : palette
+                        .body(13.5)
+                        .copyWith(height: 19 / 13.5, color: palette.heading),
             ),
           KeyedSubtree(
             key: const Key("share_button"),
-            child: primary
+            child: risky
+                ? PillButton(
+                    label: label,
+                    style: PillStyle.neutral,
+                    onPressed: onPressed,
+                  )
+                : primary
                 ? FancyPillButton(label: label, onPressed: onPressed)
                 : PillButton(label: label, onPressed: onPressed),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A red wash behind the top of the page when nobody vouches for the
+/// requestor.
+class _TrustWash extends StatelessWidget {
+  final bool on;
+  final Widget child;
+
+  const _TrustWash({required this.on, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!on) return child;
+    final palette = YiviPalette.of(context);
+    return Stack(
+      children: [
+        Positioned(
+          key: const Key("share_trust_wash"),
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 460,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    palette.errorSurface,
+                    palette.errorSurface.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(child: child),
+      ],
+    );
+  }
+}
+
+/// The warning under the requestor card when nobody vouches for it: a solid
+/// red banner, hard to miss, with a way to learn what it means.
+class _TrustBanner extends StatelessWidget {
+  final String title;
+  final String text;
+  final String more;
+  final VoidCallback onMore;
+
+  const _TrustBanner({
+    required this.title,
+    required this.text,
+    required this.more,
+    required this.onMore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Container(
+        key: const Key("share_trust_banner"),
+        padding: const EdgeInsets.all(16),
+        decoration: ShapeDecoration(
+          color: palette.dangerFill,
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          shadows: [
+            BoxShadow(
+              color: palette.dangerFill.withValues(alpha: 0.32),
+              blurRadius: 28,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 14,
+          children: [
+            ExcludeSemantics(
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  size: 26,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 4,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      title,
+                      style: palette
+                          .display(17, weight: FontWeight.w700)
+                          .copyWith(height: 23 / 17, color: Colors.white),
+                    ),
+                  ),
+                  Text(
+                    text,
+                    style: palette
+                        .body(14)
+                        .copyWith(height: 20 / 14, color: Colors.white),
+                  ),
+                  const SizedBox(height: 6),
+                  Semantics(
+                    button: true,
+                    child: Material(
+                      color: Colors.white,
+                      shape: const StadiumBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        key: const Key("share_trust_banner_more"),
+                        onTap: onMore,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 36),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              more,
+                              style: palette
+                                  .body(13, weight: FontWeight.w700)
+                                  .copyWith(color: palette.dangerFill),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Technical details", quiet and last on the page.
+class _TechLink extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _TechLink({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Center(
+        child: Semantics(
+          button: true,
+          child: InkWell(
+            key: const Key("share_technical_details"),
+            onTap: onTap,
+            customBorder: const StadiumBorder(),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 6,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.code_rounded,
+                        size: 16,
+                        color: palette.secondaryText,
+                      ),
+                    ),
+                    Text(
+                      label,
+                      style: palette
+                          .body(13, weight: FontWeight.w600)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

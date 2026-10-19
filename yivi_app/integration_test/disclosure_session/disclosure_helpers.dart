@@ -14,13 +14,21 @@ import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 
 import "../util.dart";
 
-/// Taps the share button (Share, Sign and share, Share and add card…).
-/// It is the consent: the session continues straight away, without a
-/// confirmation dialog.
+/// Taps the share button (Share with …, Sign and share, Share and add
+/// card…). It is the consent: the session continues straight away. Only
+/// when nobody vouches for the requestor ("Share anyway") does the app ask
+/// once more, and this confirms it.
 Future<void> tapShare(WidgetTester tester) async {
   final button = find.byKey(const Key("share_button"));
   await tester.waitFor(button);
   await tester.tapAndSettle(button);
+  await confirmShareAnyway(tester);
+}
+
+/// Confirms "Share with a party Yivi doesn't know?" if it is showing.
+Future<void> confirmShareAnyway(WidgetTester tester) async {
+  final confirm = find.byKey(const Key("share_anyway_confirm"));
+  if (confirm.evaluate().isNotEmpty) await tester.tapAndSettle(confirm);
 }
 
 /// Whether the share button can be pressed now.
@@ -85,10 +93,10 @@ Future<void> evaluateFeedback(
   expect(find.byType(SessionScreen), findsNothing);
 }
 
-/// Checks the requestor header of the share screen: the name,
-/// "Registered with Yivi" or "Not registered with Yivi", and the warning
-/// note for an unregistered requestor. [requestorHeaderFinder] defaults to
-/// the one header on screen.
+/// Checks the requestor card of the share screen: the name, "Registered
+/// with Yivi" or "Not known by Yivi", and the red warning banner for a
+/// requestor nobody vouches for. [requestorHeaderFinder] defaults to the
+/// one card on screen.
 Future<void> evaluateRequestorHeader(
   WidgetTester tester,
   Finder? requestorHeaderFinder, {
@@ -112,16 +120,13 @@ Future<void> evaluateRequestorHeader(
     find.descendant(
       of: header,
       matching: find.text(
-        isVerified ? "Registered with Yivi" : "Not registered with Yivi",
+        isVerified ? "Registered with Yivi" : "Not known by Yivi",
       ),
     ),
     findsOneWidget,
   );
   expect(
-    find.descendant(
-      of: header,
-      matching: find.byKey(const Key("session_requestor_warning")),
-    ),
+    find.byKey(const Key("share_trust_banner")),
     isVerified ? findsNothing : findsOneWidget,
   );
 }
