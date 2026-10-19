@@ -19,12 +19,12 @@ const { values: args, positionals: inputs } = parseArgs({
   },
 });
 
-// SPDX licence identifiers we recognise in package metadata (matched case-insensitively), and other
-// spellings of them. GPL-3.0 is what GitHub reports for a plain GPLv3 licence file.
 const PURL_GOLANG = "pkg:golang/";
 const PURL_PUB = "pkg:pub/";
 const PURL_COCOAPODS = "pkg:cocoapods/";
 
+// SPDX licence identifiers we recognise in package metadata (matched case-insensitively), and other
+// spellings of them. GPL-3.0 is what GitHub reports for a plain GPLv3 licence file.
 const SPDX_IDS = [
   "0BSD", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "BSL-1.0", "CC0-1.0", "GPL-2.0-only", "GPL-3.0",
   "GPL-3.0-only", "GPL-3.0-or-later", "ISC", "LGPL-2.1-only", "LGPL-3.0-only", "MIT", "MPL-2.0", "Unlicense", "Zlib",
