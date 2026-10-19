@@ -55,9 +55,12 @@ class GlassSurface extends StatelessWidget {
           ),
           position: DecorationPosition.background,
           child: DecoratedBox(
-            // The light inner edge along the top that makes it read as glass.
+            // The soft sheen along the top that makes it read as glass. It
+            // lies on the glass, behind the content: in front of it, it
+            // veiled whatever sat in the top half (a sheet's logo and
+            // heading came out washed out).
             decoration: ShapeDecoration(
-              shape: _withSide(shape, fade(palette.glassBorder)),
+              shape: shape,
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -73,10 +76,18 @@ class GlassSurface extends StatelessWidget {
                 stops: const [0, 0.5],
               ),
             ),
-            position: DecorationPosition.foreground,
-            child: Padding(
-              padding: padding ?? EdgeInsets.zero,
-              child: a == 1 ? child : Opacity(opacity: a, child: child),
+            position: DecorationPosition.background,
+            child: DecoratedBox(
+              // The light edge, in front so content scrolling under it
+              // keeps a crisp rim.
+              decoration: ShapeDecoration(
+                shape: _withSide(shape, fade(palette.glassBorder)),
+              ),
+              position: DecorationPosition.foreground,
+              child: Padding(
+                padding: padding ?? EdgeInsets.zero,
+                child: a == 1 ? child : Opacity(opacity: a, child: child),
+              ),
             ),
           ),
         ),

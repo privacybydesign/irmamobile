@@ -190,7 +190,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: palette
                     .display(22, weight: FontWeight.w700)
-                    .copyWith(height: 30 / 22, color: palette.heading),
+                    .copyWith(height: 30 / 22, color: palette.text),
               ),
             ),
             const SizedBox(height: 4),
@@ -199,7 +199,7 @@ class RequestorTrustSheet extends StatelessWidget {
               textAlign: TextAlign.center,
               style: palette
                   .body(15)
-                  .copyWith(height: 22 / 15, color: palette.secondaryText),
+                  .copyWith(height: 22 / 15, color: palette.heading),
             ),
             const SizedBox(height: 18),
             _Group(
@@ -347,7 +347,7 @@ class _FactRow extends StatelessWidget {
               fact.text,
               style: palette
                   .body(15, weight: FontWeight.w600)
-                  .copyWith(height: 21 / 15, color: palette.heading),
+                  .copyWith(height: 21 / 15, color: palette.text),
             ),
           ),
         ],
@@ -391,7 +391,7 @@ class _DoRow extends StatelessWidget {
                   item.title,
                   style: palette
                       .body(15, weight: FontWeight.w600)
-                      .copyWith(height: 21 / 15, color: palette.heading),
+                      .copyWith(height: 21 / 15, color: palette.text),
                 ),
                 Text(
                   item.subtitle,

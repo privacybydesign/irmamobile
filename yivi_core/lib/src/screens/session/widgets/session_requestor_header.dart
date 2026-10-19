@@ -186,9 +186,47 @@ class SessionRequestorHeader extends StatelessWidget {
     this.onTap,
   });
 
-  /// [requestor]'s logo, or its initial when it has none.
+  /// The fills of a requestor without a logo, picked by its name: deep
+  /// enough that a white initial reads well, in both light and dark mode.
+  static const _initialFills = [
+    Color(0xFF2F5D8A),
+    Color(0xFF7A1F2E),
+    Color(0xFF3D6B4F),
+    Color(0xFF6B4E8A),
+    Color(0xFF8A5A2F),
+  ];
+
+  /// [requestor]'s logo, or its initial on a coloured disc when it has none
+  /// (not the pale grey placeholder: this is the subject of the screen).
   static Widget avatarOf(TrustedParty requestor, {double size = 46}) {
     final image = requestor.image;
+    if (image == null && requestor.imagePath == null) {
+      final name = requestor.name.trim();
+      final fill =
+          _initialFills[name.codeUnits.fold(0, (a, c) => a + c) %
+              _initialFills.length];
+      return Semantics(
+        label: requestor.name,
+        child: Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+          child: ExcludeSemantics(
+            child: Text(
+              name.isEmpty ? "?" : name.characters.first.toUpperCase(),
+              style: TextStyle(
+                fontFamily: "Alexandria",
+                fontWeight: FontWeight.w700,
+                fontSize: size * 0.44,
+                height: 1,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return IrmaAvatar(
       size: size,
       logoImage: image == null
