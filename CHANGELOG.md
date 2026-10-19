@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Internal
+- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.3.3] - 2026-10-16
 ### Added
@@ -15,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.3.2] - 2026-10-14
 ### Added
-- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 - The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
 - On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
 - The categories on a driving licence credential (`pbdf.pbdf.drivinglicence`, and its `pbdf-staging` counterpart) are shown as one table laid out like the back of the licence card, instead of three separate rows per category: a vehicle pictogram and the category code, followed by the issue and expiry dates, with "-" for a category that is not held. On the credential detail screen the table starts collapsed to the categories held and ends in a "+ 14 categories not held" row that expands the rest in place. On a disclosure, in the session and in the activity log, it shows exactly the categories being shared, with only the date columns that were requested, or a Status column (Held / Not held) when no date was requested
