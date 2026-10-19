@@ -28,6 +28,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.da
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
@@ -48,15 +49,18 @@ class _NoWallet extends SchemalessCredentialOrderController {
 TrustedParty _party(String name) =>
     TrustedParty(id: name, name: name, url: null, parent: null, verified: true);
 
-CredentialDescriptor _descriptor(String id, String name) =>
-    CredentialDescriptor(
-      credentialId: id,
-      name: name,
-      issuer: _party("Issuer"),
-      category: null,
-      attributes: const [],
-      issueURL: "https://www.issuer.example/$id",
-    );
+CredentialDescriptor _descriptor(
+  String id,
+  String name, {
+  List<Attribute> attributes = const [],
+}) => CredentialDescriptor(
+  credentialId: id,
+  name: name,
+  issuer: _party("Issuer"),
+  category: null,
+  attributes: attributes,
+  issueURL: "https://www.issuer.example/$id",
+);
 
 SelectableCredentialInstance _instance(
   String id,
@@ -601,6 +605,94 @@ void main() {
       expect(calls.shared, isEmpty);
     });
 
+    testWidgets("one way to get it: the spot looks like the card, with what "
+        "it will share still empty", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              _descriptor(
+                "idcard",
+                "ID card",
+                attributes: [
+                  Attribute(
+                    claimPath: ["firstname"],
+                    displayName: "First name",
+                    requestedValue: AttributeValue(type: AttributeType.string),
+                  ),
+                  Attribute(
+                    claimPath: ["lastname"],
+                    displayName: "Last name",
+                    requestedValue: AttributeValue(type: AttributeType.string),
+                  ),
+                  // Part of the type, but not asked for: no row.
+                  Attribute(claimPath: ["bsn"], displayName: "BSN"),
+                ],
+              ),
+            ],
+          ),
+        ]),
+      );
+      final spot = find.byKey(const Key("share_spot_0"));
+      expect(
+        find.descendant(of: spot, matching: find.byType(CardTile)),
+        findsOne,
+      );
+      expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
+      expect(
+        find.descendant(of: spot, matching: find.text("First name")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: spot, matching: find.text("Last name")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: spot, matching: find.text("Not in your app yet")),
+        findsNWidgets(2),
+      );
+      expect(
+        find.descendant(of: spot, matching: find.text("BSN")),
+        findsNothing,
+      );
+    });
+
+    testWidgets("several ways: no rows yet, only the name and the hint", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              _descriptor(
+                "passport",
+                "Passport",
+                attributes: [
+                  Attribute(
+                    claimPath: ["firstname"],
+                    displayName: "First name",
+                  ),
+                ],
+              ),
+              _descriptor("idcard", "ID card"),
+            ],
+          ),
+        ]),
+      );
+      final spot = find.byKey(const Key("share_spot_0"));
+      expect(
+        find.descendant(of: spot, matching: find.text("First name")),
+        findsNothing,
+      );
+      expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
+    });
+
     testWidgets("one way to get it: the spot opens its details at once", (
       tester,
     ) async {
@@ -731,7 +823,16 @@ void main() {
         find.text("You added INGBNL2A, needed RABONL2U. Tap to add it again."),
         findsOneWidget,
       );
-      expect(find.text("BIC must be RABONL2U"), findsOneWidget);
+      // The value it must have, in the spot's row for that field.
+      final spot = find.byKey(const Key("share_spot_0"));
+      expect(
+        find.descendant(of: spot, matching: find.text("BIC")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: spot, matching: find.text("Must be RABONL2U")),
+        findsOneWidget,
+      );
     });
 
     testWidgets("once added: in its place, added and selected", (tester) async {

@@ -172,20 +172,30 @@ String? shareReason(WidgetTester tester) {
 /// Checks that requested item [i] is an empty spot for [title] (the types
 /// it can be filled with, joined with " or "), with [hint] ("Tap to add it
 /// from …", "Tap to choose which one to add", "Can't be added in Yivi. …")
-/// when given.
+/// when given. With one card to add, the spot also lists the requested
+/// fields as "Not in your app yet"; see [expectEmptySpotRows].
 void expectEmptySpot(int i, String title, {String? hint}) {
   final spot = findEmptySpot(i);
   expect(spot, findsOneWidget, reason: "empty spot $i");
   expect(find.descendant(of: spot, matching: find.text(title)), findsOneWidget);
-  expect(
-    find.descendant(of: spot, matching: find.text("Not in your app yet")),
-    findsOneWidget,
-  );
   if (hint != null) {
     expect(
       find.descendant(of: spot, matching: find.text(hint)),
       findsOneWidget,
       reason: "hint of empty spot $i",
+    );
+  }
+}
+
+/// Checks the rows of empty spot [i]: each requested field [labels], with
+/// "Not in your app yet" (or "Must be …").
+void expectEmptySpotRows(int i, List<String> labels) {
+  final spot = findEmptySpot(i);
+  for (final label in labels) {
+    expect(
+      find.descendant(of: spot, matching: find.text(label)),
+      findsOneWidget,
+      reason: "row $label of empty spot $i",
     );
   }
 }

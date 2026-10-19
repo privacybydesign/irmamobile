@@ -1393,7 +1393,8 @@
       "wrong": "Du hast {offered} hinzugefügt, nötig ist {needed}. Tippe, um es erneut hinzuzufügen.",
       "together": "Nur zusammen gültig. Tippe, um sie einzeln hinzuzufügen.",
       "cant_unknown": "Kann nicht in Yivi hinzugefügt werden.",
-      "must_be": "{field} muss {value} sein"
+      "must_be": "{field} muss {value} sein",
+      "must_be_value": "Muss {value} sein"
     }
   },
   "contact_sheet": {

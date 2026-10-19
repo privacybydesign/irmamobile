@@ -1393,7 +1393,8 @@
       "wrong": "You added {offered}, needed {needed}. Tap to add it again.",
       "together": "Only accepted together. Tap to add them one by one.",
       "cant_unknown": "Can't be added in Yivi.",
-      "must_be": "{field} must be {value}"
+      "must_be": "{field} must be {value}",
+      "must_be_value": "Must be {value}"
     }
   },
   "contact_sheet": {

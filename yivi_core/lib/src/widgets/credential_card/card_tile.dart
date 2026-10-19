@@ -25,6 +25,10 @@ class CardTile extends StatelessWidget {
   /// Drawn around the tile, e.g. red for a card with a problem.
   final Color? outline;
 
+  /// A spot for a card that is not there yet: see-through, with a dashed
+  /// outline in [outline] instead of a shadow.
+  final bool dashed;
+
   const CardTile({
     super.key,
     required this.art,
@@ -34,67 +38,86 @@ class CardTile extends StatelessWidget {
     this.trailing,
     this.body = const [],
     this.outline,
+    this.dashed = false,
   });
+
+  static const _shape = RoundedSuperellipseBorder(
+    borderRadius: BorderRadius.all(Radius.circular(24)),
+  );
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          side: outline != null
-              ? BorderSide(color: outline!, width: 1.5)
-              : BorderSide.none,
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 10,
-          children: [
-            Row(
-              spacing: 12,
-              children: [
-                ExcludeSemantics(child: art),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .display(15)
-                            .copyWith(color: palette.text),
-                      ),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .body(12.5)
-                            .copyWith(color: palette.secondaryText),
-                      ),
-                    ],
-                  ),
-                ),
-                ?chip,
-                ?trailing,
-              ],
+    final decoration = dashed
+        ? ShapeDecoration(
+            color: palette.surface.withValues(alpha: 0.45),
+            shape: _shape,
+          )
+        : ShapeDecoration(
+            color: palette.surface,
+            shape: RoundedSuperellipseBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+              side: outline != null
+                  ? BorderSide(color: outline!, width: 1.5)
+                  : BorderSide.none,
             ),
-            ...body,
-          ],
+            shadows: const [
+              BoxShadow(
+                color: Color(0x17000000),
+                blurRadius: 6,
+                offset: Offset(0, 1),
+              ),
+            ],
+          );
+    return CustomPaint(
+      foregroundPainter: dashed
+          ? _DashedOutlinePainter(
+              shape: _shape,
+              color: outline ?? palette.link.withValues(alpha: 0.35),
+            )
+          : null,
+      child: DecoratedBox(
+        decoration: decoration,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 10,
+            children: [
+              Row(
+                spacing: 12,
+                children: [
+                  ExcludeSemantics(child: art),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: palette
+                              .display(15)
+                              .copyWith(color: palette.text),
+                        ),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: palette
+                              .body(12.5)
+                              .copyWith(color: palette.secondaryText),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ?chip,
+                  ?trailing,
+                ],
+              ),
+              ...body,
+            ],
+          ),
         ),
       ),
     );
@@ -162,4 +185,30 @@ class CardTileChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A dashed line along [shape], for an empty [CardTile].
+class _DashedOutlinePainter extends CustomPainter {
+  final ShapeBorder shape;
+  final Color color;
+
+  const _DashedOutlinePainter({required this.shape, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = shape.getOuterPath((Offset.zero & size).deflate(0.75));
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    for (final metric in path.computeMetrics()) {
+      for (var d = 0.0; d < metric.length; d += 9) {
+        canvas.drawPath(metric.extractPath(d, d + 5), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedOutlinePainter old) =>
+      old.color != color || old.shape != shape;
 }

@@ -1393,7 +1393,8 @@
       "wrong": "Je voegde {offered} toe, nodig is {needed}. Tik om opnieuw toe te voegen.",
       "together": "Alleen samen geldig. Tik om ze een voor een toe te voegen.",
       "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
-      "must_be": "{field} moet {value} zijn"
+      "must_be": "{field} moet {value} zijn",
+      "must_be_value": "Moet {value} zijn"
     }
   },
   "contact_sheet": {

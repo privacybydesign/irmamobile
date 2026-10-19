@@ -41,6 +41,9 @@ Future<void> noChoiceMultipleCredsTest(
     "Demo Mobile phone number",
     hint: "Tap to add it from $sidn",
   );
+  // Each spot lists the field it will share, still empty.
+  expectEmptySpotRows(0, ["Email address"]);
+  expectEmptySpotRows(1, ["Mobile phone number"]);
   expectShareWaitsFor(tester, "Demo Email address");
 
   // The e-mail spot opens its details at once; "Add" opens the website
