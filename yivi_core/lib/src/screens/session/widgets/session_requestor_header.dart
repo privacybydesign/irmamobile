@@ -107,6 +107,64 @@ class RequestorTrustBadge extends StatelessWidget {
   }
 }
 
+/// The hero tag of [requestor]'s logo: the card's logo flies into the trust
+/// sheet and back.
+Object requestorLogoHeroTag(TrustedParty requestor) =>
+    ("requestor_logo", requestor.id, requestor.name);
+
+/// A requestor's logo with its trust badge on the corner, at [size]. It is
+/// drawn at one size and scaled, so the badge keeps its place at any size
+/// and the logo can fly between the card (60 pt) and the trust sheet
+/// (84 pt) as one hero.
+class RequestorLogo extends StatelessWidget {
+  final TrustedParty requestor;
+  final RequestorTrustStyle style;
+  final double size;
+
+  const RequestorLogo({
+    super.key,
+    required this.requestor,
+    required this.style,
+    required this.size,
+  });
+
+  static const double _drawn = 84;
+
+  @override
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: requestorLogoHeroTag(requestor),
+      // Also back into the card when the sheet is dragged closed.
+      transitionOnUserGestures: true,
+      flightShuttleBuilder: (_, _, _, _, to) => Material(
+        type: MaterialType.transparency,
+        child: (to.widget as Hero).child,
+      ),
+      child: ExcludeSemantics(
+        child: SizedBox.square(
+          dimension: size,
+          child: FittedBox(
+            child: SizedBox.square(
+              dimension: _drawn,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  SessionRequestorHeader.avatarOf(requestor, size: _drawn),
+                  Positioned(
+                    right: -8,
+                    bottom: -8,
+                    child: RequestorTrustBadge(style: style, size: 36),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Who is asking, at the top of the share screen and the pairing screen:
 /// the party as the subject of the page. A 60 pt logo with a trust badge on
 /// its corner, the name, and a one-line pill saying who vouches. The whole
@@ -163,17 +221,7 @@ class SessionRequestorHeader extends StatelessWidget {
       child: Row(
         spacing: 14,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ExcludeSemantics(child: avatarOf(requestor, size: 60)),
-              Positioned(
-                right: -6,
-                bottom: -6,
-                child: RequestorTrustBadge(style: style),
-              ),
-            ],
-          ),
+          RequestorLogo(requestor: requestor, style: style, size: 60),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -27,6 +27,7 @@ import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
@@ -1790,6 +1791,33 @@ void main() {
       await tester.tap(find.byKey(const Key("session_requestor_header")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("requestor_trust_sheet")), findsNothing);
+    });
+
+    testWidgets("the logo flies from the card into the trust sheet", (
+      tester,
+    ) async {
+      await _pump(tester, session: _session(email()));
+      final logo = find.byType(RequestorLogo);
+      final from = tester.getRect(logo);
+      expect(from.width, 60);
+
+      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+      // Mid-flight: one logo on its way, between the two sizes.
+      // (The copy in flight is the hero's child: measure the scaled box.)
+      final sizes = [
+        for (final e in find.byType(FittedBox).evaluate())
+          tester.getRect(find.byWidget(e.widget)).width,
+      ];
+      expect(sizes.any((w) => w > 60 && w < 84), isTrue);
+
+      await tester.pumpAndSettle();
+      final inSheet = find.descendant(
+        of: find.byKey(const Key("requestor_trust_sheet")),
+        matching: logo,
+      );
+      expect(tester.getRect(inSheet).width, 84);
     });
 
     testWidgets("the party opens what registered means", (tester) async {

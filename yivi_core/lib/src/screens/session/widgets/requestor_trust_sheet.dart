@@ -173,19 +173,12 @@ class RequestorTrustSheet extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // The card's logo flies in here.
             Center(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  ExcludeSemantics(
-                    child: SessionRequestorHeader.avatarOf(requestor, size: 84),
-                  ),
-                  Positioned(
-                    right: -8,
-                    bottom: -8,
-                    child: RequestorTrustBadge(style: style, size: 36),
-                  ),
-                ],
+              child: RequestorLogo(
+                requestor: requestor,
+                style: style,
+                size: 84,
               ),
             ),
             const SizedBox(height: 16),
