@@ -6,7 +6,7 @@ import "wallet_transition.dart";
 
 /// A card picture that flies between the data tab and the card detail view.
 /// While flying it is redrawn at every size, so it stays sharp and keeps its
-/// squircle corners.
+/// corners.
 class CardHero extends StatelessWidget {
   final schemaless.Credential credential;
   final double width;
