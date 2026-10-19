@@ -17,6 +17,7 @@ import "../../util/string.dart";
 import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
+import "../../widgets/glass/scroll_edge.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
@@ -253,41 +254,15 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       builder: (context, snapshot) {
         final historyState = snapshot.data;
         final withTags = historyState?.logEntries.isNotEmpty ?? false;
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: historyState == null
-                  ? Center(child: LoadingIndicator())
-                  : _buildLogEntries(
-                      context,
-                      historyState.logEntries,
-                      historyState.moreLogsAvailable,
-                    ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              height: top + _headerHeight(withTags) - 4,
-              child: PushAway(
-                direction: PushAwayDirection.up,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          palette.background,
-                          palette.background.withValues(alpha: 0),
-                        ],
-                        stops: const [0.5, 1],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+        // The entries scroll under the search field and the tags; the edge
+        // goes away with them when an entry opens.
+        return ScrollEdge(
+          height: top + _headerHeight(withTags) - 4,
+          band: (context, under) => PushAway(
+            direction: PushAwayDirection.up,
+            child: ScrollEdgeBand(under: under),
+          ),
+          bar: [
             Positioned(
               left: 16,
               right: 16,
@@ -324,6 +299,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               ),
             ),
           ],
+          child: historyState == null
+              ? Center(child: LoadingIndicator())
+              : _buildLogEntries(
+                  context,
+                  historyState.logEntries,
+                  historyState.moreLogsAvailable,
+                ),
         );
       },
     );

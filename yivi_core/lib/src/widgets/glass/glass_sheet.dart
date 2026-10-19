@@ -9,6 +9,7 @@ import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
 import "floating_bar_placement.dart";
 import "glass_surface.dart";
+import "scroll_edge.dart";
 
 /// Shows [builder]'s content in the app's one sheet: a full-width glass sheet
 /// attached to the bottom of the screen, at least [minHeightFraction] of the
@@ -870,7 +871,10 @@ class GlassSheetPageMotion extends StatelessWidget {
 /// One page of a sheet: its [GlassSheetHeader], [child] in a
 /// [GlassSheetScrollView], and [bottom] (a button) pinned to the bottom of
 /// the sheet, as on a full screen.
-class GlassSheetPage extends StatelessWidget {
+///
+/// The content scrolls on under the header and the [pinned] part; once it
+/// is under them, they get the hard scroll edge of iOS ([ScrollEdgeBand]).
+class GlassSheetPage extends StatefulWidget {
   final String title;
   final VoidCallback? onBack;
   final Widget? child;
@@ -910,9 +914,25 @@ class GlassSheetPage extends StatelessWidget {
        assert(scrolls || child != null, "a page that fills itself has a child");
 
   @override
+  State<GlassSheetPage> createState() => _GlassSheetPageState();
+}
+
+class _GlassSheetPageState extends State<GlassSheetPage> {
+  final _under = ScrollEdgeNotifier();
+
+  @override
+  void dispose() {
+    _under.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
     final role = _SheetPageRole.maybeOf(context);
-    final pinned = this.pinned;
+    final title = widget.title;
+    final onBack = widget.onBack;
+    final pinned = widget.pinned;
     final head = <Widget>[
       // In pages the bar stays put while pages change; only the titles fade
       // into each other.
@@ -935,38 +955,48 @@ class GlassSheetPage extends StatelessWidget {
           ),
         ),
     ];
-    final body = _body(context);
-    if (role == null) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
+    final body = ScrollEdgeListener(
+      notifier: _under,
+      child: Column(
+        mainAxisSize: role == null ? MainAxisSize.min : MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [...head, ...body],
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ...head,
-        Expanded(
-          child: role.slide(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: body,
-            ),
+        children: _body(context),
+      ),
+    );
+    // Taps on the bar stay on the bar, also where content is under it.
+    final bar = Listener(
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ScrollEdgeBand(under: _under, color: palette.sheet),
           ),
-        ),
-      ],
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: head,
+          ),
+        ],
+      ),
+    );
+    return BarOverBody(
+      expand: role != null,
+      bar: bar,
+      body: role == null ? body : role.slide(body),
     );
   }
 
   /// What scrolls, and the button under it.
   List<Widget> _body(BuildContext context) {
-    final bottom = this.bottom;
+    final bottom = widget.bottom;
+    final padding = widget.padding;
+    final child = widget.child;
+    final slivers = widget.slivers;
     return [
-      if (!scrolls)
+      if (!widget.scrolls)
         Expanded(
           child: Padding(
-            padding: childClearsBottom
+            padding: widget.childClearsBottom
                 ? padding
                 : padding.add(
                     EdgeInsets.only(
@@ -1009,8 +1039,9 @@ class GlassSheetPage extends StatelessWidget {
 }
 
 /// The scrolling body of a sheet, under its [GlassSheetHeader]: it pulls the
-/// sheet down from its top (see [GlassSheetScope]), fades out under the
-/// header, and ends clear of the home indicator. [child] pads itself from the
+/// sheet down from its top (see [GlassSheetScope]), goes on under the header
+/// (which clips it no more than the sheet does; see [GlassSheetPage]), and
+/// ends clear of the home indicator. [child] pads itself from the
 /// sides unless [padding] does.
 class GlassSheetScrollView extends StatelessWidget {
   final Widget? child;
@@ -1031,40 +1062,35 @@ class GlassSheetScrollView extends StatelessWidget {
     this.clearBottom = true,
   }) : assert((child == null) != (slivers == null), "child or slivers");
 
-  /// How far the content fades out under the header.
-  static const _fade = 12.0;
+  /// Room between the header and the content at rest.
+  static const _top = 6.0;
 
   @override
   Widget build(BuildContext context) {
-    return ShaderMask(
-      blendMode: BlendMode.dstIn,
-      shaderCallback: (bounds) => LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: const [Color(0x00000000), Color(0xFF000000)],
-        stops: [0, (_fade / bounds.height).clamp(0.0, 1.0)],
-      ).createShader(bounds),
-      child: switch (slivers) {
-        final slivers? => CustomScrollView(
-          physics: glassSheetScrollPhysics(context),
-          slivers: [
-            SliverPadding(
-              padding: _padding(context),
-              sliver: SliverMainAxisGroup(slivers: slivers),
-            ),
-          ],
-        ),
-        null => SingleChildScrollView(
-          physics: glassSheetScrollPhysics(context),
-          padding: _padding(context),
-          child: child,
-        ),
-      },
-    );
+    // Not clipped at the top: under a [GlassSheetPage]'s header the content
+    // goes on, blurred. The page clips the bottom.
+    return switch (slivers) {
+      final slivers? => CustomScrollView(
+        physics: glassSheetScrollPhysics(context),
+        clipBehavior: Clip.none,
+        slivers: [
+          SliverPadding(
+            padding: _padding(context),
+            sliver: SliverMainAxisGroup(slivers: slivers),
+          ),
+        ],
+      ),
+      null => SingleChildScrollView(
+        physics: glassSheetScrollPhysics(context),
+        clipBehavior: Clip.none,
+        padding: _padding(context),
+        child: child,
+      ),
+    };
   }
 
   EdgeInsets _padding(BuildContext context) => padding.copyWith(
-    top: padding.top + _fade / 2,
+    top: padding.top + _top,
     bottom:
         padding.bottom +
         (clearBottom ? MediaQuery.paddingOf(context).bottom : 16),

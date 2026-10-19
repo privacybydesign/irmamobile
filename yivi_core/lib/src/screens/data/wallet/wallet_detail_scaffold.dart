@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/scroll_edge.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
 import "wallet_transition.dart";
@@ -188,74 +189,61 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
               ),
             ),
           ),
+          // The content scrolls under the bar; the edge comes in with it.
           Positioned.fill(
-            // The page follows the finger down, shrinking a little.
-            child: ValueListenableBuilder<double>(
-              valueListenable: _pull,
-              child: NotificationListener<ScrollStartNotification>(
-                onNotification: _onScrollStart,
-                child: widget.builder(context, _physics, animation),
+            child: ScrollEdge(
+              height: padding.top + 68,
+              band: (context, under) => AnimatedBuilder(
+                animation: chrome,
+                builder: (context, _) =>
+                    ScrollEdgeBand(under: under, opacity: chromeOpacity()),
               ),
-              builder: (context, pull, child) => Transform.translate(
-                offset: Offset(0, pull),
-                child: Transform.scale(
-                  scale: 1 - _pullProgress * 0.06,
-                  alignment: Alignment.topCenter,
-                  child: child,
-                ),
-              ),
-            ),
-          ),
-          // Fades the content out under the floating close button.
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            height: padding.top + 72,
-            child: IgnorePointer(
-              child: FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: const Interval(0.6, 1),
-                ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        palette.background,
-                        palette.background.withValues(alpha: 0),
+              bar: [
+                Positioned(
+                  top: padding.top + 16,
+                  left: 16,
+                  right: 16,
+                  // Faded by the glass itself: a FadeTransition would
+                  // darken its blur until the fade ends (see
+                  // GlassSurface.opacity).
+                  child: AnimatedBuilder(
+                    animation: chrome,
+                    builder: (context, _) => Row(
+                      children: [
+                        Expanded(
+                          child:
+                              widget.barBuilder?.call(
+                                context,
+                                chromeOpacity(),
+                              ) ??
+                              const SizedBox.shrink(),
+                        ),
+                        const SizedBox(width: 8),
+                        IrmaCloseButton(
+                          key: widget.closeKey,
+                          onTap: _close,
+                          opacity: chromeOpacity(),
+                        ),
                       ],
-                      stops: const [0.45, 1],
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: padding.top + 16,
-            left: 16,
-            right: 16,
-            // Faded by the glass itself: a FadeTransition would darken its
-            // blur until the fade ends (see GlassSurface.opacity).
-            child: AnimatedBuilder(
-              animation: chrome,
-              builder: (context, _) => Row(
-                children: [
-                  Expanded(
-                    child:
-                        widget.barBuilder?.call(context, chromeOpacity()) ??
-                        const SizedBox.shrink(),
+              ],
+              // The page follows the finger down, shrinking a little.
+              child: ValueListenableBuilder<double>(
+                valueListenable: _pull,
+                child: NotificationListener<ScrollStartNotification>(
+                  onNotification: _onScrollStart,
+                  child: widget.builder(context, _physics, animation),
+                ),
+                builder: (context, pull, child) => Transform.translate(
+                  offset: Offset(0, pull),
+                  child: Transform.scale(
+                    scale: 1 - _pullProgress * 0.06,
+                    alignment: Alignment.topCenter,
+                    child: child,
                   ),
-                  const SizedBox(width: 8),
-                  IrmaCloseButton(
-                    key: widget.closeKey,
-                    onTap: _close,
-                    opacity: chromeOpacity(),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

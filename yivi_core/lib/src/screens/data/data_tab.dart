@@ -29,6 +29,7 @@ import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/glass/scroll_edge.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../add_data/add_data_sheet.dart";
@@ -62,37 +63,15 @@ class _DataTabState extends ConsumerState<DataTab> {
     final padding = MediaQuery.paddingOf(context);
     final top = padding.top + FloatingBarPlacement.topGap(context);
 
-    final list = Stack(
-      children: [
-        Positioned.fill(
-          child: _Content(
-            query: _query,
-            addDataButtonKey: _addDataButtonKey,
-            topInset: top + _topBarHeight + 8,
-          ),
-        ),
-        // Fades the cards out under the floating search row.
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          height: top + 56,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    palette.background,
-                    palette.background.withValues(alpha: 0),
-                  ],
-                  stops: const [0.4, 1],
-                ),
-              ),
-            ),
-          ),
-        ),
+    // The cards scroll under the floating search row; the edge goes away
+    // with the row when a card opens.
+    final list = ScrollEdge(
+      height: top + _topBarHeight + 8,
+      band: (context, under) => PushAway(
+        direction: PushAwayDirection.up,
+        child: ScrollEdgeBand(under: under),
+      ),
+      bar: [
         Positioned(
           left: 16,
           right: 16,
@@ -129,6 +108,11 @@ class _DataTabState extends ConsumerState<DataTab> {
           ),
         ),
       ],
+      child: _Content(
+        query: _query,
+        addDataButtonKey: _addDataButtonKey,
+        topInset: top + _topBarHeight + 8,
+      ),
     );
 
     return Scaffold(

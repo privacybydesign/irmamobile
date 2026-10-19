@@ -6,6 +6,7 @@ import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_surface.dart";
 import "glass/pill_buttons.dart";
+import "glass/scroll_edge.dart";
 import "translated_text.dart";
 
 class YiviAppBarQrCodeButton extends StatelessWidget {
@@ -189,43 +190,16 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       );
     }
 
-    // The page colour behind the status bar and the buttons, fading out
-    // over [fadeHeight] below the bar, so content scrolling underneath fades
-    // away instead of running into the title.
+    // Behind the status bar and the buttons: the hard scroll edge once the
+    // page's content is under the bar (see [ScrollEdgeBand]).
     return Stack(
       key: const Key("irma_app_bar"),
-      clipBehavior: Clip.none,
       children: [
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: -fadeHeight,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    palette.background,
-                    palette.background,
-                    palette.background.withValues(alpha: 0),
-                  ],
-                  stops: const [0, 0.72, 1],
-                ),
-              ),
-            ),
-          ),
-        ),
+        const Positioned.fill(child: _AppBarEdge()),
         content,
       ],
     );
   }
-
-  /// How far below the bar content scrolling underneath fades out: content
-  /// that starts this far below it is clear at rest.
-  static const double fadeHeight = 24;
 
   @override
   Size get preferredSize =>
@@ -264,4 +238,41 @@ class BarInsetsBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => builder(context, BarInsets.of(context));
+}
+
+/// The scroll edge of an [IrmaAppBar]: it follows the page's scroll view
+/// through the [Scaffold]'s [ScrollNotificationObserver], as a Material app
+/// bar knows it is scrolled under. Outside a scaffold it never shows.
+class _AppBarEdge extends StatefulWidget {
+  const _AppBarEdge();
+
+  @override
+  State<_AppBarEdge> createState() => _AppBarEdgeState();
+}
+
+class _AppBarEdgeState extends State<_AppBarEdge> {
+  final _under = ScrollEdgeNotifier();
+  ScrollNotificationObserverState? _observer;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final observer = ScrollNotificationObserver.maybeOf(context);
+    if (observer == _observer) return;
+    _observer?.removeListener(_onScroll);
+    _observer = observer?..addListener(_onScroll);
+  }
+
+  void _onScroll(ScrollNotification notification) =>
+      _under.handle(notification);
+
+  @override
+  void dispose() {
+    _observer?.removeListener(_onScroll);
+    _under.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ScrollEdgeBand(under: _under);
 }

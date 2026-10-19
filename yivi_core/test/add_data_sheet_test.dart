@@ -283,9 +283,15 @@ void main() {
       await tester.scrollUntilVisible(
         _row("irma-demo.x.card199"),
         600,
+        // The list's own: the search field above it has a sideways one.
         scrollable: find
-            .descendant(of: _sheet, matching: find.byType(Scrollable))
-            .last,
+            .descendant(
+              of: _sheet,
+              matching: find.byWidgetPredicate(
+                (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+              ),
+            )
+            .first,
       );
       expect(_row("irma-demo.x.card199"), findsOneWidget);
     });

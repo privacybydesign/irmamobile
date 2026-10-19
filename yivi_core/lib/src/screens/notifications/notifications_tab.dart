@@ -9,6 +9,7 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
+import "../../widgets/glass/scroll_edge.dart";
 import "../../widgets/irma_dismissible.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
@@ -125,121 +126,126 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       value: BlocProvider.of<NotificationsBloc>(context),
       child: Scaffold(
         backgroundColor: palette.background,
-        body: BlocBuilder<NotificationsBloc, NotificationsState>(
-          builder: (context, state) {
-            if (state is NotificationsLoading) {
-              return Center(child: LoadingIndicator());
-            } else if (state is NotificationsLoaded) {
-              final notifications = state.notifications;
-              final unread = notifications.where((n) => !n.read).length;
+        body: ScrollEdge(
+          child: BlocBuilder<NotificationsBloc, NotificationsState>(
+            builder: (context, state) {
+              if (state is NotificationsLoading) {
+                return Center(child: LoadingIndicator());
+              } else if (state is NotificationsLoaded) {
+                final notifications = state.notifications;
+                final unread = notifications.where((n) => !n.read).length;
 
-              final list = RefreshIndicator(
-                edgeOffset: padding.top,
-                onRefresh: () => Future.sync(_onRefresh),
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(
-                    16,
-                    padding.top + 24,
-                    16,
-                    padding.bottom + bottomBarSpace(context),
-                  ),
-                  children: [
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 640),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Expanded(
-                                    child: Semantics(
-                                      header: true,
-                                      child: TranslatedText(
-                                        "notifications.title",
-                                        style: palette.display(
-                                          26,
-                                          weight: FontWeight.w700,
+                final list = RefreshIndicator(
+                  edgeOffset: padding.top,
+                  onRefresh: () => Future.sync(_onRefresh),
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      padding.top + 24,
+                      16,
+                      padding.bottom + bottomBarSpace(context),
+                    ),
+                    children: [
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 640),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Expanded(
+                                      child: Semantics(
+                                        header: true,
+                                        child: TranslatedText(
+                                          "notifications.title",
+                                          style: palette.display(
+                                            26,
+                                            weight: FontWeight.w700,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  if (unread > 0)
-                                    Text(
-                                      FlutterI18n.translate(
-                                        context,
-                                        "notifications.new_count",
-                                        translationParams: {"count": "$unread"},
+                                    if (unread > 0)
+                                      Text(
+                                        FlutterI18n.translate(
+                                          context,
+                                          "notifications.new_count",
+                                          translationParams: {
+                                            "count": "$unread",
+                                          },
+                                        ),
+                                        style: palette
+                                            .body(14)
+                                            .copyWith(color: palette.heading),
                                       ),
-                                      style: palette
-                                          .body(14)
-                                          .copyWith(color: palette.heading),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            if (notifications.isEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 48),
-                                child: TranslatedText(
-                                  "notifications.empty",
-                                  textAlign: TextAlign.center,
-                                  style: palette
-                                      .body(16)
-                                      .copyWith(color: palette.heading),
+                                  ],
                                 ),
-                              )
-                            else ...[
-                              for (final notification in notifications)
+                              ),
+                              if (notifications.isEmpty)
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: IrmaDismissible(
-                                    key: Key(notification.id),
-                                    borderRadius: BorderRadius.circular(24),
-                                    onDismissed: () =>
-                                        _onNotificationDismiss(notification),
-                                    child: NotificationCard(
-                                      notification: notification,
-                                      onTap: (pictureContext) =>
-                                          _onNotificationTap(
-                                            notification,
-                                            pictureContext,
-                                          ),
+                                  padding: const EdgeInsets.only(top: 48),
+                                  child: TranslatedText(
+                                    "notifications.empty",
+                                    textAlign: TextAlign.center,
+                                    style: palette
+                                        .body(16)
+                                        .copyWith(color: palette.heading),
+                                  ),
+                                )
+                              else ...[
+                                for (final notification in notifications)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: IrmaDismissible(
+                                      key: Key(notification.id),
+                                      borderRadius: BorderRadius.circular(24),
+                                      onDismissed: () =>
+                                          _onNotificationDismiss(notification),
+                                      child: NotificationCard(
+                                        notification: notification,
+                                        onTap: (pictureContext) =>
+                                            _onNotificationTap(
+                                              notification,
+                                              pictureContext,
+                                            ),
+                                      ),
                                     ),
                                   ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: TranslatedText(
+                                    "notifications.swipe_hint",
+                                    textAlign: TextAlign.center,
+                                    style: palette
+                                        .body(12)
+                                        .copyWith(color: palette.secondaryText),
+                                  ),
                                 ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: TranslatedText(
-                                  "notifications.swipe_hint",
-                                  textAlign: TextAlign.center,
-                                  style: palette
-                                      .body(12)
-                                      .copyWith(color: palette.secondaryText),
-                                ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-              return isExpandedLayout(context)
-                  ? _withDetailPane(list, notifications)
-                  : list;
-            }
+                    ],
+                  ),
+                );
+                return isExpandedLayout(context)
+                    ? _withDetailPane(list, notifications)
+                    : list;
+              }
 
-            throw Exception(
-              "NotificationsScreen does not support this state: $state",
-            );
-          },
+              throw Exception(
+                "NotificationsScreen does not support this state: $state",
+              );
+            },
+          ),
         ),
       ),
     );

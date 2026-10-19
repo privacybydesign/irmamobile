@@ -9,6 +9,7 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/glass/scroll_edge.dart";
 import "../../widgets/lock_gate.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
@@ -126,79 +127,81 @@ class _MoreTabState extends State<MoreTab> {
 
     return Scaffold(
       backgroundColor: palette.background,
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          16,
-          padding.top + 24,
-          16,
-          padding.bottom + bottomBarSpace(context),
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: expanded ? 960 : 640),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                  child: Semantics(
-                    header: true,
-                    child: TranslatedText(
-                      "home.nav_bar.more",
-                      style: palette.display(26, weight: FontWeight.w700),
+      body: ScrollEdge(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            padding.top + 24,
+            16,
+            padding.bottom + bottomBarSpace(context),
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: expanded ? 960 : 640),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                    child: Semantics(
+                      header: true,
+                      child: TranslatedText(
+                        "home.nav_bar.more",
+                        style: palette.display(26, weight: FontWeight.w700),
+                      ),
                     ),
                   ),
-                ),
-                if (expanded)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 24,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: appManagement,
+                  if (expanded)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 24,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: appManagement,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: about,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: about,
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                else ...[
-                  ...appManagement,
-                  ...about,
+                      ],
+                    )
+                  else ...[
+                    ...appManagement,
+                    ...about,
+                  ],
+                  const SizedBox(height: 32),
+                  PillButton(
+                    key: const Key("log_out_button"),
+                    style: PillStyle.neutral,
+                    label: FlutterI18n.translate(context, "more_tab.log_out"),
+                    onPressed: () {
+                      // Confirm the deliberate logout so the user understands they
+                      // were logged out and the PIN screen is not asking for a PIN in
+                      // order to log out. Shown by the lock overlay rather than from
+                      // here: on this tab's ScaffoldMessenger the snackbar also paints
+                      // in this Scaffold, which stays mounted under the overlay.
+                      confirmLogoutOnNextLock = true;
+                      // userInitiated: skip the "scan on launch" auto-biometric on
+                      // the lock screen that follows an explicit logout.
+                      IrmaRepositoryProvider.of(
+                        context,
+                      ).lock(userInitiated: true);
+                      widget.onChangeTab(IrmaNavBarTab.data);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: VersionButton(),
+                  ),
                 ],
-                const SizedBox(height: 32),
-                PillButton(
-                  key: const Key("log_out_button"),
-                  style: PillStyle.neutral,
-                  label: FlutterI18n.translate(context, "more_tab.log_out"),
-                  onPressed: () {
-                    // Confirm the deliberate logout so the user understands they
-                    // were logged out and the PIN screen is not asking for a PIN in
-                    // order to log out. Shown by the lock overlay rather than from
-                    // here: on this tab's ScaffoldMessenger the snackbar also paints
-                    // in this Scaffold, which stays mounted under the overlay.
-                    confirmLogoutOnNextLock = true;
-                    // userInitiated: skip the "scan on launch" auto-biometric on
-                    // the lock screen that follows an explicit logout.
-                    IrmaRepositoryProvider.of(
-                      context,
-                    ).lock(userInitiated: true);
-                    widget.onChangeTab(IrmaNavBarTab.data);
-                  },
-                ),
-                const SizedBox(height: 16),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: VersionButton(),
-                ),
-              ],
+              ),
             ),
           ),
         ),
