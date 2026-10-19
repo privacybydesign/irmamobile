@@ -213,7 +213,11 @@
         "get_button": "Voeg toe",
         "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
         "obtain": "Voeg {credential} toe aan mijn Yivi-app",
-        "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier."
+        "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier.",
+        "you_get": "Je krijgt",
+        "good_to_know": "Goed om te weten",
+        "show_all": "Toon alle {count}",
+        "steps_peek": "{count} stappen · {first}"
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",

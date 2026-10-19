@@ -213,7 +213,11 @@
         "get_button": "Hinzufügen",
         "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
         "obtain": "{credential} zu meiner Yivi-App hinzufügen",
-        "external_note": "Das Hinzufügen geschieht auf {host}. Folge dort den Schritten; Yivi öffnet sich danach von selbst wieder, zurück hier."
+        "external_note": "Das Hinzufügen geschieht auf {host}. Folge dort den Schritten; Yivi öffnet sich danach von selbst wieder, zurück hier.",
+        "you_get": "Du bekommst",
+        "good_to_know": "Gut zu wissen",
+        "show_all": "Alle {count} anzeigen",
+        "steps_peek": "{count} Schritte · {first}"
       },
       "nfc_unsupported": {
         "title": "NFC nicht unterstützt",

@@ -108,7 +108,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   @override
   void initState() {
     super.initState();
-    issueAdding = widget.addNew;
+    issueStartWith(widget.addNew);
   }
 
   @override
@@ -223,10 +223,13 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       child: GlassSheetPages(
         onBack: issueBack,
         pages: [
-          KeyedSubtree(
-            key: const ValueKey("choose"),
-            child: _buildChoose(pickOne),
-          ),
+          // Opened on the one card the request can use: its details are
+          // the first page.
+          if (!issueDirect || issueAdding == null)
+            KeyedSubtree(
+              key: const ValueKey("choose"),
+              child: _buildChoose(pickOne),
+            ),
           ...issueFlowPages(),
         ],
       ),

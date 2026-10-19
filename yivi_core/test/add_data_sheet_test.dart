@@ -482,8 +482,10 @@ void main() {
       expect(find.text("Example"), findsOneWidget);
       // Not during a request: no note about sharing only what is asked.
       expect(find.textContaining("you will only share"), findsNothing);
-      // Issued on a website: said before leaving.
-      expect(find.byKey(const Key("sheet_external_note")), findsOneWidget);
+      // Issued on a website: said before leaving, right above the button.
+      final note = tester.getRect(find.byKey(const Key("sheet_external_note")));
+      final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
+      expect(go.top - note.bottom, inInclusiveRange(0, 16));
 
       // Back returns to the list, and closing never asked.
       await tester.tap(find.bySemanticsLabel("Go back"));
@@ -677,10 +679,13 @@ void main() {
       ),
       findsOneWidget,
     );
-    // Back goes to the whole list.
-    await tester.tap(find.bySemanticsLabel("Go back"));
+    // The details are the sheet's first page: no back button, and a swipe
+    // does not go back to the list.
+    expect(find.bySemanticsLabel("Go back"), findsNothing);
+    await tester.drag(find.text("1 of 3"), const Offset(300, 0));
     await tester.pumpAndSettle();
-    expect(_row("pbdf.pbdf.passport"), findsOneWidget);
+    expect(find.text("1 of 3"), findsOneWidget);
+    expect(_row("pbdf.pbdf.passport"), findsNothing);
   });
 
   testWidgets("an e-mail address: the address step in the sheet", (

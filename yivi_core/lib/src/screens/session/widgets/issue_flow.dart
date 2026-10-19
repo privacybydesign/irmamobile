@@ -87,6 +87,19 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The type the user is adding; null while on the sheet's root page.
   CredentialDescriptor? issueAdding;
 
+  /// The sheet opened straight on [issueAdding] (a card to get again, or
+  /// the only one a request can use): its details are the sheet's first
+  /// page, with nothing to go back to. Leaving them closes the sheet.
+  bool get issueDirect => _direct;
+  bool _direct = false;
+
+  /// Opens the sheet straight on [d]'s details; call from the host's
+  /// initState. Null: the sheet opens on its root page.
+  void issueStartWith(CredentialDescriptor? d) {
+    issueAdding = d;
+    _direct = d != null;
+  }
+
   /// The issuer's website was opened for [issueAdding].
   bool _opened = false;
 
@@ -169,16 +182,33 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Opens the details of [d] (step 1).
   void issueOpen(CredentialDescriptor d) => setState(() {
     issueAdding = d;
+    _direct = false;
     _opened = false;
   });
 
-  /// Back from the details to the root page, leaving nothing behind.
+  /// Back from the details to the root page, leaving nothing behind. When
+  /// the details are the sheet's first page ([issueDirect]), the sheet
+  /// closes instead.
   void issueLeave() {
     _stopAdding();
+    if (_direct) {
+      // Asked already where it had to be (or nothing was started yet).
+      Navigator.of(context).pop();
+      return;
+    }
     setState(() => issueAdding = null);
   }
 
-  /// Done with a finished issuance: the flow starts over on the root page.
+  /// After a finished issuance, on to the sheet's root page (Add more),
+  /// also when the sheet opened straight on the card.
+  void issueShowRoot() {
+    issueReset();
+    _direct = false;
+  }
+
+  /// Done with a finished issuance: the flow starts over on the root page
+  /// (a sheet that opened straight on the card keeps it as its first page
+  /// while it closes).
   void issueReset() {
     issueAdded = null;
     issueAdding = null;
@@ -443,10 +473,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             subject: subject,
             total: total,
             onBack: () => setState(() => _document = null),
-            onStopped: () {
-              _stopAdding();
-              setState(() => issueAdding = null);
-            },
+            onStopped: issueLeave,
           ),
         ),
       if (nested != null || issueAdded != null)
@@ -489,18 +516,34 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             ExternalIssuerStatus.notExternal;
     return GlassSheetPage(
       title: _t("data.add.details.title"),
-      onBack: () async {
-        if (!_opened || await issueConfirmStop()) issueLeave();
-      },
+      // The sheet's first page has no back: close is the way out.
+      onBack: _direct
+          ? null
+          : () async {
+              if (!_opened || await issueConfirmStop()) issueLeave();
+            },
       padding: const EdgeInsets.symmetric(horizontal: 16),
       // One button: the close button and back are the way out.
-      bottom: SheetActionRow(
-        primaryKey: const Key("sheet_go_button"),
-        // The note above says which website.
-        primaryLabel: _opened
-            ? _t("share.sheet.open_again")
-            : _t("data.add.details.get_button"),
-        onPrimary: () => _add(d),
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 10,
+        children: [
+          // Where "Add" goes, right above it.
+          if (external)
+            _HostNote(
+              key: const Key("sheet_external_note"),
+              text: _t("data.add.details.external_note", {"host": host}),
+            ),
+          SheetActionRow(
+            primaryKey: const Key("sheet_go_button"),
+            // The note above says which website.
+            primaryLabel: _opened
+                ? _t("share.sheet.open_again")
+                : _t("data.add.details.get_button"),
+            onPrimary: () => _add(d),
+          ),
+        ],
       ),
       pinned: IssueSheetProgress(
         subject: subject,
@@ -511,11 +554,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
-          if (external)
-            _Note(
-              key: const Key("sheet_external_note"),
-              text: _t("data.add.details.external_note", {"host": host}),
-            ),
           if (_opened)
             _Note(
               key: const Key("sheet_opened_note"),
@@ -704,6 +742,39 @@ class _Note extends StatelessWidget {
         style: palette
             .body(14)
             .copyWith(height: 20 / 14, color: palette.noteText),
+      ),
+    );
+  }
+}
+
+/// Where adding happens, quietly above the button that goes there.
+class _HostNote extends StatelessWidget {
+  final String text;
+
+  const _HostNote({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(Icons.language_rounded, size: 16, color: palette.link),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: palette
+                  .body(13)
+                  .copyWith(height: 18 / 13, color: palette.heading),
+            ),
+          ),
+        ],
       ),
     );
   }

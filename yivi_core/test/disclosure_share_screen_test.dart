@@ -32,6 +32,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
@@ -452,7 +453,12 @@ void main() {
 
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
-      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key("share_add_optional_0")), findsOneWidget);
@@ -763,6 +769,25 @@ void main() {
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
       expect(find.text("1 of 3"), findsOneWidget);
       expect(find.byKey(const Key("sheet_go_button")), findsOneWidget);
+
+      // Nothing before the details: no back button, and no swipe back.
+      expect(find.bySemanticsLabel("Go back"), findsNothing);
+      await tester.drag(find.text("1 of 3"), const Offset(300, 0));
+      await tester.pumpAndSettle();
+      expect(find.text("1 of 3"), findsOneWidget);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+
+      // Close is the way out (it asks, as it does on the details).
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
 
     testWidgets("several ways: which one to add first", (tester) async {
@@ -1284,14 +1309,24 @@ void main() {
       nested.add(issuance(SessionStatus.requestPermission));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text("Stop adding ID card?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_keep")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await tester.pumpAndSettle();
@@ -1349,7 +1384,12 @@ void main() {
       await _pump(tester, session: _session([_passportOrIdCard()]));
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
-      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_stop_dialog")), findsNothing);
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
@@ -1474,7 +1514,12 @@ void main() {
       // The field has focus at once: the keyboard is up.
       expect(tester.testTextInput.isVisible, isTrue);
       // A focused field's cursor blinks, so the pages never settle.
-      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
       await _pumpFor(tester);
       expect(find.text("Stop adding email address?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
@@ -1643,7 +1688,12 @@ void main() {
       expect(find.bySemanticsLabel("Scan passport"), findsOneWidget);
       expect(find.bySemanticsLabel("Go back"), findsWidgets);
 
-      await tester.tap(find.bySemanticsLabel("Close").last);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("disclosure_choice_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
       await _pumpFor(tester);
       expect(find.text("Stop adding passport?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));

@@ -213,7 +213,11 @@
         "get_button": "Add",
         "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
         "obtain": "Add {credential} to my Yivi-app",
-        "external_note": "Adding this happens on {host}. Follow the steps there; Yivi then opens again by itself, back here."
+        "external_note": "Adding this happens on {host}. Follow the steps there; Yivi then opens again by itself, back here.",
+        "you_get": "You get",
+        "good_to_know": "Good to know",
+        "show_all": "Show all {count}",
+        "steps_peek": "{count} steps · {first}"
       },
       "nfc_unsupported": {
         "title": "NFC not supported",

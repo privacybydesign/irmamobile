@@ -142,7 +142,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   @override
   void initState() {
     super.initState();
-    issueAdding = widget.addNew;
+    issueStartWith(widget.addNew);
   }
 
   // ---------- the flow, without a request ----------
@@ -192,7 +192,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     final cards = issueAdded ?? const <schemaless.Credential>[];
     setState(() {
       _justAdded = cards.length == 1 ? cards.single.name : null;
-      issueReset();
+      issueShowRoot();
     });
   }
 
@@ -266,7 +266,9 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
       child: GlassSheetPages(
         onBack: issueBack,
         pages: [
-          KeyedSubtree(key: const ValueKey("list"), child: _list),
+          // Opened on one card: its details are the first page.
+          if (!issueDirect || issueAdding == null)
+            KeyedSubtree(key: const ValueKey("list"), child: _list),
           ...issueFlowPages(),
         ],
       ),

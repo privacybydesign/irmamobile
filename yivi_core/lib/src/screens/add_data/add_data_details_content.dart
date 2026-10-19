@@ -1,19 +1,21 @@
-import "dart:math";
-
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
+import "../../util/nfc_credentials.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_markdown.dart";
 
-/// What a credential type is: an example card, the name, "by {issuer}", the
-/// intro and the answers to what it is for, what it holds and how it is
-/// added. [inDisclosure] adds the note that only the requested data is
-/// shared. The first step of adding a card in a sheet ([IssueFlow]).
+/// What a credential type is, compact for the sheet: a small example card
+/// beside the name and "by {issuer}", the intro, what you get as a
+/// checklist of its attributes, and the answers to what it is for and how
+/// it is added, folded into one group. [inDisclosure] adds the note that
+/// only the requested data is shared. The first step of adding a card in a
+/// sheet ([IssueFlow]).
 class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;
@@ -47,148 +49,163 @@ class AddDataDetailsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    String t(String key, [Map<String, String>? params]) =>
+        FlutterI18n.translate(context, key, translationParams: params);
     final faq = this.faq;
     // The store escapes line breaks; in the markdown answers each one starts
     // a paragraph.
     String clean(String? text, {String lineBreak = "\n"}) =>
-        (text ?? "").replaceAll("\\n", lineBreak);
+        (text ?? "").replaceAll("\\n", lineBreak).trim();
 
     final intro = clean(faq?.intro);
     final purpose = clean(faq?.purpose, lineBreak: "\n\n");
     final content = clean(faq?.content, lineBreak: "\n\n");
-    final howTo = clean(faq?.howTo, lineBreak: "\n\n");
+    final howTo = clean(faq?.howTo);
     final attributeNames = [
       for (final a in credential.attributes) a.effectiveDisplayName,
     ].where((n) => n.isNotEmpty).toList();
 
-    return LayoutBuilder(
-      builder: (context, constraints) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: _ExampleCard(
-              credential: _exampleCard,
-              width: min(constraints.maxWidth, 358),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              credential.name,
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 32 / 24),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 2, 4, 0),
-            child: Text(
-              FlutterI18n.translate(
-                context,
-                "data.add.by",
-                translationParams: {"issuer": credential.issuer.name},
-              ),
-              style: palette.body(14).copyWith(color: palette.secondaryText),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
-            child: Text(
-              intro.isNotEmpty
-                  ? intro
-                  : FlutterI18n.translate(
-                      context,
-                      "data.add.details.obtain",
-                      translationParams: {"credential": credential.name},
-                    ),
-              style: palette.body(16).copyWith(height: 24 / 16),
-            ),
-          ),
-          if (purpose.isNotEmpty)
-            _AnswerCard(
-              titleKey: "data.add.details.purpose_question",
-              child: IrmaMarkdown(purpose),
-            ),
-          if (content.isNotEmpty || attributeNames.isNotEmpty)
-            _AnswerCard(
-              titleKey: "data.add.details.content_question",
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          spacing: 14,
+          children: [
+            _ExampleCard(credential: _exampleCard),
+            Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (content.isNotEmpty) IrmaMarkdown(content),
-                  for (final (i, name) in attributeNames.indexed)
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        border: i == 0 && content.isEmpty
-                            ? null
-                            : Border(top: BorderSide(color: palette.divider)),
-                      ),
-                      child: Text(
-                        name,
-                        style: palette
-                            .body(15, weight: FontWeight.w600)
-                            .copyWith(color: palette.heading),
-                      ),
+                  Text(
+                    credential.name,
+                    style: palette
+                        .display(20, weight: FontWeight.w700)
+                        .copyWith(height: 26 / 20, color: palette.text),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      t("data.add.by", {"issuer": credential.issuer.name}),
+                      style: palette
+                          .body(13)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                  ),
+                  if (credentialRequiresNfc(credential.credentialId))
+                    Padding(
+                      key: const Key("add_data_details_nfc"),
+                      padding: const EdgeInsets.only(top: 8),
+                      child: _Chip(icon: Icons.nfc_rounded, label: "NFC"),
                     ),
                 ],
               ),
             ),
-          if (howTo.isNotEmpty)
-            _AnswerCard(
-              titleKey: "data.add.details.howto_question",
-              child: IrmaMarkdown(howTo),
-            ),
-          if (inDisclosure)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Container(
-                key: const Key("add_data_disclosure_note"),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
+          child: Text(
+            intro.isNotEmpty
+                ? intro
+                : t("data.add.details.obtain", {"credential": credential.name}),
+            style: palette
+                .body(15)
+                .copyWith(height: 22 / 15, color: palette.heading),
+          ),
+        ),
+        // What you get: the attributes of the type. The FAQ's own list of
+        // them only when the type names none (it repeats them otherwise).
+        if (attributeNames.isNotEmpty ||
+            content.isNotEmpty ||
+            inDisclosure) ...[
+          _SectionLabel(t("data.add.details.you_get")),
+          GlassGroup(
+            key: const Key("add_data_you_get"),
+            children: [
+              if (attributeNames.isNotEmpty)
+                _Checklist(names: attributeNames)
+              else if (content.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _Markdown(content),
                 ),
-                decoration: BoxDecoration(
-                  color: palette.outline,
-                  borderRadius: BorderRadius.circular(20),
+              if (inDisclosure) const _DisclosureNote(),
+            ],
+          ),
+        ],
+        if (purpose.isNotEmpty || howTo.isNotEmpty) ...[
+          _SectionLabel(t("data.add.details.good_to_know")),
+          GlassGroup(
+            children: [
+              if (purpose.isNotEmpty)
+                _Fold(
+                  key: const Key("add_data_purpose"),
+                  question: t("data.add.details.purpose_question"),
+                  peek: purpose.replaceAll("\n\n", " "),
+                  child: _Markdown(purpose),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Icon(
-                        Icons.info_outline_rounded,
-                        size: 20,
-                        color: palette.link,
-                      ),
-                    ),
-                    Expanded(
-                      child: IrmaMarkdown(
-                        FlutterI18n.translate(
-                          context,
-                          "data.add.details.disclosure_info_markdown",
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+              if (howTo.isNotEmpty) _howTo(context, howTo),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// "How does it work?": its "1. …" lines as numbered steps, the text
+  /// before and after them as paragraphs. Folded, it says how many steps
+  /// there are and where they start.
+  Widget _howTo(BuildContext context, String text) {
+    final before = <String>[], after = <String>[];
+    final steps = <(String, String)>[];
+    final step = RegExp(r"^(\d+)\.\s*(.*)$");
+    for (final line in text.split("\n").map((l) => l.trim())) {
+      if (line.isEmpty) continue;
+      final m = step.firstMatch(line);
+      if (m != null) {
+        steps.add((m.group(1)!, m.group(2)!));
+      } else {
+        (steps.isEmpty ? before : after).add(line);
+      }
+    }
+    final peek = steps.isEmpty
+        ? before.join(" ")
+        : FlutterI18n.translate(
+            context,
+            "data.add.details.steps_peek",
+            translationParams: {
+              "count": "${steps.length}",
+              "first": steps.first.$2,
+            },
+          );
+    return _Fold(
+      key: const Key("add_data_howto"),
+      question: FlutterI18n.translate(
+        context,
+        "data.add.details.howto_question",
+      ),
+      peek: peek,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [
+          for (final p in before) _Markdown(p),
+          for (final (n, s) in steps) _Step(number: n, text: s),
+          for (final p in after) _Markdown(p),
         ],
       ),
     );
   }
 }
 
-/// The card art of the credential with an "Example" badge on its corner.
+/// The card art of the credential, small, with an "Example" badge on its
+/// corner.
 class _ExampleCard extends StatelessWidget {
   final schemaless.Credential credential;
-  final double width;
 
-  const _ExampleCard({required this.credential, required this.width});
+  const _ExampleCard({required this.credential});
+
+  static const double width = 128;
 
   @override
   Widget build(BuildContext context) {
@@ -199,11 +216,11 @@ class _ExampleCard extends StatelessWidget {
         children: [
           CredentialCardArt(credential: credential, width: width),
           Positioned(
-            right: 12,
-            top: -10,
+            right: 6,
+            top: -8,
             child: Container(
-              height: 26,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
               alignment: Alignment.center,
               decoration: ShapeDecoration(
                 color: palette.link,
@@ -212,8 +229,8 @@ class _ExampleCard extends StatelessWidget {
               child: Text(
                 FlutterI18n.translate(context, "data.add.example"),
                 style: palette
-                    .body(12, weight: FontWeight.w700)
-                    .copyWith(color: palette.surface),
+                    .body(10.5, weight: FontWeight.w700)
+                    .copyWith(color: palette.surface, height: 1),
               ),
             ),
           ),
@@ -223,38 +240,364 @@ class _ExampleCard extends StatelessWidget {
   }
 }
 
-/// One question about the credential with its answer, on a rounded card.
-class _AnswerCard extends StatelessWidget {
-  final String titleKey;
-  final Widget child;
+class _Chip extends StatelessWidget {
+  final IconData icon;
+  final String label;
 
-  const _AnswerCard({required this.titleKey, required this.child});
+  const _Chip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Container(
+      height: 24,
+      padding: const EdgeInsets.symmetric(horizontal: 9),
+      decoration: ShapeDecoration(
+        color: palette.tint,
+        shape: const StadiumBorder(),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4,
+        children: [
+          Icon(icon, size: 13, color: palette.link),
+          Text(
+            label,
+            style: palette
+                .body(12, weight: FontWeight.w700)
+                .copyWith(color: palette.link),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The small uppercase label above a group.
+class _SectionLabel extends StatelessWidget {
+  final String text;
+
+  const _SectionLabel(this.text);
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: GlassGroup(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 6,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    FlutterI18n.translate(context, titleKey),
-                    style: palette.display(16),
-                  ),
+      padding: const EdgeInsets.fromLTRB(10, 20, 10, 8),
+      child: Semantics(
+        header: true,
+        child: Text(
+          text.toUpperCase(),
+          style: palette
+              .body(12.5, weight: FontWeight.w700)
+              .copyWith(color: palette.secondaryText, letterSpacing: 0.6),
+        ),
+      ),
+    );
+  }
+}
+
+/// The attribute names in two columns, each with a check. Past [shown]
+/// names, "Show all n" opens the rest.
+class _Checklist extends StatefulWidget {
+  final List<String> names;
+
+  const _Checklist({required this.names});
+
+  static const shown = 8;
+
+  @override
+  State<_Checklist> createState() => _ChecklistState();
+}
+
+class _ChecklistState extends State<_Checklist> {
+  bool _all = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final names = widget.names;
+    final more = !_all && names.length > _Checklist.shown;
+    final visible = more ? names.take(_Checklist.shown).toList() : names;
+    final rows = [
+      for (var i = 0; i < visible.length; i += 2)
+        visible.sublist(i, i + 2 > visible.length ? visible.length : i + 2),
+    ];
+
+    Widget cell(String name) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: palette.tint,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.check_rounded, size: 13, color: palette.link),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            name,
+            style: palette
+                .body(14, weight: FontWeight.w600)
+                .copyWith(height: 19 / 14, color: palette.heading),
+          ),
+        ),
+      ],
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          key: const Key("add_data_checklist"),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          child: Column(
+            spacing: 10,
+            children: [
+              for (final row in rows)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    Expanded(child: cell(row[0])),
+                    Expanded(
+                      child: row.length > 1
+                          ? cell(row[1])
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
                 ),
-                child,
-              ],
+            ],
+          ),
+        ),
+        if (more) ...[
+          Divider(height: 1, thickness: 1, color: palette.divider),
+          InkWell(
+            key: const Key("add_data_show_all"),
+            onTap: () => setState(() => _all = true),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Text(
+                FlutterI18n.translate(
+                  context,
+                  "data.add.details.show_all",
+                  translationParams: {"count": "${names.length}"},
+                ),
+                style: palette
+                    .body(14, weight: FontWeight.w600)
+                    .copyWith(color: palette.link),
+              ),
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// "You will retrieve all available data…", at the foot of what you get.
+class _DisclosureNote extends StatelessWidget {
+  const _DisclosureNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Container(
+      key: const Key("add_data_disclosure_note"),
+      color: palette.infoSurface,
+      padding: const EdgeInsets.fromLTRB(14, 11, 14, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(
+              Icons.info_outline_rounded,
+              size: 18,
+              color: palette.link,
+            ),
+          ),
+          Expanded(
+            child: _Markdown(
+              FlutterI18n.translate(
+                context,
+                "data.add.details.disclosure_info_markdown",
+              ),
+              size: 13,
+              color: palette.noteText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One question, folded: the question and a two-line peek at the answer.
+/// A tap opens the whole answer in place.
+class _Fold extends StatefulWidget {
+  final String question;
+  final String peek;
+  final Widget child;
+
+  const _Fold({
+    super.key,
+    required this.question,
+    required this.peek,
+    required this.child,
+  });
+
+  @override
+  State<_Fold> createState() => _FoldState();
+}
+
+class _FoldState extends State<_Fold> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    final duration = reduce ? Duration.zero : const Duration(milliseconds: 220);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          expanded: _open,
+          child: InkWell(
+            onTap: () => setState(() => _open = !_open),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 13, 14, 13),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.question,
+                            style: palette
+                                .display(15)
+                                .copyWith(height: 21 / 15, color: palette.text),
+                          ),
+                          if (!_open)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                widget.peek,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: palette
+                                    .body(13.5)
+                                    .copyWith(
+                                      height: 19 / 13.5,
+                                      color: palette.secondaryText,
+                                    ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    AnimatedRotation(
+                      turns: _open ? 0.5 : 0,
+                      duration: duration,
+                      child: Icon(
+                        Icons.expand_more_rounded,
+                        size: 22,
+                        color: palette.secondaryText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: duration,
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: _open
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  child: widget.child,
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
+    );
+  }
+}
+
+/// One numbered step of "How does it work?".
+class _Step extends StatelessWidget {
+  final String number;
+  final String text;
+
+  const _Step({required this.number, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 10,
+      children: [
+        ExcludeSemantics(
+          child: Container(
+            width: 22,
+            height: 22,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: palette.tint,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              number,
+              style: palette
+                  .body(12, weight: FontWeight.w700)
+                  .copyWith(color: palette.link, height: 1),
+            ),
+          ),
+        ),
+        Expanded(child: _Markdown(text)),
+      ],
+    );
+  }
+}
+
+/// An answer's text: markdown, as the store gives it, at the page's size.
+class _Markdown extends StatelessWidget {
+  final String data;
+  final double size;
+  final Color? color;
+
+  const _Markdown(this.data, {this.size = 14.5, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final style = palette
+        .body(size)
+        .copyWith(height: 21 / 14.5, color: color ?? palette.heading);
+    return IrmaMarkdown(
+      data,
+      styleSheet: MarkdownStyleSheet(
+        p: style,
+        listBullet: style,
+        strong: style.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
