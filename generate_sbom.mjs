@@ -307,13 +307,11 @@ function parsePubGitUrls(pubspecLock) {
 }
 
 async function fetchText(url, options) {
-  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(30_000) }).catch((error) => {
-    console.warn(`Could not fetch ${url}: ${error.message}`);
-  });
-  if (!response) return undefined;
-  if (!response.ok) {
+  try {
+    const response = await fetch(url, { ...options, signal: AbortSignal.timeout(30_000) });
+    if (response.ok) return await response.text();
     console.warn(`Could not fetch ${url}: HTTP ${response.status}`);
-    return undefined;
+  } catch (error) {
+    console.warn(`Could not fetch ${url}: ${error.message}`);
   }
-  return response.text();
 }
