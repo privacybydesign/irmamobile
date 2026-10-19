@@ -111,7 +111,21 @@
     "revoked": "Ingetrokken",
     "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
     "boolean_yes": "Ja",
-    "boolean_no": "Nee"
+    "boolean_no": "Nee",
+    "driving_licence_categories": {
+      "title": "Rijbewijscategorieën",
+      "category": "Categorie",
+      "status": "Status",
+      "held": "In bezit",
+      "not_held": "Niet in bezit",
+      "issued": "Afgegeven",
+      "expires": "Verloopt",
+      "no_information": "Geen categorie-informatie",
+      "not_held_count-0": "{count} categorieën niet in bezit",
+      "not_held_count-1": "{count} categorie niet in bezit",
+      "not_held_count-2": "{count} categorieën niet in bezit",
+      "show_less": "Toon minder"
+    }
   },
   "data": {
     "tab": {

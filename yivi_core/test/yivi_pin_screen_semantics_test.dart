@@ -1,11 +1,12 @@
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
+import "helpers/test_translation_loader.dart";
 
 // The PIN screen used to expose its whole body as ONE semantics node: the
 // keyboard-focus GestureDetector in PinHardwareKeyboardListener wrapped the
@@ -30,7 +31,7 @@ void main() {
         builder: (_) => MaterialApp(
           localizationsDelegates: [
             FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
+              translationLoader: TestTranslationLoader(
                 basePath: "assets/locales",
                 forcedLocale: const Locale("en", "US"),
               ),

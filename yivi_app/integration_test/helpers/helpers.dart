@@ -23,6 +23,7 @@ import "package:yivi_core/src/screens/notifications/widgets/notification_card.da
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
@@ -261,6 +262,10 @@ Future<void> issueCredentials(
   bool continueOnSecondDevice = true,
   bool declineOffer = false,
   int? sdJwtBatchSize,
+
+  /// Attributes drawn by an attribute group (such as the driving licence
+  /// categories table) instead of as rows; the caller checks those itself.
+  Set<String> attributesInGroups = const {},
 }) async {
   // Credential and attribute names in the issuance permission are resolved by
   // irmago, not by Flutter, so an explicitly requested locale has to reach the
@@ -322,9 +327,9 @@ Future<void> issueCredentials(
   }
 
   // Check whether all attributes are displayed (order-independent).
-  final attributeTexts = tester
-      .getAllText(find.byType(YiviCredentialCardAttributeList))
-      .toList();
+  final attributeTexts = attributeRowTexts(
+    find.byType(YiviCredentialCardAttributeList),
+  ).map((t) => t.data!).toList();
 
   // Build a map of displayed attribute name -> value pairs.
   final displayedAttributes = <String, String>{};
@@ -335,6 +340,7 @@ Future<void> issueCredentials(
   // Build a map of expected attribute name -> value pairs.
   final expectedAttributes = <String, String>{};
   for (final entry in attributes.entries) {
+    if (attributesInGroups.contains(entry.key)) continue;
     final attrName = irmaBinding
         .repository
         .irmaConfiguration
@@ -650,6 +656,29 @@ Future<void> evaluateCredentialCard(
   }
 }
 
+/// The texts of the attribute rows under [attributeList], leaving out those
+/// inside an attribute group (such as the driving licence categories table),
+/// which lays out its attributes in its own way.
+List<Text> attributeRowTexts(Finder attributeList) {
+  final inGroups = find
+      .descendant(
+        of: find.descendant(
+          of: attributeList,
+          matching: find.byType(AttributeGroupScope),
+        ),
+        matching: find.byType(Text),
+      )
+      .evaluate()
+      .toSet();
+  return find
+      .descendant(of: attributeList, matching: find.byType(Text))
+      .evaluate()
+      .where((e) => !inGroups.contains(e))
+      .map((e) => e.widget as Text)
+      .where((t) => t.data != null)
+      .toList();
+}
+
 /// Walks the card's attribute list and pairs each label with its run of
 /// following values, recovering an ordered list of (label, [values]) entries.
 /// Classification keys off the font sizes used by the renderer
@@ -658,11 +687,7 @@ Future<void> evaluateCredentialCard(
 ///   - 16: leaf value or prim-array bullet
 ///   - 12: eyebrow header (group/item) — closes the current run, ignored.
 List<_LabelValues> _renderedRows(WidgetTester tester, Finder cardAttList) {
-  final texts = tester
-      .widgetList<Text>(
-        find.descendant(of: cardAttList, matching: find.byType(Text)),
-      )
-      .toList();
+  final texts = attributeRowTexts(cardAttList);
 
   final rendered = <_LabelValues>[];
   String? pendingLabel;

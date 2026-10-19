@@ -32,6 +32,16 @@ Widget _app({required Widget child, required bool bridge}) {
   );
 }
 
+/// Pumps [app] and lets its translations load. They are over 50 KB, which
+/// `rootBundle` decodes on a background isolate, so this needs real async.
+Future<void> _pumpApp(WidgetTester tester, Widget app) async {
+  await tester.runAsync(() async {
+    await tester.pumpWidget(app);
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+  });
+  await tester.pumpAndSettle();
+}
+
 /// The style on the rendered span that holds [text].
 TextStyle? _styleOfText(WidgetTester tester, String text) {
   TextStyle? style;
@@ -55,7 +65,8 @@ void main() {
   ) async {
     late core.ThemeData coreTheme;
 
-    await tester.pumpWidget(
+    await _pumpApp(
+      tester,
       _app(
         bridge: true,
         child: core.Builder(
@@ -66,7 +77,6 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
 
     final yiviFontFamily = IrmaThemeData().textTheme.bodyMedium?.fontFamily;
     expect(yiviFontFamily, isNotNull);
@@ -75,10 +85,10 @@ void main() {
   });
 
   testWidgets("markdown keeps the Yivi body text style", (tester) async {
-    await tester.pumpWidget(
+    await _pumpApp(
+      tester,
       _app(bridge: true, child: const IrmaMarkdown("hello world")),
     );
-    await tester.pumpAndSettle();
 
     // IrmaMarkdown now reads the core SDK theme, because flutter_markdown_plus'
     // MarkdownStyleSheet.fromTheme still takes the core SDK ThemeData. Read the
@@ -93,10 +103,10 @@ void main() {
   });
 
   testWidgets("a legacy widget builds inside the app tree", (tester) async {
-    await tester.pumpWidget(
+    await _pumpApp(
+      tester,
       _app(bridge: true, child: Pinput(length: 4, autofocus: false)),
     );
-    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.byType(Pinput), findsOneWidget);
@@ -105,10 +115,10 @@ void main() {
   testWidgets("without the bridge a legacy widget cannot build", (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await _pumpApp(
+      tester,
       _app(bridge: false, child: Pinput(length: 4, autofocus: false)),
     );
-    await tester.pumpAndSettle();
 
     // pinput asserts a core SDK Material ancestor, which the material_ui
     // Scaffold and MaterialApp no longer are.

@@ -1,6 +1,5 @@
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -11,6 +10,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/enrollment/accept_terms/widgets/error_reporting_check_box.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
+import "helpers/test_translation_loader.dart";
 
 // Companion to terms_check_box_semantics_test.dart (#638): the error reporting
 // checkbox has the same shape — its label lives in a sibling rich-text widget,
@@ -52,7 +53,7 @@ void main() {
         builder: (_) => MaterialApp(
           localizationsDelegates: [
             FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
+              translationLoader: TestTranslationLoader(
                 basePath: "assets/locales",
                 forcedLocale: locale,
               ),
