@@ -14,6 +14,7 @@ import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../models/disclosure_view_model.dart";
+import "empty_card_spot.dart";
 import "issue_flow.dart";
 import "issue_sheet_progress.dart";
 import "shared_card_tile.dart";
@@ -289,24 +290,21 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           ],
           if (addable.isNotEmpty) ...[
             _Label(_t("share.not_in_app_yet")),
-            _Group(
-              children: [
-                for (final d in addable)
-                  _AddRow(
-                    key: Key("sheet_add_${d.credentialId}"),
-                    name: owned.any((b) => _nameOf(b) == d.name)
-                        ? _t("share.sheet.another", {
-                            "name": _inSentence(d.name),
-                          })
-                        : d.name,
-                    subtitle: _t("share.sheet.on_host", {
-                      "issuer": d.issuer.name,
-                      "host": hostOf(d.issueURL)!,
-                    }),
-                    onTap: () => issueOpen(d),
-                  ),
-              ],
-            ),
+            // One empty spot per type that can be added, as on the share
+            // screen: the card's shape, with what it will share still empty.
+            for (final d in addable)
+              EmptyCardSpot(
+                key: Key("sheet_add_${d.credentialId}"),
+                title: owned.any((b) => _nameOf(b) == d.name)
+                    ? _t("share.sheet.another", {"name": _inSentence(d.name)})
+                    : d.name,
+                subtitle: _t("share.sheet.on_host", {
+                  "issuer": d.issuer.name,
+                  "host": hostOf(d.issueURL)!,
+                }),
+                rows: emptySpotRows(context, d),
+                onTap: () => issueOpen(d),
+              ),
           ],
         ],
       ),
@@ -334,40 +332,6 @@ class _Label extends StatelessWidget {
           style: palette
               .body(12.5, weight: FontWeight.w700)
               .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
-        ),
-      ),
-    );
-  }
-}
-
-/// White rounded group of rows, with lines between them.
-class _Group extends StatelessWidget {
-  final List<Widget> children;
-
-  const _Group({required this.children});
-
-  static const padding = EdgeInsets.symmetric(horizontal: 14);
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
-      ),
-      child: Padding(
-        padding: padding,
-        child: Column(
-          children: [
-            for (final (i, child) in children.indexed) ...[
-              if (i > 0)
-                Divider(height: 1, thickness: 1, color: palette.divider),
-              child,
-            ],
-          ],
         ),
       ),
     );
@@ -456,76 +420,6 @@ class _OwnedCard extends StatelessWidget {
                     ),
                   ),
                 ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A type that is not in the app yet: tap to see where it is added.
-class _AddRow extends StatelessWidget {
-  final String name;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _AddRow({
-    super.key,
-    required this.name,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            spacing: 12,
-            children: [
-              ExcludeSemantics(
-                child: Container(
-                  width: SharedCardTile.miniWidth,
-                  height: SharedCardTile.miniWidth * 226 / 358,
-                  decoration: ShapeDecoration(
-                    shape: RoundedSuperellipseBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(9)),
-                      side: BorderSide(color: palette.outline, width: 1.5),
-                    ),
-                  ),
-                  child: Icon(Icons.add_rounded, size: 18, color: palette.link),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: palette
-                          .body(15, weight: FontWeight.w600)
-                          .copyWith(color: palette.text),
-                    ),
-                    Text(
-                      subtitle,
-                      style: palette
-                          .body(12.5)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 22,
-                color: palette.secondaryText,
-              ),
             ],
           ),
         ),

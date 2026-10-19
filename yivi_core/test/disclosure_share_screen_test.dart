@@ -677,10 +677,24 @@ void main() {
                   Attribute(
                     claimPath: ["firstname"],
                     displayName: "First name",
+                    requestedValue: AttributeValue(type: AttributeType.string),
                   ),
                 ],
               ),
-              _descriptor("idcard", "ID card"),
+              _descriptor(
+                "idcard",
+                "ID card",
+                attributes: [
+                  Attribute(
+                    claimPath: ["nationality"],
+                    displayName: "Nationality",
+                    requestedValue: AttributeValue(
+                      type: AttributeType.string,
+                      string: "NLD",
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ]),
@@ -691,6 +705,38 @@ void main() {
         findsNothing,
       );
       expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
+
+      // In the sheet each type is an empty spot of its own, with its rows.
+      await tester.tap(spot);
+      await tester.pumpAndSettle();
+      final passport = find.byKey(const Key("sheet_add_passport"));
+      final idcard = find.byKey(const Key("sheet_add_idcard"));
+      for (final card in [passport, idcard]) {
+        expect(
+          find.descendant(of: card, matching: find.byType(CardTile)),
+          findsOne,
+        );
+        expect(find.descendant(of: card, matching: find.text("Add")), findsOne);
+      }
+      expect(
+        find.descendant(of: passport, matching: find.text("First name")),
+        findsOne,
+      );
+      expect(
+        find.descendant(
+          of: passport,
+          matching: find.text("Not in your app yet"),
+        ),
+        findsOne,
+      );
+      expect(
+        find.descendant(of: idcard, matching: find.text("Must be NLD")),
+        findsOne,
+      );
+      expect(
+        find.descendant(of: idcard, matching: find.text("First name")),
+        findsNothing,
+      );
     });
 
     testWidgets("one way to get it: the spot opens its details at once", (

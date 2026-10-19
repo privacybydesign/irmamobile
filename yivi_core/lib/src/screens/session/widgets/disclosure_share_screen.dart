@@ -8,10 +8,8 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -21,6 +19,7 @@ import "../../../widgets/large_title_scroll_view.dart";
 import "../../../widgets/signature_message.dart";
 import "../models/disclosure_view_model.dart";
 import "change_choice_sheet.dart";
+import "empty_card_spot.dart";
 import "session_columns.dart";
 import "session_requestor_header.dart";
 import "session_scaffold.dart";
@@ -371,22 +370,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     // With one card to add, its rows show what the request asks for, as the
     // card will once it is there.
     final single = addable.length == 1 && !together ? addable.single : null;
-    String rowValue(schemaless.Attribute a) {
-      final v = a.requestedValue;
-      return v != null && v.hasConcreteValue
-          ? t("share.spot.must_be_value", {
-              "value": localizedAttributeText(context, v) ?? "",
-            })
-          : t("share.not_in_app_yet");
-    }
-
-    // Only the fields the request asks for: irmago marks those with a
-    // requested value (for IRMA requests the descriptor lists the whole type).
-    final rows = [
-      for (final a in single?.attributes ?? const <schemaless.Attribute>[])
-        if (a.requestedValue != null) (a.effectiveDisplayName, rowValue(a)),
-    ];
-    return _EmptySpot(
+    final rows = single == null
+        ? const <(String, String)>[]
+        : emptySpotRows(context, single);
+    return EmptyCardSpot(
       key: Key("share_spot_$i"),
       rows: rows,
       // Where the added card flies to; on a tablet it fades in instead, and
@@ -683,169 +670,6 @@ class _RemoveButton extends StatelessWidget {
       icon: Icon(Icons.close_rounded, size: 16, color: palette.heading),
     );
   }
-}
-
-/// A required card that is not in the app yet: a dashed spot in the shape
-/// of the card it will be, with a dashed card where that card lands, how to
-/// add it, and (with one card to add) what it will share, still empty.
-class _EmptySpot extends StatelessWidget {
-  final GlobalKey? landingKey;
-  final String title;
-  final String subtitle;
-
-  /// What the request asks of the card: label and "Not in your app yet"
-  /// (or the value it must have).
-  final List<(String, String)> rows;
-
-  /// "{field} must be {value}" for each value the request needs, when there
-  /// are no [rows] to show them in.
-  final List<String> requirements;
-
-  /// "You added …, needed …" after a card with the wrong value was added.
-  final String? wrong;
-
-  /// Null when it cannot be added from Yivi.
-  final VoidCallback? onTap;
-
-  const _EmptySpot({
-    super.key,
-    this.landingKey,
-    required this.title,
-    required this.subtitle,
-    this.rows = const [],
-    this.requirements = const [],
-    this.wrong,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final faint = palette.secondaryText.withValues(alpha: 0.75);
-    return Semantics(
-      button: onTap != null,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: CardTile(
-          dashed: true,
-          art: SizedBox(
-            key: landingKey,
-            width: SharedCardTile.miniWidth,
-            height: SharedCardTile.miniWidth * 226 / 358,
-            child: CustomPaint(
-              painter: _DashedCardPainter(color: palette.secondaryText),
-              child: Icon(
-                onTap == null ? Icons.block_rounded : Icons.add_rounded,
-                size: 18,
-                color: onTap == null ? palette.secondaryText : palette.link,
-              ),
-            ),
-          ),
-          title: title,
-          subtitle: subtitle,
-          trailing: onTap == null
-              ? null
-              // Says what a tap does; the whole spot is the button.
-              : ExcludeSemantics(
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minHeight: 32,
-                      minWidth: 44,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    alignment: Alignment.center,
-                    decoration: ShapeDecoration(
-                      color: palette.tint,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Text(
-                      FlutterI18n.translate(context, "share.add"),
-                      style: palette
-                          .body(13, weight: FontWeight.w600)
-                          .copyWith(color: palette.link),
-                    ),
-                  ),
-                ),
-          body: [
-            if (rows.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final (n, (label, value)) in rows.indexed)
-                    Container(
-                      decoration: BoxDecoration(
-                        border: n == 0
-                            ? null
-                            : Border(top: BorderSide(color: palette.divider)),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(label, style: attributeLabelStyle(context)),
-                          Text(
-                            value,
-                            style: attributeValueStyle(
-                              context,
-                              faint,
-                            ).copyWith(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            for (final r in requirements)
-              Text(
-                r,
-                style: palette
-                    .body(12.5)
-                    .copyWith(color: palette.secondaryText),
-              ),
-            if (wrong != null)
-              Text(
-                wrong!,
-                key: const Key("share_spot_wrong"),
-                style: palette
-                    .body(12.5, weight: FontWeight.w600)
-                    .copyWith(color: palette.errorText),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The dashed outline of a card that is not there yet.
-class _DashedCardPainter extends CustomPainter {
-  final Color color;
-
-  const _DashedCardPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    final outline = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          (Offset.zero & size).deflate(0.75),
-          const Radius.circular(9),
-        ),
-      );
-    for (final metric in outline.computeMetrics()) {
-      for (var d = 0.0; d < metric.length; d += 7) {
-        canvas.drawPath(metric.extractPath(d, d + 4), paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedCardPainter old) => old.color != color;
 }
 
 /// An optional item that is not included: what can be added, and "Add".
