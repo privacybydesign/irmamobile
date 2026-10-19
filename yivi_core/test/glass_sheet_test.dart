@@ -295,10 +295,13 @@ void main() {
       await tester.pump(const Duration(milliseconds: 120));
       final titleMid = tester.getRect(find.text("Second"));
       final bodyMid = tester.getTopLeft(find.text("second page"));
-      final fading = tester.widget<Opacity>(
-        find.ancestor(of: find.text("Second"), matching: find.byType(Opacity)),
+      final fades = tester.widgetList<FadeTransition>(
+        find.ancestor(
+          of: find.text("Second"),
+          matching: find.byType(FadeTransition),
+        ),
       );
-      expect(fading.opacity, lessThan(1));
+      expect(fades.any((f) => f.opacity.value < 1), isTrue);
       await tester.pumpAndSettle();
       expect(tester.getRect(find.text("Second")), titleMid);
       expect(
@@ -328,12 +331,125 @@ void main() {
       final page = find.text("second page");
       // Not moved sideways: where it ends up, only not fully opaque yet.
       final x = tester.getTopLeft(page).dx;
-      final opacity = tester.widget<Opacity>(
-        find.ancestor(of: page, matching: find.byType(Opacity)).first,
+      final opacity = tester.widget<FadeTransition>(
+        find.ancestor(of: page, matching: find.byType(FadeTransition)).first,
       );
-      expect(opacity.opacity, lessThan(1));
+      expect(opacity.opacity.value, lessThan(1));
       await tester.pumpAndSettle();
       expect(tester.getTopLeft(page).dx, x);
+    });
+  });
+
+  group("pages stay alive", () {
+    late StateSetter push;
+    var pages = 1;
+    var builds = 0;
+
+    void openPages() {
+      pages = 1;
+      builds = 0;
+      showGlassSheet<void>(
+        context: _page,
+        heightFraction: 0.9,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            push = setState;
+            return GlassSheetPages(
+              onBack: () => setState(() => pages = 1),
+              pages: [
+                GlassSheetPage(
+                  key: const ValueKey("list"),
+                  title: "List",
+                  child: Column(
+                    children: [
+                      const _Counted(),
+                      Builder(
+                        builder: (context) {
+                          // Depends on where its page is, as the progress
+                          // bar does.
+                          GlassSheetPages.isTopPage(context);
+                          builds++;
+                          return Column(
+                            children: [
+                              for (var i = 0; i < 60; i++) Text("row $i"),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                if (pages > 1)
+                  GlassSheetPage(
+                    key: const ValueKey("next"),
+                    title: "Next",
+                    onBack: () => setState(() => pages = 1),
+                    child: const Text("next page"),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+
+    testWidgets("a page under another keeps its state and its scroll", (
+      tester,
+    ) async {
+      _Counted.inits = 0;
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      openPages();
+      await tester.pumpAndSettle();
+      expect(_Counted.inits, 1);
+      final list = find
+          .descendant(
+            of: find.byType(GlassSheetScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.drag(list, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      final offset = tester.state<ScrollableState>(list).position.pixels;
+      expect(offset, greaterThan(0));
+
+      push(() => pages = 2);
+      await tester.pumpAndSettle();
+      push(() => pages = 1);
+      await tester.pumpAndSettle();
+
+      // The same State: not built anew, still scrolled.
+      expect(_Counted.inits, 1);
+      expect(
+        tester
+            .state<ScrollableState>(
+              find
+                  .descendant(
+                    of: find.byType(GlassSheetScrollView),
+                    matching: find.byType(Scrollable),
+                  )
+                  .first,
+            )
+            .position
+            .pixels,
+        offset,
+      );
+    });
+
+    testWidgets("a slide does not rebuild the pages' bodies", (tester) async {
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      openPages();
+      await tester.pumpAndSettle();
+      final before = builds;
+      push(() => pages = 2);
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await tester.pumpAndSettle();
+      // At most a rebuild or two when the slide starts or ends, not one per
+      // frame.
+      expect(builds - before, lessThan(4));
     });
   });
 
@@ -422,4 +538,25 @@ void main() {
       expect(tester.testTextInput.isVisible, isFalse);
     });
   });
+}
+
+/// Counts how often its State is created.
+class _Counted extends StatefulWidget {
+  const _Counted();
+
+  static var inits = 0;
+
+  @override
+  State<_Counted> createState() => _CountedState();
+}
+
+class _CountedState extends State<_Counted> {
+  @override
+  void initState() {
+    super.initState();
+    _Counted.inits++;
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(height: 1);
 }

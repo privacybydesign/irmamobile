@@ -11,7 +11,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/screens/home/home_screen.dart";
 
 import "../helpers/document_reading_helpers.dart";
 import "../irma_binding.dart";
@@ -38,8 +38,9 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
       await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
-      // move back to close the camera feed...
-      await tester.tapAndSettle(find.byType(YiviBackButton));
+      // Back in the sheet's bar: to the instruction, the camera off.
+      await sheetBack(tester);
+      await tester.waitFor(find.byType(DocumentInstructionScreen));
     });
 
     testWidgets("scanning MRZ for Dutch passport starts NFC reading flow", (
@@ -101,7 +102,7 @@ void main() {
       expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
     });
 
-    testWidgets("user can cancel MRZ scanning and return to the instructions", (
+    testWidgets("back from the camera returns to the instructions", (
       tester,
     ) async {
       await openPassportInstructionScreen(tester, irmaBinding);
@@ -109,8 +110,8 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
       await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
-      final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
-      await tester.tapAndSettle(cancelButton);
+      // No Cancel in the sheet: its back goes to the instruction.
+      await sheetBack(tester);
 
       await tester.waitFor(find.byType(DocumentInstructionScreen));
     });
@@ -400,16 +401,14 @@ void main() {
 
       await startNfcRead(tester);
 
+      // The full-screen route keeps its Cancel; it asks, then ends the read
+      // and goes home.
       await tester.waitFor(find.byKey(const Key("bottom_bar_secondary")));
-
-      final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
-      await tester.tapAndSettle(cancelButton);
+      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
 
       await tester.waitFor(find.text("Cancel passport reading?"));
       await tester.tapAndSettle(find.text("Yes"));
-
-      // cancelling the flow returns to the list in the Add data sheet
-      await tester.waitFor(find.byKey(const Key("add_data_search")));
+      await tester.waitFor(find.byType(HomeScreen));
 
       expect(fakeReader.cancelCount, 1);
     });

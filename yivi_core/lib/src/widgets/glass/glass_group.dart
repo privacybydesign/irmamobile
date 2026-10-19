@@ -78,3 +78,72 @@ class GlassGroup extends StatelessWidget {
     );
   }
 }
+
+/// [GlassGroup] for a long list in a [CustomScrollView]: the same group, but
+/// its rows are built as they scroll into view. The group's fill and shadow
+/// are drawn behind the rows ([DecoratedSliver]); each row is on a
+/// transparent [Material], so its ink shows on the fill.
+class SliverGlassGroup extends StatelessWidget {
+  final String? header;
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+  final double dividerIndent;
+
+  const SliverGlassGroup({
+    super.key,
+    this.header,
+    required this.itemCount,
+    required this.itemBuilder,
+    this.dividerIndent = 16,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final header = this.header;
+    return SliverMainAxisGroup(
+      slivers: [
+        if (header != null)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
+              child: Semantics(
+                header: true,
+                child: Text(header, style: palette.display(16)),
+              ),
+            ),
+          ),
+        DecoratedSliver(
+          decoration: ShapeDecoration(
+            color: palette.surface,
+            shape: const RoundedSuperellipseBorder(
+              borderRadius: GlassGroup.radius,
+            ),
+            shadows: [
+              BoxShadow(
+                color: palette.isDark
+                    ? const Color(0x40000000)
+                    : const Color(0x17000000),
+                blurRadius: 6,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          sliver: SliverList.separated(
+            itemCount: itemCount,
+            itemBuilder: (context, i) => Material(
+              type: MaterialType.transparency,
+              child: itemBuilder(context, i),
+            ),
+            separatorBuilder: (_, _) => Divider(
+              height: 1,
+              thickness: 1,
+              indent: dividerIndent,
+              color: palette.divider,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

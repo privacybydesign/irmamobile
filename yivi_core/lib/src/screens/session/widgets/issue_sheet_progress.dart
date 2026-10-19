@@ -58,20 +58,6 @@ class IssueSheetProgress extends StatefulWidget {
     this.done = false,
   }) : assert(step >= 1 && step <= total);
 
-  /// The progress as a band under a screen's own app bar (the document
-  /// screens inside a sheet).
-  static PreferredSizeWidget band({
-    required IssueSheetSubject subject,
-    required int step,
-    required int total,
-  }) => PreferredSize(
-    preferredSize: const Size.fromHeight(36),
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: IssueSheetProgress(subject: subject, step: step, total: total),
-    ),
-  );
-
   @override
   State<IssueSheetProgress> createState() => _IssueSheetProgressState();
 }
@@ -101,6 +87,11 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   _Shown _from = (fill: 0, done: false);
   bool _started = false;
 
+  /// Its page was on top at the last check. Pages stay alive under the next
+  /// one, so a page that comes back on top moves its bar from where the
+  /// page it covered left it.
+  bool _wasTop = true;
+
   _Shown get _to => (
     fill: (widget.done ? widget.total : widget.step).toDouble(),
     done: widget.done,
@@ -109,7 +100,10 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_started) return;
+    final top = GlassSheetPages.isTopPage(context);
+    final backOnTop = top && !_wasTop;
+    _wasTop = top;
+    if (_started && !backOnTop) return;
     _started = true;
     // From where the previous step's bar stood; a first bar fills from empty.
     final last = GlassSheetPages.memoryOf(context)?[_memoryKey];

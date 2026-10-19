@@ -118,8 +118,13 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
       _routeAnimation = animation?..addStatusListener(_onRouteStatus);
     }
     // Opened without a tap on the page below (e.g. from a notification):
-    // still let that page know what is open.
-    WalletTransition.openKey.value ??= widget.openKey;
+    // still let that page know what is open. After this build: the page
+    // below listens.
+    if (WalletTransition.openKey.value == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) WalletTransition.openKey.value ??= widget.openKey;
+      });
+    }
   }
 
   @override

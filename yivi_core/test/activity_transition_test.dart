@@ -7,6 +7,7 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
+import "package:yivi_core/src/screens/activity/activity_flight.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
@@ -127,7 +128,7 @@ void main() {
     expect(find.byType(ActivityCredentialTile), findsNWidgets(4));
     final tileArt = find.descendant(
       of: find.byType(ActivityCredentialTile).first,
-      matching: find.byType(ActivityCardHero),
+      matching: find.byType(ActivityFlightSlot),
     );
     expect(tester.getSize(tileArt).width, closeTo(58, 0.5));
   });
@@ -211,5 +212,174 @@ void main() {
     await tester.tap(find.byKey(const Key("activity_detail_done")));
     await tester.pumpAndSettle();
     expect(find.byType(ActivityDetailsScreen), findsNothing);
+  });
+
+  group("one flight for the whole pile", () {
+    Finder overlayCard(int i) =>
+        find.byKey(ValueKey(("activity_flight_card", i)));
+    final overlayLogo = find.byKey(const Key("activity_flight_logo"));
+    Finder pileSlot(int i) => find.descendant(
+      of: row("Tapped"),
+      matching: find.byWidgetPredicate(
+        (w) => w is ActivityFlightSlot && w.pile && w.index == i,
+      ),
+    );
+
+    void expectNear(Rect a, Rect b) {
+      expect(a.left, closeTo(b.left, 0.5));
+      expect(a.top, closeTo(b.top, 0.5));
+      expect(a.width, closeTo(b.width, 0.5));
+      expect(a.height, closeTo(b.height, 0.5));
+    }
+
+    testWidgets("closing draws the pile back to front, the logo on top", (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.tap(row("Tapped"));
+      await tester.pumpAndSettle();
+      expect(overlayLogo, findsNothing);
+
+      await tester.tap(find.byKey(const Key("activity_detail_done")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 280));
+      final stack = tester.widget<Stack>(
+        find.ancestor(of: overlayLogo, matching: find.byType(Stack)).first,
+      );
+      expect(
+        [for (final c in stack.children) c.key],
+        [
+          const ValueKey(("activity_flight_card", 3)),
+          const ValueKey(("activity_flight_card", 2)),
+          const ValueKey(("activity_flight_card", 1)),
+          const ValueKey(("activity_flight_card", 0)),
+          const Key("activity_flight_logo"),
+        ],
+      );
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets("the last frame of the close is where the pile is", (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.tap(row("Tapped"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("activity_detail_done")));
+      await tester.pump();
+
+      // The frame just before the route is gone.
+      final last = <int, Rect>{};
+      double extraOpacity = 1;
+      while (tester.any(overlayLogo)) {
+        for (var i = 0; i < 3; i++) {
+          last[i] = tester.getRect(overlayCard(i));
+        }
+        extraOpacity = tester
+            .widget<Opacity>(
+              find
+                  .descendant(
+                    of: overlayCard(3),
+                    matching: find.byType(Opacity),
+                  )
+                  .first,
+            )
+            .opacity;
+        await tester.pump(const Duration(milliseconds: 8));
+      }
+      await tester.pumpAndSettle();
+
+      expect(last, hasLength(3));
+      for (var i = 0; i < 3; i++) {
+        expectNear(last[i]!, tester.getRect(pileSlot(i)));
+      }
+      // The fourth card is gone by the time it reaches the pile.
+      expect(extraOpacity, closeTo(0, 0.05));
+      // The real pile is back.
+      expect(
+        tester
+            .widget<Visibility>(
+              find
+                  .descendant(
+                    of: pileSlot(0),
+                    matching: find.byType(Visibility),
+                  )
+                  .first,
+            )
+            .visible,
+        isTrue,
+      );
+    });
+
+    testWidgets("the first frame of opening is where the pile was", (
+      tester,
+    ) async {
+      await pump(tester);
+      final pile = [for (var i = 0; i < 3; i++) tester.getRect(pileSlot(i))];
+      await tester.tap(row("Tapped"));
+      await tester.pump();
+      // The flight starts after the details' first frame.
+      await tester.pump();
+      await tester.pump();
+      expect(overlayLogo, findsOneWidget);
+      for (var i = 0; i < 3; i++) {
+        final rect = tester.getRect(overlayCard(i));
+        expect(rect.center.dx, closeTo(pile[i].center.dx, 4));
+        expect(rect.center.dy, closeTo(pile[i].center.dy, 4));
+      }
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets("a close from a pulled page starts at the pulled tiles", (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.tap(row("Tapped"));
+      await tester.pumpAndSettle();
+      final tile = find.byWidgetPredicate(
+        (w) => w is ActivityFlightSlot && !w.pile && w.index == 3,
+      );
+      final resting = tester.getRect(tile);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(ListView).last),
+      );
+      for (var i = 0; i < 13; i++) {
+        await gesture.moveBy(const Offset(0, 20));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(overlayLogo, findsOneWidget);
+      final pulled = tester.getRect(tile);
+      expect(pulled.top, greaterThan(resting.top + 20));
+      // The fourth card leaves last: it is still on its pulled tile. The
+      // overlay measures during build, so while the page moves it is one
+      // frame behind (the real tiles are hidden then).
+      final flown = tester.getRect(overlayCard(3));
+      expect(flown.center.dx, closeTo(pulled.center.dx, 0.5));
+      expect(flown.center.dy, closeTo(pulled.center.dy, 4));
+      expect(flown.size.width, closeTo(pulled.width, 0.5));
+      await tester.pumpAndSettle();
+      expect(find.byType(ActivityDetailsScreen), findsNothing);
+    });
+
+    testWidgets("without a pile there is no flight", (tester) async {
+      final router = await pump(tester);
+      router.go(
+        "/home/activity_details",
+        extra: _disclosure("Elsewhere", 9, ["email"]),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(overlayLogo, findsNothing);
+      await tester.pumpAndSettle();
+      expect(find.byType(ActivityDetailsScreen), findsOneWidget);
+      await tester.tap(find.byKey(const Key("activity_detail_done")));
+      await tester.pumpAndSettle();
+      expect(find.byType(ActivityDetailsScreen), findsNothing);
+    });
   });
 }

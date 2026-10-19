@@ -29,6 +29,7 @@ import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart"
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
@@ -1477,14 +1478,24 @@ void main() {
       expect(find.byType(DocumentInstructionScreen), findsNothing);
     });
 
-    testWidgets("Cancel on the instruction asks first", (tester) async {
+    testWidgets("the sheet's own bar: no Cancel, closing asks", (tester) async {
       await open(tester);
-      await tester.tap(inSheet(find.byKey(DocumentFlowButton.secondaryKey)));
+      // The screen's own bar and Cancel are gone; the sheet's bar has the
+      // title, back and close, also for screen readers.
+      expect(inSheet(find.byType(IrmaAppBar)), findsNothing);
+      expect(
+        inSheet(find.byKey(DocumentFlowButton.secondaryKey)),
+        findsNothing,
+      );
+      expect(find.bySemanticsLabel("Scan passport"), findsOneWidget);
+      expect(find.bySemanticsLabel("Go back"), findsWidgets);
+
+      await tester.tap(find.bySemanticsLabel("Close").last);
       await _pumpFor(tester);
       expect(find.text("Stop adding passport?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await _pumpFor(tester);
-      expect(find.text("What do you want to share?"), findsOneWidget);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
 
     testWidgets(

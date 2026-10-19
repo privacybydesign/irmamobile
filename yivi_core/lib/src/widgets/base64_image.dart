@@ -20,14 +20,21 @@ Uint8List decodeBase64Cached(String base64) {
   return bytes;
 }
 
-const _decodedLimit = 128;
+// More than the types in the Add data list (about 200), so scrolling it does
+// not decode its logos again.
+const _decodedLimit = 512;
 final _decoded = <String, Uint8List>{};
 
 class Base64Image extends StatefulWidget {
   final String base64;
   final String? mimeType;
 
-  Base64Image({Key? key, required this.base64, this.mimeType})
+  /// The size it is shown at, when known (a logo in an avatar): a bitmap is
+  /// then decoded at that size on this screen, not at its own size, which
+  /// for a logo is often many times larger.
+  final double? size;
+
+  Base64Image({Key? key, required this.base64, this.mimeType, this.size})
     : super(key: key ?? ValueKey(base64));
 
   @override
@@ -37,7 +44,7 @@ class Base64Image extends StatefulWidget {
 class _Base64ImageState extends State<Base64Image> {
   late final Uint8List _bytes = decodeBase64Cached(widget.base64);
   late final bool _isSvg = _detectSvg();
-  late final MemoryImage? _provider = _isSvg ? null : MemoryImage(_bytes);
+  late final MemoryImage? _memory = _isSvg ? null : MemoryImage(_bytes);
 
   bool _detectSvg() {
     final mimeType = widget.mimeType;
@@ -70,8 +77,17 @@ class _Base64ImageState extends State<Base64Image> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      _isSvg
-      ? SvgPicture.memory(_bytes)
-      : Image(image: _provider!, gaplessPlayback: true);
+  Widget build(BuildContext context) {
+    if (_isSvg) return SvgPicture.memory(_bytes);
+    final size = widget.size;
+    final ImageProvider image = size == null
+        ? _memory!
+        : ResizeImage(
+            _memory!,
+            width: (size * MediaQuery.devicePixelRatioOf(context)).ceil(),
+            // Never upscaled: a small logo keeps its own size.
+            allowUpscaling: false,
+          );
+    return Image(image: image, gaplessPlayback: true);
+  }
 }

@@ -25,6 +25,7 @@ import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/translated_text.dart";
+import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
 import "widgets/nfc_error_dialog.dart";
@@ -90,14 +91,15 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   final NfcReadingTranslationKeys translationKeys;
   final VoidCallback? onCancel;
 
-  /// The progress under the bar, when the screen is a step in a sheet.
-  final PreferredSizeWidget? band;
+  /// Shows the face check's intro and says whether the user starts it. In a
+  /// sheet it opens as the sheet's next screen; by default full-screen.
+  final Future<bool> Function(BuildContext context)? faceIntro;
 
   const NfcReadingScreen({
     required this.mrz,
     required this.translationKeys,
     this.onCancel,
-    this.band,
+    this.faceIntro,
     super.key,
   });
 
@@ -283,7 +285,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // page is not revealed again after the intro/liveness — instead the
           // user sees a loader that leads into issuance.
           setState(() => _preparingIssuance = true);
-          final proceed = await FaceVerificationIntroScreen.show(context);
+          final proceed =
+              await (widget.faceIntro ?? FaceVerificationIntroScreen.show)(
+                context,
+              );
           if (!proceed) {
             if (mounted) {
               setState(() => _preparingIssuance = false);
@@ -476,6 +481,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     _NfcStage stage,
     DocumentReaderState state,
   ) {
+    // In a sheet its close button is the way out: no Cancel here.
+    final inSheet = DocumentStepInSheet.of(context);
     final cancelAction = NfcStageAction.secondary(
       labelKey: "document_flow.cancel",
       onPressed: cancel,
@@ -497,7 +504,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               labelKey: "document_flow.start",
               onPressed: _startScanning,
             )
-          else
+          else if (!inSheet)
             cancelAction,
         ],
       ),
@@ -507,7 +514,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           label: FlutterI18n.translate(context, _documentType.readingLabelKey),
         ),
         ("$keys.reading_title", "$keys.reading_body"),
-        [cancelAction],
+        [if (!inSheet) cancelAction],
       ),
       _NfcStage.done => (
         const NfcDoneCheck(),
@@ -523,14 +530,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               labelKey: "$keys.open_settings",
               onPressed: () => ref.read(nfcSettingsOpenerProvider).open(),
             ),
-          cancelAction,
+          if (!inSheet) cancelAction,
         ],
       ),
     };
 
     return NfcStageScaffold(
       appBarTitleKey: widget.translationKeys.title,
-      band: widget.band,
       picture: picture,
       // Nothing to go back to once the read is done.
       leading: stage == _NfcStage.done ? null : const YiviBackButton(),
@@ -580,11 +586,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     final palette = YiviPalette.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "face_verification.title",
-        bottom: widget.band,
-      ),
+      backgroundColor: DocumentStepInSheet.of(context)
+          ? Colors.transparent
+          : palette.background,
+      // In a sheet its bar has the title.
+      appBar: DocumentStepInSheet.of(context)
+          ? null
+          : IrmaAppBar(titleTranslationKey: "face_verification.title"),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -666,7 +674,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: DocumentStepInSheet.of(context)
+            ? null
+            : "ui.cancel",
         onSecondaryPressed: cancel,
       ),
     );
@@ -689,7 +699,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: DocumentStepInSheet.of(context)
+            ? null
+            : "ui.cancel",
         onSecondaryPressed: cancel,
       ),
     );
@@ -745,7 +757,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   DocumentReader _getDocumentReader() {
-    return ref.read(
+    final reader = ref.read(
       switch (widget.mrz) {
         ScannedPassportMrz() => passportReaderProvider(
           widget.mrz as ScannedPassportMrz,
@@ -758,6 +770,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
       }.notifier,
     );
+    return reader;
   }
 
   String _getTipKeyForState(DocumentReaderState state) {
@@ -889,9 +902,14 @@ class _NfcScaffold extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
-      // The redesign's page background (backgroundTertiary is the same colour).
-      backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
+      // The redesign's page background (backgroundTertiary is the same
+      // colour); in a sheet its glass, under the sheet's own bar.
+      backgroundColor: DocumentStepInSheet.of(context)
+          ? Colors.transparent
+          : theme.backgroundTertiary,
+      appBar: DocumentStepInSheet.of(context)
+          ? null
+          : IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: SafeArea(
         child: Center(
           child: OrientationBuilder(

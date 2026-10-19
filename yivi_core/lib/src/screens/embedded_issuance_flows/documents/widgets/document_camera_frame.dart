@@ -4,6 +4,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../document_step_in_sheet.dart";
 import "dark_glass.dart";
 
 /// The camera of the document flow, as on the design's camera board: the
@@ -39,19 +40,21 @@ class DocumentCameraFrame extends StatelessWidget {
   /// Where the window goes on a screen of [size] under a status bar of
   /// [top]: the design's place on a phone (236 on the 844 high board, a
   /// little above the middle), always below the hint card.
-  static Rect windowFor(Size size, double top) {
+  static Rect windowFor(Size size, double top, {double hint = hintTop}) {
     final width = math.min(windowWidth, size.width - 48);
     final height = width * windowHeight / windowWidth;
-    final y = math.max(top + hintTop + 96, (size.height - height) / 2 - 60);
+    final y = math.max(top + hint + 96, (size.height - height) / 2 - 60);
     return Rect.fromLTWH((size.width - width) / 2, y, width, height);
   }
 
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
+    // In a sheet's card there is no floating title above the hint.
+    final hint = DocumentStepInSheet.of(context) ? 16.0 : hintTop;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final window = windowFor(constraints.biggest, padding.top);
+        final window = windowFor(constraints.biggest, padding.top, hint: hint);
         final rrect = RRect.fromRectAndRadius(
           window,
           const Radius.circular(_radius),
@@ -93,7 +96,7 @@ class DocumentCameraFrame extends StatelessWidget {
             Positioned(
               left: 16 + padding.left,
               right: 16 + padding.right,
-              top: padding.top + hintTop,
+              top: padding.top + hint,
               child: _Hint(found: found, glare: glare),
             ),
           ],

@@ -7,6 +7,7 @@ import "../../../../theme/yivi_palette.dart";
 import "../../../../widgets/document_flow_footer.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/translated_text.dart";
+import "../document_step_in_sheet.dart";
 
 /// A button in the bar below an NFC stage.
 class NfcStageAction {
@@ -40,12 +41,8 @@ class NfcStageScaffold extends StatelessWidget {
     required this.textParams,
     required this.actions,
     this.leading = const YiviBackButton(),
-    this.band,
     super.key,
   });
-
-  /// The progress under the bar, when the screen is a step in a sheet.
-  final PreferredSizeWidget? band;
 
   /// As on the canvas: the picture area starts 16 below the app bar and is
   /// 360 high; the title starts 24 under it.
@@ -106,13 +103,17 @@ class NfcStageScaffold extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
-      backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: appBarTitleKey,
-        leading: leading,
-        hasBorder: false,
-        bottom: band,
-      ),
+      backgroundColor: DocumentStepInSheet.of(context)
+          ? Colors.transparent
+          : YiviPalette.of(context).background,
+      // In a sheet its bar has the title, back and close.
+      appBar: DocumentStepInSheet.of(context)
+          ? null
+          : IrmaAppBar(
+              titleTranslationKey: appBarTitleKey,
+              leading: leading,
+              hasBorder: false,
+            ),
       body: SafeArea(
         child: isLandscape
             ? Row(

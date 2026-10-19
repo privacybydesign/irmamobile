@@ -1,17 +1,14 @@
-import "dart:io";
-
 import "package:camera/camera.dart";
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
-import "../../../../../routing.dart";
 import "../../../../providers/ocr_processor_provider.dart";
 import "../../../../util/mrz_glare.dart";
 import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
 import "document_camera_frame.dart";
+import "mrz_camera_feed.dart";
 
 class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   const MrzScanner({
@@ -29,105 +26,81 @@ class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   MrzScannerState createState() => MrzScannerState();
 }
 
+/// Reads the MRZ from the camera. The camera runs only while the scanner is
+/// on screen: its route is the current one, its tickers are on (a page in a
+/// sheet under another is not), and the app is in the foreground. Otherwise,
+/// and when the scanner goes away, the camera is released.
 class MrzScannerState extends ConsumerState<MrzScanner>
-    with RouteAware, WidgetsBindingObserver {
+    with WidgetsBindingObserver {
   bool _canProcess = true;
   bool _isBusy = false;
   List result = [];
   bool _showSuccessCheck = false;
-  CameraController? _controller;
-  int _cameraIndex = 1;
-  List<CameraDescription> cameras = [];
   final _confirmation = MrzReadingConfirmation();
   final _glareHint = GlareHint();
   bool _showGlareHint = false;
 
-  @override
-  void dispose() async {
-    routeObserver.unsubscribe(this);
-    _canProcess = false;
-    super.dispose();
-  }
+  late final MrzCameraFeed _feed = ref.read(mrzCameraFeedProvider)();
+  bool _routeShown = true;
+  bool _tickersOn = true;
+  bool _appActive = true;
+
+  /// The camera is wanted now.
+  bool get _wanted =>
+      mounted && _routeShown && _tickersOn && _appActive && _canProcess;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => initCamera());
-  }
-
-  Future<void> initCamera() async {
-    // inside of integration tests we don't want to use the actual camera
-    if (TestContext.isRunningIntegrationTest(context)) {
-      return;
-    }
-
-    cameras = await availableCameras();
-
-    try {
-      if (cameras.any(
-        (element) =>
-            element.lensDirection == widget.initialDirection &&
-            element.sensorOrientation == 90,
-      )) {
-        _cameraIndex = cameras.indexOf(
-          cameras.firstWhere(
-            (element) =>
-                element.lensDirection == widget.initialDirection &&
-                element.sensorOrientation == 90,
-          ),
-        );
-      } else {
-        _cameraIndex = cameras.indexOf(
-          cameras.firstWhere(
-            (element) => element.lensDirection == widget.initialDirection,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-
-    _startLiveFeed();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      routeObserver.subscribe(this, route);
+    // Both change when a route is pushed over this one or popped off it,
+    // and when the page goes under another one or offstage.
+    _routeShown = ModalRoute.of(context)?.isCurrent ?? true;
+    _tickersOn = TickerMode.valuesOf(context).enabled;
+    _sync();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _appActive = state == AppLifecycleState.resumed;
+    _sync();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _canProcess = false;
+    // Releases the camera: without this it stayed on after the flow.
+    _feed.stop();
+    super.dispose();
+  }
+
+  /// Starts or stops the camera to match [_wanted].
+  Future<void> _sync() async {
+    // Inside integration tests there is no camera to use.
+    if (mounted && TestContext.isRunningIntegrationTest(context)) return;
+    if (_wanted) {
+      if (_feed.running) return;
+      _confirmation.reset();
+      _glareHint.reset();
+      _showGlareHint = false;
+      await _feed.start(_processImage);
+      if (!_wanted) {
+        // Covered (or gone) while starting.
+        await _feed.stop();
+        return;
+      }
+      if (mounted) setState(() {});
+    } else {
+      await _feed.stop();
+      if (mounted) setState(() {});
     }
-  }
-
-  @override
-  void didPush() async {
-    // Called when the current route has been pushed.
-    await _startLiveFeed();
-  }
-
-  @override
-  void didPushNext() async {
-    // Called when a new route has been pushed, and this route is no longer visible.
-    await _stopLiveFeed();
-  }
-
-  // Called when the top route has been popped and this route shows again.
-  @override
-  void didPopNext() async {
-    // For some reason an exception is sometimes triggered when going back from a session screen.
-    // This doesn't have any effect for the user, but in order to prevent it from showing up in
-    // Sentry logging we catch it here and pretend like nothing happened...
-    try {
-      await _startLiveFeed();
-    } catch (e) {
-      debugPrint("error while starting live feed: $e");
-    }
-  }
-
-  // Called when this route is popped.
-  @override
-  void didPop() async {
-    await _stopLiveFeed();
   }
 
   @override
@@ -141,17 +114,15 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   }
 
   Widget _liveFeedBody() {
-    if (_controller?.value.isInitialized == false ||
-        _controller?.value.isInitialized == null) {
-      return Container();
-    }
+    final preview = _feed.preview();
+    if (preview == null) return Container();
 
     final mediaQuery = MediaQuery.of(context);
     // calculate scale depending on screen and camera ratios
     // this is actually size.aspectRatio / (1 / camera.aspectRatio)
     // because camera preview size is received as landscape
     // but we're calculating for portrait orientation
-    var scale = mediaQuery.size.aspectRatio * _controller!.value.aspectRatio;
+    var scale = mediaQuery.size.aspectRatio * _feed.aspectRatio;
 
     if (mediaQuery.orientation == .landscape) {
       scale = 1;
@@ -172,7 +143,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
                 aspectRatio: mediaQuery.orientation == .portrait
                     ? 9 / 16
                     : 16 / 9,
-                child: CameraPreview(_controller!),
+                child: preview,
               ),
             ),
           ),
@@ -181,104 +152,14 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     );
   }
 
-  Future _startLiveFeed() async {
-    _confirmation.reset();
-    _glareHint.reset();
-    _showGlareHint = false;
-    if (cameras.isEmpty) return;
-
-    if (_controller != null && _controller!.value.isInitialized) {
-      if (!_controller!.value.isStreamingImages) {
-        await _controller!.startImageStream(_processImage);
-      }
-      return;
-    }
-
-    final camera = cameras[_cameraIndex];
-    _controller = CameraController(
-      camera,
-      .veryHigh,
-      enableAudio: false,
-      imageFormatGroup: Platform.isAndroid ? .nv21 : .bgra8888,
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    await _controller?.initialize();
-    if (!mounted) {
-      return;
-    }
-
-    await _controller?.startImageStream(_processImage);
-
-    setState(() {});
-  }
-
-  Future _stopLiveFeed() async {
-    if (_controller == null) {
-      return;
-    }
-    final c = _controller;
-    // first to a setState to make sure the build method doesn't use the controller while it's disposed
-    setState(() {
-      _controller = null;
-    });
-
-    // wait a little bit to make sure the controller is no longer used
-    await Future.delayed(const Duration(milliseconds: 20));
-
-    // stop stream & dispose
-    try {
-      if (c?.value.isStreamingImages == true) {
-        await c?.stopImageStream();
-      }
-    } catch (e) {
-      debugPrint("failed to stop image stream: $e");
-    }
-    await c?.dispose();
-  }
-
-  static const Map<DeviceOrientation, int> _orientations = {
-    .portraitUp: 0,
-    .landscapeLeft: 90,
-    .portraitDown: 180,
-    .landscapeRight: 270,
-  };
-
-  int? _getImageRotation() {
-    final camera = cameras[_cameraIndex];
-    final sensorOrientation = camera.sensorOrientation;
-    if (Platform.isIOS) {
-      return sensorOrientation;
-    } else if (Platform.isAndroid) {
-      // A frame can still arrive after _stopLiveFeed has dropped the controller.
-      final controller = _controller;
-      if (controller == null) return null;
-      var rotationCompensation =
-          _orientations[controller.value.deviceOrientation];
-      if (rotationCompensation == null) return null;
-      if (camera.lensDirection == .front) {
-        // front-facing
-        rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
-      } else {
-        // back-facing
-        rotationCompensation =
-            (sensorOrientation - rotationCompensation + 360) % 360;
-      }
-      return rotationCompensation;
-    }
-    return null;
-  }
-
   Future _processImage(CameraImage inputImage) async {
-    if (!_canProcess) return false;
+    // A frame can still come in after the camera was asked to stop.
+    if (!_wanted) return false;
     if (_isBusy) return false;
     _isBusy = true;
 
     try {
-      final rotation = _getImageRotation();
+      final rotation = _feed.imageRotation();
       if (rotation == null) {
         return false;
       }
@@ -298,12 +179,13 @@ class MrzScannerState extends ConsumerState<MrzScanner>
       );
       final result = parsed == null ? null : _confirmation.confirm(parsed);
 
-      if (result != null) {
+      if (result != null && mounted) {
         // show success checkmark for a second and then call the onSuccess callback
         setState(() {
           _showSuccessCheck = true;
         });
         await Future.delayed(Duration(seconds: 1));
+        if (!mounted) return false;
         setState(() {
           _showSuccessCheck = false;
         });

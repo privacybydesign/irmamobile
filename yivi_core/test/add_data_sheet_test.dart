@@ -259,6 +259,75 @@ void main() {
       expect(_row("pbdf.sidn-pbdf.email"), findsOneWidget);
     });
 
+    testWidgets("a long list builds only the rows on screen", (tester) async {
+      await _pump(
+        tester,
+        store: [
+          CredentialStoreCategory(
+            category: "Personal",
+            items: [
+              for (var i = 0; i < 200; i++)
+                _item(
+                  "irma-demo.x.card$i",
+                  "Card ${i.toString().padLeft(3, "0")}",
+                ),
+            ],
+          ),
+        ],
+      );
+      final built = find.byType(AddDataRow).evaluate().length;
+      expect(built, greaterThan(0));
+      expect(built, lessThan(40));
+      // The last one comes when it scrolls into view.
+      expect(_row("irma-demo.x.card199"), findsNothing);
+      await tester.scrollUntilVisible(
+        _row("irma-demo.x.card199"),
+        600,
+        scrollable: find
+            .descendant(of: _sheet, matching: find.byType(Scrollable))
+            .last,
+      );
+      expect(_row("irma-demo.x.card199"), findsOneWidget);
+    });
+
+    testWidgets("a bitmap logo is decoded at the avatar's size", (
+      tester,
+    ) async {
+      // A 1x1 PNG.
+      const png =
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+      await _pump(
+        tester,
+        store: [
+          CredentialStoreCategory(
+            category: "Personal",
+            items: [
+              CredentialStoreItem(
+                credential: CredentialDescriptor(
+                  credentialId: "irma-demo.x.logo",
+                  name: "With a logo",
+                  issuer: _party("Issuer"),
+                  category: "Personal",
+                  image: LogoImage(base64: png, mimeType: "image/png"),
+                  attributes: const [],
+                  issueURL: null,
+                ),
+                faq: Faq(intro: "", purpose: "", content: "", howTo: ""),
+              ),
+            ],
+          ),
+        ],
+      );
+      final image = tester.widget<Image>(
+        find.descendant(
+          of: _row("irma-demo.x.logo"),
+          matching: find.byType(Image),
+        ),
+      );
+      expect(image.image, isA<ResizeImage>());
+      expect((image.image as ResizeImage).width, 44);
+    });
+
     testWidgets("search narrows the list to matching names and issuers", (
       tester,
     ) async {

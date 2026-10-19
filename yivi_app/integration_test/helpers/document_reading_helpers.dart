@@ -614,3 +614,9 @@ PassportData _fakePassportData(String mrzHex) {
     photoImageHeight: 0,
   );
 }
+
+/// Back in the sheet's own bar: a screen back in the document step.
+Future<void> sheetBack(WidgetTester tester) async {
+  await tester.tap(find.bySemanticsLabel("Go back").last);
+  await tester.pumpAndSettle();
+}

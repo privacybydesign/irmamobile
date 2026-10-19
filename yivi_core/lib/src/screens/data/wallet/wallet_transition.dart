@@ -56,33 +56,32 @@ class WalletTransition {
   static RectTween rectTween(Rect? begin, Rect? end) =>
       _CurvedRectTween(begin: begin, end: end);
 
-  /// [rectTween] for the [index]th of several cards that fly together: each
-  /// starts a little later (about 30 ms each), so they fan out one by one.
-  static CreateRectTween staggeredRectTween(int index) =>
-      (begin, end) => _CurvedRectTween(
-        begin: begin,
-        end: end,
-        start: (index * 0.065).clamp(0.0, 0.3),
-      );
+  /// How far the [index]th of several cards that fly together is from its
+  /// closed place (0) to its open place (1), at [value] of the route
+  /// animation. Each starts a little later (about 30 ms each), so they fan
+  /// out one by one; [curve] while opening, [closeCurve] while closing (so
+  /// the overshoot happens on landing).
+  static double staggered(double value, int index) {
+    final start = (index * 0.065).clamp(0.0, 0.3);
+    if (closing) {
+      final delayed = Interval(start, 1).transform(1 - value);
+      return 1 - closeCurve.transform(delayed);
+    }
+    return curve.transform(Interval(start, 1).transform(value));
+  }
 }
 
 class _CurvedRectTween extends RectTween {
-  /// Fraction of the flight this card waits before it moves.
-  final double start;
-
-  _CurvedRectTween({super.begin, super.end, this.start = 0});
+  _CurvedRectTween({super.begin, super.end});
 
   // A popping hero flies from the detail (t = 0) to the card in the list
   // (t = 1), so closing uses [WalletTransition.closeCurve] forwards.
   @override
-  Rect? lerp(double t) {
-    final delayed = start == 0 ? t : Interval(start, 1).transform(t);
-    return super.lerp(
-      WalletTransition.closing
-          ? WalletTransition.closeCurve.transform(delayed)
-          : WalletTransition.curve.transform(delayed),
-    );
-  }
+  Rect? lerp(double t) => super.lerp(
+    WalletTransition.closing
+        ? WalletTransition.closeCurve.transform(t)
+        : WalletTransition.curve.transform(t),
+  );
 }
 
 enum PushAwayDirection {

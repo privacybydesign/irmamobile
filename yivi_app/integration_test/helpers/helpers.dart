@@ -1671,5 +1671,9 @@ Future<void> tapAddCredentialTile(
         )
         .first,
   );
+  // The list is lazy: a row just below the screen is built already, so
+  // bring it on screen before tapping.
+  await tester.ensureVisible(addCredentialTile);
+  await tester.pumpAndSettle();
   await tester.tapAndSettle(addCredentialTile);
 }

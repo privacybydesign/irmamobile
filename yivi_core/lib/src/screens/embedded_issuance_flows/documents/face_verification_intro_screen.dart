@@ -4,6 +4,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "document_step_in_sheet.dart";
 import "widgets/face_frame_illustration.dart";
 
 /// Yivi-themed intro shown after a successful document readout and before the
@@ -54,12 +55,17 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "face_verification.title",
-        leading: YiviBackButton(onTap: onCancel),
-        hasBorder: false,
-      ),
+      backgroundColor: DocumentStepInSheet.of(context)
+          ? Colors.transparent
+          : palette.background,
+      // In a sheet its bar has the title and back ("not now").
+      appBar: DocumentStepInSheet.of(context)
+          ? null
+          : IrmaAppBar(
+              titleTranslationKey: "face_verification.title",
+              leading: YiviBackButton(onTap: onCancel),
+              hasBorder: false,
+            ),
       body: SingleChildScrollView(
         padding: const .fromLTRB(16, 16, 16, 32),
         // Inside the scroll view, so the content starts below the bars and

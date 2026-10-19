@@ -4,6 +4,7 @@ import "package:mrz_parser/mrz_parser.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "document_step_in_sheet.dart";
 import "widgets/driving_licence_mrz_field.dart";
 import "widgets/manual_entry_layout.dart";
 
@@ -30,13 +31,9 @@ class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
   final void Function(DrivingLicenceMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
 
-  /// The progress under the bar, when the screen is a step in a sheet.
-  final PreferredSizeWidget? band;
-
   const DrivingLicenceMrzManualEntryScreen({
     required this.onContinue,
     required this.onCancel,
-    this.band,
     super.key,
   });
 
@@ -87,11 +84,13 @@ class _DrivingLicencetMrzManualEntryScreenState
       child: Scaffold(
         extendBodyBehindAppBar: true,
         extendBody: true,
-        backgroundColor: palette.background,
-        appBar: IrmaAppBar(
-          titleTranslationKey: "driving_licence.scan.title",
-          bottom: widget.band,
-        ),
+        backgroundColor: DocumentStepInSheet.of(context)
+            ? Colors.transparent
+            : palette.background,
+        // In a sheet its bar has the title, back and close.
+        appBar: DocumentStepInSheet.of(context)
+            ? null
+            : IrmaAppBar(titleTranslationKey: "driving_licence.scan.title"),
         body: SizedBox(
           height: .infinity,
           child: SingleChildScrollView(
@@ -118,7 +117,9 @@ class _DrivingLicencetMrzManualEntryScreenState
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: "ui.cancel",
+          secondaryButtonLabel: DocumentStepInSheet.of(context)
+              ? null
+              : "ui.cancel",
           onSecondaryPressed: widget.onCancel,
         ),
       ),

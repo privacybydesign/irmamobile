@@ -123,10 +123,21 @@ class AddDataSheet extends ConsumerStatefulWidget {
 
 class _AddDataSheetState extends ConsumerState<AddDataSheet>
     with IssueFlow<AddDataSheet> {
-  String _query = "";
-
   /// The name of the card just added with "Add more", noted on the list.
   String? _justAdded;
+
+  /// The list page, kept as one widget: the flow's changes (an issuance,
+  /// the PIN, a website opened) rebuild this State, not the list.
+  Widget? _listPage;
+  String? _listPageFor;
+
+  Widget get _list {
+    if (_listPage == null || _listPageFor != _justAdded) {
+      _listPageFor = _justAdded;
+      _listPage = _AddDataListPage(justAdded: _justAdded, onOpen: _open);
+    }
+    return _listPage!;
+  }
 
   @override
   void initState() {
@@ -235,14 +246,6 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     );
   }
 
-  bool _matches(CredentialStoreItem item) {
-    final query = _query.trim().toLowerCase();
-    if (query.isEmpty) return true;
-    final credential = item.credential;
-    return credential.name.toLowerCase().contains(query) ||
-        credential.issuer.name.toLowerCase().contains(query);
-  }
-
   void _open(CredentialStoreItem item, {required bool nfcBlocked}) {
     if (nfcBlocked) {
       _showNfcUnsupportedDialog();
@@ -262,14 +265,45 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
       child: GlassSheetPages(
         onBack: issueBack,
         pages: [
-          KeyedSubtree(key: const ValueKey("list"), child: _buildList()),
+          KeyedSubtree(key: const ValueKey("list"), child: _list),
           ...issueFlowPages(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildList() {
+/// The root page of Add data: what can be added, by category, with the
+/// search field under the bar. Its own widget, so typing rebuilds only the
+/// list, and the rows are built as they scroll into view.
+class _AddDataListPage extends ConsumerStatefulWidget {
+  /// The name of the card just added with "Add more", noted at the top.
+  final String? justAdded;
+  final void Function(CredentialStoreItem item, {required bool nfcBlocked})
+  onOpen;
+
+  const _AddDataListPage({required this.justAdded, required this.onOpen});
+
+  @override
+  ConsumerState<_AddDataListPage> createState() => _AddDataListPageState();
+}
+
+class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
+  String _query = "";
+
+  String _t(String key, [Map<String, String>? params]) =>
+      FlutterI18n.translate(context, key, translationParams: params);
+
+  bool _matches(CredentialStoreItem item) {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return true;
+    final credential = item.credential;
+    return credential.name.toLowerCase().contains(query) ||
+        credential.issuer.name.toLowerCase().contains(query);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final storeItems = ref.watch(groupedCredentialStoreProvider);
     final owned = {
@@ -291,26 +325,32 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
       _ => group.category,
     };
 
-    final Widget body = switch (storeItems) {
-      AsyncLoading() => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 80),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      AsyncError(error: final error) => Text(
-        error.toString(),
-        style: palette.body(14).copyWith(color: palette.danger),
-      ),
+    final List<Widget> body = switch (storeItems) {
+      AsyncLoading() => const [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 80),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ),
+      ],
+      AsyncError(error: final error) => [
+        SliverToBoxAdapter(
+          child: Text(
+            error.toString(),
+            style: palette.body(14).copyWith(color: palette.danger),
+          ),
+        ),
+      ],
       AsyncData(value: final value) => () {
         final groups = [
           for (final group in value)
             (group, group.items.where(_matches).toList()),
         ].where((g) => g.$2.isNotEmpty).toList();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 16,
-          children: [
-            if (groups.isEmpty)
-              Padding(
+        return [
+          if (groups.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.only(top: 24),
                 child: Text(
                   _t("data.add.no_results", {"query": _query.trim()}),
@@ -318,33 +358,32 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
                   style: palette.body(16).copyWith(color: palette.heading),
                 ),
               ),
-            for (final (group, items) in groups)
-              GlassGroup(
-                // A credential without a category (irmago marshals it
-                // `omitempty`) gets no header.
-                header: title(group).isEmpty ? null : title(group),
-                dividerIndent: 72,
-                children: [
-                  for (final item in items)
-                    () {
-                      final blocked =
-                          !nfcAvailable &&
-                          credentialRequiresNfc(item.credential.credentialId);
-                      return AddDataRow(
-                        item: item,
-                        nfcBlocked: blocked,
-                        owned: owned.contains(item.credential.credentialId),
-                        onTap: () => _open(item, nfcBlocked: blocked),
-                      );
-                    }(),
-                ],
-              ),
-          ],
-        );
+            ),
+          for (final (group, items) in groups)
+            SliverGlassGroup(
+              // A credential without a category (irmago marshals it
+              // `omitempty`) gets no header.
+              header: title(group).isEmpty ? null : title(group),
+              dividerIndent: 72,
+              itemCount: items.length,
+              itemBuilder: (context, i) {
+                final item = items[i];
+                final blocked =
+                    !nfcAvailable &&
+                    credentialRequiresNfc(item.credential.credentialId);
+                return AddDataRow(
+                  item: item,
+                  nfcBlocked: blocked,
+                  owned: owned.contains(item.credential.credentialId),
+                  onTap: () => widget.onOpen(item, nfcBlocked: blocked),
+                );
+              },
+            ),
+        ];
       }(),
     };
 
-    final justAdded = _justAdded;
+    final justAdded = widget.justAdded;
     return GlassSheetPage(
       title: _t("data.add.title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -353,55 +392,58 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
         hintKey: "data.add.search",
         onChanged: (q) => setState(() => _query = q),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (justAdded != null)
-            Semantics(
-              liveRegion: true,
-              child: Container(
-                key: const Key("add_data_added_note"),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: ShapeDecoration(
-                  color: palette.successSurface,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
+      slivers: [
+        if (justAdded != null)
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 16),
+            sliver: SliverToBoxAdapter(
+              child: Semantics(
+                liveRegion: true,
+                child: Container(
+                  key: const Key("add_data_added_note"),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
                   ),
-                ),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Icon(
-                      Icons.check_rounded,
-                      size: 18,
-                      color: palette.successText,
+                  decoration: ShapeDecoration(
+                    color: palette.successSurface,
+                    shape: const RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
                     ),
-                    Expanded(
-                      child: Text(
-                        _t("data.add.added_more", {"name": justAdded}),
-                        style: palette
-                            .body(14, weight: FontWeight.w600)
-                            .copyWith(color: palette.successText),
+                  ),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Icon(
+                        Icons.check_rounded,
+                        size: 18,
+                        color: palette.successText,
                       ),
-                    ),
-                  ],
+                      Expanded(
+                        child: Text(
+                          _t("data.add.added_more", {"name": justAdded}),
+                          style: palette
+                              .body(14, weight: FontWeight.w600)
+                              .copyWith(color: palette.successText),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+          ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+          sliver: SliverToBoxAdapter(
             child: TranslatedText(
               "data.add.choose",
               style: palette.body(16).copyWith(color: palette.heading),
             ),
           ),
-          body,
-        ],
-      ),
+        ),
+        ...body,
+      ],
     );
   }
 }
@@ -490,6 +532,8 @@ class AddDataRow extends StatelessWidget {
                           : Base64Image(
                               base64: image.base64,
                               mimeType: image.mimeType,
+                              // Decoded at the avatar's size.
+                              size: 44,
                             ),
                     ),
                   ),

@@ -6,6 +6,7 @@ import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../data/wallet/wallet_detail_scaffold.dart";
 import "activity_entry.dart";
+import "activity_flight.dart";
 import "widgets/activity_detail_parts.dart";
 
 class ActivityDetailsScreenArgs {
@@ -15,8 +16,8 @@ class ActivityDetailsScreenArgs {
 }
 
 /// The details of one log entry. Opens with the Wallet-style transition: the
-/// cards of the row's stack fly into their tiles while the activity list
-/// moves away, then the rest fades up. Pull down, Done, or a tap on a card
+/// cards of the row's stack fly into their tiles ([ActivityFlight]) while the
+/// activity list moves away, then the rest fades up. Pull down, Done, or a tap on a card
 /// closes it again.
 class ActivityDetailsScreen extends ConsumerStatefulWidget {
   final LogInfo logEntry;
@@ -37,6 +38,10 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
   final _scrolledPast = ValueNotifier(false);
 
   final _headerKey = GlobalKey();
+
+  /// The entry as last built, for the flight.
+  ActivityEntry? _entry;
+  bool _flightStarted = false;
 
   @override
   void initState() {
@@ -59,7 +64,24 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_flightStarted) return;
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null) return;
+    _flightStarted = true;
+    // After the first frame: the tiles are laid out, and the overlay is not
+    // changed while the tree builds.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final entry = _entry;
+      if (!mounted || entry == null) return;
+      ActivityFlight.start(context, entry, animation);
+    });
+  }
+
+  @override
   void dispose() {
+    ActivityFlight.stop();
     _scroll.dispose();
     _scrolledPast.dispose();
     super.dispose();
@@ -74,6 +96,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const <schemaless.Credential>[];
     final entry = ActivityEntry.fromLog(widget.logEntry, wallet: wallet);
+    _entry = entry;
     // The header can change size (rotation, text size): check again after
     // this layout.
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader());
@@ -117,7 +140,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
               child: ActivityDetailBody(
                 entry: entry,
                 animation: animation,
-                heroes: true,
+                flight: true,
                 onArtTap: _close,
                 headerKey: _headerKey,
               ),

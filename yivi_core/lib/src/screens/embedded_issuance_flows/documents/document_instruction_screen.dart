@@ -6,6 +6,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
 import "widgets/document_instruction_illustration.dart";
 
@@ -16,7 +17,6 @@ class DocumentInstructionScreen extends StatelessWidget {
     required this.documentType,
     required this.onStart,
     required this.onCancel,
-    this.band,
     super.key,
   });
 
@@ -27,23 +27,23 @@ class DocumentInstructionScreen extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onCancel;
 
-  /// The progress under the bar, when the screen is a step in a sheet.
-  final PreferredSizeWidget? band;
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final keys = documentType.instructionKey;
+    // In a sheet: its bar has the title, back and close; no Cancel here.
+    final inSheet = DocumentStepInSheet.of(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: documentType.scanTitleKey,
-        hasBorder: false,
-        bottom: band,
-      ),
+      backgroundColor: inSheet ? Colors.transparent : palette.background,
+      appBar: inSheet
+          ? null
+          : IrmaAppBar(
+              titleTranslationKey: documentType.scanTitleKey,
+              hasBorder: false,
+            ),
       body: SingleChildScrollView(
         // 24 below the floating app bar and from the sides, as on the board.
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
@@ -113,12 +113,13 @@ class DocumentInstructionScreen extends StatelessWidget {
             labelKey: "document_flow.start",
             onPressed: onStart,
           ),
-          DocumentFlowButton(
-            key: DocumentFlowButton.secondaryKey,
-            labelKey: "document_flow.cancel",
-            onPressed: onCancel,
-            style: .outline,
-          ),
+          if (!inSheet)
+            DocumentFlowButton(
+              key: DocumentFlowButton.secondaryKey,
+              labelKey: "document_flow.cancel",
+              onPressed: onCancel,
+              style: .outline,
+            ),
         ],
       ),
     );

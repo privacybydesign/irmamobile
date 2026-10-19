@@ -1,3 +1,4 @@
+import "package:flutter/scheduler.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -238,8 +239,19 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   @override
   Duration get reverseTransitionDuration => const Duration(milliseconds: 320);
 
-  double _measure(BuildContext context) =>
-      _sheetHeight = context.size?.height ?? _sheetHeight;
+  /// The sheet's height, as last laid out. A scroll can start during layout
+  /// (a lazy list that grows as rows are built), when the size may not be
+  /// read; the last known height stands in then.
+  double _measure(BuildContext context) {
+    final box = context.findRenderObject();
+    final layingOut =
+        SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks;
+    if (!layingOut && box is RenderBox && box.hasSize) {
+      _sheetHeight = box.size.height;
+    }
+    return _sheetHeight;
+  }
 
   /// Follows a drag of [delta] logical pixels on a sheet [height] tall.
   void _drag(double delta, double height) {
@@ -419,8 +431,8 @@ class GlassSheetHeader extends StatelessWidget {
   final VoidCallback? onBack;
 
   /// The title fades while pages of [GlassSheetPages] change (the bar
-  /// itself stays put).
-  final double titleOpacity;
+  /// itself stays put); null when it simply shows.
+  final Animation<double>? titleOpacity;
 
   /// Off for the page under the top one: its buttons sit under the top
   /// page's own.
@@ -430,7 +442,7 @@ class GlassSheetHeader extends StatelessWidget {
     super.key,
     required this.title,
     this.onBack,
-    this.titleOpacity = 1,
+    this.titleOpacity,
     this.buttons = true,
   });
 
@@ -452,17 +464,27 @@ class GlassSheetHeader extends StatelessWidget {
               child: Semantics(
                 header: true,
                 namesRoute: true,
-                child: Opacity(
-                  opacity: titleOpacity,
-                  child: Text(
-                    title,
-                    key: const Key("glass_sheet_title"),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .display(17)
-                        .copyWith(height: 22 / 17, color: palette.text),
+                child: FadeTransition(
+                  opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+                  // A new title on the same page (a screen changing below
+                  // the bar) fades in over the old one.
+                  child: AnimatedSwitcher(
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 200),
+                    child: KeyedSubtree(
+                      key: ValueKey(title),
+                      child: Text(
+                        title,
+                        key: const Key("glass_sheet_title"),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .display(17)
+                            .copyWith(height: 22 / 17, color: palette.text),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -558,11 +580,11 @@ class GlassSheetPages extends StatefulWidget {
 class _GlassSheetPagesState extends State<GlassSheetPages>
     with SingleTickerProviderStateMixin {
   /// 1 when the top page is fully in, 0 when it is out to the right.
-  late final _slide = AnimationController(
+  late final AnimationController _slide = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 340),
     value: 1,
-  );
+  )..addListener(() => _moving.value = _slide.value < 1);
 
   /// What is on screen: [GlassSheetPages.pages], plus a page that is sliding
   /// out after it was removed.
@@ -570,6 +592,9 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   /// See [GlassSheetPages.memoryOf].
   final _memory = <Object, Object?>{};
+
+  /// Whether a page is coming in or going out ([_slide] below 1).
+  final _moving = ValueNotifier(false);
 
   /// The top page was swiped out; its removal needs no animation of its own.
   bool _swipedOut = false;
@@ -606,6 +631,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   @override
   void dispose() {
+    _moving.dispose();
     _slide.dispose();
     super.dispose();
   }
@@ -659,10 +685,11 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
               }
             : null,
         child: AnimatedBuilder(
-          animation: _slide,
+          // Rebuilds the stack only when a slide starts or ends; the slide
+          // itself moves layers (see _SheetPageRole.slide).
+          animation: _moving,
           builder: (context, _) {
-            final t = _slide.value;
-            final moving = t < 1;
+            final moving = _moving.value;
             // With reduced motion the pages fade into each other instead of
             // sliding.
             final reduce = MediaQuery.disableAnimationsOf(context);
@@ -670,61 +697,22 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
             return Stack(
               fit: StackFit.expand,
               children: [
-                // The page under the top one: kept (and so its scroll), shown
-                // only while the top one moves.
+                // The page under the top one, then the top one. Both have the
+                // same wrappers, keyed by the page, so a page that moves from
+                // one place to the other keeps its state (its scroll, its
+                // fields, its pictures) instead of being built anew.
                 for (final page in _shown)
-                  if (page == under)
-                    KeyedSubtree(
-                      key: ValueKey(("under", page.key)),
-                      // A field on it gives up focus (and its keyboard), and
-                      // an autofocus field on it can't take it.
-                      child: ExcludeFocus(
-                        child: Offstage(
-                          offstage: !moving,
-                          child: TickerMode(
-                            enabled: moving,
-                            // Its heroes stay out of flights while it is hidden.
-                            child: HeroMode(
-                              enabled: moving,
-                              child: _SheetPageRole(
-                                top: false,
-                                t: t,
-                                moving: moving,
-                                reduce: reduce,
-                                shade: null,
-                                memory: _memory,
-                                child: page,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                  if (page == under || page == top)
+                    _place(
+                      page,
+                      top: page == top,
+                      moving: moving,
+                      reduce: reduce,
+                      leaving: leaving,
+                      shade: page == top && moving && under != null
+                          ? palette.sheet
+                          : null,
                     ),
-                KeyedSubtree(
-                  key: ValueKey(("top", top.key)),
-                  // Each page is a route of its own for screen readers, so a
-                  // new step is announced by its title and focused.
-                  child: Semantics(
-                    scopesRoute: true,
-                    explicitChildNodes: true,
-                    // A page on its way out lets go of the keyboard at once.
-                    child: ExcludeFocus(
-                      excluding: leaving,
-                      child: _SheetPageRole(
-                        top: true,
-                        t: t,
-                        moving: moving && under != null,
-                        reduce: reduce,
-                        // While it moves it has the sheet's colour behind
-                        // what slides, as a page in a native sheet does, so
-                        // the page under it does not show through the glass.
-                        shade: moving && under != null ? palette.sheet : null,
-                        memory: _memory,
-                        child: top,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             );
           },
@@ -732,14 +720,61 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
       ),
     );
   }
+
+  Widget _place(
+    Widget page, {
+    required bool top,
+    required bool moving,
+    required bool reduce,
+    required bool leaving,
+    required Color? shade,
+  }) {
+    final shown = top || moving;
+    return KeyedSubtree(
+      key: ValueKey(("page", page.key)),
+      // The top page is a route of its own for screen readers, so a new step
+      // is announced by its title and focused.
+      child: Semantics(
+        scopesRoute: top,
+        explicitChildNodes: true,
+        // The page underneath, and a page on its way out, hold no focus: a
+        // field on it gives up its keyboard, and autofocus can't take it.
+        child: ExcludeFocus(
+          excluding: !top || leaving,
+          // The page underneath shows only while the top one moves.
+          child: Offstage(
+            offstage: !shown,
+            child: TickerMode(
+              enabled: shown,
+              // Its heroes stay out of flights while it is hidden.
+              child: HeroMode(
+                enabled: shown,
+                child: _SheetPageRole(
+                  top: top,
+                  animation: _slide,
+                  moving: moving && (top ? _shown.length > 1 : true),
+                  reduce: reduce,
+                  shade: shade,
+                  memory: _memory,
+                  child: page,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Where a page of [GlassSheetPages] is while pages change: on top or under
-/// it, how far the top one is in ([t], 1 when fully in), and with [reduce]
-/// a fade instead of a slide.
+/// it, the [animation] (1 when the top page is fully in), and with [reduce] a fade
+/// instead of a slide. It changes only when a slide starts or ends: the slide
+/// itself moves and fades layers through [animation], so nothing rebuilds per
+/// frame.
 class _SheetPageRole extends InheritedWidget {
   final bool top;
-  final double t;
+  final Animation<double> animation;
 
   /// The top page is coming in or going out over a page under it.
   final bool moving;
@@ -751,7 +786,7 @@ class _SheetPageRole extends InheritedWidget {
 
   const _SheetPageRole({
     required this.top,
-    required this.t,
+    required this.animation,
     required this.moving,
     required this.reduce,
     required this.shade,
@@ -765,25 +800,31 @@ class _SheetPageRole extends InheritedWidget {
     if (!top) {
       return reduce
           ? child
-          : FractionalTranslation(
-              translation: Offset(-0.3 * t, 0),
-              child: child,
-            );
+          : _Slide(animation: animation, from: 0, to: -0.3, child: child);
     }
     final shade = this.shade;
-    final shaded = DecoratedBox(
-      decoration: BoxDecoration(
-        color: shade ?? const Color(0x00000000),
-        boxShadow: shade == null
-            ? null
-            : const [BoxShadow(color: Color(0x1F000000), blurRadius: 16)],
-      ),
-      child: child,
-    );
+    final shaded = shade == null
+        ? child
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              color: shade,
+              boxShadow: const [
+                BoxShadow(color: Color(0x1F000000), blurRadius: 16),
+              ],
+            ),
+            child: child,
+          );
     return reduce
-        ? Opacity(opacity: t, child: shaded)
-        : FractionalTranslation(translation: Offset(1 - t, 0), child: shaded);
+        ? FadeTransition(opacity: animation, child: shaded)
+        : _Slide(animation: animation, from: 1, to: 0, child: shaded);
   }
+
+  /// How the title of this page shows: fading in on top, out underneath.
+  Animation<double>? get titleOpacity => !moving
+      ? null
+      : top
+      ? animation
+      : ReverseAnimation(animation);
 
   static _SheetPageRole? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_SheetPageRole>();
@@ -791,10 +832,34 @@ class _SheetPageRole extends InheritedWidget {
   @override
   bool updateShouldNotify(_SheetPageRole old) =>
       top != old.top ||
-      t != old.t ||
+      animation != old.animation ||
       moving != old.moving ||
       reduce != old.reduce ||
       shade != old.shade;
+}
+
+/// Moves [child] sideways by a fraction of its width, from [from] (slide 0)
+/// to [to] (slide 1), repainting only.
+class _Slide extends AnimatedWidget {
+  final double from;
+  final double to;
+  final Widget child;
+
+  const _Slide({
+    required Animation<double> animation,
+    required this.from,
+    required this.to,
+    required this.child,
+  }) : super(listenable: animation);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = (listenable as Animation<double>).value;
+    return FractionalTranslation(
+      translation: Offset(from + (to - from) * t, 0),
+      child: child,
+    );
+  }
 }
 
 /// A page of [GlassSheetPages] that is not a [GlassSheetPage] (e.g. screens
@@ -815,7 +880,11 @@ class GlassSheetPageMotion extends StatelessWidget {
 class GlassSheetPage extends StatelessWidget {
   final String title;
   final VoidCallback? onBack;
-  final Widget child;
+  final Widget? child;
+
+  /// Instead of [child]: slivers, built as they scroll into view, for a long
+  /// list.
+  final List<Widget>? slivers;
   final Widget? bottom;
 
   /// Under the title bar and above the scrolling [child], staying put while
@@ -829,16 +898,23 @@ class GlassSheetPage extends StatelessWidget {
   /// pad) instead of scrolling.
   final bool scrolls;
 
+  /// With [scrolls] false: [child] keeps clear of the home indicator itself
+  /// (screens with their own bottom bar), so the page adds no room for it.
+  final bool childClearsBottom;
+
   const GlassSheetPage({
     super.key,
     required this.title,
     this.onBack,
-    required this.child,
+    this.child,
+    this.slivers,
     this.bottom,
     this.pinned,
     this.padding = EdgeInsets.zero,
     this.scrolls = true,
-  });
+    this.childClearsBottom = false,
+  }) : assert((child == null) != (slivers == null), "child or slivers"),
+       assert(scrolls || child != null, "a page that fills itself has a child");
 
   @override
   Widget build(BuildContext context) {
@@ -851,11 +927,7 @@ class GlassSheetPage extends StatelessWidget {
         title: title,
         onBack: onBack,
         buttons: role?.top ?? true,
-        titleOpacity: role == null || !role.moving && role.top
-            ? 1
-            : role.top
-            ? role.t
-            : 1 - role.t,
+        titleOpacity: role?.titleOpacity,
       ),
       if (pinned != null)
         Padding(
@@ -901,21 +973,30 @@ class GlassSheetPage extends StatelessWidget {
       if (!scrolls)
         Expanded(
           child: Padding(
-            padding: padding.add(
-              EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
-            ),
+            padding: childClearsBottom
+                ? padding
+                : padding.add(
+                    EdgeInsets.only(
+                      bottom: MediaQuery.paddingOf(context).bottom,
+                    ),
+                  ),
             child: child,
           ),
         )
       else if (bottom == null)
         Flexible(
-          child: GlassSheetScrollView(padding: padding, child: child),
+          child: GlassSheetScrollView(
+            padding: padding,
+            slivers: slivers,
+            child: child,
+          ),
         )
       else ...[
         Expanded(
           child: GlassSheetScrollView(
             padding: padding,
             clearBottom: false,
+            slivers: slivers,
             child: child,
           ),
         ),
@@ -939,7 +1020,11 @@ class GlassSheetPage extends StatelessWidget {
 /// header, and ends clear of the home indicator. [child] pads itself from the
 /// sides unless [padding] does.
 class GlassSheetScrollView extends StatelessWidget {
-  final Widget child;
+  final Widget? child;
+
+  /// Instead of [child]: slivers, built as they scroll into view (a long
+  /// list).
+  final List<Widget>? slivers;
   final EdgeInsets padding;
 
   /// Ends clear of the home indicator; off when a button sits under it.
@@ -947,10 +1032,11 @@ class GlassSheetScrollView extends StatelessWidget {
 
   const GlassSheetScrollView({
     super.key,
-    required this.child,
+    this.child,
+    this.slivers,
     this.padding = EdgeInsets.zero,
     this.clearBottom = true,
-  });
+  }) : assert((child == null) != (slivers == null), "child or slivers");
 
   /// How far the content fades out under the header.
   static const _fade = 12.0;
@@ -965,18 +1051,31 @@ class GlassSheetScrollView extends StatelessWidget {
         colors: const [Color(0x00000000), Color(0xFF000000)],
         stops: [0, (_fade / bounds.height).clamp(0.0, 1.0)],
       ).createShader(bounds),
-      child: SingleChildScrollView(
-        physics: glassSheetScrollPhysics(context),
-        padding: padding.copyWith(
-          top: padding.top + _fade / 2,
-          bottom:
-              padding.bottom +
-              (clearBottom ? MediaQuery.paddingOf(context).bottom : 16),
+      child: switch (slivers) {
+        final slivers? => CustomScrollView(
+          physics: glassSheetScrollPhysics(context),
+          slivers: [
+            SliverPadding(
+              padding: _padding(context),
+              sliver: SliverMainAxisGroup(slivers: slivers),
+            ),
+          ],
         ),
-        child: child,
-      ),
+        null => SingleChildScrollView(
+          physics: glassSheetScrollPhysics(context),
+          padding: _padding(context),
+          child: child,
+        ),
+      },
     );
   }
+
+  EdgeInsets _padding(BuildContext context) => padding.copyWith(
+    top: padding.top + _fade / 2,
+    bottom:
+        padding.bottom +
+        (clearBottom ? MediaQuery.paddingOf(context).bottom : 16),
+  );
 }
 
 /// A sheet with the title [titleKey] over [child]: a [GlassSheetPage] in

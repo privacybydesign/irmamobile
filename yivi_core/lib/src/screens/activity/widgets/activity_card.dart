@@ -10,17 +10,19 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../data/wallet/wallet_transition.dart";
 import "../activity_entry.dart";
+import "../activity_flight.dart";
 import "activity_detail_parts.dart";
 
 /// One log entry as a row of the Activity tab: a small stack of its cards
 /// with the other party's logo on it, the party, what happened (in its
 /// colour) and to which cards, and when.
 ///
-/// Opening it pushes the other rows away while each card of the stack flies
-/// into its tile in the details ([ActivityCardHero]).
+/// Opening it pushes the other rows away while the stack's cards fly into
+/// their tiles in the details ([ActivityFlight]).
 class ActivityCard extends ConsumerWidget {
   final LogInfo logEntry;
 
@@ -186,6 +188,25 @@ class ActivityCardStack extends StatelessWidget {
                   ),
                 ),
               ),
+            // The cards past the third have no place in the pile; the flight
+            // takes them from behind it. Their slots are measured, not shown.
+            for (var i = 3; i < cards.length; i++)
+              Positioned(
+                left: (width - cardWidth) / 2,
+                top: 22 - _cardHeight / 2,
+                child: Transform.scale(
+                  scale: 0.76,
+                  child: ActivityFlightSlot(
+                    entryKey: entry.key,
+                    index: i,
+                    pile: true,
+                    child: const SizedBox(
+                      width: cardWidth,
+                      height: _cardHeight,
+                    ),
+                  ),
+                ),
+              ),
             // Back to front: the first card is on top.
             for (var i = shown - 1; i >= 0; i--)
               Positioned(
@@ -193,27 +214,14 @@ class ActivityCardStack extends StatelessWidget {
                 top: 38 - 8.0 * i - _cardHeight / 2,
                 child: Transform.scale(
                   scale: 1 - 0.12 * i,
-                  child: ActivityCardHero(
-                    entry: entry,
+                  child: ActivityFlightSlot(
+                    entryKey: entry.key,
                     index: i,
-                    width: cardWidth,
-                  ),
-                ),
-              ),
-            // The cards past the third have no place in the pile; their
-            // heroes come out from behind it.
-            for (var i = 3; i < cards.length; i++)
-              Positioned(
-                left: (width - cardWidth) / 2,
-                top: 22 - _cardHeight / 2,
-                child: Opacity(
-                  opacity: 0,
-                  child: Transform.scale(
-                    scale: 0.76,
-                    child: ActivityCardHero(
-                      entry: entry,
-                      index: i,
+                    pile: true,
+                    child: CredentialCardArt(
+                      credential: cards[i].art,
                       width: cardWidth,
+                      greyedOut: cards[i].deleted,
                     ),
                   ),
                 ),
@@ -246,11 +254,14 @@ class ActivityCardStack extends StatelessWidget {
             Positioned(
               right: -8,
               bottom: -4,
-              child: ActivityPartyLogo(
-                party: entry.party,
-                size: 30,
-                circle: true,
-                ring: palette.surface,
+              child: ActivityFlightLogoSlot(
+                entryKey: entry.key,
+                child: ActivityPartyLogo(
+                  party: entry.party,
+                  size: ActivityPartyLogo.pileSize,
+                  circle: true,
+                  ring: palette.surface,
+                ),
               ),
             ),
           ],

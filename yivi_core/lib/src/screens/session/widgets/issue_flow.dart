@@ -295,13 +295,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     return stop;
   }
 
-  /// Cancel on a step: asks, then back to the root page.
-  Future<void> _cancel() async {
-    if (await issueConfirmStop() && mounted) {
-      setState(() => issueAdding = null);
-    }
-  }
-
   /// Back in the sheet: one step back, or from the details to the root page.
   void issueBack() {
     final nested = _nestedId;
@@ -443,19 +436,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       if (_document != null)
         KeyedSubtree(
           key: ValueKey(("document", _document)),
-          // Its own screens: they slide in and out as a whole.
-          child: GlassSheetPageMotion(
-            child: DocumentSheetStep(
-              type: _document!,
-              subject: subject,
-              total: total,
-              onBack: () => setState(() => _document = null),
-              onCancel: _cancel,
-              onStopped: () {
-                _stopAdding();
-                setState(() => issueAdding = null);
-              },
-            ),
+          // A sheet page itself: its bar and progress stay while the
+          // document's screens change below them.
+          child: DocumentSheetStep(
+            type: _document!,
+            subject: subject,
+            total: total,
+            onBack: () => setState(() => _document = null),
+            onStopped: () {
+              _stopAdding();
+              setState(() => issueAdding = null);
+            },
           ),
         ),
       if (nested != null || issueAdded != null)

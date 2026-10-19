@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "document_step_in_sheet.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
 import "widgets/manual_entry_layout.dart";
@@ -63,14 +64,10 @@ class PassportMrzManualEntryScreen extends StatefulWidget {
   final VoidCallback onCancel;
   final PassportMrzManualEntryTranslationKeys translationKeys;
 
-  /// The progress under the bar, when the screen is a step in a sheet.
-  final PreferredSizeWidget? band;
-
   const PassportMrzManualEntryScreen({
     required this.onContinue,
     required this.onCancel,
     required this.translationKeys,
-    this.band,
     super.key,
   });
 
@@ -134,11 +131,15 @@ class _PassportMrzManualEntryScreenState
       child: Scaffold(
         extendBodyBehindAppBar: true,
         extendBody: true,
-        backgroundColor: palette.background,
-        appBar: IrmaAppBar(
-          titleTranslationKey: widget.translationKeys.appBarTitle,
-          bottom: widget.band,
-        ),
+        backgroundColor: DocumentStepInSheet.of(context)
+            ? Colors.transparent
+            : palette.background,
+        // In a sheet its bar has the title, back and close.
+        appBar: DocumentStepInSheet.of(context)
+            ? null
+            : IrmaAppBar(
+                titleTranslationKey: widget.translationKeys.appBarTitle,
+              ),
         body: SizedBox(
           height: .infinity,
           child: SingleChildScrollView(
@@ -213,7 +214,9 @@ class _PassportMrzManualEntryScreenState
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: "ui.cancel",
+          secondaryButtonLabel: DocumentStepInSheet.of(context)
+              ? null
+              : "ui.cancel",
           onSecondaryPressed: widget.onCancel,
         ),
       ),

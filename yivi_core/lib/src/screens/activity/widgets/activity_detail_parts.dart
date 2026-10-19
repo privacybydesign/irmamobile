@@ -11,8 +11,8 @@ import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../data/wallet/wallet_detail_scaffold.dart";
-import "../../data/wallet/wallet_transition.dart";
 import "../activity_entry.dart";
+import "../activity_flight.dart";
 
 /// The text colour of [kind] on a surface, in both themes.
 Color activityKindInk(YiviPalette palette, ActivityKind kind) => switch (kind) {
@@ -56,6 +56,9 @@ String activityAgo(BuildContext context, DateTime time, {DateTime? now}) {
 class ActivityPartyLogo extends StatelessWidget {
   final ActivityParty party;
   final double size;
+
+  /// Its size as the badge on a row's pile.
+  static const double pileSize = 30;
 
   /// Round instead of a rounded square, e.g. as the badge on a row's pile.
   final bool circle;
@@ -412,43 +415,6 @@ class ActivitySectionLabel extends StatelessWidget {
   }
 }
 
-/// The card art of the [index]th card of an entry as a hero: it flies
-/// between the stack in the activity row and the tile in the details.
-class ActivityCardHero extends StatelessWidget {
-  final ActivityEntry entry;
-  final int index;
-  final double width;
-
-  const ActivityCardHero({
-    super.key,
-    required this.entry,
-    required this.index,
-    required this.width,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final card = entry.cards[index];
-    return Hero(
-      tag: entry.heroTag(index),
-      createRectTween: WalletTransition.staggeredRectTween(index),
-      // Drawn at the size of the flight, so it stays sharp.
-      flightShuttleBuilder: (_, _, _, _, _) => LayoutBuilder(
-        builder: (context, constraints) => CredentialCardArt(
-          credential: card.art,
-          width: constraints.maxWidth,
-          greyedOut: card.deleted,
-        ),
-      ),
-      child: CredentialCardArt(
-        credential: card.art,
-        width: width,
-        greyedOut: card.deleted,
-      ),
-    );
-  }
-}
-
 /// One card of a log entry, as a share screen tile: small card art, its
 /// name and issuer, "New" or "Deleted", and the values in the log (only the
 /// shared ones for a disclosure).
@@ -456,7 +422,7 @@ class ActivityCredentialTile extends StatelessWidget {
   final LogCredential credential;
   final ActivityEntryCard card;
 
-  /// The art, e.g. an [ActivityCardHero].
+  /// The art, e.g. in an [ActivityFlightSlot].
   final Widget art;
 
   ActivityCredentialTile({super.key, required this.card, required this.art})
@@ -640,7 +606,9 @@ class ActivityFootnote extends StatelessWidget {
 class ActivityDetailBody extends StatelessWidget {
   final ActivityEntry entry;
   final Animation<double> animation;
-  final bool heroes;
+
+  /// The card arts are the slots of [ActivityFlight] (the details screen).
+  final bool flight;
 
   /// Called on a tap on a card's art (back to the activity list).
   final VoidCallback? onArtTap;
@@ -653,7 +621,7 @@ class ActivityDetailBody extends StatelessWidget {
     super.key,
     required this.entry,
     this.animation = kAlwaysCompleteAnimation,
-    this.heroes = false,
+    this.flight = false,
     this.onArtTap,
     this.headerKey,
   });
@@ -665,13 +633,19 @@ class ActivityDetailBody extends StatelessWidget {
     var index = 0;
     Widget art(int i) {
       final card = entry.cards[i];
-      final picture = heroes
-          ? ActivityCardHero(entry: entry, index: i, width: CardTile.miniWidth)
-          : CredentialCardArt(
-              credential: card.art,
-              width: CardTile.miniWidth,
-              greyedOut: card.deleted,
-            );
+      final art = CredentialCardArt(
+        credential: card.art,
+        width: CardTile.miniWidth,
+        greyedOut: card.deleted,
+      );
+      final picture = flight
+          ? ActivityFlightSlot(
+              entryKey: entry.key,
+              index: i,
+              pile: false,
+              child: art,
+            )
+          : art;
       if (onArtTap == null) return picture;
       return Semantics(
         button: true,
