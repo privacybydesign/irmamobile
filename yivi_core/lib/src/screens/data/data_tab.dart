@@ -542,6 +542,7 @@ class _StackView extends StatelessWidget {
                     child: _CardButton(
                       credential: c,
                       hintText: hintTexts[c.hash],
+                      pressDepth: 6,
                       child: CardHero(
                         credential: c,
                         width: width,
@@ -783,24 +784,43 @@ class _GridView extends StatelessWidget {
 
 /// Makes a card tappable and gives it one clear screen reader label:
 /// "{name}, {hint}, {issuer}".
-class _CardButton extends StatelessWidget {
+class _CardButton extends StatefulWidget {
   final schemaless.Credential credential;
   final String? hintText;
   final Widget child;
+
+  /// How far the card moves down while it is pressed: in the stack it gives
+  /// way under the finger, so a press is felt before the card opens.
+  final double pressDepth;
 
   const _CardButton({
     required this.credential,
     required this.child,
     this.hintText,
+    this.pressDepth = 0,
   });
 
   @override
+  State<_CardButton> createState() => _CardButtonState();
+}
+
+class _CardButtonState extends State<_CardButton> {
+  bool _pressed = false;
+
+  void _press(bool pressed) {
+    if (mounted && pressed != _pressed) setState(() => _pressed = pressed);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final credential = widget.credential;
     final label = [
       credential.name,
-      if ((hintText ?? "").isNotEmpty) hintText,
+      if ((widget.hintText ?? "").isNotEmpty) widget.hintText,
       credential.issuer.name,
     ].join(", ");
+    final depth = widget.pressDepth;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       button: true,
       label: label,
@@ -808,8 +828,22 @@ class _CardButton extends StatelessWidget {
       child: GestureDetector(
         key: Key("${credential.credentialId}_tile"),
         behavior: HitTestBehavior.opaque,
+        // A tap down arrives only once it is not a scroll (or after a short
+        // wait), so scrolling over the stack does not push cards.
+        onTapDown: depth == 0 ? null : (_) => _press(true),
+        onTapUp: depth == 0 ? null : (_) => _press(false),
+        onTapCancel: depth == 0 ? null : () => _press(false),
         onTap: () => openCard(context, credential),
-        child: child,
+        child: depth == 0
+            ? widget.child
+            : TweenAnimationBuilder<double>(
+                tween: Tween(end: _pressed && !reduceMotion ? depth : 0),
+                duration: Duration(milliseconds: _pressed ? 90 : 260),
+                curve: _pressed ? Curves.easeOut : Curves.easeOutBack,
+                child: widget.child,
+                builder: (context, dy, child) =>
+                    Transform.translate(offset: Offset(0, dy), child: child),
+              ),
       ),
     );
   }

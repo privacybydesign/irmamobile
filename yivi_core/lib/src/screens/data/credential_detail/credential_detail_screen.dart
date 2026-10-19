@@ -16,6 +16,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
@@ -54,6 +55,38 @@ class _CredentialDetailScreenState
     extends ConsumerState<CredentialDetailScreen> {
   late String _hash = widget.hash;
 
+  final _scroll = ScrollController();
+  final _cardKey = GlobalKey();
+
+  /// Whether the card has scrolled away under the bar, so the bar shows a
+  /// small copy of it.
+  final _scrolledPast = ValueNotifier(false);
+
+  @override
+  void initState() {
+    super.initState();
+    // Measured after the frame: during the scroll notification the card
+    // still has the position of the previous frame.
+    _scroll.addListener(
+      () => WidgetsBinding.instance.addPostFrameCallback((_) => _checkCard()),
+    );
+  }
+
+  void _checkCard() {
+    final box = _cardKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize || !mounted) return;
+    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+    final barBottom = MediaQuery.paddingOf(context).top + 60;
+    _scrolledPast.value = bottom < barBottom;
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _scrolledPast.dispose();
+    super.dispose();
+  }
+
   void _close() => Navigator.of(context).maybePop();
 
   @override
@@ -72,12 +105,35 @@ class _CredentialDetailScreenState
     return WalletDetailScaffold(
       openKey: _hash,
       closeKey: const Key("credential_detail_done"),
+      barBuilder: (context, opacity) => credential == null
+          ? const SizedBox.shrink()
+          : ValueListenableBuilder<bool>(
+              valueListenable: _scrolledPast,
+              builder: (context, shown, _) => TweenAnimationBuilder<double>(
+                tween: Tween(end: shown ? 1 : 0),
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeOut,
+                builder: (context, t, _) => t == 0
+                    ? const SizedBox.shrink()
+                    : IgnorePointer(
+                        child: Transform.translate(
+                          offset: Offset(0, (1 - t) * -8),
+                          child: _CompactBar(
+                            credential: credential,
+                            hintText: hintText,
+                            opacity: opacity * t,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
       builder: (context, physics, animation) {
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(
           builder: (context, constraints) {
             final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
             return ListView(
+              controller: _scroll,
               // Pulling down at the top dismisses the page.
               physics: physics,
               padding: EdgeInsets.fromLTRB(
@@ -95,6 +151,7 @@ class _CredentialDetailScreenState
                       "wallet.detail.back_to_cards",
                     ),
                     child: GestureDetector(
+                      key: _cardKey,
                       onTap: _close,
                       child: CardHero(
                         credential: credential,
@@ -134,6 +191,68 @@ class _CredentialDetailScreenState
           },
         );
       },
+    );
+  }
+}
+
+/// The bar of the detail page once the card has scrolled away: a small copy
+/// of the card with its name and hint, so it stays clear whose details these
+/// are.
+class _CompactBar extends StatelessWidget {
+  final schemaless.Credential credential;
+  final String? hintText;
+  final double opacity;
+
+  const _CompactBar({
+    required this.credential,
+    required this.hintText,
+    required this.opacity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final hint = hintText ?? "";
+    return GlassSurface(
+      opacity: opacity,
+      padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          spacing: 10,
+          children: [
+            CredentialCardArt(
+              credential: credential,
+              width: 46,
+              hintText: hintText,
+              shadow: false,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    credential.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette.display(14).copyWith(color: palette.text),
+                  ),
+                  if (hint.isNotEmpty)
+                    Text(
+                      hint,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette
+                          .body(12)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -336,8 +455,12 @@ class _Details extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(3),
                           decoration: ShapeDecoration(
-                            shape: RoundedSuperellipseBorder(
-                              borderRadius: BorderRadius.circular(18),
+                            // Follows the card's corners, 5 points out (the
+                            // gap and the ring).
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  CredentialCardArt.radiusFor(128) +
+                                  const BorderRadius.all(Radius.circular(5)),
                               side: BorderSide(
                                 width: 2,
                                 color: selected

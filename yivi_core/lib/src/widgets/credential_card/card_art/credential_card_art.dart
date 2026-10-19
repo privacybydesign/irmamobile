@@ -68,9 +68,10 @@ class CredentialCardArt extends StatelessWidget {
   /// The corner shape of a card of [width]: plain round corners of 13 points
   /// at the design width, like a real ID-1 card (a 3.18 mm corner on 85.6 mm).
   static ShapeBorder shapeFor(double width) =>
-      RoundedRectangleBorder(borderRadius: _radiusFor(width));
+      RoundedRectangleBorder(borderRadius: radiusFor(width));
 
-  static BorderRadius _radiusFor(double width) =>
+  /// The corner radius of a card of [width], for shapes that follow it.
+  static BorderRadius radiusFor(double width) =>
       BorderRadius.circular(13 * width / designWidth);
 
   @override
@@ -101,7 +102,7 @@ class CredentialCardArt extends StatelessWidget {
               child: DecoratedBox(
                 decoration: ShapeDecoration(
                   shape: RoundedRectangleBorder(
-                    borderRadius: _radiusFor(width),
+                    borderRadius: radiusFor(width),
                     // Light on the dark page, so the card's edge shows.
                     side: BorderSide(
                       color: dark
