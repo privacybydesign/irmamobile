@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -221,8 +223,9 @@ class _TabButton extends StatelessWidget {
 }
 
 /// The round Scan QR action button, in the faceted Yivi red of today's scan
-/// button (`ui/round-btn-bg.svg`) with a glass sheen on top (light theme
-/// only), on the same dark shadow as the glass tab bar.
+/// button (`ui/round-btn-bg.svg`) with the same finish as the red pills (a
+/// thin light edge along the top, no haze over the red), on the same dark
+/// shadow as the glass tab bar.
 class GlassQrButton extends StatelessWidget {
   final double size;
 
@@ -230,12 +233,7 @@ class GlassQrButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // No white sheen in the dark variant: against the dark background it
-    // washes the red out to pink.
     final palette = YiviPalette.of(context);
-    final dark = palette.isDark;
-    final sheen = dark ? 0.0 : 0.32;
-    final rim = dark ? 0.12 : 0.45;
     return Semantics(
       button: true,
       label: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
@@ -270,22 +268,10 @@ class GlassQrButton extends StatelessWidget {
                     yiviAsset("ui/round-btn-bg.svg"),
                     fit: BoxFit.cover,
                   ),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: rim),
-                      ),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: sheen),
-                          Colors.white.withValues(alpha: 0),
-                        ],
-                        stops: const [0, 0.55],
-                      ),
-                    ),
+                  // No white wash over the red (it looked hazy): a faint rim
+                  // and a thin light edge along the top, as on the red pills.
+                  const IgnorePointer(
+                    child: CustomPaint(painter: _QrButtonEdgePainter()),
                   ),
                   Material(
                     type: MaterialType.transparency,
@@ -307,4 +293,44 @@ class GlassQrButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The faint rim of [GlassQrButton] and the light edge along its top, which
+/// fades out towards the sides.
+class _QrButtonEdgePainter extends CustomPainter {
+  const _QrButtonEdgePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = (Offset.zero & size).deflate(0.5);
+    canvas.drawOval(
+      rect,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = Colors.white.withValues(alpha: 0.12),
+    );
+    // The upper arc, brightest at the top: the light edge of the red pills.
+    canvas.drawArc(
+      rect,
+      math.pi * 1.15,
+      math.pi * 0.7,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..shader = SweepGradient(
+          startAngle: math.pi * 1.15,
+          endAngle: math.pi * 1.85,
+          colors: [
+            Colors.white.withValues(alpha: 0),
+            Colors.white.withValues(alpha: 0.28),
+            Colors.white.withValues(alpha: 0),
+          ],
+        ).createShader(rect),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_QrButtonEdgePainter old) => false;
 }
