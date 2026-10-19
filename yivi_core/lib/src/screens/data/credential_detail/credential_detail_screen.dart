@@ -225,7 +225,6 @@ class _CompactBar extends StatelessWidget {
               credential: credential,
               width: 46,
               hintText: hintText,
-              shadow: false,
             ),
             Expanded(
               child: Column(
@@ -473,7 +472,6 @@ class _Details extends ConsumerWidget {
                             credential: s,
                             width: 128,
                             hintText: hintTexts[s.hash],
-                            shadow: false,
                           ),
                         ),
                         const SizedBox(height: 4),

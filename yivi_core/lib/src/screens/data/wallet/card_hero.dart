@@ -11,14 +11,12 @@ class CardHero extends StatelessWidget {
   final schemaless.Credential credential;
   final double width;
   final String? hintText;
-  final bool shadow;
 
   const CardHero({
     super.key,
     required this.credential,
     required this.width,
     this.hintText,
-    this.shadow = true,
   });
 
   @override
@@ -42,7 +40,6 @@ class CardHero extends StatelessWidget {
         credential: credential,
         width: width,
         hintText: hintText,
-        shadow: shadow,
       ),
     );
   }

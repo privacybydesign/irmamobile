@@ -644,6 +644,7 @@ class _ListRow extends StatelessWidget {
     return _CardButton(
       credential: credential,
       hintText: hintText,
+      pressDepth: 4,
       child: Material(
         color: palette.surface,
         shape: RoundedSuperellipseBorder(
@@ -694,7 +695,6 @@ class _ListRow extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: palette.faint),
             ],
           ),
         ),
@@ -742,6 +742,7 @@ class _GridView extends StatelessWidget {
             child: _CardButton(
               credential: c,
               hintText: hintTexts[c.hash],
+              pressDepth: 4,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -789,8 +790,9 @@ class _CardButton extends StatefulWidget {
   final String? hintText;
   final Widget child;
 
-  /// How far the card moves down while it is pressed: in the stack it gives
-  /// way under the finger, so a press is felt before the card opens.
+  /// How far the card moves down while it is pressed: it gives way under
+  /// the finger, so a press is felt before the card opens. A little less in
+  /// the list and grid, where the cards are smaller.
   final double pressDepth;
 
   const _CardButton({

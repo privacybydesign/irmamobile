@@ -51,7 +51,6 @@ class CredentialCardArt extends StatelessWidget {
   /// Text shown under the name on the Yivi card, usually the instance hint.
   final String? hintText;
   final double width;
-  final bool shadow;
 
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
@@ -61,7 +60,6 @@ class CredentialCardArt extends StatelessWidget {
     required this.credential,
     required this.width,
     this.hintText,
-    this.shadow = true,
     this.greyedOut = false,
   });
 
@@ -133,23 +131,8 @@ class CredentialCardArt extends StatelessWidget {
       );
     }
 
-    return ExcludeSemantics(
-      child: DecoratedBox(
-        decoration: ShapeDecoration(
-          shape: shape,
-          shadows: shadow
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.18),
-                    blurRadius: 6,
-                    offset: const Offset(0, 1),
-                  ),
-                ]
-              : null,
-        ),
-        child: art,
-      ),
-    );
+    // No shadow: like a printed card, only the fine edge above sets it off.
+    return ExcludeSemantics(child: art);
   }
 
   Widget _art(BuildContext context) {
