@@ -757,8 +757,11 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
         total: widget.total,
       ),
       // The pad fills the page and scales itself to it; it does not scroll.
+      // It keeps clear of the home indicator itself (YiviPinScreen), so the
+      // link under the keypad sits as low as on the full-screen PIN.
       scrolls: false,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      childClearsBottom: true,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SessionPinEntryScreen(
         key: const Key("sheet_pin"),
         inSheet: true,

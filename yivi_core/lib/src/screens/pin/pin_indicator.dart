@@ -93,6 +93,8 @@ class _PinIndicator extends StatelessWidget {
 
   Widget _togglePinIndicators(BuildContext context, bool isPinVisible) {
     final theme = IrmaTheme.of(context);
+    // Black (white in dark mode), like the keypad's digits.
+    final palette = YiviPalette.of(context);
 
     final textColor = isPinVisible ? theme.secondary : Colors.transparent;
 
@@ -115,7 +117,7 @@ class _PinIndicator extends StatelessWidget {
     final double scaledEdgeSize = maxPinSize != shortPinSize ? 6 : 16;
 
     final circleFilledDecoration = BoxDecoration(
-      color: isPinVisible ? Colors.transparent : theme.primary,
+      color: isPinVisible ? Colors.transparent : palette.text,
       shape: BoxShape.circle,
 
       // prevent unnecessary resize
@@ -125,7 +127,7 @@ class _PinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent, // border color
       shape: BoxShape.circle,
-      border: Border.all(color: theme.primary, width: 2.0),
+      border: Border.all(color: palette.text, width: 2.0),
     );
 
     // prevent the row from collapsing

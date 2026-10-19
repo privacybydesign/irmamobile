@@ -36,6 +36,12 @@ typedef StringCallback = void Function(String);
 
 const _nextButtonHeight = PillSize.largeHeight;
 
+/// Between the link (or Next) and the bottom of the safe area.
+const _bottomGap = 8.0;
+
+/// Between the keypad and the link under it.
+const _keypadToLink = 32.0;
+
 /// Height of the PIN entry field, taken from the short PIN's dot size. Both
 /// PIN modes are pinned to this so long PIN is never taller or shorter.
 const _pinFieldHeight = 36.0;
@@ -290,7 +296,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   }
 
   /// The design's layout: logo (or lock), title, dots, keypad and the
-  /// link under it in one column with fixed gaps, at the top of the screen.
+  /// link under it in one column with fixed gaps, low on the screen.
   /// When it does not fit (a small phone, large text) the whole column scales
   /// down instead of squeezing the keypad.
   Widget _bodyPortrait(
@@ -319,26 +325,34 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           ] else
             const SizedBox(height: 48),
           _buildKeypad(),
-          const SizedBox(height: 16),
-          _buildActionLinkSlot(),
-          _buildNextButton(),
         ],
       ),
     );
-    return LayoutBuilder(
-      builder: (context, constraints) => Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth,
-            maxHeight: constraints.maxHeight,
+    // Low on the screen, in reach of the thumb: the link ("I forgot my
+    // PIN") and the Next button at the bottom of the safe area, the keypad
+    // block [_keypadToLink] above them, and the room left over at the top.
+    // When it does not fit (a small phone, large text) the block scales
+    // down instead of squeezing the keypad.
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.paddingOf(context).bottom + _bottomGap,
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.bottomCenter,
+                child: column,
+              ),
+            ),
           ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.topCenter,
-            child: column,
-          ),
-        ),
+          const SizedBox(height: _keypadToLink),
+          SizedBox(width: 358, child: _buildActionLinkSlot()),
+          SizedBox(width: 358, child: _buildNextButton()),
+        ],
       ),
     );
   }
