@@ -6,6 +6,7 @@ class DeleteCredentialConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const IrmaConfirmationDialog(
+      destructive: true,
       titleTranslationKey: "credential.options.delete",
       contentTranslationKey: "credential.options.confirm_delete",
       confirmTranslationKey: "ui.delete",

@@ -9,10 +9,10 @@ import "../../models/schemaless/session_state.dart";
 import "../../screens/add_data/add_data_sheet.dart";
 import "../../theme/theme.dart";
 import "../base64_image.dart";
+import "../glass/pill_buttons.dart";
 import "../information_box.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
-import "../yivi_themed_button.dart";
 import "models/credential_card_layout.dart";
 import "models/credential_card_status.dart";
 import "yivi_credential_card_attribute_list.dart";
@@ -378,9 +378,12 @@ class YiviCredentialCard extends ConsumerWidget {
           if (status.showReobtain)
             Padding(
               padding: EdgeInsets.only(top: theme.defaultSpacing),
-              child: YiviThemedButton(
-                label: "credential.options.reobtain",
-                style: YiviButtonStyle.filled,
+              child: PillButton(
+                label: FlutterI18n.translate(
+                  context,
+                  "credential.options.reobtain",
+                ),
+                style: PillStyle.neutral,
                 onPressed: () => obtainAgain(
                   context,
                   ref,

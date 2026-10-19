@@ -1,10 +1,10 @@
 import "dart:ui" show lerpDouble;
 
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../irma_close_button.dart";
 
 /// A photo in a credential's values: a small picture with slightly rounded
 /// corners that opens full screen, as in WhatsApp. The photo flies there (and
@@ -395,7 +395,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                           padding: EdgeInsets.fromLTRB(
                             16 + padding.left,
                             padding.top + 4,
-                            4 + padding.right,
+                            16 + padding.right,
                             24,
                           ),
                           child: Row(
@@ -413,23 +413,35 @@ class _PhotoViewerState extends State<_PhotoViewer>
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 4),
-                              IconButton(
-                                key: const Key("photo_viewer_close"),
-                                tooltip: FlutterI18n.translate(
-                                  context,
-                                  "accessibility.close",
-                                ),
-                                onPressed: _close,
-                                icon: const Icon(
-                                  Icons.close_rounded,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              // Room for the close button, drawn above the bar.
+                              const SizedBox(width: 52),
                             ],
                           ),
                         ),
                       ),
+                    ),
+                  ),
+                ),
+                // The app's close button, as on every other page. Above the
+                // bar, not in it: the bar fades through an Opacity, which
+                // would turn the glass dark (see GlassSurface.opacity).
+                Positioned(
+                  top: padding.top + 4,
+                  right: 16 + padding.right,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(
+                      end: _chrome && !_dragging && _drag == 0
+                          ? route.value
+                          : 0,
+                    ),
+                    // Follows the route at once; eases when the bars hide.
+                    duration: route.isAnimating
+                        ? Duration.zero
+                        : const Duration(milliseconds: 180),
+                    builder: (context, opacity, _) => IrmaCloseButton(
+                      key: const Key("photo_viewer_close"),
+                      onTap: _close,
+                      opacity: opacity,
                     ),
                   ),
                 ),

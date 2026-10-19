@@ -71,7 +71,7 @@ class _CredentialDetailScreenState
 
     return WalletDetailScaffold(
       openKey: _hash,
-      doneKey: const Key("credential_detail_done"),
+      closeKey: const Key("credential_detail_done"),
       builder: (context, physics, animation) {
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(

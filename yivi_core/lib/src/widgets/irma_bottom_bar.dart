@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 import "../theme/theme.dart";
 import "glass/pill_buttons.dart";
 import "irma_bottom_bar_base.dart";
-import "yivi_themed_button.dart";
 
 enum IrmaBottomBarAlignment { horizontal, vertical, automatic }
 
@@ -43,13 +42,19 @@ class IrmaBottomBar extends StatelessWidget {
                 onPressed: onPrimaryPressed,
                 label: FlutterI18n.translate(context, primaryButtonLabel!),
                 style: PillStyle.dangerFilled,
-                height: 56,
+                size: PillSize.large,
               )
-            : YiviThemedButton(
+            : FancyPillButton(
                 key: const Key("bottom_bar_primary"),
+                label: FlutterI18n.translate(context, primaryButtonLabel!),
+                trailing: primaryButtonTrailingIcon == null
+                    ? null
+                    : Icon(
+                        primaryButtonTrailingIcon,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                 onPressed: onPrimaryPressed,
-                label: primaryButtonLabel!,
-                trailingIcon: primaryButtonTrailingIcon,
               ),
       ),
     );
@@ -63,7 +68,7 @@ class IrmaBottomBar extends StatelessWidget {
         onPressed: onSecondaryPressed,
         label: FlutterI18n.translate(context, secondaryButtonLabel!),
         style: PillStyle.text,
-        height: 48,
+        size: PillSize.large,
       ),
     );
   }

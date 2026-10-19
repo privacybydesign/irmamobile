@@ -103,7 +103,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
               label: t("share.tech.copy"),
               style: PillStyle.outlined,
               expand: false,
-              height: 44,
+              size: PillSize.regular,
               leading: Icon(
                 Icons.copy_rounded,
                 size: 18,

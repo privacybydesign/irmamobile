@@ -7,6 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_tile.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "shared_card_tile.dart";
 
 /// The rows of an [EmptyCardSpot] for [card]: each field the request asks
@@ -101,23 +102,9 @@ class EmptyCardSpot extends StatelessWidget {
               ? null
               // Says what a tap does; the whole spot is the button.
               : ExcludeSemantics(
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minHeight: 32,
-                      minWidth: 44,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    alignment: Alignment.center,
-                    decoration: ShapeDecoration(
-                      color: palette.tint,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Text(
-                      FlutterI18n.translate(context, "share.add"),
-                      style: palette
-                          .body(13, weight: FontWeight.w600)
-                          .copyWith(color: palette.link),
-                    ),
+                  child: SmallPill(
+                    label: FlutterI18n.translate(context, "share.add"),
+                    onPressed: onTap,
                   ),
                 ),
           body: [

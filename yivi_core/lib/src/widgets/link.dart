@@ -2,10 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
-import "../theme/theme.dart";
+import "glass/pill_buttons.dart";
 import "irma_dialog.dart";
-import "translated_text.dart";
-import "yivi_themed_button.dart";
 
 /// Opens a new e-mail to Yivi support, or explains in a dialog that no mail
 /// app could be opened.
@@ -25,8 +23,9 @@ Future<void> openSupportMail(BuildContext context) async {
           return IrmaDialog(
             title: FlutterI18n.translate(context, "help.mail_error_title"),
             content: FlutterI18n.translate(context, "help.mail_error"),
-            child: YiviThemedButton(
-              label: "help.mail_error_button",
+            child: FancyPillButton(
+              label: FlutterI18n.translate(context, "help.mail_error_button"),
+              size: PillSize.regular,
               onPressed: () => Navigator.pop(context),
             ),
           );
@@ -47,36 +46,23 @@ class ContactLink extends StatelessWidget {
   }
 }
 
+/// A text link: [label] (a translation key or a text) as a [TextLink].
 class Link extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final TextAlign? textAlign;
 
-  /// Merged onto the hyperlink style — pass e.g. a smaller `fontSize` while
-  /// keeping the link's color, weight and underline.
-  final TextStyle? style;
-
-  const Link({
-    required this.label,
-    required this.onTap,
-    this.textAlign,
-    this.style,
-  });
+  const Link({required this.label, required this.onTap, this.textAlign});
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       link: true,
       key: const Key("irma_link"),
-      child: InkWell(
-        onTap: onTap,
-        child: TranslatedText(
-          textAlign: textAlign,
-          label,
-          style: IrmaTheme.of(context).hyperlinkTextStyle
-              .copyWith(decoration: TextDecoration.underline)
-              .merge(style),
-        ),
+      child: TextLink(
+        label: FlutterI18n.translate(context, label),
+        textAlign: textAlign ?? TextAlign.center,
+        onPressed: onTap,
       ),
     );
   }

@@ -13,9 +13,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
 import "../../../widgets/active_indicator.dart";
 import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/progress.dart";
 import "../../enrollment/provide_email/provide_email_screen.dart";
 import "../../error/error_screen.dart";
@@ -261,9 +261,11 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           appBar: IrmaAppBar(
             titleString: schemeManager.id,
             actions: [
-              IrmaIconButton(
-                icon: Icons.delete,
-                onTap: () => _onDeleteScheme(context),
+              PlainIconButton(
+                icon: Icons.delete_outline_rounded,
+                danger: true,
+                semanticsLabel: "Delete",
+                onPressed: () => _onDeleteScheme(context),
               ),
             ],
           ),

@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
 import "../../../../theme/theme.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_dialog.dart";
-import "../../../../widgets/yivi_themed_button.dart";
 
 class ProvideCertDialog extends StatefulWidget {
   const ProvideCertDialog({super.key});
@@ -61,8 +61,9 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
               ),
             ),
           ),
-          YiviThemedButton(
-            label: "ui.add",
+          FancyPillButton(
+            label: FlutterI18n.translate(context, "ui.add"),
+            size: PillSize.regular,
             onPressed: () => navigator.pop(
               NewCertificate(type: certType, pemContent: controller.text),
             ),

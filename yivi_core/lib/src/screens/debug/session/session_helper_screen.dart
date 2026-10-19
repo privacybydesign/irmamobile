@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 
 class SessionHelperScreen extends StatefulWidget {
@@ -30,8 +31,9 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
     appBar: IrmaAppBar(
       titleTranslationKey: "debug.session_helper",
       actions: [
-        IconButton(
-          icon: const Icon(Icons.send),
+        PlainIconButton(
+          icon: Icons.send_rounded,
+          semanticsLabel: "Start session",
           onPressed: () => IrmaRepositoryProvider.of(
             context,
           ).startTestSession(_controller.text),

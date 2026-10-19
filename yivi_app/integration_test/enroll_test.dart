@@ -13,9 +13,9 @@ import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/enrollment/widgets/enrollment_instruction.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/irma_dialog.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -263,7 +263,7 @@ void main() {
 
       // Next button should be disabled by default
       expect(
-        tester.widget<YiviThemedButton>(nextButtonFinder).onPressed,
+        tester.widget<FancyPillButton>(nextButtonFinder).onPressed,
         isNull,
       );
 
@@ -276,7 +276,7 @@ void main() {
 
       // Next button should be enabled now
       expect(
-        tester.widget<YiviThemedButton>(nextButtonFinder).onPressed,
+        tester.widget<FancyPillButton>(nextButtonFinder).onPressed,
         isNotNull,
       );
 
@@ -331,7 +331,7 @@ void main() {
         );
         expect(
           tester
-              .widget<YiviThemedButton>(bottomBarPrimaryButtonFinder)
+              .widget<FancyPillButton>(bottomBarPrimaryButtonFinder)
               .onPressed,
           isNull,
         );
@@ -351,7 +351,7 @@ void main() {
         // Button should be enabled
         expect(
           tester
-              .widget<YiviThemedButton>(bottomBarPrimaryButtonFinder)
+              .widget<FancyPillButton>(bottomBarPrimaryButtonFinder)
               .onPressed,
           isNotNull,
         );

@@ -58,42 +58,14 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
     // i.e. the slot is only reserving height and never visible.
     final scaffoldContext = scaffoldKey?.currentContext;
 
-    final palette = YiviPalette.of(context);
     return Center(
-      child: Material(
-        color: palette.warningSurface,
-        shape: const StadiumBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: scaffoldContext == null
-              ? null
-              : () => _showSecurePinRules(scaffoldContext, state),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 32),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 6,
-                children: [
-                  Icon(
-                    Icons.warning_rounded,
-                    size: 16,
-                    color: palette.warningText,
-                  ),
-                  Flexible(
-                    child: Text(
-                      FlutterI18n.translate(context, "secure_pin.info_button"),
-                      style: palette
-                          .body(13, weight: FontWeight.w600)
-                          .copyWith(color: palette.warningText),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+      child: SmallPill(
+        label: FlutterI18n.translate(context, "secure_pin.info_button"),
+        tone: SmallPillTone.warning,
+        icon: Icons.warning_rounded,
+        onPressed: scaffoldContext == null
+            ? null
+            : () => _showSecurePinRules(scaffoldContext, state),
       ),
     );
   }

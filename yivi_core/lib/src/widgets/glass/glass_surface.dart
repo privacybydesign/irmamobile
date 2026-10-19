@@ -2,7 +2,6 @@ import "dart:math";
 import "dart:ui";
 
 import "package:flutter/foundation.dart" show listEquals;
-
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
@@ -194,6 +193,12 @@ class GlassIconButton extends StatelessWidget {
   final double size;
   final Color? fill;
 
+  /// Dark glass, for a live camera picture. Give it a white icon.
+  final bool dark;
+
+  /// Fades the button; see [GlassSurface.opacity].
+  final double opacity;
+
   const GlassIconButton({
     super.key,
     required this.icon,
@@ -201,76 +206,36 @@ class GlassIconButton extends StatelessWidget {
     required this.semanticsLabel,
     this.size = 44,
     this.fill,
+    this.dark = false,
+    this.opacity = 1,
   });
+
+  /// The fill of [dark] glass.
+  static const darkFill = Color(0x6B1C1C1E);
 
   @override
   Widget build(BuildContext context) {
+    final a = opacity.clamp(0.0, 1.0);
     return Semantics(
       button: true,
       label: semanticsLabel,
       excludeSemantics: true,
-      child: _PressScale(
-        scale: 1.08,
-        child: GlassSurface(
-          shape: const CircleBorder(),
-          fill: fill,
-          child: Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: onTap,
-              child: SizedBox.square(
-                dimension: size,
-                child: Center(child: icon),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A glass pill with a text label, e.g. the "Done" button on the detail view.
-class GlassPillButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onTap;
-  final Key? buttonKey;
-
-  /// See [GlassSurface.opacity].
-  final double opacity;
-
-  const GlassPillButton({
-    super.key,
-    required this.label,
-    required this.onTap,
-    this.buttonKey,
-    this.opacity = 1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return _PressScale(
-      scale: 1.05,
-      child: GlassSurface(
-        opacity: opacity,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            key: buttonKey,
-            customBorder: const StadiumBorder(),
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Center(
-                  widthFactor: 1,
-                  child: Text(
-                    label,
-                    style: palette.display(16).copyWith(color: palette.text),
-                  ),
+      child: IgnorePointer(
+        ignoring: a == 0,
+        child: _PressScale(
+          scale: 1.08,
+          child: GlassSurface(
+            shape: const CircleBorder(),
+            fill: fill ?? (dark ? darkFill : null),
+            opacity: a,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: onTap,
+                child: SizedBox.square(
+                  dimension: size,
+                  child: Center(child: icon),
                 ),
               ),
             ),

@@ -5,6 +5,7 @@ import "package:pinput/pinput.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/translated_text.dart";
 
@@ -208,29 +209,12 @@ class ContactTextLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 20),
-        child: TextButton(
+        child: TextLink(
+          label: FlutterI18n.translate(context, labelKey),
           onPressed: onTap,
-          style: TextButton.styleFrom(
-            minimumSize: const Size(48, 40),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            shape: const StadiumBorder(),
-            foregroundColor: palette.link,
-          ),
-          child: Text(
-            FlutterI18n.translate(context, labelKey),
-            textAlign: .center,
-            style: palette
-                .body(14, weight: FontWeight.w700)
-                .copyWith(
-                  color: palette.link,
-                  decoration: TextDecoration.underline,
-                  decorationColor: palette.link,
-                ),
-          ),
         ),
       ),
     );

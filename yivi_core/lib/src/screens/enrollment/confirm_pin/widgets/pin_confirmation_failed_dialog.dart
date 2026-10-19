@@ -2,8 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../widgets/glass/glass_dialog.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_dialog.dart";
-import "../../../../widgets/yivi_themed_button.dart";
 
 class PinConfirmationFailedDialog extends StatelessWidget {
   final VoidCallback onPressed;
@@ -16,8 +16,9 @@ class PinConfirmationFailedDialog extends StatelessWidget {
       icon: const ToneDisc(icon: Icons.pin_outlined, tone: DialogTone.danger),
       title: FlutterI18n.translate(context, "confirm_pin.error.title"),
       content: FlutterI18n.translate(context, "confirm_pin.error.body"),
-      child: YiviThemedButton(
-        label: "confirm_pin.error.action",
+      child: FancyPillButton(
+        label: FlutterI18n.translate(context, "confirm_pin.error.action"),
+        size: PillSize.regular,
         onPressed: onPressed,
       ),
     );

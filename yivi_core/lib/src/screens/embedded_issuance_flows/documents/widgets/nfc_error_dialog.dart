@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../sentry/sentry.dart";
 import "../../../../theme/theme.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_dialog.dart";
@@ -59,7 +60,11 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                       TranslatedText("error.show_sensitive_data"),
                     ],
                   ),
-                IconButton(
+                PlainIconButton(
+                  icon: Icons.copy,
+                  semanticsLabel: MaterialLocalizations.of(
+                    context,
+                  ).copyButtonLabel,
                   onPressed: () {
                     Clipboard.setData(
                       ClipboardData(
@@ -72,7 +77,6 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                       SnackBar(content: Text("Copied to clipboard!")),
                     );
                   },
-                  icon: Icon(Icons.copy),
                 ),
               ],
             ),

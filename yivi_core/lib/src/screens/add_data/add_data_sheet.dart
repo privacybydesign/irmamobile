@@ -18,11 +18,11 @@ import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_action_row.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/translated_text.dart";
-import "../../widgets/yivi_themed_button.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../session/widgets/issue_flow.dart";
 import "../session/widgets/issue_sheet_progress.dart";
@@ -238,8 +238,9 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
           context,
           "data.add.nfc_unsupported.body",
         ),
-        child: YiviThemedButton(
-          label: "error.button_ok",
+        child: FancyPillButton(
+          label: FlutterI18n.translate(context, "error.button_ok"),
+          size: PillSize.regular,
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
 import "floating_bar_placement.dart";
@@ -492,15 +493,7 @@ class GlassSheetHeader extends StatelessWidget {
             if (onBack != null && buttons)
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: GlassIconButton(
-                  semanticsLabel: FlutterI18n.translate(context, "ui.go_back"),
-                  onTap: onBack,
-                  icon: Icon(
-                    Icons.arrow_back_rounded,
-                    size: 22,
-                    color: palette.text,
-                  ),
-                ),
+                child: YiviBackButton(onTap: onBack),
               ),
             if (buttons)
               Align(

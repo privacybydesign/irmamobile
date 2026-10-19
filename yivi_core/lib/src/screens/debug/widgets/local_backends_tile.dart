@@ -42,14 +42,14 @@ class LocalBackendsTile extends ConsumerWidget {
         actions: [
           FancyPillButton(
             label: "Save",
-            height: 52,
+            size: PillSize.regular,
             glow: false,
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
           ),
           PillButton(
             label: "Off",
             style: PillStyle.text,
-            height: 48,
+            size: PillSize.regular,
             onPressed: () => Navigator.of(context).pop(""),
           ),
         ],

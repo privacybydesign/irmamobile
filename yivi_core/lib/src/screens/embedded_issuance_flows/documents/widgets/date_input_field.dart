@@ -3,6 +3,7 @@ import "package:mask_text_input_formatter/mask_text_input_formatter.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "manual_entry_layout.dart";
 
 class DateInputField extends StatefulWidget {
@@ -72,12 +73,12 @@ class _DateInputFieldState extends State<DateInputField> {
         decoration: documentFieldDecoration(
           context,
           hint: "YYYY-MM-DD",
-          suffixIcon: IconButton(
-            icon: Icon(
-              Icons.calendar_today_rounded,
-              size: 20,
-              color: palette.heading,
-            ),
+          suffixIcon: PlainIconButton(
+            icon: Icons.calendar_today_rounded,
+            iconSize: 20,
+            semanticsLabel: MaterialLocalizations.of(
+              context,
+            ).datePickerHelpText,
             onPressed: () async {
               final now = DateTime.now();
               final pickedDate = await showDatePicker(

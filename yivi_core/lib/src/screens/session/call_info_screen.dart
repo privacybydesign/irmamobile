@@ -3,9 +3,9 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/yivi_themed_button.dart";
 import "widgets/session_columns.dart";
 
 /// After sharing for a phone call (a `tel:` return URL): the data is
@@ -117,9 +117,12 @@ class CallInfoScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   SizedBox(
                     width: 360,
-                    child: YiviThemedButton(
-                      label: "share.call.button",
-                      labelParams: {"requestor": otherParty},
+                    child: FancyPillButton(
+                      label: FlutterI18n.translate(
+                        context,
+                        "share.call.button",
+                        translationParams: {"requestor": otherParty},
+                      ),
                       onPressed: () => onContinue?.call(),
                     ),
                   ),

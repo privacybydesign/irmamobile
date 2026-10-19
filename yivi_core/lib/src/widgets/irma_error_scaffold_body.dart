@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
+import "glass/pill_buttons.dart";
 import "status_body.dart";
 
 enum ErrorType { general, expired, pairingRejected }
@@ -72,29 +73,13 @@ class _ErrorDetailsState extends State<ErrorDetails> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          child: TextButton(
+          child: TextLink(
             key: const Key("error_details_toggle"),
+            label: FlutterI18n.translate(
+              context,
+              _open ? "error.button_hide_error" : "error.button_show_error",
+            ),
             onPressed: () => setState(() => _open = !_open),
-            style: TextButton.styleFrom(
-              minimumSize: const Size(48, 40),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              shape: const StadiumBorder(),
-              foregroundColor: palette.link,
-            ),
-            child: Text(
-              FlutterI18n.translate(
-                context,
-                _open ? "error.button_hide_error" : "error.button_show_error",
-              ),
-              textAlign: TextAlign.center,
-              style: palette
-                  .body(16, weight: FontWeight.w600)
-                  .copyWith(
-                    color: palette.link,
-                    decoration: TextDecoration.underline,
-                    decorationColor: palette.link,
-                  ),
-            ),
           ),
         ),
         AnimatedSize(

@@ -52,7 +52,7 @@ import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/lock_gate.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
@@ -1264,7 +1264,7 @@ Future<void> _evaluateYiviCredentialCard(
 
       // Find reobtainable button
       final reobtainButtonFinder = find.descendant(
-        of: find.byType(YiviThemedButton),
+        of: find.byType(PillButton),
         matching: find.text("Reobtain"),
       );
 

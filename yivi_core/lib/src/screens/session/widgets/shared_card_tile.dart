@@ -11,6 +11,7 @@ import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../models/disclosure_view_model.dart";
 
 /// Marks a [SharedCardTile] as flying in a hero (or following a drag), so
@@ -173,18 +174,11 @@ class SharedCardTile extends ConsumerWidget {
         if (onFix != null)
           Align(
             alignment: Alignment.centerLeft,
-            child: FilledButton(
+            child: SmallPill(
               key: const Key("shared_card_fix"),
+              label: fixLabel!,
+              tone: SmallPillTone.primary,
               onPressed: onFix,
-              style: FilledButton.styleFrom(
-                backgroundColor: palette.primary,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(0, 36),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                textStyle: palette.body(13, weight: FontWeight.w600),
-                shape: const StadiumBorder(),
-              ),
-              child: Text(fixLabel!),
             ),
           ),
       ],

@@ -1,3 +1,4 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../screens/session/widgets/dynamic_layout.dart";
@@ -7,8 +8,8 @@ import "../screens/session/widgets/success_graphic.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
+import "glass/pill_buttons.dart";
 import "translated_text.dart";
-import "yivi_themed_button.dart";
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
@@ -62,10 +63,13 @@ class ActionFeedback extends StatelessWidget {
       style: palette.body(16),
       textAlign: TextAlign.center,
     );
-    final button = YiviThemedButton(
+    final button = FancyPillButton(
       key: const Key("ok_button"),
-      label: buttonTranslationKey,
-      labelParams: buttonTranslationParams,
+      label: FlutterI18n.translate(
+        context,
+        buttonTranslationKey,
+        translationParams: buttonTranslationParams,
+      ),
       onPressed: onDismiss,
     );
 

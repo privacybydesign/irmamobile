@@ -8,9 +8,9 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/translated_text.dart";
-import "../../../widgets/yivi_themed_button.dart";
 
 class ContactLinkTile extends StatelessWidget {
   final IconData? iconData;
@@ -46,8 +46,12 @@ class ContactLinkTile extends StatelessWidget {
                     "help.mail_error_title",
                   ),
                   content: FlutterI18n.translate(context, "help.mail_error"),
-                  child: YiviThemedButton(
-                    label: "help.mail_error_button",
+                  child: FancyPillButton(
+                    label: FlutterI18n.translate(
+                      context,
+                      "help.mail_error_button",
+                    ),
+                    size: PillSize.regular,
                     onPressed: () => Navigator.pop(context),
                   ),
                 );

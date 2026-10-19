@@ -100,7 +100,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             context,
             "new_terms_and_conditions.accept",
           ),
-          height: 52,
+          size: PillSize.regular,
           onPressed: () async {
             await prefs.markLatestTermsAsAccepted(true);
             if (context.mounted) Navigator.of(context).pop();
@@ -113,7 +113,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             "new_terms_and_conditions.dismiss",
           ),
           style: PillStyle.text,
-          height: 48,
+          size: PillSize.regular,
           onPressed: () => Navigator.of(context).pop(),
         ),
       ],

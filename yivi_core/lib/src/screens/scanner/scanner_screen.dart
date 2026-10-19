@@ -108,7 +108,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                             context,
                             "ui.close",
                           ),
-                          fill: const Color(0x6B1C1C1E),
+                          dark: true,
                           icon: const Icon(
                             Icons.close,
                             color: Colors.white,

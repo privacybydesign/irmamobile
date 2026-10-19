@@ -14,9 +14,9 @@ import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
 import "../../widgets/glass/glass_sheet.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/link.dart";
-import "../../widgets/yivi_themed_button.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
 import "widgets/pin_keypad.dart";
 
@@ -34,7 +34,7 @@ enum WidgetVisibility { invisible, visible, gone }
 typedef PinQuality = Set<SecurePinAttribute>;
 typedef StringCallback = void Function(String);
 
-const _nextButtonHeight = 48.0;
+const _nextButtonHeight = PillSize.largeHeight;
 
 /// Height of the PIN entry field, taken from the short PIN's dot size. Both
 /// PIN modes are pinned to this so long PIN is never taller or shorter.
@@ -432,7 +432,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       maintainState: true,
       child: Link(
         onTap: widget.onTogglePinSize ?? widget.onForgotPin ?? () {},
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
         label: FlutterI18n.translate(
           context,
           isToggle ? _getTogglePinSizeSemanticKey() : "pin.button_forgot",
@@ -556,9 +555,9 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   Widget _buildActivateNextButton(bool activate, WidgetVisibility visibility) {
     final button = SizedBox(
       height: _nextButtonHeight,
-      child: YiviThemedButton(
+      child: FancyPillButton(
         key: const Key("pin_next"),
-        label: widget.submitLabel,
+        label: FlutterI18n.translate(context, widget.submitLabel),
         onPressed: activate && widget.enabled
             ? () => widget.onSubmit(_state.toString())
             : null,

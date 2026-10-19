@@ -90,7 +90,7 @@ class EnrollmentInstruction extends StatelessWidget {
                   label: FlutterI18n.translate(context, "ui.previous"),
                   onPressed: onPrevious,
                   style: PillStyle.text,
-                  height: 48,
+                  size: PillSize.large,
                 )
               else
                 // Keeps the layout from jumping between the steps.

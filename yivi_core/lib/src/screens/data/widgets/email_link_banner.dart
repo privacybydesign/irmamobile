@@ -6,11 +6,11 @@ import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/email_linking.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
-import "../../../widgets/yivi_themed_button.dart";
 
 /// Banner at the top of the Gegevens tab that asks the user to link an e-mail
 /// address, so the app can be blocked remotely (`FeatureFlag.emailLinking`).
@@ -115,19 +115,26 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
             style: theme.textTheme.bodyMedium,
           ),
           SizedBox(height: theme.mediumSpacing),
-          YiviThemedButton(
+          FancyPillButton(
             key: const Key("email_link_later_remind"),
-            label: "email_linking.later.remind_me",
+            label: FlutterI18n.translate(
+              context,
+              "email_linking.later.remind_me",
+            ),
+            size: PillSize.regular,
             onPressed: () {
               navigator.pop();
               linking.snoozeBanner();
             },
           ),
           SizedBox(height: theme.smallSpacing),
-          YiviThemedButton(
+          PillButton(
             key: const Key("email_link_later_dismiss"),
-            label: "email_linking.later.dismiss",
-            style: YiviButtonStyle.outlined,
+            label: FlutterI18n.translate(
+              context,
+              "email_linking.later.dismiss",
+            ),
+            style: PillStyle.outlined,
             onPressed: () {
               navigator.pop();
               linking.dismissBanner();

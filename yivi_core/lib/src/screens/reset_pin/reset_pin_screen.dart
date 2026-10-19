@@ -79,14 +79,14 @@ class ResetPinScreen extends StatelessWidget {
                   key: const Key("reset_pin_reset"),
                   label: FlutterI18n.translate(context, "reset_pin.reset"),
                   style: PillStyle.dangerFilled,
-                  height: 56,
+                  size: PillSize.large,
                   onPressed: () => showConfirmDeleteDialog(context),
                 ),
                 PillButton(
                   key: const Key("reset_pin_cancel"),
                   label: FlutterI18n.translate(context, "ui.cancel"),
                   style: PillStyle.text,
-                  height: 48,
+                  size: PillSize.large,
                   // `Navigator.of(context).pop` (not GoRouter's
                   // `context.pop`) so this screen works whether it was
                   // pushed via the GoRouter `/reset_pin` route or onto the

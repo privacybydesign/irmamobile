@@ -1,8 +1,7 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/glass/glass_surface.dart";
+import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
 import "wallet_transition.dart";
 
@@ -18,7 +17,7 @@ typedef WalletDetailBuilder =
 /// The page of a detail route opened with the Wallet-style transition
 /// ([WalletDetailPage]): a background that fades in once the other content
 /// has moved away, pull down at the top to dismiss (the page follows the
-/// finger and shrinks a little), and a floating Done button over a fade.
+/// finger and shrinks a little), and a floating close button over a fade.
 ///
 /// The content itself flies in as heroes and fades up with [WalletReveal].
 class WalletDetailScaffold extends StatefulWidget {
@@ -28,18 +27,18 @@ class WalletDetailScaffold extends StatefulWidget {
 
   final WalletDetailBuilder builder;
 
-  /// Key of the Done button, for tests.
-  final Key doneKey;
+  /// Key of the close button, for tests.
+  final Key closeKey;
 
-  /// Shown left of the Done button, e.g. a compact title once the header has
-  /// scrolled away. Gets the opacity the Done button has.
+  /// Shown left of the close button, e.g. a compact title once the header
+  /// has scrolled away. Gets the opacity the close button has.
   final Widget Function(BuildContext context, double opacity)? barBuilder;
 
   const WalletDetailScaffold({
     super.key,
     required this.openKey,
     required this.builder,
-    required this.doneKey,
+    required this.closeKey,
     this.barBuilder,
   });
 
@@ -207,7 +206,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
               ),
             ),
           ),
-          // Fades the content out under the floating Done button.
+          // Fades the content out under the floating close button.
           Positioned(
             left: 0,
             right: 0,
@@ -251,9 +250,8 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                         const SizedBox.shrink(),
                   ),
                   const SizedBox(width: 8),
-                  GlassPillButton(
-                    buttonKey: widget.doneKey,
-                    label: FlutterI18n.translate(context, "wallet.detail.done"),
+                  IrmaCloseButton(
+                    key: widget.closeKey,
                     onTap: _close,
                     opacity: chromeOpacity(),
                   ),

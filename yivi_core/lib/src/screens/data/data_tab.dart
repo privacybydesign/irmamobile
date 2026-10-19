@@ -28,6 +28,7 @@ import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../add_data/add_data_sheet.dart";
@@ -1061,10 +1062,14 @@ class _ProblematicCredentialCard extends ConsumerWidget {
               ),
             ),
             SizedBox(width: theme.smallSpacing),
-            IconButton(
+            PlainIconButton(
               key: Key("${credential.credentialId ?? "problematic"}_delete"),
-              icon: Icon(Icons.delete_outline, color: palette.danger),
-              tooltip: FlutterI18n.translate(context, "accessibility.remove"),
+              icon: Icons.delete_outline_rounded,
+              danger: true,
+              semanticsLabel: FlutterI18n.translate(
+                context,
+                "accessibility.remove",
+              ),
               onPressed: () => _confirmDelete(context, ref),
             ),
           ],

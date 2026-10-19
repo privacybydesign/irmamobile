@@ -5,9 +5,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/action_feedback.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/yivi_themed_button.dart";
 import "../models/disclosure_view_model.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
@@ -157,9 +157,9 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           ),
         ),
     ];
-    final button = YiviThemedButton(
+    final button = FancyPillButton(
       key: const Key("ok_button"),
-      label: "share.done.button",
+      label: FlutterI18n.translate(context, "share.done.button"),
       onPressed: () => widget.onDismiss(context),
     );
 

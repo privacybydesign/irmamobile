@@ -51,7 +51,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
             label: confirmLabel,
             onPressed: onConfirm,
             style: destructive ? PillStyle.danger : PillStyle.text,
-            height: 48,
+            size: PillSize.regular,
           )
         : destructive
         ? PillButton(
@@ -64,7 +64,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
             key: const Key("dialog_confirm_button"),
             label: confirmLabel,
             onPressed: onConfirm,
-            height: 52,
+            size: PillSize.regular,
             glow: false,
           );
 
@@ -73,7 +73,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
             key: const Key("dialog_cancel_button"),
             label: cancelLabel,
             onPressed: onCancel,
-            height: 52,
+            size: PillSize.regular,
             glow: false,
           )
         : PillButton(
@@ -81,7 +81,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
             label: cancelLabel,
             onPressed: onCancel,
             style: PillStyle.text,
-            height: 48,
+            size: PillSize.regular,
           );
 
     // Built on IrmaDialog, so tests and callers that look for an IrmaDialog

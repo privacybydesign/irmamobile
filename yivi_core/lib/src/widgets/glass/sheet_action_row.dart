@@ -21,7 +21,7 @@ class SheetActionRow extends StatelessWidget {
   final Key? secondaryKey;
 
   /// Both buttons are this tall, so the row reads as one.
-  static const double height = 52;
+  static const double height = PillSize.regularHeight;
 
   const SheetActionRow({
     super.key,
@@ -53,7 +53,7 @@ class SheetActionRow extends StatelessWidget {
                 label: secondary,
                 onPressed: onSecondary,
                 style: PillStyle.text,
-                height: height,
+                size: PillSize.regular,
               ),
             ),
           if (primary != null)
@@ -63,7 +63,7 @@ class SheetActionRow extends StatelessWidget {
                 label: primary,
                 onPressed: onPrimary,
                 leading: primaryLeading,
-                height: height,
+                size: PillSize.regular,
               ),
             ),
         ],

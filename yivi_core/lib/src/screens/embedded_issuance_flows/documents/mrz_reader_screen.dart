@@ -11,6 +11,7 @@ import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -151,8 +152,6 @@ class _ManualEntryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return SizedBox(
       height: 72,
       width: 72,
@@ -170,7 +169,11 @@ class _ManualEntryButton extends StatelessWidget {
                   label: label,
                   child: InkWell(
                     onTap: onTap,
-                    child: Icon(Icons.edit, color: theme.onPrimary, size: 42),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      size: 42,
+                    ),
                   ),
                 ),
               ),
@@ -249,9 +252,14 @@ class _CameraScaffold extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: DarkGlassIconButton(
+                    child: GlassIconButton(
                       key: const Key("irma_app_bar_leading"),
-                      icon: Icons.arrow_back_rounded,
+                      dark: true,
+                      icon: const Icon(
+                        Icons.arrow_back_rounded,
+                        size: 22,
+                        color: Colors.white,
+                      ),
                       semanticsLabel: FlutterI18n.translate(
                         context,
                         "ui.go_back",
@@ -276,16 +284,18 @@ class _CameraScaffold extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: 4,
                   children: [
-                    _CameraPill(
+                    PillButton(
                       key: const Key("bottom_bar_primary"),
                       label: FlutterI18n.translate(context, manualLabel),
-                      outlined: true,
-                      onTap: onManual,
+                      onDark: true,
+                      onPressed: onManual,
                     ),
-                    _CameraPill(
+                    PillButton(
                       key: const Key("bottom_bar_secondary"),
                       label: FlutterI18n.translate(context, cancelLabel),
-                      onTap: onCancel,
+                      style: PillStyle.text,
+                      onDark: true,
+                      onPressed: onCancel,
                     ),
                   ],
                 ),
@@ -341,61 +351,6 @@ class _SheetCamera extends StatelessWidget {
   }
 }
 
-/// A white pill on the dark panel: outlined and 52 high for the main
-/// action, plain text and 48 high otherwise. Grows with large text.
-class _CameraPill extends StatelessWidget {
-  final String label;
-  final bool outlined;
-  final VoidCallback onTap;
-
-  const _CameraPill({
-    super.key,
-    required this.label,
-    required this.onTap,
-    this.outlined = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return MergeSemantics(
-      child: Semantics(
-        button: true,
-        child: Material(
-          color: outlined ? const Color(0x14FFFFFF) : Colors.transparent,
-          shape: StadiumBorder(
-            side: outlined
-                ? const BorderSide(color: Color(0xB3FFFFFF))
-                : BorderSide.none,
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: outlined ? 52 : 48),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Center(
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: palette
-                        .display(16, weight: FontWeight.w700)
-                        .copyWith(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Without camera permission, on the dark camera screen: what to do, in
 /// white, between the title and the buttons.
 class _DarkPermissionFallback extends StatelessWidget {
@@ -432,21 +387,16 @@ class _DarkPermissionFallback extends StatelessWidget {
                   .body(16)
                   .copyWith(height: 24 / 16, color: const Color(0xD9FFFFFF)),
             ),
-            TextButton(
+            TextLink(
+              label: FlutterI18n.translate(
+                context,
+                "mrz_camera_permissions.open_settings",
+              ),
+              color: Colors.white,
               onPressed: () async {
                 await openAppSettings();
                 if (context.mounted) Navigator.of(context).pop();
               },
-              child: TranslatedText(
-                "mrz_camera_permissions.open_settings",
-                style: palette
-                    .body(16, weight: FontWeight.w700)
-                    .copyWith(
-                      color: Colors.white,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.white,
-                    ),
-              ),
             ),
           ],
         ),

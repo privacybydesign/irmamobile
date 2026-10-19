@@ -2,8 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../glass/glass_dialog.dart";
+import "../glass/pill_buttons.dart";
 import "../irma_dialog.dart";
-import "../yivi_themed_button.dart";
 
 class PinWrongAttemptsDialog extends StatelessWidget {
   final void Function() onClose;
@@ -27,8 +27,9 @@ class PinWrongAttemptsDialog extends StatelessWidget {
         "pin_common.invalid_pin.attempts",
         attemptsRemaining,
       ),
-      child: YiviThemedButton(
-        label: "pin_common.invalid_close",
+      child: FancyPillButton(
+        label: FlutterI18n.translate(context, "pin_common.invalid_close"),
+        size: PillSize.regular,
         onPressed: onClose,
       ),
     );

@@ -4,10 +4,10 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
+import "glass/pill_buttons.dart";
 import "irma_dialog.dart";
 import "status_body.dart";
 import "translated_text.dart";
-import "yivi_themed_button.dart";
 
 class IrmaInfoScaffoldBody extends StatelessWidget {
   final String titleTranslationKey;
@@ -54,8 +54,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
       return IrmaDialog(
         title: FlutterI18n.translate(context, "error.details_title"),
         content: linkDialogText!,
-        child: YiviThemedButton(
-          label: "error.button_ok",
+        child: FancyPillButton(
+          label: FlutterI18n.translate(context, "error.button_ok"),
+          size: PillSize.regular,
           onPressed: () => Navigator.of(context).pop(),
         ),
       );

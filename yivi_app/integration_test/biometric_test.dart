@@ -11,7 +11,7 @@ import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 
 import "helpers/fake_local_auth.dart";
 import "helpers/helpers.dart";
@@ -396,7 +396,7 @@ void main() {
         await tester.tapAndSettle(
           find.descendant(
             of: dialogFinder,
-            matching: find.byType(YiviThemedButton),
+            matching: find.byType(FancyPillButton),
           ),
         );
       }

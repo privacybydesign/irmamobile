@@ -364,6 +364,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             actions: [
               FancyPillButton(
                 key: const Key("share_anyway_cancel"),
+                size: PillSize.regular,
                 label: t("share.trust.confirm.dont_share"),
                 onPressed: () => Navigator.of(dialogContext).pop(false),
               ),
@@ -519,9 +520,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       bundle: bundle,
       landingKey: _landingKey(i),
       trailing: canChange(p)
-          ? _ChangePill(
+          ? SmallPill(
               key: Key("share_change_$i"),
-              onTap: () => _openChoice(i),
+              label: FlutterI18n.translate(context, "share.change"),
+              onPressed: () => _openChoice(i),
             )
           : null,
       fixLabel: fix == null
@@ -738,39 +740,6 @@ class _Note extends StatelessWidget {
   }
 }
 
-class _ChangePill extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _ChangePill({super.key, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      child: Material(
-        color: palette.tint,
-        shape: const StadiumBorder(),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onTap,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 32, minWidth: 44),
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            alignment: Alignment.center,
-            child: Text(
-              FlutterI18n.translate(context, "share.change"),
-              style: palette
-                  .body(13, weight: FontWeight.w600)
-                  .copyWith(color: palette.link),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _RemoveButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
@@ -779,15 +748,11 @@ class _RemoveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return IconButton(
+    return PlainIconButton(
+      icon: Icons.close_rounded,
+      iconSize: 18,
+      semanticsLabel: label,
       onPressed: onTap,
-      tooltip: label,
-      style: IconButton.styleFrom(
-        backgroundColor: palette.background,
-        minimumSize: const Size(36, 36),
-      ),
-      icon: Icon(Icons.close_rounded, size: 16, color: palette.heading),
     );
   }
 }
@@ -988,11 +953,16 @@ class _ShareBar extends StatelessWidget {
                 ? PillButton(
                     label: label,
                     style: PillStyle.neutral,
+                    size: PillSize.large,
                     onPressed: onPressed,
                   )
                 : primary
                 ? FancyPillButton(label: label, onPressed: onPressed)
-                : PillButton(label: label, onPressed: onPressed),
+                : PillButton(
+                    label: label,
+                    size: PillSize.large,
+                    onPressed: onPressed,
+                  ),
           ),
         ],
       ),
@@ -1118,32 +1088,11 @@ class _TrustBanner extends StatelessWidget {
                         .copyWith(height: 20 / 14, color: Colors.white),
                   ),
                   const SizedBox(height: 6),
-                  Semantics(
-                    button: true,
-                    child: Material(
-                      color: Colors.white,
-                      shape: const StadiumBorder(),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        key: const Key("share_trust_banner_more"),
-                        onTap: onMore,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 36),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            child: Text(
-                              more,
-                              style: palette
-                                  .body(13, weight: FontWeight.w700)
-                                  .copyWith(color: palette.dangerFill),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  SmallPill(
+                    key: const Key("share_trust_banner_more"),
+                    label: more,
+                    tone: SmallPillTone.onDanger,
+                    onPressed: onMore,
                   ),
                 ],
               ),

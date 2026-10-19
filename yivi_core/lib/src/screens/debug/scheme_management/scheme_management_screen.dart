@@ -16,9 +16,9 @@ import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
 import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/progress.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
@@ -187,7 +187,11 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.scheme_management.title",
         actions: [
-          IrmaIconButton(icon: Icons.add, onTap: () => _onInstallScheme()),
+          PlainIconButton(
+            icon: Icons.add,
+            semanticsLabel: "Add",
+            onPressed: () => _onInstallScheme(),
+          ),
         ],
       ),
       body: SafeArea(

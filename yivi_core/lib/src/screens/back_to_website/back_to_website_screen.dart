@@ -1,9 +1,11 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/translated_text.dart";
 
 const double _sketchBorderWidth = 2;
@@ -60,16 +62,13 @@ class _BackToWebsiteScreenState extends ConsumerState<BackToWebsiteScreen> {
                   ),
                   SizedBox(height: theme.mediumSpacing),
                   Center(
-                    child: TextButton(
+                    child: TextLink(
                       key: const Key("back_to_website_other_button"),
-                      onPressed: context.goHomeScreen,
-                      child: TranslatedText(
+                      label: FlutterI18n.translate(
+                        context,
                         "back_to_website.other",
-                        style: theme.textButtonTextStyle.copyWith(
-                          fontWeight: FontWeight.normal,
-                          color: theme.link,
-                        ),
                       ),
+                      onPressed: context.goHomeScreen,
                     ),
                   ),
                 ],

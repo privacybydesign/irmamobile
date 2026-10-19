@@ -118,7 +118,7 @@ class DocumentInstructionScreen extends StatelessWidget {
               key: DocumentFlowButton.secondaryKey,
               labelKey: "document_flow.cancel",
               onPressed: onCancel,
-              style: .outline,
+              style: .secondary,
             ),
         ],
       ),

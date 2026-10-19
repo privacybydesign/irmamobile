@@ -10,6 +10,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
@@ -502,21 +503,10 @@ class _ResendRow extends StatelessWidget {
               ),
             ),
           ),
-          TextButton(
+          TextLink(
             key: const Key("contact_sheet_send_again"),
+            label: label,
             onPressed: onTap,
-            style: TextButton.styleFrom(
-              minimumSize: const Size(48, 44),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              shape: const StadiumBorder(),
-              foregroundColor: palette.link,
-            ),
-            child: Text(
-              label,
-              style: palette
-                  .body(13.5, weight: FontWeight.w700)
-                  .copyWith(color: palette.link),
-            ),
           ),
         ],
       ),

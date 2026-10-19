@@ -47,14 +47,14 @@ class FeatureFlagsScreen extends ConsumerWidget {
                 children: [
                   PillButton(
                     label: "All on",
-                    height: 40,
+                    size: PillSize.regular,
                     expand: false,
                     onPressed: () =>
                         _enableOnly(ref, FeatureFlag.values.toSet()),
                   ),
                   PillButton(
                     label: "All off",
-                    height: 40,
+                    size: PillSize.regular,
                     expand: false,
                     onPressed: () => _enableOnly(ref, {}),
                   ),

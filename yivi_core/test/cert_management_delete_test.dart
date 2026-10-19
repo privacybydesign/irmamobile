@@ -126,11 +126,11 @@ void main() {
     expect(find.text("Deleteable Verifier"), findsOneWidget);
 
     // Only the deleteable certificates get a delete button.
-    expect(find.byIcon(Icons.delete), findsNWidgets(2));
+    expect(find.byIcon(Icons.delete_outline_rounded), findsNWidgets(2));
 
     // The issuer section is listed first, so the first delete button belongs
     // to the deleteable issuer certificate.
-    await tester.tap(find.byIcon(Icons.delete).first);
+    await tester.tap(find.byIcon(Icons.delete_outline_rounded).first);
     await tester.pump();
 
     final removeEvents = bridge.dispatched.whereType<RemoveCertificateEvent>();
@@ -163,7 +163,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.delete));
+    await tester.tap(find.byIcon(Icons.delete_outline_rounded));
     await tester.pump();
 
     final removeEvents = bridge.dispatched.whereType<RemoveCertificateEvent>();

@@ -82,7 +82,8 @@ Finder _secondary() => find.byKey(const Key("bottom_bar_secondary"));
 TextStyle _styleOf(WidgetTester tester, String text) =>
     tester.widget<Text>(find.text(text)).style!;
 
-/// The footers of the redesign: a 56 high main pill and 48 high text pills,
+/// The footers of the redesign: a 56 high main pill and text pills of the
+/// same height (one size per role, docs/button-consistency-plan.md),
 /// 4 apart, 16 on the sides. On this phone (no home indicator) the lowest
 /// button ends 8 from the bottom when it is a text pill, 16 when it is the
 /// main one (FloatingBarPlacement.buttonBottom).
@@ -180,7 +181,7 @@ void main() {
       );
     });
 
-    testWidgets("Start 56 and Annuleer 48 high", (tester) async {
+    testWidgets("Start and Annuleer both 56 high", (tester) async {
       await pumpScreen(tester);
 
       expect(find.text("Start"), findsOneWidget);
@@ -188,9 +189,9 @@ void main() {
       _expectFooterButton(
         tester,
         _primary(),
-        top: _phone.height - 8 - 48 - 4 - 56,
+        top: _phone.height - 8 - 56 - 4 - 56,
       );
-      _expectFooterButton(tester, _secondary(), height: 48);
+      _expectFooterButton(tester, _secondary());
       expect(tester.getRect(_secondary()).bottom, _phone.height - 8);
       expect(
         tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
@@ -229,8 +230,9 @@ void main() {
       // the buttons 4 apart.
       final manual = tester.getRect(_primary());
       final cancel = tester.getRect(_secondary());
+      // On dark glass, both the regular pill height.
       expect(manual.height, 52);
-      expect(cancel.height, 48);
+      expect(cancel.height, 52);
       expect(manual.left, 16 + 12);
       expect(manual.width, _phone.width - 2 * (16 + 12));
       expect(cancel.top - manual.bottom, 4);
@@ -309,8 +311,7 @@ void main() {
       _expectFooterButton(
         tester,
         _secondary(),
-        top: _phone.height - 8 - 48,
-        height: 48,
+        top: _phone.height - 8 - 56,
       );
     });
 
@@ -364,9 +365,9 @@ void main() {
       expect(find.text("Je kunt je telefoon weer oppakken."), findsOneWidget);
       expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
       expect(tester.getSize(find.byType(NfcDoneCheck)), const Size(180, 180));
-      // The empty footer keeps the room of one text pill (16 + 48 + 8), so
+      // The empty footer keeps the room of one text pill (16 + 56 + 8), so
       // the page does not jump when the stage changes.
-      expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 72);
+      expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 80);
     });
 
     testWidgets("G9: NFC off, 220 picture, two buttons", (tester) async {
@@ -762,8 +763,7 @@ void main() {
       _expectFooterButton(
         tester,
         _secondary(),
-        top: _phone.height - 8 - 48,
-        height: 48,
+        top: _phone.height - 8 - 56,
       );
     });
 

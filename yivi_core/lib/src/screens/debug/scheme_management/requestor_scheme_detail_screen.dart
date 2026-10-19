@@ -7,8 +7,8 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_icon_button.dart";
 import "../util/snackbar.dart";
 
 class RequestorSchemeDetailScreen extends StatelessWidget {
@@ -42,9 +42,11 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         titleString: requestorScheme.id,
         actions: [
-          IrmaIconButton(
-            icon: Icons.delete,
-            onTap: () => _onDeleteScheme(context),
+          PlainIconButton(
+            icon: Icons.delete_outline_rounded,
+            danger: true,
+            semanticsLabel: "Delete",
+            onPressed: () => _onDeleteScheme(context),
           ),
         ],
       ),

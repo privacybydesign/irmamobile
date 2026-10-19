@@ -1,7 +1,8 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
-import "../../../../widgets/irma_icon_button.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 
 class CertManagerTile extends StatelessWidget {
   final Cert cert;
@@ -16,10 +17,14 @@ class CertManagerTile extends StatelessWidget {
       title: Text(cert.subject),
       onTap: onTap,
       trailing: cert.deleteable && onDelete != null
-          ? IrmaIconButton(
-              icon: Icons.delete,
-              semanticsLabelKey: "debug.cert_management.remove_cert",
-              onTap: onDelete!,
+          ? PlainIconButton(
+              icon: Icons.delete_outline_rounded,
+              danger: true,
+              semanticsLabel: FlutterI18n.translate(
+                context,
+                "debug.cert_management.remove_cert",
+              ),
+              onPressed: onDelete,
             )
           : null,
     );

@@ -12,8 +12,8 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/progress.dart";
 import "../../error/error_screen.dart";
 import "../cert_management/widgets/cert_manager_tile.dart";
@@ -113,7 +113,11 @@ class _CertificateManagementScreenState
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.cert_management.title",
         actions: [
-          IrmaIconButton(icon: Icons.add, onTap: () => _onInstallCertificate()),
+          PlainIconButton(
+            icon: Icons.add,
+            semanticsLabel: "Add",
+            onPressed: () => _onInstallCertificate(),
+          ),
         ],
       ),
       body: SafeArea(

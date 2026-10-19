@@ -19,7 +19,7 @@ class NfcStageAction {
   const NfcStageAction.secondary({
     required this.labelKey,
     required this.onPressed,
-  }) : style = DocumentFlowButtonStyle.outline;
+  }) : style = DocumentFlowButtonStyle.secondary;
 
   final String labelKey;
   final VoidCallback onPressed;
@@ -170,7 +170,7 @@ class _ActionBar extends StatelessWidget {
   }
 
   Widget _button(NfcStageAction? action) {
-    final style = action?.style ?? DocumentFlowButtonStyle.outline;
+    final style = action?.style ?? DocumentFlowButtonStyle.secondary;
     return DocumentFlowButton(
       key: style == .primary
           ? DocumentFlowButton.primaryKey

@@ -7,10 +7,10 @@ import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
-import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 import "email_address_entry.dart";
@@ -130,10 +130,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         extendBody: true,
         key: Key("$onScreenKeyboardShown"),
         backgroundColor: palette.background,
-        appBar: IrmaAppBar(
-          titleTranslationKey: titleKey,
-          hasBorder: false,
-        ),
+        appBar: IrmaAppBar(titleTranslationKey: titleKey, hasBorder: false),
         body: KeyboardAnimationListener(
           onKeyboardSettled: (context, inset, visible) {
             _handleFocusChange();
@@ -190,8 +187,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                   left: theme.defaultSpacing + media.padding.left,
                   right: theme.defaultSpacing + media.padding.right,
                 ),
-                child: YiviThemedButton(
-                  label: "email_issuance.enter_email.next_button",
+                child: FancyPillButton(
+                  label: FlutterI18n.translate(
+                    context,
+                    "email_issuance.enter_email.next_button",
+                  ),
                   onPressed: _validEmail ? _submit : null,
                 ),
               )

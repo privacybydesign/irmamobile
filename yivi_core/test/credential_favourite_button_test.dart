@@ -57,7 +57,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     await pumpDetails(tester, flags: {FeatureFlag.dataTabCategories});
 
-    expect(find.byIcon(Icons.star_border), findsOneWidget);
+    expect(find.byIcon(Icons.star_border_rounded), findsOneWidget);
     expect(find.bySemanticsLabel("Add to favourites"), findsOneWidget);
 
     await tester.tap(button);
@@ -66,7 +66,7 @@ void main() {
     expect(await tester.runAsync(() => prefs.getFavouriteCredentials().first), [
       _passport,
     ]);
-    expect(find.byIcon(Icons.star), findsOneWidget);
+    expect(find.byIcon(Icons.star_rounded), findsOneWidget);
     expect(find.bySemanticsLabel("Remove from favourites"), findsOneWidget);
 
     await tester.tap(button);
@@ -76,7 +76,7 @@ void main() {
       await tester.runAsync(() => prefs.getFavouriteCredentials().first),
       isEmpty,
     );
-    expect(find.byIcon(Icons.star_border), findsOneWidget);
+    expect(find.byIcon(Icons.star_border_rounded), findsOneWidget);
 
     semantics.dispose();
   });

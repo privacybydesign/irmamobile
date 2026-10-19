@@ -109,7 +109,7 @@ class DocumentIssuancePermission extends StatelessWidget {
                   key: DocumentFlowButton.secondaryKey,
                   labelKey: "document_flow.cancel",
                   onPressed: onDismiss,
-                  style: .outline,
+                  style: .secondary,
                 ),
               ]
             : [

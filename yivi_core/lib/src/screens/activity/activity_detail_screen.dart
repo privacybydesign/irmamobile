@@ -103,7 +103,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
 
     return WalletDetailScaffold(
       openKey: entry.key,
-      doneKey: const Key("activity_detail_done"),
+      closeKey: const Key("activity_detail_done"),
       barBuilder: (context, opacity) => ValueListenableBuilder<bool>(
         valueListenable: _scrolledPast,
         builder: (context, shown, _) => TweenAnimationBuilder<double>(

@@ -1,8 +1,9 @@
 import "package:cupertino_ui/cupertino_ui.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
-import "translated_text.dart";
+import "glass/pill_buttons.dart";
 
 // A search bar that can be used in place of an AppBar in a Scaffold.
 class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
@@ -44,16 +45,10 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
                   onChanged: onQueryChanged,
                 ),
               ),
-              TextButton(
+              TextLink(
                 key: const Key("cancel_search_button"),
+                label: FlutterI18n.translate(context, "search.cancel"),
                 onPressed: onCancel,
-                child: TranslatedText(
-                  "search.cancel",
-                  style: theme.textButtonTextStyle.copyWith(
-                    fontWeight: FontWeight.normal,
-                    color: theme.link,
-                  ),
-                ),
               ),
             ],
           ),

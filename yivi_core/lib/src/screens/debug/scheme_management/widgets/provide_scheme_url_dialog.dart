@@ -2,9 +2,9 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_dialog.dart";
 import "../../../../widgets/pill_text_field.dart";
-import "../../../../widgets/yivi_themed_button.dart";
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
   const ProvideSchemeUrlDialog({super.key});
@@ -44,8 +44,9 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
             hint: "https://",
             onSubmitted: (url) => navigator.pop(url),
           ),
-          YiviThemedButton(
-            label: "ui.add",
+          FancyPillButton(
+            label: FlutterI18n.translate(context, "ui.add"),
+            size: PillSize.regular,
             onPressed: () => navigator.pop(controller.text),
           ),
         ],

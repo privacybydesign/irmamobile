@@ -11,10 +11,10 @@ enum DocumentFlowButtonStyle {
   /// The faceted red pill.
   primary,
 
-  /// A plain text pill (was an outlined button before the redesign).
-  outline,
+  /// A plain text pill of the same height, for Cancel and the other choices.
+  secondary,
 
-  /// Underlined text without a surface.
+  /// A text link ([TextLink]).
   text,
 }
 
@@ -26,10 +26,10 @@ class DocumentFlowButton extends StatelessWidget {
     super.key,
   });
 
-  static const double height = 56;
+  static const double height = PillSize.largeHeight;
 
-  /// The text buttons under the main one are lower, as on the boards.
-  static const double secondaryHeight = 48;
+  /// The text buttons under the main one have its height.
+  static const double secondaryHeight = PillSize.largeHeight;
 
   /// The keys of the two button positions, the same as IrmaBottomBar's.
   static const primaryKey = Key("bottom_bar_primary");
@@ -48,15 +48,15 @@ class DocumentFlowButton extends StatelessWidget {
       .primary => FancyPillButton(
         label: label,
         onPressed: onPressed,
-        height: height,
+        size: PillSize.large,
       ),
-      .outline => PillButton(
+      .secondary => PillButton(
         label: label,
         onPressed: onPressed,
         style: PillStyle.text,
-        height: secondaryHeight,
+        size: PillSize.large,
       ),
-      .text => _UnderlinedTextButton(label: label, onPressed: onPressed),
+      .text => TextLink(label: label, onPressed: onPressed),
     };
 
     // [height] is the least: a label that wraps at a large text size makes
@@ -69,51 +69,6 @@ class DocumentFlowButton extends StatelessWidget {
           minHeight: style == .primary ? height : secondaryHeight,
         ),
         child: button,
-      ),
-    );
-  }
-}
-
-class _UnderlinedTextButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-
-  const _UnderlinedTextButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      excludeSemantics: true,
-      label: label,
-      child: Material(
-        type: MaterialType.transparency,
-        // No ink: a text button has no surface for it (see PillButton).
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onPressed,
-          splashFactory: NoSplash.splashFactory,
-          highlightColor: Colors.transparent,
-          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: palette
-                    .display(16, weight: FontWeight.w700)
-                    .copyWith(
-                      color: palette.heading,
-                      decoration: TextDecoration.underline,
-                      decorationColor: palette.heading,
-                    ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

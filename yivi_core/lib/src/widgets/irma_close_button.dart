@@ -10,15 +10,19 @@ import "glass/glass_surface.dart";
 class IrmaCloseButton extends StatelessWidget {
   final Function()? onTap;
 
-  const IrmaCloseButton({this.onTap});
+  /// Fades the button with its page; see [GlassSurface.opacity].
+  final double opacity;
 
-  const IrmaCloseButton.filled({this.onTap});
+  const IrmaCloseButton({super.key, this.onTap, this.opacity = 1});
+
+  const IrmaCloseButton.filled({super.key, this.onTap, this.opacity = 1});
 
   @override
   Widget build(BuildContext context) {
     return GlassIconButton(
       semanticsLabel: FlutterI18n.translate(context, "accessibility.close"),
       onTap: onTap ?? Navigator.of(context).pop,
+      opacity: opacity,
       icon: Icon(Icons.close, size: 22, color: YiviPalette.of(context).text),
     );
   }

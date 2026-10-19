@@ -3,10 +3,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-
 import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -70,7 +69,7 @@ void main() {
       await tester.tapAndSettle(
         find.descendant(
           of: dialogFinder,
-          matching: find.byType(YiviThemedButton),
+          matching: find.byType(FancyPillButton),
         ),
       );
 
@@ -147,7 +146,7 @@ void main() {
       await tester.tapAndSettle(
         find.descendant(
           of: dialogFinder,
-          matching: find.byType(YiviThemedButton),
+          matching: find.byType(FancyPillButton),
         ),
       );
 
@@ -174,7 +173,7 @@ void main() {
       await tester.tapAndSettle(
         find.descendant(
           of: find.byKey(const Key("irma_dialog")),
-          matching: find.byType(YiviThemedButton),
+          matching: find.byType(FancyPillButton),
         ),
       );
 
@@ -202,7 +201,7 @@ void main() {
       await tester.tapAndSettle(
         find.descendant(
           of: dialogFinder,
-          matching: find.byType(YiviThemedButton),
+          matching: find.byType(FancyPillButton),
         ),
       );
 

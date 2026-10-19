@@ -178,8 +178,9 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: Center(
-                child: GlassPillButton(
-                  label: "Done",
+                child: GlassIconButton(
+                  icon: const Icon(Icons.close, key: Key("icon")),
+                  semanticsLabel: "Close",
                   onTap: () {},
                   opacity: opacity,
                 ),
@@ -196,7 +197,7 @@ void main() {
       expect(blur, findsOneWidget);
       // No fading layer between the button and its blur.
       Finder inButton(Type type) => find.descendant(
-        of: find.byType(GlassPillButton),
+        of: find.byType(GlassIconButton),
         matching: find.byType(type),
       );
       for (final layer in [Opacity, FadeTransition]) {
@@ -205,9 +206,12 @@ void main() {
           findsNothing,
         );
       }
-      // Only the label fades through a layer.
+      // Only the icon fades through a layer.
       expect(
-        find.ancestor(of: find.text("Done"), matching: find.byType(Opacity)),
+        find.ancestor(
+          of: find.byKey(const Key("icon")),
+          matching: find.byType(Opacity),
+        ),
         findsOneWidget,
       );
     });
@@ -221,7 +225,10 @@ void main() {
       await pumpGlass(tester, 1);
       expect(find.byType(BackdropFilter), findsOneWidget);
       expect(
-        find.ancestor(of: find.text("Done"), matching: find.byType(Opacity)),
+        find.ancestor(
+          of: find.byKey(const Key("icon")),
+          matching: find.byType(Opacity),
+        ),
         findsNothing,
       );
     });

@@ -5,7 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_surface.dart";
-import "irma_icon_button.dart";
+import "glass/pill_buttons.dart";
 import "translated_text.dart";
 
 class YiviAppBarQrCodeButton extends StatelessWidget {
@@ -15,14 +15,12 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     // The bar puts it 16 from the edges, like the other buttons.
-    return IrmaIconButton(
-      padding: EdgeInsets.all(theme.tinySpacing),
+    return PlainIconButton(
       icon: Icons.qr_code_scanner_rounded,
-      size: 32,
-      onTap: onTap ?? () {},
+      iconSize: 28,
+      semanticsLabel: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
+      onPressed: onTap ?? () {},
     );
   }
 }

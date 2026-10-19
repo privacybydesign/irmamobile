@@ -17,9 +17,9 @@ import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "../../widgets/credential_card/yivi_credential_card.dart";
 import "../../widgets/glass/glass_sheet.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
-import "../../widgets/irma_icon_button.dart";
 import "../../widgets/progress.dart";
 import "../add_data/add_data_sheet.dart";
 
@@ -164,15 +164,15 @@ class _CredentialsDetailsScreenState
                     credential: cred,
                     compact: false,
                     headerTrailing: isDeletable || isReobtainable
-                        ? IconButton(
+                        ? PlainIconButton(
+                            icon: Icons.more_horiz_rounded,
+                            semanticsLabel: MaterialLocalizations.of(
+                              context,
+                            ).moreButtonTooltip,
                             onPressed: () => _showCredentialOptionsBottomSheet(
                               context,
                               cred,
                             ),
-                            icon: const Icon(Icons.more_horiz_sharp),
-                            padding: EdgeInsets.zero,
-                            visualDensity: VisualDensity.compact,
-                            constraints: const BoxConstraints(),
                           )
                         : null,
                   ),
@@ -272,14 +272,15 @@ class _FavouriteButton extends ConsumerWidget {
         ref.watch(favouriteCredentialsProvider).value?.contains(credentialId) ??
         false;
 
-    return IrmaIconButton(
+    return PlainIconButton(
       key: const Key("favourite_button"),
-      icon: favourite ? Icons.star : Icons.star_border,
-      size: 28,
-      semanticsLabelKey: favourite
-          ? "data_tab.favourites.remove"
-          : "data_tab.favourites.add",
-      onTap: () =>
+      icon: favourite ? Icons.star_rounded : Icons.star_border_rounded,
+      iconSize: 28,
+      semanticsLabel: FlutterI18n.translate(
+        context,
+        favourite ? "data_tab.favourites.remove" : "data_tab.favourites.add",
+      ),
+      onPressed: () =>
           ref.read(favouriteCredentialsControllerProvider).toggle(credentialId),
     );
   }

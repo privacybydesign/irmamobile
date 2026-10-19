@@ -7,10 +7,10 @@ import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
+import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
-import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 import "phone_number_entry.dart";
@@ -182,8 +182,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                   left: theme.defaultSpacing + media.padding.left,
                   right: theme.defaultSpacing + media.padding.right,
                 ),
-                child: YiviThemedButton(
-                  label: "sms_issuance.enter_phone.next_button",
+                child: FancyPillButton(
+                  label: FlutterI18n.translate(
+                    context,
+                    "sms_issuance.enter_phone.next_button",
+                  ),
                   onPressed: _validPhoneNumber ? _submit : null,
                 ),
               )
