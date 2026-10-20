@@ -67,6 +67,24 @@ void main() {
         TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
     view.physicalSize = const Size(400, 800);
     view.devicePixelRatio = 1;
+    // A status bar: the sheet starts under it, as on a phone.
+    view.padding = const FakeViewPadding(top: 47);
+  });
+  tearDown(
+    () => TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
+        .resetPadding(),
+  );
+
+  testWidgets("as tall as a native iOS sheet: its top at the top inset", (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    _open();
+    await tester.pumpAndSettle();
+    final sheet = tester.getRect(find.byType(GlassSheetPage));
+    expect(sheet.top, 47);
+    expect(sheet.bottom, 800);
   });
 
   testWidgets("a pull taken back before letting go ends the gesture", (
@@ -159,7 +177,8 @@ void main() {
 
     // Each way the sheet can be closed, and what it does.
     final ways = <String, Future<void> Function(WidgetTester)>{
-      // The sheet is nearly full height; its top edge is at 8.
+      // The sheet is as tall as on iOS: its top edge is at the status
+      // bar's bottom (47), so the status bar is outside it.
       "a tap outside it": (tester) => tester.tapAt(const Offset(200, 3)),
       "its close button": (tester) => tester.tap(find.byType(IrmaCloseButton)),
       "a drag down on its header": (tester) =>
@@ -350,7 +369,6 @@ void main() {
       builds = 0;
       showGlassSheet<void>(
         context: _page,
-        heightFraction: 0.9,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             push = setState;
@@ -456,7 +474,6 @@ void main() {
   group("the keyboard", () {
     void openWithField() => showGlassSheet<void>(
       context: _page,
-      heightFraction: 0.9,
       builder: (_) => GlassSheetPage(
         title: "Sheet",
         bottom: const SizedBox(

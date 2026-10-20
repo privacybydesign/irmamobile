@@ -16,7 +16,6 @@ Future<void> showTechnicalDetailsSheet({
   required List<TechGroup> groups,
 }) => showGlassSheet<void>(
   context: context,
-  heightFraction: 0.9,
   builder: (_) => TechnicalDetailsSheet(
     key: const Key("technical_details_sheet"),
     groups: groups,

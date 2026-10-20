@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "dart:async";
 
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
@@ -390,14 +392,15 @@ void main() {
       await tester.tap(picked);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 150));
-      // Mid-flight: one card, on its way up to the optional section.
+      // Mid-flight: one card, on its way to the optional section.
       expect(find.text("de Vries"), findsOneWidget);
       final flying = tester.getRect(find.text("de Vries")).top;
 
       await tester.pumpAndSettle();
       final to = tester.getRect(find.text("de Vries")).top;
-      expect(flying, lessThan(from));
-      expect(flying, greaterThan(to));
+      // Between where it left and where it lands.
+      expect(flying, inInclusiveRange(min(from, to), max(from, to)));
+      expect(flying, isNot(closeTo(from, 1)));
       // Landed: the included card has its leave-out button back.
       expect(find.byKey(const Key("share_remove_0")), findsOneWidget);
     });

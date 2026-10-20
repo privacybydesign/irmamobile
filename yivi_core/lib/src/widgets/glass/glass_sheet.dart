@@ -12,9 +12,9 @@ import "glass_surface.dart";
 import "scroll_edge.dart";
 
 /// Shows [builder]'s content in the app's one sheet: a full-width glass sheet
-/// attached to the bottom of the screen, at least [minHeightFraction] of the
-/// screen tall (or exactly [heightFraction]), that closes on a tap outside it
-/// or a drag down. It is a page route, so a [Hero] can fly into it. On
+/// attached to the bottom of the screen, as tall as a native iOS sheet (its
+/// top at the top of the safe area, where the Data tab's search field
+/// starts), that closes on a tap outside it or a drag down. It is a page route, so a [Hero] can fly into it. On
 /// tablets it is a centred dialog with the same look.
 ///
 /// To ask before it closes (for example while something is under way in it),
@@ -28,8 +28,6 @@ import "scroll_edge.dart";
 Future<T?> showGlassSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
-  double minHeightFraction = 0.5,
-  double? heightFraction,
 }) {
   if (isExpandedLayout(context)) {
     return showDialog<T>(
@@ -46,9 +44,8 @@ Future<T?> showGlassSheet<T>({
               type: MaterialType.transparency,
               child: _GlassSheet(
                 attached: false,
-                height: heightFraction == null
-                    ? null
-                    : MediaQuery.sizeOf(context).height * heightFraction,
+                // Every sheet as tall as the dialog may be, as on the phone.
+                height: MediaQuery.sizeOf(context).height * 0.85,
                 child: builder(context),
               ),
             ),
@@ -60,8 +57,6 @@ Future<T?> showGlassSheet<T>({
   return Navigator.of(context).push(
     _GlassSheetRoute<T>(
       builder: builder,
-      minHeightFraction: minHeightFraction,
-      heightFraction: heightFraction,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     ),
   );
@@ -94,15 +89,8 @@ class GlassSheetScope extends InheritedWidget {
 /// [PageRoute], so heroes fly into it (a modal bottom sheet is not).
 class _GlassSheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
-  final double minHeightFraction;
-  final double? heightFraction;
 
-  _GlassSheetRoute({
-    required this.builder,
-    required this.minHeightFraction,
-    required this.heightFraction,
-    required this.barrierLabel,
-  }) {
+  _GlassSheetRoute({required this.builder, required this.barrierLabel}) {
     _pull.addListener(_followPull);
   }
 
@@ -273,10 +261,10 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   ) {
     final media = MediaQuery.of(context);
     final screen = media.size.height;
-    final maxHeight = screen - media.padding.top - 8;
-    final height = heightFraction == null
-        ? null
-        : (screen * heightFraction!).clamp(0.0, maxHeight);
+    // As a native iOS sheet: from the top of the safe area to the bottom
+    // (measured on iOS 27: the top edge at the top inset, 62 pt on an
+    // iPhone 17 Pro).
+    final height = (screen - media.padding.top).clamp(0.0, screen);
     // The sheet keeps its place and size when the keyboard comes up: only
     // its content ends above the keyboard (see _GlassSheet).
     return MediaQuery.removeViewInsets(
@@ -285,10 +273,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: (screen * minHeightFraction).clamp(0.0, maxHeight),
-            maxHeight: maxHeight,
-          ),
+          constraints: BoxConstraints.tightFor(height: height),
           child: Material(
             type: MaterialType.transparency,
             child: LayoutBuilder(
@@ -1103,10 +1088,8 @@ Future<void> showTitledGlassSheet({
   required BuildContext context,
   required String titleKey,
   required Widget child,
-  double minHeightFraction = 0.5,
 }) => showGlassSheet<void>(
   context: context,
-  minHeightFraction: minHeightFraction,
   builder: (context) => GlassSheetPage(
     title: FlutterI18n.translate(context, titleKey),
     child: child,

@@ -38,7 +38,6 @@ Future<void> showAddDataSheet(
   bool flyToDataTab = true,
 }) => showGlassSheet<void>(
   context: context,
-  heightFraction: 0.9,
   builder: (_) => AddDataSheet(
     key: const Key("add_data_sheet"),
     addNew: addNew,

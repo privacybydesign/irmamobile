@@ -40,7 +40,6 @@ Future<void> showChangeChoiceSheet({
   GlobalKey? landingKey,
 }) => showGlassSheet<void>(
   context: context,
-  heightFraction: 0.9,
   builder: (_) => ChangeChoiceSheet(
     key: const Key("disclosure_choice_sheet"),
     sessionId: sessionId,

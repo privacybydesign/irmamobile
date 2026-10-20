@@ -24,7 +24,6 @@ Future<void> showRequestorTrustSheet({
   VoidCallback? onDontShare,
 }) => showGlassSheet<void>(
   context: context,
-  heightFraction: 0.85,
   builder: (_) => RequestorTrustSheet(
     key: const Key("requestor_trust_sheet"),
     requestor: requestor,

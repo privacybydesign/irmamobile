@@ -31,7 +31,6 @@ Future<void> openQrCodeScanner(
   if (lockScreen) {
     await showGlassSheet<void>(
       context: context,
-      heightFraction: 0.9,
       builder: (_) => const LockScannerSheet(),
     );
     return;
@@ -69,7 +68,6 @@ Future<void> openQrCodeScanner(
   // The app's one sheet; the scanner draws its own title and close button.
   await showGlassSheet<void>(
     context: context,
-    heightFraction: 0.9,
     builder: (_) => const ScannerScreen(),
   );
 }
