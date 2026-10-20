@@ -168,6 +168,7 @@ class _ManualEntryButton extends StatelessWidget {
                   button: true,
                   label: label,
                   child: InkWell(
+                    highlightColor: Colors.transparent,
                     onTap: onTap,
                     child: const Icon(
                       Icons.edit,

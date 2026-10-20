@@ -447,6 +447,7 @@ class _SentTo extends StatelessWidget {
               color: palette.tint,
               shape: const StadiumBorder(),
               child: InkWell(
+                highlightColor: Colors.transparent,
                 key: const Key("contact_sheet_change"),
                 customBorder: const StadiumBorder(),
                 onTap: onChange,

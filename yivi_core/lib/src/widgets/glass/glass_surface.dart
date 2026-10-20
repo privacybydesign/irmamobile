@@ -231,6 +231,7 @@ class GlassIconButton extends StatelessWidget {
             child: Material(
               type: MaterialType.transparency,
               child: InkWell(
+                highlightColor: Colors.transparent,
                 customBorder: const CircleBorder(),
                 onTap: onTap,
                 child: SizedBox.square(

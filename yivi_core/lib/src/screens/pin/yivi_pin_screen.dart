@@ -597,6 +597,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         child: Semantics(
           button: true,
           child: InkWell(
+            highlightColor: Colors.transparent,
             onTap: fn,
             customBorder: const CircleBorder(),
             child: Icon(

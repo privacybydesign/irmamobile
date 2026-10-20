@@ -1120,6 +1120,7 @@ class _TechLink extends StatelessWidget {
         child: Semantics(
           button: true,
           child: InkWell(
+            highlightColor: Colors.transparent,
             key: const Key("share_technical_details"),
             onTap: onTap,
             customBorder: const StadiumBorder(),

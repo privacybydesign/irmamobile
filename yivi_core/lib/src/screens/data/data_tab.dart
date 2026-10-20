@@ -478,6 +478,7 @@ class _Segment extends StatelessWidget {
         shape: const StadiumBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          highlightColor: Colors.transparent,
           onTap: onTap,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 36, minWidth: 44),

@@ -81,6 +81,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                   label: FlutterI18n.translate(context, "wallet.clear_search"),
                   excludeSemantics: true,
                   child: InkResponse(
+                    highlightColor: Colors.transparent,
                     onTap: _clear,
                     radius: 22,
                     child: Container(
@@ -90,7 +91,11 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                         shape: BoxShape.circle,
                         color: palette.heading.withValues(alpha: 0.14),
                       ),
-                      child: Icon(Icons.close, size: 16, color: palette.heading),
+                      child: Icon(
+                        Icons.close,
+                        size: 16,
+                        color: palette.heading,
+                      ),
                     ),
                   ),
                 ),

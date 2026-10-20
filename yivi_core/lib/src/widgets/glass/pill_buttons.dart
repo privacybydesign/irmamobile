@@ -94,6 +94,7 @@ class FancyPillButton extends StatelessWidget {
                   Material(
                     type: MaterialType.transparency,
                     child: InkWell(
+                      highlightColor: Colors.transparent,
                       onTap: onPressed,
                       // The size's height is the least: a label that wraps at a
                       // large text size makes the pill taller.
@@ -297,6 +298,7 @@ class SmallPill extends StatelessWidget {
       shadowColor: const Color(0x29000000),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        highlightColor: Colors.transparent,
         onTap: onPressed,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: height, minWidth: 44),
@@ -361,6 +363,7 @@ class TextLink extends StatelessWidget {
       child: Opacity(
         opacity: onPressed == null ? 0.5 : 1,
         child: InkWell(
+          highlightColor: Colors.transparent,
           onTap: onPressed,
           customBorder: const StadiumBorder(),
           child: ConstrainedBox(
@@ -426,6 +429,7 @@ class PlainIconButton extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
+          highlightColor: Colors.transparent,
           onTap: onPressed,
           customBorder: const CircleBorder(),
           child: SizedBox.square(

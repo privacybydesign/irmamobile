@@ -308,11 +308,14 @@ class IrmaThemeData {
       inputDecorationTheme: inputDecorationTheme,
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
       pageTransitionsTheme: yiviPageTransitionsTheme,
-      // No ink anywhere: no ripple and no grey wash on a press. Buttons and
-      // cards give their own feedback (they scale or give way).
+      // No ripple. A pressed row lights up grey, as in an iOS list (system
+      // grey 4 over the row); buttons and cards opt out of that and give
+      // their own feedback (they scale or give way).
       splashFactory: NoSplash.splashFactory,
       splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
+      highlightColor: isDark
+          ? const Color(0x21FFFFFF)
+          : const Color(0x2E000000),
       textButtonTheme: const TextButtonThemeData(style: _noInk),
       elevatedButtonTheme: const ElevatedButtonThemeData(style: _noInk),
       outlinedButtonTheme: const OutlinedButtonThemeData(style: _noInk),

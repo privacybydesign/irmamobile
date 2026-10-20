@@ -199,6 +199,7 @@ class _TabButton extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
+          highlightColor: Colors.transparent,
           customBorder: const StadiumBorder(),
           onTap: onTap,
           child: Column(
@@ -276,6 +277,7 @@ class GlassQrButton extends StatelessWidget {
                   Material(
                     type: MaterialType.transparency,
                     child: InkWell(
+                      highlightColor: Colors.transparent,
                       customBorder: const CircleBorder(),
                       onTap: () => openQrCodeScanner(context),
                       child: Icon(
