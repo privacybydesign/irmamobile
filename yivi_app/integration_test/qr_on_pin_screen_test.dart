@@ -8,7 +8,10 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
+import "package:yivi_core/src/screens/pin/widgets/waiting_request_card.dart";
+import "package:yivi_core/src/screens/scanner/lock_scanner_sheet.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
@@ -73,6 +76,19 @@ void main() {
     );
 
     testWidgets(
+      "unlock-page-says-who-en",
+      (tester) => testUnlockPageSaysWho(tester, irmaBinding.repository),
+    );
+    testWidgets(
+      "link-while-locked-shows-card-en",
+      (tester) => testLinkWhileLockedShowsCard(tester, irmaBinding.repository),
+    );
+    testWidgets(
+      "disclosure-goes-full-screen-en",
+      (tester) => testDisclosureGoesFullScreen(tester, irmaBinding.repository),
+    );
+
+    testWidgets(
       "cancel-pending-session-en",
       (tester) => testCancelPendingSession(
         tester,
@@ -91,9 +107,10 @@ void main() {
   });
 }
 
-// Scanning queues a pending pointer; the pin screen then shows a trailing ✕.
-// Tapping it and confirming clears the pointer, reverting to normal unlock
-// (QR button returns) without ever starting the session.
+// Scanning keeps the scanner sheet, on its next page: the PIN, with who the
+// request is from. Closing the sheet asks first; stopping clears the
+// pointer, reverting to normal unlock (QR button returns) without ever
+// starting the session.
 Future<void> testCancelPendingSession(
   WidgetTester tester,
   Locale locale,
@@ -103,12 +120,17 @@ Future<void> testCancelPendingSession(
   await tapQrScannerButton(tester);
   await pretendToScanIssuanceQrCode(tester, locale);
 
-  // Pending state: QR button hidden, cancel ✕ shown.
+  // The PIN page of the sheet; the lock screen under it hides its QR button.
+  expect(find.byKey(const Key("lock_scanner_unlock")), findsOneWidget);
   expect(find.byType(YiviAppBarQrCodeButton), findsNothing);
-  expect(find.byType(IrmaCloseButton), findsOneWidget);
 
-  // Cancel and confirm the dialog.
-  await tester.tapAndSettle(find.byType(IrmaCloseButton));
+  // Close the sheet and stop the request.
+  await tester.tapAndSettle(
+    find.descendant(
+      of: find.byKey(const Key("lock_scanner_unlock")),
+      matching: find.byType(IrmaCloseButton),
+    ),
+  );
   await tester.tapAndSettle(find.byKey(const Key("dialog_confirm_button")));
 
   // Back to normal unlock: still on PinScreen, QR button back, ✕ gone.
@@ -132,17 +154,15 @@ Future<void> testCancelIssuanceAfterPinEntered(
 
   await unlock(tester);
 
-  final buttonFinder = find.byKey(const Key("bottom_bar_secondary"));
-  await tester.waitFor(buttonFinder.hitTestable());
+  // The issuance goes on in the scanner sheet.
+  await tester.waitFor(find.byKey(const Key("sheet_issue_add")).hitTestable());
 
-  // press the cancel button
-  await tester.tapAndSettle(buttonFinder);
-
-  // With the lock-screen QR scanner now shown as a modal on
-  // LockGate's local Navigator (rather than the `/scanner` route),
-  // canceling the issuance no longer has a scanner page underneath
-  // to fall back to — the user simply ends up on the home screen.
+  // Back declines it; the sheet closes on the home screen.
+  await tester.tapAndSettle(
+    find.bySemanticsLabel(RegExp("go back|terug", caseSensitive: false)).last,
+  );
   await tester.waitFor(find.byType(DataTab).hitTestable());
+  expect(find.byKey(const Key("sheet_issue_add")), findsNothing);
 }
 
 Future<void> testBackFromQrScanner(
@@ -181,17 +201,74 @@ Future<void> testIssuance(
 
   await unlock(tester);
 
-  final button = find.byKey(const Key("bottom_bar_primary"));
-  await tester.waitFor(button.hitTestable());
+  // The issuance goes on in the scanner sheet: add, then Done.
+  final add = find.byKey(const Key("sheet_issue_add"));
+  await tester.waitFor(add.hitTestable());
+  await tester.tapAndSettle(add);
+  final done = find.byKey(const Key("sheet_done"));
+  await tester.waitFor(done.hitTestable());
+  await tester.tapAndSettle(done);
 
-  // tap "add data"
-  await tester.tapAndSettle(button);
-
-  // tap "done"
-  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
-
-  // ensure we're at the home screen
+  // The sheet is gone, on the home screen.
   await tester.waitFor(find.byType(DataTab).hitTestable());
+  expect(find.byType(LockScannerSheet), findsNothing);
+}
+
+// The PIN page of the scanner sheet says who the request is from and what
+// they want, before the PIN. The staging issuer is not in the requestor
+// scheme: its host, said plainly.
+Future<void> testUnlockPageSaysWho(
+  WidgetTester tester,
+  IrmaRepository repo,
+) async {
+  await pumpYiviApp(tester, repo, defaultLanguage: Locale("en", "EN"));
+  await tapQrScannerButton(tester);
+  await pretendToScanIssuanceQrCode(tester, Locale("en", "EN"));
+
+  final card = find.descendant(
+    of: find.byKey(const Key("lock_scanner_unlock")),
+    matching: find.byType(WaitingRequestCard),
+  );
+  await tester.waitFor(
+    find.descendant(of: card, matching: find.text("is offering data")),
+  );
+  expect(find.text("Enter your PIN to see the request"), findsWidgets);
+  expect(
+    find.descendant(of: card, matching: find.textContaining("staging")),
+    findsWidgets,
+  );
+
+  await unlock(tester);
+  await tester.waitFor(find.byKey(const Key("sheet_issue_add")).hitTestable());
+  await tester.tapAndSettle(find.bySemanticsLabel("Go back").last);
+  await tester.waitFor(find.byType(DataTab).hitTestable());
+}
+
+// A disclosure scanned on the lock screen: the PIN in the sheet, then the
+// request full screen.
+Future<void> testDisclosureGoesFullScreen(
+  WidgetTester tester,
+  IrmaRepository repo,
+) async {
+  await pumpYiviApp(tester, repo, defaultLanguage: Locale("en", "EN"));
+  await tapQrScannerButton(tester);
+
+  final session = await createTestSession("""
+    {
+      "@context": "https://irma.app/ld/request/disclosure/v2",
+      "disclose": [[["irma-demo.MijnOverheid.fullName.firstname"]]]
+    }
+  """);
+  final ScannerScreenState scannerState = tester.state(
+    find.byType(ScannerScreen),
+  );
+  scannerState.onQrScanned(session);
+  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await tester.waitFor(find.text("is asking for data"));
+
+  await unlock(tester);
+  await tester.waitFor(find.byType(DisclosureShareScreen).hitTestable());
+  expect(find.byType(LockScannerSheet), findsNothing);
 }
 
 Future<void> tapQrScannerButton(WidgetTester tester) async {
@@ -217,4 +294,37 @@ Future<void> pretendToScanIssuanceQrCode(
 
   // wait for the pin screen to be visible
   await tester.pumpAndSettle(Duration(seconds: 3));
+}
+
+// A link opened while the app is locked: the full-screen PIN says who the
+// request is from and what they want, and the session opens full screen
+// after the PIN.
+Future<void> testLinkWhileLockedShowsCard(
+  WidgetTester tester,
+  IrmaRepository repo,
+) async {
+  await pumpYiviApp(tester, repo, defaultLanguage: Locale("en", "EN"));
+  await tester.waitFor(find.byType(YiviAppBarQrCodeButton));
+
+  final session = await createIssuanceSession(
+    attributes: createMunicipalityPersonalDataAttributes(Locale("en", "EN")),
+  );
+  repo.setPendingPointer(session);
+  await tester.pumpAndSettle(const Duration(seconds: 2));
+
+  final card = find.descendant(
+    of: find.byType(PinScreen),
+    matching: find.byType(WaitingRequestCard),
+  );
+  await tester.waitFor(
+    find.descendant(of: card, matching: find.text("is offering data")),
+  );
+  expect(find.text("Enter your PIN to see the request"), findsOneWidget);
+  expect(find.byType(LockScannerSheet), findsNothing);
+
+  await unlock(tester);
+  final decline = find.byKey(const Key("bottom_bar_secondary"));
+  await tester.waitFor(decline.hitTestable());
+  await tester.tapAndSettle(decline);
+  await tester.waitFor(find.byType(DataTab).hitTestable());
 }

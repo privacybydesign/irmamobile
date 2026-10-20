@@ -17,8 +17,13 @@ import "widgets/qr_scanner.dart";
 /// `/home`) picks it up and starts the session. The same flow covers
 /// both the locked case (queued pointer waits behind the lock
 /// overlay's PIN) and the unlocked case (fires immediately).
+///
+/// With [onScanned] (the lock screen's scanner sheet) the scan goes there
+/// instead, and the sheet stays.
 class ScannerScreen extends StatefulWidget {
-  const ScannerScreen({super.key});
+  final void Function(Pointer pointer)? onScanned;
+
+  const ScannerScreen({super.key, this.onScanned});
 
   @override
   State<ScannerScreen> createState() => ScannerScreenState();
@@ -50,6 +55,11 @@ class ScannerScreenState extends State<ScannerScreen> {
     }
 
     HapticFeedback.vibrate();
+
+    if (widget.onScanned case final onScanned?) {
+      onScanned(pointer);
+      return;
+    }
 
     final repo = IrmaRepositoryProvider.of(context);
     Navigator.of(context).pop();

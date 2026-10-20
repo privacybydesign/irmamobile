@@ -100,6 +100,17 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 	return nil
 }
 
+// previewSession answers with what the pointer would start and who it is
+// from, worked out locally: no server is contacted.
+func (ah *eventHandler) previewSession(event *previewSessionEvent) error {
+	preview, err := yiviClient.PreviewSession(string(event.Request))
+	if err != nil {
+		return err
+	}
+	dispatchEvent(&sessionPreviewEvent{Key: event.Key, Preview: preview})
+	return nil
+}
+
 func (ah *eventHandler) handleUserInteraction(event *sessionUserInteractionEvent) error {
 	interaction := clientmodels.SessionUserInteraction{
 		SessionId: event.SessionId,

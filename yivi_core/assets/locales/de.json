@@ -692,12 +692,6 @@
       "body": "Verwenden Sie Ihren Fingerabdruck oder Ihr Gesicht, um die App zu entsperren. Für Sitzungen müssen Sie weiterhin Ihre PIN eingeben.",
       "enable": "Aktivieren",
       "not_now": "Nicht jetzt"
-    },
-    "cancel_session_dialog": {
-      "title": "Diese Anfrage abbrechen?",
-      "explanation": "Sie kehren zum Sperrbildschirm zurück.",
-      "confirm": "Ja",
-      "decline": "Nein"
     }
   },
   "pin_accessibility": {
@@ -1541,5 +1535,40 @@
     "not_checked": "Wir konnten den Code nicht prüfen. Versuche es erneut.",
     "not_sent_email": "Wir konnten die E-Mail nicht senden. Prüfe die Adresse und versuche es erneut.",
     "not_sent_phone": "Wir konnten keine SMS an diese Nummer senden. Prüfe sie und versuche es erneut."
+  },
+  "waiting_request": {
+    "kind": {
+      "disclosure": "fragt nach Daten",
+      "issuance": "bietet Daten an",
+      "signature": "bittet um eine Unterschrift",
+      "email": "Diese E-Mail-Adresse zu Yivi hinzufügen"
+    },
+    "unknown_title": "Eine Anfrage wartet",
+    "pill": {
+      "website": "Website",
+      "unknown": "Yivi nicht bekannt"
+    },
+    "head": "Gib deine PIN ein, um die Anfrage zu sehen",
+    "head_email": "Gib deine PIN ein, um sie hinzuzufügen",
+    "head_unknown": "Gib deine PIN ein, um sie zu sehen",
+    "detail": {
+      "host": "Danach siehst du, wer sie sind und was sie fragen",
+      "unknown": "Danach siehst du, von wem sie ist und was gefragt wird",
+      "email": "Du hast den Link in deiner E-Mail geöffnet",
+      "in_flight": "Du warst mitten in dieser Anfrage"
+    },
+    "unlock_title": "Yivi entsperren",
+    "stop": {
+      "title": "Diese Anfrage beenden?",
+      "title_email": "Diese Adresse nicht hinzufügen?",
+      "body": "Es wird nichts mit {name} geteilt. Um es später zu tun, scanne den QR-Code oder öffne den Link erneut.",
+      "body_unknown": "Es wird nichts geteilt. Um es später zu tun, scanne den QR-Code oder öffne den Link erneut.",
+      "body_email": "Es wird nichts hinzugefügt. Du kannst den Link in der E-Mail später erneut öffnen.",
+      "confirm": "Beenden",
+      "keep": "Weiter"
+    },
+    "semantics": {
+      "stop": "Diese Anfrage beenden"
+    }
   }
 }

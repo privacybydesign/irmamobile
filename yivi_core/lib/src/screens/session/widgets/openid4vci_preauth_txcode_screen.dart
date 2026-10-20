@@ -7,6 +7,8 @@ import "../../../models/schemaless/credential_store.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
@@ -19,6 +21,10 @@ class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
   final void Function(String code) onSubmit;
   final VoidCallback onDismiss;
 
+  /// A page in a sheet: the sheet's own bar, back declines, and Continue
+  /// (for a code of any length) at the bottom.
+  final bool inSheet;
+
   const OpenID4VCIPreAuthTxCodeScreen({
     super.key,
     required this.sessionId,
@@ -26,6 +32,7 @@ class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
     required this.transactionCodeParameters,
     required this.onSubmit,
     required this.onDismiss,
+    this.inSheet = false,
   });
 
   @override
@@ -123,6 +130,68 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         ?.remainingTxCodeAttempts;
     final codeInvalid = remainingAttempts != null;
 
+    final form = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Semantics(
+            header: true,
+            child: Text(
+              _getTextReplacements(headerTemplate, context),
+              style: palette
+                  .display(22, weight: FontWeight.w700)
+                  .copyWith(height: 30 / 22, color: palette.heading),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          child: Text(
+            _getTextReplacements(bodyTemplate, context),
+            style: palette.body(16).copyWith(height: 24 / 16),
+          ),
+        ),
+        _buildInput(context, length, codeInvalid),
+        if (codeInvalid)
+          FieldError(
+            FlutterI18n.plural(
+              context,
+              "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
+              remainingAttempts,
+            ),
+            align: length != null ? TextAlign.center : TextAlign.start,
+          ),
+      ],
+    );
+
+    if (widget.inSheet) {
+      final continueLabel = FlutterI18n.translate(
+        context,
+        "issuance.pre-authorized_code.tx_code_screen.continue",
+      );
+      return GlassSheetPage(
+        key: const Key("sheet_openid4vci_tx_code"),
+        title: FlutterI18n.translate(
+          context,
+          "issuance.pre-authorized_code.tx_code_screen.title",
+        ),
+        onBack: widget.onDismiss,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        // A code of a known length is sent once it is complete.
+        bottom: length != null
+            ? null
+            : SheetActionRow(
+                primaryKey: const Key("sheet_openid4vci_tx_code_continue"),
+                primaryLabel: continueLabel,
+                onPrimary: _textController.text.isNotEmpty
+                    ? () => widget.onSubmit(_textController.text)
+                    : null,
+              ),
+        child: Padding(padding: const EdgeInsets.only(top: 16), child: form),
+      );
+    }
+
     return SessionScaffold(
       appBarTitle: "issuance.pre-authorized_code.tx_code_screen.title",
       onDismiss: widget.onDismiss,
@@ -130,40 +199,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    _getTextReplacements(headerTemplate, context),
-                    style: palette
-                        .display(22, weight: FontWeight.w700)
-                        .copyWith(height: 30 / 22, color: palette.heading),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                child: Text(
-                  _getTextReplacements(bodyTemplate, context),
-                  style: palette.body(16).copyWith(height: 24 / 16),
-                ),
-              ),
-              _buildInput(context, length, codeInvalid),
-              if (codeInvalid)
-                FieldError(
-                  FlutterI18n.plural(
-                    context,
-                    "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
-                    remainingAttempts,
-                  ),
-                  align: length != null ? TextAlign.center : TextAlign.start,
-                ),
-            ],
-          ),
+          child: form,
         ),
       ),
     );

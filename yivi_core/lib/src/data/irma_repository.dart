@@ -35,6 +35,7 @@ import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
+import "../models/session_preview.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/passport_issuer_provider.dart";
@@ -194,11 +195,15 @@ class IrmaRepository {
       _issueWizardActiveSubject.close(),
       _sessionRepository.close(),
       _fatalErrorSubject.close(),
+      for (final preview in _previews.values) preview.close(),
     ]);
   }
 
   Future<void> _eventListener(Event event) async {
-    if (event is ErrorEvent) {
+    if (event is SessionPreviewEvent) {
+      final preview = _previews[event.key];
+      if (preview != null && !preview.isClosed) preview.add(event.preview);
+    } else if (event is ErrorEvent) {
       if (event.fatal) {
         _fatalErrorSubject.add(event);
         _lockedSubject.add(false);
@@ -631,6 +636,26 @@ class IrmaRepository {
   /// [dismissAllActiveSessions] this also covers a session that has not yet
   /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
   /// that [hasInFlightSession] hides biometric for.
+  /// Previews asked of irmago, by pointer URL.
+  final _previews = <String, BehaviorSubject<SessionPreview>>{};
+
+  /// What [pointer] would start and who it is from, worked out by irmago
+  /// without contacting a server: first what the pointer itself says, then
+  /// irmago's answer. Asked once per pointer URL.
+  Stream<SessionPreview> previewSession(SessionPointer pointer) {
+    final existing = _previews[pointer.u];
+    if (existing != null) return existing.stream;
+    final preview = BehaviorSubject.seeded(SessionPreview.ofPointer(pointer));
+    _previews[pointer.u] = preview;
+    if (!_closed) {
+      _bridge.dispatch(PreviewSessionEvent(key: pointer.u, request: pointer));
+    }
+    return preview.stream;
+  }
+
+  /// The ids of the sessions started and not yet ended.
+  Set<int> get inFlightSessionIds => _sessionRepository.inFlightSessionIds;
+
   void dismissAllInFlightSessions() {
     for (final sessionId in _sessionRepository.inFlightSessionIds) {
       bridgedDispatch(

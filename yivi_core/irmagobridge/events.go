@@ -2,6 +2,7 @@ package irmagobridge
 
 import (
 	"encoding/json"
+	"github.com/privacybydesign/irmago/client"
 	"time"
 
 	"github.com/privacybydesign/irmago/client/clientsettings"
@@ -32,6 +33,13 @@ type changePinEvent struct {
 type newSessionEvent struct {
 	SessionId int             `json:"session_id"`
 	Request   json.RawMessage `json:"request"`
+}
+
+// previewSessionEvent asks what a session pointer would start, without
+// starting it (the lock screen shows it while the session waits for the PIN).
+type previewSessionEvent struct {
+	Key     string          `json:"key"`
+	Request json.RawMessage `json:"request"`
 }
 
 type sessionUserInteractionEvent struct {
@@ -87,6 +95,12 @@ type errorEvent struct {
 	Exception string `json:"exception"`
 	Stack     string `json:"stack"`
 	Fatal     bool   `json:"fatal"`
+}
+
+// sessionPreviewEvent answers a previewSessionEvent with the same key.
+type sessionPreviewEvent struct {
+	Key     string                 `json:"key"`
+	Preview *client.SessionPreview `json:"preview"`
 }
 
 type irmaConfigurationEvent struct {

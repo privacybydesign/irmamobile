@@ -14,6 +14,7 @@ import "../screens/pin/pin_screen.dart";
 import "../screens/pin/providers/biometric_provider.dart";
 import "../screens/pin/widgets/biometric_opt_in_dialog.dart";
 import "../screens/reset_pin/reset_pin_screen.dart";
+import "../screens/scanner/lock_scanner_sheet.dart";
 import "../screens/terms_changed/terms_changed_dialog.dart";
 import "../widgets/irma_app_bar.dart";
 import "app_toast.dart";
@@ -67,6 +68,7 @@ class _LockGateState extends ConsumerState<LockGate> {
   void initState() {
     super.initState();
     widget.router.routerDelegate.addListener(_scheduleRebuild);
+    lockScannerSheetHolds.addListener(_scheduleRebuild);
   }
 
   void _scheduleRebuild() {
@@ -91,6 +93,7 @@ class _LockGateState extends ConsumerState<LockGate> {
   @override
   void dispose() {
     widget.router.routerDelegate.removeListener(_scheduleRebuild);
+    lockScannerSheetHolds.removeListener(_scheduleRebuild);
     super.dispose();
   }
 
@@ -121,13 +124,18 @@ class _LockGateState extends ConsumerState<LockGate> {
     final isUnlockedRoute = _unlockedPathPrefixes.any(
       (prefix) => path == prefix || path.startsWith("$prefix/"),
     );
-    final showOverlay = locked && !isUnlockedRoute;
+    // The scanner sheet on the lock screen carries an issuance past the
+    // unlock: the overlay (its home) stays until the sheet closes. The PIN
+    // screen under the sheet is gone by then (it hides once authenticated),
+    // so the app shows behind the sheet.
+    final holding = lockScannerSheetHolds.value && _overlayShown;
+    final showOverlay = (locked || holding) && !isUnlockedRoute;
 
     // Offer biometric only on a genuine unlock: the overlay was showing and we
     // are now unlocked on a normal in-app route. The !isUnlockedRoute guard
     // skips the transient startup→/enrollment route flicker, which would
     // otherwise pop the dialog over the enrollment screen.
-    if (_overlayShown && !locked && !isUnlockedRoute) {
+    if (_overlayShown && !showOverlay && !locked && !isUnlockedRoute) {
       _maybeOfferBiometricUnlock();
     }
     _overlayShown = showOverlay;
@@ -188,7 +196,8 @@ class _LockGateState extends ConsumerState<LockGate> {
                           // on top of PinScreen, and the scanner queues
                           // the pointer for `PendingPointerListener` to
                           // pick up after PIN unlock.
-                          onTap: () => openQrCodeScanner(innerCtx),
+                          onTap: () =>
+                              openQrCodeScanner(innerCtx, lockScreen: true),
                         ),
                       ),
                     ),

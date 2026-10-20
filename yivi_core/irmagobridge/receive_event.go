@@ -53,6 +53,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.newSession(event)
 		}
+	case "PreviewSessionEvent":
+		event := &previewSessionEvent{}
+		if err = json.Unmarshal(payloadBytes, event); err == nil {
+			err = bridgeEventHandler.previewSession(event)
+		}
 	case "SessionUserInteractionEvent":
 		event := &sessionUserInteractionEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err != nil {

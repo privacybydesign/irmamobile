@@ -73,7 +73,9 @@ Future<void> unlock(WidgetTester tester) async {
 Future<void> enterPin(WidgetTester tester, String pin) async {
   final splitPin = pin.split("");
   for (final digit in splitPin) {
-    final key = find.byKey(Key("number_pad_key_${digit.toString()}"));
+    // The last: with the lock screen's scanner sheet open, its keypad is
+    // over the lock screen's own.
+    final key = find.byKey(Key("number_pad_key_${digit.toString()}")).last;
     // The keypad can be a frame behind the caller: pumpYiviApp returns as soon
     // as App exists, and the screens below it build after that.
     await tester.waitFor(key);

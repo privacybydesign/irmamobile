@@ -14,17 +14,18 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../providers/startup_url_resolved_provider.dart";
+import "../../providers/waiting_request_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_close_button.dart";
-import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/pin_common/format_blocked_for.dart";
 import "../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
+import "widgets/waiting_request_card.dart";
 import "yivi_pin_screen.dart";
 
 /// Builds the biometric button glyph for [type], tinted to the keypad colour:
@@ -197,17 +198,10 @@ class _PinScreenState extends ConsumerState<PinScreen>
   // requestPermission). Both revert the screen to normal unlock — biometric
   // reappears once no session is in flight.
   Future<void> _confirmCancelPending(BuildContext context) async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (_) => const IrmaConfirmationDialog(
-            titleTranslationKey: "pin.cancel_session_dialog.title",
-            contentTranslationKey: "pin.cancel_session_dialog.explanation",
-            confirmTranslationKey: "pin.cancel_session_dialog.confirm",
-            cancelTranslationKey: "pin.cancel_session_dialog.decline",
-          ),
-        ) ??
-        false;
+    final confirmed = await confirmStopWaitingRequest(
+      context,
+      ref.read(waitingRequestProvider).value,
+    );
     if (confirmed && mounted) {
       final repo = ref.read(irmaRepositoryProvider);
       repo.setPendingPointer(null);
@@ -295,12 +289,20 @@ class _PinScreenState extends ConsumerState<PinScreen>
     }
 
     var subtitle = FlutterI18n.translate(context, "pin.subtitle");
+    String? blockedText;
     if (blockedFor.inSeconds > 0) {
-      final blockedText = FlutterI18n.translate(
-        context,
-        "pin_common.blocked_for",
-      );
-      subtitle = "$blockedText ${formatBlockedFor(context, blockedFor)}";
+      blockedText =
+          "${FlutterI18n.translate(context, "pin_common.blocked_for")} "
+          "${formatBlockedFor(context, blockedFor)}";
+      subtitle = blockedText;
+    }
+    // A request waits behind the lock: who it is from and what they want
+    // take the logo's place, and the heading says what the PIN is for.
+    final waiting = hasSession ? ref.watch(waitingRequestProvider).value : null;
+    String? detail;
+    if (waiting != null) {
+      subtitle = FlutterI18n.translate(context, waitingHeadKey(waiting));
+      detail = blockedText ?? waitingDetail(context, waiting);
     }
 
     void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
@@ -339,6 +341,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
               key: ValueKey(_resetNonce),
               child: YiviPinScreen(
                 instruction: subtitle,
+                header: waiting == null
+                    ? null
+                    : WaitingRequestCard(request: waiting, compact: true),
+                detail: detail,
+                detailIsError: blockedText != null && waiting != null,
                 maxPinSize: maxPinSize,
                 submitLabel: "pin.unlock",
                 onSubmit: enabled ? submit : (_) {},

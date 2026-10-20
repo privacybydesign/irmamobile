@@ -108,6 +108,15 @@ class YiviPinScreen extends StatefulWidget {
   final String? instructionKey;
   final String? instruction;
 
+  /// In the place of the logo: what the PIN is for (the request waiting
+  /// behind the lock screen).
+  final Widget? header;
+
+  /// A short line under the instruction: what comes next, or why the PIN
+  /// can't be entered. In [detailIsError]'s colour when it is an error.
+  final String? detail;
+  final bool detailIsError;
+
   /// Translation key for the submit button (only shown for long PIN). Defaults
   /// to "Next"; the unlock flow overrides it since "Next" makes no sense there.
   final String submitLabel;
@@ -121,6 +130,9 @@ class YiviPinScreen extends StatefulWidget {
     this.scaffoldKey,
     this.instructionKey,
     this.instruction,
+    this.header,
+    this.detail,
+    this.detailIsError = false,
     required this.maxPinSize,
     required this.onSubmit,
     this.onForgotPin,
@@ -303,17 +315,28 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     BuildContext context, {
     required bool showSecurePinText,
   }) {
+    // A header (the request waiting behind the lock) goes above the block,
+    // in the room left over, so the keypad keeps the size it has on the
+    // normal lock screen. Only on a short screen, where that room is too
+    // small, does it join the block that scales down as a whole.
+    final header = widget.header;
+    final headerApart =
+        header != null && MediaQuery.sizeOf(context).height >= 700;
     final column = SizedBox(
       width: 358,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16),
-          if (widget.showMark) ...[
+          if (!headerApart) const SizedBox(height: 16),
+          if (header != null && !headerApart) ...[
+            header,
+            const SizedBox(height: 24),
+          ] else if (header == null && widget.showMark) ...[
             _buildHeaderMark(context),
             const SizedBox(height: 24),
           ],
           _buildInstructionText(context),
+          ?_buildDetail(context),
           const SizedBox(height: 24),
           _buildDecoratedPinDots(context),
           // 48 to the keypad, as in the design; screens that check the PIN
@@ -339,16 +362,35 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       ),
       child: Column(
         children: [
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
+          if (headerApart) ...[
+            Expanded(
+              child: Align(
                 alignment: Alignment.bottomCenter,
-                child: column,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: 358,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: header,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+            column,
+          ] else
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomCenter,
+                  child: column,
+                ),
+              ),
+            ),
           const SizedBox(height: _keypadToLink),
           SizedBox(width: 358, child: _buildActionLinkSlot()),
           SizedBox(width: 358, child: _buildNextButton()),
@@ -395,11 +437,14 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               mainAxisSize: MainAxisSize.min,
               spacing: theme.defaultSpacing.scaleToDesignSize(context),
               children: [
-                if (!hideLogo) ...[
+                if (widget.header case final header?)
+                  header
+                else if (!hideLogo) ...[
                   _buildScaledLogo(context),
                   SizedBox(height: theme.defaultSpacing),
                 ],
                 _buildInstructionText(context),
+                ?_buildDetail(context),
                 _buildDecoratedPinDots(context),
                 _buildActionLinkSlot(),
                 _buildSecurePinWarningSlot(showSecurePinText),
@@ -617,7 +662,41 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           widget.instruction ??
               FlutterI18n.translate(context, widget.instructionKey!),
           textAlign: TextAlign.center,
-          style: YiviPalette.of(context).display(22).copyWith(height: 30 / 22),
+          // Under a header a size smaller, to stay on one line and leave the
+          // header its room.
+          style: widget.header == null
+              ? YiviPalette.of(context).display(22).copyWith(height: 30 / 22)
+              : YiviPalette.of(context).display(19).copyWith(height: 26 / 19),
+        ),
+      ),
+    );
+  }
+
+  Widget? _buildDetail(BuildContext context) {
+    final detail = widget.detail;
+    if (detail == null || detail.isEmpty) return null;
+    final palette = YiviPalette.of(context);
+    return Padding(
+      key: const Key("pin_screen_detail"),
+      padding: const EdgeInsets.only(top: 4),
+      child: Semantics(
+        liveRegion: true,
+        child: Text(
+          detail,
+          textAlign: TextAlign.center,
+          style: palette
+              .body(
+                14,
+                weight: widget.detailIsError
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+              )
+              .copyWith(
+                height: 20 / 14,
+                color: widget.detailIsError
+                    ? palette.errorText
+                    : palette.secondaryText,
+              ),
         ),
       ),
     );

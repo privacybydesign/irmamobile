@@ -259,6 +259,10 @@ class _CardList extends ConsumerWidget {
       builder: (context, constraints) {
         final contentWidth = min(constraints.maxWidth - 32, 640.0);
         final side = (constraints.maxWidth - contentWidth) / 2;
+        // The stack sits a little further in than the rest (1.5 times the
+        // side), so its cards are a little smaller.
+        final stackWidth = min(constraints.maxWidth - 48, 640.0);
+        final stackSide = (constraints.maxWidth - stackWidth) / 2;
 
         Widget box(Widget child) => SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: side),
@@ -299,13 +303,15 @@ class _CardList extends ConsumerWidget {
               box(_NoResults(palette: palette))
             else
               SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: side),
+                padding: EdgeInsets.symmetric(
+                  horizontal: view == WalletView.stack ? stackSide : side,
+                ),
                 sliver: switch (view) {
                   WalletView.stack => SliverToBoxAdapter(
                     child: _StackView(
                       cards: visible,
                       hintTexts: hintTexts,
-                      width: contentWidth,
+                      width: stackWidth,
                     ),
                   ),
                   WalletView.list => _ListView(

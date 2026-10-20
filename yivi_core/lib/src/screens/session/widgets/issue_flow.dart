@@ -30,6 +30,8 @@ import "../models/disclosure_view_model.dart";
 import "issuance_permission.dart";
 import "issuance_success_screen.dart";
 import "issue_sheet_progress.dart";
+import "openid4vci_authcode_pending_screen.dart";
+import "openid4vci_preauth_txcode_screen.dart";
 import "session_pin_entry_screen.dart";
 
 /// Sends the user to the issuer of a credential type: its website, or the
@@ -82,6 +84,15 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The text under "Success", for the added [cards].
   String issueSuccessText(List<schemaless.Credential> cards);
 
+  /// Where a session the sheet can't show is pushed full screen: the
+  /// sheet's own context, unless the sheet lives where the router isn't
+  /// (the lock screen's scanner sheet).
+  BuildContext get issueRouteContext => context;
+
+  /// A standalone issuance ([issueTakeSession]) ended without being added:
+  /// declined, dismissed, or an error was closed.
+  void issueSessionEnded() {}
+
   // ---------- the flow's state ----------
 
   /// The type the user is adding; null while on the sheet's root page.
@@ -99,6 +110,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     issueAdding = d;
     _direct = d != null;
   }
+
+  /// The sheet takes the next session that starts, without a type picked
+  /// first ([issueTakeSession]): only its issuance pages show.
+  bool _standalone = false;
+
+  /// OpenID4VCI sessions whose pre-authorized code was granted already.
+  final _vciGranted = <int>{};
 
   /// The issuer's website was opened for [issueAdding].
   bool _opened = false;
@@ -178,6 +196,23 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     name,
     language: FlutterI18n.currentLocale(context)?.languageCode,
   );
+
+  /// Takes the next session that starts into this sheet (an issuance
+  /// scanned on the lock screen): its offer, the PIN if irmago asks and
+  /// "Success" show here, without a type picked first.
+  void issueTakeSession() {
+    _standalone = true;
+    _hosts.register(this);
+  }
+
+  /// An issuance is in this sheet: started, or finished on "Success".
+  bool get issueHasSession => _nestedId != null || issueAdded != null;
+
+  /// No longer takes the next session ([issueTakeSession]).
+  void issueReleaseSession() {
+    _hosts.unregister(this);
+    if (_nestedId == null) _standalone = false;
+  }
 
   /// Opens the details of [d] (step 1).
   void issueOpen(CredentialDescriptor d) => setState(() {
@@ -328,6 +363,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Back in the sheet: one step back, or from the details to the root page.
   void issueBack() {
     final nested = _nestedId;
+    if (_standalone && issueAdding == null && nested != null) {
+      // Nothing to go back to: declines the issuance, which ends it
+      // (issueSessionEnded once irmago says it is dismissed).
+      _dismissNested(nested);
+      return;
+    }
     if (_pin && nested != null) {
       _dismissNested(nested);
     } else if (nested != null && issueAdded == null) {
@@ -375,6 +416,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       return;
     }
     if (status == SessionStatus.dismissed) {
+      if (_standalone && issueAdding == null) {
+        _nestedId = null;
+        _pin = false;
+        issueSessionEnded();
+        return;
+      }
       // Cancelled on the permission or the PIN: back on the details, to try
       // again.
       setState(() {
@@ -388,6 +435,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     // asks for it.
     final pin = status == SessionStatus.requestPin;
     if (pin != _pin) setState(() => _pin = pin);
+    // OpenID4VCI without a transaction code: granted at once, as on the
+    // session screen; the next state follows.
+    if (status == SessionStatus.requestPreAuthorizedCode &&
+        next.transactionCodeParameters == null &&
+        _vciGranted.add(next.id)) {
+      _grantPreAuthorizedCode(next.id, null);
+    }
     if (status == previous?.status || _overSheet || pin) return;
     if (status == SessionStatus.error) {
       _showOverSheet(
@@ -396,7 +450,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           onTapClose: () => Navigator.of(context).pop(),
         ),
         then: () {
-          if (mounted) setState(() => _nestedId = null);
+          if (!mounted) return;
+          setState(() => _nestedId = null);
+          if (_standalone && issueAdding == null) issueSessionEnded();
         },
       );
     } else if (!_handledInSheet(next)) {
@@ -404,20 +460,42 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // of an issuance) takes the session screen, as without the sheet.
       final id = next.id;
       setState(() => _nestedId = null);
-      context.pushSessionScreen(
+      issueRouteContext.pushSessionScreen(
         SessionRouteParams(
           sessionId: id,
           hasUnderlyingSession: issueRequest != null,
         ),
       );
+      if (_standalone && issueAdding == null) issueSessionEnded();
     }
   }
 
-  bool _handledInSheet(SessionState s) =>
+  bool _handledInSheet(SessionState s) => _openIdStep(s) || _isOffer(s);
+
+  /// "Do you want to add this data?": an issuance without anything to
+  /// disclose first.
+  bool _isOffer(SessionState s) =>
       s.status == SessionStatus.requestPermission &&
       s.type == SessionType.issuance &&
       s.offeredCredentials != null &&
       (s.disclosurePlan?.disclosureChoicesOverview?.isEmpty ?? true);
+
+  /// OpenID4VCI's own steps before the offer: a transaction code, or the
+  /// issuer's website for the authorization code. Shown in the sheet too.
+  bool _openIdStep(SessionState s) =>
+      s.status == SessionStatus.requestPreAuthorizedCode ||
+      (s.status == SessionStatus.requestAuthorizationCode &&
+          s.authorizationRequestUrl != null &&
+          s.offeredCredentialTypes != null);
+
+  void _grantPreAuthorizedCode(int sessionId, String? transactionCode) =>
+      _repo.bridgedDispatch(
+        SessionUserInteractionEvent.preAuthorizedCodePermission(
+          sessionId: sessionId,
+          transactionCode: transactionCode,
+          proceed: true,
+        ),
+      );
 
   void _showOverSheet(WidgetBuilder builder, {VoidCallback? then}) {
     _overSheet = true;
@@ -444,7 +522,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// [GlassSheetPages]; none while on the root page.
   List<Widget> issueFlowPages() {
     final adding = issueAdding;
-    if (adding == null) return const [];
+    if (adding == null) return _standalonePages();
     final nested = _nestedId;
     final subject = issueSubject(adding);
     final total = _stepsOf(adding);
@@ -488,6 +566,39 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             sessionId: nested,
             subject: subject,
             total: total,
+            onCancel: () => _dismissNested(nested),
+          ),
+        ),
+    ];
+  }
+
+  /// A session taken without a type picked first ([issueTakeSession]): its
+  /// issuance and, while irmago asks, the PIN. No progress: it has no steps
+  /// before it.
+  List<Widget> _standalonePages() {
+    final nested = _nestedId;
+    if (!_standalone || (nested == null && issueAdded == null)) {
+      return const [];
+    }
+    final state = nested == null
+        ? null
+        : ref.watch(sessionStateProvider(nested)).value;
+    final requestor = state?.requestor;
+    final subject = requestor == null
+        ? null
+        : IssueSheetSubject.request(requestor);
+    return [
+      KeyedSubtree(
+        key: ValueKey(("issue", nested)),
+        child: _buildIssuance(nested, subject, 0),
+      ),
+      if (nested != null && _pin)
+        KeyedSubtree(
+          key: ValueKey(("pin", nested)),
+          child: _NestedPin(
+            sessionId: nested,
+            subject: subject,
+            total: 0,
             onCancel: () => _dismissNested(nested),
           ),
         ),
@@ -580,19 +691,20 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   /// Step 3: the issuance that came back, then "Success".
-  Widget _buildIssuance(int? nestedId, IssueSheetSubject subject, int total) {
+  Widget _buildIssuance(int? nestedId, IssueSheetSubject? subject, int total) {
     final added = issueAdded;
     if (added != null) return _buildSuccess(added, subject, total);
 
     final state = nestedId == null
         ? null
         : ref.watch(sessionStateProvider(nestedId)).value;
+    if (state != null && nestedId != null && _openIdStep(state)) {
+      return _buildOpenIdStep(state, nestedId);
+    }
     final awaiting =
         nestedId != null &&
         ref.watch(sessionAwaitingInteractionProvider(nestedId));
-    final offer = state != null && _handledInSheet(state) && !awaiting
-        ? state
-        : null;
+    final offer = state != null && _isOffer(state) && !awaiting ? state : null;
     final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
 
     return GlassSheetPage(
@@ -609,7 +721,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             ? null
             : () => _grant(nestedId),
       ),
-      pinned: IssueSheetProgress(subject: subject, step: total, total: total),
+      pinned: _progress(subject, total),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -675,9 +787,59 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           ?.contains(credentialId) ??
       false;
 
+  /// The progress over a step; none for an issuance without steps before
+  /// it ([total] 0).
+  Widget? _progress(
+    IssueSheetSubject? subject,
+    int total, {
+    bool done = false,
+  }) => subject == null || total == 0
+      ? null
+      : IssueSheetProgress(
+          subject: subject,
+          step: total,
+          total: total,
+          done: done,
+        );
+
+  /// OpenID4VCI's transaction code or authorization-code step, as a page.
+  /// Back declines the issuance.
+  Widget _buildOpenIdStep(SessionState state, int sessionId) {
+    if (state.status == SessionStatus.requestPreAuthorizedCode) {
+      final parameters = state.transactionCodeParameters;
+      if (parameters == null) {
+        // Granted at once (see _onNested); the next state follows.
+        return GlassSheetPage(
+          title: _t("issuance.title"),
+          onBack: () => _dismissNested(sessionId),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 80),
+            child: Center(child: LoadingIndicator()),
+          ),
+        );
+      }
+      return OpenID4VCIPreAuthTxCodeScreen(
+        inSheet: true,
+        sessionId: sessionId,
+        issuedCredentials: state.offeredCredentialTypes ?? const [],
+        transactionCodeParameters: parameters,
+        onSubmit: (code) => _grantPreAuthorizedCode(sessionId, code),
+        onDismiss: () => _dismissNested(sessionId),
+      );
+    }
+    return OpenID4VCIAuthCodePendingScreen(
+      inSheet: true,
+      requestor: state.requestor,
+      offeredCredentialTypes: state.offeredCredentialTypes!,
+      onOpenBrowser: () =>
+          _repo.authenticateOpenID4VCI(state.authorizationRequestUrl!),
+      onDismiss: () => _dismissNested(sessionId),
+    );
+  }
+
   Widget _buildSuccess(
     List<schemaless.Credential> cards,
-    IssueSheetSubject subject,
+    IssueSheetSubject? subject,
     int total,
   ) {
     final palette = YiviPalette.of(context);
@@ -686,12 +848,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       title: _t("issuance.title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: issueSuccessBar(cards),
-      pinned: IssueSheetProgress(
-        subject: subject,
-        step: total,
-        total: total,
-        done: true,
-      ),
+      pinned: _progress(subject, total, done: true),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -784,9 +941,10 @@ class _HostNote extends StatelessWidget {
 /// pad without the logo, under the sheet's bar and the progress.
 class _NestedPin extends ConsumerStatefulWidget {
   final int sessionId;
-  final IssueSheetSubject subject;
+  final IssueSheetSubject? subject;
 
   /// The flow's number of steps; the PIN is part of the last (adding it).
+  /// 0: an issuance without steps before it, and no progress.
   final int total;
   final VoidCallback onCancel;
 
@@ -822,11 +980,13 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
     return GlassSheetPage(
       title: FlutterI18n.translate(context, "issuance.title"),
       onBack: widget.onCancel,
-      pinned: IssueSheetProgress(
-        subject: widget.subject,
-        step: widget.total,
-        total: widget.total,
-      ),
+      pinned: widget.subject == null || widget.total == 0
+          ? null
+          : IssueSheetProgress(
+              subject: widget.subject!,
+              step: widget.total,
+              total: widget.total,
+            ),
       // The pad fills the page and scales itself to it; it does not scroll.
       // It keeps clear of the home indicator itself (YiviPinScreen), so the
       // link under the keypad sits as low as on the full-screen PIN.

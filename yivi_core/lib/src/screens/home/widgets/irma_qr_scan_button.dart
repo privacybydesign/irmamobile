@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../scanner/lock_scanner_sheet.dart";
 import "../../scanner/scanner_screen.dart";
 import "../../scanner/util/handle_camera_permission.dart";
 
@@ -11,13 +12,30 @@ import "../../scanner/util/handle_camera_permission.dart";
 /// and queues the pointer via the repo, so the same call site works
 /// whether the app is locked (overlay's local Navigator owns the
 /// sheet) or unlocked (GoRouter's main Navigator owns it).
-Future<void> openQrCodeScanner(BuildContext context) async {
+///
+/// From the lock screen ([lockScreen]) the scanner is the first page of a
+/// sheet that goes on after the scan: the PIN, then an issuance in the same
+/// sheet ([LockScannerSheet]). It is a sheet on tablets too (there the
+/// sheet is a dialog).
+Future<void> openQrCodeScanner(
+  BuildContext context, {
+  bool lockScreen = false,
+}) async {
   // during tests we'll just pretend like we have permission, because it won't open the camera
   final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
   final hasCameraPermission =
       isIntegrationTest || await handleCameraPermission(context);
 
   if (!hasCameraPermission || !context.mounted) return;
+
+  if (lockScreen) {
+    await showGlassSheet<void>(
+      context: context,
+      heightFraction: 0.9,
+      builder: (_) => const LockScannerSheet(),
+    );
+    return;
+  }
 
   // On tablets the scanner is a centred dialog instead of a sheet.
   if (isExpandedLayout(context)) {
