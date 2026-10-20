@@ -156,6 +156,298 @@ flutter:
     - family: IrmaIcons
       fonts:
         - asset: fonts/irma-icons/IrmaIcons.ttf
+    # The typefaces of the built-in card templates (builtin_card_svgs.dart),
+    # subset to Latin. Licences: assets/card_font_licenses.txt.
+    - family: Archivo
+      fonts:
+        - asset: fonts/cards/archivo/Archivo-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/archivo/Archivo-Bold.ttf
+          weight: 700
+    - family: Barlow Semi Condensed
+      fonts:
+        - asset: fonts/cards/barlow-semi-condensed/BarlowSemiCondensed-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/barlow-semi-condensed/BarlowSemiCondensed-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/barlow-semi-condensed/BarlowSemiCondensed-Bold.ttf
+          weight: 700
+    - family: Bricolage Grotesque
+      fonts:
+        - asset: fonts/cards/bricolage-grotesque/BricolageGrotesque-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/bricolage-grotesque/BricolageGrotesque-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/bricolage-grotesque/BricolageGrotesque-ExtraBold.ttf
+          weight: 800
+    - family: Chivo
+      fonts:
+        - asset: fonts/cards/chivo/Chivo-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/chivo/Chivo-Bold.ttf
+          weight: 700
+    - family: Cinzel
+      fonts:
+        - asset: fonts/cards/cinzel/Cinzel-Bold.ttf
+          weight: 700
+    - family: Cormorant Garamond
+      fonts:
+        - asset: fonts/cards/cormorant-garamond/CormorantGaramond-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: fonts/cards/cormorant-garamond/CormorantGaramond-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/cormorant-garamond/CormorantGaramond-BoldItalic.ttf
+          weight: 700
+          style: italic
+    - family: Courier Prime
+      fonts:
+        - asset: fonts/cards/courier-prime/CourierPrime-Regular.ttf
+          weight: 400
+    - family: DM Mono
+      fonts:
+        - asset: fonts/cards/dm-mono/DMMono-Medium.ttf
+          weight: 500
+    - family: DM Sans
+      fonts:
+        - asset: fonts/cards/dm-sans/DMSans-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/dm-sans/DMSans-Bold.ttf
+          weight: 700
+    - family: EB Garamond
+      fonts:
+        - asset: fonts/cards/eb-garamond/EBGaramond-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/eb-garamond/EBGaramond-SemiBold.ttf
+          weight: 600
+    - family: Figtree
+      fonts:
+        - asset: fonts/cards/figtree/Figtree-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/figtree/Figtree-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/figtree/Figtree-ExtraBold.ttf
+          weight: 800
+    - family: Fraunces
+      fonts:
+        - asset: fonts/cards/fraunces/Fraunces-RegularItalic.ttf
+          weight: 400
+          style: italic
+        - asset: fonts/cards/fraunces/Fraunces-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/fraunces/Fraunces-Bold.ttf
+          weight: 700
+    - family: Fredoka
+      fonts:
+        - asset: fonts/cards/fredoka/Fredoka-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/fredoka/Fredoka-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/fredoka/Fredoka-Bold.ttf
+          weight: 700
+    - family: Hanken Grotesk
+      fonts:
+        - asset: fonts/cards/hanken-grotesk/HankenGrotesk-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/hanken-grotesk/HankenGrotesk-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/hanken-grotesk/HankenGrotesk-ExtraBold.ttf
+          weight: 800
+    - family: IBM Plex Mono
+      fonts:
+        - asset: fonts/cards/ibm-plex-mono/IBMPlexMono-Medium.ttf
+          weight: 500
+    - family: IBM Plex Sans Condensed
+      fonts:
+        - asset: fonts/cards/ibm-plex-sans-condensed/IBMPlexSansCondensed-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/ibm-plex-sans-condensed/IBMPlexSansCondensed-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/ibm-plex-sans-condensed/IBMPlexSansCondensed-Bold.ttf
+          weight: 700
+    - family: Instrument Sans
+      fonts:
+        - asset: fonts/cards/instrument-sans/InstrumentSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/instrument-sans/InstrumentSans-Bold.ttf
+          weight: 700
+    - family: Karla
+      fonts:
+        - asset: fonts/cards/karla/Karla-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/karla/Karla-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/karla/Karla-ExtraBold.ttf
+          weight: 800
+    - family: Lexend
+      fonts:
+        - asset: fonts/cards/lexend/Lexend-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/lexend/Lexend-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/lexend/Lexend-Bold.ttf
+          weight: 700
+    - family: Libre Baskerville
+      fonts:
+        - asset: fonts/cards/libre-baskerville/LibreBaskerville-RegularItalic.ttf
+          weight: 400
+          style: italic
+        - asset: fonts/cards/libre-baskerville/LibreBaskerville-Bold.ttf
+          weight: 700
+    - family: Manrope
+      fonts:
+        - asset: fonts/cards/manrope/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/manrope/Manrope-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/manrope/Manrope-ExtraBold.ttf
+          weight: 800
+    - family: Mulish
+      fonts:
+        - asset: fonts/cards/mulish/Mulish-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/mulish/Mulish-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/mulish/Mulish-ExtraBold.ttf
+          weight: 800
+    - family: Noto Sans
+      fonts:
+        - asset: fonts/cards/noto-sans/NotoSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/noto-sans/NotoSans-Bold.ttf
+          weight: 700
+    - family: Nunito
+      fonts:
+        - asset: fonts/cards/nunito/Nunito-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/nunito/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/nunito/Nunito-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/nunito/Nunito-ExtraBold.ttf
+          weight: 800
+    - family: Oswald
+      fonts:
+        - asset: fonts/cards/oswald/Oswald-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/oswald/Oswald-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/oswald/Oswald-Bold.ttf
+          weight: 700
+    - family: Outfit
+      fonts:
+        - asset: fonts/cards/outfit/Outfit-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/outfit/Outfit-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/outfit/Outfit-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/outfit/Outfit-ExtraBold.ttf
+          weight: 800
+    - family: Overpass Mono
+      fonts:
+        - asset: fonts/cards/overpass-mono/OverpassMono-Medium.ttf
+          weight: 500
+    - family: Plus Jakarta Sans
+      fonts:
+        - asset: fonts/cards/plus-jakarta-sans/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/plus-jakarta-sans/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/plus-jakarta-sans/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+    - family: Poppins
+      fonts:
+        - asset: fonts/cards/poppins/Poppins-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/poppins/Poppins-Bold.ttf
+          weight: 700
+    - family: Public Sans
+      fonts:
+        - asset: fonts/cards/public-sans/PublicSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/public-sans/PublicSans-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/public-sans/PublicSans-ExtraBold.ttf
+          weight: 800
+    - family: Quicksand
+      fonts:
+        - asset: fonts/cards/quicksand/Quicksand-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/quicksand/Quicksand-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/quicksand/Quicksand-Bold.ttf
+          weight: 700
+    - family: Red Hat Display
+      fonts:
+        - asset: fonts/cards/red-hat-display/RedHatDisplay-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/red-hat-display/RedHatDisplay-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/red-hat-display/RedHatDisplay-ExtraBold.ttf
+          weight: 800
+    - family: Rubik
+      fonts:
+        - asset: fonts/cards/rubik/Rubik-Regular.ttf
+          weight: 400
+        - asset: fonts/cards/rubik/Rubik-SemiBold.ttf
+          weight: 600
+    - family: Share Tech Mono
+      fonts:
+        - asset: fonts/cards/share-tech-mono/ShareTechMono-Regular.ttf
+          weight: 400
+    - family: Source Code Pro
+      fonts:
+        - asset: fonts/cards/source-code-pro/SourceCodePro-Bold.ttf
+          weight: 700
+    - family: Source Sans 3
+      fonts:
+        - asset: fonts/cards/source-sans-3/SourceSans3-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/source-sans-3/SourceSans3-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/source-sans-3/SourceSans3-ExtraBold.ttf
+          weight: 800
+    - family: Source Serif 4
+      fonts:
+        - asset: fonts/cards/source-serif-4/SourceSerif4-Bold.ttf
+          weight: 700
+    - family: Space Grotesk
+      fonts:
+        - asset: fonts/cards/space-grotesk/SpaceGrotesk-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/space-grotesk/SpaceGrotesk-Bold.ttf
+          weight: 700
+    - family: Space Mono
+      fonts:
+        - asset: fonts/cards/space-mono/SpaceMono-Bold.ttf
+          weight: 700
+    - family: Titillium Web
+      fonts:
+        - asset: fonts/cards/titillium-web/TitilliumWeb-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/titillium-web/TitilliumWeb-Bold.ttf
+          weight: 700
+    - family: Urbanist
+      fonts:
+        - asset: fonts/cards/urbanist/Urbanist-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/urbanist/Urbanist-Bold.ttf
+          weight: 700
+        - asset: fonts/cards/urbanist/Urbanist-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/cards/urbanist/Urbanist-Black.ttf
+          weight: 900
+    - family: Work Sans
+      fonts:
+        - asset: fonts/cards/work-sans/WorkSans-Medium.ttf
+          weight: 500
+        - asset: fonts/cards/work-sans/WorkSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/cards/work-sans/WorkSans-Bold.ttf
+          weight: 700
   plugin:
     platforms:
       android:

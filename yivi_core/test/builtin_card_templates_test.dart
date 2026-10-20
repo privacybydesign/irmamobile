@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -35,34 +37,81 @@ Credential _credential(String id, List<Attribute> attributes) => Credential(
   issueUrl: null,
 );
 
-const _types = [
-  "gemeente.personalData",
-  "gemeente.address",
-  "pbdf.passport",
-  "pbdf.drivinglicence",
-  "pbdf.ageLimits",
-  "sidn-pbdf.email",
-  "sidn-pbdf.mobilenumber",
-  "pbdf.iban",
-];
-
 String _value(Attribute a) =>
     attributeText(a.value, yes: "Yes", no: "No") ?? "";
 
+/// The `{{…}}` placeholders of [svg] that are attribute values.
+Set<String> _valueIds(String svg) => RegExp(
+  r"\{\{\s*([A-Za-z0-9_.\-]+)\s*\}\}",
+).allMatches(svg).map((m) => m[1]!).where((id) => !id.contains(".")).toSet();
+
 void main() {
   group("which credentials have one", () {
-    for (final type in _types) {
-      test("$type: production and staging share it", () {
-        final production = builtinCardTemplate("pbdf.$type");
-        final staging = builtinCardTemplate("pbdf-staging.$type");
-        expect(production, isNotNull);
-        expect(staging?.svg, production!.svg);
-        expect(production.orientation, "landscape");
-      });
-    }
+    test("every listed type has a template", () {
+      for (final id in builtinCardCredentialIds) {
+        expect(builtinCardTemplate(id), isNotNull, reason: id);
+      }
+    });
+
+    test("production and staging share a template", () {
+      for (final id in builtinCardCredentialIds.where(
+        (id) => id.startsWith("pbdf."),
+      )) {
+        final staging = "pbdf-staging.${id.substring("pbdf.".length)}";
+        expect(builtinCardTemplate(staging)?.svg, builtinCardTemplate(id)!.svg);
+      }
+    });
+
+    test("demo copies share the PbDF design", () {
+      expect(
+        builtinCardTemplate("irma-demo.sidn-pbdf.email")!.svg,
+        builtinCardTemplate("pbdf.sidn-pbdf.email")!.svg,
+      );
+      expect(
+        builtinCardTemplate("irma-demo.IRMATube.member")!.svg,
+        builtinCardTemplate("pbdf.pbdf.yivitube")!.svg,
+      );
+    });
+
+    test("the test issuers' SD-JWT credentials, by vct", () {
+      const host = "https://veramo-issuer.openid4vc.staging.yivi.app";
+      for (final path in ["", "/test-issuer", "/authcode-issuer"]) {
+        expect(
+          builtinCardTemplate("$host$path/vct/email")!.svg,
+          builtinCardTemplate("pbdf.sidn-pbdf.email")!.svg,
+          reason: path,
+        );
+      }
+      expect(
+        builtinCardTemplate("$host/vct/phone")!.svg,
+        builtinCardTemplate("pbdf.sidn-pbdf.mobilenumber")!.svg,
+      );
+      expect(builtinCardTemplate("$host/vct/organization"), isNotNull);
+      expect(builtinCardTemplate("$host/vct/statuslist"), isNotNull);
+      expect(builtinCardTemplate("$host/vct/unknown"), isNull);
+      expect(builtinCardTemplate("https://example.com/vct/email"), isNull);
+    });
+
+    test("mdoc credentials, by doctype", () {
+      expect(builtinCardTemplate("eu.europa.ec.eudi.pid.1"), isNotNull);
+      expect(builtinCardTemplate("org.iso.18013.5.1.mDL"), isNotNull);
+      expect(builtinCardTemplate("eu.europa.ec.av.1"), isNotNull);
+    });
+
+    test("the deprecated diploma keeps the Yivi card", () {
+      const id = "pbdf.pbdf.diploma";
+      expect(
+        builtinCardTemplate(id, attributeIds: ["institute", "degree"]),
+        isNull,
+      );
+      expect(
+        builtinCardTemplate(id, attributeIds: ["qualification", "fullName"]),
+        isNotNull,
+      );
+    });
 
     test("others keep the Yivi card", () {
-      expect(builtinCardTemplate("irma-demo.sidn-pbdf.email"), isNull);
+      expect(builtinCardTemplate("irma-demo.RU.studentCard"), isNull);
       expect(builtinCardTemplate("pbdf.pbdf.unknown"), isNull);
       expect(builtinCardTemplate("pbdf-stagingx.pbdf.passport"), isNull);
     });
@@ -90,15 +139,20 @@ void main() {
       expect(values["photo"], transparentPixel);
     });
 
+    test("a phone number fills the mobile number card", () {
+      final values = builtinTemplateValues(
+        _credential("phone", [_text("phone_number", "Phone", "+31 6 1")]),
+        _value,
+      );
+      expect(values["mobilenumber"], "+31 6 1");
+      expect(values["label.mobilenumber"], "Phone");
+    });
+
     test("every placeholder of every template is filled", () {
-      for (final type in _types) {
-        final svg = builtinCardTemplate("pbdf.$type")!.svg;
-        final ids = RegExp(r"\{\{\s*([A-Za-z0-9_.\-]+)\s*\}\}")
-            .allMatches(svg)
-            .map((m) => m[1]!)
-            .where((id) => !id.contains("."))
-            .toSet();
-        final credential = _credential("pbdf.$type", [
+      for (final type in builtinCardCredentialIds) {
+        final svg = builtinCardTemplate(type)!.svg;
+        final ids = _valueIds(svg);
+        final credential = _credential(type, [
           for (final id in ids) _text(id, "Name of $id", "value of $id"),
         ]);
         final filled = fillSvgTemplate(
@@ -109,6 +163,23 @@ void main() {
         for (final id in ids.where((id) => !builtinImageSlots.contains(id))) {
           expect(filled, contains("value of $id"), reason: "$type: $id");
         }
+      }
+    });
+
+    test("every typeface a template uses is bundled", () {
+      final pubspec = File("pubspec.yaml").readAsStringSync();
+      final bundled = RegExp(
+        r"- family: (.+)",
+      ).allMatches(pubspec).map((m) => m[1]!.trim()).toSet();
+      for (final type in builtinCardCredentialIds) {
+        final svg = builtinCardTemplate(type)!.svg;
+        final families = RegExp(
+          r'font-family="packages/yivi_core/([^"]+)"',
+        ).allMatches(svg).map((m) => m[1]!);
+        for (final family in families) {
+          expect(bundled, contains(family), reason: "$type: $family");
+        }
+        expect(svg, isNot(contains("§")), reason: type);
       }
     });
   });
@@ -148,12 +219,12 @@ void main() {
     testWidgets("keeps the Yivi card for other credentials", (tester) async {
       await pump(
         tester,
-        _credential("irma-demo.sidn-pbdf.email", [
+        _credential("irma-demo.RU.studentCard", [
           _text("email", "Email address", "demo@example.com"),
         ]),
       );
       expect(find.byType(SvgPicture), findsNothing);
-      expect(find.text("Card irma-demo.sidn-pbdf.email"), findsOneWidget);
+      expect(find.text("Card irma-demo.RU.studentCard"), findsOneWidget);
     });
   });
 }

@@ -143,7 +143,12 @@ class CredentialCardArt extends StatelessWidget {
       highContrast: MediaQuery.highContrastOf(context),
     );
     final builtin = issuerTemplate == null
-        ? builtinCardTemplate(credential.credentialId)
+        ? builtinCardTemplate(
+            credential.credentialId,
+            attributeIds: credential.attributes
+                .where((a) => a.claimPath.isNotEmpty)
+                .map((a) => "${a.claimPath.last}"),
+          )
         : null;
     final template = issuerTemplate ?? builtin;
     if (template == null) return yiviCard;

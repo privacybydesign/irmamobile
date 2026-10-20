@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:flutter/foundation.dart" show LicenseRegistry;
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -21,6 +22,7 @@ import "src/providers/store_review_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
+import "src/util/card_font_licenses.dart";
 import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
@@ -65,6 +67,7 @@ Future<void> runYiviApp({
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    LicenseRegistry.addLicense(cardFontLicenses);
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
