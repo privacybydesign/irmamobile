@@ -109,7 +109,11 @@ void main() {
     });
 
     await measure(tester, "search", () async {
-      final search = find.byKey(const Key("add_data_search"));
+      // Scrolled down, the field is in the bar; at the top, in the list.
+      final inBar = find.byKey(const Key("add_data_search_bar"));
+      final search = tester.any(inBar)
+          ? inBar
+          : find.byKey(const Key("add_data_search"));
       for (final query in ["e", "em", "ema", "emai", "email", ""]) {
         await tester.enterText(search, query);
         await tester.pump(const Duration(milliseconds: 120));

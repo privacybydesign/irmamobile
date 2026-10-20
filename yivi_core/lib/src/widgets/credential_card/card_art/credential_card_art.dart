@@ -378,7 +378,13 @@ class _Logo extends StatelessWidget {
   Widget build(BuildContext context) {
     final logo = credential.image;
     if (logo != null) {
-      final image = Base64Image(base64: logo.base64, mimeType: logo.mimeType);
+      // Decoded at the size it is laid out at (the card scales down from
+      // there, so a thumbnail needs no more).
+      final image = Base64Image(
+        base64: logo.base64,
+        mimeType: logo.mimeType,
+        size: 40,
+      );
       if (!onTile) return SizedBox.square(dimension: 40, child: image);
       return Container(
         width: 40,

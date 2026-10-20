@@ -12,11 +12,20 @@ class GlassSearchField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final Key? fieldKey;
 
+  /// Shared with another field for the same search (Add data's field in the
+  /// list and in the bar); owned here when null.
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final double height;
+
   const GlassSearchField({
     super.key,
     required this.hintKey,
     required this.onChanged,
     this.fieldKey,
+    this.controller,
+    this.focusNode,
+    this.height = 48,
   });
 
   @override
@@ -24,18 +33,40 @@ class GlassSearchField extends StatefulWidget {
 }
 
 class _GlassSearchFieldState extends State<GlassSearchField> {
-  final _controller = TextEditingController();
+  TextEditingController? _own;
+  TextEditingController get _controller =>
+      widget.controller ?? (_own ??= TextEditingController());
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_changed);
+  }
+
+  @override
+  void didUpdateWidget(GlassSearchField old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      (old.controller ?? _own)?.removeListener(_changed);
+      _controller.addListener(_changed);
+    }
+  }
+
+  /// The clear button follows the text, also when typed in the other field.
+  void _changed() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller.removeListener(_changed);
+    _own?.dispose();
     super.dispose();
   }
 
   void _clear() {
     _controller.clear();
     widget.onChanged("");
-    setState(() {});
   }
 
   @override
@@ -44,7 +75,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     final hint = FlutterI18n.translate(context, widget.hintKey);
     return GlassSurface(
       child: SizedBox(
-        height: 48,
+        height: widget.height,
         child: Row(
           children: [
             const SizedBox(width: 16),
@@ -54,10 +85,8 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
               child: TextField(
                 key: widget.fieldKey,
                 controller: _controller,
-                onChanged: (value) {
-                  widget.onChanged(value);
-                  setState(() {});
-                },
+                focusNode: widget.focusNode,
+                onChanged: widget.onChanged,
                 textInputAction: TextInputAction.search,
                 style: palette.body(16),
                 cursorColor: palette.primary,

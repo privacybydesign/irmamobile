@@ -46,7 +46,8 @@ Future<void> completelyOptionalTest(
   expect(
     find.descendant(
       of: findChoiceSheet(),
-      matching: find.text("Demo Email address"),
+      // "Add demo Email address": the name in sentence case.
+      matching: find.textContaining("mail address"),
     ),
     findsWidgets,
   );

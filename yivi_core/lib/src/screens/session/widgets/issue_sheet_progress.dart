@@ -4,9 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/base64_image.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/irma_avatar.dart";
 import "session_requestor_header.dart";
 
 /// What the tag of an [IssueSheetProgress] names: the request a card is
@@ -171,138 +169,95 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     final params = {"step": "$step", "total": "${widget.total}"};
     final track = palette.link.withValues(alpha: 0.15);
 
-    return Row(
-      spacing: 10,
-      children: [
-        switch (widget.subject) {
-          _ForRequest(:final requestor) => _Tag(
-            key: const Key("issue_sheet_progress_tag"),
-            avatar: SessionRequestorHeader.avatarOf(requestor, size: 20),
-            label: t("share.sheet.for_requestor", {
-              "requestor": requestor.name,
-            }),
-          ),
-          _ForCard(:final card) => _Tag(
-            key: const Key("issue_sheet_progress_tag"),
-            avatar: IrmaAvatar(
-              size: 20,
-              initials: card.name.isEmpty ? null : card.name.characters.first,
-              logoImage: card.image == null
-                  ? null
-                  : Base64Image(
-                      base64: card.image!.base64,
-                      mimeType: card.image!.mimeType,
+    final line = Semantics(
+      // The step and the total, for a test to find without a visible count.
+      key: ValueKey((
+        "issue_sheet_progress",
+        done ? widget.total : step,
+        widget.total,
+      )),
+      // Read out when the step changes.
+      liveRegion: true,
+      label: done
+          ? t("share.sheet.progress_done_label")
+          : t("share.step_count", params),
+      excludeSemantics: true,
+      child: Row(
+        spacing: 4,
+        children: [
+          for (var i = 1; i <= widget.total; i++)
+            Expanded(
+              child: AnimatedBuilder(
+                animation: _curve,
+                builder: (context, _) {
+                  final now = _now;
+                  // Blue while adding, green once added; the colour follows
+                  // the fill when it turns.
+                  final fromInk = _from.done
+                      ? palette.successText
+                      : palette.link;
+                  final toInk = done ? palette.successText : palette.link;
+                  final ink = Color.lerp(fromInk, toInk, _curve.value)!;
+                  final part = (now.fill - (i - 1)).clamp(0.0, 1.0);
+                  return Container(
+                    key: Key("issue_sheet_progress_$i"),
+                    height: 4,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      color: track,
                     ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FractionallySizedBox(
+                        widthFactor: part,
+                        heightFactor: 1,
+                        child: ColoredBox(color: ink),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-            label: card.name,
-          ),
-        },
-        Expanded(
-          // Read out when the step changes.
-          child: Semantics(
-            liveRegion: true,
-            label: done
-                ? t("share.sheet.progress_done_label")
-                : t("share.step_count", params),
-            excludeSemantics: true,
+        ],
+      ),
+    );
+
+    // One thin line says where you are; the bar's title says what. During a
+    // request a quiet line under it says who it is for.
+    return switch (widget.subject) {
+      _ForRequest(:final requestor) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          line,
+          Padding(
+            key: const Key("issue_sheet_for_requestor"),
+            padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
             child: Row(
-              spacing: 5,
+              spacing: 8,
               children: [
-                for (var i = 1; i <= widget.total; i++)
-                  Expanded(
-                    child: AnimatedBuilder(
-                      animation: _curve,
-                      builder: (context, _) {
-                        final now = _now;
-                        // Blue while adding, green once added; the colour
-                        // follows the fill when it turns.
-                        final fromInk = _from.done
-                            ? palette.successText
-                            : palette.link;
-                        final toInk = done ? palette.successText : palette.link;
-                        final ink = Color.lerp(fromInk, toInk, _curve.value)!;
-                        final part = (now.fill - (i - 1)).clamp(0.0, 1.0);
-                        return Container(
-                          key: Key("issue_sheet_progress_$i"),
-                          height: 5,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(3),
-                            color: track,
-                          ),
-                          child: Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: FractionallySizedBox(
-                              widthFactor: part,
-                              heightFactor: 1,
-                              child: ColoredBox(color: ink),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 2),
-                  child: ExcludeSemantics(
-                    child: Text(
-                      done
-                          ? t("share.sheet.progress_done")
-                          : t("share.sheet.progress_short", params),
-                      key: const Key("issue_sheet_progress_text"),
-                      style: palette
-                          .body(12.5)
-                          .copyWith(color: palette.secondaryText),
-                    ),
+                ExcludeSemantics(
+                  child: SessionRequestorHeader.avatarOf(requestor, size: 20),
+                ),
+                Flexible(
+                  child: Text(
+                    t("share.sheet.for_requestor", {
+                      "requestor": requestor.name,
+                    }),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette
+                        .body(13)
+                        .copyWith(color: palette.secondaryText),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-/// The pill with a logo (or initial) and its label.
-class _Tag extends StatelessWidget {
-  final Widget avatar;
-  final String label;
-
-  const _Tag({super.key, required this.avatar, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return ConstrainedBox(
-      // A long name gives way to the steps.
-      constraints: const BoxConstraints(maxWidth: 200),
-      child: Container(
-        height: 28,
-        padding: const EdgeInsetsDirectional.fromSTEB(4, 0, 12, 0),
-        decoration: ShapeDecoration(
-          color: palette.surface,
-          shape: StadiumBorder(side: BorderSide(color: palette.outline)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 6,
-          children: [
-            ExcludeSemantics(child: avatar),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: palette
-                    .body(12, weight: FontWeight.w600)
-                    .copyWith(color: palette.heading),
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
-    );
+      _ForCard() => line,
+    };
   }
 }

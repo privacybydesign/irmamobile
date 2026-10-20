@@ -10,6 +10,8 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/credential_card/card_flight.dart";
+import "../../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -292,21 +294,30 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           ],
           if (addable.isNotEmpty) ...[
             _Label(_t("share.not_in_app_yet")),
-            // One empty spot per type that can be added, as on the share
-            // screen: the card's shape, with what it will share still empty.
-            for (final d in addable)
-              EmptyCardSpot(
-                key: Key("sheet_add_${d.credentialId}"),
-                title: owned.any((b) => _nameOf(b) == d.name)
-                    ? _t("share.sheet.another", {"name": _inSentence(d.name)})
-                    : d.name,
-                subtitle: _t("share.sheet.on_host", {
-                  "issuer": d.issuer.name,
-                  "host": hostOf(d.issueURL)!,
-                }),
-                rows: emptySpotRows(context, d),
-                onTap: () => issueOpen(d),
-              ),
+            // One compact row per type that can be added: a dashed card with
+            // a plus, what to add, and where it comes from.
+            GlassGroup(
+              dividerIndent: 14 + 56 + 14,
+              children: [
+                for (final d in addable)
+                  _AddRow(
+                    key: Key("sheet_add_${d.credentialId}"),
+                    title: owned.any((b) => _nameOf(b) == d.name)
+                        ? _t("share.sheet.another", {
+                            "name": _inSentence(d.name),
+                          })
+                        : _t("share.sheet.add_name", {
+                            "name": _inSentence(d.name),
+                          }),
+                    subtitle: _t("share.sheet.on_host", {
+                      "issuer": d.issuer.name,
+                      "host": hostOf(d.issueURL)!,
+                    }),
+                    requirements: requirementsOf(context, d),
+                    onTap: () => issueOpen(d),
+                  ),
+              ],
+            ),
           ],
         ],
       ),
@@ -423,6 +434,80 @@ class _OwnedCard extends StatelessWidget {
                   ),
                 ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A type that can be added for the request: a dashed card with a plus,
+/// "Add {name}" (or "Another {name}"), the issuer and its website, what the
+/// card must hold when a value is asked for ("Nationality must be NLD"),
+/// and a chevron.
+class _AddRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final List<String> requirements;
+  final VoidCallback onTap;
+
+  const _AddRow({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.requirements = const [],
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      button: true,
+      excludeSemantics: true,
+      label: [title, subtitle, ...requirements].join(", "),
+      onTap: onTap,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+            child: Row(
+              spacing: 14,
+              children: [
+                const CredentialTypeThumbnail.add(),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: palette
+                            .display(15.5)
+                            .copyWith(height: 21 / 15.5, color: palette.text),
+                      ),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .body(13)
+                            .copyWith(color: palette.secondaryText),
+                      ),
+                      for (final r in requirements)
+                        Text(
+                          r,
+                          style: palette
+                              .body(13, weight: FontWeight.w600)
+                              .copyWith(color: palette.noteText),
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 20, color: palette.faint),
+              ],
+            ),
           ),
         ),
       ),

@@ -626,7 +626,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             ) !=
             ExternalIssuerStatus.notExternal;
     return GlassSheetPage(
-      title: _t("data.add.details.title"),
+      // The card's name: the page is about it (the progress under the bar
+      // says where in adding it you are).
+      title: d.name,
       // The sheet's first page has no back: close is the way out.
       onBack: _direct
           ? null
@@ -673,7 +675,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           AddDataDetailsContent(
             credential: d,
             faq: faq,
-            inDisclosure: issueRequest != null,
+            forRequestor: issueRequest?.requestor.name,
           ),
         ],
       ),
@@ -859,7 +861,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
             ),
           Text(
-            _t("issuance.success_feedback.header"),
+            _t("issuance.success_feedback.added_header"),
             textAlign: TextAlign.center,
             style: palette
                 .display(26, weight: FontWeight.w700)

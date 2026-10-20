@@ -214,6 +214,10 @@
         "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
         "obtain": "Voeg {credential} toe aan mijn Yivi-app",
         "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier.",
+        "issued_by": "Uitgegeven door {issuer}",
+        "example_card": "Voorbeeldkaart",
+        "example_card_nfc": "Voorbeeldkaart · heeft NFC nodig",
+        "disclosure_info_requestor": "Je krijgt alles, maar {requestor} krijgt alleen wat erom gevraagd wordt.",
         "you_get": "Je krijgt",
         "good_to_know": "Goed om te weten",
         "show_all": "Toon alle {count}",
@@ -232,7 +236,8 @@
       "add_more": "Meer toevoegen",
       "done": "Klaar",
       "added_more": "{name} toegevoegd. Nog iets anders toevoegen?",
-      "in_your_app": "In je app"
+      "in_your_app": "In je app",
+      "needs_nfc": "Heeft NFC nodig"
     },
     "search": {
       "no_results": "Geen gegevens gevonden voor '{query}'."
@@ -496,7 +501,8 @@
       "added_many": "Deze {count} kaarten zijn aan Yivi toegevoegd.",
       "added_one_back": "{name} is aan Yivi toegevoegd. Hierna terug naar {requestor}.",
       "added_many_back": "Deze {count} kaarten zijn aan Yivi toegevoegd. Hierna terug naar {requestor}.",
-      "back_to": "Terug naar {requestor}"
+      "back_to": "Terug naar {requestor}",
+      "added_header": "Toegevoegd"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -1346,6 +1352,7 @@
       "subtitle": "Tik op een kaart in je app om die te gebruiken, of voeg een nieuwe toe.",
       "subtitle_add": "Kies wat je wilt toevoegen.",
       "another": "Ander(e) {name}",
+      "add_name": "{name} toevoegen",
       "on_host": "{issuer} · op {host}",
       "for_requestor": "Voor {requestor}",
       "progress_short": "{step} van {total}",

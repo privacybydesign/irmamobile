@@ -1,6 +1,5 @@
-import "dart:math";
-
 import "dart:async";
+import "dart:math";
 
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
@@ -323,8 +322,11 @@ void main() {
     // First its details, step 1 of 3, as on the add-data page.
     await tester.tap(find.byKey(const Key("sheet_add_idcard")));
     await tester.pumpAndSettle();
-    expect(find.text("Adding data"), findsOneWidget);
-    expect(find.text("1 of 3"), findsOneWidget);
+    expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+      findsOneWidget,
+    );
     expect(find.text("For Webshop Noord"), findsOneWidget);
     expect(find.byKey(const Key("add_data_disclosure_note")), findsOneWidget);
     expect(calls.obtained, isEmpty);
@@ -334,7 +336,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(calls.obtained, ["idcard"]);
     expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-    expect(find.text("2 of 3"), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
     expect(find.text("Open again"), findsOneWidget);
   });
@@ -496,7 +501,7 @@ void main() {
       // The fix opens the sheet straight on adding a new one: its details.
       await tester.tap(find.byKey(const Key("shared_card_fix")));
       await tester.pumpAndSettle();
-      expect(find.text("Adding data"), findsOneWidget);
+      expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
       expect(find.text("Address"), findsWidgets);
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
@@ -721,35 +726,34 @@ void main() {
       );
       expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
 
-      // In the sheet each type is an empty spot of its own, with its rows.
+      // In the sheet each type is a compact row: what to add, from where,
+      // and what it must hold.
       await tester.tap(spot);
       await tester.pumpAndSettle();
       final passport = find.byKey(const Key("sheet_add_passport"));
       final idcard = find.byKey(const Key("sheet_add_idcard"));
       for (final card in [passport, idcard]) {
         expect(
-          find.descendant(of: card, matching: find.byType(CardTile)),
+          find.descendant(
+            of: card,
+            matching: find.byKey(const Key("credential_type_thumbnail_add")),
+          ),
           findsOne,
         );
-        expect(find.descendant(of: card, matching: find.text("Add")), findsOne);
+        expect(
+          find.descendant(of: card, matching: find.textContaining("Add ")),
+          findsOne,
+        );
       }
       expect(
-        find.descendant(of: passport, matching: find.text("First name")),
-        findsOne,
-      );
-      expect(
         find.descendant(
-          of: passport,
-          matching: find.text("Not in your app yet"),
+          of: idcard,
+          matching: find.textContaining("must be NLD"),
         ),
         findsOne,
       );
       expect(
-        find.descendant(of: idcard, matching: find.text("Must be NLD")),
-        findsOne,
-      );
-      expect(
-        find.descendant(of: idcard, matching: find.text("First name")),
+        find.descendant(of: passport, matching: find.textContaining("must be")),
         findsNothing,
       );
     });
@@ -770,14 +774,23 @@ void main() {
       await tester.tap(find.byKey(const Key("share_spot_0")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-      expect(find.text("1 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key("sheet_go_button")), findsOneWidget);
 
       // Nothing before the details: no back button, and no swipe back.
       expect(find.bySemanticsLabel("Go back"), findsNothing);
-      await tester.drag(find.text("1 of 3"), const Offset(300, 0));
+      await tester.drag(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        const Offset(300, 0),
+      );
       await tester.pumpAndSettle();
-      expect(find.text("1 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
       // Close is the way out (it asks, as it does on the details).
@@ -1196,7 +1209,10 @@ void main() {
       nested.add(issuance(SessionStatus.requestPermission));
       await tester.pumpAndSettle();
 
-      expect(find.text("3 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
+        findsOneWidget,
+      );
       expect(
         find.text("Do you want to add this data to your Yivi app?"),
         findsOneWidget,
@@ -1211,7 +1227,7 @@ void main() {
 
       nested.add(issuance(SessionStatus.success));
       await tester.pumpAndSettle();
-      expect(find.text("Done"), findsOneWidget);
+      expect(find.text("Added"), findsOneWidget);
       expect(find.text("Back to Webshop Noord"), findsOneWidget);
       // Done: no host waits any more, and closing does not ask.
       expect(
@@ -1254,7 +1270,10 @@ void main() {
       // No full-screen PIN route, and no logo or lock above the pad.
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
-      expect(find.text("3 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
+        findsOneWidget,
+      );
 
       for (final digit in ["1", "2", "3", "4", "5"]) {
         await tester.tap(find.text(digit).last);
@@ -1269,7 +1288,7 @@ void main() {
       nested.add(issuance(SessionStatus.success));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_pin")), findsNothing);
-      expect(find.text("Done"), findsOneWidget);
+      expect(find.text("Added"), findsOneWidget);
     });
 
     testWidgets("the progress stays put while the page scrolls", (
@@ -1302,7 +1321,10 @@ void main() {
       expect(calls.interactions.last.type, UserInteractionType.dismiss);
       nested.add(issuance(SessionStatus.dismissed));
       await tester.pumpAndSettle();
-      expect(find.text("2 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+        findsOneWidget,
+      );
       expect(find.text("Open again"), findsOneWidget);
     });
 
@@ -1363,13 +1385,19 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_spot_0")));
       await tester.pumpAndSettle();
-      expect(find.text("1 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsOneWidget,
+      );
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
       comeBack(tester);
       nested.add(issuance(SessionStatus.requestPermission));
       await tester.pumpAndSettle();
-      expect(find.text("3 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
+        findsOneWidget,
+      );
       nested.add(issuance(SessionStatus.success));
       await tester.pumpAndSettle();
 
@@ -1457,7 +1485,10 @@ void main() {
       final (calls, api, nested) = await open(tester);
       // Step 2: the address, in the sheet (no e-mail screen is pushed).
       expect(find.text("Add email address"), findsOneWidget);
-      expect(find.text("2 of 4"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 2, 4))),
+        findsOneWidget,
+      );
       expect(calls.obtained, isEmpty);
 
       await tester.enterText(
@@ -1474,7 +1505,10 @@ void main() {
       expect(find.text("Add email address"), findsOneWidget);
       expect(find.text("Code sent to"), findsOneWidget);
       // The code is a step of its own.
-      expect(find.text("3 of 4"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 3, 4))),
+        findsOneWidget,
+      );
       expect(find.text("sanne@devries.example"), findsOneWidget);
       expect(find.byKey(const Key("email_input_field")), findsNothing);
 
@@ -1503,7 +1537,10 @@ void main() {
         ),
       );
       await _pumpFor(tester);
-      expect(find.text("4 of 4"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 4, 4))),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
     });
 
@@ -1588,8 +1625,11 @@ void main() {
       await open(tester);
       await tester.tap(find.bySemanticsLabel("Go back").last);
       await _pumpFor(tester);
-      expect(find.text("Adding data"), findsOneWidget);
-      expect(find.text("1 of 4"), findsOneWidget);
+      expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 4))),
+        findsOneWidget,
+      );
     });
   });
 
@@ -1648,7 +1688,10 @@ void main() {
       );
       expect(calls.obtained, isEmpty);
       // A document takes five steps; how to hold it is the second.
-      expect(inSheet(find.text("2 of 5")), findsOneWidget);
+      expect(
+        inSheet(find.byKey(const ValueKey(("issue_sheet_progress", 2, 5)))),
+        findsOneWidget,
+      );
       // The sheet waits for the issuance the chip read starts.
       expect(
         ProviderScope.containerOf(
@@ -1664,7 +1707,10 @@ void main() {
         inSheet(find.byType(PassportMrzManualEntryScreen)),
         findsOneWidget,
       );
-      expect(inSheet(find.text("3 of 5")), findsOneWidget);
+      expect(
+        inSheet(find.byKey(const ValueKey(("issue_sheet_progress", 3, 5)))),
+        findsOneWidget,
+      );
 
       // Back steps back in the flow, then to the details.
       await tester.tap(find.bySemanticsLabel("Go back").last);
@@ -1675,7 +1721,10 @@ void main() {
       );
       await tester.tap(find.bySemanticsLabel("Go back").last);
       await _pumpFor(tester);
-      expect(find.text("1 of 5"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 5))),
+        findsOneWidget,
+      );
       expect(find.byType(DocumentInstructionScreen), findsNothing);
     });
 
@@ -1729,7 +1778,10 @@ void main() {
           ),
         );
         await _pumpFor(tester);
-        expect(find.text("5 of 5"), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 5, 5))),
+          findsOneWidget,
+        );
         expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
 
         // Back there: on the details, the document to be read again.
@@ -1745,7 +1797,10 @@ void main() {
           ),
         );
         await _pumpFor(tester);
-        expect(find.text("1 of 5"), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 1, 5))),
+          findsOneWidget,
+        );
         expect(find.byType(DocumentInstructionScreen), findsNothing);
       },
     );

@@ -110,7 +110,10 @@ void main() {
         ),
       );
       expect(find.text("For Webshop Noord"), findsOneWidget);
-      expect(find.text("2 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+        findsOneWidget,
+      );
       expect(find.bySemanticsLabel("Step 2 of 3"), findsOneWidget);
     });
 
@@ -156,7 +159,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text("Done"), findsOneWidget);
+      // No count under the line; screen readers hear it.
+      expect(find.text("Done"), findsNothing);
       expect(find.bySemanticsLabel("All steps done"), findsOneWidget);
       final green = YiviPalette.light.successText;
       for (var i = 1; i <= 3; i++) {

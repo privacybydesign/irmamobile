@@ -214,6 +214,10 @@
         "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
         "obtain": "Add {credential} to my Yivi-app",
         "external_note": "Adding this happens on {host}. Follow the steps there; Yivi then opens again by itself, back here.",
+        "issued_by": "Issued by {issuer}",
+        "example_card": "Example card",
+        "example_card_nfc": "Example card · needs NFC",
+        "disclosure_info_requestor": "You get all of it, but {requestor} only gets what it asks for.",
         "you_get": "You get",
         "good_to_know": "Good to know",
         "show_all": "Show all {count}",
@@ -232,7 +236,8 @@
       "add_more": "Add more",
       "done": "Done",
       "added_more": "{name} added. Add something else?",
-      "in_your_app": "In your app"
+      "in_your_app": "In your app",
+      "needs_nfc": "Needs NFC"
     },
     "search": {
       "no_results": "No data found for '{query}'."
@@ -493,7 +498,8 @@
       "added_many": "These {count} cards have been added to Yivi.",
       "added_one_back": "{name} has been added to Yivi. Next, back to {requestor}.",
       "added_many_back": "These {count} cards have been added to Yivi. Next, back to {requestor}.",
-      "back_to": "Back to {requestor}"
+      "back_to": "Back to {requestor}",
+      "added_header": "Added"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -1346,6 +1352,7 @@
       "subtitle": "Tap a card in your app to use it, or add a new one.",
       "subtitle_add": "Pick what you want to add.",
       "another": "Another {name}",
+      "add_name": "Add {name}",
       "on_host": "{issuer} · on {host}",
       "for_requestor": "For {requestor}",
       "progress_short": "{step} of {total}",

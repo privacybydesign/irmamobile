@@ -414,7 +414,16 @@ class _GlassSheet extends StatelessWidget {
 /// screen, and a back button when [onBack] is set. Explanatory text goes at
 /// the top of the sheet's scrolling content, not here.
 class GlassSheetHeader extends StatelessWidget {
+  static Duration _switch(BuildContext context) =>
+      MediaQuery.disableAnimationsOf(context)
+      ? Duration.zero
+      : const Duration(milliseconds: 200);
+
   final String title;
+
+  /// In the title's place while not null (Add data's search field, once the
+  /// list has scrolled it away): between the buttons, the title faded out.
+  final Widget? titleWidget;
   final VoidCallback? onBack;
 
   /// The title fades while pages of [GlassSheetPages] change (the bar
@@ -428,6 +437,7 @@ class GlassSheetHeader extends StatelessWidget {
   const GlassSheetHeader({
     super.key,
     required this.title,
+    this.titleWidget,
     this.onBack,
     this.titleOpacity,
     this.buttons = true,
@@ -451,29 +461,51 @@ class GlassSheetHeader extends StatelessWidget {
               child: Semantics(
                 header: true,
                 namesRoute: true,
-                child: FadeTransition(
-                  opacity: titleOpacity ?? kAlwaysCompleteAnimation,
-                  // A new title on the same page (a screen changing below
-                  // the bar) fades in over the old one.
-                  child: AnimatedSwitcher(
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : const Duration(milliseconds: 200),
-                    child: KeyedSubtree(
-                      key: ValueKey(title),
-                      child: Text(
-                        title,
-                        key: const Key("glass_sheet_title"),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .display(17)
-                            .copyWith(height: 22 / 17, color: palette.text),
+                child: AnimatedOpacity(
+                  // Gone while a widget takes its place; it still names the
+                  // page.
+                  opacity: titleWidget == null ? 1 : 0,
+                  duration: _switch(context),
+                  child: FadeTransition(
+                    opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+                    // A new title on the same page (a screen changing below
+                    // the bar) fades in over the old one.
+                    child: AnimatedSwitcher(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 200),
+                      child: KeyedSubtree(
+                        key: ValueKey(title),
+                        child: Text(
+                          title,
+                          key: const Key("glass_sheet_title"),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: palette
+                              .display(17)
+                              .copyWith(height: 22 / 17, color: palette.text),
+                        ),
                       ),
                     ),
                   ),
                 ),
+              ),
+            ),
+            Positioned.directional(
+              textDirection: Directionality.of(context),
+              start: onBack != null && buttons ? 52 : 0,
+              end: buttons ? 52 : 0,
+              top: 0,
+              bottom: 0,
+              child: AnimatedSwitcher(
+                duration: _switch(context),
+                child: titleWidget == null
+                    ? const SizedBox.shrink()
+                    : KeyedSubtree(
+                        key: const ValueKey("glass_sheet_title_widget"),
+                        child: Center(child: titleWidget),
+                      ),
               ),
             ),
             if (onBack != null && buttons)
@@ -861,6 +893,9 @@ class GlassSheetPageMotion extends StatelessWidget {
 /// is under them, they get the hard scroll edge of iOS ([ScrollEdgeBand]).
 class GlassSheetPage extends StatefulWidget {
   final String title;
+
+  /// In the title's place while not null (see [GlassSheetHeader.titleWidget]).
+  final Widget? titleWidget;
   final VoidCallback? onBack;
   final Widget? child;
 
@@ -887,6 +922,7 @@ class GlassSheetPage extends StatefulWidget {
   const GlassSheetPage({
     super.key,
     required this.title,
+    this.titleWidget,
     this.onBack,
     this.child,
     this.slivers,
@@ -923,6 +959,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       // into each other.
       GlassSheetHeader(
         title: title,
+        titleWidget: widget.titleWidget,
         onBack: onBack,
         buttons: role?.top ?? true,
         titleOpacity: role?.titleOpacity,

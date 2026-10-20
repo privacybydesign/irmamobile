@@ -5,6 +5,7 @@ import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_content.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 
 import "helpers/credential_factory.dart";
 import "helpers/test_translation_loader.dart";
@@ -43,7 +44,7 @@ void main() {
     WidgetTester tester,
     CredentialDescriptor credential, {
     Faq? faq,
-    bool inDisclosure = false,
+    String? forRequestor,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 1400);
@@ -67,7 +68,7 @@ void main() {
               child: AddDataDetailsContent(
                 credential: credential,
                 faq: faq,
-                inDisclosure: inDisclosure,
+                forRequestor: forRequestor,
               ),
             ),
           ),
@@ -86,12 +87,16 @@ void main() {
     tester,
   ) async {
     await pump(tester, email, faq: _emailFaq);
-    final name = tester.getRect(find.text("Email address").first);
-    final card = tester.getRect(find.text("Example"));
-    // The name is beside the card, not under it.
-    expect(name.left, greaterThan(card.left));
-    expect(name.top, lessThan(card.bottom));
-    expect(find.text("by Yivi"), findsOneWidget);
+    // The card, small, beside who issues it (the name is in the bar).
+    final issuer = tester.getRect(
+      find.byKey(const Key("add_data_details_issuer")),
+    );
+    final card = tester.getRect(find.byType(CredentialTypeThumbnail));
+    expect(card.width, 88);
+    expect(issuer.left, greaterThan(card.right));
+    expect(issuer.top, lessThan(card.bottom));
+    expect(find.text("Issued by Yivi"), findsOneWidget);
+    expect(find.text("Example card"), findsOneWidget);
     expect(find.text("YOU GET"), findsOneWidget);
     final list = find.byKey(const Key("add_data_checklist"));
     expect(
@@ -104,7 +109,6 @@ void main() {
       findsNothing,
     );
     expect(find.byKey(const Key("add_data_show_all")), findsNothing);
-    expect(find.byKey(const Key("add_data_details_nfc")), findsNothing);
   });
 
   testWidgets("past eight attributes: Show all opens the rest", (tester) async {
@@ -164,7 +168,7 @@ void main() {
   testWidgets("during a request, the note sits at the foot of what you get", (
     tester,
   ) async {
-    await pump(tester, email, faq: _emailFaq, inDisclosure: true);
+    await pump(tester, email, faq: _emailFaq, forRequestor: "Webshop Noord");
     final note = find.byKey(const Key("add_data_disclosure_note"));
     expect(
       find.descendant(
@@ -182,8 +186,18 @@ void main() {
     );
   });
 
-  testWidgets("a document needs NFC: the chip beside the name", (tester) async {
+  testWidgets("a document needs NFC: said under the issuer", (tester) async {
     await pump(tester, _type("pbdf.pbdf.passport", "Passport", ["Photo"]));
-    expect(find.byKey(const Key("add_data_details_nfc")), findsOneWidget);
+    expect(find.text("Example card · needs NFC"), findsOneWidget);
+  });
+
+  testWidgets("during a request the note names who gets what", (tester) async {
+    await pump(tester, email, faq: _emailFaq, forRequestor: "Webshop Noord");
+    expect(
+      find.textContaining(
+        "You get all of it, but Webshop Noord only gets what it asks for.",
+      ),
+      findsOneWidget,
+    );
   });
 }

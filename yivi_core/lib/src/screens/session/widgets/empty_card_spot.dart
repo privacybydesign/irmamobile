@@ -38,6 +38,22 @@ List<(String, String)> emptySpotRows(
   ];
 }
 
+/// What [card] must hold to fit the request, one line per value asked for:
+/// "Nationality must be NLD". Empty when any value will do.
+List<String> requirementsOf(BuildContext context, CredentialDescriptor card) =>
+    [
+      for (final a in card.attributes)
+        if (a.requestedValue case final v? when v.hasConcreteValue)
+          FlutterI18n.translate(
+            context,
+            "share.spot.must_be",
+            translationParams: {
+              "field": a.effectiveDisplayName,
+              "value": localizedAttributeText(context, v) ?? "",
+            },
+          ),
+    ];
+
 /// A card that is not in the app yet: a dashed spot in the shape of the card
 /// it will be, with a dashed card where that card lands, how to add it, and
 /// what it will share, still empty. On the share screen for a required card,

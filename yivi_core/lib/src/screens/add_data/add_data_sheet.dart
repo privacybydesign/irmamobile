@@ -13,16 +13,14 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/nfc_credentials.dart";
-import "../../widgets/base64_image.dart";
+import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_action_row.dart";
-import "../../widgets/irma_avatar.dart";
 import "../../widgets/irma_dialog.dart";
-import "../../widgets/translated_text.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../session/widgets/issue_flow.dart";
 import "../session/widgets/issue_sheet_progress.dart";
@@ -275,9 +273,16 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   }
 }
 
-/// The root page of Add data: what can be added, by category, with the
-/// search field under the bar. Its own widget, so typing rebuilds only the
-/// list, and the rows are built as they scroll into view.
+/// The root page of Add data: what can be added, by category. Its own
+/// widget, so typing rebuilds only the list, and the rows are built as they
+/// scroll into view.
+///
+/// The search field is the first thing in the list and scrolls away with
+/// it; once it has, a narrower field takes the title's place in the bar,
+/// next to the close button (docs/add-data-simpler-plan.md, 4.3). Both
+/// share one text. Once typed in, the bar's field stays until it is empty,
+/// unfocused and the list is back at its top, so it never jumps while the
+/// results change.
 class _AddDataListPage extends ConsumerStatefulWidget {
   /// The name of the card just added with "Add more", noted at the top.
   final String? justAdded;
@@ -292,6 +297,69 @@ class _AddDataListPage extends ConsumerStatefulWidget {
 
 class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
   String _query = "";
+
+  final _search = TextEditingController();
+  final _listFocus = FocusNode();
+  final _barFocus = FocusNode();
+
+  /// The list's field has scrolled out from under the bar.
+  bool _pastField = false;
+
+  /// The field is in the bar.
+  bool _inBar = false;
+
+  /// How far the list scrolls before its field is gone: the field and the
+  /// gap under it.
+  static const _fieldHeight = 44.0;
+  static const _fieldGap = 12.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _barFocus.addListener(_place);
+  }
+
+  @override
+  void dispose() {
+    _barFocus.removeListener(_place);
+    _search.dispose();
+    _listFocus.dispose();
+    _barFocus.dispose();
+    super.dispose();
+  }
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    final past =
+        n.metrics.pixels - n.metrics.minScrollExtent >
+        _fieldHeight + _fieldGap / 2;
+    if (past != _pastField) {
+      _pastField = past;
+      _place();
+    }
+    return false;
+  }
+
+  /// Where the field is: in the bar once scrolled past, and held there while
+  /// it is in use.
+  void _place() {
+    final inUse = _barFocus.hasFocus || _search.text.isNotEmpty;
+    final inBar = _pastField || (_inBar && inUse);
+    if (inBar == _inBar || !mounted) return;
+    // Typing in the list's field and scrolling on: go on in the bar.
+    final carryFocus = inBar && _listFocus.hasFocus;
+    setState(() => _inBar = inBar);
+    if (carryFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _barFocus.requestFocus();
+      });
+    }
+  }
+
+  void _onQuery(String q) {
+    setState(() => _query = q);
+    _place();
+  }
 
   String _t(String key, [Map<String, String>? params]) =>
       FlutterI18n.translate(context, key, translationParams: params);
@@ -366,7 +434,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
               // A credential without a category (irmago marshals it
               // `omitempty`) gets no header.
               header: title(group).isEmpty ? null : title(group),
-              dividerIndent: 72,
+              dividerIndent: AddDataRow.dividerIndent,
               itemCount: items.length,
               itemBuilder: (context, i) {
                 final item = items[i];
@@ -386,73 +454,85 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     };
 
     final justAdded = widget.justAdded;
-    return GlassSheetPage(
-      title: _t("data.add.title"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      pinned: GlassSearchField(
-        fieldKey: const Key("add_data_search"),
-        hintKey: "data.add.search",
-        onChanged: (q) => setState(() => _query = q),
-      ),
-      slivers: [
-        if (justAdded != null)
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScroll,
+      child: GlassSheetPage(
+        title: _t("data.add.title"),
+        titleWidget: _inBar
+            ? GlassSearchField(
+                fieldKey: const Key("add_data_search_bar"),
+                hintKey: "data.add.search",
+                controller: _search,
+                focusNode: _barFocus,
+                height: 40,
+                onChanged: _onQuery,
+              )
+            : null,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        slivers: [
           SliverPadding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: _fieldGap),
             sliver: SliverToBoxAdapter(
-              child: Semantics(
-                liveRegion: true,
-                child: Container(
-                  key: const Key("add_data_added_note"),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  decoration: ShapeDecoration(
-                    color: palette.successSurface,
-                    shape: const RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
+              child: GlassSearchField(
+                fieldKey: const Key("add_data_search"),
+                hintKey: "data.add.search",
+                controller: _search,
+                focusNode: _listFocus,
+                height: _fieldHeight,
+                onChanged: _onQuery,
+              ),
+            ),
+          ),
+          if (justAdded != null)
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: 16),
+              sliver: SliverToBoxAdapter(
+                child: Semantics(
+                  liveRegion: true,
+                  child: Container(
+                    key: const Key("add_data_added_note"),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
                     ),
-                  ),
-                  child: Row(
-                    spacing: 8,
-                    children: [
-                      Icon(
-                        Icons.check_rounded,
-                        size: 18,
-                        color: palette.successText,
+                    decoration: ShapeDecoration(
+                      color: palette.successSurface,
+                      shape: const RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
-                      Expanded(
-                        child: Text(
-                          _t("data.add.added_more", {"name": justAdded}),
-                          style: palette
-                              .body(14, weight: FontWeight.w600)
-                              .copyWith(color: palette.successText),
+                    ),
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: palette.successText,
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: Text(
+                            _t("data.add.added_more", {"name": justAdded}),
+                            style: palette
+                                .body(14, weight: FontWeight.w600)
+                                .copyWith(color: palette.successText),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
-          sliver: SliverToBoxAdapter(
-            child: TranslatedText(
-              "data.add.choose",
-              style: palette.body(16).copyWith(color: palette.heading),
-            ),
-          ),
-        ),
-        ...body,
-      ],
+          ...body,
+        ],
+      ),
     );
   }
 }
 
-/// One credential type to add: its logo, name and issuer, an "In your app"
-/// chip when the user has one already ([owned]), an NFC chip for documents,
-/// and a chevron. Greyed out when it needs NFC the device lacks.
+/// One credential type to add: its card, small (with a check when the user
+/// has one already, [owned]), its name, and the issuer, after "Needs NFC"
+/// for documents. Greyed out when it needs NFC the device lacks.
 class AddDataRow extends StatelessWidget {
   final CredentialStoreItem item;
 
@@ -472,72 +552,47 @@ class AddDataRow extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Where a divider between rows starts: past the card.
+  static const dividerIndent = 14.0 + 56 + 14;
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    String t(String key) => FlutterI18n.translate(context, key);
     final credential = item.credential;
     final needsNfc = credentialRequiresNfc(credential.credentialId);
-    final image = credential.image;
-
-    Widget chip(String label, Color fill, Color ink, {IconData? icon}) =>
-        ExcludeSemantics(
-          child: Container(
-            height: 24,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: ShapeDecoration(
-              color: fill,
-              shape: const StadiumBorder(),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 4,
-              children: [
-                if (icon != null) Icon(icon, size: 12, color: ink),
-                Text(
-                  label,
-                  style: palette
-                      .body(11, weight: FontWeight.w700)
-                      .copyWith(color: ink),
-                ),
-              ],
-            ),
-          ),
-        );
+    final subtitle = nfcBlocked
+        ? t("data.add.nfc_unsupported.hint")
+        : needsNfc
+        // First, so a long issuer can't cut it off.
+        ? "${t("data.add.needs_nfc")} · ${credential.issuer.name}"
+        : credential.issuer.name;
 
     return Semantics(
       button: true,
-      hint: nfcBlocked
-          ? FlutterI18n.translate(context, "data.add.nfc_unsupported.hint")
-          : owned
-          ? FlutterI18n.translate(context, "data.add.in_your_app")
-          : null,
+      excludeSemantics: true,
+      label: [
+        credential.name,
+        subtitle,
+        if (owned && !nfcBlocked) t("data.add.in_your_app"),
+      ].join(", "),
+      onTap: onTap,
       child: Opacity(
         opacity: nfcBlocked ? 0.5 : 1,
         child: InkWell(
           key: Key("${credential.credentialId}_tile"),
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 68),
+            constraints: const BoxConstraints(minHeight: 64),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
               child: Row(
                 spacing: 14,
                 children: [
-                  ExcludeSemantics(
-                    child: IrmaAvatar(
-                      size: 44,
-                      initials: credential.name.isEmpty
-                          ? null
-                          : credential.name.characters.first,
-                      logoImage: image == null
-                          ? null
-                          : Base64Image(
-                              base64: image.base64,
-                              mimeType: image.mimeType,
-                              // Decoded at the avatar's size.
-                              size: 44,
-                            ),
-                    ),
+                  CredentialTypeThumbnail(
+                    descriptor: credential,
+                    owned: owned && !nfcBlocked,
+                    greyedOut: nfcBlocked,
                   ),
                   Expanded(
                     child: Column(
@@ -546,16 +601,12 @@ class AddDataRow extends StatelessWidget {
                         Text(
                           credential.name,
                           style: palette
-                              .display(16)
-                              .copyWith(color: palette.text),
+                              .display(15.5)
+                              .copyWith(height: 21 / 15.5, color: palette.text),
                         ),
                         Text(
-                          nfcBlocked
-                              ? FlutterI18n.translate(
-                                  context,
-                                  "data.add.nfc_unsupported.hint",
-                                )
-                              : credential.issuer.name,
+                          subtitle,
+                          key: Key("${credential.credentialId}_subtitle"),
                           maxLines: nfcBlocked ? 3 : 1,
                           overflow: TextOverflow.ellipsis,
                           style: palette
@@ -565,19 +616,6 @@ class AddDataRow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (owned && !nfcBlocked)
-                    chip(
-                      FlutterI18n.translate(context, "data.add.in_your_app"),
-                      palette.successSurface,
-                      palette.successText,
-                    ),
-                  if (needsNfc)
-                    chip(
-                      "NFC",
-                      palette.tint,
-                      palette.link,
-                      icon: Icons.nfc_rounded,
-                    ),
                   Icon(Icons.chevron_right, size: 20, color: palette.faint),
                 ],
               ),

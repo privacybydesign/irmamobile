@@ -3,48 +3,31 @@ import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
 import "../../util/nfc_credentials.dart";
-import "../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_markdown.dart";
 
-/// What a credential type is, compact for the sheet: a small example card
-/// beside the name and "by {issuer}", the intro, what you get as a
-/// checklist of its attributes, and the answers to what it is for and how
-/// it is added, folded into one group. [inDisclosure] adds the note that
-/// only the requested data is shared. The first step of adding a card in a
-/// sheet ([IssueFlow]).
+/// What a credential type is, compact for the sheet (its name is in the
+/// sheet's bar): a small example card beside "Issued by {issuer}", the intro,
+/// what you get as a checklist of its attributes, and the answers to what it
+/// is for and how it is added, folded into one group. During a request
+/// ([forRequestor]) a note says that only what is asked is shared. The first
+/// step of adding a card in a sheet ([IssueFlow]).
 class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;
-  final bool inDisclosure;
+
+  /// The requestor the card is added for, during a request.
+  final String? forRequestor;
 
   const AddDataDetailsContent({
     super.key,
     required this.credential,
     this.faq,
-    this.inDisclosure = false,
+    this.forRequestor,
   });
-
-  /// The card the user gets, drawn as an example from the type alone.
-  schemaless.Credential get _exampleCard {
-    final c = credential;
-    return schemaless.Credential(
-      credentialId: c.credentialId,
-      hash: c.credentialId,
-      name: c.name,
-      issuer: c.issuer,
-      image: c.image,
-      credentialInstanceIds: const {},
-      batchInstanceCountsRemaining: const {},
-      attributes: const [],
-      revoked: false,
-      revocationSupported: false,
-      issueUrl: c.issueURL,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,32 +54,32 @@ class AddDataDetailsContent extends StatelessWidget {
         Row(
           spacing: 14,
           children: [
-            _ExampleCard(credential: _exampleCard),
+            CredentialTypeThumbnail(descriptor: credential, width: 88),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    credential.name,
+                    t("data.add.details.issued_by", {
+                      "issuer": credential.issuer.name,
+                    }),
+                    key: const Key("add_data_details_issuer"),
                     style: palette
-                        .display(20, weight: FontWeight.w700)
-                        .copyWith(height: 26 / 20, color: palette.text),
+                        .body(15, weight: FontWeight.w600)
+                        .copyWith(height: 21 / 15, color: palette.text),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      t("data.add.by", {"issuer": credential.issuer.name}),
-                      style: palette
-                          .body(13)
-                          .copyWith(color: palette.secondaryText),
-                    ),
+                  Text(
+                    credentialRequiresNfc(credential.credentialId)
+                        ? t("data.add.details.example_card_nfc")
+                        : t("data.add.details.example_card"),
+                    key: const Key("add_data_details_example"),
+                    style: palette
+                        .body(13)
+                        .copyWith(
+                          height: 18 / 13,
+                          color: palette.secondaryText,
+                        ),
                   ),
-                  if (credentialRequiresNfc(credential.credentialId))
-                    Padding(
-                      key: const Key("add_data_details_nfc"),
-                      padding: const EdgeInsets.only(top: 8),
-                      child: _Chip(icon: Icons.nfc_rounded, label: "NFC"),
-                    ),
                 ],
               ),
             ),
@@ -117,7 +100,7 @@ class AddDataDetailsContent extends StatelessWidget {
         // them only when the type names none (it repeats them otherwise).
         if (attributeNames.isNotEmpty ||
             content.isNotEmpty ||
-            inDisclosure) ...[
+            forRequestor != null) ...[
           _SectionLabel(t("data.add.details.you_get")),
           GlassGroup(
             key: const Key("add_data_you_get"),
@@ -129,7 +112,8 @@ class AddDataDetailsContent extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: _Markdown(content),
                 ),
-              if (inDisclosure) const _DisclosureNote(),
+              if (forRequestor case final requestor?)
+                _DisclosureNote(requestor: requestor),
             ],
           ),
         ],
@@ -192,81 +176,6 @@ class AddDataDetailsContent extends StatelessWidget {
           for (final p in before) _Markdown(p),
           for (final (n, s) in steps) _Step(number: n, text: s),
           for (final p in after) _Markdown(p),
-        ],
-      ),
-    );
-  }
-}
-
-/// The card art of the credential, small, with an "Example" badge on its
-/// corner.
-class _ExampleCard extends StatelessWidget {
-  final schemaless.Credential credential;
-
-  const _ExampleCard({required this.credential});
-
-  static const double width = 128;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return ExcludeSemantics(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          CredentialCardArt(credential: credential, width: width),
-          Positioned(
-            right: 6,
-            top: -8,
-            child: Container(
-              height: 18,
-              padding: const EdgeInsets.symmetric(horizontal: 7),
-              alignment: Alignment.center,
-              decoration: ShapeDecoration(
-                color: palette.link,
-                shape: const StadiumBorder(),
-              ),
-              child: Text(
-                FlutterI18n.translate(context, "data.add.example"),
-                style: palette
-                    .body(10.5, weight: FontWeight.w700)
-                    .copyWith(color: palette.surface, height: 1),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _Chip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      height: 24,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      decoration: ShapeDecoration(
-        color: palette.tint,
-        shape: const StadiumBorder(),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 4,
-        children: [
-          Icon(icon, size: 13, color: palette.link),
-          Text(
-            label,
-            style: palette
-                .body(12, weight: FontWeight.w700)
-                .copyWith(color: palette.link),
-          ),
         ],
       ),
     );
@@ -403,7 +312,9 @@ class _ChecklistState extends State<_Checklist> {
 
 /// "You will retrieve all available data…", at the foot of what you get.
 class _DisclosureNote extends StatelessWidget {
-  const _DisclosureNote();
+  final String requestor;
+
+  const _DisclosureNote({required this.requestor});
 
   @override
   Widget build(BuildContext context) {
@@ -428,7 +339,8 @@ class _DisclosureNote extends StatelessWidget {
             child: _Markdown(
               FlutterI18n.translate(
                 context,
-                "data.add.details.disclosure_info_markdown",
+                "data.add.details.disclosure_info_requestor",
+                translationParams: {"requestor": requestor},
               ),
               size: 13,
               color: palette.noteText,

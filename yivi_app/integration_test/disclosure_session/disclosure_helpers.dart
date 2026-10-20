@@ -303,7 +303,7 @@ Finder findSheetOwnedRows() => find.descendant(
   ),
 );
 
-/// The "Not in your app yet" row that adds [credentialId].
+/// The compact row of the open sheet that adds [credentialId].
 Finder findSheetAddRow(String credentialId) => find.descendant(
   of: findChoiceSheet(),
   matching: find.byKey(Key("sheet_add_$credentialId")),
@@ -314,7 +314,18 @@ Finder findSheetAddRow(String credentialId) => find.descendant(
 void expectSheetAddRow(String credentialId, String name, String issuer) {
   final row = findSheetAddRow(credentialId);
   expect(row, findsOneWidget, reason: "sheet row for $credentialId");
-  expect(find.descendant(of: row, matching: find.text(name)), findsWidgets);
+  // "Add {name}" (or "Another {name}"), the name in sentence case.
+  expect(
+    find.descendant(
+      of: row,
+      matching: find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            (w.data ?? "").toLowerCase().contains(name.toLowerCase()),
+      ),
+    ),
+    findsWidgets,
+  );
   expect(
     find.descendant(
       of: row,

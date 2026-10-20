@@ -214,6 +214,10 @@
         "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
         "obtain": "{credential} zu meiner Yivi-App hinzufügen",
         "external_note": "Das Hinzufügen geschieht auf {host}. Folge dort den Schritten; Yivi öffnet sich danach von selbst wieder, zurück hier.",
+        "issued_by": "Ausgestellt von {issuer}",
+        "example_card": "Beispielkarte",
+        "example_card_nfc": "Beispielkarte · braucht NFC",
+        "disclosure_info_requestor": "Du bekommst alles, aber {requestor} bekommt nur, was erfragt wird.",
         "you_get": "Du bekommst",
         "good_to_know": "Gut zu wissen",
         "show_all": "Alle {count} anzeigen",
@@ -232,7 +236,8 @@
       "add_more": "Weitere hinzufügen",
       "done": "Fertig",
       "added_more": "{name} hinzugefügt. Noch etwas anderes hinzufügen?",
-      "in_your_app": "In deiner App"
+      "in_your_app": "In deiner App",
+      "needs_nfc": "Braucht NFC"
     },
     "search": {
       "no_results": "Keine Daten gefunden für '{query}'."
@@ -496,7 +501,8 @@
       "added_many": "Diese {count} Karten wurden zu Yivi hinzugefügt.",
       "added_one_back": "{name} wurde zu Yivi hinzugefügt. Als Nächstes zurück zu {requestor}.",
       "added_many_back": "Diese {count} Karten wurden zu Yivi hinzugefügt. Als Nächstes zurück zu {requestor}.",
-      "back_to": "Zurück zu {requestor}"
+      "back_to": "Zurück zu {requestor}",
+      "added_header": "Hinzugefügt"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -1346,6 +1352,7 @@
       "subtitle": "Tippe auf eine Karte in deiner App, um sie zu verwenden, oder füge eine neue hinzu.",
       "subtitle_add": "Wähle, was du hinzufügen möchtest.",
       "another": "Andere(s) {name}",
+      "add_name": "{name} hinzufügen",
       "on_host": "{issuer} · auf {host}",
       "for_requestor": "Für {requestor}",
       "progress_short": "{step} von {total}",

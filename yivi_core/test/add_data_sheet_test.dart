@@ -27,6 +27,8 @@ import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
@@ -254,7 +256,14 @@ void main() {
       expect(_sheet, findsOneWidget);
       expect(find.text("Adding data"), findsOneWidget);
       expect(find.byKey(const Key("add_data_search")), findsOneWidget);
-      expect(find.text("Choose the data you wish to add"), findsOneWidget);
+      // Each type as its card, not a round logo.
+      expect(
+        find.descendant(
+          of: _row("pbdf.pbdf.passport"),
+          matching: find.byType(CredentialTypeThumbnail),
+        ),
+        findsOneWidget,
+      );
       expect(_row("pbdf.pbdf.passport"), findsOneWidget);
       expect(_row("pbdf.sidn-pbdf.email"), findsOneWidget);
     });
@@ -296,7 +305,7 @@ void main() {
       expect(_row("irma-demo.x.card199"), findsOneWidget);
     });
 
-    testWidgets("a bitmap logo is decoded at the avatar's size", (
+    testWidgets("a bitmap logo on the card is decoded at its size", (
       tester,
     ) async {
       // A 1x1 PNG.
@@ -331,7 +340,7 @@ void main() {
         ),
       );
       expect(image.image, isA<ResizeImage>());
-      expect((image.image as ResizeImage).width, 44);
+      expect((image.image as ResizeImage).width, 40);
     });
 
     testWidgets("search narrows the list to matching names and issuers", (
@@ -366,19 +375,18 @@ void main() {
           ),
         ],
       );
+      // A check on the card, and said to screen readers.
       expect(
-        find.descendant(
-          of: _row("pbdf.sidn-pbdf.email"),
-          matching: find.text("In your app"),
-        ),
+        find.byKey(const Key("pbdf.sidn-pbdf.email_owned_check")),
         findsOneWidget,
       );
       expect(
-        find.descendant(
-          of: _row("pbdf.pbdf.passport"),
-          matching: find.text("In your app"),
-        ),
+        find.byKey(const Key("pbdf.pbdf.passport_owned_check")),
         findsNothing,
+      );
+      expect(
+        tester.getSemantics(_row("pbdf.sidn-pbdf.email")).label,
+        contains("In your app"),
       );
     });
 
@@ -406,6 +414,82 @@ void main() {
     });
   });
 
+  group("search: in the list, then in the bar", () {
+    final long = [
+      CredentialStoreCategory(
+        category: "Personal",
+        items: [
+          for (var i = 0; i < 40; i++)
+            _item("irma-demo.x.card$i", "Card ${i.toString().padLeft(2, "0")}"),
+        ],
+      ),
+    ];
+    final list = find
+        .descendant(
+          of: _sheet,
+          matching: find.byWidgetPredicate(
+            (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+          ),
+        )
+        .first;
+    final bar = find.byKey(const Key("add_data_search_bar"));
+
+    testWidgets("scrolled past, the field takes the title's place", (
+      tester,
+    ) async {
+      await _pump(tester, store: long);
+      expect(bar, findsNothing);
+      await tester.drag(list, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      expect(bar, findsOneWidget);
+      // Between the buttons, where the title was.
+      final field = tester.getRect(bar);
+      final close = tester.getRect(find.byType(IrmaCloseButton).last);
+      expect(field.right, lessThanOrEqualTo(close.left));
+      // Back at the top, the title returns.
+      await tester.drag(list, const Offset(0, 600));
+      await tester.pumpAndSettle();
+      expect(bar, findsNothing);
+    });
+
+    testWidgets("typed in the bar, it filters and stays in the bar", (
+      tester,
+    ) async {
+      await _pump(tester, store: long);
+      await tester.drag(list, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await tester.enterText(bar, "Card 07");
+      await tester.pumpAndSettle();
+      expect(_row("irma-demo.x.card7"), findsOneWidget);
+      expect(_row("irma-demo.x.card8"), findsNothing);
+      // The list no longer scrolls, but the field stays where it is typed.
+      expect(bar, findsOneWidget);
+      // Both fields show the same text.
+      final inList = tester.widget<TextField>(
+        find.byKey(const Key("add_data_search"), skipOffstage: false),
+      );
+      expect(inList.controller?.text, "Card 07");
+    });
+  });
+
+  testWidgets("a document needs NFC: said in its subtitle, no pill", (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(
+      tester
+          .widget<Text>(find.byKey(const Key("pbdf.pbdf.passport_subtitle")))
+          .data,
+      startsWith("Needs NFC · "),
+    );
+    expect(
+      tester
+          .widget<Text>(find.byKey(const Key("pbdf.sidn-pbdf.email_subtitle")))
+          .data,
+      isNot(contains("NFC")),
+    );
+  });
+
   group("NFC", () {
     testWidgets("without NFC a document is greyed out, with the reason", (
       tester,
@@ -421,13 +505,8 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(
-          of: _row("pbdf.pbdf.passport"),
-          matching: find.byWidgetPredicate(
-            (w) => w is Semantics && w.properties.hint == _nfcHint,
-          ),
-        ),
-        findsOneWidget,
+        tester.getSemantics(_row("pbdf.pbdf.passport")).label,
+        contains(_nfcHint),
       );
       expect(
         tester.widget<AddDataRow>(_row("pbdf.sidn-pbdf.email")).nfcBlocked,
@@ -438,7 +517,10 @@ void main() {
       await tester.tap(find.byKey(const Key("pbdf.pbdf.passport_tile")));
       await tester.pumpAndSettle();
       expect(find.text("NFC not supported"), findsOneWidget);
-      expect(find.text("1 of 3"), findsNothing);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsNothing,
+      );
     });
 
     testWidgets("enabled with NFC, and while the check is loading", (
@@ -477,15 +559,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("1 of 3"), findsOneWidget);
       expect(
-        find.descendant(
-          of: find.byKey(const Key("issue_sheet_progress_tag")),
-          matching: find.text("Personal data"),
-        ),
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
         findsOneWidget,
       );
-      expect(find.text("Example"), findsOneWidget);
+      // The card's name is the bar's title; no tag, no requestor line.
+      expect(find.text("Personal data"), findsWidgets);
+      expect(find.byKey(const Key("issue_sheet_for_requestor")), findsNothing);
+      expect(find.text("Example card"), findsOneWidget);
       // Not during a request: no note about sharing only what is asked.
       expect(find.textContaining("you will only share"), findsNothing);
       // Issued on a website: said before leaving, right above the button.
@@ -497,7 +578,10 @@ void main() {
       await tester.tap(find.bySemanticsLabel("Go back"));
       await tester.pumpAndSettle();
       expect(_row("pbdf.pbdf.passport"), findsOneWidget);
-      expect(find.text("1 of 3"), findsNothing);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsNothing,
+      );
     });
 
     /// The sheet on the personal data's details, its website opened.
@@ -563,14 +647,20 @@ void main() {
     ) async {
       final (calls, nested) = await openWebsite(tester);
       expect(calls.obtained, ["pbdf.gemeente.personalData"]);
-      expect(find.text("2 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
       expect(find.byKey(const Key("sheet_external_note")), findsNothing);
 
       comeBack(tester);
       nested.add(issuance(SessionStatus.requestPermission));
       await tester.pumpAndSettle();
-      expect(find.text("3 of 3"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
+        findsOneWidget,
+      );
       expect(
         find.text("Do you want to add this data to your Yivi app?"),
         findsOneWidget,
@@ -589,6 +679,7 @@ void main() {
     ) async {
       await toSuccess(tester);
       expect(find.text("Done"), findsWidgets);
+      expect(find.text("Added"), findsOneWidget);
       expect(
         find.text("Personal data has been added to Yivi."),
         findsOneWidget,
@@ -677,20 +768,24 @@ void main() {
     await tester.tap(find.byKey(const Key("obtain_again")));
     await tester.pumpAndSettle();
     expect(_sheet, findsOneWidget);
-    expect(find.text("1 of 3"), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byKey(const Key("issue_sheet_progress_tag")),
-        matching: find.text("Personal data"),
-      ),
+      find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
       findsOneWidget,
     );
+    // The card's name is the bar's title.
+    expect(find.text("Personal data"), findsWidgets);
     // The details are the sheet's first page: no back button, and a swipe
     // does not go back to the list.
     expect(find.bySemanticsLabel("Go back"), findsNothing);
-    await tester.drag(find.text("1 of 3"), const Offset(300, 0));
+    await tester.drag(
+      find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+      const Offset(300, 0),
+    );
     await tester.pumpAndSettle();
-    expect(find.text("1 of 3"), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+      findsOneWidget,
+    );
     expect(_row("pbdf.pbdf.passport"), findsNothing);
   });
 
@@ -708,14 +803,12 @@ void main() {
     await tester.tap(find.byKey(const Key("sheet_go_button")));
     await _pumpFor(tester);
     expect(find.text("Add email address"), findsOneWidget);
-    expect(find.text("2 of 4"), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byKey(const Key("issue_sheet_progress_tag")),
-        matching: find.text("Email"),
-      ),
+      find.byKey(const ValueKey(("issue_sheet_progress", 2, 4))),
       findsOneWidget,
     );
+    // Not for a request: no line saying who it is for.
+    expect(find.byKey(const Key("issue_sheet_for_requestor")), findsNothing);
   });
 
   for (final (credentialId, documentType) in [
@@ -743,7 +836,10 @@ void main() {
       );
       await tester.tap(find.byKey(Key("${credentialId}_tile")));
       await tester.pumpAndSettle();
-      expect(find.text("1 of 5"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 5))),
+        findsOneWidget,
+      );
       expect(find.byType(DocumentInstructionScreen), findsNothing);
 
       await tester.tap(find.byKey(const Key("sheet_go_button")));
