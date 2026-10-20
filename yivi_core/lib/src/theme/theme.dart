@@ -308,6 +308,19 @@ class IrmaThemeData {
       inputDecorationTheme: inputDecorationTheme,
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
       pageTransitionsTheme: yiviPageTransitionsTheme,
+      // No ink anywhere: no ripple and no grey wash on a press. Buttons and
+      // cards give their own feedback (they scale or give way).
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      textButtonTheme: const TextButtonThemeData(style: _noInk),
+      elevatedButtonTheme: const ElevatedButtonThemeData(style: _noInk),
+      outlinedButtonTheme: const OutlinedButtonThemeData(style: _noInk),
+      filledButtonTheme: const FilledButtonThemeData(style: _noInk),
+      iconButtonTheme: const IconButtonThemeData(style: _noInk),
+      checkboxTheme: const CheckboxThemeData(overlayColor: _noOverlay),
+      radioTheme: const RadioThemeData(overlayColor: _noOverlay),
+      switchTheme: const SwitchThemeData(overlayColor: _noOverlay),
     );
   }
 }
@@ -343,3 +356,11 @@ class IrmaTheme extends InheritedWidget {
 
 Color _pick(Brightness brightness, int light, int dark) =>
     Color(brightness == Brightness.dark ? dark : light);
+
+/// A press shows no ink: no ripple and no pressed or hover wash.
+const _noInk = ButtonStyle(
+  splashFactory: NoSplash.splashFactory,
+  overlayColor: _noOverlay,
+);
+
+const _noOverlay = WidgetStatePropertyAll<Color>(Colors.transparent);
