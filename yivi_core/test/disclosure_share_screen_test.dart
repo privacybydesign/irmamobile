@@ -1247,7 +1247,7 @@ void main() {
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
 
-    testWidgets("the PIN is a page in the sheet, without the logo", (
+    testWidgets("the PIN is a page in the sheet, with the lock", (
       tester,
     ) async {
       final (calls, nested) = await openWebsite(tester);
@@ -1267,9 +1267,10 @@ void main() {
         ),
         findsOneWidget,
       );
-      // No full-screen PIN route, and no logo or lock above the pad.
+      // No full-screen PIN route; the lock above the pad, as on the full
+      // screen PIN (the design's "PIN to share, in the sheet").
       expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
+      expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
       expect(
         find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
         findsOneWidget,

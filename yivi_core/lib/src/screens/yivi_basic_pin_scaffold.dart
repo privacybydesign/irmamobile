@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
+import "../util/navigation.dart";
 import "../widgets/irma_app_bar.dart";
 import "pin/yivi_pin_screen.dart";
 
@@ -10,10 +11,14 @@ class YiviBasicPinScaffold extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final String instructionKey;
 
+  /// A wrong PIN: what the line under the title says (the tries left).
+  final String? error;
+
   YiviBasicPinScaffold({
     required this.submit,
     this.cancel,
     required this.instructionKey,
+    this.error,
   });
 
   @override
@@ -49,16 +54,16 @@ class YiviBasicPinScaffold extends StatelessWidget {
             lockIcon: true,
             maxPinSize: maxPinSize,
             onSubmit: submit,
+            onForgotPin: context.pushResetPinScreen,
+            detail: error,
+            detailKind: PinDetailKind.error,
+            pinError: error != null,
             listener: (context, state) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize) {
                 submit(state.toString());
               }
             },
-            // Same as the unlock screen: short PIN auto-submits, so don't
-            // reserve space for a Next button that never shows.
-            submitButtonVisibilityListener: (context, _) =>
-                autoSubmitButtonVisibility(maxPinSize),
           );
         },
       ),

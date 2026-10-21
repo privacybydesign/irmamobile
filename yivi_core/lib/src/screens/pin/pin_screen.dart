@@ -19,9 +19,6 @@ import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_close_button.dart";
-import "../../widgets/pin_common/format_blocked_for.dart";
-import "../../widgets/pin_common/pin_wrong_attempts.dart";
-import "../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
@@ -125,25 +122,6 @@ class _PinScreenState extends ConsumerState<PinScreen>
     }
   }
 
-  void _showWrongAttemptsDialog(int attemptsRemaining) {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (context) => PinWrongAttemptsDialog(
-        attemptsRemaining: attemptsRemaining,
-        onClose: Navigator.of(context).pop,
-      ),
-    );
-  }
-
-  void _showBlockedDialog(int secondsBlocked) {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (context) => PinWrongBlockedDialog(blocked: secondsBlocked),
-    );
-  }
-
   void _goToSessionErrorScreen(SessionError? error) {
     if (!mounted) return;
     Navigator.of(context).push(
@@ -162,16 +140,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
       widget.onAuthenticated();
       return;
     }
+    // A wrong PIN or a block is said on the screen itself (see build): the
+    // entry is cleared, the dots ring red and the line says what happened.
     if (state.pinInvalid) {
       HapticFeedback.heavyImpact();
       if (mounted) setState(() => _resetNonce++);
-      final secondsBlocked =
-          state.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
-      if (state.remainingAttempts != null && state.remainingAttempts! > 0) {
-        _showWrongAttemptsDialog(state.remainingAttempts!);
-      } else if (secondsBlocked > 0) {
-        _showBlockedDialog(secondsBlocked);
-      }
     } else if (state.error != null) {
       HapticFeedback.heavyImpact();
       _goToSessionErrorScreen(state.error);
@@ -288,21 +261,17 @@ class _PinScreenState extends ConsumerState<PinScreen>
       });
     }
 
-    var subtitle = FlutterI18n.translate(context, "pin.subtitle");
-    String? blockedText;
-    if (blockedFor.inSeconds > 0) {
-      blockedText =
-          "${FlutterI18n.translate(context, "pin_common.blocked_for")} "
-          "${formatBlockedFor(context, blockedFor)}";
-      subtitle = blockedText;
-    }
+    final line = pinStateLine(context, state, blockedFor);
     // A request waits behind the lock: who it is from and what they want
     // take the logo's place, and the heading says what the PIN is for.
     final waiting = hasSession ? ref.watch(waitingRequestProvider).value : null;
-    String? detail;
+    var subtitle = blocked
+        ? FlutterI18n.translate(context, "pin.blocked_title")
+        : FlutterI18n.translate(context, "pin.subtitle");
+    String? detail = line?.text;
     if (waiting != null) {
       subtitle = FlutterI18n.translate(context, waitingHeadKey(waiting));
-      detail = blockedText ?? waitingDetail(context, waiting);
+      detail ??= waitingDetail(context, waiting);
     }
 
     void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
@@ -345,7 +314,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
                     ? null
                     : WaitingRequestCard(request: waiting, compact: true),
                 detail: detail,
-                detailIsError: blockedText != null && waiting != null,
+                detailKind: line == null
+                    ? PinDetailKind.info
+                    : PinDetailKind.error,
+                detailClock: blocked,
+                pinError: line != null && !blocked,
                 maxPinSize: maxPinSize,
                 submitLabel: "pin.unlock",
                 onSubmit: enabled ? submit : (_) {},
@@ -362,8 +335,6 @@ class _PinScreenState extends ConsumerState<PinScreen>
                     submit(pinState.toString());
                   }
                 },
-                submitButtonVisibilityListener: (context, _) =>
-                    autoSubmitButtonVisibility(maxPinSize),
               ),
             ),
           if (state.authenticateInProgress) const CircularProgressIndicator(),
@@ -371,4 +342,21 @@ class _PinScreenState extends ConsumerState<PinScreen>
       ),
     );
   }
+}
+
+/// What the line under the title says after a wrong PIN or during a block:
+/// the tries left, or how long until the next try. Null when neither.
+({String text})? pinStateLine(
+  BuildContext context,
+  PinUnlockState state,
+  Duration blockedFor,
+) {
+  if (blockedFor.inSeconds > 0) {
+    return (text: pinTryAgainIn(context, blockedFor));
+  }
+  final left = state.remainingAttempts;
+  if (state.pinInvalid && left != null && left > 0) {
+    return (text: FlutterI18n.plural(context, "pin.wrong.attempts", left));
+  }
+  return null;
 }

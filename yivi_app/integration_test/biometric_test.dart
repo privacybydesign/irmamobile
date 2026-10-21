@@ -11,7 +11,6 @@ import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 
 import "helpers/fake_local_auth.dart";
 import "helpers/helpers.dart";
@@ -79,7 +78,8 @@ void main() {
 
       // Choose + confirm PIN
       await enterPin(tester, "12345");
-      await tester.tapAndSettle(find.text("Next"));
+      // A weak PIN goes on by the PIN field\'s arrow.
+      await tester.tapAndSettle(find.byKey(const Key("pin_next")));
       await enterPin(tester, "12345");
     }
 
@@ -387,17 +387,12 @@ void main() {
       // Biometric is offered on the lock screen to begin with.
       await tester.waitFor(lockScreenBiometricButton);
 
-      // Three wrong PINs trip the temporary block. Each wrong attempt shows a
-      // dialog that we dismiss before the next one.
-      final dialogFinder = find.byKey(const Key("irma_dialog"));
+      // Three wrong PINs trip the temporary block. Each wrong attempt is said
+      // on the screen, under the title; the block too.
       for (var attempt = 0; attempt < 3; attempt++) {
         await enterPin(tester, "54321");
-        await tester.waitFor(dialogFinder);
-        await tester.tapAndSettle(
-          find.descendant(
-            of: dialogFinder,
-            matching: find.byType(FancyPillButton),
-          ),
+        await tester.waitFor(
+          find.textContaining(attempt < 2 ? "Wrong PIN" : "Try again in"),
         );
       }
 

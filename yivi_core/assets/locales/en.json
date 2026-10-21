@@ -128,7 +128,8 @@
     "switch_pin_size": {
       "long": "Prefer a longer PIN?",
       "short": "Prefer a shorter PIN?"
-    }
+    },
+    "long_rule": "At least 6 digits"
   },
   "confirm_pin": {
     "error": {
@@ -695,7 +696,14 @@
       "body": "Use your fingerprint or face to unlock the app. You'll still need to enter your PIN for sessions.",
       "enable": "Enable",
       "not_now": "Not now"
-    }
+    },
+    "wrong": {
+      "attempts-0": "Wrong PIN. {count} tries left before Yivi is blocked for a while.",
+      "attempts-1": "Wrong PIN. {count} try left before Yivi is blocked for a while.",
+      "attempts-2": "Wrong PIN. {count} tries left before Yivi is blocked for a while."
+    },
+    "blocked_title": "Yivi is blocked for a while",
+    "try_again_in": "Try again in {time}"
   },
   "pin_accessibility": {
     "show_pin": "Show PIN",
@@ -706,17 +714,6 @@
     "digits_entered-2": "{digits} digits entered"
   },
   "pin_common": {
-    "blocked_for": "Login is blocked for",
-    "second": {
-      "time-0": "{time} seconds",
-      "time-1": "{time} second",
-      "time-2": "{time} seconds"
-    },
-    "minute": {
-      "time-0": "{time} minutes",
-      "time-1": "{time} minute",
-      "time-2": "{time} minutes"
-    },
     "hour": {
       "time-0": "{time} hours",
       "time-1": "{time} hour",
@@ -727,16 +724,6 @@
       "time-1": "{time} day",
       "time-2": "{time} days"
     },
-    "invalid_title": "PIN incorrect",
-    "invalid_pin": {
-      "attempts-0": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {count} attempt left before your Yivi app will be blocked temporarily.",
-      "attempts-2": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily."
-    },
-    "invalid_close": "Try again",
-    "blocked_title": "App blocked",
-    "blocked_pin": "Your app has been blocked for {blocked}. Please try again later.",
-    "blocked_close": "Try again",
     "done": "Continue",
     "view": "Show PIN",
     "hide": "Hide PIN"
@@ -776,7 +763,6 @@
     "accept_risk": "I accept the risk"
   },
   "secure_pin": {
-    "info_button": "PIN possibly not secure",
     "title": "Choose PIN",
     "subtitle": "A secure PIN has the following properties:",
     "rules": {
@@ -784,7 +770,9 @@
       "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like 12345",
       "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like 12312, 12321, 13331",
       "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
-    }
+    },
+    "inline": "This PIN is possibly not secure.",
+    "why": "Why?"
   },
   "session": {
     "navigation_bar": {
@@ -807,7 +795,13 @@
     }
   },
   "session_pin": {
-    "subtitle": "Enter your PIN"
+    "subtitle": "Enter your PIN",
+    "detail": {
+      "disclosure": "to share your data with {requestor}",
+      "issuance": "to add data from {requestor}",
+      "signature": "to sign for {requestor}"
+    },
+    "submit": "Confirm"
   },
   "settings": {
     "title": "Settings",

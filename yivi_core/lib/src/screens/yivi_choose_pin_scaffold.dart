@@ -1,3 +1,4 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
@@ -53,18 +54,18 @@ class YiviChoosePinScaffold extends StatelessWidget {
                 maxPinSize: maxPinSize,
                 onSubmit: _submit,
                 onTogglePinSize: () => toggleValue.value = !toggleValue.value,
-                displayPinLength: true,
+                // A long PIN's rule; a PIN that is possibly not secure says
+                // so in this line instead (checkSecurePin).
+                detail: longPin
+                    ? FlutterI18n.translate(context, "choose_pin.long_rule")
+                    : null,
                 checkSecurePin: true,
+                // A secure short PIN goes on by itself; one that is possibly
+                // not secure, and a long PIN, by the arrow.
                 listener: (context, state) {
                   if (maxPinSize == shortPinSize && state.goodEnough) {
                     _submit(state.toString());
                   }
-                },
-                submitButtonVisibilityListener: (context, state) {
-                  if (!longPin && state.pin.length < shortPinSize) {
-                    return defaultSubmitButtonVisibility(context, maxPinSize);
-                  }
-                  return WidgetVisibility.visible;
                 },
               );
             },

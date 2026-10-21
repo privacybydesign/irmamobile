@@ -8,7 +8,6 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
-import "../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../change_pin/widgets/confirm_pin.dart";
 import "../change_pin/widgets/enter_pin.dart";
 import "../enrollment/choose_pin/choose_pin_screen.dart";
@@ -102,16 +101,9 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
   void _handleBadPinAttempts(int attemptsRemaining, DateTime? blockedUntil) {
     // go back
     navigatorKey.currentState?.pop();
-    // and indicate mistake to user
-    if (attemptsRemaining > 0) {
-      showDialog(
-        context: context,
-        builder: (context) => PinWrongAttemptsDialog(
-          attemptsRemaining: attemptsRemaining,
-          onClose: Navigator.of(context).pop,
-        ),
-      );
-    } else {
+    // The enter-PIN page opened again says it was wrong (EnterPin); out of
+    // tries, the app locks with the block.
+    if (attemptsRemaining <= 0) {
       context.goHomeScreenWithoutTransition();
       ref.read(irmaRepositoryProvider).lock(unblockTime: blockedUntil);
     }

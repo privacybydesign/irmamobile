@@ -128,7 +128,8 @@
     "switch_pin_size": {
       "long": "Liever een langere pincode?",
       "short": "Liever een kortere pincode?"
-    }
+    },
+    "long_rule": "Minstens 6 cijfers"
   },
   "confirm_pin": {
     "error": {
@@ -698,7 +699,14 @@
       "body": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor sessies moet je nog steeds je pincode invoeren.",
       "enable": "Inschakelen",
       "not_now": "Niet nu"
-    }
+    },
+    "wrong": {
+      "attempts-0": "Verkeerde pincode. Nog {count} pogingen voordat Yivi een tijdje wordt geblokkeerd.",
+      "attempts-1": "Verkeerde pincode. Nog {count} poging voordat Yivi een tijdje wordt geblokkeerd.",
+      "attempts-2": "Verkeerde pincode. Nog {count} pogingen voordat Yivi een tijdje wordt geblokkeerd."
+    },
+    "blocked_title": "Yivi is een tijdje geblokkeerd",
+    "try_again_in": "Probeer het over {time} opnieuw"
   },
   "pin_accessibility": {
     "show_pin": "Toon pincode",
@@ -709,17 +717,6 @@
     "digits_entered-2": "{digits} cijfers ingevoerd"
   },
   "pin_common": {
-    "blocked_for": "Login is geblokkeerd voor",
-    "second": {
-      "time-0": "{time} seconden",
-      "time-1": "{time} seconde",
-      "time-2": "{time} seconden"
-    },
-    "minute": {
-      "time-0": "{time} minuten",
-      "time-1": "{time} minuut",
-      "time-2": "{time} minuten"
-    },
     "hour": {
       "time-0": "{time} uren",
       "time-1": "{time} uur",
@@ -730,16 +727,6 @@
       "time-1": "{time} dag",
       "time-2": "{time} dagen"
     },
-    "invalid_title": "Pincode is onjuist",
-    "invalid_pin": {
-      "attempts-0": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-1": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-2": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
-    },
-    "invalid_close": "Opnieuw proberen",
-    "blocked_title": "App geblokkeerd",
-    "blocked_pin": "Je app is voor {blocked} geblokkeerd. Probeer het later nog een keer.",
-    "blocked_close": "Opnieuw proberen",
     "done": "Doorgaan",
     "view": "Pincode tonen",
     "hide": "Pincode verbergen"
@@ -779,7 +766,6 @@
     "accept_risk": "Ik accepteer het risico"
   },
   "secure_pin": {
-    "info_button": "Pincode mogelijk niet veilig",
     "title": "Pincode aanmaken",
     "subtitle": "Een veilige pincode voldoet aan:",
     "rules": {
@@ -787,7 +773,9 @@
       "must_not_asc_or_desc": "Bevat geen op- en aflopende reeksen, zoals 12345",
       "not_abcab_nor_abcba": "Bevat geen toetsenbordpatronen, zoals: abcab, abcba. Voorbeelden: 12312, 12321, 13331",
       "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
-    }
+    },
+    "inline": "Deze pincode is mogelijk niet veilig.",
+    "why": "Waarom?"
   },
   "session": {
     "navigation_bar": {
@@ -810,7 +798,13 @@
     }
   },
   "session_pin": {
-    "subtitle": "Voer je pincode in"
+    "subtitle": "Voer je pincode in",
+    "detail": {
+      "disclosure": "om je gegevens te delen met {requestor}",
+      "issuance": "om gegevens van {requestor} toe te voegen",
+      "signature": "om te ondertekenen voor {requestor}"
+    },
+    "submit": "Bevestigen"
   },
   "settings": {
     "title": "Instellingen",

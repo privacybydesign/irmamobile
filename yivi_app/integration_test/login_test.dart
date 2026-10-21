@@ -48,30 +48,8 @@ void main() {
       // Login using wrong pin
       await enterPin(tester, "54321");
 
-      // Check error dialog
-      await tester.waitFor(dialogFinder);
-
-      // Check "Wrong PIN" dialog title text
-      String string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_title")))
-          .first;
-      expect(string, "PIN incorrect");
-
-      // Check dialog text
-      string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_content")))
-          .first;
-      expect(
-        string,
-        "This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.",
-      );
-
-      await tester.tapAndSettle(
-        find.descendant(
-          of: dialogFinder,
-          matching: find.byType(FancyPillButton),
-        ),
-      );
+      // Wrong PIN: said on the screen, under the title (no dialog).
+      await expectPinLine(tester, "Wrong PIN. 2 tries left");
 
       // Press "Forgot pin"
       expect(forgotPinLinkFinder, findsOneWidget);
@@ -126,84 +104,21 @@ void main() {
       await tester.waitFor(pinScreenFinder);
       await enterPin(tester, "54321");
 
-      // Check error dialog
-      await tester.waitFor(dialogFinder);
-
-      // Check "Wrong PIN" dialog title text
-      String string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_title")))
-          .first;
-      expect(string, "PIN incorrect");
-
-      // Check dialog text
-      string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_content")))
-          .first;
-      expect(
-        string,
-        "This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.",
-      );
-      await tester.tapAndSettle(
-        find.descendant(
-          of: dialogFinder,
-          matching: find.byType(FancyPillButton),
-        ),
-      );
+      // Wrong PIN: said on the screen, under the title (no dialog).
+      await expectPinLine(tester, "Wrong PIN. 2 tries left");
 
       // Login using wrong pin
       await enterPin(tester, "54321");
 
-      // Check error dialog
-      await tester.waitFor(find.byKey(const Key("irma_dialog")));
-
-      // Check "Wrong PIN" dialog title text
-      string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_title")))
-          .first;
-      expect(string, "PIN incorrect");
-
-      // Check dialog text
-      string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_content")))
-          .first;
-      expect(
-        string,
-        "This PIN is not correct. You have 1 attempt left before your Yivi app will be blocked temporarily.",
-      );
-      await tester.tapAndSettle(
-        find.descendant(
-          of: find.byKey(const Key("irma_dialog")),
-          matching: find.byType(FancyPillButton),
-        ),
-      );
+      // Wrong PIN: said on the screen, under the title (no dialog).
+      await expectPinLine(tester, "Wrong PIN. 1 try left");
 
       // Login using wrong pin
       await enterPin(tester, "54321");
 
-      // Check error dialog
-      await tester.waitFor(dialogFinder);
-
-      // Check "Wrong PIN" dialog title text
-      string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_title")))
-          .first;
-      expect(string, "App blocked");
-
-      // Check dialog text
-      string = tester
-          .getAllText(find.byKey(const Key("irma_dialog_content")))
-          .first;
-
-      expect(
-        string,
-        "Your app has been blocked for 1 minute. Please try again later.",
-      );
-      await tester.tapAndSettle(
-        find.descendant(
-          of: dialogFinder,
-          matching: find.byType(FancyPillButton),
-        ),
-      );
+      // Blocked: said on the screen, with the time left; the keypad is off.
+      await expectPinLine(tester, "Yivi is blocked for a while");
+      expect(find.textContaining("Try again in"), findsOneWidget);
 
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));
@@ -281,4 +196,11 @@ void main() {
       expect(enrollmentScreenFinder, findsOneWidget);
     });
   });
+}
+
+/// Waits for the PIN screen's line under the title (or its title) to say
+/// [text].
+Future<void> expectPinLine(WidgetTester tester, String text) async {
+  await tester.waitFor(find.textContaining(text));
+  expect(find.textContaining(text), findsOneWidget);
 }

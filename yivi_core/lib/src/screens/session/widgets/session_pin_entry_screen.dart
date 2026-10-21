@@ -1,26 +1,26 @@
-import "dart:math";
+import "dart:async";
 
 import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
-import "../../../util/tablet.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
-import "../../../widgets/pin_common/pin_wrong_attempts.dart";
-import "../../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../../pin/yivi_pin_screen.dart";
-import "session_columns.dart";
 
 /// Session PIN entry. A thin wrapper around the shared [YiviPinScreen]: it owns
 /// only the session-specific bits (close button, submitting spinner, and the
-/// wrong-attempt / blocked dialogs driven by [SessionScreen]). The entry is
-/// cleared after a wrong attempt by bumping a [ValueKey], which remounts
+/// wrong-PIN / blocked line driven by [SessionScreen]). The entry is cleared
+/// after a wrong attempt by bumping a [ValueKey], which remounts
 /// [YiviPinScreen] with an empty buffer. No biometrics here — sessions always
 /// require the PIN.
 class SessionPinEntryScreen extends StatefulWidget {
   final String title;
+
+  /// What the PIN is for, under the title: "to share your data with …".
+  final String? detail;
   final int? remainingAttempts;
   final int? blockedTimeSeconds;
   final bool submitting;
@@ -28,8 +28,8 @@ class SessionPinEntryScreen extends StatefulWidget {
   final ValueChanged<String> onPinEntered;
   final VoidCallback onCancel;
 
-  /// Only the PIN pad, without the screen around it and without the logo:
-  /// for a page in a sheet, which has its own title bar and close button.
+  /// Only the PIN pad, without the screen around it: for a page in a sheet,
+  /// which has its own title bar and close button.
   final bool inSheet;
 
   const SessionPinEntryScreen({
@@ -37,6 +37,7 @@ class SessionPinEntryScreen extends StatefulWidget {
     required this.title,
     required this.onPinEntered,
     required this.onCancel,
+    this.detail,
     this.remainingAttempts,
     this.blockedTimeSeconds,
     this.submitting = false,
@@ -54,48 +55,58 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   int _resetNonce = 0;
   bool _submitted = false;
 
+  /// The wrong PIN just entered, until the block or the next attempt.
+  bool _wrong = false;
+
+  /// When a block ends, and the ticker that counts down to it.
+  DateTime? _blockedUntil;
+  Timer? _ticker;
+
   @override
   void didUpdateWidget(SessionPinEntryScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Blocked: clear the entry, show the blocked dialog, stay in the session.
-    // Pop any existing dialog first (e.g. a preceding wrong-pin dialog).
+    // Blocked: clear the entry and count down on the screen; the keypad is
+    // off until the block is over.
     if (widget.blockedTimeSeconds != null &&
         _previousBlockedTimeSeconds == null) {
       _resetEntry();
       HapticFeedback.heavyImpact();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      _blockedUntil = DateTime.now().add(
+        Duration(seconds: widget.blockedTimeSeconds!),
+      );
+      _ticker?.cancel();
+      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
-        Navigator.of(context).popUntil((route) => route is! DialogRoute);
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (ctx) =>
-              PinWrongBlockedDialog(blocked: widget.blockedTimeSeconds!),
-        );
+        if (_blockedLeft == Duration.zero) _ticker?.cancel();
+        setState(() {});
       });
     }
-    // Wrong pin: clear the entry, show the attempts dialog (unless blocked,
+    // Wrong PIN: clear the entry and say so on the screen (unless blocked,
     // which takes priority).
     else if (widget.remainingAttempts != null &&
         widget.remainingAttempts != _previousRemainingAttempts &&
         widget.blockedTimeSeconds == null) {
       _resetEntry();
+      _wrong = true;
       HapticFeedback.heavyImpact();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        showDialog(
-          context: context,
-          builder: (ctx) => PinWrongAttemptsDialog(
-            attemptsRemaining: widget.remainingAttempts!,
-            onClose: () => Navigator.of(ctx).pop(),
-          ),
-        );
-      });
     }
 
     _previousRemainingAttempts = widget.remainingAttempts;
     _previousBlockedTimeSeconds = widget.blockedTimeSeconds;
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  Duration get _blockedLeft {
+    final until = _blockedUntil;
+    if (until == null) return Duration.zero;
+    final left = until.difference(DateTime.now());
+    return left.isNegative ? Duration.zero : left;
   }
 
   void _resetEntry() => setState(() {
@@ -106,6 +117,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   void _submit(String pin) {
     if (widget.submitting || _submitted) return;
     _submitted = true;
+    _wrong = false;
     widget.onPinEntered(pin);
   }
 
@@ -113,6 +125,14 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final paddingSize = theme.screenPadding;
+    final blockedLeft = _blockedLeft;
+    final blocked = blockedLeft > Duration.zero;
+    final attempts = widget.remainingAttempts;
+    final String? line = blocked
+        ? pinTryAgainIn(context, blockedLeft)
+        : _wrong && attempts != null && attempts > 0
+        ? FlutterI18n.plural(context, "pin.wrong.attempts", attempts)
+        : null;
     final pad = Stack(
       alignment: Alignment.center,
       children: [
@@ -122,18 +142,21 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         if (!widget.submitting)
           YiviPinScreen(
             key: ValueKey(_resetNonce),
-            instructionKey: "session_pin.subtitle",
-            // A lock, not the logo, as on the session PIN board; in a sheet
-            // neither (the sheet's bar says what it is for).
+            instruction: FlutterI18n.translate(
+              context,
+              blocked ? "pin.blocked_title" : "session_pin.subtitle",
+            ),
+            // A lock, not the logo: this PIN confirms a request.
             lockIcon: true,
-            showMark: !widget.inSheet,
+            detail: line ?? widget.detail,
+            detailKind: line == null ? PinDetailKind.info : PinDetailKind.error,
+            detailClock: blocked,
+            pinError: line != null && !blocked,
             maxPinSize: widget.maxPinSize,
-            enabled: !widget.submitting,
-            displayPinLength: true,
+            enabled: !widget.submitting && !blocked,
+            submitLabel: "session_pin.submit",
             onSubmit: _submit,
             onForgotPin: context.pushResetPinScreen,
-            submitButtonVisibilityListener: (context, _) =>
-                autoSubmitButtonVisibility(widget.maxPinSize),
             listener: (context, state) {
               if (widget.maxPinSize == shortPinSize &&
                   state.pin.length == widget.maxPinSize) {
@@ -159,43 +182,28 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
       ),
       backgroundColor: theme.backgroundPrimary,
       body: SafeArea(
+        bottom: false,
         child: Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.only(
-            left: paddingSize,
-            right: paddingSize,
-            bottom: paddingSize,
-          ),
-          child: _applyTabletSupport(context, pad),
+          margin: EdgeInsets.symmetric(horizontal: paddingSize),
+          child: pad,
         ),
       ),
     );
   }
+}
 
-  Widget _applyTabletSupport(BuildContext context, Widget body) {
-    // The tablet layout: the PIN screen's side-by-side layout (instruction
-    // and dots on the left, the keypad on the right) in a centred box wider
-    // than it is high, which is what picks that layout.
-    if (useSessionColumns(context)) {
-      return LayoutBuilder(
-        builder: (context, constraints) => SizedBox(
-          width: min(constraints.maxWidth, 800),
-          height: min(constraints.maxHeight, 520),
-          child: body,
-        ),
-      );
-    }
-    if (!context.isTabletDevice) return body;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const commonShortestPhoneEdge = 414.0;
-        const commonLargestPhoneEdge = 736.0;
-        return SizedBox(
-          width: commonShortestPhoneEdge,
-          height: min(constraints.maxHeight, commonLargestPhoneEdge),
-          child: body,
-        );
-      },
-    );
-  }
+/// What a session's PIN is for, under its title: "to share your data with
+/// {requestor}", "to add data from …" or "to sign for …".
+String? sessionPinDetail(
+  BuildContext context, {
+  required String kind,
+  required String requestor,
+}) {
+  if (requestor.isEmpty) return null;
+  return FlutterI18n.translate(
+    context,
+    "session_pin.detail.$kind",
+    translationParams: {"requestor": requestor},
+  );
 }

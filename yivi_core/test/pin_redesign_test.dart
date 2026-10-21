@@ -6,9 +6,6 @@ import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/pin_common/pin_wrong_attempts.dart";
-import "package:yivi_core/src/widgets/pin_common/pin_wrong_blocked.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
@@ -47,25 +44,25 @@ Future<void> _enter(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle();
 }
 
-const _infoButton = "PIN possibly not secure";
+const _warning = "This PIN is possibly not secure.";
 
 void main() {
   group("choose PIN", () {
-    Widget choose() {
+    Widget choose({int size = 5, void Function(String)? onSubmit}) {
       final scaffoldKey = GlobalKey<ScaffoldState>();
       return YiviPinScaffold(
         key: scaffoldKey,
         body: YiviPinScreen(
           scaffoldKey: scaffoldKey,
           instructionKey: "choose_pin.header",
-          maxPinSize: 5,
+          maxPinSize: size,
           checkSecurePin: true,
-          onSubmit: (_) {},
+          onSubmit: onSubmit ?? (_) {},
         ),
       );
     }
 
-    testWidgets("a weak PIN shows the warning pill and its rules", (
+    testWidgets("a weak PIN says so under the title, with its rules", (
       tester,
     ) async {
       _phone(tester);
@@ -73,10 +70,9 @@ void main() {
       await tester.pumpAndSettle();
 
       await _enter(tester, "11111");
-      final warning = find.text(_infoButton);
-      expect(warning, findsOneWidget);
+      expect(find.textContaining(_warning), findsOneWidget);
 
-      await tester.tap(warning);
+      await tester.tapOnText(find.textRange.ofSubstring("Why?"));
       await tester.pumpAndSettle();
       expect(
         find.text("A secure PIN has the following properties:"),
@@ -84,6 +80,43 @@ void main() {
       );
       // Pass or fail is in the label, not only in the colour.
       expect(find.bySemanticsLabel("No"), findsWidgets);
+    });
+
+    testWidgets("a weak short PIN goes on by the arrow, not by itself", (
+      tester,
+    ) async {
+      _phone(tester);
+      String? submitted;
+      await pumpTranslated(
+        tester,
+        _app(choose(onSubmit: (pin) => submitted = pin)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("pin_next")), findsNothing);
+
+      await _enter(tester, "11111");
+      expect(submitted, isNull);
+      await tester.tap(find.byKey(const Key("pin_next")));
+      expect(submitted, "11111");
+    });
+
+    testWidgets("a long PIN's arrow submits from six digits", (tester) async {
+      _phone(tester);
+      String? submitted;
+      await pumpTranslated(
+        tester,
+        _app(choose(size: 16, onSubmit: (pin) => submitted = pin)),
+      );
+      await tester.pumpAndSettle();
+
+      await _enter(tester, "38271");
+      await tester.tap(find.byKey(const Key("pin_next")));
+      expect(submitted, isNull);
+
+      await _enter(tester, "6");
+      expect(find.text("6/16"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("pin_next")));
+      expect(submitted, "382716");
     });
 
     testWidgets("digits use the display face", (tester) async {
@@ -128,20 +161,29 @@ void main() {
     expect(reset.dy, lessThan(cancel.dy));
   });
 
-  group("dialogs carry an icon", () {
-    for (final (name, dialog) in [
-      (
-        "wrong PIN",
-        PinWrongAttemptsDialog(attemptsRemaining: 2, onClose: () {}),
+  testWidgets("a wrong PIN is said under the title, not in a dialog", (
+    tester,
+  ) async {
+    _phone(tester);
+    await pumpTranslated(
+      tester,
+      _app(
+        YiviPinScaffold(
+          body: YiviPinScreen(
+            instructionKey: "pin.subtitle",
+            maxPinSize: 5,
+            onSubmit: (_) {},
+            detail:
+                "Wrong PIN. 2 tries left before Yivi is blocked for a while.",
+            detailKind: PinDetailKind.error,
+            pinError: true,
+          ),
+        ),
       ),
-      ("blocked", const PinWrongBlockedDialog(blocked: 60)),
-    ]) {
-      testWidgets(name, (tester) async {
-        _phone(tester);
-        await pumpTranslated(tester, _app(Scaffold(body: dialog)));
-        await tester.pumpAndSettle();
-        expect(find.byType(ToneDisc), findsOneWidget);
-      });
-    }
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("pin_screen_detail")), findsOneWidget);
+    expect(find.textContaining("2 tries left"), findsOneWidget);
+    expect(find.byType(Dialog), findsNothing);
   });
 }

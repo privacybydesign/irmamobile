@@ -2,6 +2,7 @@ library;
 
 import "dart:math";
 
+import "package:flutter/gestures.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
@@ -14,7 +15,7 @@ import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
 import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/link.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
@@ -26,60 +27,43 @@ part "secure_pin.dart";
 part "unsecure_pin_description_tile.dart";
 part "unsecure_pin_full_screen.dart";
 part "unsecure_pin_list_builder.dart";
-part "unsecure_pin_warning_text_button.dart";
+part "unsecure_pin_rules.dart";
 part "yivi_pin_scaffold.dart";
-
-enum WidgetVisibility { invisible, visible, gone }
 
 typedef PinQuality = Set<SecurePinAttribute>;
 typedef StringCallback = void Function(String);
 
-const _nextButtonHeight = PillSize.largeHeight;
+/// Between the keypad and the link under it. The link's own 44 pt tap area
+/// sits straight on the bottom of the safe area, so the keypad is as low as
+/// it can be with the link still under it.
+const _keypadToLink = 8.0;
 
-/// Between the link (or Next) and the bottom of the safe area.
-const _bottomGap = 8.0;
+/// Height of the PIN field, short or long, so switching between them never
+/// moves the keypad.
+const _pinFieldHeight = 52.0;
 
-/// Between the keypad and the link under it.
-const _keypadToLink = 32.0;
-
-/// Height of the PIN entry field, taken from the short PIN's dot size. Both
-/// PIN modes are pinned to this so long PIN is never taller or shorter.
-const _pinFieldHeight = 36.0;
+/// The short PIN's dots and their rings: the height of one slot.
+const _shortDotSlot = 36.0;
 
 const shortPinSize = 5;
 const longPinSize = 16;
 
-WidgetVisibility defaultSubmitButtonVisibility(
-  BuildContext context,
-  int maxPinSize,
-) {
-  if (maxPinSize == longPinSize) {
-    return WidgetVisibility.visible;
-  }
+/// The fewest digits a long PIN can be submitted with.
+const _longPinMinimum = 6;
 
-  if ((Orientation.landscape == MediaQuery.of(context).orientation)) {
-    return WidgetVisibility.gone;
-  } else {
-    return WidgetVisibility.invisible;
-  }
-}
+/// What the line under the title says: an explanation (grey), something that
+/// went wrong (red), or a warning (amber, with a "Why?" link).
+enum PinDetailKind { info, error, warning }
 
-/// Submit-button visibility for "enter an existing PIN" flows (unlock and
-/// change-pin's enter-current-PIN): a short PIN auto-submits on its last digit,
-/// so the Next button never appears — don't reserve its space (`gone`), unlike
-/// [defaultSubmitButtonVisibility] which reserves it (`invisible`) for flows
-/// where the button can still show. Long PIN has no auto-submit, so it keeps a
-/// visible submit button.
-WidgetVisibility autoSubmitButtonVisibility(int maxPinSize) =>
-    maxPinSize == longPinSize
-    ? WidgetVisibility.visible
-    : WidgetVisibility.gone;
-
-/// The shared PIN entry widget: number pad + hardware-keyboard input + dots +
-/// optional secure-PIN/toggle/biometric controls. Owns the entered digits as
-/// local state ([EnterPinState]) — no bloc, no provider, since the buffer is
+/// The shared PIN entry widget: number pad + hardware-keyboard input + the PIN
+/// field + optional secure-PIN check and biometric key. Owns the entered digits
+/// as local state ([EnterPinState]) — no bloc, no provider, since the buffer is
 /// ephemeral per-screen input. Hosts (unlock, session, enrollment, change-pin,
 /// debug) render this and react via [onSubmit]/[listener].
+///
+/// A short PIN is five dots and submits itself (through the host's
+/// [listener]); a long PIN is one field whose arrow submits it. Both are the
+/// same height, so the keypad never moves.
 class YiviPinScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
   final int maxPinSize;
@@ -96,14 +80,17 @@ class YiviPinScreen extends StatefulWidget {
   /// [onBiometricUnlock] is null.
   final Widget? biometricGlyph;
   final VoidCallback? onTogglePinSize;
-  final bool displayPinLength;
+
+  /// Checks the PIN as it is chosen: a PIN that is possibly not secure is
+  /// said in the line under the title, with a "Why?" link to the rules, and
+  /// a short one then needs the arrow instead of submitting itself.
   final bool checkSecurePin;
 
   /// Shows a lock on a disc above the title instead of the Yivi logo, for
   /// choosing, confirming and changing a PIN.
   final bool lockIcon;
 
-  /// Shows the logo (or lock) at all; off in a sheet, under its title bar.
+  /// Shows the logo (or lock) at all.
   final bool showMark;
   final String? instructionKey;
   final String? instruction;
@@ -112,18 +99,22 @@ class YiviPinScreen extends StatefulWidget {
   /// behind the lock screen).
   final Widget? header;
 
-  /// A short line under the instruction: what comes next, or why the PIN
-  /// can't be entered. In [detailIsError]'s colour when it is an error.
+  /// A short line under the instruction: what comes next, what went wrong
+  /// or why the PIN can't be entered, in [detailKind]'s colour.
   final String? detail;
-  final bool detailIsError;
+  final PinDetailKind detailKind;
 
-  /// Translation key for the submit button (only shown for long PIN). Defaults
-  /// to "Next"; the unlock flow overrides it since "Next" makes no sense there.
+  /// A clock before [detail], for a block that counts down.
+  final bool detailClock;
+
+  /// The PIN just entered was wrong: the dots ring red until the next digit.
+  final bool pinError;
+
+  /// Translation key of the arrow that submits a long PIN, for screen
+  /// readers: "Next" by default, "Unlock" or "Confirm" where that fits better.
   final String submitLabel;
   final bool enabled;
   final void Function(BuildContext, EnterPinState)? listener;
-  final WidgetVisibility Function(BuildContext, EnterPinState)?
-  submitButtonVisibilityListener;
 
   const YiviPinScreen({
     Key key = const Key("pin_screen"),
@@ -132,13 +123,14 @@ class YiviPinScreen extends StatefulWidget {
     this.instruction,
     this.header,
     this.detail,
-    this.detailIsError = false,
+    this.detailKind = PinDetailKind.info,
+    this.detailClock = false,
+    this.pinError = false,
     required this.maxPinSize,
     required this.onSubmit,
     this.onForgotPin,
     this.onBiometricUnlock,
     this.biometricGlyph,
-    this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
     this.lockIcon = false,
@@ -146,12 +138,10 @@ class YiviPinScreen extends StatefulWidget {
     this.submitLabel = "choose_pin.next",
     this.enabled = true,
     this.listener,
-    this.submitButtonVisibilityListener,
   }) : assert(
          instructionKey != null && instruction == null ||
              instruction != null && instructionKey == null,
        ),
-       assert(checkSecurePin ? scaffoldKey != null : true),
        super(key: key);
 
   @override
@@ -177,6 +167,13 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     parent: _jumpController,
     curve: _dotPop,
   );
+
+  // The "Why?" after a PIN that is possibly not secure.
+  late final _whyRecognizer = TapGestureRecognizer()
+    ..onTap = () => _showSecurePinRules(
+      widget.scaffoldKey?.currentContext ?? context,
+      _state,
+    );
 
   @override
   void didChangeDependencies() {
@@ -204,10 +201,25 @@ class _YiviPinScreenState extends State<YiviPinScreen>
 
   @override
   void dispose() {
+    _whyRecognizer.dispose();
     _jumpController.dispose();
     pinVisibilityValue.dispose();
     super.dispose();
   }
+
+  bool get _isLong => widget.maxPinSize != shortPinSize;
+
+  /// A complete short PIN that is possibly not secure, while choosing one:
+  /// it doesn't submit itself, the arrow does.
+  bool get _shortNeedsArrow =>
+      !_isLong &&
+      widget.checkSecurePin &&
+      _state.pin.length == shortPinSize &&
+      !_state.goodEnough;
+
+  bool get _canSubmit =>
+      widget.enabled &&
+      _state.pin.length >= (_isLong ? _longPinMinimum : shortPinSize);
 
   /// Applies a digit (0-9) or backspace (-1) to the buffer and returns whether
   /// it changed anything. Synchronous: each event is applied to the current
@@ -249,13 +261,13 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     _pressAddedDigit = false;
   }
 
-  /// Enter key: submit when enough digits are present (short PINs auto-submit
-  /// via [listener], so this mainly serves the 16-digit flow).
-  void _submitFromKeyboard() {
-    if (!widget.enabled) return;
-    final minLength = widget.maxPinSize == shortPinSize ? shortPinSize : 6;
-    if (_state.pin.length >= minLength) widget.onSubmit(_state.toString());
+  void _submit() {
+    if (_canSubmit) widget.onSubmit(_state.toString());
   }
+
+  /// Enter key: submit when enough digits are present (short PINs auto-submit
+  /// via [YiviPinScreen.listener], so this mainly serves the long PIN).
+  void _submitFromKeyboard() => _submit();
 
   @override
   Widget build(BuildContext context) {
@@ -264,57 +276,41 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       onSubmit: _submitFromKeyboard,
       child: OrientationBuilder(
         builder: (context, orientation) {
-          final showSecurePinText =
-              _state.pin.length >= shortPinSize && !_state.goodEnough;
+          if (context.isTabletDevice) return _bodyTablet(context);
           if (Orientation.portrait == orientation) {
-            return _bodyPortrait(context, showSecurePinText: showSecurePinText);
-          } else {
-            return bodyLandscape(context, showSecurePinText: showSecurePinText);
+            return _bodyPortrait(context);
           }
+          return _bodyLandscape(context);
         },
       ),
     );
   }
 
-  Row bodyLandscape(BuildContext context, {required bool showSecurePinText}) {
-    final theme = IrmaTheme.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            children: [
-              Expanded(
-                child: _buildTopColumn(
-                  context,
-                  showSecurePinText,
-                  isLandscape: true,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: theme.screenPadding),
-                child: _buildNextButton(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: FittedBox(fit: BoxFit.scaleDown, child: _buildKeypad()),
-          ),
-        ),
+  /// The mark (or header), title, line and PIN field: everything above the
+  /// keypad, the same in every layout.
+  List<Widget> _upperPart(BuildContext context, {bool withHeader = true}) {
+    final header = widget.header;
+    return [
+      if (header != null && withHeader) ...[
+        header,
+        const SizedBox(height: 24),
+      ] else if (header == null && widget.showMark) ...[
+        _buildHeaderMark(context),
+        const SizedBox(height: 24),
       ],
-    );
+      _buildInstructionText(context),
+      ?_buildDetail(context),
+      const SizedBox(height: 20),
+      _buildPinField(context),
+    ];
   }
 
-  /// The design's layout: logo (or lock), title, dots, keypad and the
-  /// link under it in one column with fixed gaps, low on the screen.
-  /// When it does not fit (a small phone, large text) the whole column scales
-  /// down instead of squeezing the keypad.
-  Widget _bodyPortrait(
-    BuildContext context, {
-    required bool showSecurePinText,
-  }) {
+  /// Portrait phone: one column low on the screen, in reach of the thumb. The
+  /// link ("I forgot my PIN") sits on the bottom of the safe area, the keypad
+  /// [_keypadToLink] above it, the field and title right on the keypad, and
+  /// the room left over at the top. When it does not fit (a small phone,
+  /// large text) the block scales down instead of squeezing the keypad.
+  Widget _bodyPortrait(BuildContext context) {
     // A header (the request waiting behind the lock) goes above the block,
     // in the room left over, so the keypad keeps the size it has on the
     // normal lock screen. Only on a short screen, where that room is too
@@ -328,38 +324,14 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!headerApart) const SizedBox(height: 16),
-          if (header != null && !headerApart) ...[
-            header,
-            const SizedBox(height: 24),
-          ] else if (header == null && widget.showMark) ...[
-            _buildHeaderMark(context),
-            const SizedBox(height: 24),
-          ],
-          _buildInstructionText(context),
-          ?_buildDetail(context),
-          const SizedBox(height: 24),
-          _buildDecoratedPinDots(context),
-          // 48 to the keypad, as in the design; screens that check the PIN
-          // keep room for the "possibly not secure" warning in that gap.
-          if (widget.checkSecurePin) ...[
-            const SizedBox(height: 8),
-            _buildSecurePinWarningSlot(showSecurePinText),
-            const SizedBox(height: 8),
-          ] else
-            const SizedBox(height: 48),
+          ..._upperPart(context, withHeader: !headerApart),
+          const SizedBox(height: 40),
           _buildKeypad(),
         ],
       ),
     );
-    // Low on the screen, in reach of the thumb: the link ("I forgot my
-    // PIN") and the Next button at the bottom of the safe area, the keypad
-    // block [_keypadToLink] above them, and the room left over at the top.
-    // When it does not fit (a small phone, large text) the block scales
-    // down instead of squeezing the keypad.
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.paddingOf(context).bottom + _bottomGap,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
       child: Column(
         children: [
           if (headerApart) ...[
@@ -393,87 +365,94 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             ),
           const SizedBox(height: _keypadToLink),
           SizedBox(width: 358, child: _buildActionLinkSlot()),
-          SizedBox(width: 358, child: _buildNextButton()),
         ],
       ),
     );
   }
 
-  Widget _buildKeypad() {
-    final enabled = widget.enabled;
-    return PinKeypad(
-      onDigitPressed: enabled ? _digitDown : (_) {},
-      onDigitReleased: enabled ? _digitUp : () {},
-      onDigitCancelled: enabled ? _digitCancel : () {},
-      onBackspace: enabled ? () => _enterNumber(-1) : () {},
-      onBiometricUnlock: widget.onBiometricUnlock,
-      biometricGlyph: widget.biometricGlyph,
+  /// Landscape phone: the keypad on the right, a size smaller and centred top
+  /// to bottom; everything else on the left, centred between the edge of the
+  /// safe area and the keypad, with the link under the field.
+  Widget _bodyLandscape(BuildContext context) {
+    final padding = MediaQuery.paddingOf(context);
+    return Padding(
+      padding: EdgeInsets.only(bottom: padding.bottom),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final scale = min(
+            1.0,
+            constraints.maxHeight * 0.82 / PinKeypad.height,
+          );
+          final keypad = SizedBox(
+            width: PinKeypad.width * scale,
+            height: PinKeypad.height * scale,
+            child: FittedBox(child: _buildKeypad()),
+          );
+          return Row(
+            children: [
+              Expanded(
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                      width: 330,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ..._upperPart(context),
+                          const SizedBox(height: 8),
+                          _buildActionLinkSlot(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Center(child: keypad),
+              const SizedBox(width: 24),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  /// The logo/instruction/dots/toggle/warning stack, shared by portrait (top)
-  /// and landscape (left) so both have identical layout.
-  Widget _buildTopColumn(
-    BuildContext context,
-    bool showSecurePinText, {
-    bool isLandscape = false,
-  }) {
-    final theme = IrmaTheme.of(context);
-    // Landscape is short: reclaim the logo's space when the Next button shows.
-    final hideLogo =
-        !widget.showMark ||
-        isLandscape &&
-            _nextButtonVisibility(context) == WidgetVisibility.visible;
-    // On short screens (an iPhone SE, landscape) the block is taller than its
-    // half of the screen; it then scales down as a whole instead of
-    // overflowing into the keypad.
-    return LayoutBuilder(
-      builder: (context, constraints) => Center(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: SizedBox(
-            width: constraints.maxWidth,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: theme.defaultSpacing.scaleToDesignSize(context),
-              children: [
-                if (widget.header case final header?)
-                  header
-                else if (!hideLogo) ...[
-                  _buildScaledLogo(context),
-                  SizedBox(height: theme.defaultSpacing),
-                ],
-                _buildInstructionText(context),
-                ?_buildDetail(context),
-                _buildDecoratedPinDots(context),
-                _buildActionLinkSlot(),
-                _buildSecurePinWarningSlot(showSecurePinText),
-              ],
-            ),
+  /// Tablet: the phone's column in the middle of the screen (or of the form
+  /// sheet the PIN is in), the keypad at full size. A tablet is held with two
+  /// hands, so there is no thumb to keep things low for.
+  Widget _bodyTablet(BuildContext context) {
+    return Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: SizedBox(
+          width: 358,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ..._upperPart(context),
+              const SizedBox(height: 40),
+              _buildKeypad(),
+              const SizedBox(height: _keypadToLink),
+              _buildActionLinkSlot(),
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// Always present so the warning's height is reserved even when hidden, and
-  /// even on pin screens that never check the PIN (confirm/unlock) — keeps the
-  /// logo/text/dots at the same height across screens. Reserves its height
-  /// like the Next button.
-  Widget _buildSecurePinWarningSlot(bool show) {
-    return Visibility(
-      visible: widget.checkSecurePin && show,
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      // Nudge the text up within its reserved box — doesn't affect layout, so
-      // nothing else moves.
-      child: Transform.translate(
-        offset: const Offset(0, -8),
-        child: _UnsecurePinWarningTextButton(
-          scaffoldKey: widget.scaffoldKey,
-          state: _state,
-        ),
+  Widget _buildKeypad() {
+    final enabled = widget.enabled;
+    // Blocked: the keys are dimmed as well as off.
+    return Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: PinKeypad(
+        onDigitPressed: enabled ? _digitDown : (_) {},
+        onDigitReleased: enabled ? _digitUp : () {},
+        onDigitCancelled: enabled ? _digitCancel : () {},
+        onBackspace: enabled ? () => _enterNumber(-1) : () {},
+        onBiometricUnlock: widget.onBiometricUnlock,
+        biometricGlyph: widget.biometricGlyph,
       ),
     );
   }
@@ -481,7 +460,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   /// The toggle-PIN-size and forgot-PIN links are mutually exclusive across
   /// flows; render whichever is set in one always-present, same-styled
   /// maintainSize slot so they reserve identical space — and screens with
-  /// neither still keep the logo/text/dots aligned. Mirrors the warning slot.
+  /// neither keep the keypad at the same height.
   Widget _buildActionLinkSlot() {
     final isToggle = widget.onTogglePinSize != null;
     return Visibility(
@@ -499,64 +478,217 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  Widget _buildDecoratedPinDots(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final isLong = widget.maxPinSize != shortPinSize;
+  /// The line under the title: the host's [YiviPinScreen.detail], or, while a
+  /// PIN is chosen, the warning that it is possibly not secure.
+  (String, PinDetailKind)? _detailLine(BuildContext context) {
+    if (widget.checkSecurePin &&
+        _state.pin.length >= shortPinSize &&
+        !_state.goodEnough) {
+      return (
+        FlutterI18n.translate(context, "secure_pin.inline"),
+        PinDetailKind.warning,
+      );
+    }
+    final detail = widget.detail;
+    if (detail == null || detail.isEmpty) return null;
+    return (detail, widget.detailKind);
+  }
 
-    // The dots centred, with the show/hide button beside them; an equal
-    // space on the other side keeps the dots in the middle. Both PIN modes
-    // share one height so neither is taller.
-    const side = 40.0;
-    return SizedBox(
-      height: _pinFieldHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: side,
-            child: isLong && widget.displayPinLength
-                ? Text(
-                    "${_state.pin.length}/${widget.maxPinSize}",
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w300,
-                      color: _state.pin.isNotEmpty
-                          ? theme.secondary
-                          : Colors.transparent,
-                    ),
-                  )
-                : null,
+  Widget? _buildDetail(BuildContext context) {
+    final line = _detailLine(context);
+    if (line == null) return null;
+    final (text, kind) = line;
+    final palette = YiviPalette.of(context);
+    final color = switch (kind) {
+      PinDetailKind.info => palette.secondaryText,
+      PinDetailKind.error => palette.errorText,
+      PinDetailKind.warning => palette.warningText,
+    };
+    final style = palette
+        .body(
+          14,
+          weight: kind == PinDetailKind.info
+              ? FontWeight.w400
+              : FontWeight.w600,
+        )
+        .copyWith(height: 20 / 14, color: color);
+    final icon = kind == PinDetailKind.warning
+        ? Icons.warning_amber_rounded
+        : widget.detailClock
+        ? Icons.schedule_rounded
+        : null;
+    return Padding(
+      key: const Key("pin_screen_detail"),
+      padding: const EdgeInsets.only(top: 4),
+      child: Semantics(
+        liveRegion: true,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              if (icon != null)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Icon(icon, size: 16, color: color),
+                  ),
+                ),
+              TextSpan(text: text),
+              if (kind == PinDetailKind.warning) ...[
+                const TextSpan(text: " "),
+                TextSpan(
+                  text: FlutterI18n.translate(context, "secure_pin.why"),
+                  style: TextStyle(color: palette.link),
+                  recognizer: _whyRecognizer,
+                ),
+              ],
+            ],
           ),
-          if (isLong)
-            SizedBox(
-              width: 220,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildPinDots(),
-                  Divider(height: 1.0, color: theme.secondary),
-                ],
-              ),
-            )
-          else
-            _buildPinDots(),
-          SizedBox(
-            width: side,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: _buildListeningPinVisibilityButton(),
-            ),
-          ),
-        ],
+          textAlign: TextAlign.center,
+          style: style,
+        ),
       ),
     );
   }
 
-  Widget _buildPinDots() {
+  /// The short PIN's dots, or the long PIN's field: both [_pinFieldHeight]
+  /// high.
+  Widget _buildPinField(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final warning = _detailLine(context)?.$2 == PinDetailKind.warning;
+    final error = widget.pinError && _state.pin.isEmpty;
+    final dim = !widget.enabled;
+    Widget field;
+    if (_isLong) {
+      final edge = error
+          ? palette.errorText
+          : warning
+          ? const Color(0xFFE9B65C)
+          : null;
+      field = SizedBox(
+        width: 300,
+        height: _pinFieldHeight,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            GlassSurface(
+              padding: const EdgeInsets.only(left: 20, right: 6),
+              child: Row(
+                spacing: 4,
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _buildPinDots(),
+                    ),
+                  ),
+                  Text(
+                    "${_state.pin.length}/${widget.maxPinSize}",
+                    style: palette
+                        .body(12)
+                        .copyWith(
+                          color: palette.secondaryText,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                  ),
+                  _buildListeningPinVisibilityButton(),
+                  _buildSubmitArrow(context),
+                ],
+              ),
+            ),
+            if (edge != null)
+              IgnorePointer(
+                child: DecoratedBox(
+                  decoration: ShapeDecoration(
+                    shape: StadiumBorder(side: BorderSide(color: edge)),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    } else {
+      // The dots centred, the eye beside them (and the arrow, for a short PIN
+      // that is possibly not secure); an equal space on the other side keeps
+      // the dots in the middle.
+      final side = _shortNeedsArrow ? 84.0 : 40.0;
+      field = SizedBox(
+        height: _pinFieldHeight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: side),
+            _buildPinDots(ring: error ? palette.errorText : null),
+            SizedBox(
+              width: side,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: 4,
+                children: [
+                  _buildListeningPinVisibilityButton(),
+                  if (_shortNeedsArrow) _buildSubmitArrow(context),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return Opacity(opacity: dim ? 0.4 : 1, child: field);
+  }
+
+  /// The round arrow that submits a PIN that doesn't submit itself.
+  Widget _buildSubmitArrow(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final on = _canSubmit;
+    return Semantics(
+      button: true,
+      enabled: on,
+      label: FlutterI18n.translate(context, widget.submitLabel),
+      excludeSemantics: true,
+      child: GestureDetector(
+        key: const Key("pin_next"),
+        onTap: on ? _submit.haptic : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: on
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFE83A58), Color(0xFFC21E3E)],
+                  )
+                : null,
+            color: on ? null : palette.faint.withValues(alpha: 0.45),
+            boxShadow: on
+                ? const [
+                    BoxShadow(
+                      color: Color(0x59E12747),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: const Icon(
+            Icons.arrow_forward_rounded,
+            color: Colors.white,
+            size: 22,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPinDots({Color? ring}) {
     return _PinIndicator(
       maxPinSize: widget.maxPinSize,
       pinVisibilityValue: pinVisibilityValue,
       pinState: _state,
+      ring: ring,
     );
   }
 
@@ -612,45 +744,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  Widget _buildActivateNextButton(bool activate, WidgetVisibility visibility) {
-    final button = SizedBox(
-      height: _nextButtonHeight,
-      child: FancyPillButton(
-        key: const Key("pin_next"),
-        label: FlutterI18n.translate(context, widget.submitLabel),
-        onPressed: activate && widget.enabled
-            ? () => widget.onSubmit(_state.toString())
-            : null,
-      ),
-    );
-
-    switch (visibility) {
-      case WidgetVisibility.gone:
-        return Visibility(visible: false, child: button);
-      case WidgetVisibility.invisible:
-        return Visibility(
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          visible: false,
-          child: button,
-        );
-      case WidgetVisibility.visible:
-        return button;
-    }
-  }
-
-  WidgetVisibility _nextButtonVisibility(BuildContext context) =>
-      widget.submitButtonVisibilityListener?.call(context, _state) ??
-      defaultSubmitButtonVisibility(context, widget.maxPinSize);
-
-  Widget _buildNextButton() {
-    return _buildActivateNextButton(
-      _state.pin.length >= (shortPinSize == widget.maxPinSize ? 5 : 6),
-      _nextButtonVisibility(context),
-    );
-  }
-
   Widget _buildInstructionText(BuildContext context) {
     return Center(
       child: Semantics(
@@ -668,36 +761,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           style: widget.header == null
               ? YiviPalette.of(context).display(22).copyWith(height: 30 / 22)
               : YiviPalette.of(context).display(19).copyWith(height: 26 / 19),
-        ),
-      ),
-    );
-  }
-
-  Widget? _buildDetail(BuildContext context) {
-    final detail = widget.detail;
-    if (detail == null || detail.isEmpty) return null;
-    final palette = YiviPalette.of(context);
-    return Padding(
-      key: const Key("pin_screen_detail"),
-      padding: const EdgeInsets.only(top: 4),
-      child: Semantics(
-        liveRegion: true,
-        child: Text(
-          detail,
-          textAlign: TextAlign.center,
-          style: palette
-              .body(
-                14,
-                weight: widget.detailIsError
-                    ? FontWeight.w600
-                    : FontWeight.w400,
-              )
-              .copyWith(
-                height: 20 / 14,
-                color: widget.detailIsError
-                    ? palette.errorText
-                    : palette.secondaryText,
-              ),
         ),
       ),
     );
@@ -735,19 +798,26 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  Widget _buildScaledLogo(BuildContext context) {
-    // It's harder to define a fractional height in relation to the
-    // screen size, due to variable nature of phone devices, hence
-    // the scaling here
-    return SvgPicture.asset(
-      YiviPalette.of(context).logoAsset,
-      width: 127.scaleToDesignSize(context),
-      height: 71.scaleToDesignSize(context),
-      semanticsLabel: FlutterI18n.translate(context, "accessibility.irma_logo"),
-    );
-  }
-
   String _getTogglePinSizeSemanticKey() {
     return 'choose_pin.switch_pin_size.${widget.maxPinSize > shortPinSize ? 'short' : 'long'}';
   }
+}
+
+/// "Try again in 4:58": how long a block still lasts, as a clock under an
+/// hour and in words above.
+String pinTryAgainIn(BuildContext context, Duration left) {
+  final String time;
+  if (left.inHours >= 1) {
+    time = left.inDays >= 1
+        ? FlutterI18n.plural(context, "pin_common.day.time", left.inDays)
+        : FlutterI18n.plural(context, "pin_common.hour.time", left.inHours);
+  } else {
+    final seconds = left.inSeconds.remainder(60).toString().padLeft(2, "0");
+    time = "${left.inMinutes}:$seconds";
+  }
+  return FlutterI18n.translate(
+    context,
+    "pin.try_again_in",
+    translationParams: {"time": time},
+  );
 }

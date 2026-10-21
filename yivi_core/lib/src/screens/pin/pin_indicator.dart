@@ -76,10 +76,14 @@ class _PinIndicator extends StatelessWidget {
   final ValueNotifier<bool> pinVisibilityValue;
   final EnterPinState pinState;
 
+  /// The rings' colour: the text colour, or red after a wrong PIN.
+  final Color? ring;
+
   const _PinIndicator({
     required this.maxPinSize,
     required this.pinVisibilityValue,
     required this.pinState,
+    this.ring,
   });
 
   @override
@@ -127,7 +131,7 @@ class _PinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent, // border color
       shape: BoxShape.circle,
-      border: Border.all(color: palette.text, width: 2.0),
+      border: Border.all(color: ring ?? palette.text, width: 2.0),
     );
 
     // prevent the row from collapsing
@@ -158,7 +162,7 @@ class _PinIndicator extends StatelessWidget {
             // glyphs have a uniform size, that prevents realignment
             SizedBox(
               width: boxWidth,
-              height: isMaxPin5 ? _pinFieldHeight : 30,
+              height: isMaxPin5 ? _shortDotSlot : 30,
               child: Text(
                 '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
                 style: i >= pinSize

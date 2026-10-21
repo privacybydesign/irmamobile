@@ -128,7 +128,8 @@
     "switch_pin_size": {
       "long": "Bevorzugen Sie eine längere PIN?",
       "short": "Bevorzugen Sie eine kürzere PIN?"
-    }
+    },
+    "long_rule": "Mindestens 6 Ziffern"
   },
   "confirm_pin": {
     "error": {
@@ -698,7 +699,14 @@
       "body": "Verwenden Sie Ihren Fingerabdruck oder Ihr Gesicht, um die App zu entsperren. Für Sitzungen müssen Sie weiterhin Ihre PIN eingeben.",
       "enable": "Aktivieren",
       "not_now": "Nicht jetzt"
-    }
+    },
+    "wrong": {
+      "attempts-0": "Falsche PIN. Noch {count} Versuche, bevor Yivi eine Weile gesperrt wird.",
+      "attempts-1": "Falsche PIN. Noch {count} Versuch, bevor Yivi eine Weile gesperrt wird.",
+      "attempts-2": "Falsche PIN. Noch {count} Versuche, bevor Yivi eine Weile gesperrt wird."
+    },
+    "blocked_title": "Yivi ist eine Weile gesperrt",
+    "try_again_in": "Versuchen Sie es in {time} erneut"
   },
   "pin_accessibility": {
     "show_pin": "PIN anzeigen",
@@ -709,17 +717,6 @@
     "digits_entered-2": "{digits} Ziffern eingegeben"
   },
   "pin_common": {
-    "blocked_for": "Anmeldung ist gesperrt für",
-    "second": {
-      "time-0": "{time} Sekunden",
-      "time-1": "{time} Sekunde",
-      "time-2": "{time} Sekunden"
-    },
-    "minute": {
-      "time-0": "{time} Minuten",
-      "time-1": "{time} Minute",
-      "time-2": "{time} Minuten"
-    },
     "hour": {
       "time-0": "{time} Stunden",
       "time-1": "{time} Stunde",
@@ -730,16 +727,6 @@
       "time-1": "{time} Tag",
       "time-2": "{time} Tage"
     },
-    "invalid_title": "PIN falsch",
-    "invalid_pin": {
-      "attempts-0": "Diese PIN ist nicht korrekt. Sie haben noch {count} Versuche, bevor Ihre Yivi-App vorübergehend gesperrt wird.",
-      "attempts-1": "Diese PIN ist nicht korrekt. Sie haben noch {count} Versuch, bevor Ihre Yivi-App vorübergehend gesperrt wird.",
-      "attempts-2": "Diese PIN ist nicht korrekt. Sie haben noch {count} Versuche, bevor Ihre Yivi-App vorübergehend gesperrt wird."
-    },
-    "invalid_close": "Erneut versuchen",
-    "blocked_title": "App gesperrt",
-    "blocked_pin": "Ihre App wurde für {blocked} gesperrt. Bitte versuchen Sie es später erneut.",
-    "blocked_close": "Erneut versuchen",
     "done": "Weiter",
     "view": "PIN anzeigen",
     "hide": "PIN verbergen"
@@ -779,7 +766,6 @@
     "accept_risk": "Ich akzeptiere das Risiko"
   },
   "secure_pin": {
-    "info_button": "PIN möglicherweise nicht sicher",
     "title": "PIN wählen",
     "subtitle": "Eine sichere PIN hat die folgenden Eigenschaften:",
     "rules": {
@@ -787,7 +773,9 @@
       "must_not_asc_or_desc": "Darf keine aufsteigenden oder absteigenden Zahlenreihen enthalten, wie 12345",
       "not_abcab_nor_abcba": "Darf nicht die folgenden Tastaturmuster enthalten: abcba, abcab, wie 12312, 12321, 13331",
       "must_contain_valid_subset": "Muss 5 Zahlen enthalten, die den oben genannten Regeln entsprechen"
-    }
+    },
+    "inline": "Diese PIN ist möglicherweise nicht sicher.",
+    "why": "Warum?"
   },
   "session": {
     "navigation_bar": {
@@ -810,7 +798,13 @@
     }
   },
   "session_pin": {
-    "subtitle": "Geben Sie Ihre PIN ein"
+    "subtitle": "Geben Sie Ihre PIN ein",
+    "detail": {
+      "disclosure": "um Ihre Daten mit {requestor} zu teilen",
+      "issuance": "um Daten von {requestor} hinzuzufügen",
+      "signature": "um für {requestor} zu unterschreiben"
+    },
+    "submit": "Bestätigen"
   },
   "settings": {
     "title": "Einstellungen",

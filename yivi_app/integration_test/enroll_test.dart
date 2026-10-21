@@ -75,7 +75,8 @@ void main() {
     ]) async {
       expect(find.byType(ChoosePinScreen), findsOneWidget);
       await enterPin(tester, pin);
-      await tester.tapAndSettle(find.text("Next"));
+      // A weak PIN goes on by the PIN field\'s arrow.
+      await tester.tapAndSettle(find.byKey(const Key("pin_next")));
       await enterPin(tester, pin);
     }
 
@@ -143,7 +144,8 @@ void main() {
       expect(find.byType(ChoosePinScreen), findsOneWidget);
       const pin = "12345";
       await enterPin(tester, pin);
-      await tester.tapAndSettle(find.text("Next"));
+      // A weak PIN goes on by the PIN field\'s arrow.
+      await tester.tapAndSettle(find.byKey(const Key("pin_next")));
 
       // Confirm pin
       expect(find.byType(ConfirmPinScreen), findsOneWidget);
@@ -166,7 +168,8 @@ void main() {
 
       // Enter correct pin
       await enterPin(tester, pin);
-      await tester.tapAndSettle(find.text("Next"));
+      // A weak PIN goes on by the PIN field\'s arrow.
+      await tester.tapAndSettle(find.byKey(const Key("pin_next")));
 
       // Confirm pin
       await enterPin(tester, pin);

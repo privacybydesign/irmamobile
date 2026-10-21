@@ -223,6 +223,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           .requestPermission => _buildRequestPermission(session),
           .requestPin => SessionPinEntryScreen(
             title: _getAppBarTitle(session),
+            detail: sessionPinDetail(
+              context,
+              kind: switch (session.type) {
+                .issuance => "issuance",
+                .signature => "signature",
+                _ => "disclosure",
+              },
+              requestor: session.requestor.name,
+            ),
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
             submitting: isAwaiting,

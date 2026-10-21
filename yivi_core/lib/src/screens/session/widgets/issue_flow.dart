@@ -999,6 +999,13 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
         key: const Key("sheet_pin"),
         inSheet: true,
         title: "issuance.title",
+        detail: state == null
+            ? null
+            : sessionPinDetail(
+                context,
+                kind: "issuance",
+                requestor: state.requestor.name,
+              ),
         remainingAttempts: state?.remainingPinAttempts,
         blockedTimeSeconds: state?.pinBlockedTimeSeconds,
         submitting: awaiting,

@@ -13,7 +13,7 @@ import "../../providers/preferences_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/sheet_action_row.dart";
-import "../../widgets/pin_common/format_blocked_for.dart";
+import "../pin/pin_screen.dart" show pinStateLine;
 import "../pin/providers/pin_unlock_provider.dart";
 import "../pin/widgets/waiting_request_card.dart";
 import "../pin/yivi_pin_screen.dart";
@@ -229,6 +229,8 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
     final busy = state.authenticateInProgress || state.authenticated;
     final enabled = !blocked && !busy;
     String t(String key) => FlutterI18n.translate(context, key);
+    // A wrong PIN or a block, said in the line under the title.
+    final line = pinStateLine(context, state, blockedFor);
 
     void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
 
@@ -250,16 +252,19 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
                     ? null
                     : WaitingRequestCard(request: waiting, compact: true),
                 showMark: false,
-                instruction: waiting == null
-                    ? t("pin.subtitle")
-                    : t(waitingHeadKey(waiting)),
-                detail: blocked
-                    ? "${t("pin_common.blocked_for")} "
-                          "${formatBlockedFor(context, blockedFor)}"
-                    : waiting == null
-                    ? null
-                    : waitingDetail(context, waiting),
-                detailIsError: blocked,
+                instruction: waiting != null
+                    ? t(waitingHeadKey(waiting))
+                    : blocked
+                    ? t("pin.blocked_title")
+                    : t("pin.subtitle"),
+                detail:
+                    line?.text ??
+                    (waiting == null ? null : waitingDetail(context, waiting)),
+                detailKind: line == null
+                    ? PinDetailKind.info
+                    : PinDetailKind.error,
+                detailClock: blocked,
+                pinError: line != null && !blocked,
                 maxPinSize: maxPinSize,
                 submitLabel: "pin.unlock",
                 enabled: enabled,
@@ -274,8 +279,6 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
                     submit(pinState.toString());
                   }
                 },
-                submitButtonVisibilityListener: (context, _) =>
-                    autoSubmitButtonVisibility(maxPinSize),
               ),
             ),
           if (busy) const CircularProgressIndicator(),
