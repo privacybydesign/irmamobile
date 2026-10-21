@@ -286,11 +286,11 @@ void main() {
     expect(find.text("Jansen"), findsOneWidget);
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
-    expect(find.text("What do you want to share?"), findsOneWidget);
+    expect(find.text("Pick a card"), findsOneWidget);
 
     await tester.tap(find.byKey(const Key("sheet_owned_hash-idcard-de Vries")));
     await tester.pumpAndSettle();
-    expect(find.text("What do you want to share?"), findsNothing);
+    expect(find.text("Pick a card"), findsNothing);
     expect(find.text("de Vries"), findsOneWidget);
     expect(find.text("Jansen"), findsNothing);
 
@@ -317,7 +317,17 @@ void main() {
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
     expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
-    expect(find.text("Issuer · on issuer.example"), findsOneWidget);
+    // An empty card: its name, its issuer, and Add on its edge.
+    final add = find.byKey(const Key("sheet_add_idcard"));
+    expect(find.descendant(of: add, matching: find.text("ID card")), findsOne);
+    expect(find.descendant(of: add, matching: find.text("Issuer")), findsOne);
+    expect(
+      find.descendant(
+        of: add,
+        matching: find.byKey(const Key("empty_spot_add")),
+      ),
+      findsOne,
+    );
 
     // First its details, step 1 of 3, as on the add-data page.
     await tester.tap(find.byKey(const Key("sheet_add_idcard")));
@@ -726,8 +736,8 @@ void main() {
       );
       expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
 
-      // In the sheet each type is a compact row: what to add, from where,
-      // and what it must hold.
+      // In the sheet each type is an empty card, as on the share screen:
+      // what it would share, and what it must hold.
       await tester.tap(spot);
       await tester.pumpAndSettle();
       final passport = find.byKey(const Key("sheet_add_passport"));
@@ -736,24 +746,17 @@ void main() {
         expect(
           find.descendant(
             of: card,
-            matching: find.byKey(const Key("credential_type_thumbnail_add")),
+            matching: find.byKey(const Key("empty_spot_add")),
           ),
-          findsOne,
-        );
-        expect(
-          find.descendant(of: card, matching: find.textContaining("Add ")),
           findsOne,
         );
       }
       expect(
-        find.descendant(
-          of: idcard,
-          matching: find.textContaining("must be NLD"),
-        ),
+        find.descendant(of: idcard, matching: find.text("Must be NLD")),
         findsOne,
       );
       expect(
-        find.descendant(of: passport, matching: find.textContaining("must be")),
+        find.descendant(of: passport, matching: find.textContaining("Must be")),
         findsNothing,
       );
     });
@@ -967,6 +970,78 @@ void main() {
   });
 
   group("the Change sheet", () {
+    testWidgets("another of a kind you have comes first", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(
+                _instance("email", "Email address", "sanne@devries.example"),
+              ),
+            ],
+            obtainableOptions: [
+              _descriptor("mobile", "Mobile number"),
+              _descriptor("email", "Email address"),
+            ],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+
+      final email = tester.getTopLeft(find.byKey(const Key("sheet_add_email")));
+      final mobile = tester.getTopLeft(
+        find.byKey(const Key("sheet_add_mobile")),
+      );
+      expect(email.dy, lessThan(mobile.dy));
+      expect(find.text("Another email address"), findsOneWidget);
+      expect(find.text("Mobile number"), findsOneWidget);
+      expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
+    });
+
+    testWidgets("the outline goes to the card a finger is on", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(_instance("passport", "Passport", "Jansen")),
+            ],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+
+      final owned = find.byKey(const Key("sheet_owned_hash-passport-Jansen"));
+      final add = find.byKey(const Key("sheet_add_idcard"));
+      Finder outlineIn(Finder card) => find.descendant(
+        of: card,
+        matching: find.byKey(const Key("card_tile_outline")),
+      );
+      expect(outlineIn(owned), findsOne);
+      expect(outlineIn(add), findsNothing);
+
+      // Pressed: the empty card has it, the one in use does not.
+      final gesture = await tester.startGesture(tester.getCenter(add));
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump();
+      expect(outlineIn(add), findsOne);
+      expect(outlineIn(owned), findsNothing);
+
+      // Moved off to scroll: back on the card in use.
+      await gesture.moveBy(const Offset(0, -60));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(outlineIn(owned), findsOne);
+      expect(outlineIn(add), findsNothing);
+    });
+
     testWidgets("cards of one type: which one, told apart by value", (
       tester,
     ) async {
@@ -988,8 +1063,8 @@ void main() {
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
 
-      expect(find.text("Which email address?"), findsOneWidget);
-      expect(find.text("IN YOUR APP"), findsOneWidget);
+      expect(find.text("Pick a card"), findsOneWidget);
+      expect(find.text("ALREADY IN YOUR APP"), findsOneWidget);
       expect(find.text("sanne@devries.example"), findsOneWidget);
       expect(find.text("Another email address"), findsOneWidget);
     });
@@ -1119,7 +1194,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_go_button")), findsNothing);
-      expect(find.text("What do you want to share?"), findsOneWidget);
+      expect(find.text("Pick a card"), findsOneWidget);
     });
 
     testWidgets("back from adding returns to the choice", (tester) async {
@@ -1142,7 +1217,7 @@ void main() {
       await tester.tap(find.bySemanticsLabel("Go back"));
       await tester.pumpAndSettle();
 
-      expect(find.text("What do you want to share?"), findsOneWidget);
+      expect(find.text("Pick a card"), findsOneWidget);
     });
   });
 

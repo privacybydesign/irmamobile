@@ -303,18 +303,18 @@ Finder findSheetOwnedRows() => find.descendant(
   ),
 );
 
-/// The compact row of the open sheet that adds [credentialId].
+/// The empty card of the open sheet that adds [credentialId].
 Finder findSheetAddRow(String credentialId) => find.descendant(
   of: findChoiceSheet(),
   matching: find.byKey(Key("sheet_add_$credentialId")),
 );
 
-/// Checks the open sheet's "Not in your app yet" row for [credentialId]:
-/// its [name] and "{issuer} · on portal.yivi.app".
+/// Checks the open sheet's "Not in your app yet" card for [credentialId]:
+/// its [name] (or "Another {name}") and its [issuer].
 void expectSheetAddRow(String credentialId, String name, String issuer) {
   final row = findSheetAddRow(credentialId);
-  expect(row, findsOneWidget, reason: "sheet row for $credentialId");
-  // "Add {name}" (or "Another {name}"), the name in sentence case.
+  expect(row, findsOneWidget, reason: "sheet card for $credentialId");
+  // "{name}" (or "Another {name}", the name in sentence case).
   expect(
     find.descendant(
       of: row,
@@ -326,13 +326,8 @@ void expectSheetAddRow(String credentialId, String name, String issuer) {
     ),
     findsWidgets,
   );
-  expect(
-    find.descendant(
-      of: row,
-      matching: find.text("$issuer · on portal.yivi.app"),
-    ),
-    findsOneWidget,
-  );
+  // The issuer below it (a card can be named after its issuer: "Demo iDIN").
+  expect(find.descendant(of: row, matching: find.text(issuer)), findsWidgets);
 }
 
 /// The "In your app" rows of the open sheet that show [text] (or, with

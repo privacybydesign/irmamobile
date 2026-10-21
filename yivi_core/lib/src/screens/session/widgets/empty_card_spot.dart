@@ -7,6 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_tile.dart";
+import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "shared_card_tile.dart";
 
@@ -38,26 +39,14 @@ List<(String, String)> emptySpotRows(
   ];
 }
 
-/// What [card] must hold to fit the request, one line per value asked for:
-/// "Nationality must be NLD". Empty when any value will do.
-List<String> requirementsOf(BuildContext context, CredentialDescriptor card) =>
-    [
-      for (final a in card.attributes)
-        if (a.requestedValue case final v? when v.hasConcreteValue)
-          FlutterI18n.translate(
-            context,
-            "share.spot.must_be",
-            translationParams: {
-              "field": a.effectiveDisplayName,
-              "value": localizedAttributeText(context, v) ?? "",
-            },
-          ),
-    ];
-
 /// A card that is not in the app yet: a dashed spot in the shape of the card
-/// it will be, with a dashed card where that card lands, how to add it, and
-/// what it will share, still empty. On the share screen for a required card,
-/// and in the Change sheet for each type that can be added.
+/// it will be, with a dashed card where that card lands, its name, and what
+/// it will share, still empty ("Not in your app yet", or the value it must
+/// have). When it can be added, an "Add" pill sits on its top edge, at the
+/// end, where the dashed line breaks for it: the name keeps the whole line.
+///
+/// The one widget for this: on the share screen for a required card, and in
+/// the Change sheet for each type that can be added.
 class EmptyCardSpot extends StatelessWidget {
   final GlobalKey? landingKey;
   final String title;
@@ -77,6 +66,17 @@ class EmptyCardSpot extends StatelessWidget {
   /// Null when it cannot be added from Yivi.
   final VoidCallback? onTap;
 
+  /// A finger came down on the spot, and went away without a tap (a
+  /// scroll): the Change sheet moves its outline along.
+  final VoidCallback? onTapDown;
+  final VoidCallback? onTapCancel;
+
+  /// Drawn with the outline of the chosen card.
+  final bool selected;
+
+  /// Room above the dashed edge for the half of the pill that sticks out.
+  static const double edgeRoom = 12;
+
   const EmptyCardSpot({
     super.key,
     this.landingKey,
@@ -86,88 +86,130 @@ class EmptyCardSpot extends StatelessWidget {
     this.requirements = const [],
     this.wrong,
     this.onTap,
+    this.onTapDown,
+    this.onTapCancel,
+    this.selected = false,
   });
+
+  /// The pill's width, so the dashed line can leave it out.
+  static double _pillWidth(BuildContext context, String label) {
+    final palette = YiviPalette.of(context);
+    final text = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: palette.body(13, weight: FontWeight.w600),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    // SmallPill with an icon: 10 + icon 16 + 6 + text + 14.
+    return (10 + 16 + 6 + text.width + 14).ceilToDouble();
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final faint = palette.secondaryText.withValues(alpha: 0.75);
-    return Semantics(
-      button: onTap != null,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: CardTile(
-          dashed: true,
-          art: SizedBox(
-            key: landingKey,
-            width: SharedCardTile.miniWidth,
-            height: SharedCardTile.miniWidth * 226 / 358,
-            child: CustomPaint(
-              painter: DashedCardPainter(color: palette.secondaryText),
-              child: Icon(
-                onTap == null ? Icons.block_rounded : Icons.add_rounded,
-                size: 18,
-                color: onTap == null ? palette.secondaryText : palette.link,
+    final addLabel = FlutterI18n.translate(context, "share.add");
+    final canAdd = onTap != null;
+    const pillEnd = 16.0;
+    final tile = CardTile(
+      dashed: true,
+      dashGap: canAdd
+          ? (width: _pillWidth(context, addLabel) + 8, fromEnd: pillEnd - 4)
+          : null,
+      art: SizedBox(
+        key: landingKey,
+        width: SharedCardTile.miniWidth,
+        height: SharedCardTile.miniWidth * 226 / 358,
+        child: CustomPaint(
+          painter: DashedCardPainter(color: palette.secondaryText),
+          child: Icon(
+            canAdd ? Icons.add_rounded : Icons.block_rounded,
+            size: 18,
+            color: canAdd ? palette.link : palette.secondaryText,
+          ),
+        ),
+      ),
+      title: title,
+      subtitle: subtitle,
+      body: [
+        if (rows.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (n, (label, value)) in rows.indexed)
+                Container(
+                  decoration: BoxDecoration(
+                    border: n == 0
+                        ? null
+                        : Border(top: BorderSide(color: palette.divider)),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label, style: attributeLabelStyle(context)),
+                      Text(
+                        value,
+                        style: attributeValueStyle(
+                          context,
+                          faint,
+                        ).copyWith(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        for (final r in requirements)
+          Text(
+            r,
+            style: palette.body(12.5).copyWith(color: palette.secondaryText),
+          ),
+        if (wrong != null)
+          Text(
+            wrong!,
+            key: const Key("share_spot_wrong"),
+            style: palette
+                .body(12.5, weight: FontWeight.w600)
+                .copyWith(color: palette.errorText),
+          ),
+      ],
+    );
+    final spot = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        CardTileOutline(shown: selected, child: tile),
+        if (canAdd)
+          PositionedDirectional(
+            top: -SmallPill.height / 2,
+            end: pillEnd,
+            // Says what a tap does; the whole spot is the button.
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                child: SmallPill(
+                  key: const Key("empty_spot_add"),
+                  label: addLabel,
+                  icon: Icons.add_rounded,
+                  onPressed: onTap,
+                ),
               ),
             ),
           ),
-          title: title,
-          subtitle: subtitle,
-          trailing: onTap == null
-              ? null
-              // Says what a tap does; the whole spot is the button.
-              : ExcludeSemantics(
-                  child: SmallPill(
-                    label: FlutterI18n.translate(context, "share.add"),
-                    onPressed: onTap,
-                  ),
-                ),
-          body: [
-            if (rows.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final (n, (label, value)) in rows.indexed)
-                    Container(
-                      decoration: BoxDecoration(
-                        border: n == 0
-                            ? null
-                            : Border(top: BorderSide(color: palette.divider)),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(label, style: attributeLabelStyle(context)),
-                          Text(
-                            value,
-                            style: attributeValueStyle(
-                              context,
-                              faint,
-                            ).copyWith(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            for (final r in requirements)
-              Text(
-                r,
-                style: palette
-                    .body(12.5)
-                    .copyWith(color: palette.secondaryText),
-              ),
-            if (wrong != null)
-              Text(
-                wrong!,
-                key: const Key("share_spot_wrong"),
-                style: palette
-                    .body(12.5, weight: FontWeight.w600)
-                    .copyWith(color: palette.errorText),
-              ),
-          ],
+      ],
+    );
+    return Semantics(
+      button: canAdd,
+      child: Padding(
+        padding: EdgeInsets.only(top: canAdd ? edgeRoom : 0),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          onTapDown: onTapDown == null ? null : (_) => onTapDown!(),
+          onTapCancel: onTapCancel,
+          child: canAdd ? PressScale(scale: 0.98, child: spot) : spot,
         ),
       ),
     );

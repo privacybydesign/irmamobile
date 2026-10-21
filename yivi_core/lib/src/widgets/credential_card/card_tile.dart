@@ -29,6 +29,10 @@ class CardTile extends StatelessWidget {
   /// outline in [outline] instead of a shadow.
   final bool dashed;
 
+  /// Where the dashed outline breaks along the top edge, for a button that
+  /// sits on it: the gap's width and its distance from the trailing edge.
+  final ({double width, double fromEnd})? dashGap;
+
   const CardTile({
     super.key,
     required this.art,
@@ -39,6 +43,7 @@ class CardTile extends StatelessWidget {
     this.body = const [],
     this.outline,
     this.dashed = false,
+    this.dashGap,
   });
 
   static const _shape = RoundedSuperellipseBorder(
@@ -73,6 +78,8 @@ class CardTile extends StatelessWidget {
       foregroundPainter: dashed
           ? _DashedOutlinePainter(
               shape: _shape,
+              gap: dashGap,
+              rtl: Directionality.of(context) == TextDirection.rtl,
               color: outline ?? palette.link.withValues(alpha: 0.35),
             )
           : null,
@@ -191,8 +198,15 @@ class CardTileChip extends StatelessWidget {
 class _DashedOutlinePainter extends CustomPainter {
   final ShapeBorder shape;
   final Color color;
+  final ({double width, double fromEnd})? gap;
+  final bool rtl;
 
-  const _DashedOutlinePainter({required this.shape, required this.color});
+  const _DashedOutlinePainter({
+    required this.shape,
+    required this.color,
+    this.gap,
+    this.rtl = false,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -201,14 +215,75 @@ class _DashedOutlinePainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
+    canvas.save();
+    if (gap case final g?) {
+      // Leaves the line out where a button sits on the top edge.
+      final left = rtl ? g.fromEnd : size.width - g.fromEnd - g.width;
+      canvas.clipPath(
+        Path.combine(
+          PathOperation.difference,
+          Path()..addRect((Offset.zero & size).inflate(2)),
+          Path()..addRect(Rect.fromLTWH(left, -2, g.width, 8)),
+        ),
+      );
+    }
     for (final metric in path.computeMetrics()) {
       for (var d = 0.0; d < metric.length; d += 9) {
         canvas.drawPath(metric.extractPath(d, d + 5), paint);
       }
     }
+    canvas.restore();
   }
 
   @override
   bool shouldRepaint(_DashedOutlinePainter old) =>
-      old.color != color || old.shape != shape;
+      old.color != color ||
+      old.shape != shape ||
+      old.gap != gap ||
+      old.rtl != rtl;
+}
+
+/// The outline of the chosen card: a 2 pt line in the primary colour, 3 pt
+/// outside [child] (a [CardTile]), as on the credential's page. Drawn
+/// outside the card, so the card keeps its size.
+class CardTileOutline extends StatelessWidget {
+  final Widget child;
+  final bool shown;
+
+  const CardTileOutline({super.key, required this.child, required this.shown});
+
+  static const _ring = 2.0;
+  static const _gap = 3.0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!shown) return child;
+    final palette = YiviPalette.of(context);
+    const out = -(_ring + _gap);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        Positioned(
+          left: out,
+          top: out,
+          right: out,
+          bottom: out,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              key: const Key("card_tile_outline"),
+              decoration: ShapeDecoration(
+                shape: RoundedSuperellipseBorder(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(24 + _ring + _gap),
+                  ),
+                  side: BorderSide(color: palette.primary, width: _ring),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

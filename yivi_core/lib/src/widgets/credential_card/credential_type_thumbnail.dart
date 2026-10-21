@@ -26,24 +26,18 @@ schemaless.Credential exampleCredentialOf(CredentialDescriptor descriptor) =>
 /// round logo. [owned] puts a green check on its corner (the user has one
 /// already). Excluded from semantics: the row around it says what it is.
 class CredentialTypeThumbnail extends StatelessWidget {
-  final CredentialDescriptor? descriptor;
+  final CredentialDescriptor descriptor;
   final double width;
   final bool owned;
   final bool greyedOut;
 
   const CredentialTypeThumbnail({
     super.key,
-    required CredentialDescriptor this.descriptor,
+    required this.descriptor,
     this.width = 56,
     this.owned = false,
     this.greyedOut = false,
   });
-
-  /// A card yet to add: a dashed card's outline with a plus.
-  const CredentialTypeThumbnail.add({super.key, this.width = 56})
-    : descriptor = null,
-      owned = false,
-      greyedOut = false;
 
   /// The height of a card [width] wide.
   static double heightOf(double width) => width * 226 / 358;
@@ -52,24 +46,6 @@ class CredentialTypeThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final height = heightOf(width);
-    final descriptor = this.descriptor;
-    if (descriptor == null) {
-      return ExcludeSemantics(
-        child: CustomPaint(
-          key: const Key("credential_type_thumbnail_add"),
-          painter: _DashedCard(color: palette.secondaryText),
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: Icon(
-              Icons.add_rounded,
-              size: height * 0.5,
-              color: palette.link,
-            ),
-          ),
-        ),
-      );
-    }
     final check = height * 0.56;
     return ExcludeSemantics(
       child: SizedBox(
@@ -108,37 +84,4 @@ class CredentialTypeThumbnail extends StatelessWidget {
       ),
     );
   }
-}
-
-/// The outline of a card to add: dashed, with the card's corners.
-class _DashedCard extends CustomPainter {
-  final Color color;
-
-  const _DashedCard({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final radius = size.width * 0.13;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          (Offset.zero & size).deflate(0.75),
-          Radius.circular(radius),
-        ),
-      );
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    for (final metric in path.computeMetrics()) {
-      var d = 0.0;
-      while (d < metric.length) {
-        canvas.drawPath(metric.extractPath(d, d + 4), paint);
-        d += 7;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedCard old) => old.color != color;
 }

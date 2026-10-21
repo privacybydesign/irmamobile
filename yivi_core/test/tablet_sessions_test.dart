@@ -157,7 +157,7 @@ void main() {
             child: TextButton(
               onPressed: () => showTitledGlassSheet(
                 context: context,
-                titleKey: "share.sheet.what",
+                titleKey: "share.sheet.pick_card",
                 child: const SizedBox(height: 200, child: Text("options")),
               ),
               child: const Text("open"),

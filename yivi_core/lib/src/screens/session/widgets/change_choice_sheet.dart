@@ -9,9 +9,9 @@ import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/dutch_another.dart";
 import "../../../widgets/credential_card/card_flight.dart";
-import "../../../widgets/credential_card/credential_type_thumbnail.dart";
-import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -222,7 +222,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       ask: issueStarted,
       confirm: issueConfirmStop,
       child: GlassSheetPages(
-        onBack: issueBack,
+        onBack: _back,
         pages: [
           // Opened on the one card the request can use: its details are
           // the first page.
@@ -237,10 +237,37 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
+  /// The card a finger is on: it has the outline of the chosen card until
+  /// the finger lifts (a tap picks it) or moves off to scroll (the outline
+  /// goes back). `owned:{hash}` or `add:{credentialId}`.
+  String? _pressed;
+
+  void _press(String? key) {
+    if (_pressed != key) setState(() => _pressed = key);
+  }
+
+  /// Back from adding a card: the list shows the card in use again.
+  void _back() {
+    _pressed = null;
+    issueBack();
+  }
+
   Widget _buildChoose(DisclosurePickOne pickOne) {
     final choices = ref.watch(sessionUserChoicesProvider(widget.sessionId));
     final owned = pickOne.ownedOptions ?? const [];
-    final addable = addableOptions(pickOne);
+    final ownedIds = {
+      for (final b in owned)
+        for (final c in b.credentials) c.credentialId,
+    };
+    // Another of a kind you already have comes first.
+    final addable = [
+      ...addableOptions(
+        pickOne,
+      ).where((d) => ownedIds.contains(d.credentialId)),
+      ...addableOptions(
+        pickOne,
+      ).where((d) => !ownedIds.contains(d.credentialId)),
+    ];
     final selections = selectionsFrom(
       [pickOne],
       {0: ?choices.disclosureChoices[widget.index]},
@@ -250,35 +277,34 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         pickOne.optional && !choices.addedOptionalIndices.contains(widget.index)
         ? -1
         : selectionOf(pickOne, selections[0]);
+    final language = FlutterI18n.currentLocale(context)?.languageCode;
 
-    final names = {
-      for (final b in owned) _nameOf(b),
-      for (final d in addable) d.name,
-    };
-    final sameType = names.length == 1;
-
-    final title = pickOne.optional
-        ? _t("share.sheet.add_optional")
-        : sameType
-        ? _t("share.sheet.which", {"name": _inSentence(names.single)})
-        : _t("share.sheet.what");
+    // The outline: on the card a finger is on, else on the one in use.
+    bool outlined(String key, {String? current}) =>
+        _pressed != null ? _pressed == key : key == current;
+    final current = selected >= 0 && selected < owned.length
+        ? "owned:${owned[selected].credentials.first.hash}"
+        : null;
 
     return GlassSheetPage(
-      title: title,
+      title: pickOne.optional
+          ? _t("share.sheet.add_optional")
+          : _t("share.sheet.pick_card"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        // Room for the selection outline around a card.
-        spacing: 12,
         children: [
           _Intro(
             owned.isEmpty
-                ? _t("share.sheet.subtitle_add")
-                : _t("share.sheet.subtitle"),
+                ? _t("share.sheet.subtitle_one_add")
+                : _t("share.sheet.subtitle_one"),
           ),
           if (owned.isNotEmpty) ...[
-            _Label(_t("share.in_your_app")),
-            for (final (k, b) in owned.indexed)
+            const SizedBox(height: 18),
+            _Label(_t("share.sheet.already_in_app")),
+            for (final b in owned) ...[
+              // Room for the outline around the card above.
+              const SizedBox(height: 12),
               Hero(
                 tag: choiceHeroTag(widget.sessionId, widget.index, b),
                 flightShuttleBuilder: choiceHeroShuttle,
@@ -287,45 +313,44 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                 child: _OwnedCard(
                   key: Key("sheet_owned_${b.credentials.first.hash}"),
                   bundle: b,
-                  selected: k == selected,
+                  selected: outlined(
+                    "owned:${b.credentials.first.hash}",
+                    current: current,
+                  ),
+                  onTapDown: () => _press("owned:${b.credentials.first.hash}"),
+                  onTapCancel: () => _press(null),
                   onTap: () => _pick(pickOne, b),
                 ),
               ),
+            ],
           ],
           if (addable.isNotEmpty) ...[
+            // Clearly apart from the cards in the app; the first empty card
+            // keeps room above its edge for its pill.
+            SizedBox(height: owned.isEmpty ? 18 : 44),
             _Label(_t("share.not_in_app_yet")),
-            // One compact row per type that can be added: a dashed card with
-            // a plus, what to add, and where it comes from.
-            GlassGroup(
-              dividerIndent: 14 + 56 + 14,
-              children: [
-                for (final d in addable)
-                  _AddRow(
-                    key: Key("sheet_add_${d.credentialId}"),
-                    title: owned.any((b) => _nameOf(b) == d.name)
-                        ? _t("share.sheet.another", {
-                            "name": _inSentence(d.name),
-                          })
-                        : _t("share.sheet.add_name", {
-                            "name": _inSentence(d.name),
-                          }),
-                    subtitle: _t("share.sheet.on_host", {
-                      "issuer": d.issuer.name,
-                      "host": hostOf(d.issueURL)!,
-                    }),
-                    requirements: requirementsOf(context, d),
-                    onTap: () => issueOpen(d),
-                  ),
-              ],
-            ),
+            for (final (n, d) in addable.indexed) ...[
+              if (n > 0) const SizedBox(height: 12),
+              EmptyCardSpot(
+                key: Key("sheet_add_${d.credentialId}"),
+                title: ownedIds.contains(d.credentialId)
+                    ? _t(anotherNameKey(d.name, languageCode: language), {
+                        "name": _inSentence(d.name),
+                      })
+                    : d.name,
+                subtitle: d.issuer.name,
+                rows: emptySpotRows(context, d),
+                selected: outlined("add:${d.credentialId}"),
+                onTapDown: () => _press("add:${d.credentialId}"),
+                onTapCancel: () => _press(null),
+                onTap: () => issueOpen(d),
+              ),
+            ],
           ],
         ],
       ),
     );
   }
-
-  static String _nameOf(DisclosureBundle b) =>
-      b.credentials.map((c) => c.name).join(" + ");
 }
 
 class _Label extends StatelessWidget {
@@ -337,7 +362,7 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Semantics(
         header: true,
         child: Text(
@@ -373,30 +398,29 @@ class _Intro extends StatelessWidget {
 }
 
 /// A card in the app, drawn as on the share screen with every value it
-/// would share: tap to use it. The one in use has the outline of the current
-/// card on the credential's page, drawn just outside the card so it keeps the
-/// share screen's size (and hidden while the card flies).
+/// would share: tap to use it. The chosen one (or the one a finger is on)
+/// has the outline of the current card on the credential's page, drawn
+/// just outside the card so it keeps the share screen's size (and hidden
+/// while the card flies).
 class _OwnedCard extends StatelessWidget {
   final DisclosureBundle bundle;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onTapDown;
+  final VoidCallback onTapCancel;
 
   const _OwnedCard({
     super.key,
     required this.bundle,
     required this.selected,
     required this.onTap,
+    required this.onTapDown,
+    required this.onTapCancel,
   });
-
-  /// The outline's 2 pt line, 3 pt from the card, as on the credential page.
-  static const _ring = 2.0;
-  static const _gap = 3.0;
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final outlined = selected && !SharedCardTileInFlight.of(context);
-    const out = -(_ring + _gap);
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: selected,
@@ -407,107 +431,11 @@ class _OwnedCard extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              SharedCardTile(bundle: bundle),
-              if (outlined)
-                Positioned(
-                  left: out,
-                  top: out,
-                  right: out,
-                  bottom: out,
-                  child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: ShapeDecoration(
-                        shape: RoundedSuperellipseBorder(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(24 + _ring + _gap),
-                          ),
-                          side: BorderSide(
-                            color: palette.primary,
-                            width: _ring,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A type that can be added for the request: a dashed card with a plus,
-/// "Add {name}" (or "Another {name}"), the issuer and its website, what the
-/// card must hold when a value is asked for ("Nationality must be NLD"),
-/// and a chevron.
-class _AddRow extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final List<String> requirements;
-  final VoidCallback onTap;
-
-  const _AddRow({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    this.requirements = const [],
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      excludeSemantics: true,
-      label: [title, subtitle, ...requirements].join(", "),
-      onTap: onTap,
-      child: InkWell(
-        onTap: onTap,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 64),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
-            child: Row(
-              spacing: 14,
-              children: [
-                const CredentialTypeThumbnail.add(),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: palette
-                            .display(15.5)
-                            .copyWith(height: 21 / 15.5, color: palette.text),
-                      ),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .body(13)
-                            .copyWith(color: palette.secondaryText),
-                      ),
-                      for (final r in requirements)
-                        Text(
-                          r,
-                          style: palette
-                              .body(13, weight: FontWeight.w600)
-                              .copyWith(color: palette.noteText),
-                        ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, size: 20, color: palette.faint),
-              ],
-            ),
+          onTapDown: (_) => onTapDown(),
+          onTapCancel: onTapCancel,
+          child: CardTileOutline(
+            shown: outlined,
+            child: SharedCardTile(bundle: bundle),
           ),
         ),
       ),
