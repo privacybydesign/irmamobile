@@ -11,7 +11,7 @@ import "package:material_ui/material_ui.dart";
 ///
 /// Deliberately uses [Focus]/[KeyEvent], not a `TextField` — so paste and
 /// autofill have nothing to bind to. Grabs focus on mount and re-grabs it on
-/// any tap in the entry area, so typing keeps working after a dialog or a
+/// any touch in the entry area, so typing keeps working after a dialog or a
 /// number-pad tap moved focus elsewhere.
 class PinHardwareKeyboardListener extends StatefulWidget {
   final void Function(int) onEnterNumber;
@@ -73,16 +73,15 @@ class _PinHardwareKeyboardListenerState
       focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: _onKeyEvent,
-      // Kept out of the semantics tree: re-grabbing keyboard focus is plumbing,
-      // not something a user acts on. Left in, this screen-wide detector became
-      // a node with a tap action covering the whole PIN screen, and — because
-      // the instruction and PIN-dots annotations are not containers — it
-      // swallowed their labels too, so a screen reader announced the heading
-      // and the entry state as one giant tappable item.
-      child: GestureDetector(
+      // A Listener, not a tap detector: it only watches touches go by.
+      // A tap detector here took part in every touch on the screen, so each
+      // keypad key had to wait for the finger to lift (or 100 ms) before it
+      // knew the touch was its own, and the dot, the haptic and the press
+      // light lagged behind fast typing. A Listener also has no semantics,
+      // so the screen reader doesn't see one big tappable item.
+      child: Listener(
         behavior: HitTestBehavior.translucent,
-        excludeFromSemantics: true,
-        onTap: _focusNode.requestFocus,
+        onPointerDown: (_) => _focusNode.requestFocus(),
         child: widget.child,
       ),
     );

@@ -186,4 +186,62 @@ void main() {
     expect(find.textContaining("2 tries left"), findsOneWidget);
     expect(find.byType(Dialog), findsNothing);
   });
+
+  group("fast typing", () {
+    Widget enter(List<String> committed) => YiviPinScaffold(
+      body: YiviPinScreen(
+        instructionKey: "pin.title",
+        maxPinSize: 5,
+        listener: (_, state) => committed.add(state.pin.join()),
+        onSubmit: (_) {},
+      ),
+    );
+
+    Offset key(WidgetTester tester, int digit) =>
+        tester.getCenter(find.byKey(Key("number_pad_key_$digit")));
+
+    testWidgets("overlapping fingers commit once the last one lifts", (
+      tester,
+    ) async {
+      _phone(tester);
+      final committed = <String>[];
+      await pumpTranslated(tester, _app(enter(committed)));
+      await tester.pumpAndSettle();
+
+      final a = await tester.startGesture(key(tester, 1), pointer: 1);
+      final b = await tester.startGesture(key(tester, 1), pointer: 2);
+      final c = await tester.startGesture(key(tester, 2), pointer: 3);
+      await a.up();
+      await b.up();
+      expect(committed, isEmpty);
+      await c.up();
+      expect(committed, ["112"]);
+    });
+
+    testWidgets("a cancelled finger takes away its own digit", (tester) async {
+      _phone(tester);
+      final committed = <String>[];
+      await pumpTranslated(tester, _app(enter(committed)));
+      await tester.pumpAndSettle();
+
+      final a = await tester.startGesture(key(tester, 1), pointer: 1);
+      final b = await tester.startGesture(key(tester, 2), pointer: 2);
+      await a.cancel();
+      await b.up();
+      expect(committed, ["2"]);
+    });
+
+    testWidgets("quick taps all count", (tester) async {
+      _phone(tester);
+      final committed = <String>[];
+      await pumpTranslated(tester, _app(enter(committed)));
+      await tester.pumpAndSettle();
+
+      for (final digit in [3, 3, 7, 3, 9]) {
+        await tester.tapAt(key(tester, digit));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(committed.last, "33739");
+    });
+  });
 }

@@ -19,10 +19,11 @@ class _NoopTranslationLoader extends TranslationLoader {
 void main() {
   Future<void> pumpKeypad(
     WidgetTester tester, {
-    void Function(int)? onDigitPressed,
-    VoidCallback? onDigitReleased,
-    VoidCallback? onDigitCancelled,
+    void Function(int, int)? onDigitPressed,
+    void Function(int)? onDigitReleased,
+    void Function(int)? onDigitCancelled,
     VoidCallback? onBackspace,
+    Widget Function(Widget pad)? wrap,
   }) async {
     await tester.pumpWidget(
       IrmaTheme(
@@ -35,11 +36,13 @@ void main() {
             body: SizedBox(
               width: 300,
               height: 400,
-              child: PinKeypad(
-                onDigitPressed: onDigitPressed ?? (_) {},
-                onDigitReleased: onDigitReleased ?? () {},
-                onDigitCancelled: onDigitCancelled ?? () {},
-                onBackspace: onBackspace ?? () {},
+              child: (wrap ?? (pad) => pad)(
+                PinKeypad(
+                  onDigitPressed: onDigitPressed ?? (_, _) {},
+                  onDigitReleased: onDigitReleased ?? (_) {},
+                  onDigitCancelled: onDigitCancelled ?? (_) {},
+                  onBackspace: onBackspace ?? () {},
+                ),
               ),
             ),
           ),
@@ -88,9 +91,9 @@ void main() {
     var cancelled = 0;
     await pumpKeypad(
       tester,
-      onDigitPressed: pressed.add,
-      onDigitReleased: () => released++,
-      onDigitCancelled: () => cancelled++,
+      onDigitPressed: (digit, _) => pressed.add(digit),
+      onDigitReleased: (_) => released++,
+      onDigitCancelled: (_) => cancelled++,
     );
 
     final gesture = await tester.startGesture(
@@ -112,9 +115,9 @@ void main() {
     var cancelled = 0;
     await pumpKeypad(
       tester,
-      onDigitPressed: pressed.add,
-      onDigitReleased: () => released++,
-      onDigitCancelled: () => cancelled++,
+      onDigitPressed: (digit, _) => pressed.add(digit),
+      onDigitReleased: (_) => released++,
+      onDigitCancelled: (_) => cancelled++,
     );
 
     final gesture = await tester.startGesture(
@@ -123,9 +126,117 @@ void main() {
     await tester.pump();
     expect(pressed, [3]);
 
-    await gesture.cancel(); // finger slides off / arena lost
+    await gesture.cancel(); // the system cancels the touch
     await tester.pumpAndSettle();
     expect(cancelled, 1); // dot removed
     expect(released, 0); // never committed
+  });
+
+  group("fast typing", () {
+    testWidgets("the dot shows the moment the finger lands, also with a tap "
+        "detector around the pad", (tester) async {
+      final pressed = <int>[];
+      await pumpKeypad(
+        tester,
+        onDigitPressed: (digit, _) => pressed.add(digit),
+        // As on the PIN screen: something around the pad that also
+        // listens for taps must not hold the keys back.
+        wrap: (pad) => GestureDetector(onTap: () {}, child: pad),
+      );
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key("number_pad_key_4"))),
+      );
+      await tester.pump();
+      expect(pressed, [4]);
+      await gesture.up();
+    });
+
+    testWidgets("the same key twice with two fingers is two digits", (
+      tester,
+    ) async {
+      final pressed = <int>[];
+      final released = <int>[];
+      await pumpKeypad(
+        tester,
+        onDigitPressed: (digit, _) => pressed.add(digit),
+        onDigitReleased: released.add,
+      );
+      final key = tester.getCenter(find.byKey(const Key("number_pad_key_1")));
+      final a = await tester.startGesture(key, pointer: 1);
+      final b = await tester.startGesture(key, pointer: 2);
+      await a.up();
+      await b.up();
+      await tester.pumpAndSettle();
+      expect(pressed, [1, 1]);
+      expect(released, [1, 2]);
+    });
+
+    testWidgets("a finger that slides still counts", (tester) async {
+      final pressed = <int>[];
+      var released = 0;
+      var cancelled = 0;
+      await pumpKeypad(
+        tester,
+        onDigitPressed: (digit, _) => pressed.add(digit),
+        onDigitReleased: (_) => released++,
+        onDigitCancelled: (_) => cancelled++,
+      );
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key("number_pad_key_5"))),
+      );
+      await gesture.moveBy(const Offset(30, 20));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(pressed, [5]);
+      expect(released, 1);
+      expect(cancelled, 0);
+    });
+
+    testWidgets("a tap between keys goes to the nearest key", (tester) async {
+      final pressed = <int>[];
+      await pumpKeypad(
+        tester,
+        onDigitPressed: (digit, _) => pressed.add(digit),
+      );
+      final one = tester.getRect(find.byKey(const Key("number_pad_key_1")));
+      final two = tester.getRect(find.byKey(const Key("number_pad_key_2")));
+      final four = tester.getRect(find.byKey(const Key("number_pad_key_4")));
+      // Just right of 1, in the gap: still 1. Just left of 2: 2.
+      await tester.tapAt(Offset(one.right + 4, one.center.dy));
+      await tester.tapAt(Offset(two.left - 4, two.center.dy));
+      // Just under 1, in the gap between the rows: still 1.
+      await tester.tapAt(Offset(one.center.dx, one.bottom + 4));
+      // Just above 4: 4.
+      await tester.tapAt(Offset(four.center.dx, four.top - 4));
+      await tester.pumpAndSettle();
+      expect(pressed, [1, 2, 1, 4]);
+    });
+
+    testWidgets("backspace acts on release, the empty slot does nothing", (
+      tester,
+    ) async {
+      final pressed = <int>[];
+      var backspaces = 0;
+      await pumpKeypad(
+        tester,
+        onDigitPressed: (digit, _) => pressed.add(digit),
+        onBackspace: () => backspaces++,
+      );
+      final zero = tester.getRect(find.byKey(const Key("number_pad_key_0")));
+      final gesture = await tester.startGesture(
+        zero.center.translate(PinKeypad.keySize + PinKeypad.columnGap, 0),
+      );
+      await tester.pump();
+      expect(backspaces, 0);
+      await gesture.up();
+      expect(backspaces, 1);
+      // The bottom-left slot is empty without biometrics.
+      await tester.tapAt(
+        zero.center.translate(-(PinKeypad.keySize + PinKeypad.columnGap), 0),
+      );
+      await tester.pumpAndSettle();
+      expect(pressed, isEmpty);
+      expect(backspaces, 1);
+    });
   });
 }

@@ -1,27 +1,35 @@
+import "package:flutter/gestures.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../util/haptics.dart";
 import "../../../widgets/glass/glass_surface.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
 ///
-/// Digit keys report their full press lifecycle: [onDigitPressed] on press-down
-/// (show the dot + haptic), [onDigitReleased] on release (commit — the final
-/// digit submits here), and [onDigitCancelled] if the press is cancelled (undo
-/// the dot). Backspace ([onBackspace]) and the biometric key act on release but
-/// share the digits' press-down haptic.
-class PinKeypad extends StatelessWidget {
-  /// A digit (0-9) was pressed down.
-  final void Function(int) onDigitPressed;
+/// The whole pad is one touch surface. A finger acts the moment it lands, on
+/// the key nearest to it (the gaps between keys belong to their neighbours),
+/// and every finger counts on its own, so fast typing with two thumbs, or the
+/// same key twice in a row, never loses a digit. Nothing on the screen
+/// competes for the touch, so there is no wait for the finger to lift before
+/// the dot, the haptic and the press light show.
+///
+/// Digit presses report their whole lifecycle under a press id:
+/// [onDigitPressed] when the finger lands (show the dot + haptic),
+/// [onDigitReleased] when it lifts, wherever that is (commit; the final digit
+/// submits here), and [onDigitCancelled] if the system cancels the touch
+/// (undo that dot). Backspace ([onBackspace]) and the biometric key act when
+/// the finger lifts, with the digits' haptic on landing.
+class PinKeypad extends StatefulWidget {
+  /// A digit (0-9) was pressed down, as press `press`.
+  final void Function(int digit, int press) onDigitPressed;
 
-  /// The held digit key was released — commit it.
-  final VoidCallback onDigitReleased;
+  /// The press was released: commit its digit.
+  final void Function(int press) onDigitReleased;
 
-  /// The held digit key's press was cancelled — undo it.
-  final VoidCallback onDigitCancelled;
+  /// The press was cancelled: undo its digit.
+  final void Function(int press) onDigitCancelled;
 
   /// Backspace key tapped.
   final VoidCallback onBackspace;
@@ -54,203 +62,235 @@ class PinKeypad extends StatelessWidget {
   static const double height = 4 * keySize + 3 * rowGap;
 
   @override
+  State<PinKeypad> createState() => _PinKeypadState();
+}
+
+/// The twelve cells, row by row: 1-9, then the biometric slot, 0, backspace.
+const _biometricCell = 9;
+const _zeroCell = 10;
+const _backspaceCell = 11;
+
+class _PinKeypadState extends State<PinKeypad> {
+  final _faces = List.generate(12, (_) => GlobalKey<_KeyFaceState>());
+
+  /// The cell each finger on the pad landed on.
+  final _fingers = <int, int>{};
+
+  /// Press ids for screen-reader taps, which have no pointer: negative, so
+  /// they never meet a real pointer id.
+  int _semanticPress = 0;
+
+  bool get _hasBiometric =>
+      widget.onBiometricUnlock != null && widget.biometricGlyph != null;
+
+  static int? _digitOf(int cell) => switch (cell) {
+    < 9 => cell + 1,
+    _zeroCell => 0,
+    _ => null,
+  };
+
+  /// The cell under [p]: each gap is split between the keys on either side.
+  static int _cellAt(Offset p) {
+    int along(double v, double gap, int count) =>
+        ((v + gap / 2) ~/ (PinKeypad.keySize + gap)).clamp(0, count - 1);
+    return along(p.dy, PinKeypad.rowGap, 4) * 3 +
+        along(p.dx, PinKeypad.columnGap, 3);
+  }
+
+  void _down(PointerDownEvent event) {
+    // A mouse presses with its main button only.
+    if (event.kind == PointerDeviceKind.mouse &&
+        event.buttons != kPrimaryMouseButton) {
+      return;
+    }
+    final cell = _cellAt(event.localPosition);
+    if (cell == _biometricCell && !_hasBiometric) return;
+    _fingers[event.pointer] = cell;
+    _faces[cell].currentState?.press();
+    HapticFeedback.lightImpact();
+    final digit = _digitOf(cell);
+    if (digit != null) widget.onDigitPressed(digit, event.pointer);
+  }
+
+  void _up(PointerUpEvent event) {
+    final cell = _fingers.remove(event.pointer);
+    if (cell == null) return;
+    _faces[cell].currentState?.release();
+    switch (cell) {
+      case _backspaceCell:
+        widget.onBackspace();
+      case _biometricCell:
+        widget.onBiometricUnlock?.call();
+      default:
+        widget.onDigitReleased(event.pointer);
+    }
+  }
+
+  void _cancel(PointerCancelEvent event) {
+    final cell = _fingers.remove(event.pointer);
+    if (cell == null) return;
+    _faces[cell].currentState?.release();
+    if (_digitOf(cell) != null) widget.onDigitCancelled(event.pointer);
+  }
+
+  /// A screen reader's double tap: a whole press at once.
+  void _semanticTap(int cell) {
+    _faces[cell].currentState?.flash();
+    final digit = _digitOf(cell);
+    if (digit == null) return;
+    final press = --_semanticPress;
+    widget.onDigitPressed(digit, press);
+    widget.onDigitReleased(press);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final rows = <List<Widget>>[
-      [_key(1), _key(2), _key(3)],
-      [_key(4), _key(5), _key(6)],
-      [_key(7), _key(8), _key(9)],
-      [
-        if (onBiometricUnlock == null || biometricGlyph == null)
-          const SizedBox.shrink()
-        else
-          Semantics(
-            button: true,
-            label: FlutterI18n.translate(context, "pin.biometric_button"),
-            child: _PinKeypadIcon(
-              key: const Key("pin_biometric_button"),
-              callback: onBiometricUnlock!,
-              size: 34,
-              child: biometricGlyph!,
+    Widget digit(int cell) {
+      final number = _digitOf(cell)!;
+      return _KeyFace(
+        key: _faces[cell],
+        resting: true,
+        child: Semantics(
+          label: "$number",
+          button: true,
+          onTap: () => _semanticTap(cell),
+          child: ExcludeSemantics(
+            child: Text(
+              "$number",
+              textAlign: TextAlign.center,
+              // The digit keeps its size at large text settings: the keys
+              // are fixed and it is already large.
+              textScaler: TextScaler.noScaling,
+              style: palette
+                  .display(28)
+                  .copyWith(color: palette.text, height: 1),
             ),
           ),
-        _key(0),
-        Semantics(
-          button: true,
-          label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
-          child: _PinKeypadIcon(
-            callback: onBackspace,
-            child: Icon(Icons.backspace_outlined, color: palette.heading),
+        ),
+      );
+    }
+
+    // Each key under the Key the tests and the integration helpers look for.
+    final cells = <Widget>[
+      for (var cell = 0; cell < 9; cell++)
+        KeyedSubtree(
+          key: Key("number_pad_key_${cell + 1}"),
+          child: digit(cell),
+        ),
+      if (!_hasBiometric)
+        const SizedBox.shrink()
+      else
+        _KeyFace(
+          key: _faces[_biometricCell],
+          child: Semantics(
+            key: const Key("pin_biometric_button"),
+            button: true,
+            label: FlutterI18n.translate(context, "pin.biometric_button"),
+            onTap: widget.onBiometricUnlock,
+            child: _glyph(widget.biometricGlyph!, size: 34),
           ),
         ),
-      ],
+      KeyedSubtree(key: const Key("number_pad_key_0"), child: digit(_zeroCell)),
+      _KeyFace(
+        key: _faces[_backspaceCell],
+        child: Semantics(
+          button: true,
+          label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
+          onTap: widget.onBackspace,
+          child: _glyph(Icon(Icons.backspace_outlined, color: palette.heading)),
+        ),
+      ),
     ];
 
     // A fixed grid of 76 pt keys, as in the design. On a short screen the
     // host scales the whole pad down instead of squeezing the keys.
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Column(
-        spacing: rowGap,
-        children: [
-          for (final row in rows)
-            Row(
-              spacing: columnGap,
-              children: [
-                for (final cell in row)
-                  SizedBox.square(dimension: keySize, child: cell),
-              ],
-            ),
-        ],
+    return Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: _down,
+      onPointerUp: _up,
+      onPointerCancel: _cancel,
+      child: SizedBox(
+        width: PinKeypad.width,
+        height: PinKeypad.height,
+        child: Column(
+          spacing: PinKeypad.rowGap,
+          children: [
+            for (var row = 0; row < 4; row++)
+              Row(
+                spacing: PinKeypad.columnGap,
+                children: [
+                  for (final cell in cells.skip(row * 3).take(3))
+                    SizedBox.square(dimension: PinKeypad.keySize, child: cell),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _key(int number) => _PinKeypadKey(
-    onDigitPressed: onDigitPressed,
-    onDigitReleased: onDigitReleased,
-    onDigitCancelled: onDigitCancelled,
-    number: number,
+  static Widget _glyph(Widget child, {double size = 28}) => SizedBox.square(
+    dimension: size,
+    child: FittedBox(child: child),
   );
 }
 
-class _PinKeypadKey extends StatelessWidget {
-  final int number;
-  final void Function(int) onDigitPressed;
-  final VoidCallback onDigitReleased;
-  final VoidCallback onDigitCancelled;
-
-  _PinKeypadKey({
-    required this.onDigitPressed,
-    required this.onDigitReleased,
-    required this.onDigitCancelled,
-    required this.number,
-  }) : super(key: Key("number_pad_key_${number.toString()}"));
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      label: number.toString(),
-      button: true,
-      child: _PressableCircle(
-        resting: true,
-        hapticOnDown: true,
-        onPressDown: () => onDigitPressed(number),
-        onPressCancel: onDigitCancelled,
-        onTap: onDigitReleased,
-        child: ExcludeSemantics(
-          child: Text(
-            "$number",
-            textAlign: TextAlign.center,
-            // The digit keeps its size at large text settings: the keys
-            // are fixed and it is already large.
-            textScaler: TextScaler.noScaling,
-            style: palette.display(28).copyWith(color: palette.text, height: 1),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PinKeypadIcon extends StatelessWidget {
-  final Widget child;
-  final VoidCallback callback;
-
-  /// Size of the glyph: the biometric glyph is drawn larger than backspace.
-  final double size;
-
-  const _PinKeypadIcon({
-    super.key,
-    required this.child,
-    required this.callback,
-    this.size = 28,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _PressableCircle(
-      // Haptic on press-down, same as the digit keys. The action still fires
-      // on release ([onTap]) — only the feedback edge matches the digits.
-      hapticOnDown: true,
-      onTap: callback,
-      child: IgnorePointer(
-        child: SizedBox.square(
-          dimension: size,
-          child: FittedBox(child: child),
-        ),
-      ),
-    );
-  }
-}
-
-/// Circular tap target with iPhone-keypad feedback: the key grows and its
-/// background circle lights up on press, then settles back. The grow always
-/// runs to its peak before reversing — even a quick tap (down+up in a few ms)
-/// plays the full pop, where tying the animation to hold-duration would only
-/// show a stub. Every keypad key routes through this, so the feel is uniform.
+/// One key as drawn, with iPhone-keypad feedback: on press it shrinks a
+/// little and lights up, then settles back. The press always runs to its peak
+/// before reversing, so even a quick tap plays the full pop. The pad drives it
+/// through [press] and [release]; it counts fingers, so a key held by two
+/// settles only when both lift.
 ///
-/// All keys set [hapticOnDown], so the haptic fires on press-down. Digit keys
-/// additionally use [onPressDown]/[onPressCancel] for the dot lifecycle and
-/// commit via [onTap] on release; backspace/biometric have no press-down
-/// callback and just act on [onTap] (release).
-class _PressableCircle extends StatefulWidget {
+/// Cheap to animate: the key paints on its own layer, and only the scale and
+/// the light change per frame; the glass is built once. The glass doesn't
+/// blur: behind the pad is only the page's own flat background, where a blur
+/// looks the same and costs a backdrop pass per key per frame.
+class _KeyFace extends StatefulWidget {
   final Widget child;
-  final VoidCallback onTap;
-  final VoidCallback? onPressDown;
-  final VoidCallback? onPressCancel;
-  final bool hapticOnDown;
 
   /// Shows the key as a round glass button even when not pressed (digits).
   final bool resting;
 
-  const _PressableCircle({
-    required this.child,
-    required this.onTap,
-    this.onPressDown,
-    this.onPressCancel,
-    this.hapticOnDown = false,
-    this.resting = false,
-  });
+  const _KeyFace({super.key, required this.child, this.resting = false});
 
   @override
-  State<_PressableCircle> createState() => _PressableCircleState();
+  State<_KeyFace> createState() => _KeyFaceState();
 }
 
-class _PressableCircleState extends State<_PressableCircle>
+class _KeyFaceState extends State<_KeyFace>
     with SingleTickerProviderStateMixin {
   late final AnimationController _press = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 10), // grow + light up
+    duration: const Duration(milliseconds: 10), // shrink + light up
     reverseDuration: const Duration(milliseconds: 180), // settle back
   )..addStatusListener(_onStatus);
 
-  bool _held = false;
+  int _held = 0;
 
   void _onStatus(AnimationStatus status) {
-    // Reached full grow: settle back unless the finger is still down (hold).
-    if (status == AnimationStatus.completed && !_held) _press.reverse();
+    // At the peak: settle back unless a finger is still down (hold).
+    if (status == AnimationStatus.completed && _held == 0) _press.reverse();
   }
 
-  void _down() {
-    _held = true;
+  void press() {
+    _held++;
     _press.forward();
-    if (widget.hapticOnDown) HapticFeedback.lightImpact();
-    widget.onPressDown?.call();
   }
 
-  void _release() {
-    _held = false;
-    // If we're already at the peak, settle now; otherwise _onStatus does it
-    // once the grow finishes — so the pop is never cut short.
-    if (_press.status == AnimationStatus.completed) _press.reverse();
+  void release() {
+    if (_held > 0) _held--;
+    // Already at the peak: settle now; otherwise _onStatus does it once the
+    // press is there, so the pop is never cut short.
+    if (_held == 0 && _press.status == AnimationStatus.completed) {
+      _press.reverse();
+    }
   }
 
-  void _cancel() {
-    _release();
-    widget.onPressCancel?.call();
+  /// A press and release at once.
+  void flash() {
+    press();
+    release();
   }
 
   @override
@@ -262,31 +302,29 @@ class _PressableCircleState extends State<_PressableCircle>
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _down(),
-      onTapUp: (_) => _release(),
-      onTapCancel: _cancel,
-      onTap: widget.hapticOnDown ? widget.onTap : widget.onTap.haptic,
+    final content = Center(child: widget.child);
+    return RepaintBoundary(
       child: AnimatedBuilder(
         animation: _press,
-        child: widget.child,
+        child: widget.resting
+            ? GlassSurface(
+                shape: const CircleBorder(),
+                blur: false,
+                child: content,
+              )
+            : content,
         builder: (context, child) {
           // As in the design: the pressed key shrinks a little and lights up.
           final t = Curves.easeOut.transform(_press.value);
-          final light = Center(child: child);
           return Transform.scale(
             scale: 1 - 0.08 * t,
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (widget.resting)
-                  GlassSurface(shape: const CircleBorder(), child: light)
-                else
-                  light,
+                child!,
                 // The press light, over the glass.
-                IgnorePointer(
-                  child: DecoratedBox(
+                if (t > 0)
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       // As in the design: a white light on light keys,
@@ -296,7 +334,6 @@ class _PressableCircleState extends State<_PressableCircle>
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           );

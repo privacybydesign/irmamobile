@@ -2,6 +2,7 @@ library;
 
 import "dart:math";
 
+import "package:flutter/foundation.dart" show listEquals;
 import "package:flutter/gestures.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -195,7 +196,8 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     // Switching between short and long PIN starts a fresh entry.
     if (widget.maxPinSize != oldWidget.maxPinSize) {
       _state = EnterPinState.empty();
-      _pressAddedDigit = false;
+      _presses.clear();
+      _commitWaiting = false;
     }
   }
 
@@ -226,17 +228,27 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   /// state, so fast input can't drop digits (#481). Does NOT notify the
   /// listener — callers decide when the change is committed.
   bool _applyNumber(int event) {
-    final pin = Pin.from(_state.pin);
     if (event >= 0 && event < 10 && _state.pin.length < widget.maxPinSize) {
-      pin.add(event);
-    } else if (event.isNegative && _state.pin.isNotEmpty) {
-      pin.removeLast();
-    } else {
-      return false;
+      _setPin(Pin.from(_state.pin)..add(event));
+      return true;
     }
-    setState(() => _state = EnterPinState.createFrom(pin: pin));
-    return true;
+    if (event.isNegative && _state.pin.isNotEmpty) {
+      _removeDigitAt(_state.pin.length - 1);
+      return true;
+    }
+    return false;
   }
+
+  void _removeDigitAt(int index) {
+    _setPin(Pin.from(_state.pin)..removeAt(index));
+    // A press whose digit this was has nothing left to commit or undo, and
+    // the presses after it moved one place up.
+    _presses.removeWhere((_, at) => at == index);
+    _presses.updateAll((_, at) => at > index ? at - 1 : at);
+  }
+
+  void _setPin(Pin pin) =>
+      setState(() => _state = EnterPinState.createFrom(pin: pin));
 
   /// Backspace and hardware-keyboard digits: apply and commit at once (no
   /// press-and-cancel lifecycle).
@@ -244,21 +256,38 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     if (_applyNumber(event)) widget.listener?.call(context, _state);
   }
 
-  // A keypad digit shows its dot on press-down and is only committed once the
-  // tap is released; a cancelled press (finger slides off) removes the dot
-  // again. So the final digit submits only on a real release, never a cancel.
-  bool _pressAddedDigit = false;
+  // A keypad digit shows its dot as soon as the finger lands and is committed
+  // once it lifts; a press the system cancels removes its own dot again. Each
+  // finger is its own press, and the entry is committed only once no finger
+  // is down, so the final digit submits on a real release, never a cancel.
 
-  void _digitDown(int number) => _pressAddedDigit = _applyNumber(number);
+  /// The presses still down, with the place of the digit each one added.
+  final _presses = <int, int>{};
 
-  void _digitUp() {
-    if (_pressAddedDigit) widget.listener?.call(context, _state);
-    _pressAddedDigit = false;
+  /// A press was released while another was still down.
+  bool _commitWaiting = false;
+
+  void _digitDown(int number, int press) {
+    final at = _state.pin.length;
+    if (_applyNumber(number)) _presses[press] = at;
   }
 
-  void _digitCancel() {
-    if (_pressAddedDigit) _applyNumber(-1);
-    _pressAddedDigit = false;
+  void _digitUp(int press) {
+    if (_presses.remove(press) == null) return;
+    _commitWaiting = true;
+    _commitIfAllUp();
+  }
+
+  void _digitCancel(int press) {
+    final at = _presses.remove(press);
+    if (at != null) _removeDigitAt(at);
+    _commitIfAllUp();
+  }
+
+  void _commitIfAllUp() {
+    if (_presses.isNotEmpty || !_commitWaiting) return;
+    _commitWaiting = false;
+    widget.listener?.call(context, _state);
   }
 
   void _submit() {
@@ -441,15 +470,27 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
+  /// The keypad as last built, and what it was built for: a digit rebuilds
+  /// the screen, and handing back the same widget leaves the keys alone.
+  Widget? _keypad;
+  List<Object?> _keypadFor = const [];
+
   Widget _buildKeypad() {
     final enabled = widget.enabled;
+    final keypadFor = [
+      enabled,
+      widget.onBiometricUnlock,
+      widget.biometricGlyph,
+    ];
+    if (_keypad != null && listEquals(keypadFor, _keypadFor)) return _keypad!;
+    _keypadFor = keypadFor;
     // Blocked: the keys are dimmed as well as off.
-    return Opacity(
+    return _keypad = Opacity(
       opacity: enabled ? 1 : 0.4,
       child: PinKeypad(
-        onDigitPressed: enabled ? _digitDown : (_) {},
-        onDigitReleased: enabled ? _digitUp : () {},
-        onDigitCancelled: enabled ? _digitCancel : () {},
+        onDigitPressed: enabled ? _digitDown : (_, _) {},
+        onDigitReleased: enabled ? _digitUp : (_) {},
+        onDigitCancelled: enabled ? _digitCancel : (_) {},
         onBackspace: enabled ? () => _enterNumber(-1) : () {},
         onBiometricUnlock: widget.onBiometricUnlock,
         biometricGlyph: widget.biometricGlyph,
