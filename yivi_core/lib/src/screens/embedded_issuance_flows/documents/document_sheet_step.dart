@@ -24,13 +24,14 @@ DocumentType? documentTypeOf(String credentialId) =>
     };
 
 /// The screens of adding a document, and the step of the sheet's progress
-/// each one is.
+/// each one is. The face check, when the issuer asks for one, is a step of
+/// its own after the chip.
 enum _Screen {
   instruction(2),
   reader(3),
   manual(3),
   chip(4),
-  face(4);
+  face(5);
 
   const _Screen(this.step);
   final int step;
@@ -57,6 +58,9 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
   /// The flow's number of steps.
   final int total;
 
+  /// The issuer asks for a face check: it is a step more (see [total]).
+  final VoidCallback onFaceCheck;
+
   /// Back from the instruction, to the details.
   final VoidCallback onBack;
 
@@ -70,6 +74,7 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
     this.total = 5,
     required this.onBack,
     required this.onStopped,
+    required this.onFaceCheck,
   });
 
   @override
@@ -150,6 +155,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
   /// The face check's intro as the next screen in the sheet; back (or "not
   /// now") is no.
   Future<bool> _faceIntro(BuildContext _) async {
+    widget.onFaceCheck();
     final start = await _push<bool>(
       _Screen.face,
       (context) => FaceVerificationIntroScreen(

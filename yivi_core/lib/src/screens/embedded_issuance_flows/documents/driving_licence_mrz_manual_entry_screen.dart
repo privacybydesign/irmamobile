@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "document_step_in_sheet.dart";
@@ -114,14 +115,23 @@ class _DrivingLicencetMrzManualEntryScreenState
             ),
           ),
         ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: "ui.continue",
-          onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: DocumentStepInSheet.of(context)
-              ? null
-              : "ui.cancel",
-          onSecondaryPressed: widget.onCancel,
-        ),
+        // In a sheet, the sheet's own buttons; its close button is the way out.
+        bottomNavigationBar: DocumentStepInSheet.of(context)
+            ? DocumentFlowFooter(
+                buttons: [
+                  DocumentFlowButton(
+                    key: DocumentFlowButton.primaryKey,
+                    labelKey: "ui.continue",
+                    onPressed: _canContinue ? _onContinuePressed : null,
+                  ),
+                ],
+              )
+            : IrmaBottomBar(
+                primaryButtonLabel: "ui.continue",
+                onPrimaryPressed: _canContinue ? _onContinuePressed : null,
+                secondaryButtonLabel: "ui.cancel",
+                onSecondaryPressed: widget.onCancel,
+              ),
       ),
     );
   }

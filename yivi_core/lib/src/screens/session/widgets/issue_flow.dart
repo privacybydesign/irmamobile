@@ -127,6 +127,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The document screens for [issueAdding] are shown (step 2).
   DocumentType? _document;
 
+  /// The issuer asked for a face check while adding the document: a step
+  /// more in the progress.
+  bool _faceCheck = false;
+
   /// The issuance that came back from the issuer, shown in the sheet.
   int? _nestedId;
 
@@ -251,6 +255,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _opened = false;
     _contact = null;
     _document = null;
+    _faceCheck = false;
   }
 
   /// Ends what adding left running: the issuance, the waiting host, the
@@ -270,6 +275,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _opened = false;
     _contact = null;
     _document = null;
+    _faceCheck = false;
   }
 
   void _dismissNested(int sessionId) => _repo.bridgedDispatch(
@@ -280,11 +286,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// steps that prove it, and adding it. A website is one step (3 in all);
   /// an e-mail address or phone number two, the address and the code (4); a
   /// document three, how to hold it, scanning or typing it in, and the chip
-  /// (5).
+  /// (5), and a fourth once the issuer asks for a face check (6).
   int _stepsOf(CredentialDescriptor d) =>
       switch (_repo.embeddedFlowOf(d.credentialId)) {
         EmbeddedFlow.email || EmbeddedFlow.phone => 4,
-        EmbeddedFlow.document when documentTypeOf(d.credentialId) != null => 5,
+        EmbeddedFlow.document when documentTypeOf(d.credentialId) != null =>
+          _faceCheck ? 6 : 5,
         _ => 3,
       };
 
@@ -311,7 +318,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (document != null) {
       if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
       _hosts.register(this);
-      setState(() => _document = document);
+      setState(() {
+        _document = document;
+        _faceCheck = false;
+      });
       return;
     }
     if (flow != null) {
@@ -377,9 +387,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       setState(() {
         _nestedId = null;
         _document = null;
+        _faceCheck = false;
       });
     } else if (_document != null) {
-      setState(() => _document = null);
+      setState(() {
+        _document = null;
+        _faceCheck = false;
+      });
     } else if (_contact != null) {
       setState(() => _contact = null);
     } else {
@@ -550,8 +564,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             type: _document!,
             subject: subject,
             total: total,
-            onBack: () => setState(() => _document = null),
+            onBack: () => setState(() {
+              _document = null;
+              _faceCheck = false;
+            }),
             onStopped: issueLeave,
+            onFaceCheck: () {
+              if (!_faceCheck) setState(() => _faceCheck = true);
+            },
           ),
         ),
       if (nested != null || issueAdded != null)

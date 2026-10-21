@@ -5,7 +5,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../../util/test_detection.dart";
 
 /// The picture of the instruction screen, as on the design board: a passport
-/// open on its photo page, the back of an ID card or the front of a driving
+/// open with its photo page on the left, the back of an ID card or the front of a driving
 /// licence, with the machine readable zone outlined and a red band sweeping
 /// over it.
 ///
@@ -84,16 +84,17 @@ class _DocumentInstructionIllustrationState
   }
 }
 
-/// The band's horizontal offset (from -30 to 120) and opacity (fading in over
-/// the first 15% and out over the last 15%) at [t] of the loop.
-(double, double) _band(double t) {
+/// The band's horizontal offset (from just left of the zone to its right end,
+/// [width]) and opacity (fading in over the first 15% and out over the last
+/// 15%) at [t] of the loop.
+(double, double) _band(double t, double width) {
   final eased = Curves.easeInOut.transform(t);
   final opacity = t < 0.15
       ? t / 0.15
       : t > 0.85
       ? (1 - t) / 0.15
       : 1.0;
-  return (-30 + 150 * eased, opacity.clamp(0.0, 1.0));
+  return (-30 + (width + 30) * eased, opacity.clamp(0.0, 1.0));
 }
 
 const _bandColor = Color(0x59BA3354);
@@ -106,7 +107,7 @@ class _BandPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final (dx, opacity) = _band(sweep.value);
+    final (dx, opacity) = _band(sweep.value, size.width);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(dx, 0, 16, size.height),
@@ -125,9 +126,10 @@ class _Passport extends StatelessWidget {
 
   final Animation<double> sweep;
 
-  // The design board's open passport, without the band (drawn on top).
+  // The design board's open passport, without the band (drawn on top): the
+  // photo page with the zone on the left, as in a Dutch passport.
   static const _svg = '''
-<svg width="280" height="200" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="264" height="164" rx="16" fill="#7A1F2E"/><rect x="16" y="26" width="124" height="148" rx="9" fill="#F4ECE1"/><rect x="140" y="26" width="124" height="148" rx="9" fill="#FBF7F0"/><path d="M140 30 V170" stroke="#E2D6C4" stroke-width="2"/><path d="M30 50 h96 M30 62 h80 M30 74 h90" stroke="#E6DACA" stroke-width="5" stroke-linecap="round"/><circle cx="78" cy="120" r="26" fill="none" stroke="#E6DACA" stroke-width="3"/><rect x="150" y="40" width="40" height="52" rx="5" fill="#D9CBB8"/><circle cx="170" cy="58" r="9" fill="#B9A78F"/><path d="M156 88 c4-12 24-12 28 0" fill="#B9A78F"/><path d="M198 44 h52 M198 56 h40 M198 68 h48 M198 80 h34 M150 104 h96 M150 116 h72" stroke="#D7CDBF" stroke-width="5" stroke-linecap="round"/><rect x="146" y="132" width="112" height="34" rx="6" fill="#BA3354" fill-opacity="0.10" stroke="#BA3354" stroke-width="2" stroke-dasharray="5 4"/></svg>''';
+<svg width="280" height="200" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="264" height="164" rx="16" fill="#7A1F2E"/><rect x="16" y="26" width="124" height="148" rx="9" fill="#FBF7F0"/><rect x="140" y="26" width="124" height="148" rx="9" fill="#F4ECE1"/><path d="M140 30 V170" stroke="#E2D6C4" stroke-width="2"/><path d="M154 50 h96 M154 62 h80 M154 74 h90" stroke="#E6DACA" stroke-width="5" stroke-linecap="round"/><circle cx="202" cy="120" r="26" fill="none" stroke="#E6DACA" stroke-width="3"/><rect x="26" y="40" width="40" height="52" rx="5" fill="#D9CBB8"/><circle cx="46" cy="58" r="9" fill="#B9A78F"/><path d="M32 88 c4-12 24-12 28 0" fill="#B9A78F"/><path d="M74 44 h52 M74 56 h40 M74 68 h48 M74 80 h34 M26 104 h96 M26 116 h72" stroke="#D7CDBF" stroke-width="5" stroke-linecap="round"/><rect x="22" y="132" width="112" height="34" rx="6" fill="#BA3354" fill-opacity="0.10" stroke="#BA3354" stroke-width="2" stroke-dasharray="5 4"/></svg>''';
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +143,7 @@ class _Passport extends StatelessWidget {
           // SVG text cannot fall back to a monospace font that the phone
           // has, so it could run out of the page.
           const Positioned(
-            left: 151,
+            left: 27,
             top: 137,
             width: 104,
             height: 26,
@@ -162,13 +164,17 @@ class _Passport extends StatelessWidget {
               ),
             ),
           ),
-          // The band over the zone: x 146, y 132, 34 high.
+          // The band over the zone (x 22, y 132, 112 by 34), kept inside it
+          // as on the cards.
           Positioned(
-            left: 146,
+            left: 22,
             top: 132,
-            width: 120,
+            width: 112,
             height: 34,
-            child: CustomPaint(painter: _BandPainter(sweep)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: CustomPaint(painter: _BandPainter(sweep)),
+            ),
           ),
         ],
       ),

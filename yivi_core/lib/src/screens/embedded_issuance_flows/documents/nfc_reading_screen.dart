@@ -21,6 +21,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
@@ -671,14 +672,23 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         padding: .all(theme.defaultSpacing),
         child: SvgPicture.asset(yiviAsset(illustrationAsset)),
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "ui.retry",
-        onPrimaryPressed: retry,
-        secondaryButtonLabel: DocumentStepInSheet.of(context)
-            ? null
-            : "ui.cancel",
-        onSecondaryPressed: cancel,
-      ),
+      // In a sheet, the sheet's own buttons; its close button is the way out.
+      bottomNavigationBar: DocumentStepInSheet.of(context)
+          ? DocumentFlowFooter(
+              buttons: [
+                DocumentFlowButton(
+                  key: DocumentFlowButton.primaryKey,
+                  labelKey: "ui.retry",
+                  onPressed: retry,
+                ),
+              ],
+            )
+          : IrmaBottomBar(
+              primaryButtonLabel: "ui.retry",
+              onPrimaryPressed: retry,
+              secondaryButtonLabel: "ui.cancel",
+              onSecondaryPressed: cancel,
+            ),
     );
   }
 
@@ -696,14 +706,23 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           yiviAsset("error/general_error_illustration.svg"),
         ),
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "ui.retry",
-        onPrimaryPressed: retry,
-        secondaryButtonLabel: DocumentStepInSheet.of(context)
-            ? null
-            : "ui.cancel",
-        onSecondaryPressed: cancel,
-      ),
+      // In a sheet, the sheet's own buttons; its close button is the way out.
+      bottomNavigationBar: DocumentStepInSheet.of(context)
+          ? DocumentFlowFooter(
+              buttons: [
+                DocumentFlowButton(
+                  key: DocumentFlowButton.primaryKey,
+                  labelKey: "ui.retry",
+                  onPressed: retry,
+                ),
+              ],
+            )
+          : IrmaBottomBar(
+              primaryButtonLabel: "ui.retry",
+              onPrimaryPressed: retry,
+              secondaryButtonLabel: "ui.cancel",
+              onSecondaryPressed: cancel,
+            ),
     );
   }
 

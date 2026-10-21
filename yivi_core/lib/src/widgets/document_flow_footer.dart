@@ -1,10 +1,12 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../screens/embedded_issuance_flows/documents/document_step_in_sheet.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "glass/floating_bar_placement.dart";
 import "glass/pill_buttons.dart";
+import "glass/sheet_action_row.dart";
 
 /// Button look in the document flow screens: 56 high pills, 16 bold.
 enum DocumentFlowButtonStyle {
@@ -82,7 +84,10 @@ enum DocumentFlowFooterStyle {
   flat,
 }
 
-/// The bar of buttons at the bottom of a document flow screen.
+/// The bar of buttons at the bottom of a document flow screen. In a sheet
+/// ([DocumentStepInSheet]) it is the sheet's own: a [SheetActionRow] where
+/// every sheet page has its buttons, so Start sits where "Add" did on the
+/// page before.
 class DocumentFlowFooter extends StatelessWidget {
   const DocumentFlowFooter({
     required this.buttons,
@@ -101,6 +106,7 @@ class DocumentFlowFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (DocumentStepInSheet.of(context)) return _inSheet(context);
     final theme = IrmaTheme.of(context);
     final inset = MediaQuery.paddingOf(context);
 
@@ -135,6 +141,24 @@ class DocumentFlowFooter extends StatelessWidget {
           spacing: theme.tinySpacing,
           children: buttons,
         ),
+      ),
+    );
+  }
+
+  Widget _inSheet(BuildContext context) {
+    final flowButtons = buttons.cast<DocumentFlowButton>();
+    final primary = flowButtons.where((b) => b.style == .primary).firstOrNull;
+    final secondary = flowButtons.where((b) => b.style != .primary).firstOrNull;
+    String? label(DocumentFlowButton? b) =>
+        b == null ? null : FlutterI18n.translate(context, b.labelKey);
+    return SheetBottomBar(
+      child: SheetActionRow(
+        primaryKey: primary?.key,
+        primaryLabel: label(primary),
+        onPrimary: primary?.onPressed,
+        secondaryKey: secondary?.key,
+        secondaryLabel: label(secondary),
+        onSecondary: secondary?.onPressed,
       ),
     );
   }

@@ -7,9 +7,9 @@ import "../../util/adaptive_layout.dart";
 import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
-import "floating_bar_placement.dart";
 import "glass_surface.dart";
 import "scroll_edge.dart";
+import "sheet_action_row.dart";
 
 /// Shows [builder]'s content in the app's one sheet: a full-width glass sheet
 /// attached to the bottom of the screen, as tall as a native iOS sheet (its
@@ -1175,16 +1175,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             ),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            // The sheet ends at the screen's bottom edge.
-            FloatingBarPlacement.buttonBottom(context),
-          ),
-          child: bottom,
-        ),
+        SheetBottomBar(child: bottom),
       ],
     ];
   }

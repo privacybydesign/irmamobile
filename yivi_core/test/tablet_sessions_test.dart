@@ -65,7 +65,8 @@ void main() {
       await pump(tester, _tablet, screen());
 
       expect(find.byType(SessionColumns), findsOneWidget);
-      final card = tester.getRect(find.byType(CredentialCardArt));
+      // The big card; the group of values has a mini one too.
+      final card = tester.getRect(find.byType(CredentialCardArt).first);
       final receive = tester.getRect(find.text("You will receive"));
       final add = tester.getRect(find.byKey(const Key("bottom_bar_primary")));
       expect(receive.left, greaterThan(card.right));
@@ -80,7 +81,8 @@ void main() {
       await pump(tester, _phone, screen());
 
       expect(find.byType(SessionColumns), findsNothing);
-      final card = tester.getRect(find.byType(CredentialCardArt));
+      // The big card; the group of values has a mini one too.
+      final card = tester.getRect(find.byType(CredentialCardArt).first);
       final receive = tester.getRect(find.text("You will receive"));
       expect(receive.top, greaterThan(card.bottom));
     });

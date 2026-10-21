@@ -130,7 +130,7 @@ void main() {
       return (ink.color, fill.widthFactor!);
     }
 
-    testWidgets("blue up to the step", (tester) async {
+    testWidgets("green up to the step during a request", (tester) async {
       await pumpTranslated(
         tester,
         _wrap(
@@ -141,9 +141,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final blue = YiviPalette.light.link;
-      expect(segment(tester, 1), (blue, 1.0));
-      expect(segment(tester, 2), (blue, 1.0));
+      final green = YiviPalette.light.successText;
+      expect(segment(tester, 1), (green, 1.0));
+      expect(segment(tester, 2), (green, 1.0));
       expect(segment(tester, 3).$2, 0.0);
     });
 

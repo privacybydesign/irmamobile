@@ -164,6 +164,7 @@ abstract final class DocumentFlowSteps {
       ),
       mrz: mrz,
       onCancel: onCancel,
+      faceIntro: faceIntro,
     );
   }
 }

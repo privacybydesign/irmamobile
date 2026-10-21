@@ -222,7 +222,6 @@ class IssuanceOffer {
     final many = _cards.length > 1;
     final issuers = _cards.map((c) => c.issuer.name).toSet();
     final first = _cards.firstOrNull;
-    final until = first == null || many ? null : _validUntil(context, first);
 
     final chips = [
       InfoChip(
@@ -240,7 +239,6 @@ class IssuanceOffer {
             "count": "${_cards.length}",
           }),
         ),
-      if (until != null) InfoChip(label: until),
       if (!many && (first?.display?.svgTemplates.isNotEmpty ?? false))
         InfoChip(
           label: t(context, "credential_card.source.issuer_design"),
@@ -321,8 +319,8 @@ class IssuanceOffer {
     });
   }
 
-  /// "You will receive" and every value: one list for one card, a group
-  /// per card for several.
+  /// "You will receive" and every value: a group per card, with the card's
+  /// mini art, name and validity on top.
   List<Widget> receives(BuildContext context) {
     final mismatches = issuanceMismatches(_cards, _steps);
     final palette = YiviPalette.of(context);
@@ -372,33 +370,25 @@ class IssuanceOffer {
               : heading,
         ),
       ),
-      if (!many)
-        for (final card in _cards)
-          _Group(
+      // One card looks like each of several: its name above its values.
+      for (final (i, card) in _cards.indexed)
+        Padding(
+          padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
+          child: _Group(
+            key: Key("issuance_card_$i"),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: values(card),
-            ),
-          )
-      else
-        for (final (i, card) in _cards.indexed)
-          Padding(
-            padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
-            child: _Group(
-              key: Key("issuance_card_$i"),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _GroupHeader(card: card, until: _validUntil(context, card)),
-                    Divider(height: 1, color: palette.divider),
-                    values(card),
-                  ],
-                ),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _GroupHeader(card: card, until: _validUntil(context, card)),
+                  Divider(height: 1, color: palette.divider),
+                  values(card),
+                ],
               ),
             ),
           ),
+        ),
     ];
   }
 }
@@ -455,10 +445,14 @@ class _GroupHeader extends StatelessWidget {
               style: palette.display(14).copyWith(color: palette.heading),
             ),
           ),
+          // Wraps rather than pushing the name off at a large text size.
           if (until != null)
-            Text(
-              until!,
-              style: palette.body(12).copyWith(color: palette.secondaryText),
+            Flexible(
+              child: Text(
+                until!,
+                textAlign: TextAlign.end,
+                style: palette.body(12).copyWith(color: palette.secondaryText),
+              ),
             ),
         ],
       ),

@@ -842,6 +842,7 @@ void main() {
       );
       expect(find.byType(DocumentInstructionScreen), findsNothing);
 
+      final add = tester.getRect(find.byKey(const Key("sheet_go_button")));
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await _pumpFor(tester);
       final screen = tester.widget<DocumentInstructionScreen>(
@@ -851,6 +852,14 @@ void main() {
         ),
       );
       expect(screen.documentType, documentType);
+      // Start is the sheet's own button, where "Add" was.
+      final start = tester.getRect(
+        find.descendant(
+          of: find.byType(DocumentInstructionScreen),
+          matching: find.byKey(const Key("bottom_bar_primary")),
+        ),
+      );
+      expect(start, add);
     });
   }
 }

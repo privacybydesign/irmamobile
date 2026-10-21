@@ -1,6 +1,28 @@
 import "package:material_ui/material_ui.dart";
 
+import "floating_bar_placement.dart";
 import "pill_buttons.dart";
+
+/// Where the buttons of a sheet page sit ([GlassSheetPage.bottom], and the
+/// document screens shown in a sheet): 8 under the content, 16 from the
+/// sides, and as low as on a full screen. Usually around a [SheetActionRow].
+class SheetBottomBar extends StatelessWidget {
+  final Widget child;
+
+  const SheetBottomBar({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      16,
+      8,
+      16,
+      // The sheet ends at the screen's bottom edge.
+      FloatingBarPlacement.buttonBottom(context),
+    ),
+    child: child,
+  );
+}
 
 /// The buttons of a step in a sheet, side by side so they take little height:
 /// the way back ([secondaryLabel], a text pill like every other Cancel) on

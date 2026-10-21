@@ -31,9 +31,8 @@ class _ForCard extends IssueSheetSubject {
 /// a tag ([subject]): "For {requestor}", so it is clear the card is for the
 /// request behind the sheet, or the card itself when there is no request;
 /// then a segment per step of the flow ([total]: the details, the steps that
-/// prove it, adding it) and "1 of 4". During a request the segments fill
-/// blue up to the step; once the card is added ([done]) all are green and it
-/// says "Done". Without a request (Add data) they are green throughout.
+/// prove it, adding it) and "1 of 4". The segments fill green up to the
+/// step; once the card is added ([done]) all are filled and it says "Done".
 ///
 /// Each step of the sheet has a progress of its own, so the bar remembers
 /// where it stood ([GlassSheetPages.memoryOf]) and fills (or empties) on from
@@ -45,7 +44,8 @@ class IssueSheetProgress extends StatefulWidget {
   final int step;
 
   /// How many steps the flow has: 3 for a website, 4 for an e-mail address
-  /// or phone number (the address and the code), 5 for a document.
+  /// or phone number (the address and the code), 5 for a document (6 with a
+  /// face check).
   final int total;
   final bool done;
 
@@ -61,13 +61,9 @@ class IssueSheetProgress extends StatefulWidget {
   State<IssueSheetProgress> createState() => _IssueSheetProgressState();
 }
 
-/// Where a bar stood: how far it was filled (in steps), and whether it was
-/// green.
-typedef _Shown = ({double fill, bool done});
-
 /// What a bar leaves for the next one: the part filled, so a flow with
 /// another number of steps carries on from the same point.
-typedef _Left = ({double part, bool done});
+typedef _Left = ({double part});
 
 class _IssueSheetProgressState extends State<IssueSheetProgress>
     with SingleTickerProviderStateMixin {
@@ -82,8 +78,9 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     curve: Curves.easeInOutCubic,
   );
 
-  /// Where the bar moves from; it is at [_to] when [_move] is done.
-  _Shown _from = (fill: 0, done: false);
+  /// How far (in steps) the bar is filled where it moves from; it is at
+  /// [_to] when [_move] is done.
+  double _from = 0;
   bool _started = false;
 
   /// Its page was on top at the last check. Pages stay alive under the next
@@ -91,10 +88,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   /// page it covered left it.
   bool _wasTop = true;
 
-  _Shown get _to => (
-    fill: (widget.done ? widget.total : widget.step).toDouble(),
-    done: widget.done,
-  );
+  double get _to => (widget.done ? widget.total : widget.step).toDouble();
 
   @override
   void didChangeDependencies() {
@@ -106,11 +100,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     _started = true;
     // From where the previous step's bar stood; a first bar fills from empty.
     final last = GlassSheetPages.memoryOf(context)?[_memoryKey];
-    _go(
-      from: last is _Left
-          ? (fill: last.part * widget.total, done: last.done)
-          : (fill: 0, done: false),
-    );
+    _go(from: last is _Left ? last.part * widget.total : 0);
   }
 
   @override
@@ -131,28 +121,19 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   }
 
   /// Where the bar is right now.
-  _Shown get _now {
-    final t = _curve.value;
-    final to = _to;
-    return (
-      fill: _from.fill + (to.fill - _from.fill) * t,
-      done: t < 0.5 ? _from.done : to.done,
-    );
-  }
+  double get _now => _from + (_to - _from) * _curve.value;
 
-  void _go({required _Shown from}) {
+  void _go({required double from}) {
     _from = from;
     // The page on top tells the next one where it ends up; the one under it
     // (shown only while pages change) does not.
     if (GlassSheetPages.isTopPage(context)) {
-      final to = _to;
       GlassSheetPages.memoryOf(context)?[_memoryKey] = (
-        part: to.fill / widget.total,
-        done: to.done,
+        part: _to / widget.total,
       );
     }
     final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final still = reduce || (from.fill == _to.fill && from.done == _to.done);
+    final still = reduce || from == _to;
     if (still) {
       _move.value = 1;
     } else {
@@ -168,12 +149,8 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     final step = widget.step;
     final done = widget.done;
     final params = {"step": "$step", "total": "${widget.total}"};
-    // Adding a card on its own (Add data) is green all the way; during a
-    // request the line is blue until the card is added.
-    final alwaysGreen = widget.subject is _ForCard;
-    final track = (alwaysGreen ? palette.successText : palette.link).withValues(
-      alpha: 0.15,
-    );
+    final ink = palette.successText;
+    final track = ink.withValues(alpha: 0.15);
 
     final line = Semantics(
       // The step and the total, for a test to find without a visible count.
@@ -196,17 +173,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
               child: AnimatedBuilder(
                 animation: _curve,
                 builder: (context, _) {
-                  final now = _now;
-                  // Blue while adding, green once added; the colour follows
-                  // the fill when it turns.
-                  final fromInk = _from.done || alwaysGreen
-                      ? palette.successText
-                      : palette.link;
-                  final toInk = done || alwaysGreen
-                      ? palette.successText
-                      : palette.link;
-                  final ink = Color.lerp(fromInk, toInk, _curve.value)!;
-                  final part = (now.fill - (i - 1)).clamp(0.0, 1.0);
+                  final part = (_now - (i - 1)).clamp(0.0, 1.0);
                   return Container(
                     key: Key("issue_sheet_progress_$i"),
                     height: 4,
