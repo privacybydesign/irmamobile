@@ -232,9 +232,11 @@ class _LogoutConfirmationState extends State<_LogoutConfirmation> {
     // mounted.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // At the top: the PIN screen's keypad and link fill the bottom.
       showAppToast(
         context,
         FlutterI18n.translate(context, "more_tab.logged_out_toast"),
+        atTop: true,
       );
     });
   }

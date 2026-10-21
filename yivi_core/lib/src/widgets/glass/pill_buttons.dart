@@ -22,14 +22,14 @@ enum PillSize {
 }
 
 /// The primary action: a pill in the faceted Yivi red (`ui/btn-bg.svg`, the
-/// same art as today's fancy button), with a light top edge and a red glow.
+/// same art as today's fancy button), with a light top edge. No red glow
+/// behind it: it stands on its own colour.
 class FancyPillButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final PillSize size;
   final Widget? leading;
   final Widget? trailing;
-  final bool glow;
 
   const FancyPillButton({
     super.key,
@@ -38,7 +38,6 @@ class FancyPillButton extends StatelessWidget {
     this.size = PillSize.large,
     this.leading,
     this.trailing,
-    this.glow = true,
   });
 
   @override
@@ -54,18 +53,7 @@ class FancyPillButton extends StatelessWidget {
         opacity: enabled ? 1 : 0.5,
         child: PressScale(
           child: DecoratedBox(
-            decoration: ShapeDecoration(
-              shape: const StadiumBorder(),
-              shadows: glow && enabled
-                  ? const [
-                      BoxShadow(
-                        color: Color(0x59E12747),
-                        blurRadius: 24,
-                        offset: Offset(0, 8),
-                      ),
-                    ]
-                  : null,
-            ),
+            decoration: const ShapeDecoration(shape: StadiumBorder()),
             child: ClipPath(
               clipper: const ShapeBorderClipper(shape: StadiumBorder()),
               child: Stack(

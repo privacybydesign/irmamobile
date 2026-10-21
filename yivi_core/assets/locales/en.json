@@ -215,14 +215,12 @@
         "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
         "obtain": "Add {credential} to my Yivi-app",
         "external_note": "Adding this happens on {host}. Follow the steps there; Yivi then opens again by itself, back here.",
-        "issued_by": "Issued by {issuer}",
-        "example_card": "Example card",
-        "example_card_nfc": "Example card · needs NFC",
         "disclosure_info_requestor": "You get all of it, but {requestor} only gets what it asks for.",
         "you_get": "You get",
         "good_to_know": "Good to know",
         "show_all": "Show all {count}",
-        "steps_peek": "{count} steps · {first}"
+        "steps_peek": "{count} steps · {first}",
+        "issuer_nfc": "{issuer} · needs NFC"
       },
       "nfc_unsupported": {
         "title": "NFC not supported",

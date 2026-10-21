@@ -566,7 +566,7 @@ void main() {
       // The card's name is the bar's title; no tag, no requestor line.
       expect(find.text("Personal data"), findsWidgets);
       expect(find.byKey(const Key("issue_sheet_for_requestor")), findsNothing);
-      expect(find.text("Example card"), findsOneWidget);
+      expect(find.byKey(const Key("add_data_details_name")), findsOneWidget);
       // Not during a request: no note about sharing only what is asked.
       expect(find.textContaining("you will only share"), findsNothing);
       // Issued on a website: said before leaving, right above the button.

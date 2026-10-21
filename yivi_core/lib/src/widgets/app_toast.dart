@@ -3,18 +3,49 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_palette.dart";
 import "two_pane.dart";
 
-/// Shows [message] as a glass pill above the tab bar for 2.6 seconds, like
-/// "You have been logged out". Uses the nearest [ScaffoldMessenger], so it
-/// queues with other toasts and is announced by screen readers.
-void showAppToast(BuildContext context, String message, {Key? key}) =>
-    appToastFor(context)(message, key: key);
+/// Shows [message] as a glass pill for 2.6 seconds, like "You have been
+/// logged out": just above the bottom of the screen, or above the tab bar
+/// when it lands on a tab ([overTabBar]). Uses the nearest
+/// [ScaffoldMessenger], so it queues with other toasts and is announced by
+/// screen readers.
+///
+/// [atTop]: under the status bar instead, for a screen whose bottom is full
+/// (the PIN screen, with its keypad and link).
+void showAppToast(
+  BuildContext context,
+  String message, {
+  Key? key,
+  bool overTabBar = false,
+  bool atTop = false,
+}) => appToastFor(context, overTabBar: overTabBar, atTop: atTop)(
+  message,
+  key: key,
+);
 
 /// Looks up what a toast needs from [context] now, for showing one later when
 /// [context] may be gone (e.g. after the screen closed itself).
-void Function(String message, {Key? key}) appToastFor(BuildContext context) {
+void Function(String message, {Key? key}) appToastFor(
+  BuildContext context, {
+  bool overTabBar = false,
+  bool atTop = false,
+}) {
   final messenger = ScaffoldMessenger.maybeOf(context);
   final palette = YiviPalette.of(context);
-  final bottom = bottomBarSpace(context);
+  // Clear of the floating tab bar where there is one; otherwise just above
+  // the bottom of the safe area (a floating snack bar already keeps out of
+  // it).
+  // At the top: a floating snack bar is placed from the bottom, so from
+  // there it is the screen less the status bar, a gap and its own height.
+  final media = MediaQuery.of(context);
+  final bottom = atTop
+      ? media.size.height -
+            media.padding.top -
+            media.padding.bottom -
+            8 -
+            _toastHeight
+      : overTabBar
+      ? bottomBarSpace(context)
+      : 16.0;
   return (message, {key}) => messenger?.showSnackBar(
     SnackBar(
       key: key,
@@ -57,3 +88,6 @@ void Function(String message, {Key? key}) appToastFor(BuildContext context) {
     ),
   );
 }
+
+/// A one-line toast: 20 pt of text and 12 above and below it.
+const _toastHeight = 44.0;

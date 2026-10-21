@@ -87,7 +87,7 @@ void main() {
     tester,
   ) async {
     await pump(tester, email, faq: _emailFaq);
-    // The card, small, beside who issues it (the name is in the bar).
+    // The card, small, beside its name and who issues it.
     final issuer = tester.getRect(
       find.byKey(const Key("add_data_details_issuer")),
     );
@@ -95,8 +95,11 @@ void main() {
     expect(card.width, 88);
     expect(issuer.left, greaterThan(card.right));
     expect(issuer.top, lessThan(card.bottom));
-    expect(find.text("Issued by Yivi"), findsOneWidget);
-    expect(find.text("Example card"), findsOneWidget);
+    final name = tester.getRect(find.byKey(const Key("add_data_details_name")));
+    expect(name.top, lessThan(issuer.top));
+    expect(find.text("Email address"), findsWidgets);
+    expect(find.text("Yivi"), findsOneWidget);
+    expect(find.textContaining("Example card"), findsNothing);
     expect(find.text("YOU GET"), findsOneWidget);
     final list = find.byKey(const Key("add_data_checklist"));
     expect(
@@ -188,7 +191,7 @@ void main() {
 
   testWidgets("a document needs NFC: said under the issuer", (tester) async {
     await pump(tester, _type("pbdf.pbdf.passport", "Passport", ["Photo"]));
-    expect(find.text("Example card · needs NFC"), findsOneWidget);
+    expect(find.textContaining("· needs NFC"), findsOneWidget);
   });
 
   testWidgets("during a request the note names who gets what", (tester) async {

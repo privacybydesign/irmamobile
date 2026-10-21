@@ -215,14 +215,12 @@
         "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
         "obtain": "Voeg {credential} toe aan mijn Yivi-app",
         "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier.",
-        "issued_by": "Uitgegeven door {issuer}",
-        "example_card": "Voorbeeldkaart",
-        "example_card_nfc": "Voorbeeldkaart · heeft NFC nodig",
         "disclosure_info_requestor": "Je krijgt alles, maar {requestor} krijgt alleen wat erom gevraagd wordt.",
         "you_get": "Je krijgt",
         "good_to_know": "Goed om te weten",
         "show_all": "Toon alle {count}",
-        "steps_peek": "{count} stappen · {first}"
+        "steps_peek": "{count} stappen · {first}",
+        "issuer_nfc": "{issuer} · heeft NFC nodig"
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",

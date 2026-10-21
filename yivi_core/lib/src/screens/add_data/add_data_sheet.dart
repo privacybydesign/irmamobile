@@ -472,14 +472,23 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.only(bottom: _fieldGap),
+            // Never two fields: while the field is in the bar (scrolled
+            // down, or searching from there and the list jumped back up)
+            // the list's own field keeps its room but isn't there.
             sliver: SliverToBoxAdapter(
-              child: GlassSearchField(
-                fieldKey: const Key("add_data_search"),
-                hintKey: "data.add.search",
-                controller: _search,
-                focusNode: _listFocus,
-                height: _fieldHeight,
-                onChanged: _onQuery,
+              child: Visibility(
+                visible: !_inBar,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: GlassSearchField(
+                  fieldKey: const Key("add_data_search"),
+                  hintKey: "data.add.search",
+                  controller: _search,
+                  focusNode: _listFocus,
+                  height: _fieldHeight,
+                  onChanged: _onQuery,
+                ),
               ),
             ),
           ),

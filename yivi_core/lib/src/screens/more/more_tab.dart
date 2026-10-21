@@ -9,7 +9,7 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/scroll_edge.dart";
+import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/lock_gate.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
@@ -127,7 +127,10 @@ class _MoreTabState extends State<MoreTab> {
 
     return Scaffold(
       backgroundColor: palette.background,
-      body: ScrollEdge(
+      // The large title's bottom: 24 + 8 above it, about 34 for itself.
+      body: TitleScrollEdge(
+        title: FlutterI18n.translate(context, "home.nav_bar.more"),
+        largeTitleBottom: 24 + 8 + 34,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(

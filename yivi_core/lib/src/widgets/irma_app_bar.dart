@@ -62,7 +62,9 @@ class YiviBackButton extends StatelessWidget {
 /// soft shadow.
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// 16 above the 44 pt buttons and the buttons themselves.
-  static const double toolbarHeight = 60;
+  /// 16 above the 44 pt buttons and 8 below them, so the edge under the bar
+  /// (once content scrolls under it) clears the buttons.
+  static const double toolbarHeight = 68;
 
   final String? titleTranslationKey;
   final String? titleString;
@@ -143,7 +145,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           16 + padding.left,
           16,
           16 + padding.right,
-          0,
+          8,
         ),
         child: Stack(
           alignment: Alignment.center,

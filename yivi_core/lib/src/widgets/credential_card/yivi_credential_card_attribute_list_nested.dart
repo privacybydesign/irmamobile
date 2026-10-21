@@ -471,7 +471,11 @@ class _Card extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: palette.tint,
+        // The design's panel: a step off the white group it sits in, lighter
+        // than the page tint.
+        color: palette.isDark
+            ? const Color(0xFF222831)
+            : const Color(0xFFF2F7FA),
         shape: const RoundedSuperellipseBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),

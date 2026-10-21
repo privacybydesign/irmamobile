@@ -663,15 +663,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                   )
                 : null,
             color: on ? null : palette.faint.withValues(alpha: 0.45),
-            boxShadow: on
-                ? const [
-                    BoxShadow(
-                      color: Color(0x59E12747),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ]
-                : null,
           ),
           child: const Icon(
             Icons.arrow_forward_rounded,

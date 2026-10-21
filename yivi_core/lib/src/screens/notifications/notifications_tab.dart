@@ -9,7 +9,7 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
-import "../../widgets/glass/scroll_edge.dart";
+import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/irma_dismissible.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
@@ -126,7 +126,10 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       value: BlocProvider.of<NotificationsBloc>(context),
       child: Scaffold(
         backgroundColor: palette.background,
-        body: ScrollEdge(
+        // The large title's bottom: 24 + 8 above it, about 34 for itself.
+        body: TitleScrollEdge(
+          title: FlutterI18n.translate(context, "notifications.title"),
+          largeTitleBottom: 24 + 8 + 34,
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
               if (state is NotificationsLoading) {

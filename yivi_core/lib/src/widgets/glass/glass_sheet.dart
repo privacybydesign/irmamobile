@@ -1028,8 +1028,15 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       behavior: HitTestBehavior.opaque,
       child: Stack(
         children: [
+          // Clipped to the sheet's top corners itself: its blur doesn't
+          // follow the sheet's rounded clip, and filled the corners square.
           Positioned.fill(
-            child: ScrollEdgeBand(under: _under, color: palette.sheet),
+            child: ClipRSuperellipse(
+              borderRadius: const BorderRadius.vertical(
+                top: _GlassSheet._radius,
+              ),
+              child: ScrollEdgeBand(under: _under, color: palette.sheet),
+            ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -1076,11 +1083,17 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         )
       else ...[
         Expanded(
-          child: GlassSheetScrollView(
-            padding: padding,
-            clearBottom: false,
-            slivers: slivers,
-            child: child,
+          // Cut off where the bottom (a note, the buttons) starts, so the
+          // content doesn't run on under it as text over text; open at the
+          // top, where it goes on under the header.
+          child: ClipRect(
+            clipper: const _OpenTopClipper(),
+            child: GlassSheetScrollView(
+              padding: padding,
+              clearBottom: false,
+              slivers: slivers,
+              child: child,
+            ),
           ),
         ),
         Padding(
@@ -1190,4 +1203,17 @@ class GlassSheetCover extends StatelessWidget {
     builder: (context, n, child) => GlassScope(covered: n > 0, child: child!),
     child: child,
   );
+}
+
+/// Clips at the bottom and the sides' far reaches only: open above, so a
+/// sheet's content can go on under its header.
+class _OpenTopClipper extends CustomClipper<Rect> {
+  const _OpenTopClipper();
+
+  @override
+  Rect getClip(Size size) =>
+      Rect.fromLTRB(-size.width, -size.height * 4, size.width * 2, size.height);
+
+  @override
+  bool shouldReclip(_OpenTopClipper oldClipper) => false;
 }

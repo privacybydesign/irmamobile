@@ -75,7 +75,6 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
               "pin.biometric_prompt.enable",
             ),
             size: PillSize.regular,
-            glow: false,
             onPressed: _busy ? null : _enable,
           ),
           PillButton(

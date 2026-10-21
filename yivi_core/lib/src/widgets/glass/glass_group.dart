@@ -131,8 +131,19 @@ class SliverGlassGroup extends StatelessWidget {
           ),
           sliver: SliverList.separated(
             itemCount: itemCount,
+            // The first and last rows take the group's corners, so a
+            // pressed row lights up inside the group, not square over it.
             itemBuilder: (context, i) => Material(
               type: MaterialType.transparency,
+              shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.vertical(
+                  top: i == 0 ? GlassGroup.radius.topLeft : Radius.zero,
+                  bottom: i == itemCount - 1
+                      ? GlassGroup.radius.bottomLeft
+                      : Radius.zero,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
               child: itemBuilder(context, i),
             ),
             separatorBuilder: (_, _) => Divider(

@@ -215,11 +215,12 @@ class _CompactBar extends StatelessWidget {
     final hint = hintText ?? "";
     return GlassSurface(
       opacity: opacity,
-      padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+      // The card well inside the pill's round end.
+      padding: const EdgeInsets.fromLTRB(14, 0, 16, 0),
       child: SizedBox(
         height: 44,
         child: Row(
-          spacing: 10,
+          spacing: 12,
           children: [
             CredentialCardArt(
               credential: credential,
@@ -683,7 +684,8 @@ class _Details extends ConsumerWidget {
         ) ??
         false;
     if (!confirmed || !context.mounted) return;
-    final toast = appToastFor(context);
+    // Shown on the Data tab, once this page has closed.
+    final toast = appToastFor(context, overTabBar: true);
     final message = FlutterI18n.translate(
       context,
       "credential.options.delete_success",

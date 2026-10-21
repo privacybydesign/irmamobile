@@ -59,20 +59,21 @@ class AddDataDetailsContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // What it is, and who gives it (and whether it needs NFC).
                   Text(
-                    t("data.add.details.issued_by", {
-                      "issuer": credential.issuer.name,
-                    }),
-                    key: const Key("add_data_details_issuer"),
+                    credential.name,
+                    key: const Key("add_data_details_name"),
                     style: palette
                         .body(15, weight: FontWeight.w600)
                         .copyWith(height: 21 / 15, color: palette.text),
                   ),
                   Text(
                     credentialRequiresNfc(credential.credentialId)
-                        ? t("data.add.details.example_card_nfc")
-                        : t("data.add.details.example_card"),
-                    key: const Key("add_data_details_example"),
+                        ? t("data.add.details.issuer_nfc", {
+                            "issuer": credential.issuer.name,
+                          })
+                        : credential.issuer.name,
+                    key: const Key("add_data_details_issuer"),
                     style: palette
                         .body(13)
                         .copyWith(

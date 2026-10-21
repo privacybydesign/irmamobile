@@ -70,6 +70,9 @@ class ActivityCard extends ConsumerWidget {
             clipBehavior: Clip.antiAlias,
             child: Builder(
               builder: (rowContext) => InkWell(
+                // A card, not a row: it gives way under the finger
+                // (PressScale) instead of turning grey.
+                highlightColor: Colors.transparent,
                 onTap: () {
                   if (!isExpandedLayout(context)) {
                     WalletTransition.begin(rowContext, entry.key);

@@ -41,8 +41,11 @@ class _VersionButtonState extends State<VersionButton> {
       fontWeight: FontWeight.w600,
     );
 
-    void showSnackbar(String translationKey) =>
-        showAppToast(context, FlutterI18n.translate(context, translationKey));
+    void showSnackbar(String translationKey) => showAppToast(
+      context,
+      FlutterI18n.translate(context, translationKey),
+      overTabBar: true,
+    );
 
     void onTap() async {
       _tapCounter++;

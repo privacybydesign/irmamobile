@@ -65,7 +65,6 @@ class IrmaConfirmationDialog extends StatelessWidget {
             label: confirmLabel,
             onPressed: onConfirm,
             size: PillSize.regular,
-            glow: false,
           );
 
     final Widget cancelButton = nudgeCancel
@@ -74,7 +73,6 @@ class IrmaConfirmationDialog extends StatelessWidget {
             label: cancelLabel,
             onPressed: onCancel,
             size: PillSize.regular,
-            glow: false,
           )
         : PillButton(
             key: const Key("dialog_cancel_button"),
