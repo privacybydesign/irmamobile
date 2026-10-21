@@ -1,5 +1,3 @@
-import "dart:math";
-
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -33,11 +31,16 @@ class TwoPane extends StatelessWidget {
       borderRadius: BorderRadius.all(Radius.circular(32)),
     );
 
-    // On a phone held sideways the pane reaches into the safe area on the
-    // right (12 from the top and bottom, 16 from the edge); its content
-    // keeps out of it through [paneContentPadding].
+    // On a phone held sideways the pane goes 12 from the top and bottom
+    // and up to the safe area on the right, clear of the Dynamic Island when
+    // that is on the right (16 from the edge on a phone without one).
     final paneMargin = phone
-        ? const EdgeInsets.fromLTRB(0, 12, 16, 12)
+        ? EdgeInsets.fromLTRB(
+            0,
+            12,
+            padding.right > 0 ? padding.right : 16,
+            12,
+          )
         : EdgeInsets.fromLTRB(
             0,
             padding.top + 16,
@@ -45,9 +48,7 @@ class TwoPane extends StatelessWidget {
             padding.bottom + 16,
           );
     final inPane = MediaQuery.of(context).copyWith(
-      padding: phone
-          ? EdgeInsets.only(right: max(0, padding.right - 16))
-          : EdgeInsets.zero,
+      padding: EdgeInsets.zero,
       viewPadding: EdgeInsets.zero,
     );
 
@@ -108,18 +109,10 @@ class TwoPane extends StatelessWidget {
 double phoneListPaneWidth(double available) =>
     ((available - 32) * 0.415).clamp(260, 320).roundToDouble() + 32;
 
-/// The padding of what a detail pane shows: 32 on a tablet; 20 on a phone
-/// held sideways, plus the part of the safe area the pane reaches into.
-EdgeInsets paneContentPadding(BuildContext context) {
-  final side = usePhoneLandscape(context) ? 20.0 : 32.0;
-  final padding = MediaQuery.paddingOf(context);
-  return EdgeInsets.fromLTRB(
-    side,
-    side + padding.top,
-    side + padding.right,
-    side + padding.bottom,
-  );
-}
+/// The padding of what a detail pane shows: 32 on a tablet, 20 on a phone
+/// held sideways.
+EdgeInsets paneContentPadding(BuildContext context) =>
+    EdgeInsets.all(usePhoneLandscape(context) ? 20 : 32);
 
 /// Space the bottom of a tab's list keeps free: room for the floating tab
 /// bar on phones, a plain margin where the tabs are a sidebar or a rail.
@@ -132,8 +125,7 @@ class PaneTitle extends StatelessWidget {
 
   const PaneTitle(this.translationKey, {super.key});
 
-  /// The padding of a page in a pane; a SafeArea inside it keeps it out of
-  /// the part of the safe area the pane reaches into.
+  /// The padding of a page in a pane.
   static const EdgeInsets pagePadding = EdgeInsets.fromLTRB(20, 20, 20, 24);
 
   @override

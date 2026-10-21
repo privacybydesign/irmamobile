@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/log_entry.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../util/adaptive_layout.dart";
 import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_detail_scaffold.dart";
 import "activity_entry.dart";
@@ -173,7 +174,10 @@ class ActivityDetailPane extends ConsumerWidget {
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
-            child: ActivityDetailBody(entry: entry),
+            child: ActivityDetailBody(
+              entry: entry,
+              compactHeader: usePhoneLandscape(context),
+            ),
           ),
         ),
       ],

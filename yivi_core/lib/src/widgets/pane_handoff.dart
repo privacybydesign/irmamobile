@@ -43,23 +43,19 @@ mixin InstantRouteMixin<T> on TransitionRoute<T> {
 /// activity entry, Instellingen), for when the layout can show it in a
 /// detail pane instead (the phone turned sideways):
 ///
-/// - once [paneAvailable] and this is the top route, [onHandoff] picks what
-///   it shows in the pane (and the tab), and the page closes without its
-///   transition; something on top of it (a sheet, a deeper page) is left
-///   alone, and the hand-off waits until that has closed;
-/// - when it closes otherwise (Back), [onClosed] clears that pick, so
-///   turning the phone again does not open it a second time.
+/// once [paneAvailable] and this is the top route, [onHandoff] picks what it
+/// shows in the pane (and the tab), and the page closes without its
+/// transition. Something on top of it (a sheet, a deeper page) is left
+/// alone; the hand-off waits until that has closed.
 class PaneHandoff extends StatefulWidget {
   final bool Function(BuildContext context) paneAvailable;
   final void Function(ProviderContainer container) onHandoff;
-  final void Function(ProviderContainer container) onClosed;
   final Widget child;
 
   const PaneHandoff({
     super.key,
     required this.paneAvailable,
     required this.onHandoff,
-    required this.onClosed,
     required this.child,
   });
 
@@ -91,17 +87,6 @@ class _PaneHandoffState extends State<PaneHandoff> {
       final navigator = Navigator.of(context);
       RouteMotion.instantly(navigator.pop);
     });
-  }
-
-  @override
-  void dispose() {
-    final container = _container;
-    final onClosed = widget.onClosed;
-    if (!_handedOff && container != null) {
-      // Not while the tree is being finalised.
-      WidgetsBinding.instance.addPostFrameCallback((_) => onClosed(container));
-    }
-    super.dispose();
   }
 
   @override

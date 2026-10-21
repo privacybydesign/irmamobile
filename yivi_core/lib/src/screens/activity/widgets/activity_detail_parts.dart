@@ -617,6 +617,10 @@ class ActivityDetailBody extends StatelessWidget {
   /// away (and show the compact bar).
   final Key? headerKey;
 
+  /// The compact bar as the only header, instead of the big one: in the low
+  /// detail pane of a phone held sideways.
+  final bool compactHeader;
+
   const ActivityDetailBody({
     super.key,
     required this.entry,
@@ -624,6 +628,7 @@ class ActivityDetailBody extends StatelessWidget {
     this.flight = false,
     this.onArtTap,
     this.headerKey,
+    this.compactHeader = false,
   });
 
   @override
@@ -657,7 +662,16 @@ class ActivityDetailBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        reveal(ActivityPartyCard(key: headerKey, entry: entry)),
+        if (compactHeader)
+          reveal(
+            ActivityCompactBar(
+              key: const Key("activity_detail_compact_header"),
+              entry: entry,
+              opacity: 1,
+            ),
+          )
+        else
+          reveal(ActivityPartyCard(key: headerKey, entry: entry)),
         if (entry.message != null) reveal(ActivitySignedMessage(entry: entry)),
         if (entry.sections.isEmpty)
           reveal(

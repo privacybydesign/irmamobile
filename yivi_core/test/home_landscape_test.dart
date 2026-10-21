@@ -230,7 +230,8 @@ void main() {
       );
       // The list: 300 of content between 16 on either side.
       expect(pane.left, closeTo(118 + 332, 1));
-      expect(pane.right, 874 - 16);
+      // Clear of the Dynamic Island: up to the safe area on the right.
+      expect(pane.right, 874 - 62);
 
       double left(String hash) => tester.getTopLeft(tile(hash)).dx;
       final rest = left("address");
@@ -291,31 +292,18 @@ void main() {
       );
     });
 
-    testWidgets("sideways to upright: the picked card opens on its own, and "
-        "Back clears the pick", (tester) async {
+    testWidgets("sideways to upright: the list, never the picked card's "
+        "page", (tester) async {
       final router = await pump(tester);
       await tapCard(tester, "email");
+      expect(container(tester).read(selectedCardProvider), "email");
 
       size(tester, _upright, _uprightInsets);
       await tester.pump();
       await tester.pump();
       await tester.pumpAndSettle();
-      expect(location(router), "/home/credential?hash=email");
-
-      router.pop();
-      await tester.pumpAndSettle();
       expect(location(router), "/home");
-      await tester.pump();
-      expect(container(tester).read(selectedCardProvider), isNull);
-    });
-
-    testWidgets("sideways to upright without a pick: the list", (tester) async {
-      final router = await pump(tester);
-      size(tester, _upright, _uprightInsets);
-      await tester.pump();
-      await tester.pump();
-      await tester.pumpAndSettle();
-      expect(location(router), "/home");
+      expect(find.byType(CredentialDetailScreen), findsNothing);
     });
 
     testWidgets("Instellingen open upright moves into the More pane", (

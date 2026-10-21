@@ -12,7 +12,7 @@ class ActivityKindTags extends StatelessWidget {
   final ActivityKind? selected;
   final ValueChanged<ActivityKind?> onSelected;
 
-  /// Clips the row at its edges, where it sits in a list column; else the
+  /// Clips the row at the sides of the list column it sits in; else the
   /// tags run on to the screen's edge.
   final bool clip;
 
@@ -34,14 +34,14 @@ class ActivityKindTags extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
+    final row = Semantics(
       label: FlutterI18n.translate(context, "activity.filter_label"),
       container: true,
       child: SizedBox(
         height: height + 8,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          clipBehavior: clip ? Clip.hardEdge : Clip.none,
+          clipBehavior: Clip.none,
           padding: const EdgeInsets.only(bottom: 8),
           child: Row(
             children: [
@@ -67,7 +67,24 @@ class ActivityKindTags extends StatelessWidget {
         ),
       ),
     );
+    if (!clip) return row;
+    // Only at the sides, 16 out to the edge of the list column: a clip at
+    // the row's own edges cut the tags' shadows off in a visible line.
+    return ClipRect(clipper: const _SidesClipper(16), child: row);
   }
+}
+
+class _SidesClipper extends CustomClipper<Rect> {
+  final double outset;
+
+  const _SidesClipper(this.outset);
+
+  @override
+  Rect getClip(Size size) =>
+      Rect.fromLTRB(-outset, -64, size.width + outset, size.height + 64);
+
+  @override
+  bool shouldReclip(_SidesClipper old) => old.outset != outset;
 }
 
 class _Tag extends StatelessWidget {
