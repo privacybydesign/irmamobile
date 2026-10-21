@@ -58,8 +58,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       final card = cards.firstWhereOrNull(
         (c) => c.hash == notification.credentialHash,
       );
-      if (card != null && isExpandedLayout(context)) {
+      if (card != null && useHomePanes(context)) {
         ref.read(selectedNotificationCardProvider.notifier).select(card.hash);
+        ref.read(selectedNotificationProvider.notifier).select(notification.id);
         return;
       }
       if (card != null) {
@@ -73,21 +74,41 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
     );
   }
 
-  /// The tablet layout: the notifications next to the card the picked one
-  /// is about (that of the newest notification until the user picks one).
-  Widget _withDetailPane(Widget list, List<Notification> notifications) {
-    final palette = YiviPalette.of(context);
+  /// The card the detail pane shows: the picked one, or that of the newest
+  /// notification about a card in the wallet.
+  String? _paneHash(List<Notification> notifications) {
     final cards =
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const [];
     bool inWallet(String? hash) => cards.any((c) => c.hash == hash);
     final selected = ref.watch(selectedNotificationCardProvider);
-    final hash = inWallet(selected)
+    return inWallet(selected)
         ? selected
         : notifications
               .whereType<CredentialStatusNotification>()
               .map((n) => n.credentialHash)
               .firstWhereOrNull(inWallet);
+  }
+
+  /// The notification whose card the detail pane shows: the one picked,
+  /// else the first about that card.
+  String? _paneNotificationId(List<Notification> notifications) {
+    final hash = _paneHash(notifications);
+    if (hash == null) return null;
+    bool about(Notification n) =>
+        n is CredentialStatusNotification && n.credentialHash == hash;
+    final picked = ref.watch(selectedNotificationProvider);
+    final match =
+        notifications.firstWhereOrNull((n) => n.id == picked && about(n)) ??
+        notifications.firstWhereOrNull(about);
+    return match?.id;
+  }
+
+  /// The tablet layout: the notifications next to the card the picked one
+  /// is about (that of the newest notification until the user picks one).
+  Widget _withDetailPane(Widget list, List<Notification> notifications) {
+    final palette = YiviPalette.of(context);
+    final hash = _paneHash(notifications);
     final selection = ref.read(selectedNotificationCardProvider.notifier);
     return TwoPane(
       list: list,
@@ -137,6 +158,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
               } else if (state is NotificationsLoaded) {
                 final notifications = state.notifications;
                 final unread = notifications.where((n) => !n.read).length;
+                final openId = useHomePanes(context)
+                    ? _paneNotificationId(notifications)
+                    : null;
 
                 final list = RefreshIndicator(
                   edgeOffset: padding.top,
@@ -145,7 +169,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
                       16,
-                      padding.top + 24,
+                      // Held sideways the title starts level with the search field
+                      // of the other tabs (12 from the top).
+                      padding.top + (usePhoneLandscape(context) ? 4 : 24),
                       16,
                       padding.bottom + bottomBarSpace(context),
                     ),
@@ -213,6 +239,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                                           _onNotificationDismiss(notification),
                                       child: NotificationCard(
                                         notification: notification,
+                                        selected: notification.id == openId,
                                         onTap: (pictureContext) =>
                                             _onNotificationTap(
                                               notification,
@@ -239,7 +266,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                     ],
                   ),
                 );
-                return isExpandedLayout(context)
+                return useHomePanes(context)
                     ? _withDetailPane(list, notifications)
                     : list;
               }

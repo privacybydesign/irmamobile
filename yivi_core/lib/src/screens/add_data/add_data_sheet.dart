@@ -209,13 +209,13 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   }
 
   /// "Done": the sheet closes on the Data tab while the new card flies from
-  /// "Success" into the first slot. On a tablet, where the sheet is a dialog
-  /// beside the detail pane, the card opens in the pane instead.
+  /// "Success" into the first slot. Where the data tab has a detail pane
+  /// (tablet, landscape), the card opens in the pane instead.
   void _done() {
     final cards = issueAdded ?? const <schemaless.Credential>[];
     if (!widget.flyToDataTab) {
       // Opened over another page: the card is in the app, nothing flies.
-    } else if (isExpandedLayout(context)) {
+    } else if (useHomePanes(context)) {
       final wallet = ref
           .read(schemalessCredentialOrderControllerProvider)
           .value;

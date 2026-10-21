@@ -26,7 +26,14 @@ import "activity_detail_parts.dart";
 class ActivityCard extends ConsumerWidget {
   final LogInfo logEntry;
 
-  const ActivityCard({super.key, required this.logEntry});
+  /// Whether the detail pane shows this entry: the row gets a red border.
+  final bool selected;
+
+  const ActivityCard({
+    super.key,
+    required this.logEntry,
+    this.selected = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,8 +69,12 @@ class ActivityCard extends ConsumerWidget {
           scale: 0.98,
           child: Material(
             color: palette.surface,
-            shape: const RoundedSuperellipseBorder(
-              borderRadius: BorderRadius.all(Radius.circular(24)),
+            shape: RoundedSuperellipseBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+              side: BorderSide(
+                width: 2,
+                color: selected ? palette.primary : Colors.transparent,
+              ),
             ),
             shadowColor: const Color(0x17000000),
             elevation: 1,
@@ -74,7 +85,7 @@ class ActivityCard extends ConsumerWidget {
                 // (PressScale) instead of turning grey.
                 highlightColor: Colors.transparent,
                 onTap: () {
-                  if (!isExpandedLayout(context)) {
+                  if (!useHomePanes(context)) {
                     WalletTransition.begin(rowContext, entry.key);
                   }
                   openActivity(context, logEntry);
@@ -289,10 +300,14 @@ String formatActivityTimestamp(BuildContext context, DateTime time) {
   return DateFormat.yMMMd(lang).format(time);
 }
 
+/// Whether [a] and [b] are the same entry of the log (the list makes new
+/// objects when it reloads).
+bool sameLog(LogInfo a, LogInfo b) => a.time == b.time && a.type == b.type;
+
 /// Opens the details of [logEntry]: in the detail pane in the tablet layout,
 /// else on a screen of its own.
 void openActivity(BuildContext context, LogInfo logEntry) {
-  if (isExpandedLayout(context)) {
+  if (useHomePanes(context)) {
     ProviderScope.containerOf(
       context,
       listen: false,

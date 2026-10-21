@@ -9,10 +9,16 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_markdown.dart";
 import "../../widgets/link.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/two_pane.dart";
 import "widgets/help_item.dart";
 import "widgets/help_item_carousel.dart";
 
 class HelpScreen extends StatefulWidget {
+  /// Shown in the More tab's detail pane: no app bar, a title on the page.
+  final bool embedded;
+
+  const HelpScreen({super.key, this.embedded = false});
+
   @override
   State<HelpScreen> createState() => _HelpScreenState();
 }
@@ -24,147 +30,152 @@ class _HelpScreenState extends State<HelpScreen> {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
 
+    final scroll = SingleChildScrollView(
+      controller: _controller,
+      padding: widget.embedded
+          ? PaneTitle.pagePadding
+          : const EdgeInsets.fromLTRB(16, 0, 16, 48),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.embedded) const PaneTitle("help.faq"),
+            GlassGroup(
+              header: FlutterI18n.translate(context, "help.about_irma"),
+              children: [
+                HelpItem(
+                  headerTranslationKey: "help.question_1",
+                  body: const TranslatedText("help.answer_1_markdown"),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_2",
+                  body: IrmaMarkdown(
+                    FlutterI18n.translate(context, "help.answer_2"),
+                  ),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_3",
+                  body: const TranslatedText("help.answer_3_markdown"),
+                  parentScrollController: _controller,
+                ),
+              ],
+            ),
+            GlassGroup(
+              header: FlutterI18n.translate(context, "help.login"),
+              children: [
+                HelpItem(
+                  headerTranslationKey: "help.question_4",
+                  body: HelpCarousel(
+                    items: [
+                      HelpCarouselItem(
+                        yiviAsset("help/mobile_login/app.svg"),
+                        "help.answer_4.step_1",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/mobile_login/pin.svg"),
+                        "help.answer_4.step_2",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/mobile_login/disclosure.svg"),
+                        "help.answer_4.step_3",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/mobile_login/success.svg"),
+                        "help.answer_4.step_4",
+                      ),
+                    ],
+                  ),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_5",
+                  body: HelpCarousel(
+                    items: [
+                      HelpCarouselItem(
+                        yiviAsset("help/computer_login/app.svg"),
+                        "help.answer_5.step_1",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/computer_login/pin.svg"),
+                        "help.answer_5.step_2",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/computer_login/scan.svg"),
+                        "help.answer_5.step_3",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/computer_login/disclosure.svg"),
+                        "help.answer_5.step_4",
+                      ),
+                      HelpCarouselItem(
+                        yiviAsset("help/computer_login/success.svg"),
+                        "help.answer_5.step_5",
+                      ),
+                    ],
+                  ),
+                  parentScrollController: _controller,
+                ),
+              ],
+            ),
+            GlassGroup(
+              header: FlutterI18n.translate(context, "help.device"),
+              children: [
+                HelpItem(
+                  headerTranslationKey: "help.question_6",
+                  body: const TranslatedText("help.answer_6_markdown"),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_7",
+                  body: const TranslatedText("help.answer_7"),
+                  parentScrollController: _controller,
+                ),
+              ],
+            ),
+            GlassGroup(
+              header: FlutterI18n.translate(
+                context,
+                "help.security_and_privacy",
+              ),
+              children: [
+                HelpItem(
+                  headerTranslationKey: "help.question_8",
+                  body: const TranslatedText("help.answer_8"),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_9",
+                  body: const TranslatedText("help.answer_9"),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_10",
+                  body: const TranslatedText("help.answer_10"),
+                  parentScrollController: _controller,
+                ),
+                HelpItem(
+                  headerTranslationKey: "help.question_11",
+                  body: IrmaMarkdown(
+                    FlutterI18n.translate(context, "help.answer_11"),
+                  ),
+                  parentScrollController: _controller,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const _AskAQuestion(),
+          ],
+        ),
+      ),
+    );
+    if (widget.embedded) return scroll;
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(titleTranslationKey: "help.faq"),
-      body: SingleChildScrollView(
-        controller: _controller,
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              GlassGroup(
-                header: FlutterI18n.translate(context, "help.about_irma"),
-                children: [
-                  HelpItem(
-                    headerTranslationKey: "help.question_1",
-                    body: const TranslatedText("help.answer_1_markdown"),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_2",
-                    body: IrmaMarkdown(
-                      FlutterI18n.translate(context, "help.answer_2"),
-                    ),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_3",
-                    body: const TranslatedText("help.answer_3_markdown"),
-                    parentScrollController: _controller,
-                  ),
-                ],
-              ),
-              GlassGroup(
-                header: FlutterI18n.translate(context, "help.login"),
-                children: [
-                  HelpItem(
-                    headerTranslationKey: "help.question_4",
-                    body: HelpCarousel(
-                      items: [
-                        HelpCarouselItem(
-                          yiviAsset("help/mobile_login/app.svg"),
-                          "help.answer_4.step_1",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/mobile_login/pin.svg"),
-                          "help.answer_4.step_2",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/mobile_login/disclosure.svg"),
-                          "help.answer_4.step_3",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/mobile_login/success.svg"),
-                          "help.answer_4.step_4",
-                        ),
-                      ],
-                    ),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_5",
-                    body: HelpCarousel(
-                      items: [
-                        HelpCarouselItem(
-                          yiviAsset("help/computer_login/app.svg"),
-                          "help.answer_5.step_1",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/computer_login/pin.svg"),
-                          "help.answer_5.step_2",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/computer_login/scan.svg"),
-                          "help.answer_5.step_3",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/computer_login/disclosure.svg"),
-                          "help.answer_5.step_4",
-                        ),
-                        HelpCarouselItem(
-                          yiviAsset("help/computer_login/success.svg"),
-                          "help.answer_5.step_5",
-                        ),
-                      ],
-                    ),
-                    parentScrollController: _controller,
-                  ),
-                ],
-              ),
-              GlassGroup(
-                header: FlutterI18n.translate(context, "help.device"),
-                children: [
-                  HelpItem(
-                    headerTranslationKey: "help.question_6",
-                    body: const TranslatedText("help.answer_6_markdown"),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_7",
-                    body: const TranslatedText("help.answer_7"),
-                    parentScrollController: _controller,
-                  ),
-                ],
-              ),
-              GlassGroup(
-                header: FlutterI18n.translate(
-                  context,
-                  "help.security_and_privacy",
-                ),
-                children: [
-                  HelpItem(
-                    headerTranslationKey: "help.question_8",
-                    body: const TranslatedText("help.answer_8"),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_9",
-                    body: const TranslatedText("help.answer_9"),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_10",
-                    body: const TranslatedText("help.answer_10"),
-                    parentScrollController: _controller,
-                  ),
-                  HelpItem(
-                    headerTranslationKey: "help.question_11",
-                    body: IrmaMarkdown(
-                      FlutterI18n.translate(context, "help.answer_11"),
-                    ),
-                    parentScrollController: _controller,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const _AskAQuestion(),
-            ],
-          ),
-        ),
-      ),
+      body: scroll,
     );
   }
 }

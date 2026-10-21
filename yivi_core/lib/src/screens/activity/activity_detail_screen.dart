@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/log_entry.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_detail_scaffold.dart";
 import "activity_entry.dart";
 import "activity_flight.dart";
@@ -167,7 +168,7 @@ class ActivityDetailPane extends ConsumerWidget {
     final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
     return ListView(
       key: Key("activity_detail_pane_${entry.key}"),
-      padding: const EdgeInsets.all(32),
+      padding: paneContentPadding(context),
       children: [
         Center(
           child: ConstrainedBox(

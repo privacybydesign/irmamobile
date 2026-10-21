@@ -2,6 +2,7 @@ import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/pane_handoff.dart";
 
 /// State shared between the data tab and the card detail route while a card
 /// opens or closes, for the Wallet-style transition: the tapped card glides
@@ -179,7 +180,7 @@ class WalletDetailPage<T> extends Page<T> {
   Route<T> createRoute(BuildContext context) => _WalletDetailRoute<T>(this);
 }
 
-class _WalletDetailRoute<T> extends PageRoute<T> {
+class _WalletDetailRoute<T> extends PageRoute<T> with InstantRouteMixin<T> {
   _WalletDetailRoute(WalletDetailPage<T> page) : super(settings: page);
 
   WalletDetailPage<T> get _page => settings as WalletDetailPage<T>;

@@ -153,9 +153,9 @@ class IssuanceFlight {
 
   static void _finish(ProviderContainer container, String hash) {
     state.value = null;
-    // On a tablet the new card opens in the detail pane.
+    // With a detail pane (tablet, landscape) the new card opens in it.
     final target = _target;
-    if (target != null && target.mounted && isExpandedLayout(target)) {
+    if (target != null && target.mounted && useHomePanes(target)) {
       container.read(selectedCardProvider.notifier).select(hash);
     }
   }

@@ -21,7 +21,15 @@ class NotificationCard extends ConsumerWidget {
   /// open from it.
   final void Function(BuildContext pictureContext)? onTap;
 
-  const NotificationCard({required this.notification, this.onTap});
+  /// Whether the detail pane shows this notification's card: the row gets a
+  /// red border.
+  final bool selected;
+
+  const NotificationCard({
+    required this.notification,
+    this.onTap,
+    this.selected = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,8 +119,12 @@ class NotificationCard extends ConsumerWidget {
       excludeSemantics: true,
       child: Material(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: RoundedSuperellipseBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          side: BorderSide(
+            width: 2,
+            color: selected ? palette.primary : Colors.transparent,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Builder(

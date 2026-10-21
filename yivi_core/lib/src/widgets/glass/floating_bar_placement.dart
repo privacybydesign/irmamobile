@@ -12,7 +12,11 @@ abstract final class FloatingBarPlacement {
       Theme.of(context).platform == TargetPlatform.iOS;
 
   /// Space between the top safe-area edge and the top of a search field.
-  static double topGap(BuildContext context) => _ios(context) ? 0 : 16;
+  /// Without a status bar (a phone held sideways) 12 from the screen's top.
+  static double topGap(BuildContext context) {
+    if (MediaQuery.paddingOf(context).top == 0) return 12;
+    return _ios(context) ? 0 : 16;
+  }
 
   /// Distance from the bottom of the screen to the bottom of the tab bar.
   static double tabBarBottom(BuildContext context) {

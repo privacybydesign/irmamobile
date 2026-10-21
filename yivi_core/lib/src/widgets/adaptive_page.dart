@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
+import "pane_handoff.dart";
 
 /// How a screen is presented at tablet widths (from
 /// [expandedLayoutBreakpoint]); on phones every screen fills the window.
@@ -59,7 +60,7 @@ class AdaptivePage<T> extends Page<T> {
 }
 
 class _AdaptiveRoute<T> extends PageRoute<T>
-    with MaterialRouteTransitionMixin<T> {
+    with MaterialRouteTransitionMixin<T>, InstantRouteMixin<T> {
   _AdaptiveRoute(AdaptivePage<T> page) : super(settings: page);
 
   AdaptivePage<T> get _page => settings as AdaptivePage<T>;

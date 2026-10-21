@@ -1,11 +1,13 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
 import "scroll_edge.dart";
 
 /// The top of a tab page with a large title (More, Notifications): the hard
 /// scroll edge, and once the large title has scrolled under it a small title
-/// that fades in there, centred, as on iOS.
+/// that fades in there, centred, as on iOS. On a phone held sideways only
+/// the page.
 class TitleScrollEdge extends StatefulWidget {
   /// The small title, the same as the large one.
   final String title;
@@ -44,6 +46,9 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
 
   @override
   Widget build(BuildContext context) {
+    // Held sideways the large title just scrolls away with the list: no
+    // band, no small title.
+    if (usePhoneLandscape(context)) return widget.child;
     final palette = YiviPalette.of(context);
     final top = MediaQuery.paddingOf(context).top;
     return NotificationListener<ScrollNotification>(

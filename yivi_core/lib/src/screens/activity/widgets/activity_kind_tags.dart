@@ -12,10 +12,15 @@ class ActivityKindTags extends StatelessWidget {
   final ActivityKind? selected;
   final ValueChanged<ActivityKind?> onSelected;
 
+  /// Clips the row at its edges, where it sits in a list column; else the
+  /// tags run on to the screen's edge.
+  final bool clip;
+
   const ActivityKindTags({
     super.key,
     required this.selected,
     required this.onSelected,
+    this.clip = false,
   });
 
   static const double height = 36;
@@ -36,7 +41,7 @@ class ActivityKindTags extends StatelessWidget {
         height: height + 8,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
+          clipBehavior: clip ? Clip.hardEdge : Clip.none,
           padding: const EdgeInsets.only(bottom: 8),
           child: Row(
             children: [

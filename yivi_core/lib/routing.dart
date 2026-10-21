@@ -16,6 +16,7 @@ import "src/models/version_information.dart";
 import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
+import "src/providers/pane_selection_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
@@ -33,6 +34,7 @@ import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
+import "src/screens/home/pane_handoffs.dart";
 import "src/screens/issue_wizard/issue_wizard.dart";
 import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
 import "src/screens/loading/loading_screen.dart";
@@ -156,8 +158,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             pageBuilder: (context, state) => WalletDetailPage(
               key: state.pageKey,
               name: "/home/credential",
-              child: CredentialDetailScreen(
-                hash: state.uri.queryParameters["hash"] ?? "",
+              // Turned sideways, the card moves into the tab's detail pane.
+              child: cardHandoff(
+                context,
+                state.uri.queryParameters["hash"] ?? "",
+                CredentialDetailScreen(
+                  hash: state.uri.queryParameters["hash"] ?? "",
+                ),
               ),
             ),
           ),
@@ -182,9 +189,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             pageBuilder: (context, state) => WalletDetailPage(
               key: state.pageKey,
               name: "/home/activity_details",
-              child: ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(
-                  logEntry: state.extra as LogInfo,
+              child: activityHandoff(
+                context,
+                state.extra as LogInfo,
+                ActivityDetailsScreen(
+                  args: ActivityDetailsScreenArgs(
+                    logEntry: state.extra as LogInfo,
+                  ),
                 ),
               ),
             ),
@@ -192,7 +203,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           _adaptive(
             mode: PresentationMode.sheet,
             path: "help",
-            builder: (context, state) => HelpScreen(),
+            builder: (context, state) =>
+                morePageHandoff(context, MorePage.faq, const HelpScreen()),
           ),
           _adaptive(
             mode: PresentationMode.sheet,
@@ -212,7 +224,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             mode: PresentationMode.sheet,
             phone: PhoneTransition.push,
             path: "settings",
-            builder: (context, state) => SettingsScreen(),
+            builder: (context, state) => morePageHandoff(
+              context,
+              MorePage.settings,
+              const SettingsScreen(),
+            ),
             routes: [
               _adaptive(
                 mode: PresentationMode.sheet,

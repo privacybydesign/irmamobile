@@ -130,11 +130,15 @@ class InternalLinkTile extends StatelessWidget {
   final String labelTranslationKey;
   final Function() onTap;
 
+  /// Whether the detail pane shows this page.
+  final bool selected;
+
   const InternalLinkTile({
     super.key,
     this.iconData,
     required this.labelTranslationKey,
     required this.onTap,
+    this.selected = false,
   });
 
   @override
@@ -144,6 +148,7 @@ class InternalLinkTile extends StatelessWidget {
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: onTap,
+      selected: selected,
     );
   }
 }
@@ -244,6 +249,10 @@ class Tile extends StatelessWidget {
   /// When false the row is greyed out and ignores taps.
   final bool enabled;
 
+  /// Whether the detail pane shows what this row opens: the row is tinted
+  /// and its chevron blue.
+  final bool selected;
+
   const Tile({
     super.key,
     this.iconData,
@@ -256,6 +265,7 @@ class Tile extends StatelessWidget {
     this.danger = false,
     this.indent = 0,
     this.enabled = true,
+    this.selected = false,
   });
 
   @override
@@ -263,7 +273,12 @@ class Tile extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final (Color squareFill, Color iconColor, Color labelColor) = danger
         ? (palette.errorSurface, palette.danger, palette.danger)
-        : (palette.tint, palette.heading, palette.text);
+        // On the tinted row the icon square is white.
+        : (
+            selected ? palette.surface : palette.tint,
+            palette.heading,
+            palette.text,
+          );
 
     final row = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
@@ -318,7 +333,10 @@ class Tile extends StatelessWidget {
             trailing ??
                 (danger
                     ? const SizedBox.shrink()
-                    : Icon(Icons.chevron_right, color: palette.faint)),
+                    : Icon(
+                        Icons.chevron_right,
+                        color: selected ? palette.link : palette.faint,
+                      )),
           ],
         ),
       ),
@@ -327,8 +345,9 @@ class Tile extends StatelessWidget {
     return Semantics(
       link: isLink,
       enabled: enabled,
+      selected: selected,
       child: Material(
-        type: MaterialType.transparency,
+        color: selected ? palette.tint : Colors.transparent,
         child: IgnorePointer(
           ignoring: !enabled,
           child: Opacity(

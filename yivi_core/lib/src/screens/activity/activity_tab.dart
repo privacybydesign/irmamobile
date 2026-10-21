@@ -134,6 +134,18 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     }
   }
 
+  /// The kind tags that filter the list.
+  Widget _tags({bool clip = false}) => ActivityKindTags(
+    selected: _filter,
+    clip: clip,
+    onSelected: (kind) {
+      setState(() => _filter = kind);
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    },
+  );
+
   /// The floating search field, and the tags under it once there is
   /// activity.
   double _headerHeight(bool withTags) =>
@@ -161,13 +173,26 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     bool moreLogsAvailable,
   ) {
     _addPostFrameCallback();
+    // The detail pane shows the newest entry until one is picked; it was
+    // built before the entries came in, so build it again.
+    final firstEntries = _latestEntries.isEmpty && logEntries.isNotEmpty;
     _latestEntries = logEntries;
+    if (firstEntries && useHomePanes(context)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
     final local = FlutterI18n.currentLocale(context).toString();
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
 
     final query = normaliseForSearch(_query);
     final shown = logEntries.where((e) => _matches(e, query)).toList();
+    final tagsInList = usePhoneLandscape(context);
+    // The entry in the detail pane: the picked one, or the newest.
+    final open = useHomePanes(context)
+        ? ref.watch(selectedActivityProvider) ?? logEntries.firstOrNull
+        : null;
 
     // A header per month, then its rows.
     final groups = <List<LogInfo>>[];
@@ -198,11 +223,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         16,
         padding.top +
             FloatingBarPlacement.topGap(context) +
-            _headerHeight(logEntries.isNotEmpty),
+            _headerHeight(logEntries.isNotEmpty && !tagsInList),
         16,
         padding.bottom + bottomBarSpace(context),
       ),
       children: [
+        // In the list column they stay inside it, clear of the pane.
+        if (tagsInList && logEntries.isNotEmpty) _tags(clip: true),
         if (logEntries.isEmpty)
           message("activity.empty_placeholder")
         else if (shown.isEmpty && query.isEmpty && _filter != null)
@@ -239,6 +266,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 child: ActivityCard(
                   key: ValueKey(ActivityEntry.fromLog(entry).key),
                   logEntry: entry,
+                  selected: open != null && sameLog(open, entry),
                 ),
               ),
           ],
@@ -264,14 +292,21 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       builder: (context, snapshot) {
         final historyState = snapshot.data;
         final withTags = historyState?.logEntries.isNotEmpty ?? false;
+        // Held sideways the tags scroll with the list, under the search
+        // field, instead of floating with it.
+        final tagsInList = usePhoneLandscape(context);
         // The entries scroll under the search field and the tags; the edge
         // goes away with them when an entry opens.
         return ScrollEdge(
           height: top + _headerHeight(withTags) - 4,
-          band: (context, under) => PushAway(
-            direction: PushAwayDirection.up,
-            child: ScrollEdgeBand(under: under),
-          ),
+          // Held sideways the search field just floats over the list, with
+          // no band under it.
+          band: (context, under) => usePhoneLandscape(context)
+              ? const SizedBox.shrink()
+              : PushAway(
+                  direction: PushAwayDirection.up,
+                  child: ScrollEdgeBand(under: under),
+                ),
           bar: [
             Positioned(
               left: 16,
@@ -291,17 +326,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                           controller: _search,
                           onChanged: _onQuery,
                         ),
-                        if (withTags) ...[
+                        if (withTags && !tagsInList) ...[
                           const SizedBox(height: 8),
-                          ActivityKindTags(
-                            selected: _filter,
-                            onSelected: (kind) {
-                              setState(() => _filter = kind);
-                              if (_scrollController.hasClients) {
-                                _scrollController.jumpTo(0);
-                              }
-                            },
-                          ),
+                          _tags(),
                         ],
                       ],
                     ),
@@ -323,7 +350,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     return Scaffold(
       backgroundColor: palette.background,
-      body: isExpandedLayout(context) ? _withDetailPane(list) : list,
+      body: useHomePanes(context) ? _withDetailPane(list) : list,
     );
   }
 

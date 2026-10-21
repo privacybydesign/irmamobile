@@ -25,3 +25,8 @@ bool usePhoneLandscape(BuildContext context) {
   final size = MediaQuery.sizeOf(context);
   return size.width < expandedLayoutBreakpoint && size.width > size.height;
 }
+
+/// The home tabs as a list with the picked item's details beside it: on a
+/// tablet, and on a phone held sideways.
+bool useHomePanes(BuildContext context) =>
+    isExpandedLayout(context) || usePhoneLandscape(context);

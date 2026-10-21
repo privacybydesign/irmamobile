@@ -9,6 +9,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/instance_hint.dart";
 import "../../../widgets/app_toast.dart";
@@ -18,6 +19,7 @@ import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/two_pane.dart";
 import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
 import "../wallet/wallet_detail_scaffold.dart";
@@ -278,7 +280,6 @@ class CredentialDetailPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final padding = MediaQuery.paddingOf(context);
     final cards =
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const <schemaless.Credential>[];
@@ -286,51 +287,96 @@ class CredentialDetailPane extends ConsumerWidget {
     if (credential == null) return const SizedBox.shrink();
 
     final hints = ref.watch(instanceHintsProvider);
+    final hintText = instanceHintText(context, hints[hash] ?? const NoHint());
+    // Held sideways the pane is low: the card shows small, beside its name,
+    // instead of big above the details.
+    final compact = usePhoneLandscape(context);
+    final details = _Details(
+      credential: credential,
+      showTitle: !compact,
+      siblings: cards
+          .where((c) => c.credentialId == credential.credentialId)
+          .toList(),
+      hintTexts: {
+        for (final c in cards)
+          c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
+      },
+      onSwitch: onSwitch,
+      onDeleted: onDeleted,
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = (constraints.maxWidth - 64).clamp(0.0, 460.0);
         return ListView(
           key: Key("credential_detail_pane_$hash"),
-          padding: EdgeInsets.fromLTRB(
-            32,
-            padding.top + 32,
-            32,
-            padding.bottom + 32,
-          ),
+          padding: paneContentPadding(context),
           children: [
-            Center(
-              child: CredentialCardArt(
-                credential: credential,
-                width: width,
-                hintText: instanceHintText(
-                  context,
-                  hints[hash] ?? const NoHint(),
+            if (compact)
+              _CompactHeader(credential: credential, hintText: hintText)
+            else
+              Center(
+                child: CredentialCardArt(
+                  credential: credential,
+                  width: width,
+                  hintText: hintText,
                 ),
               ),
-            ),
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 460),
-                child: _Details(
-                  credential: credential,
-                  siblings: cards
-                      .where((c) => c.credentialId == credential.credentialId)
-                      .toList(),
-                  hintTexts: {
-                    for (final c in cards)
-                      c.hash: instanceHintText(
-                        context,
-                        hints[c.hash] ?? const NoHint(),
-                      ),
-                  },
-                  onSwitch: onSwitch,
-                  onDeleted: onDeleted,
-                ),
+                child: details,
               ),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+/// The top of the detail pane on a phone held sideways: the card, 112
+/// wide, with its name and issuer beside it.
+class _CompactHeader extends StatelessWidget {
+  final schemaless.Credential credential;
+  final String hintText;
+
+  const _CompactHeader({required this.credential, required this.hintText});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Row(
+      key: const Key("credential_detail_compact_header"),
+      spacing: 14,
+      children: [
+        CredentialCardArt(
+          credential: credential,
+          width: 112,
+          hintText: hintText,
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  credential.name,
+                  style: palette.display(20, weight: FontWeight.w700),
+                ),
+              ),
+              Text(
+                FlutterI18n.translate(
+                  context,
+                  "credential.issued_by",
+                  translationParams: {"issuer": credential.issuer.name},
+                ),
+                style: palette.body(14).copyWith(color: palette.secondaryText),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -342,8 +388,13 @@ class _Details extends ConsumerWidget {
   final ValueChanged<String> onSwitch;
   final VoidCallback onDeleted;
 
+  /// Whether the details start with the card's name and issuer (not when a
+  /// compact header above them shows those).
+  final bool showTitle;
+
   const _Details({
     required this.credential,
+    this.showTitle = true,
     required this.siblings,
     required this.hintTexts,
     required this.onSwitch,
@@ -390,30 +441,34 @@ class _Details extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(
-                header: true,
-                child: Text(
-                  credential.name,
-                  style: palette.display(24, weight: FontWeight.w700),
+        if (showTitle) ...[
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    credential.name,
+                    style: palette.display(24, weight: FontWeight.w700),
+                  ),
                 ),
-              ),
-              Text(
-                FlutterI18n.translate(
-                  context,
-                  "credential.issued_by",
-                  translationParams: {"issuer": credential.issuer.name},
+                Text(
+                  FlutterI18n.translate(
+                    context,
+                    "credential.issued_by",
+                    translationParams: {"issuer": credential.issuer.name},
+                  ),
+                  style: palette
+                      .body(14)
+                      .copyWith(color: palette.secondaryText),
                 ),
-                style: palette.body(14).copyWith(color: palette.secondaryText),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
         const SizedBox(height: 16),
         Wrap(
           spacing: 8,

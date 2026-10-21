@@ -82,10 +82,14 @@ class _DataTabState extends ConsumerState<DataTab> {
     // with the row when a card opens.
     final list = ScrollEdge(
       height: top + _topBarHeight + 8,
-      band: (context, under) => PushAway(
-        direction: PushAwayDirection.up,
-        child: ScrollEdgeBand(under: under),
-      ),
+      // Held sideways the search row just floats over the cards, with no
+      // band under it.
+      band: (context, under) => usePhoneLandscape(context)
+          ? const SizedBox.shrink()
+          : PushAway(
+              direction: PushAwayDirection.up,
+              child: ScrollEdgeBand(under: under),
+            ),
       bar: [
         Positioned(
           left: 16,
@@ -134,8 +138,18 @@ class _DataTabState extends ConsumerState<DataTab> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: palette.background,
-      body: isExpandedLayout(context) ? _withDetailPane(list) : list,
+      body: _withPane(context) ? _withDetailPane(list) : list,
     );
+  }
+
+  /// Whether the cards sit next to a detail pane: on a tablet, and on a
+  /// phone held sideways once there is a card to show (the empty tab's
+  /// pointing man needs the whole width there).
+  bool _withPane(BuildContext context) {
+    if (isExpandedLayout(context)) return true;
+    if (!usePhoneLandscape(context)) return false;
+    final cards = ref.watch(schemalessCredentialOrderControllerProvider).value;
+    return cards?.isNotEmpty ?? false;
   }
 
   /// The tablet layout: the cards next to the details of the open card
@@ -276,9 +290,17 @@ class _CardList extends ConsumerWidget {
         final contentWidth = min(constraints.maxWidth - 32, 640.0);
         final side = (constraints.maxWidth - contentWidth) / 2;
         // The stack sits a little further in than the rest (1.5 times the
-        // side), so its cards are a little smaller.
-        final stackWidth = min(constraints.maxWidth - 48, 640.0);
+        // side), so its cards are a little smaller. Next to a detail pane
+        // it is 16 narrower than the column instead: the card open in the
+        // pane slides that far to the right, out of the stack.
+        final panes = useHomePanes(context);
+        final stackWidth = panes
+            ? contentWidth - _StackView.nudge
+            : min(constraints.maxWidth - 48, 640.0);
         final stackSide = (constraints.maxWidth - stackWidth) / 2;
+        final stackPadding = panes
+            ? EdgeInsets.only(left: side, right: side + _StackView.nudge)
+            : EdgeInsets.symmetric(horizontal: stackSide);
 
         Widget box(Widget child) => SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: side),
@@ -319,15 +341,16 @@ class _CardList extends ConsumerWidget {
               box(_NoResults(palette: palette))
             else
               SliverPadding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: view == WalletView.stack ? stackSide : side,
-                ),
+                padding: view == WalletView.stack
+                    ? stackPadding
+                    : EdgeInsets.symmetric(horizontal: side),
                 sliver: switch (view) {
                   WalletView.stack => SliverToBoxAdapter(
                     child: _StackView(
                       cards: visible,
                       hintTexts: hintTexts,
                       width: stackWidth,
+                      openHash: panes ? _openInPane(ref, cards) : null,
                     ),
                   ),
                   WalletView.list => _ListView(
@@ -376,8 +399,9 @@ class _CardList extends ConsumerWidget {
 /// Opens the detail view of [credential], starting the Wallet-style
 /// transition from [cardContext] (the tapped card).
 void openCard(BuildContext cardContext, schemaless.Credential credential) {
-  if (isExpandedLayout(cardContext)) {
-    // The tablet layout shows the card in the detail pane next to the list.
+  if (useHomePanes(cardContext)) {
+    // The tablet and landscape layouts show the card in the detail pane
+    // next to the list.
     ProviderScope.containerOf(
       cardContext,
       listen: false,
@@ -416,6 +440,8 @@ class _Header extends ConsumerWidget {
           ),
           ViewSwitcher(
             view: view,
+            // The narrow list beside the pane of a phone held sideways.
+            compact: usePhoneLandscape(context),
             onChanged: (v) => ref.read(walletViewProvider.notifier).set(v),
           ),
         ],
@@ -429,7 +455,15 @@ class ViewSwitcher extends StatelessWidget {
   final WalletView view;
   final ValueChanged<WalletView> onChanged;
 
-  const ViewSwitcher({super.key, required this.view, required this.onChanged});
+  /// Icons only, without their names (still read by a screen reader).
+  final bool compact;
+
+  const ViewSwitcher({
+    super.key,
+    required this.view,
+    required this.onChanged,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -457,6 +491,7 @@ class ViewSwitcher extends StatelessWidget {
                 label: FlutterI18n.translate(context, "wallet.view.${v.name}"),
                 icon: icons[v]!,
                 selected: v == view,
+                compact: compact,
                 onTap: () => onChanged(v),
               ),
           ],
@@ -470,6 +505,7 @@ class _Segment extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool selected;
+  final bool compact;
   final VoidCallback onTap;
 
   const _Segment({
@@ -477,6 +513,7 @@ class _Segment extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.selected,
+    required this.compact,
     required this.onTap,
   });
 
@@ -505,7 +542,8 @@ class _Segment extends StatelessWidget {
                 spacing: 6,
                 children: [
                   Icon(icon, size: 16, color: fg),
-                  Text(label, style: palette.display(12).copyWith(color: fg)),
+                  if (!compact)
+                    Text(label, style: palette.display(12).copyWith(color: fg)),
                 ],
               ),
             ),
@@ -521,19 +559,27 @@ class _Segment extends StatelessWidget {
 class _StackView extends StatelessWidget {
   static const double _stripHeight = 64;
 
+  /// How far the card open in the detail pane slides out of the stack.
+  static const double nudge = 16;
+
   final List<schemaless.Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
+
+  /// The card open in the detail pane, if there is one.
+  final String? openHash;
 
   const _StackView({
     required this.cards,
     required this.hintTexts,
     required this.width,
+    this.openHash,
   });
 
   @override
   Widget build(BuildContext context) {
     final cardHeight = width / CredentialCardArt.aspectRatio;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     // When a flight starts the cards close the gap at once, under the
     // curtain; they slide only to make room for the new card.
     final flight = IssuanceFlight.state.value;
@@ -562,15 +608,21 @@ class _StackView extends StatelessWidget {
                   child: _flightSlot(
                     first: i == 0,
                     hash: c.hash,
-                    child: _CardButton(
-                      credential: c,
-                      hintText: hintTexts[c.hash],
-                      pressDepth: 6,
-                      child: CardHero(
+                    child: _Nudge(
+                      key: Key("stack_nudge_${c.hash}"),
+                      open: c.hash == openHash,
+                      width: width,
+                      reduceMotion: reduceMotion,
+                      child: _CardButton(
                         credential: c,
-                        width: width,
                         hintText: hintTexts[c.hash],
-                        edge: true,
+                        pressDepth: 6,
+                        child: CardHero(
+                          credential: c,
+                          width: width,
+                          hintText: hintTexts[c.hash],
+                          edge: true,
+                        ),
                       ),
                     ),
                   ),
@@ -581,6 +633,61 @@ class _StackView extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The card open in the detail pane slides [_StackView.nudge] to the right,
+/// out of the stack toward its details, on a deeper shadow; it slides back
+/// when another card opens.
+class _Nudge extends StatelessWidget {
+  final bool open;
+  final double width;
+  final bool reduceMotion;
+  final Widget child;
+
+  const _Nudge({
+    super.key,
+    required this.open,
+    required this.width,
+    required this.reduceMotion,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: open ? 1 : 0),
+      duration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      child: child,
+      builder: (context, t, child) => Transform.translate(
+        offset: Offset(t * _StackView.nudge, 0),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: CredentialCardArt.radiusFor(width),
+            boxShadow: [
+              if (t > 0)
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.26 * t),
+                  blurRadius: 22,
+                  offset: const Offset(0, 8),
+                ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// The card the detail pane shows: the picked one, or the first.
+String? _openInPane(WidgetRef ref, List<schemaless.Credential> cards) {
+  final selected = ref.watch(selectedCardProvider);
+  return cards.any((c) => c.hash == selected)
+      ? selected
+      : cards.firstOrNull?.hash;
 }
 
 class _ListView extends ConsumerWidget {
@@ -636,7 +743,7 @@ class _ListView extends ConsumerWidget {
 
 /// Whether [credential] is the card shown in the tablet detail pane.
 bool _isOpenInPane(BuildContext context, schemaless.Credential credential) {
-  if (!isExpandedLayout(context)) return false;
+  if (!useHomePanes(context)) return false;
   final container = ProviderScope.containerOf(context);
   final selected = container.read(selectedCardProvider);
   final cards =
@@ -772,10 +879,27 @@ class _GridView extends StatelessWidget {
                 children: [
                   _flightSlot(
                     first: i == 0,
-                    child: CardHero(
-                      credential: c,
-                      width: cardWidth,
-                      hintText: hintTexts[c.hash],
+                    // The card open in the detail pane: the red border of
+                    // the list's rows, around the card.
+                    child: DecoratedBox(
+                      position: DecorationPosition.foreground,
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: CredentialCardArt.radiusFor(cardWidth),
+                          side: BorderSide(
+                            width: 2,
+                            strokeAlign: BorderSide.strokeAlignOutside,
+                            color: _isOpenInPane(context, c)
+                                ? palette.primary
+                                : Colors.transparent,
+                          ),
+                        ),
+                      ),
+                      child: CardHero(
+                        credential: c,
+                        width: cardWidth,
+                        hintText: hintTexts[c.hash],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),

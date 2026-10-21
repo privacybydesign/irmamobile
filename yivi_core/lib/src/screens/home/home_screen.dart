@@ -11,6 +11,8 @@ import "../data/data_tab.dart";
 import "../data/wallet/wallet_transition.dart";
 import "../more/more_tab.dart";
 import "../notifications/notifications_tab.dart";
+import "pane_handoffs.dart";
+import "widgets/glass_rail.dart";
 import "widgets/glass_sidebar.dart";
 import "widgets/glass_tab_bar.dart";
 import "widgets/irma_nav_bar.dart";
@@ -56,56 +58,63 @@ class HomeScreen extends StatelessWidget {
             }
           },
           child: PendingPointerListener(
-            child: Scaffold(
-              backgroundColor: palette.background,
-              resizeToAvoidBottomInset: false,
-              body: isExpandedLayout(context)
-                  ? _withSidebar(context, tabState, changeTab)
-                  : Stack(
-                      children: [
-                        Positioned.fill(child: _tab(tabState, changeTab)),
-                        // Fades the content out under the floating tab bar.
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: 96 + bottomPadding,
-                          child: IgnorePointer(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    palette.background.withValues(alpha: 0),
-                                    palette.background.withValues(alpha: 0.85),
-                                  ],
+            // Turned upright, what was picked in a pane opens on its own.
+            child: HomeLayoutSync(
+              child: Scaffold(
+                backgroundColor: palette.background,
+                resizeToAvoidBottomInset: false,
+                body: isExpandedLayout(context)
+                    ? _withSidebar(context, tabState, changeTab)
+                    : usePhoneLandscape(context)
+                    ? _withRail(context, tabState, changeTab)
+                    : Stack(
+                        children: [
+                          Positioned.fill(child: _tab(tabState, changeTab)),
+                          // Fades the content out under the floating tab bar.
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 96 + bottomPadding,
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      palette.background.withValues(alpha: 0),
+                                      palette.background.withValues(
+                                        alpha: 0.85,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          left: 16,
-                          right: 16,
-                          bottom: FloatingBarPlacement.tabBarBottom(context),
-                          child: PushAway(
-                            direction: PushAwayDirection.down,
-                            child: Center(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 640,
-                                ),
-                                child: GlassTabBar(
-                                  selectedTab: tabState,
-                                  onChangeTab: changeTab,
+                          Positioned(
+                            left: 16,
+                            right: 16,
+                            bottom: FloatingBarPlacement.tabBarBottom(context),
+                            child: PushAway(
+                              direction: PushAwayDirection.down,
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 640,
+                                  ),
+                                  child: GlassTabBar(
+                                    selectedTab: tabState,
+                                    onChangeTab: changeTab,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+              ),
             ),
           ),
         );
@@ -120,6 +129,41 @@ class HomeScreen extends StatelessWidget {
         .activity => ActivityTab(),
         .more => MoreTab(onChangeTab: changeTab),
       };
+
+  /// A phone held sideways: a floating rail on the left instead of the tab
+  /// bar, with the tab (a list and the picked item's details) beside it.
+  Widget _withRail(
+    BuildContext context,
+    IrmaNavBarTab tab,
+    ValueChanged<IrmaNavBarTab> changeTab,
+  ) {
+    final padding = MediaQuery.paddingOf(context);
+    // In the safe area on the notch side; 16 from the edge without a notch.
+    final railLeft = padding.left > 0 ? padding.left : 16.0;
+    // The tabs keep 16 on their sides: their content starts 12 from the rail.
+    final contentLeft = railLeft + GlassRail.width - 4;
+    return Stack(
+      children: [
+        Positioned.fill(
+          left: contentLeft,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeLeft: true,
+            child: _tab(tab, changeTab),
+          ),
+        ),
+        Positioned(
+          left: railLeft,
+          top: padding.top,
+          bottom: padding.bottom,
+          width: GlassRail.width,
+          child: Center(
+            child: GlassRail(selectedTab: tab, onChangeTab: changeTab),
+          ),
+        ),
+      ],
+    );
+  }
 
   /// The tablet layout: the glass sidebar on the left instead of the
   /// floating tab bar.
