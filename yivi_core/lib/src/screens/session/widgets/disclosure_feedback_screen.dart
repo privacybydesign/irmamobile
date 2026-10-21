@@ -4,10 +4,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
+import "../../../widgets/landscape_action_bar.dart";
 import "../models/disclosure_view_model.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
@@ -162,6 +164,67 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
       label: FlutterI18n.translate(context, "share.done.button"),
       onPressed: () => widget.onDismiss(context),
     );
+
+    // A phone held sideways: the check and the words at the left, what was
+    // shared at the right, the button at the bottom right.
+    if (!useSessionColumns(context) && usePhoneLandscape(context)) {
+      return PopScope(
+        canPop: false,
+        child: SessionScaffold(
+          appBarTitle: "disclosure.feedback.header.success",
+          onDismiss: () => widget.onDismiss(context),
+          wide: true,
+          scrollsUnderBars: true,
+          cornerClose: true,
+          bottomNavigationBar: LandscapeActionBar(child: button),
+          body: Builder(
+            builder: (context) {
+              final insets = MediaQuery.paddingOf(context);
+              final top =
+                  (insets.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+              return Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16 + insets.left,
+                  top,
+                  16 + insets.right,
+                  insets.bottom,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 28,
+                  children: [
+                    Expanded(
+                      flex: 10,
+                      child: Center(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: heading,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 11,
+                      child: ListView(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        children: [
+                          for (final (n, d) in details.indexed) ...[
+                            if (n > 0) const SizedBox(height: 12),
+                            d,
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
 
     // Tablets: the result and the button on the left, what was shared on
     // the right.

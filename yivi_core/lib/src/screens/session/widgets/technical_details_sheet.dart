@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -31,6 +32,48 @@ class TechnicalDetailsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     String t(String key) => FlutterI18n.translate(context, key);
+    List<Widget> group(TechGroup g) => [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(6, 18, 6, 8),
+        child: Semantics(
+          header: true,
+          child: Text(
+            g.title.toUpperCase(),
+            style: palette
+                .body(12.5, weight: FontWeight.w700)
+                .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
+          ),
+        ),
+      ),
+      DecoratedBox(
+        decoration: ShapeDecoration(
+          color: palette.surface,
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(22)),
+          ),
+          shadows: const [
+            BoxShadow(
+              color: Color(0x17000000),
+              blurRadius: 6,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, r) in g.rows.indexed) ...[
+                if (i > 0)
+                  Divider(height: 1, thickness: 1, color: palette.divider),
+                _Row(row: r),
+              ],
+            ],
+          ),
+        ),
+      ),
+    ];
     return GlassSheetPage(
       title: t("share.tech.title"),
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -46,55 +89,26 @@ class TechnicalDetailsSheet extends StatelessWidget {
                   .copyWith(height: 20 / 14, color: palette.secondaryText),
             ),
           ),
-          for (final g in groups) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(6, 18, 6, 8),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  g.title.toUpperCase(),
-                  style: palette
-                      .body(12.5, weight: FontWeight.w700)
-                      .copyWith(
-                        letterSpacing: 0.6,
-                        color: palette.secondaryText,
-                      ),
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: ShapeDecoration(
-                color: palette.surface,
-                shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(22)),
-                ),
-                shadows: const [
-                  BoxShadow(
-                    color: Color(0x17000000),
-                    blurRadius: 6,
-                    offset: Offset(0, 1),
+          if (usePhoneLandscape(context))
+            // A phone held sideways: the groups in two columns.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
+                for (final side in [0, 1])
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (n, g) in groups.indexed)
+                          if (n % 2 == side) ...group(g),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, r) in g.rows.indexed) ...[
-                      if (i > 0)
-                        Divider(
-                          height: 1,
-                          thickness: 1,
-                          color: palette.divider,
-                        ),
-                      _Row(row: r),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
+              ],
+            )
+          else
+            for (final g in groups) ...group(g),
           const SizedBox(height: 18),
           Center(
             child: PillButton(

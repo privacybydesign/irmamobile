@@ -7,8 +7,11 @@ import "../screens/session/widgets/session_scaffold.dart";
 import "../screens/session/widgets/success_graphic.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "../util/adaptive_layout.dart";
 import "glass/glass_dialog.dart";
 import "glass/pill_buttons.dart";
+import "irma_app_bar.dart";
+import "landscape_action_bar.dart";
 import "translated_text.dart";
 
 class ActionFeedback extends StatelessWidget {
@@ -72,6 +75,68 @@ class ActionFeedback extends StatelessWidget {
       ),
       onPressed: onDismiss,
     );
+
+    // A phone held sideways: the picture (the card with its check) at the
+    // left, the words at the right, the button at the bottom right, as on
+    // "Shared".
+    if (!useSessionColumns(context) && usePhoneLandscape(context)) {
+      return PopScope(
+        canPop: false,
+        child: SessionScaffold(
+          appBarTitle: success
+              ? "disclosure.feedback.header.success"
+              : "ui.error",
+          onDismiss: onDismiss,
+          wide: true,
+          scrollsUnderBars: true,
+          cornerClose: true,
+          bottomNavigationBar: LandscapeActionBar(child: button),
+          body: Builder(
+            builder: (context) {
+              final insets = MediaQuery.paddingOf(context);
+              final top =
+                  (insets.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+              return Padding(
+                key: const Key("action_feedback_landscape"),
+                padding: EdgeInsets.fromLTRB(
+                  16 + insets.left,
+                  top,
+                  16 + insets.right,
+                  insets.bottom,
+                ),
+                child: Row(
+                  spacing: 32,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: hero ?? SizedBox(height: 140, child: graphic),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            title,
+                            SizedBox(height: theme.tinySpacing),
+                            TranslatedText(
+                              explanationTranslationKey,
+                              translationParams: explanationTranslationParams,
+                              style: palette.body(16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
 
     return PopScope(
       canPop: false,

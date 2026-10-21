@@ -284,53 +284,64 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   ) {
     final media = MediaQuery.of(context);
     final screen = media.size.height;
+    final landscape = usePhoneLandscape(context);
     // As a native iOS sheet: from the top of the safe area to the bottom
     // (measured on iOS 27: the top edge at the top inset, 62 pt on an
-    // iPhone 17 Pro).
-    final height = (screen - media.padding.top).clamp(0.0, screen);
+    // iPhone 17 Pro). On a phone held sideways there is no top inset: 10
+    // below the top, and between the safe areas left and right.
+    final height = (screen - (landscape ? 10 : media.padding.top)).clamp(
+      0.0,
+      screen,
+    );
+    final sides = landscape
+        ? EdgeInsets.only(left: media.padding.left, right: media.padding.right)
+        : EdgeInsets.zero;
     // The sheet keeps its place and size when the keyboard comes up: only
     // its content ends above the keyboard (see _GlassSheet).
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: true,
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints.tightFor(height: height),
-          child: Material(
-            type: MaterialType.transparency,
-            child: LayoutBuilder(
-              builder: (context, _) => GestureDetector(
-                // Dragging the sheet outside its list (its header). Kept out
-                // of the semantics tree: as a scroll action it hid the whole
-                // sheet (title, close button, content) from screen readers.
-                // They close it with the close button or the barrier.
-                excludeFromSemantics: true,
-                behavior: HitTestBehavior.opaque,
-                onVerticalDragStart: (_) => _startGesture(),
-                onVerticalDragUpdate: (d) =>
-                    _drag(d.primaryDelta ?? 0, _measure(context)),
-                onVerticalDragEnd: (d) =>
-                    _release(d.velocity.pixelsPerSecond.dy),
-                // Interrupted by the system: back in place.
-                onVerticalDragCancel: () {
-                  if (_gesture && !_pulling) _release(0);
-                },
-                child: NotificationListener<ScrollStartNotification>(
-                  onNotification: (n) {
-                    _measure(context);
-                    return _onScrollStart(n);
+      child: Padding(
+        padding: sides,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints.tightFor(height: height),
+            child: Material(
+              type: MaterialType.transparency,
+              child: LayoutBuilder(
+                builder: (context, _) => GestureDetector(
+                  // Dragging the sheet outside its list (its header). Kept out
+                  // of the semantics tree: as a scroll action it hid the whole
+                  // sheet (title, close button, content) from screen readers.
+                  // They close it with the close button or the barrier.
+                  excludeFromSemantics: true,
+                  behavior: HitTestBehavior.opaque,
+                  onVerticalDragStart: (_) => _startGesture(),
+                  onVerticalDragUpdate: (d) =>
+                      _drag(d.primaryDelta ?? 0, _measure(context)),
+                  onVerticalDragEnd: (d) =>
+                      _release(d.velocity.pixelsPerSecond.dy),
+                  // Interrupted by the system: back in place.
+                  onVerticalDragCancel: () {
+                    if (_gesture && !_pulling) _release(0);
                   },
-                  child: GlassSheetScope(
-                    physics: _physics,
-                    child: _GlassSheet(
-                      attached: true,
-                      height: height,
-                      keyboard: media.viewInsets.bottom,
-                      bottomInset: media.viewInsets.bottom > 0
-                          ? 0
-                          : media.padding.bottom,
-                      child: builder(context),
+                  child: NotificationListener<ScrollStartNotification>(
+                    onNotification: (n) {
+                      _measure(context);
+                      return _onScrollStart(n);
+                    },
+                    child: GlassSheetScope(
+                      physics: _physics,
+                      child: _GlassSheet(
+                        attached: true,
+                        height: height,
+                        keyboard: media.viewInsets.bottom,
+                        bottomInset: media.viewInsets.bottom > 0
+                            ? 0
+                            : media.padding.bottom,
+                        child: builder(context),
+                      ),
                     ),
                   ),
                 ),
@@ -429,6 +440,9 @@ class _GlassSheet extends StatelessWidget {
                   padding: media.padding.copyWith(
                     top: 0,
                     bottom: 20 + bottomInset,
+                    // In landscape the sheet sits between the side insets.
+                    left: 0,
+                    right: 0,
                   ),
                   // The device's inset where the sheet meets the bottom edge,
                   // so a button lands where it does on a full screen.

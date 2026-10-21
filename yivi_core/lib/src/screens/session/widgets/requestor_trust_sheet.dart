@@ -5,7 +5,9 @@ import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "session_requestor_header.dart";
 
 const _portalOrganisations = "https://portal.yivi.app/organizations";
@@ -169,9 +171,9 @@ class RequestorTrustSheet extends StatelessWidget {
       child: GlassSheetPage(
         title: "",
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        child: _columns(
+          context,
+          [
             // The card's logo flies in here.
             Center(
               child: RequestorLogo(
@@ -200,7 +202,8 @@ class RequestorTrustSheet extends StatelessWidget {
                   .body(15)
                   .copyWith(height: 22 / 15, color: palette.heading),
             ),
-            const SizedBox(height: 18),
+          ],
+          [
             _Group(
               children: [
                 for (final f in facts) _FactRow(fact: f, style: style),
@@ -224,6 +227,34 @@ class RequestorTrustSheet extends StatelessWidget {
             _Group(children: [for (final d in dos) _DoRow(item: d)]),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Who it is ([who]: logo, verdict, sentence) above the facts and what to
+  /// do ([facts]); on a phone held sideways who it is at the left and the
+  /// rest at the right.
+  static Widget _columns(
+    BuildContext context,
+    List<Widget> who,
+    List<Widget> facts,
+  ) {
+    if (!usePhoneLandscape(context)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [...who, const SizedBox(height: 18), ...facts],
+      );
+    }
+    return SheetColumns(
+      startWidth: 260,
+      gap: 28,
+      start: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: who,
+      ),
+      end: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: facts,
       ),
     );
   }

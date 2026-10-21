@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -34,6 +35,61 @@ class DocumentInstructionScreen extends StatelessWidget {
     // In a sheet: its bar has the title, back and close; no Cancel here.
     final inSheet = DocumentStepInSheet.of(context);
 
+    // The picture on a white card.
+    final picture = Container(
+      key: const Key("document_instruction_picture"),
+      width: _pictureWidth,
+      height: _pictureHeight,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(28)),
+        ),
+        shadows: const [
+          BoxShadow(
+            color: Color(0x17000000),
+            blurRadius: 6,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Semantics(
+        image: true,
+        label: FlutterI18n.translate(context, "$keys.image_alt"),
+        child: DocumentInstructionIllustration(documentType: documentType),
+      ),
+    );
+    List<Widget> words(TextAlign align) => [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8, 28, 8, 0),
+        child: TranslatedText(
+          "$keys.title",
+          textAlign: align,
+          isHeader: true,
+          style: palette
+              .display(22, weight: FontWeight.w700)
+              .copyWith(height: 30 / 22, color: palette.heading),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: TranslatedText(
+          "$keys.body",
+          textAlign: align,
+          style: palette.body(16).copyWith(height: 24 / 16),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: DocumentTipBox(textKey: "$keys.tip"),
+      ),
+    ];
+    // A phone held sideways: the picture at the left, the words at the
+    // right.
+    final landscape = usePhoneLandscape(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
@@ -48,62 +104,29 @@ class DocumentInstructionScreen extends StatelessWidget {
         // 24 below the floating app bar and from the sides, as on the board.
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: .center,
-            children: [
-              // The picture on a white card.
-              Container(
-                key: const Key("document_instruction_picture"),
-                width: _pictureWidth,
-                height: _pictureHeight,
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  color: palette.surface,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(28)),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x17000000),
-                      blurRadius: 6,
-                      offset: Offset(0, 1),
+          child: landscape
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 28,
+                  children: [
+                    // Smaller: the sheet has little height sideways.
+                    SizedBox(
+                      width: _pictureWidth * 0.7,
+                      height: _pictureHeight * 0.7,
+                      child: FittedBox(child: picture),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: words(TextAlign.start),
+                      ),
                     ),
                   ],
+                )
+              : Column(
+                  crossAxisAlignment: .center,
+                  children: [picture, ...words(TextAlign.center)],
                 ),
-                alignment: Alignment.center,
-                child: Semantics(
-                  image: true,
-                  label: FlutterI18n.translate(context, "$keys.image_alt"),
-                  child: DocumentInstructionIllustration(
-                    documentType: documentType,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 28, 8, 0),
-                child: TranslatedText(
-                  "$keys.title",
-                  textAlign: .center,
-                  isHeader: true,
-                  style: palette
-                      .display(22, weight: FontWeight.w700)
-                      .copyWith(height: 30 / 22, color: palette.heading),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: TranslatedText(
-                  "$keys.body",
-                  textAlign: .center,
-                  style: palette.body(16).copyWith(height: 24 / 16),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: DocumentTipBox(textKey: "$keys.tip"),
-              ),
-            ],
-          ),
         ),
       ),
       bottomNavigationBar: DocumentFlowFooter(

@@ -5,15 +5,19 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/translated_text.dart";
+import "issuance_permission.dart";
 
 /// The permission screen for a document read from its chip, as on the
 /// design's permission board: the
@@ -38,6 +42,7 @@ class DocumentIssuancePermission extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final landscape = usePhoneLandscape(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -47,81 +52,148 @@ class DocumentIssuancePermission extends StatelessWidget {
         titleTranslationKey: "issuance.title",
         leading: null,
         hasBorder: false,
+        // Sideways: close in the corner, beside the column.
+        edgeActions: landscape,
+        edge: !landscape,
         actions: [if (onDismiss != null) IrmaCloseButton(onTap: onDismiss!)],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final cardWidth = math.min(
-                CredentialCardArt.designWidth,
-                constraints.maxWidth,
-              );
-              return Column(
-                crossAxisAlignment: .stretch,
-                children: [
-                  if (returnedFromIssuer != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                      child: TranslatedText(
-                        "external_issuer.returned",
-                        translationParams: {"issuer": returnedFromIssuer!},
-                        style: palette.display(18),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
-                    child: TranslatedText(
-                      "issuance.description",
-                      isHeader: true,
-                      style: palette
-                          .display(22)
-                          .copyWith(height: 30 / 22, color: palette.heading),
-                    ),
-                  ),
-                  for (final credential in issuedCredentials) ...[
-                    const SizedBox(height: 20),
-                    Center(
-                      child: CredentialCardArt(
-                        credential: credential,
-                        width: cardWidth,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _DocumentData(credential: credential),
-                  ],
-                ],
-              );
-            },
+      body: landscape ? _landscape(context) : _portrait(context),
+      bottomNavigationBar: landscape ? null : _footer(),
+    );
+  }
+
+  /// A phone held sideways: the document's card at the left with the
+  /// buttons under it; the question and its data at the right.
+  Widget _landscape(BuildContext context) {
+    String t(String key, [Map<String, String>? params]) =>
+        FlutterI18n.translate(context, key, translationParams: params);
+    return IssuanceLandscape(
+      title: t("issuance.description"),
+      overview: [
+        for (final credential in issuedCredentials)
+          Center(child: CredentialCardArt(credential: credential, width: 220)),
+        if (returnedFromIssuer case final issuer?)
+          InfoChipRow(
+            chips: [
+              InfoChip(
+                label: t("issuance.returned_from", {"issuer": issuer}),
+                tinted: true,
+              ),
+            ],
           ),
-        ),
-      ),
-      bottomNavigationBar: DocumentFlowFooter(
-        buttons: onGivePermission != null
-            ? [
-                DocumentFlowButton(
-                  key: DocumentFlowButton.primaryKey,
-                  labelKey: "issuance.add",
-                  onPressed: onGivePermission,
-                ),
-                DocumentFlowButton(
+      ],
+      receives: [
+        for (final (i, credential) in issuedCredentials.indexed) ...[
+          if (i > 0) const SizedBox(height: 16),
+          _DocumentData(credential: credential),
+        ],
+      ],
+      actions: onGivePermission != null
+          ? Row(
+              spacing: 10,
+              children: [
+                PillButton(
                   key: DocumentFlowButton.secondaryKey,
-                  labelKey: "document_flow.cancel",
+                  label: t("document_flow.cancel"),
+                  style: PillStyle.text,
+                  size: PillSize.regular,
+                  expand: false,
                   onPressed: onDismiss,
-                  style: .secondary,
                 ),
-              ]
-            : [
-                DocumentFlowButton(
-                  key: DocumentFlowButton.primaryKey,
-                  labelKey: "session.navigation_bar.back",
-                  onPressed: onDismiss,
+                Expanded(
+                  child: FancyPillButton(
+                    key: DocumentFlowButton.primaryKey,
+                    label: t("issuance.add"),
+                    size: PillSize.regular,
+                    onPressed: onGivePermission,
+                  ),
                 ),
               ],
+            )
+          : PillButton(
+              key: DocumentFlowButton.primaryKey,
+              label: t("session.navigation_bar.back"),
+              size: PillSize.regular,
+              onPressed: onDismiss,
+            ),
+    );
+  }
+
+  Widget _portrait(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final cardWidth = math.min(
+              CredentialCardArt.designWidth,
+              constraints.maxWidth,
+            );
+            return Column(
+              crossAxisAlignment: .stretch,
+              children: [
+                if (returnedFromIssuer != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                    child: TranslatedText(
+                      "external_issuer.returned",
+                      translationParams: {"issuer": returnedFromIssuer!},
+                      style: palette.display(18),
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+                  child: TranslatedText(
+                    "issuance.description",
+                    isHeader: true,
+                    style: palette
+                        .display(22)
+                        .copyWith(height: 30 / 22, color: palette.heading),
+                  ),
+                ),
+                for (final credential in issuedCredentials) ...[
+                  const SizedBox(height: 20),
+                  Center(
+                    child: CredentialCardArt(
+                      credential: credential,
+                      width: cardWidth,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _DocumentData(credential: credential),
+                ],
+              ],
+            );
+          },
+        ),
       ),
     );
   }
+
+  Widget _footer() => DocumentFlowFooter(
+    buttons: onGivePermission != null
+        ? [
+            DocumentFlowButton(
+              key: DocumentFlowButton.primaryKey,
+              labelKey: "issuance.add",
+              onPressed: onGivePermission,
+            ),
+            DocumentFlowButton(
+              key: DocumentFlowButton.secondaryKey,
+              labelKey: "document_flow.cancel",
+              onPressed: onDismiss,
+              style: .secondary,
+            ),
+          ]
+        : [
+            DocumentFlowButton(
+              key: DocumentFlowButton.primaryKey,
+              labelKey: "session.navigation_bar.back",
+              onPressed: onDismiss,
+            ),
+          ],
+  );
 }
 
 /// The data of the document in one group: a row per attribute, the ages

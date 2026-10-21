@@ -4,9 +4,11 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
 import "../../util/nfc_credentials.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_group.dart";
+import "../../widgets/glass/sheet_action_row.dart";
 import "../../widgets/irma_markdown.dart";
 
 /// What a credential type is, compact for the sheet (its name is in the
@@ -48,6 +50,101 @@ class AddDataDetailsContent extends StatelessWidget {
       for (final a in credential.attributes) a.effectiveDisplayName,
     ].where((n) => n.isNotEmpty).toList();
 
+    final name = <Widget>[
+      // What it is, and who gives it (and whether it needs NFC).
+      Text(
+        credential.name,
+        key: const Key("add_data_details_name"),
+        style: palette
+            .body(15, weight: FontWeight.w600)
+            .copyWith(height: 21 / 15, color: palette.text),
+      ),
+      Text(
+        credentialRequiresNfc(credential.credentialId)
+            ? t("data.add.details.issuer_nfc", {
+                "issuer": credential.issuer.name,
+              })
+            : credential.issuer.name,
+        key: const Key("add_data_details_issuer"),
+        style: palette
+            .body(13)
+            .copyWith(height: 18 / 13, color: palette.secondaryText),
+      ),
+    ];
+    final rest = <Widget>[
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
+        child: Text(
+          intro.isNotEmpty
+              ? intro
+              : t("data.add.details.obtain", {"credential": credential.name}),
+          style: palette
+              .body(15)
+              .copyWith(height: 22 / 15, color: palette.heading),
+        ),
+      ),
+      // What you get: the attributes of the type. The FAQ's own list of
+      // them only when the type names none (it repeats them otherwise).
+      if (attributeNames.isNotEmpty ||
+          content.isNotEmpty ||
+          forRequestor != null) ...[
+        _SectionLabel(t("data.add.details.you_get")),
+        GlassGroup(
+          key: const Key("add_data_you_get"),
+          children: [
+            if (attributeNames.isNotEmpty)
+              _Checklist(names: attributeNames)
+            else if (content.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: _Markdown(content),
+              ),
+            if (forRequestor case final requestor?)
+              _DisclosureNote(requestor: requestor),
+          ],
+        ),
+      ],
+      if (purpose.isNotEmpty || howTo.isNotEmpty) ...[
+        _SectionLabel(t("data.add.details.good_to_know")),
+        GlassGroup(
+          children: [
+            if (purpose.isNotEmpty)
+              _Fold(
+                key: const Key("add_data_purpose"),
+                question: t("data.add.details.purpose_question"),
+                peek: purpose.replaceAll("\n\n", " "),
+                child: _Markdown(purpose),
+              ),
+            if (howTo.isNotEmpty) _howTo(context, howTo),
+          ],
+        ),
+      ],
+    ];
+
+    // A phone held sideways: the card large at the left, with its name and
+    // issuer under it; what it is and what you get at the right.
+    if (usePhoneLandscape(context)) {
+      return SheetColumns(
+        startWidth: 250,
+        start: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 14, bottom: 12),
+              child: CredentialTypeThumbnail(
+                descriptor: credential,
+                width: 250,
+              ),
+            ),
+            ...name,
+          ],
+        ),
+        end: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: rest,
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -58,81 +155,12 @@ class AddDataDetailsContent extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // What it is, and who gives it (and whether it needs NFC).
-                  Text(
-                    credential.name,
-                    key: const Key("add_data_details_name"),
-                    style: palette
-                        .body(15, weight: FontWeight.w600)
-                        .copyWith(height: 21 / 15, color: palette.text),
-                  ),
-                  Text(
-                    credentialRequiresNfc(credential.credentialId)
-                        ? t("data.add.details.issuer_nfc", {
-                            "issuer": credential.issuer.name,
-                          })
-                        : credential.issuer.name,
-                    key: const Key("add_data_details_issuer"),
-                    style: palette
-                        .body(13)
-                        .copyWith(
-                          height: 18 / 13,
-                          color: palette.secondaryText,
-                        ),
-                  ),
-                ],
+                children: name,
               ),
             ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
-          child: Text(
-            intro.isNotEmpty
-                ? intro
-                : t("data.add.details.obtain", {"credential": credential.name}),
-            style: palette
-                .body(15)
-                .copyWith(height: 22 / 15, color: palette.heading),
-          ),
-        ),
-        // What you get: the attributes of the type. The FAQ's own list of
-        // them only when the type names none (it repeats them otherwise).
-        if (attributeNames.isNotEmpty ||
-            content.isNotEmpty ||
-            forRequestor != null) ...[
-          _SectionLabel(t("data.add.details.you_get")),
-          GlassGroup(
-            key: const Key("add_data_you_get"),
-            children: [
-              if (attributeNames.isNotEmpty)
-                _Checklist(names: attributeNames)
-              else if (content.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _Markdown(content),
-                ),
-              if (forRequestor case final requestor?)
-                _DisclosureNote(requestor: requestor),
-            ],
-          ),
-        ],
-        if (purpose.isNotEmpty || howTo.isNotEmpty) ...[
-          _SectionLabel(t("data.add.details.good_to_know")),
-          GlassGroup(
-            children: [
-              if (purpose.isNotEmpty)
-                _Fold(
-                  key: const Key("add_data_purpose"),
-                  question: t("data.add.details.purpose_question"),
-                  peek: purpose.replaceAll("\n\n", " "),
-                  child: _Markdown(purpose),
-                ),
-              if (howTo.isNotEmpty) _howTo(context, howTo),
-            ],
-          ),
-        ],
+        ...rest,
       ],
     );
   }

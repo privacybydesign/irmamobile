@@ -1514,7 +1514,10 @@
     "new_chip": "Neu",
     "together": "Diese gehören zusammen. {requestor} bekommt beide oder keine.",
     "also_share": "Auch teilen",
-    "dont_share": "Nicht teilen"
+    "dont_share": "Nicht teilen",
+    "lead_side": "Daneben steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
+    "lead_side_sign": "Daneben steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Unterschreiben tippst.",
+    "lead_side_receive": "Du teilst, was daneben steht, und bekommst eine Karte zurück. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst."
   },
   "contact_sheet": {
     "intro_email": "Wir schicken dir einen Code per E-Mail, um zu prüfen, dass diese Adresse dir gehört.",

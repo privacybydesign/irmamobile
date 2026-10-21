@@ -278,6 +278,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         ? -1
         : selectionOf(pickOne, selections[0]);
     final language = FlutterI18n.currentLocale(context)?.languageCode;
+    final landscape = usePhoneLandscape(context);
 
     // The outline: on the card a finger is on, else on the one in use.
     bool outlined(String key, {String? current}) =>
@@ -302,54 +303,90 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           if (owned.isNotEmpty) ...[
             const SizedBox(height: 18),
             _Label(_t("share.sheet.already_in_app")),
-            for (final b in owned) ...[
-              // Room for the outline around the card above.
-              const SizedBox(height: 12),
-              Hero(
-                tag: choiceHeroTag(widget.sessionId, widget.index, b),
-                flightShuttleBuilder: choiceHeroShuttle,
-                // Also back into the overview when the sheet is dragged closed.
-                transitionOnUserGestures: true,
-                child: _OwnedCard(
-                  key: Key("sheet_owned_${b.credentials.first.hash}"),
-                  bundle: b,
-                  selected: outlined(
-                    "owned:${b.credentials.first.hash}",
-                    current: current,
+            ..._inRows(landscape, gap: 12, [
+              for (final b in owned)
+                Hero(
+                  tag: choiceHeroTag(widget.sessionId, widget.index, b),
+                  flightShuttleBuilder: choiceHeroShuttle,
+                  // Also back into the overview when the sheet is dragged closed.
+                  transitionOnUserGestures: true,
+                  child: _OwnedCard(
+                    key: Key("sheet_owned_${b.credentials.first.hash}"),
+                    bundle: b,
+                    selected: outlined(
+                      "owned:${b.credentials.first.hash}",
+                      current: current,
+                    ),
+                    onTapDown: () =>
+                        _press("owned:${b.credentials.first.hash}"),
+                    onTapCancel: () => _press(null),
+                    onTap: () => _pick(pickOne, b),
                   ),
-                  onTapDown: () => _press("owned:${b.credentials.first.hash}"),
-                  onTapCancel: () => _press(null),
-                  onTap: () => _pick(pickOne, b),
                 ),
-              ),
-            ],
+            ]),
           ],
           if (addable.isNotEmpty) ...[
             // Clearly apart from the cards in the app; the first empty card
             // keeps room above its edge for its pill.
             SizedBox(height: owned.isEmpty ? 18 : 44),
             _Label(_t("share.not_in_app_yet")),
-            for (final (n, d) in addable.indexed) ...[
-              if (n > 0) const SizedBox(height: 12),
-              EmptyCardSpot(
-                key: Key("sheet_add_${d.credentialId}"),
-                title: ownedIds.contains(d.credentialId)
-                    ? _t(anotherNameKey(d.name, languageCode: language), {
-                        "name": _inSentence(d.name),
-                      })
-                    : d.name,
-                subtitle: d.issuer.name,
-                rows: emptySpotRows(context, d),
-                selected: outlined("add:${d.credentialId}"),
-                onTapDown: () => _press("add:${d.credentialId}"),
-                onTapCancel: () => _press(null),
-                onTap: () => issueOpen(d),
-              ),
-            ],
+            ..._inRows(landscape, gap: 12, first: 0, [
+              for (final d in addable)
+                EmptyCardSpot(
+                  key: Key("sheet_add_${d.credentialId}"),
+                  title: ownedIds.contains(d.credentialId)
+                      ? _t(anotherNameKey(d.name, languageCode: language), {
+                          "name": _inSentence(d.name),
+                        })
+                      : d.name,
+                  subtitle: d.issuer.name,
+                  rows: emptySpotRows(context, d),
+                  selected: outlined("add:${d.credentialId}"),
+                  onTapDown: () => _press("add:${d.credentialId}"),
+                  onTapCancel: () => _press(null),
+                  onTap: () => issueOpen(d),
+                ),
+            ]),
           ],
         ],
       ),
     );
+  }
+
+  /// [cards] under each other with [gap] between them (and [first] above the
+  /// first: room for the outline around a card), or on a phone held
+  /// sideways two side by side, the rows [gap] apart.
+  static List<Widget> _inRows(
+    bool landscape,
+    List<Widget> cards, {
+    required double gap,
+    double? first,
+  }) {
+    if (!landscape) {
+      return [
+        for (final (n, c) in cards.indexed) ...[
+          SizedBox(height: n == 0 ? first ?? gap : gap),
+          c,
+        ],
+      ];
+    }
+    return [
+      for (var n = 0; n < cards.length; n += 2) ...[
+        SizedBox(height: n == 0 ? first ?? gap : gap),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16,
+          children: [
+            Expanded(child: cards[n]),
+            Expanded(
+              child: n + 1 < cards.length
+                  ? cards[n + 1]
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ],
+    ];
   }
 }
 

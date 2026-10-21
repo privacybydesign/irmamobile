@@ -87,6 +87,16 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// once its header has scrolled away. The title is then not shown.
   final Widget? startBar;
 
+  /// The actions 16 from the screen's edge, not 16 inside the safe area: in
+  /// landscape the close button sits in the corner, beside the content. The
+  /// bar then shows no title (the content starts at the top).
+  final bool edgeActions;
+
+  /// The hard scroll edge behind the bar once content is under it. Off where
+  /// nothing scrolls under the bar (landscape, with the close button in the
+  /// corner beside the content).
+  final bool edge;
+
   IrmaAppBar({
     this.titleTranslationKey,
     this.titleString,
@@ -97,6 +107,8 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.bottom,
     this.titleVisibility,
     this.startBar,
+    this.edgeActions = false,
+    this.edge = true,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -150,14 +162,18 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.fromLTRB(
           16 + padding.left,
           16,
-          16 + padding.right,
+          16 + (edgeActions ? 0 : padding.right),
           8,
         ),
         child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
-            if (startBar case final bar?)
+            // With the actions in the corner (landscape) the content starts
+            // at the top beside them: no title in the bar.
+            if (edgeActions && startBar == null)
+              const SizedBox.shrink()
+            else if (startBar case final bar?)
               // From the start up to the actions, with the same gap.
               Padding(
                 padding: EdgeInsetsDirectional.only(
@@ -216,7 +232,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Stack(
       key: const Key("irma_app_bar"),
       children: [
-        const Positioned.fill(child: _AppBarEdge()),
+        if (edge) const Positioned.fill(child: _AppBarEdge()),
         content,
       ],
     );

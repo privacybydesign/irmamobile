@@ -16,6 +16,7 @@ import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -779,21 +780,41 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       returnedFromIssuer: returned,
       showRequestChip: false,
     );
-    return [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Semantics(
-          header: true,
-          child: Text(
-            cards.length > 1
-                ? _t("issuance.question_many", {"count": "${cards.length}"})
-                : _t("issuance.description"),
-            style: palette
-                .display(22)
-                .copyWith(height: 30 / 22, color: palette.heading),
-          ),
+    final question = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Semantics(
+        header: true,
+        child: Text(
+          cards.length > 1
+              ? _t("issuance.question_many", {"count": "${cards.length}"})
+              : _t("issuance.description"),
+          style: palette
+              .display(22)
+              .copyWith(height: 30 / 22, color: palette.heading),
         ),
       ),
+    );
+    // A phone held sideways: the card(s) at the left, the question and the
+    // values at the right.
+    if (usePhoneLandscape(context)) {
+      return [
+        SheetColumns(
+          startWidth: 250,
+          start: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: content.overview(context, cardWidth: 250),
+          ),
+          end: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 8,
+            children: [question, ...content.receives(context)],
+          ),
+        ),
+      ];
+    }
+    return [
+      question,
       ...content.overview(context, cardWidth: 358),
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -871,30 +892,64 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: issueSuccessBar(cards),
       pinned: _progress(subject, total, done: true),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (cards.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
+      child: usePhoneLandscape(context)
+          // A phone held sideways: the card with its check at the left, the
+          // words at the right.
+          ? SheetColumns(
+              startWidth: 280,
+              gap: 32,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              start: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: cards.isEmpty
+                    ? const SizedBox.shrink()
+                    : IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
+              ),
+              end: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  Text(
+                    _t("issuance.success_feedback.added_header"),
+                    style: palette
+                        .display(26, weight: FontWeight.w700)
+                        .copyWith(color: palette.heading),
+                  ),
+                  Text(
+                    issueSuccessText(cards),
+                    key: const Key("sheet_added_text"),
+                    style: palette.body(16).copyWith(height: 24 / 16),
+                  ),
+                ],
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: [
+                if (cards.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: IssuanceReceived(
+                      cards: cards,
+                      cardKeys: issueAddedKeys,
+                    ),
+                  ),
+                Text(
+                  _t("issuance.success_feedback.added_header"),
+                  textAlign: TextAlign.center,
+                  style: palette
+                      .display(26, weight: FontWeight.w700)
+                      .copyWith(color: palette.heading),
+                ),
+                Text(
+                  issueSuccessText(cards),
+                  key: const Key("sheet_added_text"),
+                  textAlign: TextAlign.center,
+                  style: palette.body(16).copyWith(height: 24 / 16),
+                ),
+              ],
             ),
-          Text(
-            _t("issuance.success_feedback.added_header"),
-            textAlign: TextAlign.center,
-            style: palette
-                .display(26, weight: FontWeight.w700)
-                .copyWith(color: palette.heading),
-          ),
-          Text(
-            issueSuccessText(cards),
-            key: const Key("sheet_added_text"),
-            textAlign: TextAlign.center,
-            style: palette.body(16).copyWith(height: 24 / 16),
-          ),
-        ],
-      ),
     );
   }
 }

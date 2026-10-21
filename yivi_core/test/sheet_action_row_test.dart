@@ -39,6 +39,21 @@ final _shop = TrustedParty(
 
 void main() {
   group("SheetActionRow", () {
+    // A phone held upright: sideways the row puts its button at the right
+    // (see the landscape tests).
+    setUp(() {
+      final view =
+          TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view
+        ..physicalSize = const Size(390, 844)
+        ..devicePixelRatio = 1;
+    });
+    tearDown(
+      () => TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
+        ..resetPhysicalSize()
+        ..resetDevicePixelRatio(),
+    );
+
     testWidgets("two buttons are equally wide and equally tall", (
       tester,
     ) async {

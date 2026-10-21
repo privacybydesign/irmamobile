@@ -10,10 +10,12 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -158,9 +160,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         : "share";
     final t = _t;
     final columns = useSessionColumns(context);
+    final landscape = !columns && usePhoneLandscape(context);
     // The header can change size (rotation, text size): check again after
     // this layout.
-    if (!columns) {
+    if (!columns && !landscape) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader());
     }
 
@@ -188,6 +191,24 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             _ => "share.lead",
           });
 
+    final message = isSignature && session.messageToSign != null
+        ? _Surface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 8,
+              children: [
+                Text(
+                  t("share.message_label"),
+                  style: palette
+                      .body(13, weight: FontWeight.w700)
+                      .copyWith(color: palette.secondaryText),
+                ),
+                SignatureMessage(message: session.messageToSign!),
+              ],
+            ),
+          )
+        : null;
+
     final requestorPart = <_Spaced>[
       _Spaced(
         0,
@@ -213,25 +234,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           ),
         ),
       ),
-      if (isSignature && session.messageToSign != null)
-        _Spaced(
-          14,
-          _Surface(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 8,
-              children: [
-                Text(
-                  t("share.message_label"),
-                  style: palette
-                      .body(13, weight: FontWeight.w700)
-                      .copyWith(color: palette.secondaryText),
-                ),
-                SignatureMessage(message: session.messageToSign!),
-              ],
-            ),
-          ),
-        ),
+      if (message != null) _Spaced(14, message),
     ];
 
     final requestedPart = <_Spaced>[
@@ -333,6 +336,120 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             }
           : share,
     );
+
+    // A phone held sideways: who asks, what it means and the button in a
+    // panel at the left that stays put; what is shared scrolls at the right.
+    if (landscape) {
+      // The panel's card starts level with the first card at the right: both
+      // have the first section label's room above them (in the panel an
+      // invisible copy, so the text size can't move them apart).
+      final firstLabel = required.isNotEmpty
+          ? (isSignature
+                ? t("share.section.with_signature")
+                : t("share.section.you_share"))
+          : optional.isNotEmpty
+          ? t("share.section.optional")
+          : offered.isNotEmpty
+          ? t("share.section.you_receive")
+          : null;
+      final column = <_Spaced>[
+        if (message != null) ...[
+          _Spaced(24, _SectionLabel.room(firstLabel ?? "")),
+          _Spaced(12, message),
+        ],
+        ...requestedPart,
+      ];
+      final sideLead = required.isEmpty && optional.isNotEmpty
+          ? lead
+          : t(switch (kind) {
+              "sign" => "share.lead_side_sign",
+              "share_receive" => "share.lead_side_receive",
+              _ => "share.lead_side",
+            });
+      return SessionScaffold(
+        appBarTitle: "share.bar.$kind",
+        onDismiss: widget.onDismiss,
+        wide: true,
+        scrollsUnderBars: true,
+        cornerClose: true,
+        body: _TrustWash(
+          on: trust.risky,
+          child: Builder(
+            builder: (context) {
+              final media = MediaQuery.paddingOf(context);
+              // The bar holds only the close button, in the corner beside
+              // the column: the content starts at the top of the screen.
+              final top =
+                  (media.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+              return Padding(
+                padding: EdgeInsets.only(left: media.left, right: media.right),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      width: _LandscapePanel.width,
+                      child: _LandscapePanel(
+                        top: top,
+                        label: firstLabel,
+                        card: RequestorCard.compact(
+                          requestor: session.requestor,
+                          ask: ask,
+                          onInfo: openTrust,
+                        ),
+                        lead: sideLead,
+                        action: bar.inline(),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) =>
+                            SingleChildScrollView(
+                              key: const Key("share_scroll_view"),
+                              padding: EdgeInsets.fromLTRB(
+                                0,
+                                top,
+                                16,
+                                16 + media.bottom,
+                              ),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight:
+                                      (constraints.maxHeight -
+                                              top -
+                                              16 -
+                                              media.bottom)
+                                          .clamp(0, double.infinity),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: _laidOut(column),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 28),
+                                      child: pageEnd,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
 
     // Tablets: who asks and what it means on the left, with the footnote
     // and the details at its foot; what is shared and the button on the
@@ -767,12 +884,28 @@ class _CompactBarSlot extends StatelessWidget {
 
 class _SectionLabel extends StatelessWidget {
   final String title;
+  final bool shown;
 
-  const _SectionLabel(this.title);
+  const _SectionLabel(this.title) : shown = true;
+
+  /// The label's room only: it holds the place of a label at the other
+  /// side, so what comes under both lines up.
+  const _SectionLabel.room(this.title) : shown = false;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    if (!shown) {
+      return ExcludeSemantics(
+        child: Visibility(
+          visible: false,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: _SectionLabel(title),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Semantics(
@@ -965,56 +1098,145 @@ class _ShareBar extends StatelessWidget {
   final bool risky;
   final VoidCallback? onPressed;
 
+  /// In a bar across the bottom; otherwise just the reason and the button
+  /// (the landscape panel).
+  final bool inBar;
+
   const _ShareBar({
     required this.reason,
     required this.label,
     required this.primary,
     this.risky = false,
     required this.onPressed,
+    this.inBar = true,
+  });
+
+  /// The same reason and button, without the bar around them.
+  _ShareBar inline() => _ShareBar(
+    reason: reason,
+    label: label,
+    primary: primary,
+    risky: risky,
+    onPressed: onPressed,
+    inBar: false,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        if (reason != null)
+          Text(
+            reason!,
+            key: const Key("share_reason"),
+            textAlign: TextAlign.center,
+            style: risky
+                ? palette
+                      .body(13.5, weight: FontWeight.w600)
+                      .copyWith(height: 19 / 13.5, color: palette.errorText)
+                : palette
+                      .body(13.5)
+                      .copyWith(height: 19 / 13.5, color: palette.heading),
+          ),
+        KeyedSubtree(
+          key: const Key("share_button"),
+          child: risky
+              ? PillButton(
+                  label: label,
+                  style: PillStyle.neutral,
+                  size: PillSize.large,
+                  onPressed: onPressed,
+                )
+              : primary
+              ? FancyPillButton(label: label, onPressed: onPressed)
+              : PillButton(
+                  label: label,
+                  size: PillSize.large,
+                  onPressed: onPressed,
+                ),
+        ),
+      ],
+    );
+    // Floats over the page: solid behind the reason and the button, with
+    // the fade above it, so the reason never sits on a card.
+    return inBar ? IrmaBottomBarBase(child: content) : content;
+  }
+}
+
+/// The panel at the left on a phone held sideways: room for the first
+/// section label (so the card lines up with the first card at the right),
+/// who asks, what the page is, and at its bottom the reason and the button.
+/// It scrolls only when it doesn't fit (a large text size).
+class _LandscapePanel extends StatelessWidget {
+  /// Wide, from the left safe edge, its 16 of padding included.
+  static const double width = 324;
+
+  final double top;
+  final String? label;
+  final Widget card;
+  final String lead;
+  final Widget action;
+
+  const _LandscapePanel({
+    required this.top,
+    required this.label,
+    required this.card,
+    required this.lead,
+    required this.action,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    // Floats over the page: solid behind the reason and the button, with
-    // the fade above it, so the reason never sits on a card.
-    return IrmaBottomBarBase(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 8,
-        children: [
-          if (reason != null)
-            Text(
-              reason!,
-              key: const Key("share_reason"),
-              textAlign: TextAlign.center,
-              style: risky
-                  ? palette
-                        .body(13.5, weight: FontWeight.w600)
-                        .copyWith(height: 19 / 13.5, color: palette.errorText)
-                  : palette
-                        .body(13.5)
-                        .copyWith(height: 19 / 13.5, color: palette.heading),
+    final bottom = FloatingBarPlacement.buttonBottom(context);
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        key: const Key("share_panel"),
+        padding: EdgeInsets.fromLTRB(16, top, 0, bottom),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: (constraints.maxHeight - top - bottom).clamp(
+              0,
+              double.infinity,
             ),
-          KeyedSubtree(
-            key: const Key("share_button"),
-            child: risky
-                ? PillButton(
-                    label: label,
-                    style: PillStyle.neutral,
-                    size: PillSize.large,
-                    onPressed: onPressed,
-                  )
-                : primary
-                ? FancyPillButton(label: label, onPressed: onPressed)
-                : PillButton(
-                    label: label,
-                    size: PillSize.large,
-                    onPressed: onPressed,
-                  ),
           ),
-        ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (label != null) ...[
+                    const SizedBox(height: 24),
+                    _SectionLabel.room(label!),
+                    const SizedBox(height: 12),
+                  ],
+                  card,
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      lead,
+                      key: const Key("share_lead"),
+                      style: palette
+                          .body(13.5)
+                          .copyWith(
+                            height: 19 / 13.5,
+                            color: palette.secondaryText,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(padding: const EdgeInsets.only(top: 16), child: action),
+            ],
+          ),
+        ),
       ),
     );
   }

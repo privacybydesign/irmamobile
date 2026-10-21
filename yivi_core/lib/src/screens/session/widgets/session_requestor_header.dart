@@ -242,12 +242,23 @@ class RequestorCard extends StatelessWidget {
   /// Opens the trust sheet.
   final VoidCallback? onInfo;
 
+  /// The landscape form, for the panel at the left: the logo (52) beside the
+  /// name and [ask], the pill with ⓘ under them.
+  final bool compact;
+
   const RequestorCard({
     super.key,
     required this.requestor,
     this.ask,
     this.onInfo,
-  });
+  }) : compact = false;
+
+  const RequestorCard.compact({
+    super.key,
+    required this.requestor,
+    this.ask,
+    this.onInfo,
+  }) : compact = true;
 
   @override
   Widget build(BuildContext context) {
@@ -258,88 +269,157 @@ class RequestorCard extends StatelessWidget {
         ? FlutterI18n.translate(context, "share.trust.pill.unchecked")
         : style.label;
     final tap = style.trust == RequestorTrust.unevaluated ? null : onInfo;
-
-    final card = DecoratedBox(
-      key: const Key("session_requestor_header"),
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-        child: Column(
-          children: [
-            RequestorLogo(
-              requestor: requestor,
-              style: style,
-              size: 64,
-              // The check of a vouched party is in the pill, once.
-              showBadge: !style.trust.vouched,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              requestor.name,
-              key: const Key("session_requestor_name"),
-              textAlign: TextAlign.center,
-              style: palette
-                  .display(22, weight: FontWeight.w700)
-                  .copyWith(height: 28 / 22, color: palette.text),
-            ),
-            if (label != null) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 8,
-                children: [
-                  Flexible(
-                    child: RequestorTrustPill(
-                      key: const Key("session_requestor_trust"),
-                      style: style,
-                      label: label,
-                    ),
+    final pillRow = label == null
+        ? null
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              Flexible(
+                child: RequestorTrustPill(
+                  key: const Key("session_requestor_trust"),
+                  style: style,
+                  label: label,
+                ),
+              ),
+              if (tap != null)
+                Container(
+                  key: const Key("session_requestor_info"),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: risky ? palette.errorSurface : palette.tint,
+                    shape: BoxShape.circle,
                   ),
-                  if (tap != null)
-                    Container(
-                      key: const Key("session_requestor_info"),
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: risky ? palette.errorSurface : palette.tint,
-                        shape: BoxShape.circle,
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: risky ? palette.errorText : palette.link,
+                  ),
+                ),
+            ],
+          );
+    final decoration = ShapeDecoration(
+      color: palette.surface,
+      shape: const RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+      ),
+      shadows: const [
+        BoxShadow(
+          color: Color(0x17000000),
+          blurRadius: 6,
+          offset: Offset(0, 1),
+        ),
+      ],
+    );
+
+    final card = compact
+        ? DecoratedBox(
+            key: const Key("session_requestor_header"),
+            decoration: decoration,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  Row(
+                    spacing: 12,
+                    children: [
+                      RequestorLogo(
+                        requestor: requestor,
+                        style: style,
+                        size: 52,
+                        showBadge: !style.trust.vouched,
                       ),
-                      child: Icon(
-                        Icons.info_outline_rounded,
-                        size: 18,
-                        color: risky ? palette.errorText : palette.link,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              requestor.name,
+                              key: const Key("session_requestor_name"),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: palette
+                                  .display(17, weight: FontWeight.w700)
+                                  .copyWith(
+                                    height: 22 / 17,
+                                    color: palette.text,
+                                  ),
+                            ),
+                            if (ask != null)
+                              Text(
+                                ask!,
+                                key: const Key("session_requestor_ask"),
+                                style: palette
+                                    .body(13.5)
+                                    .copyWith(
+                                      height: 18 / 13.5,
+                                      color: palette.heading,
+                                    ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                  ?pillRow,
                 ],
               ),
-            ],
-            if (ask != null) ...[
-              const SizedBox(height: 14),
-              Text(
-                ask!,
-                key: const Key("session_requestor_ask"),
-                textAlign: TextAlign.center,
-                style: palette
-                    .body(16)
-                    .copyWith(height: 23 / 16, color: palette.heading),
+            ),
+          )
+        : DecoratedBox(
+            key: const Key("session_requestor_header"),
+            decoration: ShapeDecoration(
+              color: palette.surface,
+              shape: const RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.all(Radius.circular(24)),
               ),
-            ],
-          ],
-        ),
-      ),
-    );
+              shadows: const [
+                BoxShadow(
+                  color: Color(0x17000000),
+                  blurRadius: 6,
+                  offset: Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+              child: Column(
+                children: [
+                  RequestorLogo(
+                    requestor: requestor,
+                    style: style,
+                    size: 64,
+                    // The check of a vouched party is in the pill, once.
+                    showBadge: !style.trust.vouched,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    requestor.name,
+                    key: const Key("session_requestor_name"),
+                    textAlign: TextAlign.center,
+                    style: palette
+                        .display(22, weight: FontWeight.w700)
+                        .copyWith(height: 28 / 22, color: palette.text),
+                  ),
+                  if (pillRow != null) ...[const SizedBox(height: 8), pillRow],
+                  if (ask != null) ...[
+                    const SizedBox(height: 14),
+                    Text(
+                      ask!,
+                      key: const Key("session_requestor_ask"),
+                      textAlign: TextAlign.center,
+                      style: palette
+                          .body(16)
+                          .copyWith(height: 23 / 16, color: palette.heading),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
 
     final status = [label, ask].nonNulls.join(", ");
     if (tap == null) {

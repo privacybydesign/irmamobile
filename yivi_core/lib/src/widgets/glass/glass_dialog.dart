@@ -4,6 +4,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
 import "glass_surface.dart";
 
 /// The colour of a dialog's icon disc, after what the dialog is about.
@@ -85,6 +86,9 @@ class GlassDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    // A phone held sideways has little height: the dialog wider, its
+    // buttons side by side, the first (the safe answer) at the right.
+    final landscape = usePhoneLandscape(context);
 
     final content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -123,11 +127,18 @@ class GlassDialog extends StatelessWidget {
         if (actions.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 4,
-              children: actions,
-            ),
+            child: landscape
+                ? Row(
+                    spacing: 10,
+                    children: [
+                      for (final a in actions.reversed) Expanded(child: a),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 4,
+                    children: actions,
+                  ),
           ),
       ],
     );
@@ -146,7 +157,10 @@ class GlassDialog extends StatelessWidget {
         context: context,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+            constraints: BoxConstraints(
+              minWidth: 280,
+              maxWidth: landscape ? 500 : 420,
+            ),
             child: Semantics(
               scopesRoute: true,
               explicitChildNodes: true,

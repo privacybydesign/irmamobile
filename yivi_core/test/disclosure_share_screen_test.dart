@@ -34,6 +34,7 @@ import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
@@ -161,10 +162,12 @@ Future<_Calls> _pump(
   Map<int, Stream<SessionState>> nested = const {},
   List<Override> overrides = const [],
   Size size = const Size(390, 844),
+  FakeViewPadding? padding,
 }) async {
   tester.view
     ..physicalSize = size
     ..devicePixelRatio = 1;
+  if (padding != null) tester.view.padding = padding;
   addTearDown(tester.view.reset);
   final calls = _Calls();
   final repo = (await tester.runAsync(
@@ -2229,6 +2232,184 @@ void main() {
         ),
         findsNothing,
       );
+    });
+  });
+
+  group("landscape", () {
+    // An iPhone 17 Pro on its side: the notch side's safe area left and
+    // right, the home indicator below.
+    const phone = Size(874, 402);
+    const insets = FakeViewPadding(left: 62, right: 62, bottom: 21);
+    Future<_Calls> pumpSideways(WidgetTester tester, SessionState session) =>
+        _pump(tester, session: session, size: phone, padding: insets);
+    final panel = find.byKey(const Key("share_panel"));
+    final card = find.byKey(const Key("session_requestor_header"));
+
+    testWidgets("who asks once, in the panel, with the button", (tester) async {
+      await pumpSideways(tester, _session([_passportOrIdCard()]));
+      expect(card, findsOneWidget);
+      expect(find.descendant(of: panel, matching: card), findsOneWidget);
+      expect(find.descendant(of: panel, matching: _share), findsOneWidget);
+      expect(find.byType(IrmaBottomBarBase), findsNothing);
+      expect(
+        find.text(
+          "Next to this is exactly what they get. Nothing is sent until you "
+          "press the share button.",
+        ),
+        findsOneWidget,
+      );
+      // No pill in the bar, also once scrolled.
+      await tester.drag(
+        find.byKey(const Key("share_scroll_view")),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(RequestorCompactBar), findsNothing);
+      // Close in the corner, 16 from the edge, beside the column.
+      expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 16);
+    });
+
+    testWidgets("the panel's card is level with the first card", (
+      tester,
+    ) async {
+      await pumpSideways(tester, _session([_passportOrIdCard()]));
+      expect(
+        tester.getRect(card).top,
+        tester.getRect(find.byKey(const Key("share_slot_0"))).top,
+      );
+    });
+
+    testWidgets("level with an empty spot", (tester) async {
+      await pumpSideways(
+        tester,
+        _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      final tile = find.descendant(
+        of: find.byKey(const Key("share_spot_0")),
+        matching: find.byType(CardTile),
+      );
+      expect(tester.getRect(card).top, tester.getRect(tile).top);
+    });
+
+    testWidgets("level with the message to sign", (tester) async {
+      await pumpSideways(
+        tester,
+        _session(
+          [_passportOrIdCard()],
+          type: SessionType.signature,
+          message: "I agree.",
+        ),
+      );
+      // The message's card: 14 above its label.
+      expect(
+        tester.getRect(card).top,
+        tester.getRect(find.text("You sign this message")).top - 14,
+      );
+    });
+
+    testWidgets("sheets: between the safe areas, two columns, the button "
+        "at the right", (tester) async {
+      await pumpSideways(tester, _session([_passportOrIdCard()]));
+      // Kies een kaartje: the two cards side by side.
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
+      expect(sheet.left, 62);
+      expect(sheet.right, 874 - 62);
+      final passport = tester.getRect(
+        find.byKey(const Key("sheet_owned_hash-passport-Jansen")),
+      );
+      final idcard = tester.getRect(
+        find.byKey(const Key("sheet_owned_hash-idcard-de Vries")),
+      );
+      expect(passport.top, idcard.top);
+      expect(idcard.left, greaterThan(passport.right));
+    });
+
+    testWidgets("adding: the card left, the button at the bottom right", (
+      tester,
+    ) async {
+      await pumpSideways(
+        tester,
+        _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_spot_0")));
+      await tester.pumpAndSettle();
+      final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
+      expect(go.width, 320);
+      expect(go.right, 874 - 62 - 20);
+      final name = tester.getRect(
+        find.byKey(const Key("add_data_details_name")),
+      );
+      final youGet = tester.getRect(find.byKey(const Key("add_data_you_get")));
+      expect(youGet.left, greaterThan(name.right));
+    });
+
+    testWidgets("who is this, and the technical details, in two columns", (
+      tester,
+    ) async {
+      await pumpSideways(tester, _session([_passportOrIdCard()]));
+      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.pumpAndSettle();
+      final head = tester.getRect(find.byKey(const Key("trust_sheet_head")));
+      final fact = tester.getRect(find.text("Yivi checked who they are"));
+      expect(fact.left, greaterThan(head.right));
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key("requestor_trust_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final link = find.byKey(const Key("share_technical_details"));
+      await tester.ensureVisible(link);
+      await tester.pumpAndSettle();
+      await tester.tap(link);
+      await tester.pumpAndSettle();
+      final who = tester.getRect(find.text("WHO ASKS"));
+      final how = tester.getRect(find.text("HOW YOU SHARE"));
+      expect(who.top, how.top);
+      expect(how.left, greaterThan(who.right));
+    });
+
+    testWidgets("nobody vouches: the red ! and Not checked in the panel", (
+      tester,
+    ) async {
+      await pumpSideways(
+        tester,
+        _session(
+          [_passportOrIdCard()],
+          requestor: TrustedParty(
+            id: "x",
+            name: "deals.example",
+            url: null,
+            parent: null,
+            verified: false,
+          ),
+        ),
+      );
+      expect(
+        find.descendant(of: panel, matching: find.text("Not checked")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: panel, matching: find.byType(RequestorTrustBadge)),
+        findsOneWidget,
+      );
+      expect(find.text("Share anyway"), findsOneWidget);
     });
   });
 }

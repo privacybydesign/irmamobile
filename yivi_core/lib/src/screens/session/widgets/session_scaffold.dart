@@ -28,6 +28,10 @@ class SessionScaffold extends StatelessWidget {
   /// [IrmaAppBar.startBar]).
   final Widget? startBar;
 
+  /// Landscape with a panel at the left: the close button in the corner, 16
+  /// from the edge, and no scroll edge band (see [IrmaAppBar.edgeActions]).
+  final bool cornerClose;
+
   const SessionScaffold({
     Key? key,
     this.onDismiss,
@@ -39,6 +43,7 @@ class SessionScaffold extends StatelessWidget {
     this.scrollsUnderBars = false,
     this.barTitleVisibility,
     this.startBar,
+    this.cornerClose = false,
   });
 
   @override
@@ -47,14 +52,20 @@ class SessionScaffold extends StatelessWidget {
       extendBodyBehindAppBar: true,
       extendBody: true,
       backgroundColor: YiviPalette.of(context).background,
+      // A wide body lays its bar out itself (the landscape result screens
+      // put their button at the right).
       bottomNavigationBar: bottomNavigationBar == null
           ? null
+          : wide
+          ? bottomNavigationBar
           : _centred(bottomNavigationBar!),
       body: body == null ? null : _keepClear(wide ? body! : _centred(body!)),
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
         titleVisibility: barTitleVisibility,
         startBar: startBar,
+        edgeActions: cornerClose,
+        edge: !cornerClose,
         leading: onPrevious != null ? YiviBackButton(onTap: onPrevious) : null,
         actions: [
           if (onDismiss != null) IrmaCloseButton.filled(onTap: onDismiss),

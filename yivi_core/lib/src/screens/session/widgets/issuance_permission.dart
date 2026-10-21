@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/nfc_credentials.dart";
 import "../../../widgets/card_pile.dart";
@@ -11,6 +12,8 @@ import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -91,6 +94,27 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         : _t("issuance.description");
     final offer = _offer;
 
+    // A phone held sideways: the card or pile at the left with its chips,
+    // and the buttons under them; the question and the values at the right.
+    if (!useSessionColumns(context) && usePhoneLandscape(context)) {
+      return SessionScaffold(
+        appBarTitle: "issuance.title",
+        wide: true,
+        scrollsUnderBars: true,
+        cornerClose: true,
+        onDismiss: widget.onDismiss,
+        body: Builder(
+          builder: (context) => IssuanceLandscape(
+            title: title,
+            overview: offer.overview(context, cardWidth: 220, withNote: false),
+            note: offer.note(context),
+            receives: offer.receives(context),
+            actions: _landscapeActions(),
+          ),
+        ),
+      );
+    }
+
     // Tablets: the card or pile on the left, the values and buttons on the
     // right.
     if (useSessionColumns(context)) {
@@ -149,6 +173,40 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           ],
         ),
       ),
+    );
+  }
+
+  /// "Cancel" as text and the way on beside it, at the bottom of the panel.
+  Widget _landscapeActions() {
+    if (widget.onGivePermission == null) {
+      return PillButton(
+        label: _t("session.navigation_bar.back"),
+        size: PillSize.regular,
+        onPressed: () => widget.onDismiss?.call(),
+      );
+    }
+    return Row(
+      spacing: 10,
+      children: [
+        PillButton(
+          key: const Key("bottom_bar_secondary"),
+          label: _t("issuance.cancel"),
+          style: PillStyle.text,
+          size: PillSize.regular,
+          expand: false,
+          onPressed: () => widget.onDismiss?.call(),
+        ),
+        Expanded(
+          child: FancyPillButton(
+            key: const Key("bottom_bar_primary"),
+            label: _cards.length > 1
+                ? _t("issuance.add_many", {"count": "${_cards.length}"})
+                : _t("issuance.add"),
+            size: PillSize.regular,
+            onPressed: () => widget.onGivePermission?.call(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -216,9 +274,12 @@ class IssuanceOffer {
   }
 
   /// The card (or the pile), its chips and the mismatch note.
-  List<Widget> overview(BuildContext context, {required double cardWidth}) {
+  List<Widget> overview(
+    BuildContext context, {
+    required double cardWidth,
+    bool withNote = true,
+  }) {
     final steps = _steps;
-    final mismatches = issuanceMismatches(_cards, steps);
     final many = _cards.length > 1;
     final issuers = _cards.map((c) => c.issuer.name).toSet();
     final first = _cards.firstOrNull;
@@ -261,9 +322,18 @@ class IssuanceOffer {
           child: CredentialCardArt(credential: first, width: cardWidth),
         ),
       InfoChipRow(chips: chips),
-      if (_mismatchText(context, mismatches) case final text?)
-        _Note(key: const Key("issuance_mismatch"), text: text),
+      if (withNote) ?note(context),
     ];
+  }
+
+  /// "{requestor} needs …; this card has …": inside a request, when an
+  /// offered card won't do for it. Part of [overview] unless it is left out
+  /// there (landscape shows it with the values).
+  Widget? note(BuildContext context) {
+    final text = _mismatchText(context, issuanceMismatches(_cards, _steps));
+    return text == null
+        ? null
+        : _Note(key: const Key("issuance_mismatch"), text: text);
   }
 
   /// "For {requestor} · step n of m" inside a request, "Back from the
@@ -481,6 +551,106 @@ class _Note extends StatelessWidget {
         style: palette
             .body(14, weight: FontWeight.w600)
             .copyWith(height: 20 / 14, color: palette.errorText),
+      ),
+    );
+  }
+}
+
+/// An issuance permission on a phone held sideways: a panel at the left
+/// with [overview] (the card or pile and its chips) in the middle of the
+/// room above [actions]; the [title] question, the [note] and [receives] at
+/// the right, scrolling.
+class IssuanceLandscape extends StatelessWidget {
+  /// Wide, from the left safe edge, its 16 of padding included (as the share
+  /// screen's panel).
+  static const double panelWidth = 324;
+
+  final String title;
+  final List<Widget> overview;
+  final Widget? note;
+  final List<Widget> receives;
+  final Widget actions;
+
+  const IssuanceLandscape({
+    super.key,
+    required this.title,
+    required this.overview,
+    this.note,
+    required this.receives,
+    required this.actions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final insets = MediaQuery.paddingOf(context);
+    // The bar holds only the close button, in the corner beside the column.
+    final top = (insets.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+    return Padding(
+      padding: EdgeInsets.only(left: insets.left, right: insets.right),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: panelWidth,
+            child: Padding(
+              key: const Key("issuance_panel"),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                top,
+                0,
+                FloatingBarPlacement.buttonBottom(context),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 12,
+                          children: overview,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  actions,
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              key: const Key("issuance_scroll_view"),
+              padding: EdgeInsets.fromLTRB(0, top, 16, 16 + insets.bottom),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        title,
+                        key: const Key("issuance_question"),
+                        style: palette
+                            .display(24, weight: FontWeight.w700)
+                            .copyWith(height: 30 / 24, color: palette.heading),
+                      ),
+                    ),
+                  ),
+                  if (note != null) ...[const SizedBox(height: 16), note!],
+                  const SizedBox(height: 12),
+                  ...receives,
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

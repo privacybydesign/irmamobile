@@ -16,3 +16,12 @@ const double sidebarWidth = 232;
 
 bool isExpandedLayout(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= expandedLayoutBreakpoint;
+
+/// A phone held sideways (or a narrow landscape split view): wider than
+/// high, but narrower than the tablet layouts. The share and issuance
+/// screens then keep who asks and the button in a panel at the left, and
+/// sheets lay their content out in two columns.
+bool usePhoneLandscape(BuildContext context) {
+  final size = MediaQuery.sizeOf(context);
+  return size.width < expandedLayoutBreakpoint && size.width > size.height;
+}

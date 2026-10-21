@@ -1514,7 +1514,10 @@
     "new_chip": "Nieuw",
     "together": "Deze horen bij elkaar. {requestor} krijgt ze allebei, of geen van beide.",
     "also_share": "Ook delen",
-    "dont_share": "Niet delen"
+    "dont_share": "Niet delen",
+    "lead_side": "Hiernaast staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te delen drukt.",
+    "lead_side_sign": "Hiernaast staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te ondertekenen drukt.",
+    "lead_side_receive": "Je deelt wat hiernaast staat en krijgt een kaartje terug. Er gaat pas iets weg als je op de knop om te delen drukt."
   },
   "contact_sheet": {
     "intro_email": "We mailen je een code om te controleren dat dit adres van jou is.",

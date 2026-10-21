@@ -7,6 +7,7 @@ import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -223,6 +224,33 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   // ---------- the page ----------
 
+  /// The step's content: [start] above [end]; on a phone held sideways
+  /// side by side, the explanation at the left and the field at the right.
+  Widget _split(List<Widget> start, List<Widget> end, {Key? key}) {
+    if (!usePhoneLandscape(context)) {
+      return Column(
+        key: key,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [...start, ...end],
+      );
+    }
+    return KeyedSubtree(
+      key: key,
+      child: SheetColumns(
+        startWidth: 280,
+        gap: 28,
+        start: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: start,
+        ),
+        end: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: end,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = _read();
@@ -242,10 +270,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     if (code) {
       final complete =
           _codeController.text.length == (_email ? emailCodeLength : 6);
-      body = Column(
+      body = _split(
         key: const Key("contact_sheet_code"),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+        [
           _SentTo(
             label: _k("sent_to"),
             target: state.target,
@@ -253,6 +280,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             changeLabel: _t("contact_sheet.change"),
             onChange: _change,
           ),
+        ],
+        [
           ContactCodeField(
             fieldKey: Key(
               _email
@@ -295,9 +324,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             : null,
       );
     } else {
-      body = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      body = _split(
+        [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
@@ -305,6 +333,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               style: YiviPalette.of(context).body(15).copyWith(height: 22 / 15),
             ),
           ),
+        ],
+        [
           ContactFieldLabel(
             _email
                 ? "email_issuance.enter_email.label"

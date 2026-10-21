@@ -1514,7 +1514,10 @@
     "new_chip": "New",
     "together": "These go together. {requestor} gets both, or neither.",
     "also_share": "Share too",
-    "dont_share": "Don't share"
+    "dont_share": "Don't share",
+    "lead_side": "Next to this is exactly what they get. Nothing is sent until you press the share button.",
+    "lead_side_sign": "Next to this is exactly what they get. Nothing is sent until you press the sign button.",
+    "lead_side_receive": "You share what is next to this and get a card in return. Nothing is sent until you press the share button."
   },
   "contact_sheet": {
     "intro_email": "We email you a code to check that this address is yours.",
