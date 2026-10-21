@@ -348,8 +348,10 @@ Future<void> issueCredentials(
     }
   }
 
-  // Check whether all credential type names are displayed.
+  // Check whether all credential type names are displayed. A built-in card
+  // design draws the name inside its picture, not as a text widget.
   for (final credTypeId in groupedAttributes.keys) {
+    if (builtinCardTemplate(credTypeId) != null) continue;
     final credType =
         irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
     // findsWidgets, not `.last` + findsOneWidget: `.last` throws an opaque

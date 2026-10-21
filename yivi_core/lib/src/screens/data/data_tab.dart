@@ -554,6 +554,7 @@ class _StackView extends StatelessWidget {
                         credential: c,
                         width: width,
                         hintText: hintTexts[c.hash],
+                        edge: true,
                       ),
                     ),
                   ),

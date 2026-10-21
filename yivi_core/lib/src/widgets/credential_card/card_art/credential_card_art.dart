@@ -55,12 +55,17 @@ class CredentialCardArt extends StatelessWidget {
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
 
+  /// How strongly the light top edge shows, 0 to 1: the thickness of the
+  /// card catching the light, so the cards in the stack read as stacked.
+  final double edge;
+
   const CredentialCardArt({
     super.key,
     required this.credential,
     required this.width,
     this.hintText,
     this.greyedOut = false,
+    this.edge = 0,
   });
 
   /// The corner shape of a card of [width]: plain round corners of 13 points
@@ -111,6 +116,15 @@ class CredentialCardArt extends StatelessWidget {
                 ),
               ),
             ),
+            if (edge > 0)
+              IgnorePointer(
+                child: CustomPaint(
+                  painter: _EdgePainter(
+                    scale: width / designWidth,
+                    opacity: edge.clamp(0.0, 1.0),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -429,4 +443,45 @@ class _Logo extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The light top edge of a card: a fine line just inside the outline, even
+/// along the top and round the corners, fading out down the sides. It fades
+/// only once the corner has turned: fading inside the curve made a plain
+/// corner look like a squircle.
+class _EdgePainter extends CustomPainter {
+  _EdgePainter({required this.scale, required this.opacity});
+
+  /// The card's width over the design width.
+  final double scale;
+  final double opacity;
+
+  /// In design points: the corner radius, and how far down the sides the
+  /// edge fades out after it.
+  static const _radius = 13.0;
+  static const _fade = 24.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final inset = 0.5 * scale;
+    final radius = Radius.circular((_radius - 0.5) * scale);
+    final end = (_radius + _fade) * scale;
+    final colour = Colors.white.withValues(alpha: 0.3 * opacity);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius((Offset.zero & size).deflate(inset), radius),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = scale
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [colour, colour, colour.withValues(alpha: 0)],
+          stops: [0, _radius / (_radius + _fade), 1],
+        ).createShader(Rect.fromLTWH(0, 0, size.width, end)),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_EdgePainter old) =>
+      old.scale != scale || old.opacity != opacity;
 }
