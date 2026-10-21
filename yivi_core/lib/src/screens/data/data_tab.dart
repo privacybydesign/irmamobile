@@ -18,6 +18,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
+import "../../providers/search_query_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
@@ -49,7 +50,21 @@ class DataTab extends ConsumerStatefulWidget {
 }
 
 class _DataTabState extends ConsumerState<DataTab> {
-  String _query = "";
+  /// The search outlives this State ([dataSearchQueryProvider]): the tab is
+  /// built anew when a card opened from the results closes.
+  late String _query = ref.read(dataSearchQueryProvider);
+  late final _search = TextEditingController(text: _query);
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  void _onQuery(String q) {
+    setState(() => _query = q);
+    ref.read(dataSearchQueryProvider.notifier).set(q);
+  }
 
   // We use the global key of the add_data button to provide the 'pointing man' image with the
   // global location of the button, so it can calculate the correct angle to point to.
@@ -88,7 +103,8 @@ class _DataTabState extends ConsumerState<DataTab> {
                       child: GlassSearchField(
                         fieldKey: const Key("search_field"),
                         hintKey: "wallet.search_placeholder",
-                        onChanged: (q) => setState(() => _query = q),
+                        controller: _search,
+                        onChanged: _onQuery,
                       ),
                     ),
                     GlassIconButton(

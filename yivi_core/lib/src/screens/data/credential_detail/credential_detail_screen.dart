@@ -58,8 +58,8 @@ class _CredentialDetailScreenState
   final _scroll = ScrollController();
   final _cardKey = GlobalKey();
 
-  /// Whether the card has scrolled away under the bar, so the bar shows a
-  /// small copy of it.
+  /// Whether two thirds of the card have scrolled away under the bar, so
+  /// the bar shows a small copy of it.
   final _scrolledPast = ValueNotifier(false);
 
   @override
@@ -75,9 +75,9 @@ class _CredentialDetailScreenState
   void _checkCard() {
     final box = _cardKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize || !mounted) return;
-    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+    final top = box.localToGlobal(Offset.zero).dy;
     final barBottom = MediaQuery.paddingOf(context).top + 60;
-    _scrolledPast.value = bottom < barBottom;
+    _scrolledPast.value = top + box.size.height * 2 / 3 < barBottom;
   }
 
   @override

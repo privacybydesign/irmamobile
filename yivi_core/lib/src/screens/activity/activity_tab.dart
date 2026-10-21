@@ -11,6 +11,7 @@ import "../../models/schemaless/session_state.dart";
 import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
+import "../../providers/search_query_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/string.dart";
@@ -37,7 +38,15 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   late final HistoryRepository _historyRepo;
   final _scrollController = ScrollController();
   late StreamSubscription _repoStateSubscription;
-  String _query = "";
+
+  /// Outlives this State, like the Data tab's search.
+  late String _query = ref.read(activitySearchQueryProvider);
+  late final _search = TextEditingController(text: _query);
+
+  void _onQuery(String q) {
+    setState(() => _query = q);
+    ref.read(activitySearchQueryProvider.notifier).set(q);
+  }
 
   /// The picked tag; null shows everything.
   ActivityKind? _filter;
@@ -80,6 +89,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   void dispose() {
     _historyRepo.dispose();
     _repoStateSubscription.cancel();
+    _search.dispose();
     super.dispose();
   }
 
@@ -278,7 +288,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                         GlassSearchField(
                           fieldKey: const Key("activity_search_field"),
                           hintKey: "activity.search_placeholder",
-                          onChanged: (q) => setState(() => _query = q),
+                          controller: _search,
+                          onChanged: _onQuery,
                         ),
                         if (withTags) ...[
                           const SizedBox(height: 8),

@@ -128,10 +128,19 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   Widget? _listPage;
   String? _listPageFor;
 
+  /// What is typed in the search field. Kept here, not on the list page:
+  /// a step further than the details drops the list page, and coming back
+  /// to it the search is still there.
+  final _search = TextEditingController();
+
   Widget get _list {
     if (_listPage == null || _listPageFor != _justAdded) {
       _listPageFor = _justAdded;
-      _listPage = _AddDataListPage(justAdded: _justAdded, onOpen: _open);
+      _listPage = _AddDataListPage(
+        justAdded: _justAdded,
+        search: _search,
+        onOpen: _open,
+      );
     }
     return _listPage!;
   }
@@ -140,6 +149,12 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   void initState() {
     super.initState();
     issueStartWith(widget.addNew);
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
   }
 
   // ---------- the flow, without a request ----------
@@ -286,19 +301,26 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
 class _AddDataListPage extends ConsumerStatefulWidget {
   /// The name of the card just added with "Add more", noted at the top.
   final String? justAdded;
+
+  /// The search, owned by the sheet so it outlives this page.
+  final TextEditingController search;
   final void Function(CredentialStoreItem item, {required bool nfcBlocked})
   onOpen;
 
-  const _AddDataListPage({required this.justAdded, required this.onOpen});
+  const _AddDataListPage({
+    required this.justAdded,
+    required this.search,
+    required this.onOpen,
+  });
 
   @override
   ConsumerState<_AddDataListPage> createState() => _AddDataListPageState();
 }
 
 class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
-  String _query = "";
+  late String _query = widget.search.text;
 
-  final _search = TextEditingController();
+  TextEditingController get _search => widget.search;
   final _listFocus = FocusNode();
   final _barFocus = FocusNode();
 
@@ -322,7 +344,6 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
   @override
   void dispose() {
     _barFocus.removeListener(_place);
-    _search.dispose();
     _listFocus.dispose();
     _barFocus.dispose();
     super.dispose();

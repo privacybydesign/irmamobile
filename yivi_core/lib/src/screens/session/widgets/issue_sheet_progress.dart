@@ -31,8 +31,9 @@ class _ForCard extends IssueSheetSubject {
 /// a tag ([subject]): "For {requestor}", so it is clear the card is for the
 /// request behind the sheet, or the card itself when there is no request;
 /// then a segment per step of the flow ([total]: the details, the steps that
-/// prove it, adding it) and "1 of 4". The segments fill blue up to the step;
-/// once the card is added ([done]) all are green and it says "Done".
+/// prove it, adding it) and "1 of 4". During a request the segments fill
+/// blue up to the step; once the card is added ([done]) all are green and it
+/// says "Done". Without a request (Add data) they are green throughout.
 ///
 /// Each step of the sheet has a progress of its own, so the bar remembers
 /// where it stood ([GlassSheetPages.memoryOf]) and fills (or empties) on from
@@ -167,7 +168,12 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     final step = widget.step;
     final done = widget.done;
     final params = {"step": "$step", "total": "${widget.total}"};
-    final track = palette.link.withValues(alpha: 0.15);
+    // Adding a card on its own (Add data) is green all the way; during a
+    // request the line is blue until the card is added.
+    final alwaysGreen = widget.subject is _ForCard;
+    final track = (alwaysGreen ? palette.successText : palette.link).withValues(
+      alpha: 0.15,
+    );
 
     final line = Semantics(
       // The step and the total, for a test to find without a visible count.
@@ -193,10 +199,12 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
                   final now = _now;
                   // Blue while adding, green once added; the colour follows
                   // the fill when it turns.
-                  final fromInk = _from.done
+                  final fromInk = _from.done || alwaysGreen
                       ? palette.successText
                       : palette.link;
-                  final toInk = done ? palette.successText : palette.link;
+                  final toInk = done || alwaysGreen
+                      ? palette.successText
+                      : palette.link;
                   final ink = Color.lerp(fromInk, toInk, _curve.value)!;
                   final part = (now.fill - (i - 1)).clamp(0.0, 1.0);
                   return Container(
