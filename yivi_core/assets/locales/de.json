@@ -617,7 +617,11 @@
       "next_button": "SMS senden",
       "back_button": "Abbrechen",
       "search_label": "Land oder Ländervorwahl suchen",
-      "search_hint": "Geben Sie den Namen Ihres Landes ein...",
+      "country_title": "Wähle dein Land",
+      "country_common": "Häufig",
+      "country_all": "Alle Länder",
+      "country_none": "Kein Land gefunden",
+      "country_button": "Land: {country}, {code}. Tippen zum Ändern.",
       "label": "Telefonnummer"
     },
     "verify_code": {

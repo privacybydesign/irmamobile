@@ -614,7 +614,11 @@
       "next_button": "Send sms",
       "back_button": "Cancel",
       "search_label": "Search country or country code",
-      "search_hint": "Enter the name of your country...",
+      "country_title": "Choose your country",
+      "country_common": "Common",
+      "country_all": "All countries",
+      "country_none": "No country found",
+      "country_button": "Country: {country}, {code}. Tap to change.",
       "label": "Phone number"
     },
     "verify_code": {

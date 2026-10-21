@@ -1,18 +1,25 @@
-// intl_phone_number_input still takes the core SDK's InputDecoration.
-import "package:flutter/material.dart" as core;
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
+// The package's field opens its own bottom sheet for the country, which
+// cannot be changed; its data, validation and formatting are used here
+// under the app's own field and sheet.
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_list.dart";
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_model.dart";
+// ignore: implementation_imports
+import "package:intl_phone_number_input/src/providers/country_provider.dart";
+// ignore: implementation_imports
+import "package:intl_phone_number_input/src/utils/phone_number/phone_number_util.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
-import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/glass/glass_surface.dart";
+import "../../../../widgets/pill_text_field.dart";
+import "country_picker_sheet.dart";
 
 /// Alpha-2 codes of countries excluded from the phone number input. Most are
 /// excluded because CM (the SMS provider) does not support their phone numbers;
@@ -63,14 +70,16 @@ const excludedSmsCountryCodes = {
   "YE", // Yemen
 };
 
-/// The phone number field of adding a phone number: a country picker (the
-/// Netherlands first, unsupported countries left out) and the number, filled
-/// in with the number typed before (when coming back from the code), and
-/// [onValidChanged] whenever it turns valid or invalid. The full screen and
-/// the Change sheet both show it.
+/// The phone number field of adding a phone number: one pill like the other
+/// fields, with the country (its flag and dialling code) at its start. A tap
+/// on the country opens a sheet to pick another (the Netherlands and its
+/// neighbours first, unsupported countries left out). The number is
+/// formatted as it is typed, filled in with the number typed before (when
+/// coming back from the code), and [onValidChanged] follows whether it is a
+/// valid number. The full screen and the Change sheet both show it.
 ///
-/// [PhoneNumberEntryState.submittable] validates and returns the number to
-/// send the code to, or null.
+/// [PhoneNumberEntryState.submittable] returns the number to send the code
+/// to (international format), or null while it is not valid.
 class PhoneNumberEntry extends ConsumerStatefulWidget {
   final FocusNode focusNode;
   final ValueChanged<bool> onValidChanged;
@@ -86,111 +95,169 @@ class PhoneNumberEntry extends ConsumerStatefulWidget {
 }
 
 class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
-  final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  final _controller = TextEditingController();
 
-  var _currentPhone = PhoneNumber(isoCode: "NL");
+  late final List<Country> _countries;
+  late Country _country;
+
+  /// The number in international format, while it is valid.
+  String? _valid;
+
+  /// Which check of the typed number is the latest (they are async).
+  var _check = 0;
 
   @override
   void initState() {
     super.initState();
     _ensureCaribbeanCountriesRegistered();
     _removeExcludedCountries();
+    _countries = CountryProvider.getCountriesData(
+      countries: null,
+    ).where((c) => c.alpha2Code != null).toSet().toList();
+    _country = _countryOf("NL") ?? _countries.first;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // The number typed before, when coming back from the code.
       final phone = ref.read(smsIssuanceProvider).phoneNumber;
-
-      // Prefill the phone number box with the phone number for when we're coming back from
-      // the code verification page
-      if (phone.isNotEmpty) {
-        _currentPhone = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
-
-        // There's a bug in PhoneNumber that doesn't add the + to the dialCode while it should.
-        // This is a workaround for that that will also keep working if the bug gets fixed.
-        if (!_currentPhone.dialCode!.startsWith("+")) {
-          _currentPhone = PhoneNumber(
-            phoneNumber: _currentPhone.phoneNumber,
-            isoCode: _currentPhone.isoCode,
-            dialCode: "+${_currentPhone.dialCode}",
-          );
-        }
-
-        if (!mounted) return;
-        _phoneController.text = _currentPhone.parseNumber();
-        widget.onValidChanged(_formKey.currentState!.validate());
-      }
+      if (phone.isEmpty) return;
+      final known = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+      if (!mounted) return;
+      final country = _countryOf(known.isoCode);
+      if (country == null) return;
+      final dial = country.dialCode ?? "";
+      setState(() => _country = country);
+      _controller.text = phone.startsWith(dial)
+          ? phone.substring(dial.length)
+          : known.parseNumber();
+      _changed();
     });
   }
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
-  /// The number to send the code to, once it is valid.
-  String? submittable() =>
-      _formKey.currentState!.validate() ? _currentPhone.phoneNumber : null;
+  Country? _countryOf(String? isoCode) =>
+      _countries.where((c) => c.alpha2Code == isoCode).firstOrNull;
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final palette = YiviPalette.of(context);
-    return Form(
-      key: _formKey,
-      child: InternationalPhoneNumberInput(
-        key: const Key("phone_number_input_field"),
-        spaceBetweenSelectorAndTextField: theme.smallSpacing,
-        focusNode: widget.focusNode,
-        textStyle: palette.body(16),
-        selectorTextStyle: palette.body(16, weight: FontWeight.w600),
-        inputDecoration: _pillDecoration(
-          palette,
-          FlutterI18n.translate(context, "sms_issuance.enter_phone.phone_hint"),
-        ),
-        searchBoxDecoration: core.InputDecoration(
-          label: TranslatedText("sms_issuance.enter_phone.search_label"),
-          hint: TranslatedText("sms_issuance.enter_phone.search_hint"),
-        ),
-        initialValue: PhoneNumber(isoCode: _currentPhone.isoCode),
-        locale: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-        selectorConfig: SelectorConfig(
-          trailingSpace: false,
-          setSelectorButtonAsPrefixIcon: true,
-          countryComparator: countryComparator,
-          selectorType: .BOTTOM_SHEET,
-          useBottomSheetSafeArea: true,
-        ),
-        textFieldController: _phoneController,
-        onInputValidated: widget.onValidChanged,
-        onInputChanged: (phone) {
-          _currentPhone = phone;
-        },
-        validator: (value) => null,
-      ),
+  /// The number to send the code to, once it is valid.
+  String? submittable() => _valid;
+
+  void _setValid(String? number) {
+    final was = _valid != null;
+    _valid = number;
+    if (was != (number != null)) widget.onValidChanged(number != null);
+  }
+
+  Future<void> _validate() async {
+    final check = ++_check;
+    final digits = _controller.text.replaceAll(RegExp(r"[^\d+]"), "");
+    final iso = _country.alpha2Code!;
+    String? number;
+    try {
+      if (digits.isNotEmpty &&
+          (await PhoneNumberUtil.isValidNumber(
+                phoneNumber: digits,
+                isoCode: iso,
+              ) ??
+              false)) {
+        number = await PhoneNumberUtil.normalizePhoneNumber(
+          phoneNumber: digits,
+          isoCode: iso,
+        );
+      }
+    } on Exception {
+      number = null;
+    }
+    if (!mounted || check != _check) return;
+    _setValid(number);
+  }
+
+  /// Groups the number the way the country writes it ("06 12345678"), as
+  /// it is typed at its end, and checks it.
+  Future<void> _changed() async {
+    _validate();
+    final value = _controller.value;
+    final digits = value.text.replaceAll(RegExp(r"[^\d+]"), "");
+    if (digits.isEmpty || value.selection.end != value.text.length) return;
+    String? formatted;
+    try {
+      formatted = await PhoneNumberUtil.formatAsYouType(
+        phoneNumber: digits,
+        isoCode: _country.alpha2Code!,
+      );
+    } on Exception {
+      return;
+    }
+    // Only while nothing was typed meanwhile.
+    if (!mounted || formatted == null || _controller.value != value) return;
+    if (formatted.replaceAll(RegExp(r"[^\d+]"), "") != digits) return;
+    _controller.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 
-  /// The pill look of the other fields for the phone number input, which
-  /// takes the core SDK's decoration: the country code sits inside the
-  /// outline as its prefix.
-  static core.InputDecoration _pillDecoration(
-    YiviPalette palette,
-    String hint,
-  ) {
-    core.OutlineInputBorder border(Color color) => core.OutlineInputBorder(
-      borderRadius: const BorderRadius.all(Radius.circular(18)),
-      borderSide: BorderSide(color: color, width: 1.5),
+  Future<void> _pickCountry() async {
+    widget.focusNode.unfocus();
+    final picked = await showCountryPickerSheet(
+      context: context,
+      countries: _countries,
+      selected: _country,
+      common: preferredOrder,
     );
-    return core.InputDecoration(
-      filled: true,
-      fillColor: palette.surface,
-      hintText: hint,
-      hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
-      enabledBorder: border(palette.outline),
-      focusedBorder: border(palette.link),
-      errorBorder: border(palette.danger),
-      focusedErrorBorder: border(palette.danger),
+    if (!mounted) return;
+    if (picked != null && picked.alpha2Code != _country.alpha2Code) {
+      setState(() => _country = picked);
+      _changed();
+    }
+    widget.focusNode.requestFocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final language = FlutterI18n.currentLocale(context)?.languageCode;
+    return TextField(
+      key: const Key("phone_number_input_field"),
+      controller: _controller,
+      focusNode: widget.focusNode,
+      keyboardType: TextInputType.phone,
+      autofillHints: const [AutofillHints.telephoneNumberNational],
+      textDirection: TextDirection.ltr,
+      style: palette
+          .body(17, weight: FontWeight.w600)
+          .copyWith(color: palette.text, letterSpacing: 0.4),
+      cursorColor: palette.link,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r"[\d+ ]")),
+        LengthLimitingTextInputFormatter(20),
+      ],
+      onChanged: (_) => _changed(),
+      decoration:
+          pillInputDecoration(
+            context,
+            hint: FlutterI18n.translate(
+              context,
+              "sms_issuance.enter_phone.phone_hint",
+            ),
+          ).copyWith(
+            contentPadding: const EdgeInsets.fromLTRB(4, 17, 20, 17),
+            prefixIcon: _CountryButton(
+              country: _country,
+              label: FlutterI18n.translate(
+                context,
+                "sms_issuance.enter_phone.country_button",
+                translationParams: {
+                  "country": countryName(_country, language),
+                  "code": _country.dialCode ?? "",
+                },
+              ),
+              onTap: _pickCountry,
+            ),
+            prefixIconConstraints: const BoxConstraints(minHeight: 56),
+          ),
     );
   }
 
@@ -255,30 +322,6 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
     }
   }
 
-  int countryComparator(Country a, Country b) {
-    // alpha2Code is nullable on Country; a country without one can never be
-    // preferred and sorts ahead of the rest.
-    final codeA = a.alpha2Code ?? "";
-    final codeB = b.alpha2Code ?? "";
-
-    final indexA = preferredOrder.indexOf(codeA);
-    final indexB = preferredOrder.indexOf(codeB);
-
-    // If both are preferred countries
-    if (indexA != -1 && indexB != -1) {
-      return indexA.compareTo(indexB);
-    }
-
-    // If only A is preferred
-    if (indexA != -1) return -1;
-
-    // If only B is preferred
-    if (indexB != -1) return 1;
-
-    // Neither preferred → sort alphabetically.
-    return codeA.compareTo(codeB);
-  }
-
   /// Removes countries that should not be available in the phone number input.
   static void _removeExcludedCountries() {
     Countries.countryList.removeWhere(
@@ -286,6 +329,65 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
     );
   }
 
-  // Some countries that should appear on the top of the list
+  /// The countries at the top of the picker, under "Common".
   static const preferredOrder = ["NL", "DE", "BE", "GB", "US", "FR"];
+}
+
+/// The country at the start of the phone number field: its flag and
+/// dialling code, a chevron, and a line between it and the number. A tap
+/// opens the country picker.
+class _CountryButton extends StatelessWidget {
+  final Country country;
+  final String label;
+  final VoidCallback onTap;
+
+  const _CountryButton({
+    required this.country,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      button: true,
+      excludeSemantics: true,
+      label: label,
+      onTap: onTap,
+      child: PressScale(
+        scale: 0.96,
+        child: GestureDetector(
+          key: const Key("phone_country_button"),
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 16, end: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CountryFlag(country: country, width: 26),
+                const SizedBox(width: 8),
+                Text(
+                  country.dialCode ?? "",
+                  textDirection: TextDirection.ltr,
+                  style: palette
+                      .body(17, weight: FontWeight.w600)
+                      .copyWith(color: palette.text),
+                ),
+                const SizedBox(width: 2),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: palette.secondaryText,
+                ),
+                const SizedBox(width: 10),
+                Container(width: 1, height: 26, color: palette.outline),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -69,47 +69,16 @@ void main() {
       final api = FakeSmsIssuerApi();
       await _goToEnterPhoneScreen(tester, irmaBinding, api: api);
 
-      // The country picker is intl_phone_number_input 0.7.5's bottom sheet: it
-      // paints its background on a Container that sits between the modal's
-      // (transparent) Material and its bare country ListTiles. That trips a
-      // cosmetic, debug-only Flutter assertion ("ListTile background color or
-      // ink splashes may be invisible") once per visible tile. The package is
-      // unmaintained (0.7.5 is the latest) and release builds are unaffected,
-      // so swallow just that one assertion here — every other error still
-      // propagates to the test binding and fails the test as usual.
-      final previousOnError = FlutterError.onError;
-      FlutterError.onError = (details) {
-        if (details.exceptionAsString().contains(
-          "ListTile background color or ink splashes",
-        )) {
-          return;
-        }
-        previousOnError?.call(details);
-      };
-      addTearDown(() => FlutterError.onError = previousOnError);
-
-      // Press the country selector button
-      await tester.tap(find.byKey(const Key("intl_dropdown_key")));
+      // The country picker is the app's own sheet: search, then tap the row.
+      await tester.tap(find.byKey(const Key("phone_country_button")));
       await _pumpFor(tester);
-
-      // Search for Germany
-      final searchField = find.byKey(const Key("intl_search_input_key"));
-      await tester.ensureVisible(searchField);
-      await _pumpFor(tester);
+      final searchField = find.byKey(const Key("phone_country_search"));
       await tester.tap(searchField);
-      await _pumpFor(tester);
       await tester.enterText(searchField, "Germany");
       await _pumpFor(tester);
-
-      // Select the German code
-      final finder = find.text("+49");
-      final scrollable = find.ancestor(
-        of: finder,
-        matching: find.byType(Scrollable),
-      );
-      await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
-      await tester.tap(finder);
+      await tester.tap(find.byKey(const Key("phone_country_DE")));
       await _pumpFor(tester);
+      expect(find.text("+49"), findsOneWidget);
 
       // Enter rest of phone number
       await tester.enterText(
