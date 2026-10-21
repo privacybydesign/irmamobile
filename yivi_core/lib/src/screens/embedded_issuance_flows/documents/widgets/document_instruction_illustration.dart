@@ -5,7 +5,8 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../../util/test_detection.dart";
 
 /// The picture of the instruction screen, as on the design board: a passport
-/// open with its photo page on the left, the back of an ID card or the front of a driving
+/// open with its photo page on the left, both pages sideways as in a Dutch
+/// passport and the whole held upright, the back of an ID card or the front of a driving
 /// licence, with the machine readable zone outlined and a red band sweeping
 /// over it.
 ///
@@ -61,7 +62,15 @@ class _DocumentInstructionIllustrationState
     // Purely decorative: the screen's image label and texts say the same.
     return ExcludeSemantics(
       child: switch (widget.documentType) {
-        DocumentType.passport => _Passport(sweep: _sweep),
+        // Held upright: the open passport turned a quarter anticlockwise,
+        // scaled to fit the picture's 256 high card.
+        DocumentType.passport => SizedBox(
+          width: 166,
+          height: 232,
+          child: FittedBox(
+            child: RotatedBox(quarterTurns: 3, child: _Passport(sweep: _sweep)),
+          ),
+        ),
         DocumentType.identityCard => _Card(
           sweep: _sweep,
           fill: const Color(0xFFE5EDF6),
@@ -126,10 +135,15 @@ class _Passport extends StatelessWidget {
 
   final Animation<double> sweep;
 
-  // The design board's open passport, without the band (drawn on top): the
-  // photo page with the zone on the left, as in a Dutch passport.
+  // The design board's open passport: the cover and its two pages. What is
+  // on the pages is drawn on top, sideways ([_PassportDataPage], [_otherPage]).
   static const _svg = '''
-<svg width="280" height="200" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="264" height="164" rx="16" fill="#7A1F2E"/><rect x="16" y="26" width="124" height="148" rx="9" fill="#FBF7F0"/><rect x="140" y="26" width="124" height="148" rx="9" fill="#F4ECE1"/><path d="M140 30 V170" stroke="#E2D6C4" stroke-width="2"/><path d="M154 50 h96 M154 62 h80 M154 74 h90" stroke="#E6DACA" stroke-width="5" stroke-linecap="round"/><circle cx="202" cy="120" r="26" fill="none" stroke="#E6DACA" stroke-width="3"/><rect x="26" y="40" width="40" height="52" rx="5" fill="#D9CBB8"/><circle cx="46" cy="58" r="9" fill="#B9A78F"/><path d="M32 88 c4-12 24-12 28 0" fill="#B9A78F"/><path d="M74 44 h52 M74 56 h40 M74 68 h48 M74 80 h34 M26 104 h96 M26 116 h72" stroke="#D7CDBF" stroke-width="5" stroke-linecap="round"/><rect x="22" y="132" width="112" height="34" rx="6" fill="#BA3354" fill-opacity="0.10" stroke="#BA3354" stroke-width="2" stroke-dasharray="5 4"/></svg>''';
+<svg width="280" height="200" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="264" height="164" rx="16" fill="#7A1F2E"/><rect x="16" y="26" width="124" height="148" rx="9" fill="#FBF7F0"/><rect x="140" y="26" width="124" height="148" rx="9" fill="#F4ECE1"/><path d="M140 30 V170" stroke="#E2D6C4" stroke-width="2"/></svg>''';
+
+  /// The page across from the data page, upright (148 by 124): a few lines
+  /// and a stamp.
+  static const _otherPage = '''
+<svg width="148" height="124" viewBox="0 0 148 124" xmlns="http://www.w3.org/2000/svg"><path d="M14 18 h96 M14 30 h80 M14 42 h90" stroke="#E6DACA" stroke-width="5" stroke-linecap="round"/><circle cx="74" cy="84" r="26" fill="none" stroke="#E6DACA" stroke-width="3"/></svg>''';
 
   @override
   Widget build(BuildContext context) {
@@ -139,17 +153,65 @@ class _Passport extends StatelessWidget {
       child: Stack(
         children: [
           SvgPicture.string(_svg, width: 280, height: 200),
+          // In a Dutch passport the pages lie sideways: each is a landscape
+          // page, the data page turned a quarter clockwise, the one across
+          // from it a quarter anticlockwise.
+          Positioned(
+            left: 16,
+            top: 26,
+            width: 124,
+            height: 148,
+            child: RotatedBox(
+              quarterTurns: 1,
+              child: _PassportDataPage(sweep: sweep),
+            ),
+          ),
+          Positioned(
+            left: 140,
+            top: 26,
+            width: 124,
+            height: 148,
+            child: RotatedBox(
+              quarterTurns: 3,
+              child: SvgPicture.string(_otherPage, width: 148, height: 124),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The passport's data page, upright (148 by 124): the portrait on the left,
+/// the holder's details next to it, and the machine readable zone at the
+/// bottom with the band sweeping it.
+class _PassportDataPage extends StatelessWidget {
+  const _PassportDataPage({required this.sweep});
+
+  final Animation<double> sweep;
+
+  static const _svg = '''
+<svg width="148" height="124" viewBox="0 0 148 124" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="36" height="46" rx="5" fill="#D9CBB8"/><circle cx="28" cy="26" r="8" fill="#B9A78F"/><path d="M15 53 c3-11 23-11 26 0" fill="#B9A78F"/><path d="M56 14 h56 M56 26 h40 M56 38 h64 M56 50 h34 M12 66 h120 M12 78 h84" stroke="#D7CDBF" stroke-width="5" stroke-linecap="round"/><rect x="6" y="88" width="136" height="30" rx="6" fill="#BA3354" fill-opacity="0.10" stroke="#BA3354" stroke-width="2" stroke-dasharray="5 4"/></svg>''';
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 148,
+      height: 124,
+      child: Stack(
+        children: [
+          SvgPicture.string(_svg, width: 148, height: 124),
           // The machine-readable lines, as text kept inside the dashed zone:
           // SVG text cannot fall back to a monospace font that the phone
           // has, so it could run out of the page.
           const Positioned(
-            left: 27,
-            top: 137,
-            width: 104,
+            left: 11,
+            top: 90,
+            width: 126,
             height: 26,
             child: ClipRect(
               child: Text(
-                "P<NLDDE<VRIES<<SANNE<<<<\nNXC4R1P721NLD9405143F31<<",
+                "P<NLDDE<VRIES<<SANNE<<<<<<<\nNXC4R1P721NLD9405143F31<<<<",
                 maxLines: 2,
                 softWrap: false,
                 overflow: TextOverflow.clip,
@@ -164,13 +226,13 @@ class _Passport extends StatelessWidget {
               ),
             ),
           ),
-          // The band over the zone (x 22, y 132, 112 by 34), kept inside it
-          // as on the cards.
+          // The band over the zone (x 6, y 88, 136 by 30), kept inside it as
+          // on the cards.
           Positioned(
-            left: 22,
-            top: 132,
-            width: 112,
-            height: 34,
+            left: 6,
+            top: 88,
+            width: 136,
+            height: 30,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: CustomPaint(painter: _BandPainter(sweep)),
