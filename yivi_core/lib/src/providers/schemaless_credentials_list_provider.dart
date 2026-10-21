@@ -3,6 +3,9 @@ import "dart:async";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_preferences.dart";
+import "../models/clear_all_data_event.dart";
+import "../models/credential_events.dart";
+import "../models/event.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../util/instance_hint.dart";
 import "irma_repository_provider.dart";
@@ -39,8 +42,6 @@ final credentialOrderRepoProvider = Provider<OrderRepo>(
   (ref) => IrmaPreferencesOrderRepo(ref.watch(preferencesProvider)),
 );
 
-enum NewItemPolicy { append, prepend }
-
 /// ----- Controller: the user's cards (credential instances) in their order
 ///
 /// Subscribes directly to the repository's credential stream instead of using
@@ -60,8 +61,13 @@ class SchemalessCredentialOrderController
     extends AsyncNotifier<List<schemaless.Credential>> {
   Timer? _debounce;
   StreamSubscription<schemaless.SchemalessCredentials>? _subscription;
-  List<String> _order = const []; // persisted order of instance hashes
-  final NewItemPolicy _policy = .prepend;
+  StreamSubscription<Event>? _deletes;
+
+  /// The persisted order of instance hashes. Also holds the cards missing
+  /// from the latest list, so a card that drops out for a moment (its type
+  /// not loaded yet, a failed read) comes back in its place. Only deleting
+  /// a card forgets it.
+  List<String> _order = const [];
 
   @override
   Future<List<schemaless.Credential>> build() async {
@@ -72,6 +78,7 @@ class SchemalessCredentialOrderController
 
     // Cancel any previous subscription (in case build() is called again).
     _subscription?.cancel();
+    _deletes?.cancel();
 
     // Seed from the current stream value.
     final initial = await repo.getSchemalessCredentials().first;
@@ -82,8 +89,8 @@ class SchemalessCredentialOrderController
         await orderRepo.loadLegacyTypeOrder(),
       );
     }
-    final merged = reconcileCardOrder(initial.credentials, _order, _policy);
-    _order = merged.map((e) => e.hash).toList();
+    final (:visible, :order) = reconcileCardOrder(initial.credentials, _order);
+    _order = order;
     await orderRepo.saveOrder(_order);
 
     // Subscribe for subsequent changes. skip(1) skips the BehaviorSubject
@@ -92,23 +99,45 @@ class SchemalessCredentialOrderController
         .getSchemalessCredentials()
         .skip(1)
         .listen(_onCredentialsChanged);
+    _deletes = repo.getEvents().listen(_onEvent);
 
     ref.onDispose(() {
       _subscription?.cancel();
+      _deletes?.cancel();
       _debounce?.cancel();
     });
 
-    return merged;
+    return visible;
   }
 
   void _onCredentialsChanged(schemaless.SchemalessCredentials data) {
-    final merged = reconcileCardOrder(data.credentials, _order, _policy);
-    _order = merged.map((e) => e.hash).toList();
+    final (:visible, :order) = reconcileCardOrder(data.credentials, _order);
+    _order = order;
 
     if (ref.mounted) {
-      state = AsyncData(merged);
+      state = AsyncData(visible);
     }
-    _debouncedSave(merged);
+    _debouncedSave();
+  }
+
+  /// A deleted card leaves the order: got again, it is new and goes on top.
+  void _onEvent(Event event) {
+    if (event is ClearAllDataEvent) {
+      _order = const [];
+    } else if (event is DeleteCredentialEvent) {
+      final deleted = event.hashByFormat.values.toSet();
+      final cards = {
+        for (final c in state.value ?? const <schemaless.Credential>[])
+          if (c.credentialInstanceIds.values.any(deleted.contains)) c.hash,
+      };
+      _order = [
+        for (final hash in _order)
+          if (!cards.contains(hash) && !deleted.contains(hash)) hash,
+      ];
+    } else {
+      return;
+    }
+    _debouncedSave();
   }
 
   /// User reorders visible items. [newIndex] is the destination *after* the item
@@ -143,17 +172,21 @@ class SchemalessCredentialOrderController
 
   void _applyOrder(List<schemaless.Credential> current) {
     state = AsyncData(current);
-    _order = current.map((e) => e.hash).toList();
-    _debouncedSave(current);
+    // The shown cards take over the slots they had; missing ones keep theirs.
+    final shown = {for (final c in current) c.hash};
+    var next = 0;
+    _order = [
+      for (final hash in _order)
+        shown.contains(hash) ? current[next++].hash : hash,
+    ];
+    _debouncedSave();
   }
 
-  void _debouncedSave(List<schemaless.Credential> items) {
+  void _debouncedSave() {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () async {
       if (!ref.mounted) return;
-      await ref
-          .read(credentialOrderRepoProvider)
-          .saveOrder(items.map((e) => e.hash).toList());
+      await ref.read(credentialOrderRepoProvider).saveOrder(_order);
     });
   }
 }
@@ -177,33 +210,38 @@ List<String> migrateTypeOrder(
   return sorted.map((c) => c.hash).toList();
 }
 
-/// Merge logic:
-/// - keep cards in stored order if they still exist
-/// - add any new cards at end/start (policy)
-List<schemaless.Credential> reconcileCardOrder(
+/// The cards of [external] in [storedOrder], and the order to save.
+///
+/// Cards in the stored order keep their place. Cards it does not have yet go
+/// on top, newest first. Hashes of cards missing from [external] stay in the
+/// order to save, so a card that is missing for a moment comes back in its
+/// place.
+({List<schemaless.Credential> visible, List<String> order}) reconcileCardOrder(
   List<schemaless.Credential> external,
   List<String> storedOrder,
-  NewItemPolicy newItemPolicy,
 ) {
   final byHash = {for (final it in external) it.hash: it};
-  final visible = <schemaless.Credential>[];
-
-  // 1) Keep items that still exist in the stored order
-  for (final hash in storedOrder) {
-    final it = byHash.remove(hash);
-    if (it != null) visible.add(it);
-  }
-
-  // 2) Any remaining are new from external
-  final newOnes = byHash.values.toList();
-  if (newOnes.isEmpty) return visible;
-
-  if (newItemPolicy == .append) {
-    visible.addAll(newOnes);
-  } else {
-    visible.insertAll(0, newOnes);
-  }
-  return visible;
+  final stored = storedOrder.toSet();
+  final newOnes =
+      [
+        for (final it in external)
+          if (!stored.contains(it.hash)) it,
+      ]..sort((a, b) {
+        final byDate = (b.issuanceDate ?? 0).compareTo(a.issuanceDate ?? 0);
+        return byDate != 0 ? byDate : a.hash.compareTo(b.hash);
+      });
+  final order = [
+    for (final it in newOnes) it.hash,
+    // Without duplicates, should the stored order hold any.
+    ...stored,
+  ];
+  return (
+    visible: [
+      for (final hash in order)
+        ?byHash[hash],
+    ],
+    order: order,
+  );
 }
 
 /// The instance hint of every card, by hash, worked out over all the cards

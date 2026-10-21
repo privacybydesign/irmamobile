@@ -9,6 +9,7 @@ import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
@@ -76,6 +77,9 @@ class _FakeRepository extends Fake implements IrmaRepository {
 
   @override
   Stream<SchemalessCredentials> getSchemalessCredentials() => subject.stream;
+
+  @override
+  Stream<Event> getEvents() => const Stream.empty();
 }
 
 /// Preferences on an empty in-memory store, with the data tab in [order]: the
