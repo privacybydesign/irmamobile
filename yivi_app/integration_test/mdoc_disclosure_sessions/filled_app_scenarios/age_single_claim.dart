@@ -41,7 +41,7 @@ Future<void> ageSingleClaimTest(
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await evaluateRequestorHeader(
     tester,
-    find.byType(SessionRequestorHeader),
+    find.byType(RequestorCard),
     localizedRequestorName: eudiVerifierDisplayName,
     isVerified: true,
   );

@@ -35,11 +35,11 @@ Future<void> noChoiceMultipleCredsTest(
   // e-mail address first.
   const sidn = "Demo Privacy by Design Foundation via SIDN";
   await waitForRequest(tester);
-  expectEmptySpot(0, "Demo Email address", hint: "Tap to add it from $sidn");
+  expectEmptySpot(0, "Demo Email address", hint: sidn);
   expectEmptySpot(
     1,
     "Demo Mobile phone number",
-    hint: "Tap to add it from $sidn",
+    hint: sidn,
   );
   // Each spot lists the field it will share, still empty.
   expectEmptySpotRows(0, ["Email address"]);

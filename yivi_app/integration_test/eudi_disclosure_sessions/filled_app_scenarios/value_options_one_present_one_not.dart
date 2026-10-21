@@ -60,7 +60,7 @@ Future<void> valueOptionsOnePresentOneNotTest(
 
   // With one owned option and nothing to add, there is no Change pill.
   expect(find.byKey(const Key("share_change_0")), findsNothing);
-  expect(find.text("Change"), findsNothing);
+  expect(find.text("Change choice"), findsNothing);
 
   await shareAndFinishEudiDisclosure(tester);
 

@@ -570,4 +570,89 @@ void main() {
     expect(inSentence("BSN"), "BSN");
     expect(inSentence("Email-Adresse", language: "de"), "Email-Adresse");
   });
+
+  group("the share screen's words", () {
+    test("a list: commas, and or before the last", () {
+      expect(orList(["passport"], " or "), "passport");
+      expect(orList(["email", "mobile"], " or "), "email or mobile");
+      expect(
+        orList(["passport", "ID card", "licence", "personal data"], " or "),
+        "passport, ID card, licence or personal data",
+      );
+    });
+
+    test("a spot's name writes the types after the first in the list", () {
+      final spot = _pickOne(
+        obtainable: [_descriptor("Passport"), _descriptor("ID card")],
+      );
+      expect(
+        spotName(spot, " or ", inList: (n) => n.toLowerCase()),
+        "Passport or id card",
+      );
+    });
+
+    test("you can also choose: your other, your, or a", () {
+      // Two email addresses and one mobile number in the app, the first
+      // email address selected; another email address and a BSN can be
+      // added.
+      final pickOne = _pickOne(
+        owned: [
+          _bundle([_instance("email", hash: "e1")]),
+          _bundle([_instance("email", hash: "e2")]),
+          _bundle([_instance("mobile", hash: "m1")]),
+        ],
+        obtainable: [_descriptor("email"), _descriptor("bsn")],
+      );
+      expect(alsoChoose(pickOne, 0), [
+        (AlsoKind.other, "email"),
+        (AlsoKind.your, "mobile"),
+        (AlsoKind.a, "bsn"),
+      ]);
+      // The mobile number selected: you have two email addresses, so "an".
+      expect(alsoChoose(pickOne, 2), [
+        (AlsoKind.a, "email"),
+        (AlsoKind.a, "bsn"),
+      ]);
+    });
+
+    test("the footnote only when the button shares something", () {
+      final owned = _pickOne(
+        owned: [
+          _bundle([_instance("email")]),
+        ],
+      );
+      final missing = _pickOne(obtainable: [_descriptor("mobile")]);
+      final optional = _pickOne(
+        optional: true,
+        owned: [
+          _bundle([_instance("name")]),
+        ],
+      );
+
+      final ok = _session([owned]);
+      expect(showFootnote(shareButton(ok, const {0: 0}), const {0: 0}), isTrue);
+
+      // A card still to be added: not yet.
+      final waiting = _session([owned, missing]);
+      const sel = {0: 0, 1: -1};
+      expect(showFootnote(shareButton(waiting, sel), sel), isFalse);
+
+      // Nothing shared at all.
+      final nothing = _session([optional]);
+      const none = {0: -1};
+      expect(showFootnote(shareButton(nothing, none), none), isFalse);
+    });
+
+    test("the card that blocks sharing is named", () {
+      final address = _bundle([_instance("address", revoked: true)]);
+      final button = shareButton(
+        _session([
+          _pickOne(owned: [address], obtainable: [_descriptor("address")]),
+        ]),
+        const {0: 0},
+      );
+      expect(button.enabled, isFalse);
+      expect(button.blockedCard, address);
+    });
+  });
 }

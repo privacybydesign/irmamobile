@@ -34,7 +34,7 @@ Future<void> choiceTest(
   expectEmptySpot(
     0,
     "Demo Email address or Demo Mobile phone number",
-    hint: "Tap to choose which one to add",
+    hint: "You pick one when adding",
   );
   expectShareWaitsFor(tester, "Demo Email address or Demo Mobile phone number");
 

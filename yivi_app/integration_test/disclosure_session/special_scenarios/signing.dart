@@ -35,7 +35,7 @@ Future<void> signingTest(
 
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
 
-  final requestorHeaderFinder = find.byType(SessionRequestorHeader);
+  final requestorHeaderFinder = find.byType(RequestorCard);
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
@@ -51,7 +51,7 @@ Future<void> signingTest(
     "Message to be signed by user",
   );
 
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

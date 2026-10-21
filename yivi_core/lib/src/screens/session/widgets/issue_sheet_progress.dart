@@ -213,7 +213,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
               spacing: 8,
               children: [
                 ExcludeSemantics(
-                  child: SessionRequestorHeader.avatarOf(requestor, size: 20),
+                  child: requestorAvatar(requestor, size: 20),
                 ),
                 Flexible(
                   child: Text(

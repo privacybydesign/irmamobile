@@ -49,6 +49,23 @@ class SharedCardTile extends ConsumerWidget {
   /// lands (a [CardFlightLanding]).
   final GlobalKey? landingKey;
 
+  /// A strip across the bottom: another choice, or that the cards go
+  /// together. Not shown on a card with a problem in [problemStrip] mode.
+  final Widget? footer;
+
+  /// The share screen's way to show a problem: the note in a red strip
+  /// across the bottom, with [fixLabel] as a pill in it. Otherwise (the
+  /// Change sheet) the note and the fix are in the body.
+  final bool problemStrip;
+
+  /// The card was added during this request: a green "New" chip.
+  final bool isNew;
+
+  /// Optional data that is not included: the card at half strength inside a
+  /// dashed edge, with [dashGap] left open for a pill on that edge.
+  final bool ghost;
+  final ({double width, double fromEnd})? dashGap;
+
   const SharedCardTile({
     super.key,
     required this.bundle,
@@ -57,6 +74,11 @@ class SharedCardTile extends ConsumerWidget {
     this.onFix,
     this.showStatus = true,
     this.landingKey,
+    this.footer,
+    this.problemStrip = false,
+    this.isNew = false,
+    this.ghost = false,
+    this.dashGap,
   }) : assert((fixLabel == null) == (onFix == null));
 
   /// The art, marked as a landing spot. Not the copy in a hero flight: the
@@ -97,6 +119,13 @@ class SharedCardTile extends ConsumerWidget {
             background: palette.warningSurface,
             foreground: palette.warningText,
           )
+        : isNew
+        ? CardTileChip(
+            key: const Key("shared_card_new"),
+            label: FlutterI18n.translate(context, "share.new_chip"),
+            background: palette.successSurface,
+            foreground: palette.successText,
+          )
         : null;
 
     final note = problem != null
@@ -109,8 +138,47 @@ class SharedCardTile extends ConsumerWidget {
         ? FlutterI18n.translate(context, "share.problem.last_use_note")
         : null;
 
+    // On the share screen a problem is a red strip with its fix in it.
+    final strip = problemStrip && problem != null;
+    final Widget? bottom = strip
+        ? CardTileStrip(
+            key: const Key("shared_card_problem"),
+            background: palette.errorSurface,
+            line: palette.errorText.withValues(alpha: 0.2),
+            children: [
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.info_outline_rounded,
+                  size: 18,
+                  color: palette.errorText,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  note!,
+                  key: const Key("shared_card_note"),
+                  style: palette
+                      .body(13.5, weight: FontWeight.w600)
+                      .copyWith(height: 19 / 13.5, color: palette.errorText),
+                ),
+              ),
+              if (onFix != null)
+                SmallPill(
+                  key: const Key("shared_card_fix"),
+                  label: fixLabel!,
+                  tone: SmallPillTone.onDanger,
+                  onPressed: onFix,
+                ),
+            ],
+          )
+        : footer;
+
     return CardTile(
       key: const Key("shared_card_tile"),
+      footer: bottom,
+      dashed: ghost,
+      faded: ghost,
+      dashGap: dashGap,
       outline: problem != null
           ? palette.errorText.withValues(alpha: 0.35)
           : null,
@@ -154,7 +222,7 @@ class SharedCardTile extends ConsumerWidget {
                 },
               ),
             ),
-        if (note != null)
+        if (note != null && !strip)
           Container(
             key: const Key("shared_card_note"),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -171,7 +239,7 @@ class SharedCardTile extends ConsumerWidget {
                   .copyWith(height: 19 / 13, color: palette.heading),
             ),
           ),
-        if (onFix != null)
+        if (onFix != null && !strip)
           Align(
             alignment: Alignment.centerLeft,
             child: SmallPill(

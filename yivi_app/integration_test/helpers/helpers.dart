@@ -509,7 +509,7 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
       (w) =>
           w is YiviCredentialCard ||
           w is DisclosedCardTile ||
-          w is SharedCardTile ||
+          (w is SharedCardTile && !w.ghost) ||
           w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
     );
@@ -565,7 +565,7 @@ Element _cardRoot(Finder finder) {
           (w) =>
               w is YiviCredentialCard ||
               w is DisclosedCardTile ||
-              w is SharedCardTile ||
+              (w is SharedCardTile && !w.ghost) ||
               w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
         ),

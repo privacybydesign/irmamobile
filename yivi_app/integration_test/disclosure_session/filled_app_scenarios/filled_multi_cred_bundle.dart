@@ -43,7 +43,7 @@ Future<void> filledMultiCredBundleTest(
 
   // Straight to overview — nothing needs to be obtained.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   // Two tiles on the share screen: root + fullName (a bundle), and email.
   final cardsFinder = findCredentialCards();

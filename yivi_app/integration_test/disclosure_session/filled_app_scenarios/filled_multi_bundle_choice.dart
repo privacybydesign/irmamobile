@@ -50,7 +50,7 @@ Future<void> filledMultiBundleChoiceTest(
 
   // Straight to overview — Bundle A satisfies the discon.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

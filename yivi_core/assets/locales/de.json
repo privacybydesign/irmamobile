@@ -1312,35 +1312,24 @@
       "close": "Schließen"
     },
     "reason": {
-      "revoked": "Ersetze die widerrufene Karte, um zu teilen.",
-      "used_up": "Ersetze die aufgebrauchte Karte, um zu teilen.",
-      "expired": "Ersetze die abgelaufene Karte, um zu teilen.",
       "cant_renew": "{requestor} braucht eine Karte, die du in Yivi nicht erneuern kannst. Bitte {issuer} um eine neue.",
-      "missing": "Füge zuerst {name} hinzu.",
+      "missing": "Füge zuerst {name} hinzu. Danach kannst du teilen.",
       "cant_add": "Yivi kann {name} nicht hinzufügen. Hol es zuerst bei {issuer} und scanne dann den QR-Code erneut.",
-      "cant_add_unknown": "Yivi kann {name} nicht hinzufügen. Hol es zuerst beim Herausgeber und scanne dann den QR-Code erneut."
+      "cant_add_unknown": "Yivi kann {name} nicht hinzufügen. Hol es zuerst beim Herausgeber und scanne dann den QR-Code erneut.",
+      "renew": "Erneuere zuerst {name}. Danach kannst du teilen."
     },
     "section": {
-      "you_share": "Du teilst",
-      "with_signature": "Mit deiner Unterschrift",
+      "you_share": "Das teilst du",
+      "with_signature": "Das teilst du mit deiner Unterschrift",
       "optional": "Optional",
-      "you_choose": "Du wählst",
-      "you_receive": "Du erhältst",
-      "from": "Von {issuer}",
-      "nothing_required": "Nichts erforderlich",
-      "nothing_required_text": "{requestor} fragt nichts, was du teilen musst.",
-      "gets": "{requestor} bekommt"
+      "you_receive": "Das bekommst du zurück",
+      "nothing_required_text": "{requestor} fragt nichts, was du teilen musst."
     },
-    "change": "Ändern",
-    "leave_out": "{name} weglassen",
     "add": "Hinzufügen",
-    "in_your_app": "In deiner App",
     "not_in_app_yet": "Noch nicht in deiner App",
     "or": " oder ",
-    "add_new": "Neue {name} hinzufügen",
     "message_label": "Du unterschreibst diese Nachricht",
-    "footnote": "{requestor} bekommt nur das. Alles andere bleibt auf deinem Telefon.",
-    "footnote_none": "Der Besuch steht trotzdem in deiner Aktivität.",
+    "footnote": "{requestor} bekommt nur, was oben steht. Alles andere bleibt auf deinem Telefon.",
     "sheet": {
       "add_optional": "Optionale Daten hinzufügen",
       "another": "Andere(s) {name}",
@@ -1376,10 +1365,8 @@
       "text": "Die Person, die abnimmt, sieht die Daten, die du gerade geteilt hast. Du musst also nichts buchstabieren.",
       "button": "{requestor} anrufen"
     },
-    "added_selected": "{name} hinzugefügt und ausgewählt",
     "spot": {
-      "one": "Tippe, um es von {issuer} hinzuzufügen",
-      "many": "Tippe, um zu wählen, was du hinzufügst",
+      "many": "Du wählst beim Hinzufügen eine aus",
       "cant": "Kann nicht in Yivi hinzugefügt werden. Hol es zuerst bei {issuer}.",
       "wrong": "Du hast {offered} hinzugefügt, nötig ist {needed}. Tippe, um es erneut hinzuzufügen.",
       "together": "Nur zusammen gültig. Tippe, um sie einzeln hinzuzufügen.",
@@ -1387,25 +1374,16 @@
       "must_be": "{field} muss {value} sein",
       "must_be_value": "Muss {value} sein"
     },
-    "heading": {
-      "share": "Teile deine Daten mit",
-      "sign": "Unterschreibe und teile mit",
-      "share_receive": "Teile deine Daten mit"
-    },
     "trust": {
       "pill": {
         "yivi": "Bei Yivi registriert",
         "eu": "In der EU verifiziert",
         "anchor": "Verifiziert von {anchor}",
         "confirmed": "Identität bestätigt",
-        "unknown": "Yivi nicht bekannt"
+        "unknown": "Yivi nicht bekannt",
+        "unchecked": "Nicht geprüft"
       },
       "card_semantics": "{name}, {status}. Was bedeutet das?",
-      "banner": {
-        "title": "Yivi weiß nicht, wer das ist",
-        "text": "Niemand hat geprüft, wer das ist. Es gibt keine Gewissheit, wer deine Daten bekommt.",
-        "more": "Was bedeutet das?"
-      },
       "risky": {
         "reason": "Teile nur, wenn du {requestor} vertraust",
         "share_anyway": "Trotzdem teilen",
@@ -1518,7 +1496,25 @@
         "mdoc": "mdoc",
         "unknown": "Unbekanntes Format"
       }
-    }
+    },
+    "ask": {
+      "share": "fragt nach deinen Daten",
+      "sign": "bittet dich, etwas zu unterschreiben",
+      "share_receive": "fragt nach deinen Daten und gibt dir eine Karte"
+    },
+    "lead": "Unten steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
+    "lead_sign": "Unten steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Unterschreiben tippst.",
+    "lead_receive": "Du teilst, was unten steht, und bekommst eine Karte zurück. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
+    "also": "Du kannst auch eine andere Karte wählen",
+    "also_other": "{name}",
+    "also_your": "{name}",
+    "also_a": "{name}",
+    "change_choice": "Auswahl ändern",
+    "renew": "Erneuern",
+    "new_chip": "Neu",
+    "together": "Diese gehören zusammen. {requestor} bekommt beide oder keine.",
+    "also_share": "Auch teilen",
+    "dont_share": "Nicht teilen"
   },
   "contact_sheet": {
     "intro_email": "Wir schicken dir einen Code per E-Mail, um zu prüfen, dass diese Adresse dir gehört.",

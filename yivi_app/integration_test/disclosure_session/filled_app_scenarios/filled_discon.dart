@@ -103,7 +103,7 @@ Future<void> filledDisconTest(
   // Leave the choices as they are.
   await closeChoiceSheet(tester);
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
 
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(

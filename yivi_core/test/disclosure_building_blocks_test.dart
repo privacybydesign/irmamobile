@@ -161,26 +161,66 @@ void main() {
     });
   });
 
-  group("requestor header", () {
-    testWidgets("a registered party", (tester) async {
-      await _pump(
-        tester,
-        _inPage(SessionRequestorHeader(requestor: _party("Webshop Noord"))),
-      );
-      expect(find.text("Webshop Noord"), findsOneWidget);
-      expect(find.text("Registered with Yivi"), findsOneWidget);
-    });
-
-    testWidgets("an unknown party gets the warning", (tester) async {
+  group("requestor card", () {
+    testWidgets("a registered party: one check, in the pill", (tester) async {
       await _pump(
         tester,
         _inPage(
-          SessionRequestorHeader(
-            requestor: _party("shop-deals-online.example", verified: false),
+          RequestorCard(
+            requestor: _party("Webshop Noord"),
+            ask: "is asking for your data",
+            onInfo: () {},
           ),
         ),
       );
-      expect(find.text("Not known by Yivi"), findsOneWidget);
+      expect(find.text("Webshop Noord"), findsOneWidget);
+      expect(find.text("Registered with Yivi"), findsOneWidget);
+      expect(find.text("is asking for your data"), findsOneWidget);
+      expect(find.byKey(const Key("session_requestor_info")), findsOneWidget);
+      // No badge on the logo: the pill has the check.
+      expect(find.byType(RequestorTrustBadge), findsNothing);
+      expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+    });
+
+    testWidgets("an unknown party: a red ! on the logo, Not checked", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _inPage(
+          RequestorCard(
+            requestor: _party("shop-deals-online.example", verified: false),
+            onInfo: () {},
+          ),
+        ),
+      );
+      expect(find.text("Not checked"), findsOneWidget);
+      expect(find.byType(RequestorTrustBadge), findsOneWidget);
+      expect(find.byIcon(Icons.priority_high_rounded), findsOneWidget);
+    });
+
+    testWidgets("the compact bar: a check or a red ! on the logo", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _inPage(
+          Column(
+            children: [
+              RequestorCompactBar(
+                requestor: _party("Webshop Noord"),
+                subtitle: "is asking for your data",
+              ),
+              RequestorCompactBar(
+                requestor: _party("deals.example", verified: false),
+                subtitle: "is asking for your data",
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.priority_high_rounded), findsOneWidget);
     });
   });
 

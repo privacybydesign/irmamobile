@@ -121,11 +121,16 @@ class RequestorLogo extends StatelessWidget {
   final RequestorTrustStyle style;
   final double size;
 
+  /// The trust badge on the corner. The trust sheet keeps it; the share
+  /// screen's card shows a vouched party's check in its pill instead.
+  final bool showBadge;
+
   const RequestorLogo({
     super.key,
     required this.requestor,
     required this.style,
     required this.size,
+    this.showBadge = true,
   });
 
   static const double _drawn = 84;
@@ -149,12 +154,13 @@ class RequestorLogo extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  SessionRequestorHeader.avatarOf(requestor, size: _drawn),
-                  Positioned(
-                    right: -8,
-                    bottom: -8,
-                    child: RequestorTrustBadge(style: style, size: 36),
-                  ),
+                  requestorAvatar(requestor, size: _drawn),
+                  if (showBadge)
+                    Positioned(
+                      right: -8,
+                      bottom: -8,
+                      child: RequestorTrustBadge(style: style, size: 36),
+                    ),
                 ],
               ),
             ),
@@ -165,143 +171,177 @@ class RequestorLogo extends StatelessWidget {
   }
 }
 
-/// Who is asking, at the top of the share screen and the pairing screen:
-/// the party as the subject of the page. A 60 pt logo with a trust badge on
-/// its corner, the name, and a one-line pill saying who vouches. The whole
-/// card is a button that explains what that means ([onTap], the trust
-/// sheet).
-///
-/// When nobody vouches the card gets a red ring and a tinted fill; the
-/// share screen adds the banner under it.
-class SessionRequestorHeader extends StatelessWidget {
-  final TrustedParty requestor;
+/// The fills of a requestor without a logo, picked by its name: deep
+/// enough that a white initial reads well, in both light and dark mode.
+const _initialFills = [
+  Color(0xFF2F5D8A),
+  Color(0xFF7A1F2E),
+  Color(0xFF3D6B4F),
+  Color(0xFF6B4E8A),
+  Color(0xFF8A5A2F),
+];
 
-  /// Opens the trust sheet. Without it (or for an unevaluated party) the
-  /// card is not a button.
-  final VoidCallback? onTap;
-
-  const SessionRequestorHeader({
-    super.key,
-    required this.requestor,
-    this.onTap,
-  });
-
-  /// The fills of a requestor without a logo, picked by its name: deep
-  /// enough that a white initial reads well, in both light and dark mode.
-  static const _initialFills = [
-    Color(0xFF2F5D8A),
-    Color(0xFF7A1F2E),
-    Color(0xFF3D6B4F),
-    Color(0xFF6B4E8A),
-    Color(0xFF8A5A2F),
-  ];
-
-  /// [requestor]'s logo, or its initial on a coloured disc when it has none
-  /// (not the pale grey placeholder: this is the subject of the screen).
-  static Widget avatarOf(TrustedParty requestor, {double size = 46}) {
-    final image = requestor.image;
-    if (image == null && requestor.imagePath == null) {
-      final name = requestor.name.trim();
-      final fill =
-          _initialFills[name.codeUnits.fold(0, (a, c) => a + c) %
-              _initialFills.length];
-      return Semantics(
-        label: requestor.name,
-        child: Container(
-          width: size,
-          height: size,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-          child: ExcludeSemantics(
-            child: Text(
-              name.isEmpty ? "?" : name.characters.first.toUpperCase(),
-              style: TextStyle(
-                fontFamily: "Alexandria",
-                fontWeight: FontWeight.w700,
-                fontSize: size * 0.44,
-                height: 1,
-                color: Colors.white,
-              ),
+/// [requestor]'s logo, or its initial on a coloured disc when it has none
+/// (not the pale grey placeholder: this is the subject of the screen).
+Widget requestorAvatar(TrustedParty requestor, {double size = 46}) {
+  final image = requestor.image;
+  if (image == null && requestor.imagePath == null) {
+    final name = requestor.name.trim();
+    final fill =
+        _initialFills[name.codeUnits.fold(0, (a, c) => a + c) %
+            _initialFills.length];
+    return Semantics(
+      label: requestor.name,
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+        child: ExcludeSemantics(
+          child: Text(
+            name.isEmpty ? "?" : name.characters.first.toUpperCase(),
+            style: TextStyle(
+              fontFamily: "Alexandria",
+              fontWeight: FontWeight.w700,
+              fontSize: size * 0.44,
+              height: 1,
+              color: Colors.white,
             ),
           ),
         ),
-      );
-    }
-    return IrmaAvatar(
-      size: size,
-      logoImage: image == null
-          ? null
-          : Base64Image(base64: image.base64, mimeType: image.mimeType),
-      logoPath: image == null ? requestor.imagePath : null,
-      logoSemanticsLabel: requestor.name,
-      initials: requestor.name.isEmpty ? "?" : requestor.name.characters.first,
+      ),
     );
   }
+  return IrmaAvatar(
+    size: size,
+    logoImage: image == null
+        ? null
+        : Base64Image(base64: image.base64, mimeType: image.mimeType),
+    logoPath: image == null ? requestor.imagePath : null,
+    logoSemanticsLabel: requestor.name,
+    initials: requestor.name.isEmpty ? "?" : requestor.name.characters.first,
+  );
+}
+
+/// Who is asking, at the top of the share screen and the pairing screen:
+/// the party as the subject of the page. A centred card with a 64 pt logo,
+/// the name, a pill saying who vouches with ⓘ next to it, and [ask] under
+/// it ("is asking for your data"). The whole card is a button that explains
+/// what the pill means ([onInfo], the trust sheet).
+///
+/// One mark of trust: a party someone vouches for has its check in the pill
+/// only, not on the logo. A party nobody vouches for gets a red ! on its
+/// logo and a red "Not checked" pill. An unevaluated party gets neither, and
+/// the card is not a button.
+class RequestorCard extends StatelessWidget {
+  final TrustedParty requestor;
+
+  /// "is asking for your data", under the pill; none on the pairing screen.
+  final String? ask;
+
+  /// Opens the trust sheet.
+  final VoidCallback? onInfo;
+
+  const RequestorCard({
+    super.key,
+    required this.requestor,
+    this.ask,
+    this.onInfo,
+  });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final style = RequestorTrustStyle.of(context, requestor);
     final risky = style.trust.risky;
-    final label = style.label;
-    final tap = style.trust == RequestorTrust.unevaluated ? null : onTap;
+    final label = risky
+        ? FlutterI18n.translate(context, "share.trust.pill.unchecked")
+        : style.label;
+    final tap = style.trust == RequestorTrust.unevaluated ? null : onInfo;
 
-    final card = GlassSurface(
+    final card = DecoratedBox(
       key: const Key("session_requestor_header"),
-      shape: RoundedSuperellipseBorder(
-        borderRadius: const BorderRadius.all(Radius.circular(28)),
-        side: risky
-            ? BorderSide(color: palette.danger, width: 2)
-            : BorderSide.none,
-      ),
-      fill: risky ? palette.errorSurface.withValues(alpha: 0.55) : null,
-      padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
-      child: Row(
-        spacing: 14,
-        children: [
-          RequestorLogo(requestor: requestor, style: style, size: 60),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 6,
-              children: [
-                Text(
-                  requestor.name,
-                  key: const Key("session_requestor_name"),
-                  style: palette
-                      .display(20, weight: FontWeight.w700)
-                      .copyWith(height: 26 / 20, color: palette.text),
-                ),
-                if (label != null)
-                  _TrustPill(
-                    key: const Key("session_requestor_trust"),
-                    style: style,
-                    label: label,
-                  ),
-              ],
-            ),
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        shadows: const [
+          BoxShadow(
+            color: Color(0x17000000),
+            blurRadius: 6,
+            offset: Offset(0, 1),
           ),
-          if (tap != null)
-            ExcludeSemantics(
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: palette.tint,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.info_outline_rounded,
-                  size: 20,
-                  color: palette.link,
-                ),
-              ),
-            ),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+        child: Column(
+          children: [
+            RequestorLogo(
+              requestor: requestor,
+              style: style,
+              size: 64,
+              // The check of a vouched party is in the pill, once.
+              showBadge: !style.trust.vouched,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              requestor.name,
+              key: const Key("session_requestor_name"),
+              textAlign: TextAlign.center,
+              style: palette
+                  .display(22, weight: FontWeight.w700)
+                  .copyWith(height: 28 / 22, color: palette.text),
+            ),
+            if (label != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
+                children: [
+                  Flexible(
+                    child: RequestorTrustPill(
+                      key: const Key("session_requestor_trust"),
+                      style: style,
+                      label: label,
+                    ),
+                  ),
+                  if (tap != null)
+                    Container(
+                      key: const Key("session_requestor_info"),
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: risky ? palette.errorSurface : palette.tint,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.info_outline_rounded,
+                        size: 18,
+                        color: risky ? palette.errorText : palette.link,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            if (ask != null) ...[
+              const SizedBox(height: 14),
+              Text(
+                ask!,
+                key: const Key("session_requestor_ask"),
+                textAlign: TextAlign.center,
+                style: palette
+                    .body(16)
+                    .copyWith(height: 23 / 16, color: palette.heading),
+              ),
+            ],
+          ],
+        ),
       ),
     );
 
-    final status = label ?? "";
+    final status = [label, ask].nonNulls.join(", ");
     if (tap == null) {
       return Semantics(
         container: true,
@@ -330,13 +370,95 @@ class SessionRequestorHeader extends StatelessWidget {
   }
 }
 
+/// [RequestorCard] in one line, for the glass bar once the card has
+/// scrolled away, as on the activity and credential detail pages: the logo
+/// with a small check (vouched) or red ! (nobody vouches), the name, and
+/// [subtitle] ("is asking for your data").
+class RequestorCompactBar extends StatelessWidget {
+  final TrustedParty requestor;
+  final String subtitle;
+  final double opacity;
+
+  const RequestorCompactBar({
+    super.key,
+    required this.requestor,
+    required this.subtitle,
+    this.opacity = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final style = RequestorTrustStyle.of(context, requestor);
+    return GlassSurface(
+      key: const Key("requestor_compact_bar"),
+      opacity: opacity,
+      padding: const EdgeInsets.fromLTRB(6, 0, 16, 0),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          spacing: 8,
+          children: [
+            ExcludeSemantics(
+              child: SizedBox.square(
+                dimension: 32,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    requestorAvatar(requestor, size: 32),
+                    Positioned(
+                      right: -3,
+                      bottom: -3,
+                      child: RequestorTrustBadge(
+                        key: const Key("requestor_compact_badge"),
+                        style: style,
+                        size: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    requestor.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette.display(14).copyWith(color: palette.text),
+                  ),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette
+                        .body(12)
+                        .copyWith(color: palette.secondaryText),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// The one-line pill under the name. A label too long for the line ends in
 /// "…": the trust sheet spells it out.
-class _TrustPill extends StatelessWidget {
+class RequestorTrustPill extends StatelessWidget {
   final RequestorTrustStyle style;
   final String label;
 
-  const _TrustPill({super.key, required this.style, required this.label});
+  const RequestorTrustPill({
+    super.key,
+    required this.style,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {

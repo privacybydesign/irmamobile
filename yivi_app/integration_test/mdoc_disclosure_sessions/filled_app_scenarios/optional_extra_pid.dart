@@ -63,17 +63,12 @@ Future<void> optionalExtraPidTest(
     attributes: [(avLabel(18), booleanYes)],
   );
 
-  // The optional PID is offered as a row to add; its sheet has the PID in
-  // the app and nothing to add from Yivi (an mdoc has no issue URL).
+  // The optional PID is its card, faded, with "Share too". There is
+  // nothing else to choose (an mdoc has no issue URL), so no "Change
+  // choice": a tap shares it.
   final optional = optionalItemIndex(tester);
   await addOptional(tester, optional);
-  expect(find.text("Add optional data"), findsOneWidget);
-  expect(findSheetOwnedRows(), findsOneWidget);
-  expect(findSheetAddRow("eu.europa.ec.eudi.pid.1"), findsNothing);
-
-  // One card of one type: the row leads with its first value. Picking it
-  // includes the PID and closes the sheet.
-  await pickOwned(tester, presetFamilyName);
+  expect(find.byKey(Key("share_change_$optional")), findsNothing);
   expect(cardsFinder, findsNWidgets(2));
   final pidSlot = findShareSlot(optional);
   await tester.scrollUntilVisible(pidSlot, 100);

@@ -82,6 +82,11 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// under the bar. Null keeps the title always visible.
   final ValueListenable<bool>? titleVisibility;
 
+  /// In place of the centred title: a bar from the leading edge up to the
+  /// actions, as the glass pill on a detail page that says what it is about
+  /// once its header has scrolled away. The title is then not shown.
+  final Widget? startBar;
+
   IrmaAppBar({
     this.titleTranslationKey,
     this.titleString,
@@ -91,6 +96,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.hasBorder = false,
     this.bottom,
     this.titleVisibility,
+    this.startBar,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -151,11 +157,24 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
-            // The title keeps clear of a 44 pt button on either side.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 52),
-              child: Center(child: titleWidget),
-            ),
+            if (startBar case final bar?)
+              // From the start up to the actions, with the same gap.
+              Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: leading != null ? 52 : 0,
+                  end: actions.isNotEmpty ? 52 : 0,
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: bar,
+                ),
+              )
+            else
+              // The title keeps clear of a 44 pt button on either side.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 52),
+                child: Center(child: titleWidget),
+              ),
             if (leading != null)
               Align(alignment: Alignment.centerLeft, child: leading),
             if (actions.isNotEmpty)

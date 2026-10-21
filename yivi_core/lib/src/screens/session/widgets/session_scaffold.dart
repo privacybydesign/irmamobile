@@ -24,6 +24,10 @@ class SessionScaffold extends StatelessWidget {
   /// the bar's title shows only while this is true.
   final ValueListenable<bool>? barTitleVisibility;
 
+  /// A glass pill in the bar in place of the title (see
+  /// [IrmaAppBar.startBar]).
+  final Widget? startBar;
+
   const SessionScaffold({
     Key? key,
     this.onDismiss,
@@ -34,6 +38,7 @@ class SessionScaffold extends StatelessWidget {
     this.wide = false,
     this.scrollsUnderBars = false,
     this.barTitleVisibility,
+    this.startBar,
   });
 
   @override
@@ -49,6 +54,7 @@ class SessionScaffold extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
         titleVisibility: barTitleVisibility,
+        startBar: startBar,
         leading: onPrevious != null ? YiviBackButton(onTap: onPrevious) : null,
         actions: [
           if (onDismiss != null) IrmaCloseButton.filled(onTap: onDismiss),

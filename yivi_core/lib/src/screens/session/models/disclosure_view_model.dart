@@ -155,15 +155,88 @@ List<DisclosureDisconSelection> disclosureChoicesFor(
 bool isEmptySpot(DisclosurePickOne pickOne) =>
     !pickOne.optional && (pickOne.ownedOptions ?? const []).isEmpty;
 
-/// What an empty spot asks for: its types, "Email address or Phone number",
-/// or "Root + Name" when they are only accepted [together].
+/// [items] as one list in a sentence: "a, b or c", with [or] (" or ")
+/// before the last item and commas between the others.
+String orList(List<String> items, String or) => switch (items.length) {
+  0 => "",
+  1 => items.single,
+  _ => "${items.sublist(0, items.length - 1).join(", ")}$or${items.last}",
+};
+
+/// What an empty spot asks for: its types, "Passport, ID card or Driving
+/// licence", or "Root + Name" when they are only accepted [together].
+/// [inList] writes every type after the first as it reads inside the list
+/// ("Passport, ID card or driving licence").
 String spotName(
   DisclosurePickOne pickOne,
   String or, {
   bool together = false,
-}) => (pickOne.obtainableOptions ?? const [])
-    .map((d) => d.name)
-    .join(together ? " + " : or);
+  String Function(String name)? inList,
+}) {
+  final names = [
+    for (final (n, d) in (pickOne.obtainableOptions ?? const []).indexed)
+      n == 0 || inList == null ? d.name : inList(d.name),
+  ];
+  return together ? names.join(" + ") : orList(names, or);
+}
+
+/// How the share screen names another choice for a pick-one, in "You can
+/// also choose …".
+enum AlsoKind {
+  /// Another card of the type that is selected now: "your other …".
+  other,
+
+  /// A type the user has exactly one card of: "your …".
+  your,
+
+  /// A type the user has none or several of: "a …".
+  a,
+}
+
+/// The other choices for [pickOne] next to the selected owned option
+/// [selected], for "You can also choose your other email address or a
+/// mobile number": the name of each and how to say it, without repeats, in
+/// the order of the cards in the app and then the types that can be added.
+List<(AlsoKind, String)> alsoChoose(DisclosurePickOne pickOne, int selected) {
+  final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
+  String idOf(DisclosureBundle b) =>
+      b.credentials.map((c) => c.credentialId).join("+");
+  String nameOf(DisclosureBundle b) =>
+      b.credentials.map((c) => c.name).join(" + ");
+  final current = selected >= 0 && selected < owned.length
+      ? idOf(owned[selected])
+      : null;
+  int ownedOf(String id) => owned.where((b) => idOf(b) == id).length;
+
+  final out = <(AlsoKind, String)>[];
+  void add(AlsoKind kind, String name) {
+    if (!out.contains((kind, name))) out.add((kind, name));
+  }
+
+  for (final (k, b) in owned.indexed) {
+    if (k == selected) continue;
+    final id = idOf(b);
+    add(
+      id == current
+          ? AlsoKind.other
+          : ownedOf(id) == 1
+          ? AlsoKind.your
+          : AlsoKind.a,
+      nameOf(b),
+    );
+  }
+  for (final d in addableOptions(pickOne)) {
+    add(
+      d.credentialId == current
+          ? AlsoKind.other
+          : ownedOf(d.credentialId) == 1
+          ? AlsoKind.your
+          : AlsoKind.a,
+      d.name,
+    );
+  }
+  return out;
+}
 
 /// Whether [pickOne]'s types are only accepted together: the missing-data
 /// steps offer exactly these types as one option, a set of cards.
@@ -269,9 +342,10 @@ class ShareButtonState {
   final ShareLabel label;
   final bool enabled;
 
-  /// The problem of a selected card that blocks sharing, for "Replace the
-  /// revoked card to share."
+  /// The problem of a selected card that blocks sharing, and that card,
+  /// for "Renew your address first."
   final CardProblem? blockedBy;
+  final DisclosureBundle? blockedCard;
 
   /// Set when a required card has a problem it cannot get out of in Yivi:
   /// the button closes the session, with "Ask {issuer} for a new one."
@@ -288,6 +362,7 @@ class ShareButtonState {
     required this.label,
     required this.enabled,
     this.blockedBy,
+    this.blockedCard,
     this.cannotRenewFrom,
     this.missing,
     this.cannotAdd,
@@ -299,6 +374,7 @@ class ShareButtonState {
 ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
   final pickOnes = state.disclosurePlan?.disclosureChoicesOverview ?? const [];
   CardProblem? blockedBy;
+  DisclosureBundle? blockedCard;
   String? cannotRenewFrom;
   DisclosurePickOne? missing;
   DisclosurePickOne? cannotAdd;
@@ -319,6 +395,7 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
     final bundle = pickOne.ownedOptions![k];
     final problem = problemOfBundle(bundle);
     if (problem == null || pickOne.optional) continue;
+    blockedCard ??= bundle;
     blockedBy ??= problem;
     final stuck = fixFor(pickOne, bundle) == null && !canChange(pickOne);
     if (stuck) cannotRenewFrom ??= bundle.credentials.first.issuer.name;
@@ -336,6 +413,7 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
       label: ShareLabel.close,
       enabled: true,
       blockedBy: blockedBy,
+      blockedCard: blockedCard,
       cannotRenewFrom: cannotRenewFrom,
     );
   }
@@ -343,16 +421,27 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
       ? ShareLabel.signAndShare
       : (state.offeredCredentials?.isNotEmpty ?? false)
       ? ShareLabel.shareAndAdd
-      : anyShared
+      // A card still to add or renew: it will be shared once it is there.
+      : anyShared || missing != null || blockedBy != null
       ? ShareLabel.share
       : ShareLabel.shareWithoutData;
   return ShareButtonState(
     label: label,
     enabled: blockedBy == null && missing == null,
     blockedBy: blockedBy,
+    blockedCard: blockedCard,
     missing: missing,
   );
 }
+
+/// Whether the share screen says "{requestor} only gets what is above":
+/// only when the button shares (nothing is missing or blocked) and at least
+/// one card is in [selections]. Not while a card is still to be added, and
+/// not when nothing is shared.
+bool showFootnote(ShareButtonState button, Map<int, int> selections) =>
+    button.enabled &&
+    button.label != ShareLabel.close &&
+    selections.values.any((k) => k >= 0);
 
 // --- The issuance permission inside a request -------------------------------
 

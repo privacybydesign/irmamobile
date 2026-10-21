@@ -38,7 +38,7 @@ Future<void> choiceMixedTest(
   expectEmptySpot(
     0,
     "Demo Address or Demo iDIN",
-    hint: "Tap to choose which one to add",
+    hint: "You pick one when adding",
   );
   expectEmptySpot(1, "Demo Vektis agb by Nuts");
   expectShareWaitsFor(tester, "Demo Address or Demo iDIN");

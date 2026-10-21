@@ -53,7 +53,7 @@ Future<void> multiBundleChoiceTest(
   expect(
     find.descendant(
       of: findEmptySpot(0),
-      matching: find.text("Tap to choose which one to add"),
+      matching: find.text("You pick one when adding"),
     ),
     findsOneWidget,
   );
@@ -70,7 +70,7 @@ Future<void> multiBundleChoiceTest(
   // item of two cards.
   await issueMijnOverheidFullName(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

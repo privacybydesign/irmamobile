@@ -50,7 +50,7 @@ Future<void> noChoiceTest(
   await expectAddedInPlace(tester, 0);
   expect(find.byKey(const Key("share_change_0")), findsNothing);
 
-  final requestorHeaderFinder = find.byType(SessionRequestorHeader);
+  final requestorHeaderFinder = find.byType(RequestorCard);
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,

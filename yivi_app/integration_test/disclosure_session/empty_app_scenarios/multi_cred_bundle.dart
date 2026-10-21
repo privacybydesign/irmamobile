@@ -53,7 +53,7 @@ Future<void> multiCredBundleTest(
   expectShareWaitsFor(tester, "Demo Email address or Demo Mobile phone number");
   await issueEmailAddress(tester, irmaBinding);
   await expectAddedInPlace(tester, 1);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));

@@ -55,7 +55,7 @@ Future<void> multiCredBundlePartialTest(
   await issueMijnOverheidFullName(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
   expect(findAddedNote(1), findsNothing);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));

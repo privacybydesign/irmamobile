@@ -270,7 +270,7 @@ class _Logo extends StatelessWidget {
     final party = parts.party;
     final badge = parts.badge;
     final logo = party != null
-        ? SessionRequestorHeader.avatarOf(party, size: size)
+        ? requestorAvatar(party, size: size)
         : Container(
             width: size,
             height: size,

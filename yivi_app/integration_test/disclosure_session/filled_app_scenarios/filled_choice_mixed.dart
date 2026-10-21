@@ -36,7 +36,7 @@ Future<void> filledChoiceMixedTest(
   // Should go straight to overview screen,
   // because the address has already been obtained
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   // Expect the already obtained municipality address
   final cardsFinder = findCredentialCards();
@@ -70,7 +70,7 @@ Future<void> filledChoiceMixedTest(
   // Back on the share screen with the new iDIN selected.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
   await tester.waitFor(
-    find.byType(SessionRequestorHeader),
+    find.byType(RequestorCard),
     timeout: const Duration(seconds: 5),
   );
   expect(cardsFinder, findsOneWidget);
@@ -94,7 +94,7 @@ Future<void> filledChoiceMixedTest(
 
   // Still the iDIN on the share screen.
   expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

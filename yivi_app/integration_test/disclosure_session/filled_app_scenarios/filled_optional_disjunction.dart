@@ -46,16 +46,17 @@ Future<void> filledOptionalDisjunctionTest(
   // in its spot.
   await issueEmailAddress(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
 
   // The mobile number is optional and starts left out.
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);
   expect(findShareSlot(1), findsNothing);
 
-  // Add it: the sheet has the mobile number in the app (by its value, as
-  // every option is a mobile number), and both kinds can be added.
-  await addOptional(tester, 1);
+  // Share it ("Share too") and open its sheet ("Change choice"): it has
+  // the mobile number in the app (by its value, as every option is a
+  // mobile number), and both kinds can be added.
+  await openOptionalSheet(tester, 1);
   expect(
     find.descendant(
       of: findChoiceSheet(),
@@ -66,17 +67,17 @@ Future<void> filledOptionalDisjunctionTest(
   expectSheet(
     tester,
     owned: ["0612345678"],
-    // Optional data starts left out: no row is selected.
-    selected: "",
+    // Shared with "Share too": the card in the app is the selected one.
+    selected: "0612345678",
     addable: [
       "irma-demo.pbdf.mobilenumber",
       "irma-demo.sidn-pbdf.mobilenumber",
     ],
   );
 
-  // Use the mobile number in the app: the sheet closes and it is shared.
+  // Keep the mobile number in the app: the sheet closes and it is shared.
   await pickOwned(tester, "0612345678");
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
   expect(findShareSlot(1), findsOneWidget);
 
   expect(cardsFinder, findsNWidgets(2));

@@ -63,7 +63,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   });
   await expectAddedInPlace(tester, 1);
   expect(wrong, findsNothing);
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsNWidgets(2));

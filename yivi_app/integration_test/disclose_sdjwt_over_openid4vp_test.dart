@@ -691,10 +691,11 @@ Future<void> testOptionallyDiscloseExtraCredential(
     attributes: [("Mobile phone number", "0612345678")],
   );
 
-  // The optional e-mail address is a row to add; its sheet has both e-mail
-  // addresses in the app and another one to add.
+  // The optional e-mail address is its card, faded, with "Share too"; once
+  // shared, "Change choice" opens its sheet, with both e-mail addresses in
+  // the app and another one to add.
   final optional = _optionalItemIndex();
-  await addOptional(tester, optional);
+  await openOptionalSheet(tester, optional);
   expect(find.text("Add optional data"), findsOneWidget);
   _expectOwnedRows(tester, ["one@example.com", "two@example.com"]);
   expect(findSheetAddRow(_emailId), findsOneWidget);
@@ -1135,7 +1136,7 @@ Future<void> testOneMissingOnePresent(
   expectEmptySpot(
     1,
     "Demo Mobile phone number",
-    hint: "Tap to add it from $_sidn",
+    hint: _sidn,
   );
   expectShareWaitsFor(tester, "Demo Mobile phone number");
 
@@ -1190,7 +1191,7 @@ Future<void> testDiscloseSdJwtThatsNotThere(
 
   // The e-mail address is missing: an empty spot with one way to fill it.
   await waitForRequest(tester);
-  expectEmptySpot(0, "Demo Email address", hint: "Tap to add it from $_sidn");
+  expectEmptySpot(0, "Demo Email address", hint: _sidn);
   expectShareWaitsFor(tester, "Demo Email address");
 
   // The spot opens its details in the sheet; "Add" opens the website while

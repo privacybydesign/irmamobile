@@ -6,7 +6,9 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
+import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "shared_card_tile.dart";
@@ -74,6 +76,12 @@ class EmptyCardSpot extends StatelessWidget {
   /// Drawn with the outline of the chosen card.
   final bool selected;
 
+  /// The types to choose from when there is more than one, shown as their
+  /// own small cards in place of the dashed one (two side by side, or three
+  /// and "+n"), and the title on up to three lines. The share screen only;
+  /// the Change sheet shows one spot per type.
+  final List<CredentialDescriptor>? kinds;
+
   /// Room above the dashed edge for the half of the pill that sticks out.
   static const double edgeRoom = 12;
 
@@ -89,10 +97,12 @@ class EmptyCardSpot extends StatelessWidget {
     this.onTapDown,
     this.onTapCancel,
     this.selected = false,
+    this.kinds,
   });
 
-  /// The pill's width, so the dashed line can leave it out.
-  static double _pillWidth(BuildContext context, String label) {
+  /// The width of a [SmallPill] with an icon, so a dashed line can leave
+  /// it out.
+  static double pillWidth(BuildContext context, String label) {
     final palette = YiviPalette.of(context);
     final text = TextPainter(
       text: TextSpan(
@@ -114,24 +124,31 @@ class EmptyCardSpot extends StatelessWidget {
     final addLabel = FlutterI18n.translate(context, "share.add");
     final canAdd = onTap != null;
     const pillEnd = 16.0;
+    final choice = kinds != null && kinds!.length > 1 ? kinds : null;
     final tile = CardTile(
       dashed: true,
+      titleMaxLines: choice == null ? 1 : 3,
       dashGap: canAdd
-          ? (width: _pillWidth(context, addLabel) + 8, fromEnd: pillEnd - 4)
+          ? (width: pillWidth(context, addLabel) + 8, fromEnd: pillEnd - 4)
           : null,
-      art: SizedBox(
-        key: landingKey,
-        width: SharedCardTile.miniWidth,
-        height: SharedCardTile.miniWidth * 226 / 358,
-        child: CustomPaint(
-          painter: DashedCardPainter(color: palette.secondaryText),
-          child: Icon(
-            canAdd ? Icons.add_rounded : Icons.block_rounded,
-            size: 18,
-            color: canAdd ? palette.link : palette.secondaryText,
-          ),
-        ),
-      ),
+      art: choice != null
+          ? SizedBox(
+              key: landingKey,
+              child: _KindsArt(kinds: choice),
+            )
+          : SizedBox(
+              key: landingKey,
+              width: SharedCardTile.miniWidth,
+              height: SharedCardTile.miniWidth * 226 / 358,
+              child: CustomPaint(
+                painter: DashedCardPainter(color: palette.secondaryText),
+                child: Icon(
+                  canAdd ? Icons.add_rounded : Icons.block_rounded,
+                  size: 18,
+                  color: canAdd ? palette.link : palette.secondaryText,
+                ),
+              ),
+            ),
       title: title,
       subtitle: subtitle,
       body: [
@@ -211,6 +228,87 @@ class EmptyCardSpot extends StatelessWidget {
           onTapCancel: onTapCancel,
           child: canAdd ? PressScale(scale: 0.98, child: spot) : spot,
         ),
+      ),
+    );
+  }
+}
+
+/// The types an empty spot can be filled with, as their own cards, faded:
+/// two overlapping, or the first three stacked with "+n" for the rest.
+class _KindsArt extends StatelessWidget {
+  final List<CredentialDescriptor> kinds;
+
+  const _KindsArt({required this.kinds});
+
+  static const double _height = 44;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final two = kinds.length == 2;
+    final shown = kinds.take(two ? 2 : 3).toList();
+    final more = kinds.length - shown.length;
+    final width = two ? 46.0 : 42.0;
+    Widget card(int i, CredentialDescriptor d) {
+      final (x, y, alpha) = two
+          ? (i * 12.0, i * 14.0, i == 0 ? 0.45 : 0.7)
+          : (i * 7.0, i * 7.0, 0.4 + 0.25 * i);
+      return Positioned(
+        left: x,
+        top: y,
+        // A thin ring in the card's colour keeps the cards apart.
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            color: palette.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  CredentialCardArt.radiusFor(width) +
+                  const BorderRadius.all(Radius.circular(1.5)),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(1.5),
+            child: Opacity(
+              opacity: alpha,
+              child: CredentialTypeThumbnail(descriptor: d, width: width),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: SharedCardTile.miniWidth,
+      height: _height,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (final (i, d) in shown.indexed) card(i, d),
+          if (more > 0)
+            Positioned(
+              right: -4,
+              bottom: -2,
+              child: Container(
+                key: const Key("empty_spot_more"),
+                height: 20,
+                constraints: const BoxConstraints(minWidth: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                alignment: Alignment.center,
+                decoration: ShapeDecoration(
+                  color: palette.link,
+                  shape: StadiumBorder(
+                    side: BorderSide(color: palette.surface, width: 2),
+                  ),
+                ),
+                child: Text(
+                  "+$more",
+                  style: palette
+                      .body(11, weight: FontWeight.w700)
+                      .copyWith(color: Colors.white, height: 1),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

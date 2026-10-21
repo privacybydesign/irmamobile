@@ -8,6 +8,7 @@ import "package:yivi_core/src/screens/session/models/disclosure_view_model.dart"
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/empty_card_spot.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
@@ -94,7 +95,7 @@ Future<void> evaluateFeedback(
 }
 
 /// Checks the requestor card of the share screen: the name, "Registered
-/// with Yivi" or "Not known by Yivi", and the red warning banner for a
+/// with Yivi" or "Not checked", and the red wash behind the page for a
 /// requestor nobody vouches for. [requestorHeaderFinder] defaults to the
 /// one card on screen.
 Future<void> evaluateRequestorHeader(
@@ -103,7 +104,7 @@ Future<void> evaluateRequestorHeader(
   required String localizedRequestorName,
   required bool isVerified,
 }) async {
-  final header = requestorHeaderFinder ?? find.byType(SessionRequestorHeader);
+  final header = requestorHeaderFinder ?? find.byType(RequestorCard);
   expect(header, findsOneWidget);
   expect(
     tester
@@ -120,13 +121,13 @@ Future<void> evaluateRequestorHeader(
     find.descendant(
       of: header,
       matching: find.text(
-        isVerified ? "Registered with Yivi" : "Not known by Yivi",
+        isVerified ? "Registered with Yivi" : "Not checked",
       ),
     ),
     findsOneWidget,
   );
   expect(
-    find.byKey(const Key("share_trust_banner")),
+    find.byKey(const Key("share_trust_wash")),
     isVerified ? findsNothing : findsOneWidget,
   );
 }
@@ -164,9 +165,22 @@ Finder activityScrollable() => find
 /// app yet. Tapping it adds the card in the Change sheet.
 Finder findEmptySpot(int i) => find.byKey(Key("share_spot_$i"));
 
-/// "{name} added and selected" under requested item [i], once a card was
+/// The green "New" on the card of requested item [i], once a card was
 /// added for it during the request.
-Finder findAddedNote(int i) => find.byKey(Key("share_added_$i"));
+Finder findAddedNote(int i) => find.descendant(
+  of: findShareSlot(i),
+  matching: find.byKey(const Key("shared_card_new")),
+);
+
+/// A spot's title as the screen writes it: the types after the first in
+/// sentence case ("Demo Address or demo iDIN").
+String spotTitle(String name) {
+  final parts = name.split(" or ");
+  return [
+    parts.first,
+    for (final p in parts.skip(1)) inSentence(p),
+  ].join(" or ");
+}
 
 /// The reason above the share button ("Add … first."), if any.
 String? shareReason(WidgetTester tester) {
@@ -175,14 +189,17 @@ String? shareReason(WidgetTester tester) {
 }
 
 /// Checks that requested item [i] is an empty spot for [title] (the types
-/// it can be filled with, joined with " or "), with [hint] ("Tap to add it
-/// from …", "Tap to choose which one to add", "Can't be added in Yivi. …")
+/// it can be filled with, joined with " or "), with [hint] (the issuer of
+/// the one type, "You pick one when adding", "Can't be added in Yivi. …")
 /// when given. With one card to add, the spot also lists the requested
 /// fields as "Not in your app yet"; see [expectEmptySpotRows].
 void expectEmptySpot(int i, String title, {String? hint}) {
   final spot = findEmptySpot(i);
   expect(spot, findsOneWidget, reason: "empty spot $i");
-  expect(find.descendant(of: spot, matching: find.text(title)), findsOneWidget);
+  expect(
+    find.descendant(of: spot, matching: find.text(spotTitle(title))),
+    findsOneWidget,
+  );
   if (hint != null) {
     expect(
       find.descendant(of: spot, matching: find.text(hint)),
@@ -206,10 +223,13 @@ void expectEmptySpotRows(int i, List<String> labels) {
 }
 
 /// Checks that Share waits for [name] (the first empty spot's title):
-/// disabled, with "Add {name} first." above it.
+/// disabled, with "Add your {name} first. Then you can share." above it.
 void expectShareWaitsFor(WidgetTester tester, String name) {
   expect(shareButtonEnabled(tester), isFalse, reason: "share button");
-  expect(shareReason(tester), "Add ${inSentence(name)} first.");
+  expect(
+    shareReason(tester),
+    "Add your ${inSentence(spotTitle(name))} first. Then you can share.",
+  );
 }
 
 /// Checks that empty spot [i] cannot be filled from Yivi ("Can't be added
@@ -234,7 +254,7 @@ void expectCannotAdd(WidgetTester tester, int i) {
 }
 
 /// Checks that requested item [i] was filled with a card added during the
-/// request: the card in its place, "… added and selected" under it.
+/// request: the card in its place, with "New" on it.
 Future<void> expectAddedInPlace(WidgetTester tester, int i) async {
   await tester.waitFor(findAddedNote(i));
   expect(findEmptySpot(i), findsNothing);
@@ -278,15 +298,33 @@ Future<void> changeChoice(WidgetTester tester, int i) async {
   expect(findChoiceSheet(), findsOneWidget);
 }
 
-/// Opens the sheet of optional item [i] that is not shared yet ("Add").
+/// Optional item [i] that is not shared yet. With a card in the app it is
+/// that card, faded, with "Share too": a tap shares it, no sheet. Without
+/// one it is an empty spot: a tap opens the Change sheet to add one.
 Future<void> addOptional(WidgetTester tester, int i) async {
   final row = find.byKey(Key("share_add_optional_$i"), skipOffstage: false);
   await _scrollToCentre(tester, row);
+  final viaSheet = find
+      .descendant(of: row, matching: find.byType(EmptyCardSpot))
+      .evaluate()
+      .isNotEmpty;
   await tester.tapAndSettle(row);
-  expect(findChoiceSheet(), findsOneWidget);
+  if (viaSheet) {
+    expect(findChoiceSheet(), findsOneWidget);
+  } else {
+    expect(findShareSlot(i), findsOneWidget);
+  }
 }
 
-/// Leaves out optional item [i] again (its ×).
+/// Opens the Change sheet of optional item [i]: when it has a card in the
+/// app, shares that first ("Share too") and then taps "Change choice";
+/// otherwise taps Add on its empty spot.
+Future<void> openOptionalSheet(WidgetTester tester, int i) async {
+  if (findShareSlot(i).evaluate().isEmpty) await addOptional(tester, i);
+  if (findChoiceSheet().evaluate().isEmpty) await changeChoice(tester, i);
+}
+
+/// Leaves out optional item [i] again ("Don't share").
 Future<void> removeOptional(WidgetTester tester, int i) async {
   final remove = find.byKey(Key("share_remove_$i"), skipOffstage: false);
   await _scrollToCentre(tester, remove);

@@ -86,9 +86,10 @@ Future<void> optionalExtraCredentialTest(
     attributes: [("Phone Number", "0612345678")],
   );
 
-  // The optional email is not shared yet: a row to add it.
+  // The optional email is not shared yet: its card, faded. Share it and
+  // change the choice in the sheet.
   final optional = keyIndex(tester, "share_add_optional_");
-  await addOptional(tester, optional);
+  await openOptionalSheet(tester, optional);
   expect(find.text("Add optional data"), findsOneWidget);
 
   // Two owned email cards; nothing to add for OID4VCI.

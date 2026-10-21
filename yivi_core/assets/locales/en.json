@@ -1312,35 +1312,24 @@
       "close": "Close"
     },
     "reason": {
-      "revoked": "Replace the revoked card to share.",
-      "used_up": "Replace the used-up card to share.",
-      "expired": "Replace the expired card to share.",
       "cant_renew": "{requestor} needs a card you can't renew in Yivi. Ask {issuer} for a new one.",
-      "missing": "Add {name} first.",
+      "missing": "Add your {name} first. Then you can share.",
       "cant_add": "Yivi can't add {name}. Get it from {issuer} first, then scan the QR code again.",
-      "cant_add_unknown": "Yivi can't add {name}. Get it from its issuer first, then scan the QR code again."
+      "cant_add_unknown": "Yivi can't add {name}. Get it from its issuer first, then scan the QR code again.",
+      "renew": "Renew your {name} first. Then you can share."
     },
     "section": {
-      "you_share": "You share",
-      "with_signature": "With your signature",
+      "you_share": "You share this",
+      "with_signature": "You share this with your signature",
       "optional": "Optional",
-      "you_choose": "You choose",
-      "you_receive": "You receive",
-      "from": "From {issuer}",
-      "nothing_required": "Nothing required",
-      "nothing_required_text": "{requestor} asks for nothing you must share.",
-      "gets": "{requestor} gets"
+      "you_receive": "You get this in return",
+      "nothing_required_text": "{requestor} asks for nothing you must share."
     },
-    "change": "Change",
-    "leave_out": "Leave out {name}",
     "add": "Add",
-    "in_your_app": "In your app",
     "not_in_app_yet": "Not in your app yet",
     "or": " or ",
-    "add_new": "Add a new {name}",
     "message_label": "You sign this message",
-    "footnote": "{requestor} gets only this. Everything else stays on your phone.",
-    "footnote_none": "The visit is still kept in your Activity.",
+    "footnote": "{requestor} only gets what is above. Everything else stays on your phone.",
     "sheet": {
       "add_optional": "Add optional data",
       "another": "Another {name}",
@@ -1376,10 +1365,8 @@
       "text": "The person who answers can see the data you just shared, so you don't have to spell anything out.",
       "button": "Call {requestor}"
     },
-    "added_selected": "{name} added and selected",
     "spot": {
-      "one": "Tap to add it from {issuer}",
-      "many": "Tap to choose which one to add",
+      "many": "You pick one when adding",
       "cant": "Can't be added in Yivi. Get it from {issuer} first.",
       "wrong": "You added {offered}, needed {needed}. Tap to add it again.",
       "together": "Only accepted together. Tap to add them one by one.",
@@ -1387,25 +1374,16 @@
       "must_be": "{field} must be {value}",
       "must_be_value": "Must be {value}"
     },
-    "heading": {
-      "share": "Share your data with",
-      "sign": "Sign and share with",
-      "share_receive": "Share your data with"
-    },
     "trust": {
       "pill": {
         "yivi": "Registered with Yivi",
         "eu": "Verified in the EU",
         "anchor": "Verified by {anchor}",
         "confirmed": "Identity confirmed",
-        "unknown": "Not known by Yivi"
+        "unknown": "Not known by Yivi",
+        "unchecked": "Not checked"
       },
       "card_semantics": "{name}, {status}. What does this mean?",
-      "banner": {
-        "title": "Yivi doesn't know who this is",
-        "text": "Nobody checked who they are. There is no certainty about who gets your data.",
-        "more": "What does this mean?"
-      },
       "risky": {
         "reason": "Only share if you trust {requestor}",
         "share_anyway": "Share anyway",
@@ -1518,7 +1496,25 @@
         "mdoc": "mdoc",
         "unknown": "Unknown format"
       }
-    }
+    },
+    "ask": {
+      "share": "is asking for your data",
+      "sign": "is asking you to sign something",
+      "share_receive": "is asking for your data and gives you a card"
+    },
+    "lead": "Below is exactly what they get. Nothing is sent until you press the share button.",
+    "lead_sign": "Below is exactly what they get. Nothing is sent until you press the sign button.",
+    "lead_receive": "You share what is below and get a card in return. Nothing is sent until you press the share button.",
+    "also": "You can also choose {list}",
+    "also_other": "your other {name}",
+    "also_your": "your {name}",
+    "also_a": "a {name}",
+    "change_choice": "Change choice",
+    "renew": "Renew",
+    "new_chip": "New",
+    "together": "These go together. {requestor} gets both, or neither.",
+    "also_share": "Share too",
+    "dont_share": "Don't share"
   },
   "contact_sheet": {
     "intro_email": "We email you a code to check that this address is yours.",

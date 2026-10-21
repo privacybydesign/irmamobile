@@ -63,7 +63,7 @@ Future<void> multiBundleChoicePartialTest(
   // in the sheet and the set lands in its spot.
   await issueMijnOverheidFullName(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
-  await tester.waitFor(find.byType(SessionRequestorHeader));
+  await tester.waitFor(find.byType(RequestorCard));
 
   final cardsFinder = findCredentialCards();
   expect(cardsFinder, findsOneWidget);

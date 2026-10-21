@@ -52,7 +52,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
   await expectAddedInPlace(tester, 1);
 
   // The requestor header should be present
-  expect(find.byType(SessionRequestorHeader), findsOneWidget);
+  expect(find.byType(RequestorCard), findsOneWidget);
 
   // Two cards should be visible: email and mobile phone
   final cardsFinder = findCredentialCards();

@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
@@ -11,13 +12,13 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/large_title_scroll_view.dart";
 import "../../../widgets/signature_message.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/technical_details.dart";
@@ -30,16 +31,28 @@ import "session_scaffold.dart";
 import "shared_card_tile.dart";
 import "technical_details_sheet.dart";
 
-/// The share screen: the question as a large title, who asks, one card per
-/// requested item with only the values that are shared, optional data, the
-/// message to sign or the card offered in return, and one button.
+/// The share screen: who asks, as the subject of the page ("Webshop Noord
+/// is asking for your data"), one card per requested item with only the
+/// values that are shared, optional data, the message to sign or the card
+/// offered in return, and one button.
 ///
-/// A required card that is not in the app yet is an empty spot: tapping it
-/// adds the card in the Change sheet, and the new card flies into the spot.
+/// - A card with other choices has a strip at its foot: "You can also
+///   choose …" with "Change choice", which opens the Change sheet.
+/// - A required card that is not in the app yet is an empty spot: Add
+///   opens the Change sheet on adding it, and the new card flies into the
+///   spot. With several types to choose from, the spot shows them as small
+///   cards, and the choice is made in the sheet.
+/// - Optional data that is not shared is its card, faded in a dashed edge,
+///   with "Share too" on that edge; once shared it has "Don't share".
+/// - The footnote and Technical details sit at the bottom of the page, also
+///   when it does not scroll.
+/// - Once the requestor card has scrolled under the bar, a glass pill in the
+///   bar says who asks, as on the detail pages.
 ///
-/// The button is the consent: there is no confirmation dialog after it. It
-/// is disabled with the reason above it while a selected card cannot be
-/// shared, and closes the session when such a card cannot be renewed in Yivi.
+/// The button is the consent: there is no confirmation dialog after it,
+/// except for a party nobody vouches for. It is disabled with the reason
+/// above it while a card is missing or cannot be shared, and closes the
+/// session when such a card cannot be added or renewed in Yivi.
 ///
 /// Everything comes from [session] and the user's selection
 /// ([sessionUserChoicesProvider]); the rules live in
@@ -69,7 +82,14 @@ class DisclosureShareScreen extends ConsumerStatefulWidget {
 }
 
 class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
-  final _barTitleVisible = ValueNotifier(false);
+  /// The requestor card, and whether it has scrolled under the bar (the
+  /// glass pill in the bar then says who asks).
+  final _headerKey = GlobalKey(debugLabel: "share_requestor_card");
+  final _scrolledPast = ValueNotifier(false);
+
+  /// How far the page is scrolled: the list lets go of the card once it is
+  /// far out of view, and then this says it has passed.
+  double _scrolled = 0;
 
   /// Per pick-one, where a card added for it in the sheet lands.
   final _landingKeys = <int, GlobalKey>{};
@@ -84,13 +104,29 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
   @override
   void dispose() {
-    _barTitleVisible.dispose();
+    _scrolledPast.dispose();
     super.dispose();
   }
 
-  /// "Change", or "Add" on optional data: the choice sheet for pick-one
-  /// [i]. With [addNew] it opens on adding that type (the fix of a card that
-  /// cannot be shared).
+  /// Whether the bottom of the requestor card is under the bar.
+  void _checkHeader() {
+    if (!mounted) return;
+    final box = _headerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize || !box.attached) {
+      _scrolledPast.value = _scrolled > 0;
+      return;
+    }
+    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+    final barBottom = MediaQuery.paddingOf(context).top + 60;
+    _scrolledPast.value = bottom < barBottom;
+  }
+
+  String _t(String key, [Map<String, String>? params]) =>
+      FlutterI18n.translate(context, key, translationParams: params);
+
+  /// "Change choice", "Add" on a spot, and the fix of a card that cannot be
+  /// shared: the choice sheet for pick-one [i]. With [addNew] it opens on
+  /// adding that type.
   void _openChoice(int i, {CredentialDescriptor? addNew}) =>
       showChangeChoiceSheet(
         context: context,
@@ -120,18 +156,22 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         : offered.isNotEmpty
         ? "share_receive"
         : "share";
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
+    final t = _t;
+    final columns = useSessionColumns(context);
+    // The header can change size (rotation, text size): check again after
+    // this layout.
+    if (!columns) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader());
+    }
 
     final required = [
       for (final (i, p) in pickOnes.indexed)
-        if (!p.optional) _requiredTile(i, p, selections),
+        if (!p.optional) (i, p),
     ];
     final optional = [
       for (final (i, p) in pickOnes.indexed)
-        if (p.optional) _optionalItem(i, p, selections),
+        if (p.optional) (i, p),
     ];
-    final anyShared = selections.values.any((k) => k >= 0);
     final trust = requestorTrustOf(session.requestor);
     void openTrust() => showRequestorTrustSheet(
       context: context,
@@ -139,71 +179,88 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       onDontShare: widget.onClose,
     );
 
-    final requestorPart = <Widget>[
-      SessionRequestorHeader(requestor: session.requestor, onTap: openTrust),
-      if (trust.risky)
-        _TrustBanner(
-          title: t("share.trust.banner.title"),
-          text: t("share.trust.banner.text"),
-          more: t("share.trust.banner.more"),
-          onMore: openTrust,
+    final ask = t("share.ask.$kind");
+    final lead = required.isEmpty && optional.isNotEmpty
+        ? t("share.section.nothing_required_text", {"requestor": requestor})
+        : t(switch (kind) {
+            "sign" => "share.lead_sign",
+            "share_receive" => "share.lead_receive",
+            _ => "share.lead",
+          });
+
+    final requestorPart = <_Spaced>[
+      _Spaced(
+        0,
+        KeyedSubtree(
+          key: _headerKey,
+          child: RequestorCard(
+            requestor: session.requestor,
+            ask: ask,
+            onInfo: openTrust,
+          ),
         ),
+      ),
+      _Spaced(
+        12,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            lead,
+            key: const Key("share_lead"),
+            style: palette
+                .body(15)
+                .copyWith(height: 22 / 15, color: palette.secondaryText),
+          ),
+        ),
+      ),
       if (isSignature && session.messageToSign != null)
-        _Surface(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 8,
-            children: [
-              Text(
-                t("share.message_label"),
-                style: palette
-                    .body(13, weight: FontWeight.w700)
-                    .copyWith(color: palette.secondaryText),
-              ),
-              SignatureMessage(message: session.messageToSign!),
-            ],
+        _Spaced(
+          14,
+          _Surface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 8,
+              children: [
+                Text(
+                  t("share.message_label"),
+                  style: palette
+                      .body(13, weight: FontWeight.w700)
+                      .copyWith(color: palette.secondaryText),
+                ),
+                SignatureMessage(message: session.messageToSign!),
+              ],
+            ),
           ),
         ),
     ];
 
-    final requestedPart = <Widget>[
+    final requestedPart = <_Spaced>[
       if (required.isNotEmpty) ...[
-        _SectionLabel(
-          title: isSignature
-              ? t("share.section.with_signature")
-              : t("share.section.gets", {"requestor": requestor}),
-          arrow: !isSignature,
+        _Spaced(
+          24,
+          _SectionLabel(
+            isSignature
+                ? t("share.section.with_signature")
+                : t("share.section.you_share"),
+          ),
         ),
-        ...required,
+        for (final (i, p) in required) _requiredItem(i, p, selections),
       ],
       if (optional.isNotEmpty) ...[
-        _SectionLabel(
-          title: t("share.section.optional"),
-          aside: required.isEmpty
-              ? t("share.section.nothing_required")
-              : t("share.section.you_choose"),
-        ),
-        if (required.isEmpty)
-          Text(
-            t("share.section.nothing_required_text", {"requestor": requestor}),
-            textAlign: TextAlign.center,
-            style: palette.body(13.5).copyWith(color: palette.secondaryText),
-          ),
-        ...optional,
+        _Spaced(24, _SectionLabel(t("share.section.optional"))),
+        for (final (i, p) in optional) _optionalItem(i, p, selections),
       ],
       if (offered.isNotEmpty) ...[
-        _SectionLabel(
-          title: t("share.section.you_receive"),
-          aside: t("share.section.from", {"issuer": requestor}),
-        ),
-        for (final card in offered) _OfferedCard(card: card),
+        _Spaced(24, _SectionLabel(t("share.section.you_receive"))),
+        for (final card in offered) _Spaced(12, _OfferedCard(card: card)),
       ],
     ];
-    final footnote = _Footnote(
-      text: anyShared
-          ? t("share.footnote", {"requestor": requestor})
-          : t("share.footnote_none"),
-    );
+
+    // Only when the button shares something: not while a card is missing,
+    // and not when nothing is shared.
+    final footnote = showFootnote(button, selections)
+        ? _Footnote(text: t("share.footnote", {"requestor": requestor}))
+        : null;
     // For the curious: last on the page, small and grey, out of the way of
     // the button.
     final techLink = _TechLink(
@@ -216,6 +273,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           t,
         ),
       ),
+    );
+    final pageEnd = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [?footnote, techLink],
     );
 
     // Nobody vouches for the requestor: Share becomes "Share anyway", asks
@@ -244,9 +306,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           "share.reason.cant_renew",
           {"requestor": requestor, "issuer": issuer},
         ),
-        ShareButtonState(blockedBy: final p?) => t(
-          "share.reason.${_problemName(p)}",
-        ),
+        ShareButtonState(blockedCard: final b?) => t("share.reason.renew", {
+          "name": _inSentence(_bundleName(b)),
+        }),
         _ when risky => t("share.trust.risky.reason", {"requestor": requestor}),
         _ => null,
       },
@@ -272,15 +334,15 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           : share,
     );
 
-    // Tablets: the question, who asks and what it means on the left; what
-    // is shared and the button on the right.
-    if (useSessionColumns(context)) {
+    // Tablets: who asks and what it means on the left, with the footnote
+    // and the details at its foot; what is shared and the button on the
+    // right.
+    if (columns) {
       return SessionScaffold(
         appBarTitle: "share.bar.$kind",
         onDismiss: widget.onDismiss,
         wide: true,
         scrollsUnderBars: true,
-        barTitleVisibility: hiddenBarTitle,
         body: _TrustWash(
           on: trust.risky,
           child: SessionColumns(
@@ -289,18 +351,15 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             gap: 56,
             start: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 14,
               children: [
-                SessionColumnsTitle(t("share.heading.$kind")),
-                ...requestorPart,
-                footnote,
-                techLink,
+                ..._laidOut(requestorPart),
+                const SizedBox(height: 28),
+                pageEnd,
               ],
             ),
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 10,
-              children: requestedPart,
+              children: _laidOut(requestedPart, first: true),
             ),
             actions: bar,
           ),
@@ -312,26 +371,74 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       appBarTitle: "share.bar.$kind",
       onDismiss: widget.onDismiss,
       scrollsUnderBars: true,
-      barTitleVisibility: _barTitleVisible,
       bottomNavigationBar: bar,
+      startBar: _CompactBarSlot(
+        shown: _scrolledPast,
+        requestor: session.requestor,
+        subtitle: ask,
+      ),
       body: _TrustWash(
         on: trust.risky,
         child: Builder(
-          builder: (context) => LargeTitleScrollView(
-            key: const Key("share_scroll_view"),
-            title: t("share.heading.$kind"),
-            barTitleVisible: _barTitleVisible,
-            padding: BarInsets.of(
-              context,
-              const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            ),
-            spacing: 12,
-            children: [...requestorPart, ...requestedPart, footnote, techLink],
-          ),
+          builder: (context) {
+            final insets = BarInsets.of(context);
+            return NotificationListener<ScrollNotification>(
+              onNotification: (n) {
+                _scrolled = n.metrics.pixels;
+                _checkHeader();
+                return false;
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  key: const Key("share_scroll_view"),
+                  padding: EdgeInsets.fromLTRB(
+                    16 + insets.left,
+                    16 + insets.top,
+                    16 + insets.right,
+                    16 + insets.bottom,
+                  ),
+                  // At least the screen high, so the footnote and the details
+                  // sit at its bottom also when the page is short.
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: (constraints.maxHeight - insets.vertical - 32)
+                          .clamp(0, double.infinity),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: _laidOut([
+                            ...requestorPart,
+                            ...requestedPart,
+                          ]),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28),
+                          child: pageEnd,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
+
+  /// [items] with their gaps above them; the first item's gap is dropped
+  /// when [first].
+  static List<Widget> _laidOut(List<_Spaced> items, {bool first = false}) => [
+    for (final (n, item) in items.indexed) ...[
+      if (!(first && n == 0) && item.gap > 0) SizedBox(height: item.gap),
+      item.child,
+    ],
+  ];
 
   /// The cards that would be shared with the current selection.
   static List<SelectableCredentialInstance> _sharedCredentials(
@@ -380,14 +487,20 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         false;
   }
 
+  /// "Passport, ID card or driving licence": the types of a spot, the ones
+  /// after the first as they read inside the list.
   String _spotName(DisclosurePickOne p) => spotName(
     p,
-    FlutterI18n.translate(context, "share.or"),
+    _t("share.or"),
     together: spotTogether(
       p,
       widget.session.disclosurePlan?.issueDuringDisclosure,
     ),
+    inList: _inSentence,
   );
+
+  static String _bundleName(DisclosureBundle b) =>
+      b.credentials.map((c) => c.name).join(" + ");
 
   String _inSentence(String name) => inSentence(
     name,
@@ -399,97 +512,88 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       if (d.issuer.name.isNotEmpty) d.issuer.name,
   }.join(", ");
 
-  Widget _requiredTile(int i, DisclosurePickOne p, Map<int, int> selections) {
-    final tile = _requiredContent(i, p, selections);
-    if (!useSessionColumns(context)) return tile;
-    // On a tablet the Change sheet is a dialog and nothing flies: the card
-    // that was added fades into its spot.
-    return AnimatedSwitcher(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : const Duration(milliseconds: 300),
-      child: KeyedSubtree(
-        key: ValueKey((i, selectionOf(p, selections[i]) < 0)),
-        child: tile,
+  /// "You can also choose your other email address or a mobile number",
+  /// with "Change choice": the strip at the foot of a card with other
+  /// choices. Null when there are none.
+  Widget? _choiceStrip(int i, DisclosurePickOne p, int selected) {
+    if (!canChange(p)) return null;
+    final items = alsoChoose(p, selected);
+    if (items.isEmpty) return null;
+    final list = orList([
+      for (final (kind, name) in items)
+        _t("share.also_${kind.name}", {"name": _inSentence(name)}),
+    ], _t("share.or"));
+    return _ChoiceStrip(
+      text: _t("share.also", {"list": list}),
+      button: SmallPill(
+        key: Key("share_change_$i"),
+        label: _t("share.change_choice"),
+        tone: SmallPillTone.surface,
+        onPressed: () => _openChoice(i),
       ),
     );
   }
 
-  Widget _requiredContent(
-    int i,
-    DisclosurePickOne p,
-    Map<int, int> selections,
-  ) {
+  /// A required item: its card, or the empty spot when it is not in the app.
+  _Spaced _requiredItem(int i, DisclosurePickOne p, Map<int, int> selections) {
     final k = selectionOf(p, selections[i]);
-    if (k < 0) return _emptySpot(i, p);
-    final bundle = p.ownedOptions![k];
-    final tile = _filledTile(i, p, bundle);
-    if (!addedDuringRequest(
-      p,
-      bundle,
-      widget.session.disclosurePlan?.issueDuringDisclosure,
-    )) {
-      return tile;
-    }
-    final palette = YiviPalette.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 8,
-      children: [
-        tile,
-        _Note(
-          key: Key("share_added_$i"),
-          text: FlutterI18n.translate(
-            context,
-            "share.added_selected",
-            translationParams: {
-              "name": bundle.credentials.map((c) => c.name).join(" + "),
-            },
-          ),
-          icon: Icons.check_rounded,
-          background: palette.successSurface,
-          foreground: palette.successText,
-        ),
-      ],
+    // The spot keeps room above its dashed edge for the pill: that is the
+    // gap.
+    if (k < 0) return _Spaced(0, _emptySpot(i, p));
+    final tile = _filledTile(i, p, k);
+    if (!useSessionColumns(context)) return _Spaced(12, tile);
+    // On a tablet the Change sheet is a dialog and nothing flies: the card
+    // that was added fades into its spot.
+    return _Spaced(
+      12,
+      AnimatedSwitcher(
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 300),
+        child: KeyedSubtree(key: ValueKey((i, k < 0)), child: tile),
+      ),
     );
   }
 
-  /// A required card that is not in the app yet. With one way to get it,
-  /// tapping goes straight to adding it; with more, to the choice first.
-  Widget _emptySpot(int i, DisclosurePickOne p) {
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
+  /// A card that is not in the app yet. With one way to get it, Add goes
+  /// straight to adding it; with more, to the choice in the sheet, and the
+  /// spot shows the types as small cards.
+  Widget _emptySpot(int i, DisclosurePickOne p, {Key? key}) {
+    final t = _t;
     final addable = addableOptions(p);
     final plan = widget.session.disclosurePlan?.issueDuringDisclosure;
     final mismatch = spotMismatch(p, plan);
     final together = spotTogether(p, plan);
     final issuers = _issuersOf(p);
+    final single = addable.length == 1 && !together ? addable.single : null;
+    final several = !together && addable.length > 1;
     final subtitle = addable.isEmpty
         ? issuers.isEmpty
               ? t("share.spot.cant_unknown")
               : t("share.spot.cant", {"issuer": issuers})
         : together
         ? t("share.spot.together")
-        : addable.length == 1
-        ? t("share.spot.one", {"issuer": addable.single.issuer.name})
+        : single != null
+        ? single.issuer.name
         : t("share.spot.many");
     // With one card to add, its rows show what the request asks for, as the
     // card will once it is there.
-    final single = addable.length == 1 && !together ? addable.single : null;
     final rows = single == null
         ? const <(String, String)>[]
         : emptySpotRows(context, single);
     return EmptyCardSpot(
-      key: Key("share_spot_$i"),
+      key: key ?? Key("share_spot_$i"),
       rows: rows,
       // Where the added card flies to; on a tablet it fades in instead, and
       // the spot fading out must not hold the key the card then has.
       landingKey: useSessionColumns(context) ? null : _landingKey(i),
-      title: spotName(p, t("share.or"), together: together),
+      title: _spotName(p),
       subtitle: subtitle,
-      // Without rows the values it must have go below the name.
+      kinds: several ? addable : null,
+      // Without rows the values it must have go below the name; with a
+      // choice of types they are in the sheet.
       requirements: [
-        if (rows.isEmpty)
+        if (rows.isEmpty && !several)
           for (final (field, value) in spotRequiredValues(p))
             t("share.spot.must_be", {
               "field": field,
@@ -504,41 +608,28 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               "needed":
                   localizedAttributeText(context, mismatch.required) ?? "",
             }),
-      onTap: addable.isEmpty
-          ? null
-          : () => _openChoice(
-              i,
-              addNew: addable.length == 1 && !together ? addable.single : null,
-            ),
+      onTap: addable.isEmpty ? null : () => _openChoice(i, addNew: single),
     );
   }
 
-  Widget _filledTile(int i, DisclosurePickOne p, DisclosureBundle bundle) {
-    final fix = problemOfBundle(bundle) == null ? null : fixFor(p, bundle);
+  Widget _filledTile(int i, DisclosurePickOne p, int k) {
+    final bundle = p.ownedOptions![k];
+    final problem = problemOfBundle(bundle);
+    final fix = problem == null ? null : fixFor(p, bundle);
+    final isNew = addedDuringRequest(
+      p,
+      bundle,
+      widget.session.disclosurePlan?.issueDuringDisclosure,
+    );
     final tile = SharedCardTile(
       key: Key("share_slot_$i"),
       bundle: bundle,
       landingKey: _landingKey(i),
-      trailing: canChange(p)
-          ? SmallPill(
-              key: Key("share_change_$i"),
-              label: FlutterI18n.translate(context, "share.change"),
-              onPressed: () => _openChoice(i),
-            )
-          : null,
-      fixLabel: fix == null
-          ? null
-          : FlutterI18n.translate(
-              context,
-              "share.add_new",
-              translationParams: {
-                "name": inSentence(
-                  fix.name,
-                  language: FlutterI18n.currentLocale(context)?.languageCode,
-                ),
-              },
-            ),
+      isNew: isNew,
+      problemStrip: true,
+      fixLabel: fix == null ? null : _t("share.renew"),
       onFix: fix == null ? null : () => _openChoice(i, addNew: fix),
+      footer: _choiceStrip(i, p, k) ?? _togetherStrip(bundle),
     );
     if (!canChange(p)) return tile;
     // Flies into the Change sheet, where the same card is the checked one.
@@ -551,57 +642,73 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
   }
 
-  Widget _optionalItem(int i, DisclosurePickOne p, Map<int, int> selections) {
+  /// "These go together": a set of cards that is only accepted as a whole.
+  Widget? _togetherStrip(DisclosureBundle bundle) {
+    if (bundle.credentials.length < 2) return null;
+    final palette = YiviPalette.of(context);
+    return CardTileStrip(
+      key: const Key("share_together"),
+      children: [
+        ExcludeSemantics(
+          child: Icon(Icons.link_rounded, size: 16, color: palette.link),
+        ),
+        Expanded(
+          child: Text(
+            _t("share.together", {"requestor": widget.session.requestor.name}),
+            style: palette
+                .body(13.5)
+                .copyWith(height: 19 / 13.5, color: palette.heading),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Optional data. Not shared: its card faded in a dashed edge with "Share
+  /// too" on it, which includes it at once. Shared: the card with "Don't
+  /// share". Not in the app: an empty spot whose Add opens the sheet.
+  _Spaced _optionalItem(int i, DisclosurePickOne p, Map<int, int> selections) {
+    final notifier = ref.read(sessionUserChoicesProvider(_sessionId).notifier);
+    final owned = p.ownedOptions ?? const <DisclosureBundle>[];
     final k = selectionOf(p, selections[i]);
     if (k >= 0) {
-      final bundle = p.ownedOptions![k];
-      final name = bundle.credentials.map((c) => c.name).join(" + ");
+      final bundle = owned[k];
       final tile = SharedCardTile(
         key: Key("share_slot_$i"),
         bundle: bundle,
         landingKey: _landingKey(i),
-        trailing: _RemoveButton(
+        trailing: SmallPill(
           key: Key("share_remove_$i"),
-          label: FlutterI18n.translate(
-            context,
-            "share.leave_out",
-            translationParams: {"name": name},
-          ),
-          onTap: () => ref
-              .read(sessionUserChoicesProvider(_sessionId).notifier)
-              .removeOptional(i),
+          label: _t("share.dont_share"),
+          onPressed: () => notifier.removeOptional(i),
         ),
+        footer: _choiceStrip(i, p, k),
       );
       // A card picked for it in the sheet flies into its place, as a
       // required card does.
-      return Hero(
-        tag: choiceHeroTag(_sessionId, i, bundle),
-        flightShuttleBuilder: choiceHeroShuttle,
-        transitionOnUserGestures: true,
-        child: tile,
+      return _Spaced(
+        12,
+        Hero(
+          tag: choiceHeroTag(_sessionId, i, bundle),
+          flightShuttleBuilder: choiceHeroShuttle,
+          transitionOnUserGestures: true,
+          child: tile,
+        ),
       );
     }
-    final owned = p.ownedOptions ?? const [];
-    final names = {
-      for (final b in owned) b.credentials.map((c) => c.name).join(" + "),
-      for (final d in addableOptions(p)) d.name,
-    };
-    return _AddRow(
-      key: Key("share_add_optional_$i"),
-      title: names.join(FlutterI18n.translate(context, "share.or")),
-      subtitle: FlutterI18n.translate(
-        context,
-        owned.isNotEmpty ? "share.in_your_app" : "share.not_in_app_yet",
+    if (owned.isEmpty) {
+      return _Spaced(0, _emptySpot(i, p, key: Key("share_add_optional_$i")));
+    }
+    return _Spaced(
+      0,
+      _OptionalGhost(
+        key: Key("share_add_optional_$i"),
+        bundle: owned.first,
+        label: _t("share.also_share"),
+        onAdd: () => notifier.addOptional(i),
       ),
-      onTap: () => _openChoice(i),
     );
   }
-
-  static String _problemName(CardProblem p) => switch (p) {
-    CardProblem.revoked => "revoked",
-    CardProblem.usedUp => "used_up",
-    CardProblem.expired => "expired",
-  };
 
   static String _labelName(ShareLabel l) => switch (l) {
     ShareLabel.share => "share",
@@ -612,53 +719,155 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   };
 }
 
+/// A widget on the page with the gap above it.
+class _Spaced {
+  final double gap;
+  final Widget child;
+
+  const _Spaced(this.gap, this.child);
+}
+
+/// The glass pill in the bar once the requestor card has scrolled away: it
+/// fades in and comes down 8 pt, as on the detail pages.
+class _CompactBarSlot extends StatelessWidget {
+  final ValueListenable<bool> shown;
+  final schemaless.TrustedParty requestor;
+  final String subtitle;
+
+  const _CompactBarSlot({
+    required this.shown,
+    required this.requestor,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: shown,
+      builder: (context, on, _) => TweenAnimationBuilder<double>(
+        tween: Tween(end: on ? 1 : 0),
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOut,
+        builder: (context, t, _) => t == 0
+            ? const SizedBox.shrink()
+            : IgnorePointer(
+                child: Transform.translate(
+                  offset: Offset(0, (1 - t) * -8),
+                  child: RequestorCompactBar(
+                    requestor: requestor,
+                    subtitle: subtitle,
+                    opacity: t,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+}
+
 class _SectionLabel extends StatelessWidget {
   final String title;
-  final String? aside;
 
-  /// A small down arrow before the title: "↓ {requestor} gets", which reads
-  /// on from the party card above it.
-  final bool arrow;
-
-  const _SectionLabel({required this.title, this.aside, this.arrow = false});
+  const _SectionLabel(this.title);
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          if (arrow)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: ExcludeSemantics(
-                child: Icon(
-                  Icons.arrow_downward_rounded,
-                  size: 15,
-                  color: palette.secondaryText,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title.toUpperCase(),
+          style: palette
+              .body(12.5, weight: FontWeight.w700)
+              .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
+        ),
+      ),
+    );
+  }
+}
+
+/// The strip at the foot of a card with other choices.
+class _ChoiceStrip extends StatelessWidget {
+  final String text;
+  final Widget button;
+
+  const _ChoiceStrip({required this.text, required this.button});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return CardTileStrip(
+      children: [
+        Expanded(
+          child: Text(
+            text,
+            key: const Key("share_also"),
+            style: palette
+                .body(13.5)
+                .copyWith(height: 19 / 13.5, color: palette.heading),
+          ),
+        ),
+        button,
+      ],
+    );
+  }
+}
+
+/// Optional data that is not shared: the card it would be, at half
+/// strength in a dashed edge, with "Share too" on that edge. A tap anywhere
+/// includes it.
+class _OptionalGhost extends StatelessWidget {
+  final DisclosureBundle bundle;
+  final String label;
+  final VoidCallback onAdd;
+
+  const _OptionalGhost({
+    super.key,
+    required this.bundle,
+    required this.label,
+    required this.onAdd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const pillEnd = 16.0;
+    final gap = (
+      width: EmptyCardSpot.pillWidth(context, label) + 8,
+      fromEnd: pillEnd - 4,
+    );
+    return Semantics(
+      button: true,
+      label: "$label: ${bundle.credentials.map((c) => c.name).join(" + ")}",
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: EmptyCardSpot.edgeRoom),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onAdd,
+          child: PressScale(
+            scale: 0.98,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                SharedCardTile(bundle: bundle, ghost: true, dashGap: gap),
+                PositionedDirectional(
+                  top: -SmallPill.height / 2,
+                  end: pillEnd,
+                  child: IgnorePointer(
+                    child: SmallPill(
+                      key: const Key("share_also_share"),
+                      label: label,
+                      icon: Icons.add_rounded,
+                      onPressed: onAdd,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          Expanded(
-            child: Semantics(
-              header: true,
-              child: Text(
-                title.toUpperCase(),
-                style: palette
-                    .body(12.5, weight: FontWeight.w700)
-                    .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
-              ),
+              ],
             ),
           ),
-          if (aside != null)
-            Text(
-              aside!,
-              style: palette.body(12.5).copyWith(color: palette.secondaryText),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -689,153 +898,6 @@ class _Surface extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
         child: child,
-      ),
-    );
-  }
-}
-
-class _Note extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final Color background;
-  final Color foreground;
-
-  const _Note({
-    super.key,
-    required this.text,
-    required this.icon,
-    required this.background,
-    required this.foreground,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      liveRegion: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: ShapeDecoration(
-          color: background,
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(14)),
-          ),
-        ),
-        child: Row(
-          spacing: 8,
-          children: [
-            Icon(icon, size: 16, color: foreground),
-            Expanded(
-              child: Text(
-                text,
-                style: palette
-                    .body(13, weight: FontWeight.w600)
-                    .copyWith(color: foreground),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RemoveButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _RemoveButton({super.key, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return PlainIconButton(
-      icon: Icons.close_rounded,
-      iconSize: 18,
-      semanticsLabel: label,
-      onPressed: onTap,
-    );
-  }
-}
-
-/// An optional item that is not included: what can be added, and "Add".
-class _AddRow extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _AddRow({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: GlassSurface(
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(22)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            spacing: 12,
-            children: [
-              ExcludeSemantics(
-                child: Container(
-                  width: SharedCardTile.miniWidth,
-                  height: SharedCardTile.miniWidth * 226 / 358,
-                  decoration: ShapeDecoration(
-                    shape: RoundedSuperellipseBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(9)),
-                      side: BorderSide(color: palette.outline, width: 1.5),
-                    ),
-                  ),
-                  child: Icon(Icons.add_rounded, size: 18, color: palette.link),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: palette
-                          .body(15, weight: FontWeight.w600)
-                          .copyWith(color: palette.text),
-                    ),
-                    Text(
-                      subtitle,
-                      style: palette
-                          .body(12.5)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                height: 32,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                alignment: Alignment.center,
-                decoration: ShapeDecoration(
-                  color: palette.tint,
-                  shape: const StadiumBorder(),
-                ),
-                child: Text(
-                  FlutterI18n.translate(context, "share.add"),
-                  style: palette
-                      .body(13, weight: FontWeight.w600)
-                      .copyWith(color: palette.link),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -876,30 +938,17 @@ class _Footnote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 2, 8, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Icon(
-              Icons.shield_outlined,
-              size: 16,
-              color: palette.secondaryText,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              key: const Key("share_footnote"),
-              style: palette
-                  .body(13)
-                  .copyWith(height: 19 / 13, color: palette.secondaryText),
-            ),
-          ),
-        ],
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 320),
+        child: Text(
+          text,
+          key: const Key("share_footnote"),
+          textAlign: TextAlign.center,
+          style: palette
+              .body(13.5)
+              .copyWith(height: 19 / 13.5, color: palette.secondaryText),
+        ),
       ),
     );
   }
@@ -927,7 +976,8 @@ class _ShareBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    // Floats over the page with the same fade as the other bottom bars.
+    // Floats over the page: solid behind the reason and the button, with
+    // the fade above it, so the reason never sits on a card.
     return IrmaBottomBarBase(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1007,99 +1057,6 @@ class _TrustWash extends StatelessWidget {
         ),
         Positioned.fill(child: child),
       ],
-    );
-  }
-}
-
-/// The warning under the requestor card when nobody vouches for it: a solid
-/// red banner, hard to miss, with a way to learn what it means.
-class _TrustBanner extends StatelessWidget {
-  final String title;
-  final String text;
-  final String more;
-  final VoidCallback onMore;
-
-  const _TrustBanner({
-    required this.title,
-    required this.text,
-    required this.more,
-    required this.onMore,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      container: true,
-      liveRegion: true,
-      child: Container(
-        key: const Key("share_trust_banner"),
-        padding: const EdgeInsets.all(16),
-        decoration: ShapeDecoration(
-          color: palette.dangerFill,
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          shadows: [
-            BoxShadow(
-              color: palette.dangerFill.withValues(alpha: 0.32),
-              blurRadius: 28,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 14,
-          children: [
-            ExcludeSemantics(
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.warning_amber_rounded,
-                  size: 26,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 4,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      title,
-                      style: palette
-                          .display(17, weight: FontWeight.w700)
-                          .copyWith(height: 23 / 17, color: Colors.white),
-                    ),
-                  ),
-                  Text(
-                    text,
-                    style: palette
-                        .body(14)
-                        .copyWith(height: 20 / 14, color: Colors.white),
-                  ),
-                  const SizedBox(height: 6),
-                  SmallPill(
-                    key: const Key("share_trust_banner_more"),
-                    label: more,
-                    tone: SmallPillTone.onDanger,
-                    onPressed: onMore,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

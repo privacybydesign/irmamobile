@@ -33,6 +33,17 @@ class CardTile extends StatelessWidget {
   /// sits on it: the gap's width and its distance from the trailing edge.
   final ({double width, double fromEnd})? dashGap;
 
+  /// A strip across the bottom of the tile, edge to edge: a [CardTileStrip]
+  /// with another choice, a problem, or a note.
+  final Widget? footer;
+
+  /// The header and body at half strength, for a card that is shown but
+  /// not (yet) included. The outline and anything on it stay at full.
+  final bool faded;
+
+  /// Lines the title may take; one by default, cut off with "…".
+  final int titleMaxLines;
+
   const CardTile({
     super.key,
     required this.art,
@@ -44,6 +55,9 @@ class CardTile extends StatelessWidget {
     this.outline,
     this.dashed = false,
     this.dashGap,
+    this.footer,
+    this.faded = false,
+    this.titleMaxLines = 1,
   });
 
   static const _shape = RoundedSuperellipseBorder(
@@ -85,47 +99,101 @@ class CardTile extends StatelessWidget {
           : null,
       child: DecoratedBox(
         decoration: decoration,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 10,
-            children: [
-              Row(
-                spacing: 12,
-                children: [
-                  ExcludeSemantics(child: art),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .display(15)
-                              .copyWith(color: palette.text),
-                        ),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .body(12.5)
-                              .copyWith(color: palette.secondaryText),
-                        ),
-                      ],
+        child: _withFooter(
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 14, 16, footer == null ? 12 : 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [
+                Row(
+                  spacing: 12,
+                  children: [
+                    ExcludeSemantics(child: art),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: titleMaxLines,
+                            overflow: TextOverflow.ellipsis,
+                            style: palette
+                                .display(15)
+                                .copyWith(color: palette.text),
+                          ),
+                          Text(
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: palette
+                                .body(12.5)
+                                .copyWith(color: palette.secondaryText),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  ?chip,
-                  ?trailing,
-                ],
-              ),
-              ...body,
-            ],
+                    ?chip,
+                    ?trailing,
+                  ],
+                ),
+                ...body,
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// The content, faded when [faded], with the [footer] strip under it,
+  /// clipped to the tile's corners.
+  Widget _withFooter(Widget content) {
+    final shown = faded ? Opacity(opacity: 0.5, child: content) : content;
+    final strip = footer;
+    if (strip == null) return shown;
+    return ClipPath(
+      clipper: const ShapeBorderClipper(shape: _shape),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [shown, strip],
+      ),
+    );
+  }
+}
+
+/// A strip across the bottom of a [CardTile]: a line above, a lighter fill,
+/// and a row with [children] (a sentence and a pill). [background] and
+/// [line] colour it for a problem.
+class CardTileStrip extends StatelessWidget {
+  final List<Widget> children;
+  final Color? background;
+  final Color? line;
+
+  const CardTileStrip({
+    super.key,
+    required this.children,
+    this.background,
+    this.line,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        // Halfway between the card and the page.
+        color:
+            background ??
+            Color.alphaBlend(
+              palette.background.withValues(alpha: 0.5),
+              palette.surface,
+            ),
+        border: Border(top: BorderSide(color: line ?? palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+        child: Row(spacing: 10, children: children),
       ),
     );
   }

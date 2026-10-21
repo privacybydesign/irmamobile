@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "requestor_trust_sheet.dart";
 import "session_requestor_header.dart";
 import "session_scaffold.dart";
 
@@ -55,26 +56,35 @@ class PairingRequired extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ExcludeSemantics(
-                child: who != null
-                    ? SessionRequestorHeader.avatarOf(who, size: 60)
-                    : Container(
-                        width: 96,
-                        height: 96,
-                        decoration: ShapeDecoration(
-                          color: palette.surface,
-                          shape: const RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(32)),
-                          ),
-                          shadows: [shadow],
-                        ),
-                        child: Icon(
-                          Icons.verified_user_rounded,
-                          size: 48,
-                          color: palette.link,
-                        ),
+              if (who != null)
+                // Who asks, as on the share screen; ⓘ explains who vouches.
+                RequestorCard(
+                  requestor: who,
+                  onInfo: () => showRequestorTrustSheet(
+                    context: context,
+                    requestor: who,
+                    onDontShare: onDismiss,
+                  ),
+                )
+              else
+                ExcludeSemantics(
+                  child: Container(
+                    width: 96,
+                    height: 96,
+                    decoration: ShapeDecoration(
+                      color: palette.surface,
+                      shape: const RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(32)),
                       ),
-              ),
+                      shadows: [shadow],
+                    ),
+                    child: Icon(
+                      Icons.verified_user_rounded,
+                      size: 48,
+                      color: palette.link,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 24),
               if (who != null) ...[
                 Semantics(

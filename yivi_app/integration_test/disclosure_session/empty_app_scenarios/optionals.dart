@@ -42,7 +42,7 @@ Future<void> optionalsTest(
   expectEmptySpot(
     0,
     "Demo Address or Demo iDIN",
-    hint: "Tap to choose which one to add",
+    hint: "You pick one when adding",
   );
   expect(find.text("OPTIONAL"), findsOneWidget);
   expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
@@ -63,13 +63,14 @@ Future<void> optionalsTest(
   expect(findCardText(findShareSlot(1), "Demo Email address"), findsOneWidget);
   expect(find.byKey(const Key("share_remove_1")), findsOneWidget);
 
-  // Leave it out again: the "Add" row comes back.
+  // Leave it out again: its card comes back faded, with "Share too".
   await removeOptional(tester, 1);
   expect(findShareSlot(1), findsNothing);
   expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
 
-  // This time add the mobile number.
-  await addOptional(tester, 1);
+  // This time add the mobile number: the e-mail address is in the app now,
+  // so share it and change the choice to a new mobile number.
+  await openOptionalSheet(tester, 1);
   await startAdding(tester, "irma-demo.sidn-pbdf.mobilenumber");
   await issueMobileNumber(tester, irmaBinding);
 
