@@ -5,6 +5,7 @@ import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "glass_surface.dart";
 
 /// How far content has scrolled under a bar, from 0 (nothing under it) to 1
 /// (a few points or more). Feed it the notifications of the scroll view
@@ -100,6 +101,8 @@ class ScrollEdgeBand extends StatelessWidget {
     if (t <= 0) return const SizedBox.expand();
     final palette = YiviPalette.of(context);
     final solid = MediaQuery.highContrastOf(context);
+    // Under an open sheet nothing of it shows: no blur to redo every frame.
+    final blur = !GlassScope.coveredOf(context);
     final base = color ?? palette.background;
     // In dark mode the frost is a shade lighter than the page, as on iOS.
     final fill = palette.isDark ? Color.lerp(base, Colors.white, 0.03)! : base;
@@ -119,7 +122,7 @@ class ScrollEdgeBand extends StatelessWidget {
       ),
       child: const SizedBox.expand(),
     );
-    if (solid) return band;
+    if (solid || !blur) return band;
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: _blur * t, sigmaY: _blur * t),

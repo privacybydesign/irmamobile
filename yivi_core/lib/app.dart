@@ -20,6 +20,7 @@ import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
+import "src/widgets/glass/glass_sheet.dart";
 import "src/widgets/legacy_material_bridge.dart";
 import "src/widgets/lock_gate.dart";
 import "src/widgets/store_review_gate.dart";
@@ -209,7 +210,10 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
                 router: _router,
                 child: StoreReviewGate(
                   router: _router,
-                  child: child ?? const SizedBox.shrink(),
+                  // The page under an open sheet doesn't blur (performance).
+                  child: GlassSheetCover(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),

@@ -6,6 +6,40 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 
+/// Where blur under it can be seen. The blur is the most expensive thing the
+/// app draws: Flutter redoes it on every frame, for every piece of glass. So
+/// it is off where it can't be seen:
+/// - [blur] false: glass on a sheet, whose colour is flat;
+/// - [covered]: the page under an open sheet, glass and scroll edges both
+///   (see GlassSheetCover).
+class GlassScope extends InheritedWidget {
+  final bool blur;
+  final bool covered;
+
+  const GlassScope({
+    super.key,
+    this.blur = true,
+    this.covered = false,
+    required super.child,
+  });
+
+  static GlassScope? _of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassScope>();
+
+  /// Whether glass here blurs what is behind it.
+  static bool blurOf(BuildContext context) {
+    final scope = _of(context);
+    return scope == null || (scope.blur && !scope.covered);
+  }
+
+  /// Whether a sheet covers this page.
+  static bool coveredOf(BuildContext context) => _of(context)?.covered ?? false;
+
+  @override
+  bool updateShouldNotify(GlassScope oldWidget) =>
+      oldWidget.blur != blur || oldWidget.covered != covered;
+}
+
 /// Frosted glass: a blurred, translucent fill with a light inner edge and a
 /// soft shadow. Turns into a solid surface when the platform asks for less
 /// transparency (high contrast), so text on it always stays readable.
@@ -17,6 +51,9 @@ class GlassSurface extends StatelessWidget {
   /// Replaces the glass fill, e.g. for the tinted QR button.
   final Color? fill;
   final bool shadow;
+
+  /// Blurs what is behind it; by default as its [GlassScope] says.
+  final bool? blur;
 
   /// Fades the glass in or out. Use this instead of an [Opacity] or a
   /// [FadeTransition] around it: inside their offscreen layer the blur
@@ -33,6 +70,7 @@ class GlassSurface extends StatelessWidget {
     this.fill,
     this.shadow = true,
     this.opacity = 1,
+    this.blur,
   });
 
   @override
@@ -45,7 +83,7 @@ class GlassSurface extends StatelessWidget {
     final shaped = ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
       child: _maybeBlur(
-        solid: solid,
+        solid: solid || !(blur ?? GlassScope.blurOf(context)),
         sigma: 18 * a,
         child: DecoratedBox(
           decoration: ShapeDecoration(

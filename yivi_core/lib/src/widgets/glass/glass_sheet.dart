@@ -204,6 +204,8 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   void dispose() {
     // Closed in the middle of a gesture (e.g. by the session ending).
     _stopGesture();
+    animation?.removeStatusListener(_onCoverStatus);
+    _cover(false);
     _pull.dispose();
     super.dispose();
   }
@@ -217,8 +219,29 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   @override
   bool get barrierDismissible => true;
 
+  /// The dim over the page under a sheet.
+  static const barrier = Color(0x470C1824);
+
+  /// This sheet is fully open: the page under it is covered (GlassSheetCover).
+  bool _covering = false;
+
+  void _cover(bool covering) {
+    if (covering == _covering) return;
+    _covering = covering;
+    GlassSheetCover.covering.value += covering ? 1 : -1;
+  }
+
+  void _onCoverStatus(AnimationStatus status) =>
+      _cover(status == AnimationStatus.completed);
+
   @override
-  Color get barrierColor => const Color(0x470C1824);
+  void install() {
+    super.install();
+    animation!.addStatusListener(_onCoverStatus);
+  }
+
+  @override
+  Color get barrierColor => barrier;
 
   @override
   bool get maintainState => true;
@@ -377,30 +400,45 @@ class _GlassSheet extends StatelessWidget {
           : const BorderRadius.all(_radius),
     );
     final media = MediaQuery.of(context);
+    // Opaque and not blurred: the glass fill let only a trace of the blurred
+    // page through, and that blur, redone every frame over the whole sheet,
+    // was the costliest thing on screen. The fill over the dimmed page, as
+    // it looked, made solid.
+    final fill = Color.alphaBlend(
+      palette.glassStrongFill,
+      Color.alphaBlend(_GlassSheetRoute.barrier, palette.background),
+    );
     return GlassSurface(
       key: const Key("glass_sheet"),
-      fill: palette.glassStrongFill,
+      fill: fill,
+      blur: false,
       shape: shape,
-      child: ClipPath(
-        clipper: ShapeBorderClipper(shape: shape),
-        child: SizedBox(
-          height: height,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: keyboard),
-            child: MediaQuery(
-              data: media.copyWith(
-                padding: media.padding.copyWith(
-                  top: 0,
-                  bottom: 20 + bottomInset,
+      // Glass on the sheet would only blur its flat colour; the sheet's own
+      // scroll edge does blur its content (it is not covered).
+      child: GlassScope(
+        blur: false,
+        covered: false,
+        child: ClipPath(
+          clipper: ShapeBorderClipper(shape: shape),
+          child: SizedBox(
+            height: height,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: keyboard),
+              child: MediaQuery(
+                data: media.copyWith(
+                  padding: media.padding.copyWith(
+                    top: 0,
+                    bottom: 20 + bottomInset,
+                  ),
+                  // The device's inset where the sheet meets the bottom edge,
+                  // so a button lands where it does on a full screen.
+                  viewPadding: media.viewPadding.copyWith(
+                    top: 0,
+                    bottom: attached ? media.viewPadding.bottom : 0,
+                  ),
                 ),
-                // The device's inset where the sheet meets the bottom edge, so a
-                // button lands where it does on a full screen.
-                viewPadding: media.viewPadding.copyWith(
-                  top: 0,
-                  bottom: attached ? media.viewPadding.bottom : 0,
-                ),
+                child: child,
               ),
-              child: child,
             ),
           ),
         ),
@@ -1132,3 +1170,24 @@ Future<void> showTitledGlassSheet({
     child: child,
   ),
 );
+
+/// Tells the page under an open sheet that it is covered: its glass and
+/// scroll edges stop blurring ([GlassScope.covered]) while a sheet is fully
+/// open, and blur again as it starts to close. The sheet covers all of the
+/// page but a dimmed strip at the top, so that blur, redone every frame,
+/// could not be seen. Wraps the app's pages.
+class GlassSheetCover extends StatelessWidget {
+  /// How many sheets are fully open.
+  static final covering = ValueNotifier<int>(0);
+
+  final Widget child;
+
+  const GlassSheetCover({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+    valueListenable: covering,
+    builder: (context, n, child) => GlassScope(covered: n > 0, child: child!),
+    child: child,
+  );
+}
