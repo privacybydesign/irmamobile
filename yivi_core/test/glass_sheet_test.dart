@@ -329,6 +329,72 @@ void main() {
       );
     });
 
+    testWidgets("what only one bar has fades, the old before the new", (
+      tester,
+    ) async {
+      late StateSetter setPages;
+      var two = false;
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            setPages = setState;
+            return GlassSheetPages(
+              onBack: () => setState(() => two = false),
+              pages: [
+                // A field in the title's place, no back button.
+                const GlassSheetPage(
+                  key: ValueKey("one"),
+                  title: "First",
+                  titleWidget: Text("field"),
+                  child: Text("first page"),
+                ),
+                if (two)
+                  GlassSheetPage(
+                    key: const ValueKey("two"),
+                    title: "Second",
+                    onBack: () => setState(() => two = false),
+                    pinned: const Text("progress"),
+                    child: const Text("second page"),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      /// How visible [finder] is: its fades multiplied.
+      double shown(Finder finder) => tester
+          .widgetList<FadeTransition>(
+            find.ancestor(of: finder, matching: find.byType(FadeTransition)),
+          )
+          .fold(1.0, (o, f) => o * f.opacity.value);
+      final back = find.byKey(const Key("irma_app_bar_leading"));
+
+      setPages(() => two = true);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 30));
+      // Early: the field is going, the new page's parts are not there yet.
+      expect(shown(find.text("field")), inExclusiveRange(0, 1));
+      expect(shown(find.text("Second")), 0);
+      expect(shown(back), 0);
+      expect(shown(find.text("progress")), 0);
+
+      await tester.pump(const Duration(milliseconds: 150));
+      // Later: the field is gone; the new ones are coming.
+      expect(shown(find.text("field")), 0);
+      expect(shown(back), greaterThan(0));
+      expect(shown(find.text("progress")), greaterThan(0));
+
+      await tester.pumpAndSettle();
+      expect(shown(back), 1);
+      expect(shown(find.text("progress")), 1);
+    });
+
     testWidgets("with reduced motion the page fades in instead of sliding", (
       tester,
     ) async {

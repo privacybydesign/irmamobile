@@ -468,6 +468,10 @@ class GlassSheetHeader extends StatelessWidget {
   /// itself stays put); null when it simply shows.
   final Animation<double>? titleOpacity;
 
+  /// The back button fades in or out while pages change, when the page it
+  /// comes from or goes back to has none; null when it simply shows.
+  final Animation<double>? backOpacity;
+
   /// Off for the page under the top one: its buttons sit under the top
   /// page's own.
   final bool buttons;
@@ -478,6 +482,7 @@ class GlassSheetHeader extends StatelessWidget {
     this.titleWidget,
     this.onBack,
     this.titleOpacity,
+    this.backOpacity,
     this.buttons = true,
   });
 
@@ -532,24 +537,33 @@ class GlassSheetHeader extends StatelessWidget {
             ),
             Positioned.directional(
               textDirection: Directionality.of(context),
-              start: onBack != null && buttons ? 52 : 0,
-              end: buttons ? 52 : 0,
+              // Where the buttons are, also on the page under the top one
+              // (which draws none): it must not get wider while it fades.
+              start: onBack != null ? 52 : 0,
+              end: 52,
               top: 0,
               bottom: 0,
-              child: AnimatedSwitcher(
-                duration: _switch(context),
-                child: titleWidget == null
-                    ? const SizedBox.shrink()
-                    : KeyedSubtree(
-                        key: const ValueKey("glass_sheet_title_widget"),
-                        child: Center(child: titleWidget),
-                      ),
+              // Fades with the title while pages change, as the title would.
+              child: FadeTransition(
+                opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+                child: AnimatedSwitcher(
+                  duration: _switch(context),
+                  child: titleWidget == null
+                      ? const SizedBox.shrink()
+                      : KeyedSubtree(
+                          key: const ValueKey("glass_sheet_title_widget"),
+                          child: Center(child: titleWidget),
+                        ),
+                ),
               ),
             ),
             if (onBack != null && buttons)
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: YiviBackButton(onTap: onBack),
+                child: FadeTransition(
+                  opacity: backOpacity ?? kAlwaysCompleteAnimation,
+                  child: YiviBackButton(onTap: onBack),
+                ),
               ),
             if (buttons)
               Align(
@@ -641,6 +655,16 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   /// See [GlassSheetPages.memoryOf].
   final _memory = <Object, Object?>{};
+
+  /// See [_SheetPageRole.fadeIn]. In time with [_slide], also when it is
+  /// dragged.
+  late final _fadeIn = _slide.drive(CurveTween(curve: const Interval(0.4, 1)));
+  late final _fadeOut = ReverseAnimation(
+    _slide.drive(CurveTween(curve: const Interval(0, 0.6))),
+  );
+
+  /// What each page has in its bar, by page key (see [_SheetPageRole.chrome]).
+  final _chrome = <Object?, _Chrome>{};
 
   /// Whether a page is coming in or going out ([_slide] below 1).
   final _moving = ValueNotifier(false);
@@ -754,6 +778,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   if (page == under || page == top)
                     _place(
                       page,
+                      other: page == top ? under?.key : top.key,
                       top: page == top,
                       moving: moving,
                       reduce: reduce,
@@ -772,6 +797,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   Widget _place(
     Widget page, {
+    required Key? other,
     required bool top,
     required bool moving,
     required bool reduce,
@@ -805,6 +831,11 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   reduce: reduce,
                   shade: shade,
                   memory: _memory,
+                  fadeIn: _fadeIn,
+                  fadeOut: _fadeOut,
+                  chrome: _chrome,
+                  pageKey: page.key,
+                  otherKey: moving ? other : null,
                   child: page,
                 ),
               ),
@@ -833,6 +864,21 @@ class _SheetPageRole extends InheritedWidget {
   final Color? shade;
   final Map<Object, Object?> memory;
 
+  /// The opacity of what is in the top page's bar alone, and of what is in
+  /// the other page's alone: the one goes before the other comes, so two
+  /// titles are never both half there.
+  final Animation<double> fadeIn;
+  final Animation<double> fadeOut;
+
+  /// What each page has in its bar, by page key: a [GlassSheetPage] notes
+  /// its own as it builds, and reads the other page's ([otherKey]) to fade
+  /// what they do not share.
+  final Map<Object?, _Chrome> chrome;
+  final Key? pageKey;
+
+  /// The page this one changes with while [moving]; null otherwise.
+  final Key? otherKey;
+
   const _SheetPageRole({
     required this.top,
     required this.animation,
@@ -840,8 +886,21 @@ class _SheetPageRole extends InheritedWidget {
     required this.reduce,
     required this.shade,
     required this.memory,
+    required this.fadeIn,
+    required this.fadeOut,
+    required this.chrome,
+    required this.pageKey,
+    required this.otherKey,
     required super.child,
   });
+
+  /// What the page this one changes with has in its bar; null when pages
+  /// are not changing, or it is not a [GlassSheetPage].
+  _Chrome? get other => otherKey == null ? null : chrome[otherKey];
+
+  /// How a part of this page that the other page lacks shows: fading in on
+  /// top, out underneath.
+  Animation<double> get ownOpacity => top ? fadeIn : fadeOut;
 
   /// [child] where this page is: the top one slides in from the right (or
   /// fades in), the one under it moves a third of the way left.
@@ -869,11 +928,7 @@ class _SheetPageRole extends InheritedWidget {
   }
 
   /// How the title of this page shows: fading in on top, out underneath.
-  Animation<double>? get titleOpacity => !moving
-      ? null
-      : top
-      ? animation
-      : ReverseAnimation(animation);
+  Animation<double>? get titleOpacity => !moving ? null : ownOpacity;
 
   static _SheetPageRole? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_SheetPageRole>();
@@ -884,8 +939,12 @@ class _SheetPageRole extends InheritedWidget {
       animation != old.animation ||
       moving != old.moving ||
       reduce != old.reduce ||
-      shade != old.shade;
+      shade != old.shade ||
+      otherKey != old.otherKey;
 }
+
+/// What a [GlassSheetPage] has in its bar.
+typedef _Chrome = ({bool back, bool pinned});
 
 /// Moves [child] sideways by a fraction of its width, from [from] (slide 0)
 /// to [to] (slide 1), repainting only.
@@ -992,6 +1051,20 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final title = widget.title;
     final onBack = widget.onBack;
     final pinned = widget.pinned;
+    role?.chrome[role.pageKey] = (back: onBack != null, pinned: pinned != null);
+    // While pages change, what only one of the two pages has fades; what
+    // both have stays put (the top page's stands in for the other's).
+    final moving = role != null && role.otherKey != null;
+    final other = role?.other;
+    if (moving && other == null) {
+      // The other page builds after this one, the first time: look again
+      // once it has noted its bar. Until then, nothing fades.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && role.other != null) setState(() {});
+      });
+    }
+    final top = role?.top ?? true;
+    final pinnedFades = moving && other != null && !other.pinned;
     final head = <Widget>[
       // In pages the bar stays put while pages change; only the titles fade
       // into each other.
@@ -999,19 +1072,25 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         title: title,
         titleWidget: widget.titleWidget,
         onBack: onBack,
-        buttons: role?.top ?? true,
+        buttons: top,
         titleOpacity: role?.titleOpacity,
+        backOpacity: moving && other != null && !other.back
+            ? role.ownOpacity
+            : null,
       ),
       if (pinned != null)
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          // The top page's pinned part stands in for this one meanwhile.
+          // Underneath, the top page's pinned part stands in for this one,
+          // unless it has none.
           child: Visibility(
-            visible: role?.top ?? true,
+            visible: top || pinnedFades,
             maintainState: true,
             maintainAnimation: true,
             maintainSize: true,
-            child: pinned,
+            child: pinnedFades
+                ? FadeTransition(opacity: role.ownOpacity, child: pinned)
+                : pinned,
           ),
         ),
     ];
