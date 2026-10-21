@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "session_requestor_header.dart";
 
@@ -152,6 +153,74 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     final ink = palette.successText;
     final track = ink.withValues(alpha: 0.15);
 
+    // A phone held sideways: in the sheet's bar, after the title: short
+    // segments and "2 of 4" (or "Done"); who it is for goes under the title
+    // ([IssueSheetRequestorLine]).
+    final compact = usePhoneLandscape(context);
+    Widget segment(int i) => AnimatedBuilder(
+      animation: _curve,
+      builder: (context, _) {
+        final part = (_now - (i - 1)).clamp(0.0, 1.0);
+        return Container(
+          key: Key("issue_sheet_progress_$i"),
+          height: 4,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            color: track,
+          ),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FractionallySizedBox(
+              widthFactor: part,
+              heightFactor: 1,
+              child: ColoredBox(color: ink),
+            ),
+          ),
+        );
+      },
+    );
+    if (compact) {
+      return Semantics(
+        key: ValueKey((
+          "issue_sheet_progress",
+          done ? widget.total : step,
+          widget.total,
+        )),
+        liveRegion: true,
+        label: done
+            ? t("share.sheet.progress_done_label")
+            : t("share.step_count", params),
+        excludeSemantics: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 10,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 4,
+              children: [
+                for (var i = 1; i <= widget.total; i++)
+                  SizedBox(width: 22, child: segment(i)),
+              ],
+            ),
+            Text(
+              done
+                  ? t("share.sheet.progress_done")
+                  : t("share.sheet.progress_short", params),
+              key: const Key("issue_sheet_progress_text"),
+              style: palette
+                  .body(13, weight: FontWeight.w600)
+                  .copyWith(
+                    color: done ? palette.successText : palette.secondaryText,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+            ),
+          ],
+        ),
+      );
+    }
+
     final line = Semantics(
       // The step and the total, for a test to find without a visible count.
       key: ValueKey((
@@ -168,32 +237,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
       child: Row(
         spacing: 4,
         children: [
-          for (var i = 1; i <= widget.total; i++)
-            Expanded(
-              child: AnimatedBuilder(
-                animation: _curve,
-                builder: (context, _) {
-                  final part = (_now - (i - 1)).clamp(0.0, 1.0);
-                  return Container(
-                    key: Key("issue_sheet_progress_$i"),
-                    height: 4,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2),
-                      color: track,
-                    ),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: FractionallySizedBox(
-                        widthFactor: part,
-                        heightFactor: 1,
-                        child: ColoredBox(color: ink),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+          for (var i = 1; i <= widget.total; i++) Expanded(child: segment(i)),
         ],
       ),
     );
@@ -212,9 +256,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
             child: Row(
               spacing: 8,
               children: [
-                ExcludeSemantics(
-                  child: requestorAvatar(requestor, size: 20),
-                ),
+                ExcludeSemantics(child: requestorAvatar(requestor, size: 20)),
                 Flexible(
                   child: Text(
                     t("share.sheet.for_requestor", {
@@ -234,5 +276,46 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
       ),
       _ForCard() => line,
     };
+  }
+}
+
+/// Who a card is added for, under the title in the bar of the sheet, on a
+/// phone held sideways (in portrait [IssueSheetProgress] shows it under its
+/// line): the requestor's avatar and "For {requestor}". Nothing when the
+/// card is not added for a request.
+class IssueSheetRequestorLine extends StatelessWidget {
+  final IssueSheetSubject subject;
+
+  const IssueSheetRequestorLine({super.key, required this.subject});
+
+  @override
+  Widget build(BuildContext context) {
+    final subject = this.subject;
+    if (subject is! _ForRequest || !usePhoneLandscape(context)) {
+      return const SizedBox.shrink();
+    }
+    final palette = YiviPalette.of(context);
+    return Row(
+      key: const Key("issue_sheet_for_requestor"),
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
+      children: [
+        ExcludeSemantics(child: requestorAvatar(subject.requestor, size: 16)),
+        Flexible(
+          child: Text(
+            FlutterI18n.translate(
+              context,
+              "share.sheet.for_requestor",
+              translationParams: {"requestor": subject.requestor.name},
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: palette
+                .body(12)
+                .copyWith(color: palette.secondaryText, height: 16 / 12),
+          ),
+        ),
+      ],
+    );
   }
 }

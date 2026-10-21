@@ -1,8 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../widgets/glass/sheet_action_row.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_instruction_screen.dart";
+import "../document_step_in_sheet.dart";
 
 /// The body of the manual entry boards: a heading, the explanation, the
 /// fields on one white card and a tip about where to find the details.
@@ -12,6 +14,7 @@ class ManualEntryLayout extends StatelessWidget {
     required this.explanationKey,
     required this.tipKey,
     required this.fields,
+    this.actions,
     super.key,
   });
 
@@ -20,9 +23,14 @@ class ManualEntryLayout extends StatelessWidget {
   final String tipKey;
   final List<Widget> fields;
 
+  /// The buttons, in the left column of a sheet held sideways
+  /// ([documentStepSplit]); elsewhere the screen's own bar has them.
+  final Widget? actions;
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    if (documentStepSplit(context)) return _split(context, palette);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -72,6 +80,68 @@ class ManualEntryLayout extends StatelessWidget {
       ],
     );
   }
+
+  /// A sheet held sideways: the heading, the explanation, the tip and the
+  /// button at the left (only the heading and the button while the keyboard
+  /// is up), the fields on their card at the right; three fields as the
+  /// first across, the other two (the dates) side by side.
+  Widget _split(BuildContext context, YiviPalette palette) {
+    final keyboard = SheetSplit.keyboardUp(context);
+    final card = Container(
+      padding: const EdgeInsets.all(12),
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        shadows: const [
+          BoxShadow(
+            color: Color(0x17000000),
+            blurRadius: 6,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 12,
+        children: fields.length == 3
+            ? [
+                fields[0],
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    Expanded(child: fields[1]),
+                    Expanded(child: fields[2]),
+                  ],
+                ),
+              ]
+            : fields,
+      ),
+    );
+    return SheetSplit(
+      startWidth: SheetSplit.wideWidth,
+      start: [
+        TranslatedText(
+          titleKey,
+          isHeader: true,
+          style: palette
+              .display(20, weight: FontWeight.w700)
+              .copyWith(height: 28 / 20, color: palette.heading),
+        ),
+        if (!keyboard) ...[
+          TranslatedText(
+            explanationKey,
+            style: palette.body(14.5).copyWith(height: 21 / 14.5),
+          ),
+          DocumentTipBox(textKey: tipKey),
+        ],
+      ],
+      end: card,
+      actions: actions,
+    );
+  }
 }
 
 /// A manual entry field: the label above a 52 pt rounded input.
@@ -119,10 +189,20 @@ InputDecoration documentFieldDecoration(
     filled: true,
     fillColor: palette.surface,
     hintText: hint,
-    hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+    hintStyle: palette
+        .body(documentStepSplit(context) ? 14 : 16)
+        .copyWith(color: palette.secondaryText),
+    // In a sheet held sideways two fields share a row: a little tighter, so
+    // "YYYY-MM-DD" fits.
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: documentStepSplit(context) ? 12 : 16,
+      vertical: 15,
+    ),
     suffixIcon: suffixIcon,
-    suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+    suffixIconConstraints: BoxConstraints(
+      minHeight: 48,
+      minWidth: documentStepSplit(context) ? 40 : 48,
+    ),
     enabledBorder: border(palette.outline),
     focusedBorder: border(palette.link),
     errorBorder: border(palette.danger),

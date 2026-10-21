@@ -145,21 +145,25 @@ class DocumentFlowFooter extends StatelessWidget {
     );
   }
 
-  Widget _inSheet(BuildContext context) {
+  Widget _inSheet(BuildContext context) =>
+      SheetBottomBar(child: sheetActions(context, buttons));
+
+  /// [buttons] (all [DocumentFlowButton]s) as the buttons of a step in a
+  /// sheet: the way on and the way back side by side. Without a bar: for
+  /// the left column of a sheet held sideways ([SheetSplit]).
+  static Widget sheetActions(BuildContext context, List<Widget> buttons) {
     final flowButtons = buttons.cast<DocumentFlowButton>();
     final primary = flowButtons.where((b) => b.style == .primary).firstOrNull;
     final secondary = flowButtons.where((b) => b.style != .primary).firstOrNull;
     String? label(DocumentFlowButton? b) =>
         b == null ? null : FlutterI18n.translate(context, b.labelKey);
-    return SheetBottomBar(
-      child: SheetActionRow(
-        primaryKey: primary?.key,
-        primaryLabel: label(primary),
-        onPrimary: primary?.onPressed,
-        secondaryKey: secondary?.key,
-        secondaryLabel: label(secondary),
-        onSecondary: secondary?.onPressed,
-      ),
+    return SheetActionRow(
+      primaryKey: primary?.key,
+      primaryLabel: label(primary),
+      onPrimary: primary?.onPressed,
+      secondaryKey: secondary?.key,
+      secondaryLabel: label(secondary),
+      onSecondary: secondary?.onPressed,
     );
   }
 }

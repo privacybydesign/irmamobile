@@ -17,18 +17,28 @@ import "../../widgets/irma_markdown.dart";
 /// is for and how it is added, folded into one group. During a request
 /// ([forRequestor]) a note says that only what is asked is shared. The first
 /// step of adding a card in a sheet ([IssueFlow]).
+/// Which part of the details to show: all of it, or (in the two columns of a
+/// sheet held sideways, [SheetSplit]) the card with its name, or the rest.
+enum AddDataDetailsPart { all, card, rest }
+
 class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;
 
   /// The requestor the card is added for, during a request.
   final String? forRequestor;
+  final AddDataDetailsPart part;
+
+  /// The card's width in [AddDataDetailsPart.card].
+  final double cardWidth;
 
   const AddDataDetailsContent({
     super.key,
     required this.credential,
     this.faq,
     this.forRequestor,
+    this.part = AddDataDetailsPart.all,
+    this.cardWidth = 220,
   });
 
   @override
@@ -71,9 +81,29 @@ class AddDataDetailsContent extends StatelessWidget {
             .copyWith(height: 18 / 13, color: palette.secondaryText),
       ),
     ];
+    if (part == AddDataDetailsPart.card) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: CredentialTypeThumbnail(
+              descriptor: credential,
+              width: cardWidth,
+            ),
+          ),
+          ...name,
+        ],
+      );
+    }
     final rest = <Widget>[
       Padding(
-        padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
+        padding: EdgeInsets.fromLTRB(
+          4,
+          part == AddDataDetailsPart.rest ? 0 : 14,
+          4,
+          0,
+        ),
         child: Text(
           intro.isNotEmpty
               ? intro
@@ -121,6 +151,12 @@ class AddDataDetailsContent extends StatelessWidget {
       ],
     ];
 
+    if (part == AddDataDetailsPart.rest) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: rest,
+      );
+    }
     // A phone held sideways: the card large at the left, with its name and
     // issuer under it; what it is and what you get at the right.
     if (usePhoneLandscape(context)) {

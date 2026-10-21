@@ -187,6 +187,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
         step: _screen.step,
         total: widget.total,
       ),
+      subtitle: IssueSheetRequestorLine(subject: widget.subject),
       // The screens fill the page and have their own buttons at the bottom.
       scrolls: false,
       childClearsBottom: true,

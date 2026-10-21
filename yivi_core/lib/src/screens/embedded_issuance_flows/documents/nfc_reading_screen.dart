@@ -22,6 +22,7 @@ import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
@@ -918,6 +919,24 @@ class _NfcScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    // In a sheet held sideways: what went wrong and the button at the left,
+    // the illustration on a card at the right.
+    final footer = bottomNavigationBar;
+    if (documentStepSplit(context)) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SheetSplit(
+          endFills: true,
+          start: [instruction],
+          end: SheetPictureCard(
+            child: SizedBox(width: 280, height: 240, child: illustration),
+          ),
+          actions: footer is DocumentFlowFooter
+              ? DocumentFlowFooter.sheetActions(context, footer.buttons)
+              : null,
+        ),
+      );
+    }
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,

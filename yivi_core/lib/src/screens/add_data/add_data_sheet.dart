@@ -416,6 +416,18 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       _ => group.category,
     };
 
+    final landscape = usePhoneLandscape(context);
+    Widget row(CredentialStoreItem item) {
+      final blocked =
+          !nfcAvailable && credentialRequiresNfc(item.credential.credentialId);
+      return AddDataRow(
+        item: item,
+        nfcBlocked: blocked,
+        owned: owned.contains(item.credential.credentialId),
+        onTap: () => widget.onOpen(item, nfcBlocked: blocked),
+      );
+    }
+
     final List<Widget> body = switch (storeItems) {
       AsyncLoading() => const [
         SliverToBoxAdapter(
@@ -450,26 +462,57 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                 ),
               ),
             ),
-          for (final (group, items) in groups)
-            SliverGlassGroup(
-              // A credential without a category (irmago marshals it
-              // `omitempty`) gets no header.
-              header: title(group).isEmpty ? null : title(group),
-              dividerIndent: AddDataRow.dividerIndent,
-              itemCount: items.length,
-              itemBuilder: (context, i) {
-                final item = items[i];
-                final blocked =
-                    !nfcAvailable &&
-                    credentialRequiresNfc(item.credential.credentialId);
-                return AddDataRow(
-                  item: item,
-                  nfcBlocked: blocked,
-                  owned: owned.contains(item.credential.credentialId),
-                  onTap: () => widget.onOpen(item, nfcBlocked: blocked),
-                );
-              },
-            ),
+          // A phone held sideways: each type a card of its own, two side by
+          // side, under the category's name.
+          if (landscape)
+            for (final (group, items) in groups)
+              SliverMainAxisGroup(
+                slivers: [
+                  if (title(group).isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+                        child: Semantics(
+                          header: true,
+                          child: Text(title(group), style: palette.display(15)),
+                        ),
+                      ),
+                    ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    sliver: SliverList.builder(
+                      itemCount: (items.length + 1) ~/ 2,
+                      itemBuilder: (context, r) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            spacing: 8,
+                            children: [
+                              for (final i in [2 * r, 2 * r + 1])
+                                Expanded(
+                                  child: i < items.length
+                                      ? _card(row(items[i]))
+                                      : const SizedBox.shrink(),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+          else
+            for (final (group, items) in groups)
+              SliverGlassGroup(
+                // A credential without a category (irmago marshals it
+                // `omitempty`) gets no header.
+                header: title(group).isEmpty ? null : title(group),
+                dividerIndent: AddDataRow.dividerIndent,
+                itemCount: items.length,
+                itemBuilder: (context, i) => row(items[i]),
+              ),
         ];
       }(),
     };
@@ -479,7 +522,9 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       onNotification: _onScroll,
       child: GlassSheetPage(
         title: _t("data.add.title"),
-        titleWidget: _inBar
+        // Sideways the search field is in the bar from the start, next to
+        // the title.
+        titleWidget: _inBar || landscape
             ? GlassSearchField(
                 fieldKey: const Key("add_data_search_bar"),
                 hintKey: "data.add.search",
@@ -491,28 +536,29 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
             : null,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: _fieldGap),
-            // Never two fields: while the field is in the bar (scrolled
-            // down, or searching from there and the list jumped back up)
-            // the list's own field keeps its room but isn't there.
-            sliver: SliverToBoxAdapter(
-              child: Visibility(
-                visible: !_inBar,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: GlassSearchField(
-                  fieldKey: const Key("add_data_search"),
-                  hintKey: "data.add.search",
-                  controller: _search,
-                  focusNode: _listFocus,
-                  height: _fieldHeight,
-                  onChanged: _onQuery,
+          if (!landscape)
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: _fieldGap),
+              // Never two fields: while the field is in the bar (scrolled
+              // down, or searching from there and the list jumped back up)
+              // the list's own field keeps its room but isn't there.
+              sliver: SliverToBoxAdapter(
+                child: Visibility(
+                  visible: !_inBar,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: GlassSearchField(
+                    fieldKey: const Key("add_data_search"),
+                    hintKey: "data.add.search",
+                    controller: _search,
+                    focusNode: _listFocus,
+                    height: _fieldHeight,
+                    onChanged: _onQuery,
+                  ),
                 ),
               ),
             ),
-          ),
           if (justAdded != null)
             SliverPadding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -556,6 +602,19 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
           ...body,
         ],
       ),
+    );
+  }
+
+  /// A row of the list as a card of its own (the list sideways).
+  Widget _card(Widget row) {
+    final palette = YiviPalette.of(context);
+    return Material(
+      color: palette.surface,
+      shape: const RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.all(Radius.circular(18)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Center(child: row),
     );
   }
 }

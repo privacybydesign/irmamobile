@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
@@ -52,6 +53,69 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     const cardShadow = [
       BoxShadow(color: Color(0x17000000), blurRadius: 6, offset: Offset(0, 1)),
     ];
+    final buttons = [
+      DocumentFlowButton(
+        key: DocumentFlowButton.primaryKey,
+        labelKey: "face_verification.intro.start",
+        onPressed: onStart,
+      ),
+    ];
+    final tipsGroup = DecoratedBox(
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        shadows: cardShadow,
+      ),
+      child: Padding(
+        padding: const .symmetric(horizontal: 16, vertical: 4),
+        child: Column(
+          children: [
+            for (final (i, tip) in tips.indexed)
+              _DocumentFlowTip(tip, divider: i > 0),
+          ],
+        ),
+      ),
+    );
+    // In a sheet held sideways: the face and Start at the left, the
+    // explanation and the tips at the right.
+    if (documentStepSplit(context)) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SheetSplit(
+          start: [
+            Container(
+              height: 200,
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: palette.surface,
+                shape: const RoundedSuperellipseBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(24)),
+                ),
+                shadows: cardShadow,
+              ),
+              child: const FittedBox(child: FaceFrameIllustration()),
+            ),
+          ],
+          end: Column(
+            crossAxisAlignment: .stretch,
+            spacing: 12,
+            children: [
+              Padding(
+                padding: const .symmetric(horizontal: 4),
+                child: TranslatedText(
+                  "face_verification.intro.explanation",
+                  style: palette.body(15).copyWith(height: 22 / 15),
+                ),
+              ),
+              tipsGroup,
+            ],
+          ),
+          actions: DocumentFlowFooter.sheetActions(context, buttons),
+        ),
+      );
+    }
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
@@ -94,37 +158,12 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              DecoratedBox(
-                decoration: ShapeDecoration(
-                  color: palette.surface,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(24)),
-                  ),
-                  shadows: cardShadow,
-                ),
-                child: Padding(
-                  padding: const .symmetric(horizontal: 16, vertical: 4),
-                  child: Column(
-                    children: [
-                      for (final (i, tip) in tips.indexed)
-                        _DocumentFlowTip(tip, divider: i > 0),
-                    ],
-                  ),
-                ),
-              ),
+              tipsGroup,
             ],
           ),
         ),
       ),
-      bottomNavigationBar: DocumentFlowFooter(
-        buttons: [
-          DocumentFlowButton(
-            key: DocumentFlowButton.primaryKey,
-            labelKey: "face_verification.intro.start",
-            onPressed: onStart,
-          ),
-        ],
-      ),
+      bottomNavigationBar: DocumentFlowFooter(buttons: buttons),
     );
   }
 }

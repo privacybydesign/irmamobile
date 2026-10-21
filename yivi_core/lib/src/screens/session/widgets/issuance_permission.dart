@@ -391,7 +391,12 @@ class IssuanceOffer {
 
   /// "You will receive" and every value: a group per card, with the card's
   /// mini art, name and validity on top.
-  List<Widget> receives(BuildContext context) {
+  /// [headingKey]: what the heading says ("You will receive"; "In your
+  /// app" once added).
+  List<Widget> receives(
+    BuildContext context, {
+    String headingKey = "issuance.you_will_receive",
+  }) {
     final mismatches = issuanceMismatches(_cards, _steps);
     final palette = YiviPalette.of(context);
     final many = _cards.length > 1;
@@ -409,10 +414,7 @@ class IssuanceOffer {
           mismatched: mismatchedIn(card),
         );
 
-    final heading = Text(
-      t(context, "issuance.you_will_receive"),
-      style: palette.display(16),
-    );
+    final heading = Text(t(context, headingKey), style: palette.display(16));
 
     return [
       Padding(

@@ -114,6 +114,50 @@ void main() {
   });
 
   group("IssueSheetProgress", () {
+    // A phone held upright: sideways it goes in the sheet's bar, compact
+    // (see the test at the end of this group).
+    setUp(() {
+      TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
+        ..physicalSize = const Size(390, 844)
+        ..devicePixelRatio = 1;
+    });
+    tearDown(
+      () => TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
+        ..resetPhysicalSize()
+        ..resetDevicePixelRatio(),
+    );
+
+    testWidgets("sideways: short segments and '2 of 4', no requestor", (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(874, 402);
+      await pumpTranslated(
+        tester,
+        _wrap(
+          Column(
+            children: [
+              IssueSheetProgress(
+                subject: IssueSheetSubject.request(_shop),
+                step: 2,
+                total: 4,
+              ),
+              IssueSheetRequestorLine(
+                subject: IssueSheetSubject.request(_shop),
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(find.text("2 of 4"), findsOneWidget);
+      expect(
+        tester.getSize(find.byKey(const Key("issue_sheet_progress_1"))).width,
+        22,
+      );
+      expect(find.bySemanticsLabel("Step 2 of 4"), findsOneWidget);
+      // Who it is for: once, the line for under the bar's title.
+      expect(find.text("For Webshop Noord"), findsOneWidget);
+    });
+
     testWidgets("says who it is for and which step", (tester) async {
       await pumpTranslated(
         tester,

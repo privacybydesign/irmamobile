@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../widgets/document_flow_footer.dart";
+import "../../../../widgets/glass/sheet_action_row.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_step_in_sheet.dart";
@@ -100,6 +101,51 @@ class NfcStageScaffold extends StatelessWidget {
       ),
     );
 
+    // In a sheet held sideways: what is going on and the button at the
+    // left, the picture on a card at the right.
+    if (documentStepSplit(context)) {
+      final palette = YiviPalette.of(context);
+      final bar = _ActionBar(actions: actions);
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SheetSplit(
+          endFills: true,
+          start: [
+            Semantics(
+              key: const Key("nfc_stage_text"),
+              liveRegion: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  TranslatedText(
+                    titleKey,
+                    translationParams: textParams,
+                    isHeader: true,
+                    style: palette
+                        .display(20, weight: FontWeight.w700)
+                        .copyWith(height: 28 / 20, color: palette.heading),
+                  ),
+                  TranslatedText(
+                    bodyKey,
+                    translationParams: textParams,
+                    style: palette.body(14.5).copyWith(height: 21 / 14.5),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          end: SheetPictureCard(
+            child: KeyedSubtree(
+              key: const Key("nfc_stage_picture"),
+              child: picture,
+            ),
+          ),
+          actions: bar.sheetActions(context),
+        ),
+      );
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
@@ -148,6 +194,23 @@ class _ActionBar extends StatelessWidget {
   const _ActionBar({required this.actions});
 
   final List<NfcStageAction> actions;
+
+  /// The buttons for the left column of a sheet held sideways; hidden but
+  /// keeping their room when there are none, as the bar does.
+  Widget sheetActions(BuildContext context) {
+    final buttons = actions.isEmpty
+        ? [_button(null)]
+        : [for (final action in actions) _button(action)];
+    final row = DocumentFlowFooter.sheetActions(context, buttons);
+    if (actions.isNotEmpty) return row;
+    return Visibility(
+      visible: false,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      child: row,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

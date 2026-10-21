@@ -5,6 +5,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
@@ -61,31 +62,74 @@ class DocumentInstructionScreen extends StatelessWidget {
         child: DocumentInstructionIllustration(documentType: documentType),
       ),
     );
-    List<Widget> words(TextAlign align) => [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(8, 28, 8, 0),
-        child: TranslatedText(
-          "$keys.title",
-          textAlign: align,
-          isHeader: true,
-          style: palette
-              .display(22, weight: FontWeight.w700)
-              .copyWith(height: 30 / 22, color: palette.heading),
+    List<Widget> words(TextAlign align, {double top = 28, double size = 22}) =>
+        [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              top == 0 ? 4 : 8,
+              top,
+              top == 0 ? 4 : 8,
+              0,
+            ),
+            child: TranslatedText(
+              "$keys.title",
+              textAlign: align,
+              isHeader: true,
+              style: palette
+                  .display(size, weight: FontWeight.w700)
+                  .copyWith(height: (size + 8) / size, color: palette.heading),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: TranslatedText(
+              "$keys.body",
+              textAlign: align,
+              style: palette.body(16).copyWith(height: 24 / 16),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: DocumentTipBox(textKey: "$keys.tip"),
+          ),
+        ];
+    final buttons = [
+      DocumentFlowButton(
+        key: DocumentFlowButton.primaryKey,
+        labelKey: "document_flow.start",
+        onPressed: onStart,
+      ),
+      if (!inSheet)
+        DocumentFlowButton(
+          key: DocumentFlowButton.secondaryKey,
+          labelKey: "document_flow.cancel",
+          onPressed: onCancel,
+          style: .secondary,
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: TranslatedText(
-          "$keys.body",
-          textAlign: align,
-          style: palette.body(16).copyWith(height: 24 / 16),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: DocumentTipBox(textKey: "$keys.tip"),
-      ),
     ];
+    // In a sheet held sideways: the picture and Start at the left, the
+    // words at the right.
+    if (documentStepSplit(context)) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SheetSplit(
+          start: [
+            AspectRatio(
+              aspectRatio: _pictureWidth / _pictureHeight,
+              child: FittedBox(child: picture),
+            ),
+          ],
+          end: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // The title at the top of the column.
+              ...words(TextAlign.start, top: 0, size: 20),
+            ],
+          ),
+          actions: DocumentFlowFooter.sheetActions(context, buttons),
+        ),
+      );
+    }
     // A phone held sideways: the picture at the left, the words at the
     // right.
     final landscape = usePhoneLandscape(context);
@@ -129,22 +173,7 @@ class DocumentInstructionScreen extends StatelessWidget {
                 ),
         ),
       ),
-      bottomNavigationBar: DocumentFlowFooter(
-        buttons: [
-          DocumentFlowButton(
-            key: DocumentFlowButton.primaryKey,
-            labelKey: "document_flow.start",
-            onPressed: onStart,
-          ),
-          if (!inSheet)
-            DocumentFlowButton(
-              key: DocumentFlowButton.secondaryKey,
-              labelKey: "document_flow.cancel",
-              onPressed: onCancel,
-              style: .secondary,
-            ),
-        ],
-      ),
+      bottomNavigationBar: DocumentFlowFooter(buttons: buttons),
     );
   }
 }

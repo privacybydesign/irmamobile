@@ -80,6 +80,113 @@ class SheetColumns extends StatelessWidget {
   );
 }
 
+/// A step of a sheet on a phone held sideways: [start] (what it is: a card,
+/// a picture, the explanation) in a column of [startWidth] at the left with
+/// [actions] (usually a [SheetActionRow]) at its bottom, and [end] (what you
+/// read or fill in) taking the rest. There is no bottom bar: with the
+/// keyboard up the buttons sit right above it. Give it to a
+/// [GlassSheetPage] with `scrolls: false` and `childClearsBottom: true`.
+class SheetSplit extends StatelessWidget {
+  final List<Widget> start;
+  final Widget end;
+  final Widget? actions;
+  final double startWidth;
+
+  /// [end] fills the column and fits itself (a camera, a picture) instead
+  /// of scrolling.
+  final bool endFills;
+
+  /// The width of the start column: 280, or 330 for the camera and manual
+  /// entry.
+  static const double width = 280;
+  static const double wideWidth = 330;
+
+  const SheetSplit({
+    super.key,
+    required this.start,
+    required this.end,
+    this.actions,
+    this.startWidth = width,
+    this.endFills = false,
+  });
+
+  /// Whether [context] is inside a [SheetSplit] (its buttons take the
+  /// column's width).
+  static bool isIn(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_InSplit>() != null;
+
+  /// Whether the keyboard is up. Read from the view: a [Scaffold] hides it
+  /// from its body's [MediaQuery].
+  static bool keyboardUp(BuildContext context) =>
+      MediaQuery.viewInsetsOf(context).bottom > 0 ||
+      View.of(context).viewInsets.bottom > 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboard = keyboardUp(context);
+    // As low as the buttons of a full screen; right above the keyboard
+    // while it is up.
+    final bottom = keyboard ? 12.0 : FloatingBarPlacement.buttonBottom(context);
+    final actions = this.actions;
+    return _InSplit(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: startWidth,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: bottom),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        clipBehavior: Clip.none,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 10,
+                          children: start,
+                        ),
+                      ),
+                    ),
+                    if (actions != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: actions,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 28),
+            Expanded(
+              child: endFills
+                  ? Padding(
+                      padding: EdgeInsets.only(bottom: bottom),
+                      child: end,
+                    )
+                  : SingleChildScrollView(
+                      clipBehavior: Clip.none,
+                      padding: EdgeInsets.only(bottom: bottom + 16),
+                      child: end,
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InSplit extends InheritedWidget {
+  const _InSplit({required super.child});
+
+  @override
+  bool updateShouldNotify(_InSplit old) => false;
+}
+
 /// The buttons of a step in a sheet, side by side so they take little height:
 /// the way back ([secondaryLabel], a text pill like every other Cancel) on
 /// the left and the way on
@@ -122,7 +229,9 @@ class SheetActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final secondary = secondaryLabel;
     final primary = primaryLabel;
-    if (usePhoneLandscape(context)) {
+    // In the left column of a [SheetSplit] they take its width, side by
+    // side, as in portrait.
+    if (usePhoneLandscape(context) && !SheetSplit.isIn(context)) {
       // A phone held sideways: the way on at the right, 320 wide, the way
       // back as text to its left.
       return Row(

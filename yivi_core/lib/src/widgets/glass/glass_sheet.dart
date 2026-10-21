@@ -490,6 +490,14 @@ class GlassSheetHeader extends StatelessWidget {
   /// page's own.
   final bool buttons;
 
+  /// On a phone held sideways: after the title, before the close button
+  /// (the progress of adding a card).
+  final Widget? trailing;
+
+  /// On a phone held sideways: a second line under the title (who a card is
+  /// added for).
+  final Widget? subtitle;
+
   const GlassSheetHeader({
     super.key,
     required this.title,
@@ -498,10 +506,13 @@ class GlassSheetHeader extends StatelessWidget {
     this.titleOpacity,
     this.backOpacity,
     this.buttons = true,
+    this.trailing,
+    this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (usePhoneLandscape(context)) return _row(context);
     final palette = YiviPalette.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -587,6 +598,95 @@ class GlassSheetHeader extends StatelessWidget {
                   onTap: () => Navigator.of(context).maybePop(),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A phone held sideways: one row, so the content gets the height. The
+  /// back button, the title at the start (with [subtitle] under it), then
+  /// the search field ([titleWidget], next to the title rather than in its
+  /// place) or [trailing], and the close button.
+  Widget _row(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final titleWidget = this.titleWidget;
+    final trailing = this.trailing;
+    final subtitle = this.subtitle;
+    final text = Semantics(
+      header: true,
+      namesRoute: true,
+      child: AnimatedSwitcher(
+        duration: _switch(context),
+        child: KeyedSubtree(
+          key: ValueKey(title),
+          child: Text(
+            title,
+            key: const Key("glass_sheet_title"),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: palette
+                .display(17)
+                .copyWith(height: 20 / 17, color: palette.text),
+          ),
+        ),
+      ),
+    );
+    final heading = FadeTransition(
+      opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+      child: subtitle == null
+          ? text
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [text, subtitle],
+            ),
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          spacing: 12,
+          children: [
+            if (onBack != null)
+              Visibility(
+                visible: buttons,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: FadeTransition(
+                  opacity: backOpacity ?? kAlwaysCompleteAnimation,
+                  child: YiviBackButton(onTap: onBack),
+                ),
+              ),
+            if (titleWidget != null) ...[
+              heading,
+              Expanded(
+                child: FadeTransition(
+                  opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+                  child: titleWidget,
+                ),
+              ),
+            ] else ...[
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: heading,
+                ),
+              ),
+              ?trailing,
+            ],
+            Visibility(
+              visible: buttons,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
+              child: IrmaCloseButton(
+                onTap: () => Navigator.of(context).maybePop(),
+              ),
+            ),
           ],
         ),
       ),
@@ -1019,6 +1119,10 @@ class GlassSheetPage extends StatefulWidget {
   /// the page scrolls (e.g. the progress of adding a card).
   final Widget? pinned;
 
+  /// On a phone held sideways: a second line under the title (see
+  /// [GlassSheetHeader.subtitle]).
+  final Widget? subtitle;
+
   /// Around [child] in the scroll view; zero when [child] pads itself.
   final EdgeInsets padding;
 
@@ -1039,6 +1143,7 @@ class GlassSheetPage extends StatefulWidget {
     this.slivers,
     this.bottom,
     this.pinned,
+    this.subtitle,
     this.padding = EdgeInsets.zero,
     this.scrolls = true,
     this.childClearsBottom = false,
@@ -1079,6 +1184,22 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     }
     final top = role?.top ?? true;
     final pinnedFades = moving && other != null && !other.pinned;
+    // Underneath, the top page's pinned part stands in for this one, unless
+    // it has none.
+    Widget? pinnedShown(Widget? pinned) => pinned == null
+        ? null
+        : Visibility(
+            visible: top || pinnedFades,
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            child: pinnedFades
+                ? FadeTransition(opacity: role.ownOpacity, child: pinned)
+                : pinned,
+          );
+    // A phone held sideways: the pinned part (the progress) goes in the bar,
+    // after the title.
+    final inBar = usePhoneLandscape(context);
     final head = <Widget>[
       // In pages the bar stays put while pages change; only the titles fade
       // into each other.
@@ -1091,21 +1212,13 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         backOpacity: moving && other != null && !other.back
             ? role.ownOpacity
             : null,
+        trailing: inBar ? pinnedShown(pinned) : null,
+        subtitle: inBar ? widget.subtitle : null,
       ),
-      if (pinned != null)
+      if (pinned != null && !inBar)
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          // Underneath, the top page's pinned part stands in for this one,
-          // unless it has none.
-          child: Visibility(
-            visible: top || pinnedFades,
-            maintainState: true,
-            maintainAnimation: true,
-            maintainSize: true,
-            child: pinnedFades
-                ? FadeTransition(opacity: role.ownOpacity, child: pinned)
-                : pinned,
-          ),
+          child: pinnedShown(pinned),
         ),
     ];
     final body = ScrollEdgeListener(

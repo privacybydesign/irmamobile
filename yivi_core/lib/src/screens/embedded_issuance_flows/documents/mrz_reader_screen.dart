@@ -9,12 +9,15 @@ import "package:permission_handler/permission_handler.dart";
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "document_instruction_screen.dart" show DocumentTipBox;
 import "document_step_in_sheet.dart";
 import "widgets/dark_glass.dart";
 import "widgets/mrz_scanner.dart";
@@ -45,8 +48,13 @@ class MrzReaderScreen<Parser extends MrzParser> extends ConsumerStatefulWidget {
   final Parser mrzParser;
   final MrzReaderTranslationKeys translationKeys;
 
+  /// The document's instruction ("Open your passport on …", its tip): what
+  /// the camera step says beside the camera in a sheet held sideways.
+  final String? instructionKey;
+
   const MrzReaderScreen({
     required this.translationKeys,
+    this.instructionKey,
     required this.onSuccess,
     required this.onManualAdd,
     required this.onCancel,
@@ -98,6 +106,7 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
         body: body,
         manualLabel: widget.translationKeys.manualEntryButton,
         onManual: widget.onManualAdd,
+        instructionKey: widget.instructionKey,
       );
     }
 
@@ -315,15 +324,50 @@ class _SheetCamera extends StatelessWidget {
   final Widget body;
   final String manualLabel;
   final VoidCallback onManual;
+  final String? instructionKey;
 
   const _SheetCamera({
     required this.body,
     required this.manualLabel,
     required this.onManual,
+    this.instructionKey,
   });
 
   @override
   Widget build(BuildContext context) {
+    final card = ClipRSuperellipse(
+      borderRadius: const BorderRadius.all(Radius.circular(28)),
+      child: ColoredBox(color: const Color(0xFF121417), child: body),
+    );
+    final manual = PillButton(
+      key: const Key("bottom_bar_primary"),
+      label: FlutterI18n.translate(context, manualLabel),
+      onPressed: onManual,
+    );
+    // Held sideways: what to do and "Enter manually" at the left, the
+    // camera at the right.
+    final instruction = instructionKey;
+    if (usePhoneLandscape(context)) {
+      final palette = YiviPalette.of(context);
+      return SheetSplit(
+        startWidth: SheetSplit.wideWidth,
+        endFills: true,
+        start: [
+          if (instruction != null) ...[
+            TranslatedText(
+              "$instruction.title",
+              isHeader: true,
+              style: palette
+                  .display(20, weight: FontWeight.w700)
+                  .copyWith(height: 28 / 20, color: palette.heading),
+            ),
+            DocumentTipBox(textKey: "$instruction.tip"),
+          ],
+        ],
+        end: card,
+        actions: manual,
+      );
+    }
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -335,17 +379,8 @@ class _SheetCamera extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
         children: [
-          Expanded(
-            child: ClipRSuperellipse(
-              borderRadius: const BorderRadius.all(Radius.circular(28)),
-              child: ColoredBox(color: const Color(0xFF121417), child: body),
-            ),
-          ),
-          PillButton(
-            key: const Key("bottom_bar_primary"),
-            label: FlutterI18n.translate(context, manualLabel),
-            onPressed: onManual,
-          ),
+          Expanded(child: card),
+          manual,
         ],
       ),
     );

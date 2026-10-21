@@ -41,8 +41,16 @@ class DocumentCameraFrame extends StatelessWidget {
   /// [top]: the design's place on a phone (236 on the 844 high board, a
   /// little above the middle), always below the hint card.
   static Rect windowFor(Size size, double top, {double hint = hintTop}) {
-    final width = math.min(windowWidth, size.width - 48);
-    final height = width * windowHeight / windowWidth;
+    var width = math.min(windowWidth, size.width - 48);
+    var height = width * windowHeight / windowWidth;
+    // A short card (the camera beside its explanation in a sheet held
+    // sideways): right under the hint, as large as fits above the bottom.
+    if (size.height < 360) {
+      final y = top + hint + 52;
+      height = math.min(height, size.height - y - 16);
+      width = height * windowWidth / windowHeight;
+      return Rect.fromLTWH((size.width - width) / 2, y, width, height);
+    }
     final y = math.max(top + hint + 96, (size.height - height) / 2 - 60);
     return Rect.fromLTWH((size.width - width) / 2, y, width, height);
   }

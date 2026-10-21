@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/credentials_search.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/adaptive_layout.dart";
 import "../../../../widgets/glass/glass_group.dart";
 import "../../../../widgets/glass/glass_search_field.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
@@ -110,32 +111,75 @@ class _CountryPickerState extends State<_CountryPicker> {
             (c.dialCode ?? "").replaceAll("+", "").startsWith(digits));
     final found = query.isEmpty ? const <Country>[] : byName.where(matches);
 
-    SliverGlassGroup group(String? header, List<Country> list) =>
-        SliverGlassGroup(
-          header: header,
-          dividerIndent: _CountryRow.dividerIndent,
-          itemCount: list.length,
-          itemBuilder: (context, i) => _CountryRow(
-            country: list[i],
-            name: name(list[i]),
-            selected: list[i].alpha2Code == widget.selected.alpha2Code,
-            onTap: () => Navigator.of(context).pop(list[i]),
-          ),
-        );
-
-    return GlassSheetPage(
-      title: _t("country_title"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    final landscape = usePhoneLandscape(context);
+    Widget row(Country c) => _CountryRow(
+      country: c,
+      name: name(c),
+      selected: c.alpha2Code == widget.selected.alpha2Code,
+      oneLine: landscape,
+      onTap: () => Navigator.of(context).pop(c),
+    );
+    // A phone held sideways: three countries side by side, each a card.
+    Widget grid(String? header, List<Country> list) => SliverMainAxisGroup(
       slivers: [
-        SliverToBoxAdapter(
-          child: GlassSearchField(
-            fieldKey: const Key("phone_country_search"),
-            hintKey: "sms_issuance.enter_phone.search_label",
-            height: 44,
-            onChanged: (q) => setState(() => _query = q),
+        if (header != null)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+              child: Semantics(
+                header: true,
+                child: Text(header, style: palette.display(15)),
+              ),
+            ),
+          ),
+        SliverPadding(
+          padding: const EdgeInsets.only(bottom: 12),
+          sliver: SliverGrid.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              mainAxisExtent:
+                  52 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 2),
+            ),
+            itemCount: list.length,
+            itemBuilder: (context, i) => Material(
+              color: palette.surface,
+              shape: const RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Center(child: row(list[i])),
+            ),
           ),
         ),
+      ],
+    );
+
+    Widget group(String? header, List<Country> list) => landscape
+        ? grid(header, list)
+        : SliverGlassGroup(
+            header: header,
+            dividerIndent: _CountryRow.dividerIndent,
+            itemCount: list.length,
+            itemBuilder: (context, i) => row(list[i]),
+          );
+
+    final search = GlassSearchField(
+      fieldKey: const Key("phone_country_search"),
+      hintKey: "sms_issuance.enter_phone.search_label",
+      height: landscape ? 40 : 44,
+      onChanged: (q) => setState(() => _query = q),
+    );
+    return GlassSheetPage(
+      title: _t("country_title"),
+      // Sideways the search field is in the bar, next to the title.
+      titleWidget: landscape ? search : null,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      slivers: [
+        if (!landscape) SliverToBoxAdapter(child: search),
         if (query.isEmpty) ...[
+          if (landscape) const SliverToBoxAdapter(child: SizedBox(height: 8)),
           group(_t("country_common"), common),
           group(_t("country_all"), byName),
         ] else if (found.isEmpty)
@@ -167,6 +211,9 @@ class _CountryRow extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  /// The name on one line (the grid of a phone held sideways).
+  final bool oneLine;
+
   static const double dividerIndent = 14 + 28 + 12;
 
   const _CountryRow({
@@ -174,6 +221,7 @@ class _CountryRow extends StatelessWidget {
     required this.name,
     required this.selected,
     required this.onTap,
+    this.oneLine = false,
   });
 
   @override
@@ -199,6 +247,8 @@ class _CountryRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     name,
+                    maxLines: oneLine ? 1 : null,
+                    overflow: oneLine ? TextOverflow.ellipsis : null,
                     style: palette.body(16).copyWith(color: palette.text),
                   ),
                 ),

@@ -646,6 +646,61 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               )),
             ) !=
             ExternalIssuerStatus.notExternal;
+    // One button: the close button and back are the way out.
+    final actions = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
+      children: [
+        // Where "Add" goes, right above it.
+        if (external)
+          _HostNote(
+            key: const Key("sheet_external_note"),
+            text: _t("data.add.details.external_note", {"host": host}),
+          ),
+        SheetActionRow(
+          primaryKey: const Key("sheet_go_button"),
+          // The note above says which website.
+          primaryLabel: _opened
+              ? _t("share.sheet.open_again")
+              : _t("data.add.details.get_button"),
+          onPrimary: () => _add(d),
+        ),
+      ],
+    );
+    final opened = _opened
+        ? _Note(
+            key: const Key("sheet_opened_note"),
+            text: _t("share.sheet.opened_note", {"host": host}),
+          )
+        : null;
+    Widget part(AddDataDetailsPart part, {double cardWidth = 220}) =>
+        AddDataDetailsContent(
+          credential: d,
+          faq: faq,
+          forRequestor: issueRequest?.requestor.name,
+          part: part,
+          cardWidth: cardWidth,
+        );
+    // A phone held sideways: the card, its name and the button at the
+    // left, what it is and what you get at the right.
+    final split = usePhoneLandscape(context)
+        ? SheetSplit(
+            start: [
+              part(
+                AddDataDetailsPart.card,
+                // Smaller when a note on the website goes above the button.
+                cardWidth: external || _opened ? 180 : 220,
+              ),
+            ],
+            end: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [?opened, part(AddDataDetailsPart.rest)],
+            ),
+            actions: actions,
+          )
+        : null;
     return GlassSheetPage(
       // The card's name: the page is about it (the progress under the bar
       // says where in adding it you are).
@@ -656,50 +711,25 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           : () async {
               if (!_opened || await issueConfirmStop()) issueLeave();
             },
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      // One button: the close button and back are the way out.
-      bottom: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 10,
-        children: [
-          // Where "Add" goes, right above it.
-          if (external)
-            _HostNote(
-              key: const Key("sheet_external_note"),
-              text: _t("data.add.details.external_note", {"host": host}),
-            ),
-          SheetActionRow(
-            primaryKey: const Key("sheet_go_button"),
-            // The note above says which website.
-            primaryLabel: _opened
-                ? _t("share.sheet.open_again")
-                : _t("data.add.details.get_button"),
-            onPrimary: () => _add(d),
-          ),
-        ],
-      ),
+      padding: split != null
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 16),
+      scrolls: split == null,
+      childClearsBottom: split != null,
+      bottom: split == null ? actions : null,
       pinned: IssueSheetProgress(
         subject: subject,
         step: _opened ? 2 : 1,
         total: total,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (_opened)
-            _Note(
-              key: const Key("sheet_opened_note"),
-              text: _t("share.sheet.opened_note", {"host": host}),
-            ),
-          AddDataDetailsContent(
-            credential: d,
-            faq: faq,
-            forRequestor: issueRequest?.requestor.name,
+      subtitle: IssueSheetRequestorLine(subject: subject),
+      child:
+          split ??
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 16,
+            children: [?opened, part(AddDataDetailsPart.all)],
           ),
-        ],
-      ),
     );
   }
 
@@ -730,20 +760,54 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final offer = state != null && _isOffer(state) && !awaiting ? state : null;
     final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
 
+    final actions = SheetActionRow(
+      primaryKey: const Key("sheet_issue_add"),
+      primaryLabel: cards.length > 1
+          ? _t("issuance.add_many", {"count": "${cards.length}"})
+          : _t("issuance.add"),
+      onPrimary: offer == null || nestedId == null
+          ? null
+          : () => _grant(nestedId),
+    );
+    // A phone held sideways: the card(s) and the button at the left, the
+    // question and the values at the right.
+    if (usePhoneLandscape(context)) {
+      final content = offer == null ? null : _offerContent(offer);
+      return GlassSheetPage(
+        title: _t("issuance.title"),
+        onBack: issueBack,
+        pinned: _progress(subject, total),
+        subtitle: _requestorLine(subject),
+        scrolls: false,
+        childClearsBottom: true,
+        child: SheetSplit(
+          key: content == null ? null : const Key("sheet_issuance"),
+          start: content == null
+              ? const []
+              : content.overview(context, cardWidth: 230),
+          end: content == null
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 60),
+                  child: Center(child: LoadingIndicator()),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 8,
+                  children: [
+                    _question(cards.length),
+                    ...content.receives(context),
+                  ],
+                ),
+          actions: actions,
+        ),
+      );
+    }
     return GlassSheetPage(
       title: _t("issuance.title"),
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: SheetActionRow(
-        primaryKey: const Key("sheet_issue_add"),
-        primaryLabel: cards.length > 1
-            ? _t("issuance.add_many", {"count": "${cards.length}"})
-            : _t("issuance.add"),
-        onPrimary: offer == null || nestedId == null
-            ? null
-            : () => _grant(nestedId),
-      ),
+      bottom: actions,
       pinned: _progress(subject, total),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -768,51 +832,49 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     );
   }
 
-  List<Widget> _offer(SessionState offer) {
-    final palette = YiviPalette.of(context);
+  /// What the offer holds: the card(s), their chips and their values.
+  IssuanceOffer _offerContent(SessionState offer) {
     final cards = offer.offeredCredentials!;
     final returned = _opened && cards.any((c) => _launched(c.credentialId))
         ? cards.first.issuer.name
         : null;
-    final content = IssuanceOffer(
+    return IssuanceOffer(
       cards: cards,
       forRequest: issueRequest,
       returnedFromIssuer: returned,
       showRequestChip: false,
     );
-    final question = Padding(
+  }
+
+  /// "Do you want to add this to your Yivi app?"; smaller in the right
+  /// column of a phone held sideways.
+  Widget _question(int count) {
+    final palette = YiviPalette.of(context);
+    final landscape = usePhoneLandscape(context);
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Semantics(
         header: true,
         child: Text(
-          cards.length > 1
-              ? _t("issuance.question_many", {"count": "${cards.length}"})
+          count > 1
+              ? _t("issuance.question_many", {"count": "$count"})
               : _t("issuance.description"),
-          style: palette
-              .display(22)
-              .copyWith(height: 30 / 22, color: palette.heading),
+          style: landscape
+              ? palette
+                    .display(17, weight: FontWeight.w700)
+                    .copyWith(height: 23 / 17, color: palette.text)
+              : palette
+                    .display(22)
+                    .copyWith(height: 30 / 22, color: palette.heading),
         ),
       ),
     );
-    // A phone held sideways: the card(s) at the left, the question and the
-    // values at the right.
-    if (usePhoneLandscape(context)) {
-      return [
-        SheetColumns(
-          startWidth: 250,
-          start: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: content.overview(context, cardWidth: 250),
-          ),
-          end: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 8,
-            children: [question, ...content.receives(context)],
-          ),
-        ),
-      ];
-    }
+  }
+
+  List<Widget> _offer(SessionState offer) {
+    final cards = offer.offeredCredentials!;
+    final content = _offerContent(offer);
+    final question = _question(cards.length);
     return [
       question,
       ...content.overview(context, cardWidth: 358),
@@ -832,6 +894,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// The progress over a step; none for an issuance without steps before
   /// it ([total] 0).
+  /// Under the bar's title on a phone held sideways: who it is for.
+  Widget? _requestorLine(IssueSheetSubject? subject) =>
+      subject == null ? null : IssueSheetRequestorLine(subject: subject);
+
   Widget? _progress(
     IssueSheetSubject? subject,
     int total, {
@@ -887,69 +953,78 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   ) {
     final palette = YiviPalette.of(context);
     // The bar keeps the step's title; "Success" is the heading below.
+    // A phone held sideways: the card with its check, the words and the
+    // buttons at the left; what is now in the app at the right.
+    if (usePhoneLandscape(context)) {
+      return GlassSheetPage(
+        title: _t("issuance.title"),
+        pinned: _progress(subject, total, done: true),
+        subtitle: _requestorLine(subject),
+        scrolls: false,
+        childClearsBottom: true,
+        child: SheetSplit(
+          start: [
+            if (cards.isNotEmpty)
+              Padding(
+                // Room for the check over the card's corner.
+                padding: const EdgeInsets.only(top: 14, right: 80),
+                child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
+              ),
+            Text(
+              _t("issuance.success_feedback.added_header"),
+              style: palette
+                  .display(24, weight: FontWeight.w700)
+                  .copyWith(color: palette.heading),
+            ),
+            Text(
+              issueSuccessText(cards),
+              key: const Key("sheet_added_text"),
+              style: palette.body(15).copyWith(height: 22 / 15),
+            ),
+          ],
+          end: Column(
+            key: const Key("sheet_added_values"),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cards.isEmpty
+                ? const []
+                : IssuanceOffer(
+                    cards: cards,
+                    showRequestChip: false,
+                  ).receives(context, headingKey: "data.add.in_your_app"),
+          ),
+          actions: issueSuccessBar(cards),
+        ),
+      );
+    }
     return GlassSheetPage(
       title: _t("issuance.title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       bottom: issueSuccessBar(cards),
       pinned: _progress(subject, total, done: true),
-      child: usePhoneLandscape(context)
-          // A phone held sideways: the card with its check at the left, the
-          // words at the right.
-          ? SheetColumns(
-              startWidth: 280,
-              gap: 32,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              start: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: cards.isEmpty
-                    ? const SizedBox.shrink()
-                    : IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
-              ),
-              end: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
-                children: [
-                  Text(
-                    _t("issuance.success_feedback.added_header"),
-                    style: palette
-                        .display(26, weight: FontWeight.w700)
-                        .copyWith(color: palette.heading),
-                  ),
-                  Text(
-                    issueSuccessText(cards),
-                    key: const Key("sheet_added_text"),
-                    style: palette.body(16).copyWith(height: 24 / 16),
-                  ),
-                ],
-              ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                if (cards.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24),
-                    child: IssuanceReceived(
-                      cards: cards,
-                      cardKeys: issueAddedKeys,
-                    ),
-                  ),
-                Text(
-                  _t("issuance.success_feedback.added_header"),
-                  textAlign: TextAlign.center,
-                  style: palette
-                      .display(26, weight: FontWeight.w700)
-                      .copyWith(color: palette.heading),
-                ),
-                Text(
-                  issueSuccessText(cards),
-                  key: const Key("sheet_added_text"),
-                  textAlign: TextAlign.center,
-                  style: palette.body(16).copyWith(height: 24 / 16),
-                ),
-              ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 16,
+        children: [
+          if (cards.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
             ),
+          Text(
+            _t("issuance.success_feedback.added_header"),
+            textAlign: TextAlign.center,
+            style: palette
+                .display(26, weight: FontWeight.w700)
+                .copyWith(color: palette.heading),
+          ),
+          Text(
+            issueSuccessText(cards),
+            key: const Key("sheet_added_text"),
+            textAlign: TextAlign.center,
+            style: palette.body(16).copyWith(height: 24 / 16),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1064,6 +1139,9 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
               step: widget.total,
               total: widget.total,
             ),
+      subtitle: widget.subject == null
+          ? null
+          : IssueSheetRequestorLine(subject: widget.subject!),
       // The pad fills the page and scales itself to it; it does not scroll.
       // It keeps clear of the home indicator itself (YiviPinScreen), so the
       // link under the keypad sits as low as on the full-screen PIN.

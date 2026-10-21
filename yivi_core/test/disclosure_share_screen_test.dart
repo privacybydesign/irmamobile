@@ -33,6 +33,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
+import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
@@ -2332,7 +2333,8 @@ void main() {
       expect(idcard.left, greaterThan(passport.right));
     });
 
-    testWidgets("adding: the card left, the button at the bottom right", (
+    testWidgets("adding: the card and the button left, what you get right; "
+        "the progress next to the title, who it is for under it", (
       tester,
     ) async {
       await pumpSideways(
@@ -2347,14 +2349,29 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_spot_0")));
       await tester.pumpAndSettle();
+      // The button at the bottom of the left column, as wide as it; no bar.
       final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
-      expect(go.width, 320);
-      expect(go.right, 874 - 62 - 20);
-      final name = tester.getRect(
-        find.byKey(const Key("add_data_details_name")),
-      );
+      expect(go.left, 62 + 20);
+      expect(go.width, 280);
+      // As low as the buttons of a full screen.
+      expect(go.bottom, inInclusiveRange(402 - 40, 402 - 16));
+      expect(find.byType(SheetBottomBar), findsNothing);
       final youGet = tester.getRect(find.byKey(const Key("add_data_you_get")));
-      expect(youGet.left, greaterThan(name.right));
+      expect(youGet.left, greaterThan(go.right));
+      // One bar: the title, the progress with "1 of 3" after it, and under
+      // the title who the card is for.
+      final title = tester.getRect(find.byKey(const Key("glass_sheet_title")));
+      final count = tester.getRect(
+        find.byKey(const Key("issue_sheet_progress_text")),
+      );
+      // The test's card goes via a website: three steps.
+      expect(find.text("1 of 3"), findsOneWidget);
+      expect(count.center.dy, closeTo(title.bottom, 12));
+      final forWho = tester.getRect(
+        find.byKey(const Key("issue_sheet_for_requestor")),
+      );
+      expect(forWho.top, greaterThanOrEqualTo(title.bottom));
+      expect(forWho.left, title.left);
     });
 
     testWidgets("who is this, and the technical details, in two columns", (

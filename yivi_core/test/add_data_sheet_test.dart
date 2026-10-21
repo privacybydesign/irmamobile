@@ -28,6 +28,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
+import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
@@ -759,6 +760,76 @@ void main() {
       await tester.pumpAndSettle();
       expect(_sheet, findsNothing);
     });
+
+    group("sideways", () {
+      const side = Size(874, 402);
+
+      testWidgets("details: the card and Add at the left, what you get at "
+          "the right; '1 of 3' next to the title", (tester) async {
+        await _pump(tester, size: side);
+        await tester.tap(
+          find.byKey(const Key("pbdf.gemeente.personalData_tile")),
+        );
+        await tester.pumpAndSettle();
+        final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
+        final youGet = tester.getRect(
+          find.byKey(const Key("add_data_you_get")),
+        );
+        expect(youGet.left, greaterThan(go.right));
+        expect(find.byType(SheetBottomBar), findsNothing);
+        // The note on the website right above the button, in its column.
+        final note = tester.getRect(
+          find.byKey(const Key("sheet_external_note")),
+        );
+        expect(note.bottom, lessThanOrEqualTo(go.top));
+        expect(note.left, go.left);
+        expect(find.text("1 of 3"), findsOneWidget);
+        final title = tester.getRect(
+          find.byKey(const Key("glass_sheet_title")).last,
+        );
+        final count = tester.getRect(
+          find.byKey(const Key("issue_sheet_progress_text")),
+        );
+        expect(count.left, greaterThan(title.right));
+      });
+
+      testWidgets("opened: the note at the right, Open again at the left", (
+        tester,
+      ) async {
+        await openWebsite(tester, size: side);
+        final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
+        final opened = tester.getRect(
+          find.byKey(const Key("sheet_opened_note")),
+        );
+        expect(opened.left, greaterThan(go.right));
+        expect(find.text("Open again"), findsOneWidget);
+        expect(find.text("2 of 3"), findsOneWidget);
+        // The issuer's pointer as the user comes back: the session is
+        // followed (and its stream can close).
+        comeBack(tester);
+        await tester.pump();
+      });
+
+      testWidgets("added: the card, the words and the buttons at the left, "
+          "what is in the app at the right", (tester) async {
+        await toSuccess(tester, size: side);
+        expect(find.text("Done"), findsWidgets);
+        final done = tester.getRect(find.byKey(const Key("sheet_done")));
+        final values = tester.getRect(
+          find.byKey(const Key("sheet_added_values")),
+        );
+        expect(values.left, greaterThan(done.right));
+        expect(
+          find.descendant(
+            of: find.byKey(const Key("sheet_added_values")),
+            matching: find.text("In your app"),
+          ),
+          findsOneWidget,
+        );
+        final added = tester.getRect(find.byKey(const Key("sheet_added_text")));
+        expect(added.right, lessThanOrEqualTo(done.right));
+      });
+    });
   });
 
   testWidgets("Get again opens the sheet on the type's details", (
@@ -862,6 +933,84 @@ void main() {
       expect(start, add);
     });
   }
+
+  group("sideways", () {
+    const side = Size(874, 402);
+
+    testWidgets("the list: search in the bar from the start, two cards side "
+        "by side", (tester) async {
+      await _pump(tester, size: side);
+      expect(find.byKey(const Key("add_data_search_bar")), findsOneWidget);
+      expect(find.byKey(const Key("add_data_search")), findsNothing);
+      final passport = tester.getRect(_row("pbdf.pbdf.passport"));
+      final email = tester.getRect(_row("pbdf.sidn-pbdf.email"));
+      expect(email.top, passport.top);
+      expect(email.left, greaterThan(passport.right));
+      // The title stays, next to the field.
+      final title = tester.getRect(find.byKey(const Key("glass_sheet_title")));
+      final field = tester.getRect(
+        find.byKey(const Key("add_data_search_bar")),
+      );
+      expect(field.left, greaterThan(title.right));
+    });
+
+    testWidgets("an e-mail address: Send code at the left, the field at the "
+        "right", (tester) async {
+      await _pump(
+        tester,
+        size: side,
+        overrides: [emailIssuerApiProvider.overrideWithValue(_FakeEmailApi())],
+      );
+      await tester.tap(find.byKey(const Key("pbdf.sidn-pbdf.email_tile")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await _pumpFor(tester);
+      final send = tester.getRect(find.byKey(const Key("contact_sheet_send")));
+      final field = tester.getRect(find.byKey(const Key("email_input_field")));
+      expect(field.left, greaterThan(send.right));
+      expect(find.text("2 of 4"), findsOneWidget);
+      expect(find.byType(SheetBottomBar), findsNothing);
+    });
+
+    testWidgets("a passport: the picture and Start at the left, the words at "
+        "the right", (tester) async {
+      await _pump(
+        tester,
+        size: side,
+        store: [
+          CredentialStoreCategory(
+            category: "Documents",
+            items: [
+              _item(
+                "pbdf.pbdf.passport",
+                "Passport",
+                issueURL: "https://document-issuer.example/issue",
+              ),
+            ],
+          ),
+        ],
+      );
+      await tester.tap(find.byKey(const Key("pbdf.pbdf.passport_tile")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await _pumpFor(tester);
+      final picture = tester.getRect(
+        find.byKey(const Key("document_instruction_picture")),
+      );
+      final start = tester.getRect(
+        find.descendant(
+          of: find.byType(DocumentInstructionScreen),
+          matching: find.byKey(const Key("bottom_bar_primary")),
+        ),
+      );
+      final title = tester.getRect(
+        find.text("Open your passport on the photo page"),
+      );
+      expect(start.top, greaterThan(picture.bottom));
+      expect(title.left, greaterThan(start.right));
+      expect(find.text("2 of 5"), findsOneWidget);
+    });
+  });
 }
 
 /// The e-mail issuer, faked: sending always works; any code gives a session.

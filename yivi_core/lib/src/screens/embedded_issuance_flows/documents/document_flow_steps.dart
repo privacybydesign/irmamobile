@@ -4,6 +4,7 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../models/mrz.dart";
 import "document_instruction_screen.dart";
+import "document_translation_keys.dart";
 import "driving_licence_mrz_manual_entry_screen.dart";
 import "mrz_reader_screen.dart";
 import "nfc_reading_screen.dart";
@@ -50,6 +51,7 @@ abstract final class DocumentFlowSteps {
     return switch (type) {
       .drivingLicence => MrzReaderScreen(
         translationKeys: keys,
+        instructionKey: type.instructionKey,
         onSuccess: (r) => onRead(
           ScannedDrivingLicenceMrz.fromMRZResult(r as DrivingLicenceMrzResult),
         ),
@@ -59,6 +61,7 @@ abstract final class DocumentFlowSteps {
       ),
       .passport => MrzReaderScreen(
         translationKeys: keys,
+        instructionKey: type.instructionKey,
         onSuccess: (r) =>
             onRead(ScannedPassportMrz.fromMRZResult(r as PassportMrzResult)),
         onManualAdd: onManual,
@@ -67,6 +70,7 @@ abstract final class DocumentFlowSteps {
       ),
       .identityCard => MrzReaderScreen(
         translationKeys: keys,
+        instructionKey: type.instructionKey,
         onSuccess: (r) =>
             onRead(ScannedIdCardMrz.fromMRZResult(r as PassportMrzResult)),
         onManualAdd: onManual,

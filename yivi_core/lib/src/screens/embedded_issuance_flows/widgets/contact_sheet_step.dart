@@ -224,9 +224,15 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   // ---------- the page ----------
 
-  /// The step's content: [start] above [end]; on a phone held sideways
-  /// side by side, the explanation at the left and the field at the right.
-  Widget _split(List<Widget> start, List<Widget> end, {Key? key}) {
+  /// The step's content: [start] above [end] (the buttons under the
+  /// page); on a phone held sideways in two columns, the explanation and
+  /// [bar] at the left, the field at the right ([SheetSplit]).
+  Widget _split(
+    List<Widget> start,
+    List<Widget> end, {
+    required Widget bar,
+    Key? key,
+  }) {
     if (!usePhoneLandscape(context)) {
       return Column(
         key: key,
@@ -234,20 +240,14 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         children: [...start, ...end],
       );
     }
-    return KeyedSubtree(
+    return SheetSplit(
       key: key,
-      child: SheetColumns(
-        startWidth: 280,
-        gap: 28,
-        start: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: start,
-        ),
-        end: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: end,
-        ),
+      start: start,
+      end: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: end,
       ),
+      actions: bar,
     );
   }
 
@@ -270,8 +270,17 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     if (code) {
       final complete =
           _codeController.text.length == (_email ? emailCodeLength : 6);
+      bar = SheetActionRow(
+        primaryKey: const Key("contact_sheet_verify"),
+        primaryLabel: _t("contact_sheet.check_code"),
+        primaryLeading: _verifying ? const _Spinner() : null,
+        onPrimary: complete && !_verifying
+            ? () => _verify(_codeController.text)
+            : null,
+      );
       body = _split(
         key: const Key("contact_sheet_code"),
+        bar: bar,
         [
           _SentTo(
             label: _k("sent_to"),
@@ -315,16 +324,15 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             ),
         ],
       );
-      bar = SheetActionRow(
-        primaryKey: const Key("contact_sheet_verify"),
-        primaryLabel: _t("contact_sheet.check_code"),
-        primaryLeading: _verifying ? const _Spinner() : null,
-        onPrimary: complete && !_verifying
-            ? () => _verify(_codeController.text)
-            : null,
-      );
     } else {
+      bar = SheetActionRow(
+        primaryKey: const Key("contact_sheet_send"),
+        primaryLabel: _t("contact_sheet.send_code"),
+        primaryLeading: sending ? const _Spinner() : null,
+        onPrimary: _valid && !sending ? _submitTarget : null,
+      );
       body = _split(
+        bar: bar,
         [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -361,14 +369,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             ),
         ],
       );
-      bar = SheetActionRow(
-        primaryKey: const Key("contact_sheet_send"),
-        primaryLabel: _t("contact_sheet.send_code"),
-        primaryLeading: sending ? const _Spinner() : null,
-        onPrimary: _valid && !sending ? _submitTarget : null,
-      );
     }
 
+    final landscape = usePhoneLandscape(context);
     return GlassSheetPage(
       title: _t(
         _email
@@ -376,15 +379,23 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             : "sms_issuance.enter_phone.title",
       ),
       onBack: _back,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: bar,
+      padding: landscape
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 16),
+      // Sideways the buttons are in the left column, above the keyboard.
+      bottom: landscape ? null : bar,
+      scrolls: !landscape,
+      childClearsBottom: landscape,
       // Two steps of their own: the address, then the code.
       pinned: IssueSheetProgress(
         subject: widget.subject,
         step: code ? 3 : 2,
         total: widget.total,
       ),
-      child: Padding(padding: const EdgeInsets.only(top: 8), child: body),
+      subtitle: IssueSheetRequestorLine(subject: widget.subject),
+      child: landscape
+          ? body
+          : Padding(padding: const EdgeInsets.only(top: 8), child: body),
     );
   }
 }
@@ -522,8 +533,11 @@ class _ResendRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
       child: Row(
+        // Sideways on one line: the link right after the hint.
+        spacing: usePhoneLandscape(context) ? 16 : 0,
         children: [
-          Expanded(
+          Flexible(
+            fit: usePhoneLandscape(context) ? FlexFit.loose : FlexFit.tight,
             child: Semantics(
               liveRegion: true,
               child: Text(

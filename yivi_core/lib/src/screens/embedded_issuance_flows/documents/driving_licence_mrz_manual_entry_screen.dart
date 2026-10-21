@@ -76,6 +76,15 @@ class _DrivingLicencetMrzManualEntryScreenState
     }
   }
 
+  /// The buttons in a sheet: its close button is the way out.
+  List<Widget> get _sheetButtons => [
+    DocumentFlowButton(
+      key: DocumentFlowButton.primaryKey,
+      labelKey: "ui.continue",
+      onPressed: _canContinue ? _onContinuePressed : null,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -94,15 +103,25 @@ class _DrivingLicencetMrzManualEntryScreenState
             : IrmaAppBar(titleTranslationKey: "driving_licence.scan.title"),
         body: SizedBox(
           height: .infinity,
-          child: SingleChildScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
-            child: Form(
+          child: documentScroll(
+            context,
+            Form(
               key: _manualEntryFormKey,
               onChanged: _recomputeCanContinue,
               child: SafeArea(
+                // Sideways the sheet's columns keep clear of the bottom.
+                bottom: !documentStepSplit(context),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  padding: documentStepSplit(context)
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   child: ManualEntryLayout(
+                    actions: documentStepSplit(context)
+                        ? DocumentFlowFooter.sheetActions(
+                            context,
+                            _sheetButtons,
+                          )
+                        : null,
                     titleKey: "driving_licence.manual.title",
                     explanationKey: "driving_licence.manual.explanation",
                     tipKey: "document_flow.manual.tip_driving_licence",
@@ -116,16 +135,10 @@ class _DrivingLicencetMrzManualEntryScreenState
           ),
         ),
         // In a sheet, the sheet's own buttons; its close button is the way out.
-        bottomNavigationBar: DocumentStepInSheet.of(context)
-            ? DocumentFlowFooter(
-                buttons: [
-                  DocumentFlowButton(
-                    key: DocumentFlowButton.primaryKey,
-                    labelKey: "ui.continue",
-                    onPressed: _canContinue ? _onContinuePressed : null,
-                  ),
-                ],
-              )
+        bottomNavigationBar: documentStepSplit(context)
+            ? null
+            : DocumentStepInSheet.of(context)
+            ? DocumentFlowFooter(buttons: _sheetButtons)
             : IrmaBottomBar(
                 primaryButtonLabel: "ui.continue",
                 onPrimaryPressed: _canContinue ? _onContinuePressed : null,

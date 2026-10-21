@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/pill_text_field.dart";
@@ -89,7 +90,13 @@ class ContactFieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 28, 4, 8),
+      // Sideways it starts the right column, level with the explanation.
+      padding: EdgeInsets.fromLTRB(
+        4,
+        usePhoneLandscape(context) ? 2 : 28,
+        4,
+        8,
+      ),
       child: TranslatedText(
         labelKey,
         textAlign: textAlign,
