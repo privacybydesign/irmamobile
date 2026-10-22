@@ -229,8 +229,6 @@
       },
       "example": "Beispiel",
       "by": "von {issuer}",
-      "search": "Daten zum Hinzufügen suchen",
-      "no_results": "Keine Daten gefunden für „{query}“",
       "stop_text": "Was du bisher eingegeben hast, geht verloren, und es wird nichts hinzugefügt.",
       "add_more": "Weitere hinzufügen",
       "done": "Fertig",

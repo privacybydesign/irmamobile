@@ -6,9 +6,9 @@ import "package:yivi_core/src/theme/yivi_corners.dart";
 import "package:yivi_core/src/widgets/adaptive_page.dart";
 import "package:yivi_core/src/widgets/app_toast.dart";
 import "package:yivi_core/src/widgets/code_input.dart";
-import "package:yivi_core/src/widgets/irma_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/irma_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/irma_info_scaffold_body.dart";
 import "package:yivi_core/src/widgets/status_body.dart";
 

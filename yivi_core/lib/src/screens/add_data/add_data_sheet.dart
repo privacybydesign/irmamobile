@@ -17,7 +17,6 @@ import "../../util/nfc_credentials.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
-import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_action_row.dart";
@@ -103,7 +102,7 @@ Future<void> obtainAgain(
 }
 
 /// Add data as a sheet. Its root page is the list of what can be added, by
-/// category, with a search field under the bar. Tapping a type adds it in
+/// category. Tapping a type adds it in
 /// the sheet, with the same steps as adding a card during a request
 /// ([IssueFlow]): its details, proving it, the issuance. "Success" then
 /// offers "Add more", back to the list, and "Done", which closes the sheet.
@@ -129,19 +128,10 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   Widget? _listPage;
   String? _listPageFor;
 
-  /// What is typed in the search field. Kept here, not on the list page:
-  /// a step further than the details drops the list page, and coming back
-  /// to it the search is still there.
-  final _search = TextEditingController();
-
   Widget get _list {
     if (_listPage == null || _listPageFor != _justAdded) {
       _listPageFor = _justAdded;
-      _listPage = _AddDataListPage(
-        justAdded: _justAdded,
-        search: _search,
-        onOpen: _open,
-      );
+      _listPage = _AddDataListPage(justAdded: _justAdded, onOpen: _open);
     }
     return _listPage!;
   }
@@ -150,12 +140,6 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   void initState() {
     super.initState();
     issueStartWith(widget.addNew);
-  }
-
-  @override
-  void dispose() {
-    _search.dispose();
-    super.dispose();
   }
 
   // ---------- the flow, without a request ----------
@@ -290,109 +274,23 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
 }
 
 /// The root page of Add data: what can be added, by category. Its own
-/// widget, so typing rebuilds only the list, and the rows are built as they
-/// scroll into view.
-///
-/// The search field is the first thing in the list and scrolls away with
-/// it; once it has, a narrower field takes the title's place in the bar,
-/// next to the close button (docs/add-data-simpler-plan.md, 4.3). Both
-/// share one text. Once typed in, the bar's field stays until it is empty,
-/// unfocused and the list is back at its top, so it never jumps while the
-/// results change.
+/// widget, so the flow's changes don't rebuild it, and the rows are built as
+/// they scroll into view.
 class _AddDataListPage extends ConsumerStatefulWidget {
   /// The name of the card just added with "Add more", noted at the top.
   final String? justAdded;
-
-  /// The search, owned by the sheet so it outlives this page.
-  final TextEditingController search;
   final void Function(CredentialStoreItem item, {required bool nfcBlocked})
   onOpen;
 
-  const _AddDataListPage({
-    required this.justAdded,
-    required this.search,
-    required this.onOpen,
-  });
+  const _AddDataListPage({required this.justAdded, required this.onOpen});
 
   @override
   ConsumerState<_AddDataListPage> createState() => _AddDataListPageState();
 }
 
 class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
-  late String _query = widget.search.text;
-
-  TextEditingController get _search => widget.search;
-  final _listFocus = FocusNode();
-  final _barFocus = FocusNode();
-
-  /// The list's field has scrolled out from under the bar.
-  bool _pastField = false;
-
-  /// The field is in the bar.
-  bool _inBar = false;
-
-  /// How far the list scrolls before its field is gone: the field and the
-  /// gap under it.
-  static const _fieldHeight = 44.0;
-  static const _fieldGap = 12.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _barFocus.addListener(_place);
-  }
-
-  @override
-  void dispose() {
-    _barFocus.removeListener(_place);
-    _listFocus.dispose();
-    _barFocus.dispose();
-    super.dispose();
-  }
-
-  bool _onScroll(ScrollNotification n) {
-    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    final past =
-        n.metrics.pixels - n.metrics.minScrollExtent >
-        _fieldHeight + _fieldGap / 2;
-    if (past != _pastField) {
-      _pastField = past;
-      _place();
-    }
-    return false;
-  }
-
-  /// Where the field is: in the bar once scrolled past, and held there while
-  /// it is in use.
-  void _place() {
-    final inUse = _barFocus.hasFocus || _search.text.isNotEmpty;
-    final inBar = _pastField || (_inBar && inUse);
-    if (inBar == _inBar || !mounted) return;
-    // Typing in the list's field and scrolling on: go on in the bar.
-    final carryFocus = inBar && _listFocus.hasFocus;
-    setState(() => _inBar = inBar);
-    if (carryFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _barFocus.requestFocus();
-      });
-    }
-  }
-
-  void _onQuery(String q) {
-    setState(() => _query = q);
-    _place();
-  }
-
   String _t(String key, [Map<String, String>? params]) =>
       FlutterI18n.translate(context, key, translationParams: params);
-
-  bool _matches(CredentialStoreItem item) {
-    final query = _query.trim().toLowerCase();
-    if (query.isEmpty) return true;
-    final credential = item.credential;
-    return credential.name.toLowerCase().contains(query) ||
-        credential.issuer.name.toLowerCase().contains(query);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -448,21 +346,9 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       ],
       AsyncData(value: final value) => () {
         final groups = [
-          for (final group in value)
-            (group, group.items.where(_matches).toList()),
+          for (final group in value) (group, group.items),
         ].where((g) => g.$2.isNotEmpty).toList();
         return [
-          if (groups.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Text(
-                  _t("data.add.no_results", {"query": _query.trim()}),
-                  textAlign: TextAlign.center,
-                  style: palette.body(16).copyWith(color: palette.heading),
-                ),
-              ),
-            ),
           // A phone held sideways: each type a card of its own, two side by
           // side, under the category's name.
           if (landscape)
@@ -519,90 +405,54 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     };
 
     final justAdded = widget.justAdded;
-    return NotificationListener<ScrollNotification>(
-      onNotification: _onScroll,
-      child: GlassSheetPage(
-        title: _t("data.add.title"),
-        // Sideways the search field is in the bar from the start, next to
-        // the title.
-        titleWidget: _inBar || landscape
-            ? GlassSearchField(
-                fieldKey: const Key("add_data_search_bar"),
-                hintKey: "data.add.search",
-                controller: _search,
-                focusNode: _barFocus,
-                height: 40,
-                onChanged: _onQuery,
-              )
-            : null,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        slivers: [
-          if (!landscape)
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: _fieldGap),
-              // Never two fields: while the field is in the bar (scrolled
-              // down, or searching from there and the list jumped back up)
-              // the list's own field keeps its room but isn't there.
-              sliver: SliverToBoxAdapter(
-                child: Visibility(
-                  visible: !_inBar,
-                  maintainSize: true,
-                  maintainAnimation: true,
-                  maintainState: true,
-                  child: GlassSearchField(
-                    fieldKey: const Key("add_data_search"),
-                    hintKey: "data.add.search",
-                    controller: _search,
-                    focusNode: _listFocus,
-                    height: _fieldHeight,
-                    onChanged: _onQuery,
+    return GlassSheetPage(
+      title: _t("data.add.title"),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      slivers: [
+        if (justAdded != null)
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 16),
+            sliver: SliverToBoxAdapter(
+              child: Semantics(
+                liveRegion: true,
+                child: Container(
+                  key: const Key("add_data_added_note"),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
                   ),
-                ),
-              ),
-            ),
-          if (justAdded != null)
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 16),
-              sliver: SliverToBoxAdapter(
-                child: Semantics(
-                  liveRegion: true,
-                  child: Container(
-                    key: const Key("add_data_added_note"),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: ShapeDecoration(
-                      color: palette.successSurface,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+                  decoration: ShapeDecoration(
+                    color: palette.successSurface,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(YiviCorners.card),
                       ),
                     ),
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        Icon(
-                          Icons.check_rounded,
-                          size: 18,
-                          color: palette.successText,
+                  ),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Icon(
+                        Icons.check_rounded,
+                        size: 18,
+                        color: palette.successText,
+                      ),
+                      Expanded(
+                        child: Text(
+                          _t("data.add.added_more", {"name": justAdded}),
+                          style: palette
+                              .body(14, weight: FontWeight.w600)
+                              .copyWith(color: palette.successText),
                         ),
-                        Expanded(
-                          child: Text(
-                            _t("data.add.added_more", {"name": justAdded}),
-                            style: palette
-                                .body(14, weight: FontWeight.w600)
-                                .copyWith(color: palette.successText),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ...body,
-        ],
-      ),
+          ),
+        ...body,
+      ],
     );
   }
 

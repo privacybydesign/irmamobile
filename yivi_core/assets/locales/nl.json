@@ -229,8 +229,6 @@
       },
       "example": "Voorbeeld",
       "by": "van {issuer}",
-      "search": "Zoek gegevens om toe te voegen",
-      "no_results": "Geen gegevens gevonden voor “{query}”",
       "stop_text": "Wat je tot nu toe hebt ingevuld gaat verloren en er wordt niets toegevoegd.",
       "add_more": "Meer toevoegen",
       "done": "Klaar",

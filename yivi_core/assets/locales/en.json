@@ -229,8 +229,6 @@
       },
       "example": "Example",
       "by": "by {issuer}",
-      "search": "Search data to add",
-      "no_results": "No data found for “{query}”",
       "stop_text": "What you entered so far is lost and nothing is added.",
       "add_more": "Add more",
       "done": "Done",

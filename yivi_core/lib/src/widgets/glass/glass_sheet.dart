@@ -33,58 +33,15 @@ Future<T?> showGlassSheet<T>({
   required WidgetBuilder builder,
 }) {
   if (isExpandedLayout(context)) {
-    return showDialog<T>(
-      context: context,
-      builder: (context) {
-        final media = MediaQuery.of(context);
-        final screen = media.size.height;
-        // Every sheet as tall as the dialog may be, as on the phone.
-        final height = screen * 0.85;
-        final keyboard = media.viewInsets.bottom;
-        // Centred; with the keyboard up it moves up, as a native form sheet,
-        // centred in the room above the keyboard but no higher than 12
-        // below the safe area. What still falls behind the keyboard, the
-        // content ends above (as in the phone's sheet), so its buttons
-        // stay in sight.
-        final lowest = (screen - height) / 2;
-        final top = ((screen - keyboard - height) / 2)
-            .clamp(math.min(media.padding.top + 12, lowest), lowest)
-            .toDouble();
-        final covered = math.max(0.0, top + height - (screen - keyboard));
-        return MediaQuery.removeViewInsets(
-          context: context,
-          removeBottom: true,
-          // In the safe area: clear of a side panel (an unfolded phone
-          // held sideways) or a notch.
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: top,
-              left: 24 + media.padding.left,
-              right: 24 + media.padding.right,
-            ),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: tabletSheetWidth(
-                    media.size.width - media.padding.left - media.padding.right,
-                  ),
-                  maxHeight: height,
-                ),
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: _GlassSheet(
-                    attached: false,
-                    height: height,
-                    keyboard: covered,
-                    child: builder(context),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+    // A page route, as on the phone, so heroes fly into the sheet (they
+    // don't into a dialog's popup route).
+    return Navigator.of(context, rootNavigator: true).push(
+      _GlassFormSheetRoute<T>(
+        builder: builder,
+        barrierLabel: MaterialLocalizations.of(
+          context,
+        ).modalBarrierDismissLabel,
+      ),
     );
   }
   return Navigator.of(context).push(
@@ -120,6 +77,103 @@ class GlassSheetScope extends InheritedWidget {
   @override
   bool updateShouldNotify(GlassSheetScope oldWidget) =>
       physics != oldWidget.physics;
+}
+
+/// The sheet on a tablet: a form sheet in the middle of the window, over a
+/// dim barrier, closing on a tap outside it. A [PageRoute], so heroes fly
+/// into it as into the phone's sheet ([_GlassSheetRoute]).
+class _GlassFormSheetRoute<T> extends PageRoute<T> {
+  final WidgetBuilder builder;
+
+  _GlassFormSheetRoute({required this.builder, required this.barrierLabel});
+
+  @override
+  final String? barrierLabel;
+
+  @override
+  bool get opaque => false;
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  Color get barrierColor => Colors.black54;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 220);
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) => _formSheet(context, builder);
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => FadeTransition(
+    opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+    child: child,
+  );
+}
+
+/// The form sheet of [_GlassFormSheetRoute], placed in the window.
+Widget _formSheet(BuildContext context, WidgetBuilder builder) {
+  final media = MediaQuery.of(context);
+  final screen = media.size.height;
+  // Every sheet as tall as the dialog may be, as on the phone.
+  final height = screen * 0.85;
+  final keyboard = media.viewInsets.bottom;
+  // Centred; with the keyboard up it moves up, as a native form sheet,
+  // centred in the room above the keyboard but no higher than 12
+  // below the safe area. What still falls behind the keyboard, the
+  // content ends above (as in the phone's sheet), so its buttons
+  // stay in sight.
+  final lowest = (screen - height) / 2;
+  final top = ((screen - keyboard - height) / 2)
+      .clamp(math.min(media.padding.top + 12, lowest), lowest)
+      .toDouble();
+  final covered = math.max(0.0, top + height - (screen - keyboard));
+  return MediaQuery.removeViewInsets(
+    context: context,
+    removeBottom: true,
+    // In the safe area: clear of a side panel (an unfolded phone
+    // held sideways) or a notch.
+    child: Padding(
+      padding: EdgeInsets.only(
+        top: top,
+        left: 24 + media.padding.left,
+        right: 24 + media.padding.right,
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: tabletSheetWidth(
+              media.size.width - media.padding.left - media.padding.right,
+            ),
+            maxHeight: height,
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            child: _GlassSheet(
+              attached: false,
+              height: height,
+              keyboard: covered,
+              child: builder(context),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /// The route of a sheet: it slides up from the bottom over a dim barrier,

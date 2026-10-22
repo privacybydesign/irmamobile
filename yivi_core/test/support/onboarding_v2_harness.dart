@@ -25,6 +25,9 @@ class RecordingBridge extends IrmaBridge {
   /// Called for every dispatched event; a returned event is sent back.
   Event? Function(Event event)? respond;
 
+  /// Sends [event] to the app later, as Go would.
+  void send(Event event) => addEvent(event);
+
   @override
   void dispatch(Event event) {
     dispatched.add(event);

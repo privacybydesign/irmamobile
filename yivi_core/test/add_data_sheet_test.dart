@@ -28,8 +28,8 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
+import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
 import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
@@ -250,13 +250,13 @@ Future<void> _pumpFor(
 
 void main() {
   group("the list", () {
-    testWidgets("is a sheet: its title, the search field and the groups", (
+    testWidgets("is a sheet: its title and the groups, no search", (
       tester,
     ) async {
       await _pump(tester);
       expect(_sheet, findsOneWidget);
       expect(find.text("Adding data"), findsOneWidget);
-      expect(find.byKey(const Key("add_data_search")), findsOneWidget);
+      expect(find.byType(GlassSearchField), findsNothing);
       // Each type as its card, not a round logo.
       expect(
         find.descendant(
@@ -293,7 +293,7 @@ void main() {
       await tester.scrollUntilVisible(
         _row("irma-demo.x.card199"),
         600,
-        // The list's own: the search field above it has a sideways one.
+        // The list's own, not a sideways one inside a row.
         scrollable: find
             .descendant(
               of: _sheet,
@@ -344,27 +344,6 @@ void main() {
       expect((image.image as ResizeImage).width, 40);
     });
 
-    testWidgets("search narrows the list to matching names and issuers", (
-      tester,
-    ) async {
-      await _pump(tester);
-      await tester.enterText(find.byKey(const Key("add_data_search")), "pass");
-      await tester.pump();
-      expect(_row("pbdf.pbdf.passport"), findsOneWidget);
-      expect(_row("pbdf.sidn-pbdf.email"), findsNothing);
-
-      await tester.enterText(
-        find.byKey(const Key("add_data_search")),
-        "municipality",
-      );
-      await tester.pump();
-      expect(_row("pbdf.gemeente.personalData"), findsOneWidget);
-
-      await tester.enterText(find.byKey(const Key("add_data_search")), "zzz");
-      await tester.pump();
-      expect(find.text("No data found for “zzz”"), findsOneWidget);
-    });
-
     testWidgets("a type already in the app says so", (tester) async {
       await _pump(
         tester,
@@ -412,64 +391,6 @@ void main() {
       );
       expect(find.text("Staging (test environment)"), findsOneWidget);
       expect(find.text("Demo (example data)"), findsOneWidget);
-    });
-  });
-
-  group("search: in the list, then in the bar", () {
-    final long = [
-      CredentialStoreCategory(
-        category: "Personal",
-        items: [
-          for (var i = 0; i < 40; i++)
-            _item("irma-demo.x.card$i", "Card ${i.toString().padLeft(2, "0")}"),
-        ],
-      ),
-    ];
-    final list = find
-        .descendant(
-          of: _sheet,
-          matching: find.byWidgetPredicate(
-            (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
-          ),
-        )
-        .first;
-    final bar = find.byKey(const Key("add_data_search_bar"));
-
-    testWidgets("scrolled past, the field takes the title's place", (
-      tester,
-    ) async {
-      await _pump(tester, store: long);
-      expect(bar, findsNothing);
-      await tester.drag(list, const Offset(0, -300));
-      await tester.pumpAndSettle();
-      expect(bar, findsOneWidget);
-      // Between the buttons, where the title was.
-      final field = tester.getRect(bar);
-      final close = tester.getRect(find.byType(IrmaCloseButton).last);
-      expect(field.right, lessThanOrEqualTo(close.left));
-      // Back at the top, the title returns.
-      await tester.drag(list, const Offset(0, 600));
-      await tester.pumpAndSettle();
-      expect(bar, findsNothing);
-    });
-
-    testWidgets("typed in the bar, it filters and stays in the bar", (
-      tester,
-    ) async {
-      await _pump(tester, store: long);
-      await tester.drag(list, const Offset(0, -300));
-      await tester.pumpAndSettle();
-      await tester.enterText(bar, "Card 07");
-      await tester.pumpAndSettle();
-      expect(_row("irma-demo.x.card7"), findsOneWidget);
-      expect(_row("irma-demo.x.card8"), findsNothing);
-      // The list no longer scrolls, but the field stays where it is typed.
-      expect(bar, findsOneWidget);
-      // Both fields show the same text.
-      final inList = tester.widget<TextField>(
-        find.byKey(const Key("add_data_search"), skipOffstage: false),
-      );
-      expect(inList.controller?.text, "Card 07");
     });
   });
 
@@ -937,21 +858,14 @@ void main() {
   group("sideways", () {
     const side = Size(874, 402);
 
-    testWidgets("the list: search in the bar from the start, two cards side "
-        "by side", (tester) async {
+    testWidgets("the list: two cards side by side", (tester) async {
       await _pump(tester, size: side);
-      expect(find.byKey(const Key("add_data_search_bar")), findsOneWidget);
-      expect(find.byKey(const Key("add_data_search")), findsNothing);
+      expect(find.byType(GlassSearchField), findsNothing);
       final passport = tester.getRect(_row("pbdf.pbdf.passport"));
       final email = tester.getRect(_row("pbdf.sidn-pbdf.email"));
       expect(email.top, passport.top);
       expect(email.left, greaterThan(passport.right));
-      // The title stays, next to the field.
-      final title = tester.getRect(find.byKey(const Key("glass_sheet_title")));
-      final field = tester.getRect(
-        find.byKey(const Key("add_data_search_bar")),
-      );
-      expect(field.left, greaterThan(title.right));
+      expect(find.text("Adding data"), findsOneWidget);
     });
 
     testWidgets("an e-mail address: Send code at the left, the field at the "
