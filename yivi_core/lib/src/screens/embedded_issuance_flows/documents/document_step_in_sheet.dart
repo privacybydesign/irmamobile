@@ -23,7 +23,7 @@ class DocumentStepInSheet extends InheritedWidget {
 /// held sideways: it then lays itself out in the sheet's two columns
 /// (`SheetSplit`), its buttons in the left one, without a bar.
 bool documentStepSplit(BuildContext context) =>
-    DocumentStepInSheet.of(context) && usePhoneLandscape(context);
+    DocumentStepInSheet.of(context) && useSheetColumns(context);
 
 /// [child] in a scroll view, as a document screen's body; as it is in a
 /// sheet held sideways, where it lays itself out in columns

@@ -156,7 +156,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     // A phone held sideways: in the sheet's bar, after the title: short
     // segments and "2 of 4" (or "Done"); who it is for goes under the title
     // ([IssueSheetRequestorLine]).
-    final compact = usePhoneLandscape(context);
+    final compact = useSheetColumns(context);
     Widget segment(int i) => AnimatedBuilder(
       animation: _curve,
       builder: (context, _) {
@@ -291,7 +291,7 @@ class IssueSheetRequestorLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subject = this.subject;
-    if (subject is! _ForRequest || !usePhoneLandscape(context)) {
+    if (subject is! _ForRequest || !useSheetColumns(context)) {
       return const SizedBox.shrink();
     }
     final palette = YiviPalette.of(context);

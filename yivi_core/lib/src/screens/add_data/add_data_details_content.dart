@@ -159,7 +159,7 @@ class AddDataDetailsContent extends StatelessWidget {
     }
     // A phone held sideways: the card large at the left, with its name and
     // issuer under it; what it is and what you get at the right.
-    if (usePhoneLandscape(context)) {
+    if (useSheetColumns(context)) {
       return SheetColumns(
         startWidth: 250,
         start: Column(

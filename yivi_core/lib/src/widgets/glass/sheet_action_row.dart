@@ -16,7 +16,7 @@ class SheetBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (usePhoneLandscape(context)) {
+    if (useSheetColumns(context)) {
       // A phone held sideways: a line above, and the buttons at the right
       // (see [SheetActionRow]).
       return DecoratedBox(
@@ -51,7 +51,7 @@ class SheetBottomBar extends StatelessWidget {
 
 /// A sheet's content in two columns on a phone held sideways, [start] (e.g.
 /// a picture) at [startWidth] and [end] taking the rest. Use it only in a
-/// landscape branch (see [usePhoneLandscape]); portrait keeps its own
+/// landscape branch (see [useSheetColumns]); portrait keeps its own
 /// layout.
 class SheetColumns extends StatelessWidget {
   final Widget start;
@@ -231,7 +231,7 @@ class SheetActionRow extends StatelessWidget {
     final primary = primaryLabel;
     // In the left column of a [SheetSplit] they take its width, side by
     // side, as in portrait.
-    if (usePhoneLandscape(context) && !SheetSplit.isIn(context)) {
+    if (useSheetColumns(context) && !SheetSplit.isIn(context)) {
       // A phone held sideways: the way on at the right, 320 wide, the way
       // back as text to its left.
       return Row(

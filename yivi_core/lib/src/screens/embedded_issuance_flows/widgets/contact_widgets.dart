@@ -94,7 +94,7 @@ class ContactFieldLabel extends StatelessWidget {
       // Sideways it starts the right column, level with the explanation.
       padding: EdgeInsets.fromLTRB(
         4,
-        usePhoneLandscape(context) ? 2 : 28,
+        useSheetColumns(context) ? 2 : 28,
         4,
         8,
       ),

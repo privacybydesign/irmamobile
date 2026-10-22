@@ -348,7 +348,7 @@ class _SheetCamera extends StatelessWidget {
     // Held sideways: what to do and "Enter manually" at the left, the
     // camera at the right.
     final instruction = instructionKey;
-    if (usePhoneLandscape(context)) {
+    if (useSheetColumns(context)) {
       final palette = YiviPalette.of(context);
       return SheetSplit(
         startWidth: SheetSplit.wideWidth,

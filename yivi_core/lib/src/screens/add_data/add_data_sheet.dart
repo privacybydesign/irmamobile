@@ -417,7 +417,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       _ => group.category,
     };
 
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
     Widget row(CredentialStoreItem item) {
       final blocked =
           !nfcAvailable && credentialRequiresNfc(item.credential.credentialId);

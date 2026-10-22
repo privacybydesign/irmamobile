@@ -133,7 +133,7 @@ class DocumentInstructionScreen extends StatelessWidget {
     }
     // A phone held sideways: the picture at the left, the words at the
     // right.
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,

@@ -79,7 +79,7 @@ class ActionFeedback extends StatelessWidget {
     // A phone held sideways: the picture (the card with its check) at the
     // left, the words at the right, the button at the bottom right, as on
     // "Shared".
-    if (!useSessionColumns(context) && usePhoneLandscape(context)) {
+    if (!useSessionColumns(context) && useSheetColumns(context)) {
       return PopScope(
         canPop: false,
         child: SessionScaffold(

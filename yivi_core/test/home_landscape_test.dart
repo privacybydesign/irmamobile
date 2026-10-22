@@ -270,9 +270,32 @@ void main() {
       tester,
     ) async {
       await pump(tester, view: _tablet, insets: FakeViewPadding.zero);
-      expect(find.byType(GlassSidebar), findsOneWidget);
       double left(String hash) => tester.getTopLeft(tile(hash)).dx;
       expect(left("personal") - left("address"), closeTo(16, 0.5));
+    });
+
+    testWidgets("a tablet under 1300 has the rail, the details the room", (
+      tester,
+    ) async {
+      await pump(tester, view: _tablet, insets: FakeViewPadding.zero);
+      expect(find.byType(GlassRail), findsOneWidget);
+      expect(find.byType(GlassSidebar), findsNothing);
+      final pane = tester.getRect(
+        find.byKey(const Key("credential_detail_pane_personal")),
+      );
+      // The rail and 16 on either side of it, the list, the rest: the
+      // details.
+      expect(pane.width, greaterThan(640));
+    });
+
+    testWidgets("from 1300 the sidebar with labels", (tester) async {
+      await pump(
+        tester,
+        view: const Size(1366, 1024),
+        insets: FakeViewPadding.zero,
+      );
+      expect(find.byType(GlassSidebar), findsOneWidget);
+      expect(find.byType(GlassRail), findsNothing);
     });
   });
 

@@ -168,7 +168,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
 
     // A phone held sideways: the check and the words at the left, what was
     // shared at the right, the button at the bottom right.
-    if (!useSessionColumns(context) && usePhoneLandscape(context)) {
+    if (!useSessionColumns(context) && useSheetColumns(context)) {
       return PopScope(
         canPop: false,
         child: SessionScaffold(

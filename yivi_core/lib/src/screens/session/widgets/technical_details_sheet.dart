@@ -90,7 +90,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
                   .copyWith(height: 20 / 14, color: palette.secondaryText),
             ),
           ),
-          if (usePhoneLandscape(context))
+          if (useSheetColumns(context))
             // A phone held sideways: the groups in two columns.
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

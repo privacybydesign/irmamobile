@@ -234,7 +234,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     required Widget bar,
     Key? key,
   }) {
-    if (!usePhoneLandscape(context)) {
+    if (!useSheetColumns(context)) {
       return Column(
         key: key,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -372,7 +372,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       );
     }
 
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
     return GlassSheetPage(
       title: _t(
         _email
@@ -535,10 +535,10 @@ class _ResendRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
       child: Row(
         // Sideways on one line: the link right after the hint.
-        spacing: usePhoneLandscape(context) ? 16 : 0,
+        spacing: useSheetColumns(context) ? 16 : 0,
         children: [
           Flexible(
-            fit: usePhoneLandscape(context) ? FlexFit.loose : FlexFit.tight,
+            fit: useSheetColumns(context) ? FlexFit.loose : FlexFit.tight,
             child: Semantics(
               liveRegion: true,
               child: Text(

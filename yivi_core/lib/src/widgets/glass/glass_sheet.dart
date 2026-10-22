@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter/scheduler.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
@@ -33,26 +35,48 @@ Future<T?> showGlassSheet<T>({
   if (isExpandedLayout(context)) {
     return showDialog<T>(
       context: context,
-      builder: (context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 520,
-              maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-            ),
-            child: Material(
-              type: MaterialType.transparency,
-              child: _GlassSheet(
-                attached: false,
-                // Every sheet as tall as the dialog may be, as on the phone.
-                height: MediaQuery.sizeOf(context).height * 0.85,
-                child: builder(context),
+      builder: (context) {
+        final media = MediaQuery.of(context);
+        final screen = media.size.height;
+        // Every sheet as tall as the dialog may be, as on the phone.
+        final height = screen * 0.85;
+        final keyboard = media.viewInsets.bottom;
+        // Centred; with the keyboard up it moves up, as a native form sheet,
+        // centred in the room above the keyboard but no higher than 12
+        // below the safe area. What still falls behind the keyboard, the
+        // content ends above (as in the phone's sheet), so its buttons
+        // stay in sight.
+        final lowest = (screen - height) / 2;
+        final top = ((screen - keyboard - height) / 2)
+            .clamp(math.min(media.padding.top + 12, lowest), lowest)
+            .toDouble();
+        final covered = math.max(0.0, top + height - (screen - keyboard));
+        return MediaQuery.removeViewInsets(
+          context: context,
+          removeBottom: true,
+          child: Padding(
+            padding: EdgeInsets.only(top: top, left: 24, right: 24),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: tabletSheetWidth(media.size.width),
+                  maxHeight: height,
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: _GlassSheet(
+                    attached: false,
+                    height: height,
+                    keyboard: covered,
+                    child: builder(context),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
   return Navigator.of(context).push(
@@ -62,6 +86,11 @@ Future<T?> showGlassSheet<T>({
     ),
   );
 }
+
+/// The width of a sheet on a tablet (a dialog in the middle): 80% of the
+/// window, from 520 up to 880, past which its lines would get too long to
+/// read. Wide enough for two columns ([useSheetColumns]).
+double tabletSheetWidth(double window) => (window * 0.8).clamp(520.0, 880.0);
 
 /// The scroll physics for a list in a sheet (see [GlassSheetScope]).
 ScrollPhysics? glassSheetScrollPhysics(BuildContext context) =>
@@ -527,32 +556,39 @@ class _GlassSheetState extends State<_GlassSheet> {
       // scroll edge does blur its content (it is not covered).
       child: _SheetRim(
         hiders: _rimHiders,
-        child: GlassScope(
-          blur: false,
-          covered: false,
-          child: ClipPath(
-            clipper: ShapeBorderClipper(shape: shape),
-            child: SizedBox(
-              height: height,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: keyboard),
-                child: MediaQuery(
-                  data: media.copyWith(
-                    padding: media.padding.copyWith(
-                      top: 0,
-                      bottom: 20 + bottomInset,
-                      // In landscape the sheet sits between the side insets.
-                      left: 0,
-                      right: 0,
-                    ),
-                    // The device's inset where the sheet meets the bottom edge,
-                    // so a button lands where it does on a full screen.
-                    viewPadding: media.viewPadding.copyWith(
-                      top: 0,
-                      bottom: attached ? media.viewPadding.bottom : 0,
+        // Its content lays out by the sheet's width, not the screen's
+        // (useSheetColumns).
+        child: LayoutBuilder(
+          builder: (context, constraints) => SheetWidthScope(
+            width: constraints.maxWidth,
+            child: GlassScope(
+              blur: false,
+              covered: false,
+              child: ClipPath(
+                clipper: ShapeBorderClipper(shape: shape),
+                child: SizedBox(
+                  height: height,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: keyboard),
+                    child: MediaQuery(
+                      data: media.copyWith(
+                        padding: media.padding.copyWith(
+                          top: 0,
+                          bottom: 20 + bottomInset,
+                          // In landscape the sheet sits between the side insets.
+                          left: 0,
+                          right: 0,
+                        ),
+                        // The device's inset where the sheet meets the bottom edge,
+                        // so a button lands where it does on a full screen.
+                        viewPadding: media.viewPadding.copyWith(
+                          top: 0,
+                          bottom: attached ? media.viewPadding.bottom : 0,
+                        ),
+                      ),
+                      child: widget.child,
                     ),
                   ),
-                  child: widget.child,
                 ),
               ),
             ),
@@ -682,7 +718,7 @@ class GlassSheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (usePhoneLandscape(context)) return _row(context);
+    if (useSheetColumns(context)) return _row(context);
     final palette = YiviPalette.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -1370,7 +1406,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           );
     // A phone held sideways: the pinned part (the progress) goes in the bar,
     // after the title.
-    final inBar = usePhoneLandscape(context);
+    final inBar = useSheetColumns(context);
     final head = <Widget>[
       // In pages the bar stays put while pages change; only the titles fade
       // into each other.

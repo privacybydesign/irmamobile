@@ -97,7 +97,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 
     // A phone held sideways: the card or pile at the left with its chips,
     // and the buttons under them; the question and the values at the right.
-    if (!useSessionColumns(context) && usePhoneLandscape(context)) {
+    if (!useSessionColumns(context) && useSheetColumns(context)) {
       return SessionScaffold(
         appBarTitle: "issuance.title",
         wide: true,

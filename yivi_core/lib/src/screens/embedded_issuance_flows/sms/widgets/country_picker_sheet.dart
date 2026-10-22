@@ -112,7 +112,7 @@ class _CountryPickerState extends State<_CountryPicker> {
             (c.dialCode ?? "").replaceAll("+", "").startsWith(digits));
     final found = query.isEmpty ? const <Country>[] : byName.where(matches);
 
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
     Widget row(Country c) => _CountryRow(
       country: c,
       name: name(c),

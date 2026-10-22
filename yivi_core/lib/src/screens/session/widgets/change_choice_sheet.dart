@@ -278,7 +278,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         ? -1
         : selectionOf(pickOne, selections[0]);
     final language = FlutterI18n.currentLocale(context)?.languageCode;
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
 
     // The outline: on the card a finger is on, else on the one in use.
     bool outlined(String key, {String? current}) =>

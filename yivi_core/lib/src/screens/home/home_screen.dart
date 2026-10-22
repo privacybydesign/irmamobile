@@ -60,9 +60,9 @@ class HomeScreen extends StatelessWidget {
             child: Scaffold(
               backgroundColor: palette.background,
               resizeToAvoidBottomInset: false,
-              body: isExpandedLayout(context)
+              body: useSidebar(context)
                   ? _withSidebar(context, tabState, changeTab)
-                  : usePhoneLandscape(context)
+                  : useHomePanes(context)
                   ? _withRail(context, tabState, changeTab)
                   : Stack(
                       children: [
@@ -124,8 +124,9 @@ class HomeScreen extends StatelessWidget {
         .more => MoreTab(onChangeTab: changeTab),
       };
 
-  /// A phone held sideways: a floating rail on the left instead of the tab
-  /// bar, with the tab (a list and the picked item's details) beside it.
+  /// A phone held sideways, and a tablet below [sidebarBreakpoint]: a
+  /// floating rail on the left instead of the tab bar, with the tab (a list
+  /// and the picked item's details) beside it.
   Widget _withRail(
     BuildContext context,
     IrmaNavBarTab tab,

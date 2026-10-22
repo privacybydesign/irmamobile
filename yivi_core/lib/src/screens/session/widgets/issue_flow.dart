@@ -685,7 +685,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         );
     // A phone held sideways: the card, its name and the button at the
     // left, what it is and what you get at the right.
-    final split = usePhoneLandscape(context)
+    final split = useSheetColumns(context)
         ? SheetSplit(
             start: [
               part(
@@ -772,7 +772,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     );
     // A phone held sideways: the card(s) and the button at the left, the
     // question and the values at the right.
-    if (usePhoneLandscape(context)) {
+    if (useSheetColumns(context)) {
       final content = offer == null ? null : _offerContent(offer);
       return GlassSheetPage(
         title: _t("issuance.title"),
@@ -851,7 +851,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// column of a phone held sideways.
   Widget _question(int count) {
     final palette = YiviPalette.of(context);
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Semantics(
@@ -956,7 +956,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     // The bar keeps the step's title; "Success" is the heading below.
     // A phone held sideways: the card with its check, the words and the
     // buttons at the left; what is now in the app at the right.
-    if (usePhoneLandscape(context)) {
+    if (useSheetColumns(context)) {
       return GlassSheetPage(
         title: _t("issuance.title"),
         pinned: _progress(subject, total, done: true),

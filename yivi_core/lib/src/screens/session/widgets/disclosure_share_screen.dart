@@ -161,7 +161,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         : "share";
     final t = _t;
     final columns = useSessionColumns(context);
-    final landscape = !columns && usePhoneLandscape(context);
+    final landscape = !columns && useSheetColumns(context);
     // The header can change size (rotation, text size): check again after
     // this layout.
     if (!columns && !landscape) {

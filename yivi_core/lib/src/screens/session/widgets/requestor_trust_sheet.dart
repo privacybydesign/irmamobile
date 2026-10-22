@@ -240,7 +240,7 @@ class RequestorTrustSheet extends StatelessWidget {
     List<Widget> who,
     List<Widget> facts,
   ) {
-    if (!usePhoneLandscape(context)) {
+    if (!useSheetColumns(context)) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [...who, const SizedBox(height: 18), ...facts],

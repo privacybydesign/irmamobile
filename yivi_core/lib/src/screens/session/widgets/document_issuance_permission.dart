@@ -43,7 +43,7 @@ class DocumentIssuancePermission extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final landscape = usePhoneLandscape(context);
+    final landscape = useSheetColumns(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,

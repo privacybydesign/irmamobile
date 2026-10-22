@@ -173,7 +173,10 @@ void main() {
 
     expect(find.byType(BottomSheet), findsNothing);
     final options = tester.getRect(find.text("options"));
-    expect(options.left, greaterThan((_tablet.width - 520) / 2 - 1));
-    expect(options.right, lessThan((_tablet.width + 520) / 2 + 1));
+    // 80% of the window, 520 to 880: 880 on this tablet held sideways.
+    final width = tabletSheetWidth(_tablet.width);
+    expect(width, 880);
+    expect(options.left, greaterThan((_tablet.width - width) / 2 - 1));
+    expect(options.right, lessThan((_tablet.width + width) / 2 + 1));
   });
 }
