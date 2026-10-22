@@ -44,6 +44,11 @@ class PinKeypad extends StatefulWidget {
   /// [onBiometricUnlock].
   final Widget? biometricGlyph;
 
+  /// The room between the columns of keys: [defaultColumnGap], or more to
+  /// spread the keys over a wider pad (a phone held sideways). The gaps
+  /// still belong to the keys on either side.
+  final double columnGap;
+
   const PinKeypad({
     super.key,
     required this.onDigitPressed,
@@ -52,14 +57,18 @@ class PinKeypad extends StatefulWidget {
     required this.onBackspace,
     this.onBiometricUnlock,
     this.biometricGlyph,
+    this.columnGap = defaultColumnGap,
   });
 
   /// The design's key size and the gaps between keys.
   static const double keySize = 76;
-  static const double columnGap = 28;
+  static const double defaultColumnGap = 28;
   static const double rowGap = 16;
-  static const double width = 3 * keySize + 2 * columnGap;
+  static const double width = 3 * keySize + 2 * defaultColumnGap;
   static const double height = 4 * keySize + 3 * rowGap;
+
+  /// The width of a pad with [columnGap] between its columns.
+  static double widthFor(double columnGap) => 3 * keySize + 2 * columnGap;
 
   @override
   State<PinKeypad> createState() => _PinKeypadState();
@@ -90,11 +99,11 @@ class _PinKeypadState extends State<PinKeypad> {
   };
 
   /// The cell under [p]: each gap is split between the keys on either side.
-  static int _cellAt(Offset p) {
+  int _cellAt(Offset p) {
     int along(double v, double gap, int count) =>
         ((v + gap / 2) ~/ (PinKeypad.keySize + gap)).clamp(0, count - 1);
     return along(p.dy, PinKeypad.rowGap, 4) * 3 +
-        along(p.dx, PinKeypad.columnGap, 3);
+        along(p.dx, widget.columnGap, 3);
   }
 
   void _down(PointerDownEvent event) {
@@ -211,14 +220,14 @@ class _PinKeypadState extends State<PinKeypad> {
       onPointerUp: _up,
       onPointerCancel: _cancel,
       child: SizedBox(
-        width: PinKeypad.width,
+        width: PinKeypad.widthFor(widget.columnGap),
         height: PinKeypad.height,
         child: Column(
           spacing: PinKeypad.rowGap,
           children: [
             for (var row = 0; row < 4; row++)
               Row(
-                spacing: PinKeypad.columnGap,
+                spacing: widget.columnGap,
                 children: [
                   for (final cell in cells.skip(row * 3).take(3))
                     SizedBox.square(dimension: PinKeypad.keySize, child: cell),

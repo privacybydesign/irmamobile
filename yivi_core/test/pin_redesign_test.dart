@@ -136,9 +136,8 @@ void main() {
       expect(style.fontFamily, contains("Alexandria"));
     });
 
-    testWidgets("held sideways the keys are as big as held upright", (
-      tester,
-    ) async {
+    testWidgets("held sideways the keys are at least as big as held upright, "
+        "filling the right half", (tester) async {
       Size key() =>
           tester.getRect(find.byKey(const Key("number_pad_key_5"))).size;
       _phone(tester);
@@ -154,7 +153,15 @@ void main() {
         bottom: 21,
       );
       await tester.pumpAndSettle();
-      expect(key(), upright);
+      expect(key().width, greaterThanOrEqualTo(upright.width));
+
+      // Spread over the right half of the screen, clear of the side insets.
+      final one = tester.getRect(find.byKey(const Key("number_pad_key_1")));
+      final three = tester.getRect(find.byKey(const Key("number_pad_key_3")));
+      const half = (874 - 62 - 62) / 2;
+      expect(one.left, greaterThanOrEqualTo(62 + half));
+      expect(three.right, lessThanOrEqualTo(874 - 62));
+      expect(three.right - one.left, greaterThan(half * 0.8));
     });
 
     for (final size in const [Size(320, 568), Size(844, 390)]) {
