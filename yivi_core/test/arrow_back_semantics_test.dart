@@ -123,4 +123,18 @@ void main() {
 
     handle.dispose();
   });
+
+  testWidgets("a close button in the top right corner", (tester) async {
+    tester.view
+      ..physicalSize = const Size(402, 874)
+      ..devicePixelRatio = 1
+      ..padding = const FakeViewPadding(top: 62, bottom: 34);
+    addTearDown(tester.view.reset);
+    await pumpArrowBack(tester, ArrowBackType.disclosure);
+
+    final close = tester.getRect(find.byKey(const Key("arrow_back_close")));
+    expect(close.right, 402 - 16);
+    expect(close.top, 62 + 16);
+    expect(find.bySemanticsLabel("Close"), findsOneWidget);
+  });
 }

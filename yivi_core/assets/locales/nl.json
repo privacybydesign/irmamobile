@@ -1337,7 +1337,13 @@
       "stop_title": "Stoppen met {name} toevoegen?",
       "stop_text": "Wat je tot nu toe deed gaat verloren en er wordt niets toegevoegd. {requestor} vraagt er nog steeds om.",
       "stop_confirm": "Stoppen",
-      "keep_going": "Doorgaan"
+      "keep_going": "Doorgaan",
+      "together_title": "Allebei toevoegen",
+      "together_intro": "{requestor} accepteert deze alleen samen. Voeg ze een voor een toe; dit verzoek wacht op je.",
+      "together_step": "Kaart {n} van {total}",
+      "together_added": "{name} staat in je app. {requestor} heeft ook {next} nodig: voeg die nu toe.",
+      "together_add_next": "{next} toevoegen",
+      "later": "Later"
     },
     "done": {
       "title": "Gedeeld met {requestor}",
@@ -1358,10 +1364,11 @@
       "many": "Je kiest er één bij het toevoegen",
       "cant": "Kan niet in Yivi worden toegevoegd. Haal het eerst bij {issuer}.",
       "wrong": "Je voegde {offered} toe, nodig is {needed}. Tik om opnieuw toe te voegen.",
-      "together": "Alleen samen geldig. Tik om ze een voor een toe te voegen.",
       "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
       "must_be": "{field} moet {value} zijn",
-      "must_be_value": "Moet {value} zijn"
+      "must_be_value": "Moet {value} zijn",
+      "together_both": "{requestor} heeft ze allebei nodig, samen. Je voegt ze een voor een toe.",
+      "together_one_left": "{name} staat in je app. Voeg ook {other} toe: {requestor} heeft ze allebei nodig."
     },
     "trust": {
       "pill": {
@@ -1506,7 +1513,8 @@
     "dont_share": "Niet delen",
     "lead_side": "Hiernaast staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te delen drukt.",
     "lead_side_sign": "Hiernaast staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te ondertekenen drukt.",
-    "lead_side_receive": "Je deelt wat hiernaast staat en krijgt een kaartje terug. Er gaat pas iets weg als je op de knop om te delen drukt."
+    "lead_side_receive": "Je deelt wat hiernaast staat en krijgt een kaartje terug. Er gaat pas iets weg als je op de knop om te delen drukt.",
+    "add_both": "Allebei toevoegen"
   },
   "contact_sheet": {
     "intro_email": "We mailen je een code om te controleren dat dit adres van jou is.",

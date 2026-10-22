@@ -1337,7 +1337,13 @@
       "stop_title": "Hinzufügen von {name} abbrechen?",
       "stop_text": "Was du bisher getan hast, geht verloren, und es wird nichts hinzugefügt. {requestor} fragt weiterhin danach.",
       "stop_confirm": "Abbrechen",
-      "keep_going": "Weitermachen"
+      "keep_going": "Weitermachen",
+      "together_title": "Beide hinzufügen",
+      "together_intro": "{requestor} akzeptiert diese nur zusammen. Fügen Sie sie nacheinander hinzu; diese Anfrage wartet auf Sie.",
+      "together_step": "Karte {n} von {total}",
+      "together_added": "{name} ist in Ihrer App. {requestor} braucht auch {next}: Fügen Sie es jetzt hinzu.",
+      "together_add_next": "{next} hinzufügen",
+      "later": "Später"
     },
     "done": {
       "title": "Geteilt mit {requestor}",
@@ -1358,10 +1364,11 @@
       "many": "Du wählst beim Hinzufügen eine aus",
       "cant": "Kann nicht in Yivi hinzugefügt werden. Hol es zuerst bei {issuer}.",
       "wrong": "Du hast {offered} hinzugefügt, nötig ist {needed}. Tippe, um es erneut hinzuzufügen.",
-      "together": "Nur zusammen gültig. Tippe, um sie einzeln hinzuzufügen.",
       "cant_unknown": "Kann nicht in Yivi hinzugefügt werden.",
       "must_be": "{field} muss {value} sein",
-      "must_be_value": "Muss {value} sein"
+      "must_be_value": "Muss {value} sein",
+      "together_both": "{requestor} braucht beide zusammen. Sie fügen sie nacheinander hinzu.",
+      "together_one_left": "{name} ist in Ihrer App. Fügen Sie auch {other} hinzu: {requestor} braucht beide."
     },
     "trust": {
       "pill": {
@@ -1506,7 +1513,8 @@
     "dont_share": "Nicht teilen",
     "lead_side": "Daneben steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
     "lead_side_sign": "Daneben steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Unterschreiben tippst.",
-    "lead_side_receive": "Du teilst, was daneben steht, und bekommst eine Karte zurück. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst."
+    "lead_side_receive": "Du teilst, was daneben steht, und bekommst eine Karte zurück. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
+    "add_both": "Beide hinzufügen"
   },
   "contact_sheet": {
     "intro_email": "Wir schicken dir einen Code per E-Mail, um zu prüfen, dass diese Adresse dir gehört.",

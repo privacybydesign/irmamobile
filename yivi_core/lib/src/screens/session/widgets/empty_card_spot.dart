@@ -82,6 +82,13 @@ class EmptyCardSpot extends StatelessWidget {
   /// the Change sheet shows one spot per type.
   final List<CredentialDescriptor>? kinds;
 
+  /// Cards only accepted together: the subtitle (what to do) on up to three
+  /// lines, and [kinds] are the set, not a choice.
+  final bool together;
+
+  /// The pill's label; "Add" by default ("Add both" for a set).
+  final String? addLabel;
+
   /// Room above the dashed edge for the half of the pill that sticks out.
   static const double edgeRoom = 12;
 
@@ -98,6 +105,8 @@ class EmptyCardSpot extends StatelessWidget {
     this.onTapCancel,
     this.selected = false,
     this.kinds,
+    this.together = false,
+    this.addLabel,
   });
 
   /// The width of a [SmallPill] with an icon, so a dashed line can leave
@@ -121,13 +130,15 @@ class EmptyCardSpot extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final faint = palette.secondaryText.withValues(alpha: 0.75);
-    final addLabel = FlutterI18n.translate(context, "share.add");
+    final addLabel =
+        this.addLabel ?? FlutterI18n.translate(context, "share.add");
     final canAdd = onTap != null;
     const pillEnd = 16.0;
     final choice = kinds != null && kinds!.length > 1 ? kinds : null;
     final tile = CardTile(
       dashed: true,
       titleMaxLines: choice == null ? 1 : 3,
+      subtitleMaxLines: together ? 3 : 1,
       dashGap: canAdd
           ? (width: pillWidth(context, addLabel) + 8, fromEnd: pillEnd - 4)
           : null,

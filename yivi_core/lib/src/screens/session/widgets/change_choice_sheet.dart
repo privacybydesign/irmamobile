@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
+import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
@@ -12,6 +13,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/dutch_another.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
+import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -146,22 +148,86 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   };
 
   @override
-  Widget issueSuccessBar(List<schemaless.Credential> cards) => SheetActionRow(
-    primaryKey: const Key("sheet_back_to_request"),
-    primaryLabel: _t(
-      "issuance.success_feedback.back_to",
-      _successParams(cards),
-    ),
-    onPrimary: _finish,
-  );
+  Widget issueSuccessBar(List<schemaless.Credential> cards) {
+    // A card of a set: on to the other one, which the request needs too.
+    final next = _nextOfSet(cards);
+    if (next != null) {
+      return SheetActionRow(
+        secondaryKey: const Key("sheet_together_later"),
+        secondaryLabel: _t("share.sheet.later"),
+        onSecondary: _finish,
+        primaryKey: const Key("sheet_together_next"),
+        primaryLabel: _t("share.sheet.together_add_next", {
+          "next": _inSentence(next.name),
+        }),
+        onPrimary: () => setState(() {
+          issueReset();
+          issueOpen(next);
+        }),
+      );
+    }
+    return SheetActionRow(
+      primaryKey: const Key("sheet_back_to_request"),
+      primaryLabel: _t(
+        "issuance.success_feedback.back_to",
+        _successParams(cards),
+      ),
+      onPrimary: _finish,
+    );
+  }
 
   @override
-  String issueSuccessText(List<schemaless.Credential> cards) => _t(
-    cards.length > 1
-        ? "issuance.success_feedback.added_many_back"
-        : "issuance.success_feedback.added_one_back",
-    _successParams(cards),
-  );
+  String issueSuccessText(List<schemaless.Credential> cards) {
+    final next = _nextOfSet(cards);
+    if (next != null) {
+      return _t("share.sheet.together_added", {
+        ..._successParams(cards),
+        "next": _inSentence(next.name),
+      });
+    }
+    return _t(
+      cards.length > 1
+          ? "issuance.success_feedback.added_many_back"
+          : "issuance.success_feedback.added_one_back",
+      _successParams(cards),
+    );
+  }
+
+  /// The pick-one of this sheet, while the request is there.
+  DisclosurePickOne? get _pickOne {
+    final pickOnes =
+        issueRequest?.disclosurePlan?.disclosureChoicesOverview ?? const [];
+    return widget.index < pickOnes.length ? pickOnes[widget.index] : null;
+  }
+
+  /// Whether this sheet's spot is a set of cards only accepted together.
+  bool get _isTogether {
+    final pickOne = _pickOne;
+    return pickOne != null &&
+        spotTogether(
+          pickOne,
+          issueRequest?.disclosurePlan?.issueDuringDisclosure,
+        );
+  }
+
+  /// The types of the cards in the app.
+  Set<String> _cardsInApp() => {
+    for (final c
+        in ref.read(schemalessCredentialOrderControllerProvider).value ??
+            const <schemaless.Credential>[])
+      c.credentialId,
+  };
+
+  /// After adding [added], the card of the set still missing, if any.
+  CredentialDescriptor? _nextOfSet(List<schemaless.Credential> added) {
+    final pickOne = _pickOne;
+    if (pickOne == null || !_isTogether) return null;
+    final inApp = {..._cardsInApp(), for (final c in added) c.credentialId};
+    for (final d in addableOptions(pickOne)) {
+      if (!inApp.contains(d.credentialId)) return d;
+    }
+    return null;
+  }
 
   SessionUserChoicesNotifier get _choices =>
       ref.read(sessionUserChoicesProvider(widget.sessionId).notifier);
@@ -192,7 +258,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final i = cards.indexWhere(
       (c) => c.credentialId == issueAdding?.credentialId,
     );
-    if (landing != null && i >= 0 && !useSessionColumns(context)) {
+    // A card of a set flies only once the set is whole: until then the
+    // spot stays empty.
+    if (landing != null &&
+        i >= 0 &&
+        !useSessionColumns(context) &&
+        _nextOfSet(cards) == null) {
       CardFlight.start(
         context,
         source: issueAddedKeys[i],
@@ -254,7 +325,83 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     issueBack();
   }
 
+  /// A set of cards only accepted together: both are needed, so the page
+  /// says so and shows them as numbered steps, each in the app already or
+  /// still to add, instead of a choice of one.
+  Widget _buildTogether(DisclosurePickOne pickOne) {
+    final palette = YiviPalette.of(context);
+    final set = addableOptions(pickOne);
+    final inApp = {
+      for (final c
+          in ref.watch(schemalessCredentialOrderControllerProvider).value ??
+              const <schemaless.Credential>[])
+        c.credentialId,
+    };
+    return GlassSheetPage(
+      title: _t("share.sheet.together_title"),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        key: const Key("sheet_together"),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Intro(
+            _t("share.sheet.together_intro", {
+              "requestor": _requestor?.name ?? "",
+            }),
+          ),
+          for (final (n, d) in set.indexed) ...[
+            SizedBox(height: n == 0 ? 18 : 24),
+            _Label(
+              _t("share.sheet.together_step", {
+                "n": "${n + 1}",
+                "total": "${set.length}",
+              }),
+            ),
+            if (inApp.contains(d.credentialId)) ...[
+              const SizedBox(height: 8),
+              CardTile(
+                key: Key("sheet_together_in_app_${d.credentialId}"),
+                art: CredentialTypeThumbnail(
+                  descriptor: d,
+                  width: SharedCardTile.miniWidth,
+                  owned: true,
+                ),
+                title: d.name,
+                subtitle: _t("data.add.in_your_app"),
+                trailing: Icon(
+                  Icons.check_circle_rounded,
+                  size: 22,
+                  color: palette.successText,
+                ),
+              ),
+            ] else
+              EmptyCardSpot(
+                key: Key("sheet_add_${d.credentialId}"),
+                title: d.name,
+                subtitle: d.issuer.name,
+                rows: emptySpotRows(context, d),
+                selected: _pressed == "add:${d.credentialId}",
+                onTapDown: () => _press("add:${d.credentialId}"),
+                onTapCancel: () => _press(null),
+                onTap: () => issueOpen(d),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildChoose(DisclosurePickOne pickOne) {
+    if (spotTogether(
+      pickOne,
+      ref
+          .watch(sessionStateProvider(widget.sessionId))
+          .value
+          ?.disclosurePlan
+          ?.issueDuringDisclosure,
+    )) {
+      return _buildTogether(pickOne);
+    }
     final choices = ref.watch(sessionUserChoicesProvider(widget.sessionId));
     final owned = pickOne.ownedOptions ?? const [];
     final ownedIds = {

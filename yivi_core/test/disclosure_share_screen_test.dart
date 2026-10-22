@@ -52,6 +52,13 @@ class _NoWallet extends SchemalessCredentialOrderController {
   Future<List<Credential>> build() async => const [];
 }
 
+class _OneCard extends SchemalessCredentialOrderController {
+  @override
+  Future<List<Credential>> build() async => [
+    testCredential(type: "passport", hash: "hash-passport", name: "Passport"),
+  ];
+}
+
 TrustedParty _party(String name) =>
     TrustedParty(id: name, name: name, url: null, parent: null, verified: true);
 
@@ -164,6 +171,7 @@ Future<_Calls> _pump(
   List<Override> overrides = const [],
   Size size = const Size(390, 844),
   FakeViewPadding? padding,
+  SchemalessCredentialOrderController Function() wallet = _NoWallet.new,
 }) async {
   tester.view
     ..physicalSize = size
@@ -198,7 +206,7 @@ Future<_Calls> _pump(
         sessionStateProvider(
           _sessionId,
         ).overrideWith((ref) => sessions ?? Stream.value(session!)),
-        schemalessCredentialOrderControllerProvider.overrideWith(_NoWallet.new),
+        schemalessCredentialOrderControllerProvider.overrideWith(wallet),
         irmaRepositoryProvider.overrideWithValue(repo),
         groupedCredentialStoreProvider.overrideWith(
           (ref) => Stream.value(const []),
@@ -910,6 +918,101 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_add_passport")), findsOneWidget);
       expect(find.byKey(const Key("sheet_add_idcard")), findsOneWidget);
+    });
+
+    group("two cards only accepted together", () {
+      final passport = _descriptor("passport", "Passport");
+      final idcard = _descriptor("idcard", "ID card");
+      // Tall enough that the spot is clear of the share bar.
+      const tall = Size(390, 1100);
+      SessionState together() => withPlan(
+        [
+          email,
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [passport, idcard],
+          ),
+        ],
+        IssueDuringDisclosure(
+          steps: [
+            IssuanceStep(
+              options: [
+                IssuanceBundle(credentials: [passport, idcard]),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      testWidgets("the spot asks for both, with room above it", (tester) async {
+        await _pump(tester, session: together(), size: tall);
+        final spot = find.byKey(const Key("share_spot_1"));
+        expect(
+          find.descendant(
+            of: spot,
+            matching: find.text(
+              "Webshop Noord needs both, together. You add them one by one.",
+            ),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: spot, matching: find.text("Add both")),
+          findsOneWidget,
+        );
+        final above = tester.getRect(find.byKey(const Key("share_slot_0")));
+        expect(
+          tester.getRect(spot).top - above.bottom,
+          greaterThanOrEqualTo(12),
+        );
+      });
+
+      testWidgets("the sheet adds them one by one, not one of them", (
+        tester,
+      ) async {
+        await _pump(tester, session: together(), size: tall);
+        // The spot's pressable surface lies over its label.
+        await tester.tap(find.text("Add both"), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(find.text("CARD 1 OF 2"), findsOneWidget);
+        expect(find.text("CARD 2 OF 2"), findsOneWidget);
+        expect(find.byKey(const Key("sheet_add_passport")), findsOneWidget);
+        expect(find.byKey(const Key("sheet_add_idcard")), findsOneWidget);
+        expect(find.text("You only need one"), findsNothing);
+      });
+
+      testWidgets("one already in the app: it is checked, the other to add", (
+        tester,
+      ) async {
+        await _pump(tester, session: together(), wallet: _OneCard.new);
+        final spot = find.byKey(const Key("share_spot_1"));
+        expect(
+          find.descendant(
+            of: spot,
+            matching: find.text(
+              "Passport is in your app. Add ID card too: Webshop Noord "
+              "needs both.",
+            ),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: spot, matching: find.text("Add")),
+          findsOneWidget,
+        );
+        await tester.tap(
+          find.descendant(of: spot, matching: find.text("Add")),
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const Key("sheet_together_in_app_passport")),
+          findsOneWidget,
+        );
+        expect(find.byKey(const Key("sheet_add_passport")), findsNothing);
+        expect(find.byKey(const Key("sheet_add_idcard")), findsOneWidget);
+      });
     });
 
     testWidgets("nothing to add it from: Close, and where to get it", (

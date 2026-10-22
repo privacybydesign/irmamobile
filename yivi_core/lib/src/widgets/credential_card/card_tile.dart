@@ -45,6 +45,9 @@ class CardTile extends StatelessWidget {
   /// Lines the title may take; one by default, cut off with "…".
   final int titleMaxLines;
 
+  /// Lines the subtitle may take; one by default.
+  final int subtitleMaxLines;
+
   const CardTile({
     super.key,
     required this.art,
@@ -59,6 +62,7 @@ class CardTile extends StatelessWidget {
     this.footer,
     this.faded = false,
     this.titleMaxLines = 1,
+    this.subtitleMaxLines = 1,
   });
 
   static const _shape = RoundedRectangleBorder(
@@ -76,7 +80,9 @@ class CardTile extends StatelessWidget {
         : ShapeDecoration(
             color: palette.surface,
             shape: RoundedRectangleBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(YiviCorners.card),
+              ),
               side: outline != null
                   ? BorderSide(color: outline!, width: 1.5)
                   : BorderSide.none,
@@ -125,7 +131,7 @@ class CardTile extends StatelessWidget {
                           ),
                           Text(
                             subtitle,
-                            maxLines: 1,
+                            maxLines: subtitleMaxLines,
                             overflow: TextOverflow.ellipsis,
                             style: palette
                                 .body(12.5)

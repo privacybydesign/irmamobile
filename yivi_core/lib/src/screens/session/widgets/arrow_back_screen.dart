@@ -6,6 +6,7 @@ import "package:native_device_orientation/native_device_orientation.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/translated_text.dart";
 
 enum ArrowBackType { issuance, disclosure, signature, error }
@@ -185,6 +186,16 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                     size: const Size.square(64),
                     painter: _BackArrowPainter(palette.primary),
                   ),
+                ),
+              ),
+              // Closes the screen for those who stay in the app, top right
+              // where every screen has its close button.
+              Positioned(
+                right: 16 + MediaQuery.paddingOf(context).right,
+                top: MediaQuery.paddingOf(context).top + 16,
+                child: IrmaCloseButton(
+                  key: const Key("arrow_back_close"),
+                  onTap: context.goHomeScreen,
                 ),
               ),
             ],

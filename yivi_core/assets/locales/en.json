@@ -1337,7 +1337,13 @@
       "stop_title": "Stop adding {name}?",
       "stop_text": "What you did so far is lost and nothing is added. {requestor} still asks for it.",
       "stop_confirm": "Stop adding",
-      "keep_going": "Keep going"
+      "keep_going": "Keep going",
+      "together_title": "Add both",
+      "together_intro": "{requestor} only accepts these together. Add them one by one; this request waits for you.",
+      "together_step": "Card {n} of {total}",
+      "together_added": "{name} is in your app. {requestor} also needs {next}: add it now.",
+      "together_add_next": "Add {next}",
+      "later": "Later"
     },
     "done": {
       "title": "Shared with {requestor}",
@@ -1358,10 +1364,11 @@
       "many": "You pick one when adding",
       "cant": "Can't be added in Yivi. Get it from {issuer} first.",
       "wrong": "You added {offered}, needed {needed}. Tap to add it again.",
-      "together": "Only accepted together. Tap to add them one by one.",
       "cant_unknown": "Can't be added in Yivi.",
       "must_be": "{field} must be {value}",
-      "must_be_value": "Must be {value}"
+      "must_be_value": "Must be {value}",
+      "together_both": "{requestor} needs both, together. You add them one by one.",
+      "together_one_left": "{name} is in your app. Add {other} too: {requestor} needs both."
     },
     "trust": {
       "pill": {
@@ -1506,7 +1513,8 @@
     "dont_share": "Don't share",
     "lead_side": "Next to this is exactly what they get. Nothing is sent until you press the share button.",
     "lead_side_sign": "Next to this is exactly what they get. Nothing is sent until you press the sign button.",
-    "lead_side_receive": "You share what is next to this and get a card in return. Nothing is sent until you press the share button."
+    "lead_side_receive": "You share what is next to this and get a card in return. Nothing is sent until you press the share button.",
+    "add_both": "Add both"
   },
   "contact_sheet": {
     "intro_email": "We email you a code to check that this address is yours.",

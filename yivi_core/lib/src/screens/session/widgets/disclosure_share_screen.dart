@@ -8,6 +8,7 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
@@ -248,11 +249,13 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                 : t("share.section.you_share"),
           ),
         ),
-        for (final (i, p) in required) _requiredItem(i, p, selections),
+        for (final (n, (i, p)) in required.indexed)
+          _requiredItem(i, p, selections, first: n == 0),
       ],
       if (optional.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.optional"))),
-        for (final (i, p) in optional) _optionalItem(i, p, selections),
+        for (final (n, (i, p)) in optional.indexed)
+          _optionalItem(i, p, selections, first: n == 0),
       ],
       if (offered.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.you_receive"))),
@@ -635,6 +638,14 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     language: FlutterI18n.currentLocale(context)?.languageCode,
   );
 
+  /// The types of the cards in the app.
+  Set<String> _cardsInApp() => {
+    for (final c
+        in ref.watch(schemalessCredentialOrderControllerProvider).value ??
+            const <schemaless.Credential>[])
+      c.credentialId,
+  };
+
   static String _issuersOf(DisclosurePickOne p) => {
     for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
       if (d.issuer.name.isNotEmpty) d.issuer.name,
@@ -663,11 +674,17 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   }
 
   /// A required item: its card, or the empty spot when it is not in the app.
-  _Spaced _requiredItem(int i, DisclosurePickOne p, Map<int, int> selections) {
+  _Spaced _requiredItem(
+    int i,
+    DisclosurePickOne p,
+    Map<int, int> selections, {
+    required bool first,
+  }) {
     final k = selectionOf(p, selections[i]);
-    // The spot keeps room above its dashed edge for the pill: that is the
-    // gap.
-    if (k < 0) return _Spaced(0, _emptySpot(i, p));
+    // Right under the section's label the spot's room above its dashed edge
+    // (for the pill) is the gap; under a card it is 12 more, as between
+    // cards, so the pill never touches the card above.
+    if (k < 0) return _Spaced(first ? 0 : 12, _emptySpot(i, p));
     final tile = _filledTile(i, p, k);
     if (!useSessionColumns(context)) return _Spaced(12, tile);
     // On a tablet the Change sheet is a dialog and nothing flies: the card
@@ -695,18 +712,45 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final issuers = _issuersOf(p);
     final single = addable.length == 1 && !together ? addable.single : null;
     final several = !together && addable.length > 1;
+    // Cards only accepted together: which of the set are in the app already.
+    final inApp = together ? _cardsInApp() : const <String>{};
+    final missing = [
+      for (final d in addable)
+        if (!inApp.contains(d.credentialId)) d,
+    ];
+    final requestor = widget.session.requestor.name;
     final subtitle = addable.isEmpty
         ? issuers.isEmpty
               ? t("share.spot.cant_unknown")
               : t("share.spot.cant", {"issuer": issuers})
         : together
-        ? t("share.spot.together")
+        ? (missing.length == 1 && addable.length == 2
+              ? t("share.spot.together_one_left", {
+                  "name": addable
+                      .firstWhere((d) => inApp.contains(d.credentialId))
+                      .name,
+                  "other": _inSentence(missing.single.name),
+                  "requestor": requestor,
+                })
+              : t("share.spot.together_both", {"requestor": requestor}))
         : single != null
         ? single.issuer.name
         : t("share.spot.many");
     // With one card to add, its rows show what the request asks for, as the
-    // card will once it is there.
-    final rows = single == null
+    // card will once it is there; a set shows the fields of each of its
+    // cards, "In your app" for one that is there already.
+    final rows = together
+        ? [
+            for (final d in addable)
+              for (final (label, value) in emptySpotRows(context, d))
+                (
+                  label,
+                  inApp.contains(d.credentialId)
+                      ? t("data.add.in_your_app")
+                      : value,
+                ),
+          ]
+        : single == null
         ? const <(String, String)>[]
         : emptySpotRows(context, single);
     return EmptyCardSpot(
@@ -717,11 +761,13 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       landingKey: useSessionColumns(context) ? null : _landingKey(i),
       title: _spotName(p),
       subtitle: subtitle,
-      kinds: several ? addable : null,
+      kinds: several || together ? addable : null,
+      together: together,
+      addLabel: together && missing.length > 1 ? t("share.add_both") : null,
       // Without rows the values it must have go below the name; with a
       // choice of types they are in the sheet.
       requirements: [
-        if (rows.isEmpty && !several)
+        if (rows.isEmpty && !several && !together)
           for (final (field, value) in spotRequiredValues(p))
             t("share.spot.must_be", {
               "field": field,
@@ -795,7 +841,12 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// Optional data. Not shared: its card faded in a dashed edge with "Share
   /// too" on it, which includes it at once. Shared: the card with "Don't
   /// share". Not in the app: an empty spot whose Add opens the sheet.
-  _Spaced _optionalItem(int i, DisclosurePickOne p, Map<int, int> selections) {
+  _Spaced _optionalItem(
+    int i,
+    DisclosurePickOne p,
+    Map<int, int> selections, {
+    required bool first,
+  }) {
     final notifier = ref.read(sessionUserChoicesProvider(_sessionId).notifier);
     final owned = p.ownedOptions ?? const <DisclosureBundle>[];
     final k = selectionOf(p, selections[i]);
@@ -824,11 +875,13 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         ),
       );
     }
+    // As a required spot: 12 more under a card, for the pill.
+    final gap = first ? 0.0 : 12.0;
     if (owned.isEmpty) {
-      return _Spaced(0, _emptySpot(i, p, key: Key("share_add_optional_$i")));
+      return _Spaced(gap, _emptySpot(i, p, key: Key("share_add_optional_$i")));
     }
     return _Spaced(
-      0,
+      gap,
       _OptionalGhost(
         key: Key("share_add_optional_$i"),
         bundle: owned.first,
