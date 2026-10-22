@@ -253,6 +253,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   /// Backspace and hardware-keyboard digits: apply and commit at once (no
   /// press-and-cancel lifecycle).
   void _enterNumber(int event) {
+    if (!mounted) return;
     if (_applyNumber(event)) widget.listener?.call(context, _state);
   }
 
@@ -267,18 +268,25 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   /// A press was released while another was still down.
   bool _commitWaiting = false;
 
+  // A finger that lands on this screen's keypad can lift after the screen
+  // was replaced (a reset after a wrong PIN, a new screen): its press then
+  // ends here, on a screen that is gone, and must do nothing.
+
   void _digitDown(int number, int press) {
+    if (!mounted) return;
     final at = _state.pin.length;
     if (_applyNumber(number)) _presses[press] = at;
   }
 
   void _digitUp(int press) {
+    if (!mounted) return;
     if (_presses.remove(press) == null) return;
     _commitWaiting = true;
     _commitIfAllUp();
   }
 
   void _digitCancel(int press) {
+    if (!mounted) return;
     final at = _presses.remove(press);
     if (at != null) _removeDigitAt(at);
     _commitIfAllUp();

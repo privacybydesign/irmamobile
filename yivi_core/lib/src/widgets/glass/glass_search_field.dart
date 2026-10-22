@@ -89,9 +89,6 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                   controller: _controller,
                   focusNode: widget.focusNode,
                   onChanged: widget.onChanged,
-                  // Tapping anywhere else puts the keyboard away, as on iOS.
-                  onTapOutside: (_) =>
-                      FocusManager.instance.primaryFocus?.unfocus(),
                   textInputAction: TextInputAction.search,
                   style: palette.body(16),
                   cursorColor: palette.primary,

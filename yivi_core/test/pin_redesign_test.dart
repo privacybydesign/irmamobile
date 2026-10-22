@@ -231,6 +231,39 @@ void main() {
       expect(committed, ["2"]);
     });
 
+    testWidgets("a finger that lifts after the screen was replaced does "
+        "nothing", (tester) async {
+      _phone(tester);
+      final committed = <String>[];
+      late StateSetter reset;
+      var nonce = 0;
+      await pumpTranslated(
+        tester,
+        _app(
+          StatefulBuilder(
+            builder: (context, setState) {
+              reset = setState;
+              // As the lock screen does after a wrong PIN.
+              return KeyedSubtree(
+                key: ValueKey(nonce),
+                child: enter(committed),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final finger = await tester.startGesture(key(tester, 4), pointer: 1);
+      await tester.pump();
+      reset(() => nonce++);
+      await tester.pump();
+      await finger.up();
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(committed, isEmpty);
+    });
+
     testWidgets("quick taps all count", (tester) async {
       _phone(tester);
       final committed = <String>[];
