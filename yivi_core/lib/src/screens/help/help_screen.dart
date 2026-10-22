@@ -33,7 +33,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final scroll = SingleChildScrollView(
       controller: _controller,
       padding: widget.embedded
-          ? PaneTitle.pagePadding
+          ? PaneTitle.pagePadding(context)
           : const EdgeInsets.fromLTRB(16, 0, 16, 48),
       child: SafeArea(
         child: Column(

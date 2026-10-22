@@ -230,8 +230,13 @@ void main() {
       );
       // The list: 300 of content between 16 on either side.
       expect(pane.left, closeTo(118 + 332, 1));
-      // Clear of the Dynamic Island: up to the safe area on the right.
-      expect(pane.right, 874 - 62);
+      // The pane reaches the edge; its content keeps clear of the Dynamic
+      // Island.
+      expect(pane.right, 874);
+      final content = tester.widget<ListView>(
+        find.byKey(const Key("credential_detail_pane_personal")),
+      );
+      expect(content.padding, const EdgeInsets.fromLTRB(20, 20, 62, 20 + 21));
 
       double left(String hash) => tester.getTopLeft(tile(hash)).dx;
       final rest = left("address");

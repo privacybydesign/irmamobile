@@ -65,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final scroll = SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: widget.embedded
-          ? PaneTitle.pagePadding
+          ? PaneTitle.pagePadding(context)
           : const EdgeInsets.fromLTRB(16, 8, 16, 48),
       // Inside the scroll view, so the content starts below the
       // floating app bar and scrolls underneath it.

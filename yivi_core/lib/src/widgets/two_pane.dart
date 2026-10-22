@@ -1,12 +1,15 @@
+import "dart:math" as math;
+
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 
-/// The tablet layout of a tab: its list on the left and, on the right, a
-/// rounded pane with the details of the picked item.
+/// The tablet layout of a tab, also on a phone held sideways: its list on
+/// the left and, on the right, a pane with the details of the picked item.
+/// The pane fills the rest of the screen, edge to edge and top to bottom,
+/// with a line on its left.
 class TwoPane extends StatelessWidget {
   final Widget list;
 
@@ -28,30 +31,11 @@ class TwoPane extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final phone = usePhoneLandscape(context);
-    const shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(YiviCorners.pane)),
-    );
-
-    // On a phone held sideways the pane goes 12 from the top and bottom
-    // and up to the safe area on the right, clear of the Dynamic Island when
-    // that is on the right (16 from the edge on a phone without one).
-    final paneMargin = phone
-        ? EdgeInsets.fromLTRB(
-            0,
-            12,
-            padding.right > 0 ? padding.right : 16,
-            12,
-          )
-        : EdgeInsets.fromLTRB(
-            0,
-            padding.top + 16,
-            padding.right + 16,
-            padding.bottom + 16,
-          );
-    final inPane = MediaQuery.of(context).copyWith(
-      padding: EdgeInsets.zero,
-      viewPadding: EdgeInsets.zero,
-    );
+    // What the pane shows lays itself out without system insets; it keeps
+    // clear of them with [paneContentPadding], from [_PaneInsets].
+    final inPane = MediaQuery.of(
+      context,
+    ).copyWith(padding: EdgeInsets.zero, viewPadding: EdgeInsets.zero);
 
     return LayoutBuilder(
       builder: (context, constraints) => Row(
@@ -64,27 +48,19 @@ class TwoPane extends StatelessWidget {
             // The pane covers the safe area on the right, not the list.
             child: MediaQuery.removePadding(
               context: context,
-              removeRight: phone,
+              removeRight: true,
               child: list,
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: paneMargin,
-              child: DecoratedBox(
-                decoration: ShapeDecoration(
-                  shape: shape,
-                  color: palette.sheet,
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x14000000),
-                      blurRadius: 24,
-                      offset: Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: ClipPath(
-                  clipper: const ShapeBorderClipper(shape: shape),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.sheet,
+                border: Border(left: BorderSide(color: palette.divider)),
+              ),
+              child: ClipRect(
+                child: _PaneInsets(
+                  insets: padding.copyWith(left: 0),
                   child: MediaQuery(
                     data: inPane,
                     child: AnimatedSwitcher(
@@ -104,6 +80,21 @@ class TwoPane extends StatelessWidget {
   }
 }
 
+/// The system insets over the detail pane: the status bar, the home
+/// indicator, and the Dynamic Island when it is on the right.
+class _PaneInsets extends InheritedWidget {
+  final EdgeInsets insets;
+
+  const _PaneInsets({required this.insets, required super.child});
+
+  static EdgeInsets of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_PaneInsets>()?.insets ??
+      EdgeInsets.zero;
+
+  @override
+  bool updateShouldNotify(_PaneInsets old) => old.insets != insets;
+}
+
 /// The list's width on a phone held sideways: its content (the tabs keep 16
 /// on either side) is 300 on an iPhone 17 Pro, between 260 and 320 on
 /// others.
@@ -111,9 +102,22 @@ double phoneListPaneWidth(double available) =>
     ((available - 32) * 0.415).clamp(260, 320).roundToDouble() + 32;
 
 /// The padding of what a detail pane shows: 32 on a tablet, 20 on a phone
-/// held sideways.
+/// held sideways, clear of the status bar and home indicator, and of the
+/// Dynamic Island on the right.
 EdgeInsets paneContentPadding(BuildContext context) =>
-    EdgeInsets.all(usePhoneLandscape(context) ? 20 : 32);
+    _clear(context, EdgeInsets.all(usePhoneLandscape(context) ? 20 : 32));
+
+/// [base] plus the system insets over the pane: added at the top and
+/// bottom, and on the right only as far as the island reaches past [base].
+EdgeInsets _clear(BuildContext context, EdgeInsets base) {
+  final insets = _PaneInsets.of(context);
+  return EdgeInsets.fromLTRB(
+    base.left,
+    base.top + insets.top,
+    math.max(base.right, insets.right),
+    base.bottom + insets.bottom,
+  );
+}
 
 /// Space the bottom of a tab's list keeps free: room for the floating tab
 /// bar on phones, a plain margin where the tabs are a sidebar or a rail.
@@ -127,7 +131,8 @@ class PaneTitle extends StatelessWidget {
   const PaneTitle(this.translationKey, {super.key});
 
   /// The padding of a page in a pane.
-  static const EdgeInsets pagePadding = EdgeInsets.fromLTRB(20, 20, 20, 24);
+  static EdgeInsets pagePadding(BuildContext context) =>
+      _clear(context, const EdgeInsets.fromLTRB(20, 20, 20, 24));
 
   @override
   Widget build(BuildContext context) {
