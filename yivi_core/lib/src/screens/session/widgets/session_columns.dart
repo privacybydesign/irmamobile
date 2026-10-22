@@ -6,13 +6,29 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 
-/// Whether the session screens use their two-column tablet layouts.
-bool useSessionColumns(BuildContext context) => isExpandedLayout(context);
+/// The most a session screen's sideways layout (the panel at the left, the
+/// content at the right) is wide, centred, on a tablet or an unfolded phone.
+const double sidewaysMaxWidth = 1000;
+
+/// Whether the session screens use their two-column tablet layouts: on a
+/// tablet held upright. Wider than high they use the layout of a phone held
+/// sideways instead ([useSheetColumns]): who asks and the button in a panel
+/// at the left, what is shared scrolling at the right.
+bool useSessionColumns(BuildContext context) {
+  final size = MediaQuery.sizeOf(context);
+  return isExpandedLayout(context) && size.width <= size.height;
+}
 
 /// The tablet layout of a session screen: [start] and [end] side by side,
 /// top-aligned and centred, with [actions] (the buttons that are in the
 /// bottom bar on phones) under [end]. The columns keep their widths while
 /// they fit and shrink together when they do not.
+///
+/// Each column scrolls on its own, as the panel and the content of a phone
+/// held sideways: what is shared scrolls at the right, under the bar, while
+/// who asks stays where it is (it scrolls only when it is taller than the
+/// screen), and the buttons stay in view at the foot of the right column.
+/// A short screen ([centreVertically]) is one centred block instead.
 class SessionColumns extends StatelessWidget {
   final Widget start;
   final Widget end;
@@ -37,10 +53,83 @@ class SessionColumns extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (centreVertically) return _centred(context);
+
+    final insets = BarInsets.of(
+      context,
+      const EdgeInsets.fromLTRB(32, 24, 32, 32),
+    );
+    // The bottom bar keeps its own insets for the phone's screen edges,
+    // which are not needed here.
+    final buttons = actions == null
+        ? null
+        : MediaQuery.removePadding(
+            context: context,
+            removeLeft: true,
+            removeRight: true,
+            removeBottom: true,
+            child: actions!,
+          );
+    return Padding(
+      padding: EdgeInsets.only(left: insets.left, right: insets.right),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: startWidth + gap + endWidth),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Flexible(
+                flex: startWidth.round(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: startWidth),
+                  child: SingleChildScrollView(
+                    key: const Key("session_columns_start"),
+                    padding: EdgeInsets.only(
+                      top: insets.top,
+                      bottom: insets.bottom,
+                    ),
+                    child: start,
+                  ),
+                ),
+              ),
+              SizedBox(width: gap),
+              Flexible(
+                flex: endWidth.round(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: endWidth),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          key: const Key("session_columns_end"),
+                          padding: EdgeInsets.only(
+                            top: insets.top,
+                            bottom: buttons == null ? insets.bottom : 16,
+                          ),
+                          child: end,
+                        ),
+                      ),
+                      if (buttons != null)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: insets.bottom),
+                          child: buttons,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A short screen: both columns in one block, centred top to bottom.
+  Widget _centred(BuildContext context) {
     final row = Row(
-      crossAxisAlignment: centreVertically
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Flexible(
           flex: startWidth.round(),
@@ -86,9 +175,7 @@ class SessionColumns extends StatelessWidget {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minHeight: centreVertically
-                ? (constraints.maxHeight - 56).clamp(0.0, double.infinity)
-                : 0,
+            minHeight: (constraints.maxHeight - 56).clamp(0.0, double.infinity),
           ),
           child: Center(
             child: ConstrainedBox(
@@ -196,7 +283,9 @@ class SessionDialogFrame extends StatelessWidget {
           child: DecoratedBox(
             decoration: const ShapeDecoration(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(YiviCorners.pane)),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(YiviCorners.pane),
+                ),
               ),
               shadows: [
                 BoxShadow(
@@ -207,7 +296,9 @@ class SessionDialogFrame extends StatelessWidget {
               ],
             ),
             child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.pane)),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(YiviCorners.pane),
+              ),
               // The screen inside keeps to the card, not the device edges.
               child: MediaQuery.removePadding(
                 context: context,

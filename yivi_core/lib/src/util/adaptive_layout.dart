@@ -55,12 +55,16 @@ class SheetWidthScope extends InheritedWidget {
 
 /// Whether content lays itself out in two columns, with the sheet's compact
 /// one-row header: in a sheet when the sheet is at least [sheetColumnsWidth]
-/// wide, whatever way the device is held; elsewhere on a phone held
-/// sideways ([usePhoneLandscape]).
+/// wide, whatever way the device is held; elsewhere whenever the window is
+/// wider than high.
 bool useSheetColumns(BuildContext context) {
   final width = SheetWidthScope.of(context);
   if (width != null) return width >= sheetColumnsWidth;
-  return usePhoneLandscape(context);
+  // Outside a sheet: whenever the window is wider than high, a phone held
+  // sideways as well as an unfolded phone or a tablet, so a session screen
+  // keeps its panel and button at the left on every one.
+  final size = MediaQuery.sizeOf(context);
+  return size.width > size.height;
 }
 
 /// The home tabs as a list with the picked item's details beside it: on a

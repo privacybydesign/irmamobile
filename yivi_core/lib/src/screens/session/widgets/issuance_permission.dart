@@ -589,71 +589,81 @@ class IssuanceLandscape extends StatelessWidget {
     final insets = MediaQuery.paddingOf(context);
     // The bar holds only the close button, in the corner beside the column.
     final top = (insets.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+    // On a wide screen (a tablet, an unfolded phone) at most
+    // [sidewaysMaxWidth], centred.
     return Padding(
       padding: EdgeInsets.only(left: insets.left, right: insets.right),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: panelWidth,
-            child: Padding(
-              key: const Key("issuance_panel"),
-              padding: EdgeInsets.fromLTRB(
-                16,
-                top,
-                0,
-                FloatingBarPlacement.buttonBottom(context),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: 12,
-                          children: overview,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: sidewaysMaxWidth),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                width: panelWidth,
+                child: Padding(
+                  key: const Key("issuance_panel"),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    top,
+                    0,
+                    FloatingBarPlacement.buttonBottom(context),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              spacing: 12,
+                              children: overview,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      actions,
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  actions,
-                ],
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: SingleChildScrollView(
-              key: const Key("issuance_scroll_view"),
-              padding: EdgeInsets.fromLTRB(0, top, 16, 16 + insets.bottom),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        title,
-                        key: const Key("issuance_question"),
-                        style: palette
-                            .display(24, weight: FontWeight.w700)
-                            .copyWith(height: 30 / 24, color: palette.heading),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  key: const Key("issuance_scroll_view"),
+                  padding: EdgeInsets.fromLTRB(0, top, 16, 16 + insets.bottom),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            title,
+                            key: const Key("issuance_question"),
+                            style: palette
+                                .display(24, weight: FontWeight.w700)
+                                .copyWith(
+                                  height: 30 / 24,
+                                  color: palette.heading,
+                                ),
+                          ),
+                        ),
                       ),
-                    ),
+                      if (note != null) ...[const SizedBox(height: 16), note!],
+                      const SizedBox(height: 12),
+                      ...receives,
+                    ],
                   ),
-                  if (note != null) ...[const SizedBox(height: 16), note!],
-                  const SizedBox(height: 12),
-                  ...receives,
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1068,10 +1068,11 @@ void main() {
 
   testWidgets("tablet: the question, who asks and the footnote left, what "
       "is shared right", (tester) async {
+    // A 13" iPad held upright; sideways a tablet has the phone's panel.
     await _pump(
       tester,
       session: _session([_passportOrIdCard()]),
-      size: const Size(1280, 900),
+      size: const Size(1032, 1376),
     );
     expect(find.byType(SessionColumns), findsOneWidget);
     final slot = tester.getRect(find.byKey(const Key("share_slot_0")));
@@ -2275,6 +2276,42 @@ void main() {
       // Close in the corner, 16 from the edge, beside the column.
       expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 16);
     });
+
+    for (final (name, size, padding) in [
+      (
+        "unfolded phone",
+        const Size(951, 669),
+        const FakeViewPadding(right: 84, bottom: 34),
+      ),
+      ("tablet", const Size(1180, 820), const FakeViewPadding(bottom: 20)),
+    ]) {
+      testWidgets("$name held sideways: the phone's panel, with the button; "
+          "only the right side scrolls", (tester) async {
+        await _pump(
+          tester,
+          session: _session([_passportOrIdCard()]),
+          size: size,
+          padding: padding,
+        );
+        expect(find.byType(SessionColumns), findsNothing);
+        expect(find.descendant(of: panel, matching: card), findsOneWidget);
+        expect(find.descendant(of: panel, matching: _share), findsOneWidget);
+        expect(find.byType(IrmaBottomBarBase), findsNothing);
+        // Clear of the side panel.
+        expect(
+          tester.getRect(find.byType(IrmaCloseButton)).right,
+          lessThanOrEqualTo(size.width - padding.right),
+        );
+
+        final share = tester.getRect(_share);
+        await tester.drag(
+          find.byKey(const Key("share_scroll_view")),
+          const Offset(0, -300),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.getRect(_share), share);
+      });
+    }
 
     testWidgets("the panel's card is level with the first card", (
       tester,

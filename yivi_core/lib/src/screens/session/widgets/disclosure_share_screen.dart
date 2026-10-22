@@ -382,68 +382,79 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               // the column: the content starts at the top of the screen.
               final top =
                   (media.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+              // On a wide screen (a tablet, an unfolded phone) at most
+              // [sidewaysMaxWidth], centred.
               return Padding(
                 padding: EdgeInsets.only(left: media.left, right: media.right),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      width: _LandscapePanel.width,
-                      child: _LandscapePanel(
-                        top: top,
-                        label: firstLabel,
-                        card: RequestorCard.compact(
-                          requestor: session.requestor,
-                          ask: ask,
-                          onInfo: openTrust,
-                        ),
-                        lead: sideLead,
-                        action: bar.inline(),
-                      ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: sidewaysMaxWidth,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) =>
-                            SingleChildScrollView(
-                              key: const Key("share_scroll_view"),
-                              padding: EdgeInsets.fromLTRB(
-                                0,
-                                top,
-                                16,
-                                16 + media.bottom,
-                              ),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight:
-                                      (constraints.maxHeight -
-                                              top -
-                                              16 -
-                                              media.bottom)
-                                          .clamp(0, double.infinity),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Column(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: _LandscapePanel.width,
+                          child: _LandscapePanel(
+                            top: top,
+                            label: firstLabel,
+                            card: RequestorCard.compact(
+                              requestor: session.requestor,
+                              ask: ask,
+                              onInfo: openTrust,
+                            ),
+                            lead: sideLead,
+                            action: bar.inline(),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) =>
+                                SingleChildScrollView(
+                                  key: const Key("share_scroll_view"),
+                                  padding: EdgeInsets.fromLTRB(
+                                    0,
+                                    top,
+                                    16,
+                                    16 + media.bottom,
+                                  ),
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minHeight:
+                                          (constraints.maxHeight -
+                                                  top -
+                                                  16 -
+                                                  media.bottom)
+                                              .clamp(0, double.infinity),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
-                                      children: _laidOut(column),
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: _laidOut(column),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 28,
+                                          ),
+                                          child: pageEnd,
+                                        ),
+                                      ],
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 28),
-                                      child: pageEnd,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                      ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },

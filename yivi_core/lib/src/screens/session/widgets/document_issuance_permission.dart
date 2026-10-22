@@ -43,7 +43,12 @@ class DocumentIssuancePermission extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final landscape = useSheetColumns(context);
+    // Sideways in a wide sheet, and on any screen wider than high (also an
+    // unfolded phone or a tablet, from 900 wide).
+    final size = MediaQuery.sizeOf(context);
+    final landscape =
+        useSheetColumns(context) ||
+        (SheetWidthScope.of(context) == null && size.width > size.height);
 
     return Scaffold(
       extendBodyBehindAppBar: true,

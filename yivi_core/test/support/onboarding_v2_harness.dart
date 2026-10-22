@@ -26,7 +26,7 @@ class RecordingBridge extends IrmaBridge {
   Event? Function(Event event)? respond;
 
   /// Sends [event] to the app later, as Go would.
-  void send(Event event) => addEvent(event);
+  void deliver(Event event) => addEvent(event);
 
   @override
   void dispatch(Event event) {

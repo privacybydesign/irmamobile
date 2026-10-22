@@ -31,7 +31,7 @@ void main() {
           : EnrollmentFailureEvent(schemeManagerID: "pbdf", error: _error());
       final hold = holdEnrollment;
       if (hold == null) return reply;
-      hold.future.then((_) => bridge.send(reply));
+      hold.future.then((_) => bridge.deliver(reply));
       return null;
     };
     repo = IrmaRepository(

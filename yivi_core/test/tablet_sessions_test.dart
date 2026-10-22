@@ -13,7 +13,9 @@ import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
 
-const _tablet = Size(1180, 820);
+// A 13" iPad held upright: the tablet columns. Held sideways a tablet uses
+// the layout of a phone held sideways.
+const _tablet = Size(1032, 1376);
 const _phone = Size(390, 844);
 
 void main() {
@@ -173,9 +175,9 @@ void main() {
 
     expect(find.byType(BottomSheet), findsNothing);
     final options = tester.getRect(find.text("options"));
-    // 80% of the window, 520 to 880: 880 on this tablet held sideways.
+    // 80% of the window, 520 to 880: 825.6 on this tablet held upright.
     final width = tabletSheetWidth(_tablet.width);
-    expect(width, 880);
+    expect(width, closeTo(825.6, 0.1));
     expect(options.left, greaterThan((_tablet.width - width) / 2 - 1));
     expect(options.right, lessThan((_tablet.width + width) / 2 + 1));
   });
