@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:math";
 
 import "package:flutter_i18n/flutter_i18n.dart";
@@ -99,10 +100,83 @@ class _Entrance extends StatelessWidget {
   }
 }
 
+/// Bobs [child] up and down: 6 points (at a 180 wide card) over four
+/// seconds, on and on, after [delay]; still when motion is reduced or during
+/// integration tests.
+class _Float extends StatefulWidget {
+  final double distance;
+  final Duration delay;
+  final Widget child;
+
+  const _Float({
+    required this.distance,
+    required this.delay,
+    required this.child,
+  });
+
+  @override
+  State<_Float> createState() => _FloatState();
+}
+
+class _FloatState extends State<_Float> with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 4),
+  );
+  Timer? _start;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still =
+        MediaQuery.disableAnimationsOf(context) ||
+        TestContext.isRunningIntegrationTest(context);
+    if (still) {
+      _start?.cancel();
+      _controller
+        ..stop()
+        ..value = 0;
+    } else if (!_controller.isAnimating && _start == null) {
+      _start = Timer(widget.delay, () {
+        if (mounted) _controller.repeat();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _start?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    builder: (context, child) {
+      // Up and back down, easing in and out at both ends.
+      final up = Curves.easeInOut.transform(
+        1 - (2 * _controller.value - 1).abs(),
+      );
+      return Transform.translate(
+        offset: Offset(0, -widget.distance * up),
+        child: child,
+      );
+    },
+    child: widget.child,
+  );
+}
+
 class _Fan extends StatelessWidget {
   final double width;
 
   const _Fan({required this.width});
+
+  /// The design's fan, at a 180 wide card: the card at the left turned 11°
+  /// anticlockwise and moved 30 out and 12 down, the one at the right 10°
+  /// the other way, 30 out and 9 down (both around their bottom centre).
+  static const _left = (degrees: -11.0, dx: -30.0, dy: 12.0);
+  static const _right = (degrees: 10.0, dx: 30.0, dy: 9.0);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +191,7 @@ class _Fan extends StatelessWidget {
           text: "#3B3127",
         ),
         "sanne@devries.example",
-        -1.0,
+        _left,
       ),
       (
         _card(
@@ -129,36 +203,41 @@ class _Fan extends StatelessWidget {
           text: "#173A44",
         ),
         "+31 6 1234 5678",
-        1.0,
+        _right,
       ),
-      (_personalData(context), "Sanne de Vries", 0.0),
     ];
     final height = width / CredentialCardArt.aspectRatio;
+    final unit = width / 180;
+    Widget art(schemaless.Credential credential, String hint) =>
+        CredentialCardArt(credential: credential, hintText: hint, width: width);
 
     return SizedBox(
       width: width * 1.25,
       height: height * 1.5,
-      child: _Entrance(
-        duration: const Duration(milliseconds: 700),
-        delay: const Duration(milliseconds: 150),
-        builder: (context, t) => Stack(
-          alignment: Alignment.center,
-          children: [
-            for (final (credential, hint, side) in cards)
-              Transform.translate(
-                offset: Offset(side * 0.12 * width * t, 0),
-                child: Transform.rotate(
-                  angle: side * 9 * pi / 180 * t,
-                  alignment: Alignment.bottomCenter,
-                  child: CredentialCardArt(
-                    credential: credential,
-                    hintText: hint,
-                    width: width,
-                  ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          for (final (credential, hint, fan) in cards)
+            _Entrance(
+              duration: const Duration(milliseconds: 700),
+              delay: const Duration(milliseconds: 150),
+              // Turned, then moved along the turn, as in the design.
+              builder: (context, t) => Transform.rotate(
+                angle: fan.degrees * pi / 180 * t,
+                alignment: Alignment.bottomCenter,
+                child: Transform.translate(
+                  offset: Offset(fan.dx * unit * t, fan.dy * unit * t),
+                  child: art(credential, hint),
                 ),
               ),
-          ],
-        ),
+            ),
+          // The card in front floats once the others have fanned out.
+          _Float(
+            distance: 6 * unit,
+            delay: const Duration(milliseconds: 900),
+            child: art(_personalData(context), "Sanne de Vries"),
+          ),
+        ],
       ),
     );
   }

@@ -426,18 +426,20 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  /// Landscape phone: the keypad on the right, a size smaller and centred top
-  /// to bottom; everything else on the left, centred between the edge of the
-  /// safe area and the keypad, with the link under the field.
+  /// Landscape phone: the keypad on the right, as big as held upright and
+  /// centred top to bottom (smaller only where it would not fit); everything
+  /// else on the left, centred between the edge of the safe area and the
+  /// keypad, with the link under the field.
   Widget _bodyLandscape(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     return Padding(
       padding: EdgeInsets.only(bottom: padding.bottom),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          // A little room above and below the keys.
           final scale = min(
             1.0,
-            constraints.maxHeight * 0.82 / PinKeypad.height,
+            (constraints.maxHeight - 8) / PinKeypad.height,
           );
           final keypad = SizedBox(
             width: PinKeypad.width * scale,

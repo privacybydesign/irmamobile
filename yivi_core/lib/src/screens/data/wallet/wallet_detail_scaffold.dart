@@ -35,12 +35,18 @@ class WalletDetailScaffold extends StatefulWidget {
   /// has scrolled away. Gets the opacity the close button has.
   final Widget Function(BuildContext context, double opacity)? barBuilder;
 
+  /// Whether a bar comes in once content scrolls under the close button
+  /// (the hard scroll edge). Without it, only the close button floats over
+  /// the content.
+  final bool edge;
+
   const WalletDetailScaffold({
     super.key,
     required this.openKey,
     required this.builder,
     required this.closeKey,
     this.barBuilder,
+    this.edge = true,
   });
 
   @override
@@ -199,11 +205,15 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
           Positioned.fill(
             child: ScrollEdge(
               height: padding.top + 68,
-              band: (context, under) => AnimatedBuilder(
-                animation: chrome,
-                builder: (context, _) =>
-                    ScrollEdgeBand(under: under, opacity: chromeOpacity()),
-              ),
+              band: (context, under) => !widget.edge
+                  ? const SizedBox.shrink()
+                  : AnimatedBuilder(
+                      animation: chrome,
+                      builder: (context, _) => ScrollEdgeBand(
+                        under: under,
+                        opacity: chromeOpacity(),
+                      ),
+                    ),
               bar: [
                 // Inside the safe area: clear of the Dynamic Island or an
                 // unfolded phone's side panel.

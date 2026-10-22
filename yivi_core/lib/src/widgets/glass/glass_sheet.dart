@@ -783,7 +783,9 @@ class GlassSheetHeader extends StatelessWidget {
     if (useSheetColumns(context)) return _row(context);
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      // Room under the buttons, also once content scrolls under the bar and
+      // its edge shows.
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 44),
         child: Stack(
@@ -911,7 +913,9 @@ class GlassSheetHeader extends StatelessWidget {
             ),
     );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      // As much room under the buttons as above them, for the edge that
+      // shows once content scrolls under the bar.
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: SizedBox(
         height: 44,
         child: Row(
@@ -1477,6 +1481,11 @@ class GlassSheetPage extends StatefulWidget {
   /// (screens with their own bottom bar), so the page adds no room for it.
   final bool childClearsBottom;
 
+  /// Whether the bar gets the hard scroll edge once content scrolls under
+  /// it. Without it, only the buttons float over the content (a page whose
+  /// bar has no title).
+  final bool edge;
+
   const GlassSheetPage({
     super.key,
     required this.title,
@@ -1490,6 +1499,7 @@ class GlassSheetPage extends StatefulWidget {
     this.padding = EdgeInsets.zero,
     this.scrolls = true,
     this.childClearsBottom = false,
+    this.edge = true,
   }) : assert((child == null) != (slivers == null), "child or slivers"),
        assert(scrolls || child != null, "a page that fills itself has a child");
 
@@ -1579,14 +1589,15 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         children: [
           // Clipped to the sheet's top corners itself: its blur doesn't
           // follow the sheet's rounded clip, and filled the corners square.
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: _GlassSheet._radius,
+          if (widget.edge)
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: _GlassSheet._radius,
+                ),
+                child: ScrollEdgeBand(under: _under, color: palette.sheet),
               ),
-              child: ScrollEdgeBand(under: _under, color: palette.sheet),
             ),
-          ),
           Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -171,6 +171,8 @@ class RequestorTrustSheet extends StatelessWidget {
       explicitChildNodes: true,
       child: GlassSheetPage(
         title: "",
+        // No bar once scrolled either: only the close button floats.
+        edge: false,
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         child: _columns(
           context,

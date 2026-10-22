@@ -18,7 +18,6 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/two_pane.dart";
 import "../../add_data/add_data_sheet.dart";
@@ -58,38 +57,6 @@ class _CredentialDetailScreenState
     extends ConsumerState<CredentialDetailScreen> {
   late String _hash = widget.hash;
 
-  final _scroll = ScrollController();
-  final _cardKey = GlobalKey();
-
-  /// Whether two thirds of the card have scrolled away under the bar, so
-  /// the bar shows a small copy of it.
-  final _scrolledPast = ValueNotifier(false);
-
-  @override
-  void initState() {
-    super.initState();
-    // Measured after the frame: during the scroll notification the card
-    // still has the position of the previous frame.
-    _scroll.addListener(
-      () => WidgetsBinding.instance.addPostFrameCallback((_) => _checkCard()),
-    );
-  }
-
-  void _checkCard() {
-    final box = _cardKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize || !mounted) return;
-    final top = box.localToGlobal(Offset.zero).dy;
-    final barBottom = MediaQuery.paddingOf(context).top + 60;
-    _scrolledPast.value = top + box.size.height * 2 / 3 < barBottom;
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    _scrolledPast.dispose();
-    super.dispose();
-  }
-
   void _close() => Navigator.of(context).maybePop();
 
   @override
@@ -108,35 +75,14 @@ class _CredentialDetailScreenState
     return WalletDetailScaffold(
       openKey: _hash,
       closeKey: const Key("credential_detail_done"),
-      barBuilder: (context, opacity) => credential == null
-          ? const SizedBox.shrink()
-          : ValueListenableBuilder<bool>(
-              valueListenable: _scrolledPast,
-              builder: (context, shown, _) => TweenAnimationBuilder<double>(
-                tween: Tween(end: shown ? 1 : 0),
-                duration: const Duration(milliseconds: 240),
-                curve: Curves.easeOut,
-                builder: (context, t, _) => t == 0
-                    ? const SizedBox.shrink()
-                    : IgnorePointer(
-                        child: Transform.translate(
-                          offset: Offset(0, (1 - t) * -8),
-                          child: _CompactBar(
-                            credential: credential,
-                            hintText: hintText,
-                            opacity: opacity * t,
-                          ),
-                        ),
-                      ),
-              ),
-            ),
+      // No bar: only the close button floats over the card and its details.
+      edge: false,
       builder: (context, physics, animation) {
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(
           builder: (context, constraints) {
             final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
             return ListView(
-              controller: _scroll,
               // Pulling down at the top dismisses the page.
               physics: physics,
               padding: EdgeInsets.fromLTRB(
@@ -154,7 +100,6 @@ class _CredentialDetailScreenState
                       "wallet.detail.back_to_cards",
                     ),
                     child: GestureDetector(
-                      key: _cardKey,
                       onTap: _close,
                       child: CardHero(
                         credential: credential,
@@ -194,68 +139,6 @@ class _CredentialDetailScreenState
           },
         );
       },
-    );
-  }
-}
-
-/// The bar of the detail page once the card has scrolled away: a small copy
-/// of the card with its name and hint, so it stays clear whose details these
-/// are.
-class _CompactBar extends StatelessWidget {
-  final schemaless.Credential credential;
-  final String? hintText;
-  final double opacity;
-
-  const _CompactBar({
-    required this.credential,
-    required this.hintText,
-    required this.opacity,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final hint = hintText ?? "";
-    return GlassSurface(
-      opacity: opacity,
-      // The card well inside the pill's round end.
-      padding: const EdgeInsets.fromLTRB(14, 0, 16, 0),
-      child: SizedBox(
-        height: 44,
-        child: Row(
-          spacing: 12,
-          children: [
-            CredentialCardArt(
-              credential: credential,
-              width: 46,
-              hintText: hintText,
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    credential.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette.display(14).copyWith(color: palette.text),
-                  ),
-                  if (hint.isNotEmpty)
-                    Text(
-                      hint,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette
-                          .body(12)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

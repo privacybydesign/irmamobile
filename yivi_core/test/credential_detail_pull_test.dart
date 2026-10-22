@@ -120,6 +120,27 @@ void main() {
     expect(find.byType(CredentialDetailScreen), findsOneWidget);
   }, variant: _platforms);
 
+  testWidgets("scrolled down: no bar comes in, only the close button", (
+    tester,
+  ) async {
+    await openDetail(tester);
+    final close = find.byKey(const Key("credential_detail_done"));
+    final corner = tester.getRect(close);
+    tester
+        .state<ScrollableState>(
+          find.descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          ),
+        )
+        .position
+        .jumpTo(300);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key("scroll_edge_band")), findsNothing);
+    expect(tester.getRect(close), corner);
+  });
+
   testWidgets("a short pull springs back", (tester) async {
     await openDetail(tester);
     final top = tester.getTopLeft(find.byType(ListView));

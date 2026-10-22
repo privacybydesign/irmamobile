@@ -136,6 +136,27 @@ void main() {
       expect(style.fontFamily, contains("Alexandria"));
     });
 
+    testWidgets("held sideways the keys are as big as held upright", (
+      tester,
+    ) async {
+      Size key() =>
+          tester.getRect(find.byKey(const Key("number_pad_key_5"))).size;
+      _phone(tester);
+      await pumpTranslated(tester, _app(choose()));
+      await tester.pumpAndSettle();
+      final upright = key();
+
+      // An iPhone 17 held sideways.
+      _phone(tester, const Size(874, 402));
+      tester.view.padding = const FakeViewPadding(
+        left: 62,
+        right: 62,
+        bottom: 21,
+      );
+      await tester.pumpAndSettle();
+      expect(key(), upright);
+    });
+
     for (final size in const [Size(320, 568), Size(844, 390)]) {
       testWidgets("fits $size in dark mode", (tester) async {
         _phone(tester, size);
