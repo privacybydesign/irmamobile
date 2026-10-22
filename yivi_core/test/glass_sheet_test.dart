@@ -3,6 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
+import "package:yivi_core/src/widgets/glass/glass_surface.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -181,10 +182,6 @@ void main() {
       // bar's bottom (47), so the status bar is outside it.
       "a tap outside it": (tester) => tester.tapAt(const Offset(200, 3)),
       "its close button": (tester) => tester.tap(find.byType(IrmaCloseButton)),
-      "a drag down on its header": (tester) =>
-          tester.drag(find.text("Sheet"), const Offset(0, 600)),
-      "a pull of its list": (tester) =>
-          tester.drag(find.text("row 2"), const Offset(0, 300)),
       "the system back": (tester) async {
         await tester.binding.handlePopRoute();
       },
@@ -206,6 +203,30 @@ void main() {
         await tester.pumpAndSettle();
         expect(_asked, 1);
         expect(find.text("Sheet"), findsNothing);
+        expect(_gestureStuck(tester), isFalse);
+      });
+    }
+
+    // Something important happens in it: a drag does not move it at all.
+    final drags = <String, Finder>{
+      "a drag down on its header": find.text("Sheet"),
+      "a pull of its list": find.text("row 2"),
+    };
+    for (final MapEntry(key: way, value: start) in drags.entries) {
+      testWidgets("$way does not move it, and asks nothing", (tester) async {
+        await open(tester, answer: false);
+        final top = tester.getRect(find.byType(GlassSheetPage)).top;
+        final g = await tester.startGesture(tester.getCenter(start));
+        for (var i = 0; i < 6; i++) {
+          await g.moveBy(const Offset(0, 60));
+          await tester.pump();
+          expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
+        }
+        await g.up();
+        await tester.pumpAndSettle();
+        expect(_asked, 0);
+        expect(find.text("Sheet"), findsOneWidget);
+        expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
         expect(_gestureStuck(tester), isFalse);
       });
     }
@@ -246,6 +267,33 @@ void main() {
       expect(_asked, 2);
       expect(find.text("Sheet"), findsOneWidget);
     });
+  });
+
+  testWidgets("content can hide the sheet's rim while it is there", (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    late StateSetter set;
+    var dark = true;
+    showGlassSheet<void>(
+      context: _page,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) {
+          set = setState;
+          return dark
+              ? const GlassSheetNoRim(child: Text("camera"))
+              : const Text("light");
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+    bool rim() =>
+        tester.widget<GlassSurface>(find.byKey(const Key("glass_sheet"))).rim;
+    expect(rim(), isFalse);
+    set(() => dark = false);
+    await tester.pumpAndSettle();
+    expect(rim(), isTrue);
   });
 
   group("pages in the sheet", () {

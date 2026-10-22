@@ -109,9 +109,21 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   late final _physics = PullToDismissPhysics(
     pull: _pull,
     canPull: () =>
-        _dragStartedAtTop && animation?.status != AnimationStatus.reverse,
+        _dragStartedAtTop &&
+        !_held &&
+        animation?.status != AnimationStatus.reverse,
     onRelease: _onPullReleased,
   );
+
+  /// While something important happens in the sheet (a [PopScope] in it does
+  /// not let it close, see [GlassSheetConfirmDismiss]), a drag or pull down
+  /// does not move the sheet at all: its list just scrolls. A tap outside,
+  /// the close button and the system back still ask first.
+  bool get _held => popDisposition == RoutePopDisposition.doNotPop;
+
+  /// The current drag on the sheet's header moves it (it was not [_held]
+  /// when it started).
+  bool _dragging = false;
 
   // From the start of a drag or pull until the sheet has settled after it:
   // the sheet then follows the finger one to one, without its curve.
@@ -343,13 +355,24 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                   // They close it with the close button or the barrier.
                   excludeFromSemantics: true,
                   behavior: HitTestBehavior.opaque,
-                  onVerticalDragStart: (_) => _startGesture(),
-                  onVerticalDragUpdate: (d) =>
-                      _drag(d.primaryDelta ?? 0, _measure(context)),
-                  onVerticalDragEnd: (d) =>
-                      _release(d.velocity.pixelsPerSecond.dy),
+                  onVerticalDragStart: (_) {
+                    _dragging = !_held;
+                    if (_dragging) _startGesture();
+                  },
+                  onVerticalDragUpdate: (d) {
+                    if (_dragging) {
+                      _drag(d.primaryDelta ?? 0, _measure(context));
+                    }
+                  },
+                  onVerticalDragEnd: (d) {
+                    if (!_dragging) return;
+                    _dragging = false;
+                    _release(d.velocity.pixelsPerSecond.dy);
+                  },
                   // Interrupted by the system: back in place.
                   onVerticalDragCancel: () {
+                    if (!_dragging) return;
+                    _dragging = false;
                     if (_gesture && !_pulling) _release(0);
                   },
                   child: NotificationListener<ScrollStartNotification>(
@@ -435,7 +458,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 /// The look of every sheet: frosted glass, corners of 38 (concentric with a
 /// 44 close button inset 16). Attached to the bottom edge it has square
 /// bottom corners, which the screen's own corners round off.
-class _GlassSheet extends StatelessWidget {
+class _GlassSheet extends StatefulWidget {
   final bool attached;
   final double? height;
   // Room for the home indicator, handed to the content as its bottom padding.
@@ -457,11 +480,29 @@ class _GlassSheet extends StatelessWidget {
   static const _radius = Radius.circular(YiviCorners.sheet);
 
   @override
+  State<_GlassSheet> createState() => _GlassSheetState();
+}
+
+class _GlassSheetState extends State<_GlassSheet> {
+  /// How many [GlassSheetNoRim]s in the sheet hide its rim.
+  final _rimHiders = _RimHiders();
+
+  @override
+  void dispose() {
+    _rimHiders.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final attached = widget.attached;
+    final height = widget.height;
+    final keyboard = widget.keyboard;
+    final bottomInset = widget.bottomInset;
     final palette = YiviPalette.of(context);
     final radius = attached
-        ? const BorderRadius.vertical(top: _radius)
-        : const BorderRadius.all(_radius);
+        ? const BorderRadius.vertical(top: _GlassSheet._radius)
+        : const BorderRadius.all(_GlassSheet._radius);
     final shape = RoundedRectangleBorder(borderRadius: radius);
     final media = MediaQuery.of(context);
     // Opaque and not blurred: the glass fill let only a trace of the blurred
@@ -472,39 +513,47 @@ class _GlassSheet extends StatelessWidget {
       palette.glassStrongFill,
       Color.alphaBlend(_GlassSheetRoute.barrier, palette.background),
     );
-    return GlassSurface(
-      key: const Key("glass_sheet"),
-      fill: fill,
-      blur: false,
-      shape: shape,
+    return ValueListenableBuilder<int>(
+      valueListenable: _rimHiders,
+      builder: (context, hiders, child) => GlassSurface(
+        key: const Key("glass_sheet"),
+        fill: fill,
+        blur: false,
+        rim: hiders == 0,
+        shape: shape,
+        child: child!,
+      ),
       // Glass on the sheet would only blur its flat colour; the sheet's own
       // scroll edge does blur its content (it is not covered).
-      child: GlassScope(
-        blur: false,
-        covered: false,
-        child: ClipPath(
-          clipper: ShapeBorderClipper(shape: shape),
-          child: SizedBox(
-            height: height,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: keyboard),
-              child: MediaQuery(
-                data: media.copyWith(
-                  padding: media.padding.copyWith(
-                    top: 0,
-                    bottom: 20 + bottomInset,
-                    // In landscape the sheet sits between the side insets.
-                    left: 0,
-                    right: 0,
+      child: _SheetRim(
+        hiders: _rimHiders,
+        child: GlassScope(
+          blur: false,
+          covered: false,
+          child: ClipPath(
+            clipper: ShapeBorderClipper(shape: shape),
+            child: SizedBox(
+              height: height,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: keyboard),
+                child: MediaQuery(
+                  data: media.copyWith(
+                    padding: media.padding.copyWith(
+                      top: 0,
+                      bottom: 20 + bottomInset,
+                      // In landscape the sheet sits between the side insets.
+                      left: 0,
+                      right: 0,
+                    ),
+                    // The device's inset where the sheet meets the bottom edge,
+                    // so a button lands where it does on a full screen.
+                    viewPadding: media.viewPadding.copyWith(
+                      top: 0,
+                      bottom: attached ? media.viewPadding.bottom : 0,
+                    ),
                   ),
-                  // The device's inset where the sheet meets the bottom edge,
-                  // so a button lands where it does on a full screen.
-                  viewPadding: media.viewPadding.copyWith(
-                    top: 0,
-                    bottom: attached ? media.viewPadding.bottom : 0,
-                  ),
+                  child: widget.child,
                 ),
-                child: child,
               ),
             ),
           ),
@@ -512,6 +561,74 @@ class _GlassSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+/// How many [GlassSheetNoRim]s hide a sheet's rim; knows when the sheet is
+/// gone.
+class _RimHiders extends ValueNotifier<int> {
+  _RimHiders() : super(0);
+
+  bool alive = true;
+
+  @override
+  void dispose() {
+    alive = false;
+    super.dispose();
+  }
+}
+
+class _SheetRim extends InheritedWidget {
+  final _RimHiders hiders;
+
+  const _SheetRim({required this.hiders, required super.child});
+
+  @override
+  bool updateShouldNotify(_SheetRim old) => old.hiders != hiders;
+}
+
+/// Hides the light rim of the sheet it is in while it is there, for content
+/// that fills the sheet edge to edge in a dark colour (the QR scanner's
+/// camera), where the rim would show as a white border.
+class GlassSheetNoRim extends StatefulWidget {
+  final Widget child;
+
+  const GlassSheetNoRim({super.key, required this.child});
+
+  @override
+  State<GlassSheetNoRim> createState() => _GlassSheetNoRimState();
+}
+
+class _GlassSheetNoRimState extends State<GlassSheetNoRim> {
+  _RimHiders? _hiders;
+
+  @override
+  void initState() {
+    super.initState();
+    // After this frame: the sheet is being built.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _hiders = context.getInheritedWidgetOfExactType<_SheetRim>()?.hiders;
+      _hiders?.value++;
+    });
+  }
+
+  @override
+  void dispose() {
+    // After this frame too: while the tree is being torn down the sheet
+    // can't rebuild. It may be gone by then.
+    final hiders = _hiders;
+    if (hiders != null) {
+      WidgetsBinding.instance
+        ..addPostFrameCallback((_) {
+          if (hiders.alive) hiders.value--;
+        })
+        ..scheduleFrame();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// The top of a sheet, as the navigation bar of a native iOS sheet: a
@@ -748,9 +865,10 @@ class GlassSheetHeader extends StatelessWidget {
 }
 
 /// Asks before the sheet around it closes, while [ask] is true: a tap outside
-/// the sheet, a drag or pull down, its close button or the system back then
-/// runs [confirm] instead, and the sheet closes only when that returns true.
-/// While [ask] is false the sheet closes as usual.
+/// the sheet, its close button or the system back then runs [confirm]
+/// instead, and the sheet closes only when that returns true. A drag or pull
+/// down does not move the sheet then; its list just scrolls. While [ask] is
+/// false the sheet closes as usual.
 class GlassSheetConfirmDismiss extends StatelessWidget {
   final bool ask;
   final Future<bool> Function() confirm;

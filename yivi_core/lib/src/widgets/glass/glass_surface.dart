@@ -85,6 +85,10 @@ class GlassSurface extends StatelessWidget {
   /// rim and no light sheen, in either theme. Give its content white.
   final bool dark;
 
+  /// The light edge round the glass; off for content that fills it edge to
+  /// edge in a dark colour.
+  final bool rim;
+
   const GlassSurface({
     super.key,
     required this.child,
@@ -95,6 +99,7 @@ class GlassSurface extends StatelessWidget {
     this.opacity = 1,
     this.blur,
     this.dark = false,
+    this.rim = true,
   });
 
   /// The fill and rim of [dark] glass.
@@ -115,7 +120,7 @@ class GlassSurface extends StatelessWidget {
             : (solid ? palette.surface : palette.glassFill));
     // Dark glass lies over a dark picture, not over the page.
     final under = dark ? Colors.black : palette.background;
-    final rim = dark ? darkRim : palette.glassBorder;
+    final edge = dark ? darkRim : palette.glassBorder;
     final sheen = dark ? 0.0 : (solid ? 0.0 : palette.glassHighlight.a * 0.35);
 
     final shaped = ClipPath(
@@ -156,7 +161,9 @@ class GlassSurface extends StatelessWidget {
             child: DecoratedBox(
               // The light edge, in front so content scrolling under it
               // keeps a crisp rim.
-              decoration: ShapeDecoration(shape: _withSide(shape, fade(rim))),
+              decoration: ShapeDecoration(
+                shape: rim ? _withSide(shape, fade(edge)) : shape,
+              ),
               position: DecorationPosition.foreground,
               child: Padding(
                 padding: padding ?? EdgeInsets.zero,

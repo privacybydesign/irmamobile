@@ -8,6 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/test_detection.dart";
+import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "util/camera_access.dart";
@@ -111,58 +112,61 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF15181C),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Sideways: wider than high (a phone held sideways).
-          final side = constraints.maxWidth > constraints.maxHeight;
-          final close = GlassIconButton(
-            key: const Key("irma_app_bar_close"),
-            semanticsLabel: FlutterI18n.translate(context, "ui.close"),
-            dark: true,
-            icon: const Icon(Icons.close, color: Colors.white, size: 22),
-            onTap: () => Navigator.of(context).pop(),
-          );
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fill(child: _body(side)),
-              // Upright the title is centred at the top; sideways it is in
-              // the scanner's column, and only the close button is up here.
-              Positioned(
-                left: 16,
-                right: 16,
-                top: side ? 12 : 16,
-                height: 44,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (!side)
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          FlutterI18n.translate(context, "qr_scanner.title"),
-                          style: palette
-                              .display(17)
-                              .copyWith(
-                                color: Colors.white,
-                                shadows: const [
-                                  Shadow(
-                                    color: Color(0x73000000),
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                              ),
+    // The camera fills the sheet to its edges: no light rim round it.
+    return GlassSheetNoRim(
+      child: Scaffold(
+        backgroundColor: const Color(0xFF15181C),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            // Sideways: wider than high (a phone held sideways).
+            final side = constraints.maxWidth > constraints.maxHeight;
+            final close = GlassIconButton(
+              key: const Key("irma_app_bar_close"),
+              semanticsLabel: FlutterI18n.translate(context, "ui.close"),
+              dark: true,
+              icon: const Icon(Icons.close, color: Colors.white, size: 22),
+              onTap: () => Navigator.of(context).pop(),
+            );
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned.fill(child: _body(side)),
+                // Upright the title is centred at the top; sideways it is in
+                // the scanner's column, and only the close button is up here.
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  top: side ? 12 : 16,
+                  height: 44,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (!side)
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            FlutterI18n.translate(context, "qr_scanner.title"),
+                            style: palette
+                                .display(17)
+                                .copyWith(
+                                  color: Colors.white,
+                                  shadows: const [
+                                    Shadow(
+                                      color: Color(0x73000000),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                          ),
                         ),
-                      ),
-                    Align(alignment: Alignment.centerRight, child: close),
-                  ],
+                      Align(alignment: Alignment.centerRight, child: close),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

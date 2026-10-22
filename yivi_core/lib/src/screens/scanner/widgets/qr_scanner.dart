@@ -102,7 +102,9 @@ class QRScannerState extends State<QRScanner>
 
   @override
   Widget build(BuildContext context) {
-    final inset = MediaQuery.paddingOf(context).bottom;
+    // The device's own inset (the home indicator), not the sheet's bottom
+    // padding, which adds room for a list to end above it.
+    final inset = MediaQuery.viewPaddingOf(context).bottom;
     return LayoutBuilder(
       builder: (context, constraints) {
         final window = windowFor(constraints.biggest, side: widget.side);
