@@ -40,6 +40,7 @@ class IrmaPreferences {
          _showDisclosureDialogKey,
          defaultValue: true,
        ),
+       _glassOpaque = preferences.getBool(_glassOpaqueKey, defaultValue: false),
        _acceptedRootedRisk = preferences.getBool(
          _acceptedRootedRiskKey,
          defaultValue: false,
@@ -172,6 +173,10 @@ class IrmaPreferences {
   static const String _showDisclosureDialogKey =
       "preference.show_disclosure_dialog";
   final Preference<bool> _showDisclosureDialog;
+
+  /// Developer setting: opaque glass, not see-through (GlassOpaque).
+  static const String _glassOpaqueKey = "preference.debug_glass_opaque";
+  final Preference<bool> _glassOpaque;
 
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
@@ -341,6 +346,10 @@ class IrmaPreferences {
 
   Future<bool> setShowDisclosureDialog(bool value) =>
       _showDisclosureDialog.setValue(value);
+
+  Stream<bool> getGlassOpaque() => _glassOpaque;
+
+  Future<bool> setGlassOpaque(bool value) => _glassOpaque.setValue(value);
 
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
 

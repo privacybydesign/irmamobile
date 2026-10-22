@@ -2,6 +2,8 @@ import "dart:ui";
 
 import "package:material_ui/material_ui.dart";
 
+import "../../../../widgets/glass/glass_surface.dart";
+
 /// The dark glass of the camera screens: a smoky, blurred surface with a thin
 /// light edge, readable over any camera picture.
 class DarkGlass extends StatelessWidget {
@@ -29,6 +31,16 @@ class DarkGlass extends StatelessWidget {
       CircleBorder() => const CircleBorder(side: BorderSide(color: edge)),
       _ => const StadiumBorder(side: BorderSide(color: edge)),
     };
+    // Opaque glass (developer setting): the smoke as it looks over black,
+    // with no blur behind it.
+    final opaque = GlassOpaque.of(context);
+    final glass = DecoratedBox(
+      decoration: ShapeDecoration(
+        color: opaque ? Color.alphaBlend(fill, Colors.black) : fill,
+        shape: edged,
+      ),
+      child: Padding(padding: padding, child: child),
+    );
     return DecoratedBox(
       decoration: ShapeDecoration(
         shape: shape,
@@ -42,13 +54,12 @@ class DarkGlass extends StatelessWidget {
       ),
       child: ClipPath(
         clipper: ShapeBorderClipper(shape: shape),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: DecoratedBox(
-            decoration: ShapeDecoration(color: fill, shape: edged),
-            child: Padding(padding: padding, child: child),
-          ),
-        ),
+        child: opaque
+            ? glass
+            : BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: glass,
+              ),
       ),
     );
   }

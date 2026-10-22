@@ -153,6 +153,23 @@ class _DebugScreenState extends State<DebugScreen> {
             ),
             const SizedBox(height: 24),
             GlassGroup(
+              children: [
+                // Debug-only labels are plain English.
+                ToggleTile(
+                  key: const Key("debug_glass_opaque_toggle"),
+                  iconData: Icons.blur_off_rounded,
+                  labelTranslationKey: "Opaque glass",
+                  subtitleTranslationKey:
+                      "Draws all glass and scroll edges in their own colour, "
+                      "not see-through and without blur, to feel what the "
+                      "glass costs on this device.",
+                  onChanged: repo.preferences.setGlassOpaque,
+                  stream: repo.preferences.getGlassOpaque(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            GlassGroup(
               dividerIndent: 68,
               children: [
                 _buildListTile(

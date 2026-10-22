@@ -10,7 +10,7 @@ import "helpers/test_translation_loader.dart";
 late BuildContext _page;
 
 /// A page with a piece of glass on it, under the app's [GlassSheetCover].
-Widget _app() => IrmaTheme(
+Widget _app({bool opaqueGlass = false}) => IrmaTheme(
   builder: (_) => MaterialApp(
     localizationsDelegates: [
       FlutterI18nDelegate(
@@ -21,7 +21,8 @@ Widget _app() => IrmaTheme(
       ),
       ...GlobalMaterialLocalizations.delegates,
     ],
-    builder: (context, child) => GlassSheetCover(child: child!),
+    builder: (context, child) =>
+        GlassSheetCover(opaqueGlass: opaqueGlass, child: child!),
     home: Builder(
       builder: (context) {
         _page = context;
@@ -96,5 +97,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(GlassSheetCover.covering.value, 0);
     expect(_blurIn("page_glass"), findsOneWidget);
+  });
+
+  testWidgets("the developer setting makes all glass opaque, without blur", (
+    tester,
+  ) async {
+    Color fillOf(String key) => tester
+        .widgetList<DecoratedBox>(
+          find.descendant(
+            of: find.byKey(Key(key)),
+            matching: find.byType(DecoratedBox),
+          ),
+        )
+        .map((box) => box.decoration)
+        .whereType<ShapeDecoration>()
+        .firstWhere((d) => d.color != null)
+        .color!;
+
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    expect(_blurIn("page_glass"), findsOneWidget);
+    expect(fillOf("page_glass").a, lessThan(1));
+
+    await tester.pumpWidget(_app(opaqueGlass: true));
+    await tester.pumpAndSettle();
+    expect(_blurIn("page_glass"), findsNothing);
+    expect(fillOf("page_glass").a, 1);
   });
 }

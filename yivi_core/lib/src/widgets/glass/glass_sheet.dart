@@ -1385,20 +1385,29 @@ Future<void> showTitledGlassSheet({
 /// scroll edges stop blurring ([GlassScope.covered]) while a sheet is fully
 /// open, and blur again as it starts to close. The sheet covers all of the
 /// page but a dimmed strip at the top, so that blur, redone every frame,
-/// could not be seen. Wraps the app's pages.
+/// could not be seen. Wraps the app's pages, and also carries the developer
+/// setting [opaqueGlass] ([GlassOpaque]).
 class GlassSheetCover extends StatelessWidget {
   /// How many sheets are fully open.
   static final covering = ValueNotifier<int>(0);
 
   final Widget child;
+  final bool opaqueGlass;
 
-  const GlassSheetCover({super.key, required this.child});
+  const GlassSheetCover({
+    super.key,
+    required this.child,
+    this.opaqueGlass = false,
+  });
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<int>(
-    valueListenable: covering,
-    builder: (context, n, child) => GlassScope(covered: n > 0, child: child!),
-    child: child,
+  Widget build(BuildContext context) => GlassOpaque(
+    opaque: opaqueGlass,
+    child: ValueListenableBuilder<int>(
+      valueListenable: covering,
+      builder: (context, n, child) => GlassScope(covered: n > 0, child: child!),
+      child: child,
+    ),
   );
 }
 

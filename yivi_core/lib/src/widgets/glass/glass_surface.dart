@@ -28,6 +28,7 @@ class GlassScope extends InheritedWidget {
 
   /// Whether glass here blurs what is behind it.
   static bool blurOf(BuildContext context) {
+    if (GlassOpaque.of(context)) return false;
     final scope = _of(context);
     return scope == null || (scope.blur && !scope.covered);
   }
@@ -38,6 +39,24 @@ class GlassScope extends InheritedWidget {
   @override
   bool updateShouldNotify(GlassScope oldWidget) =>
       oldWidget.blur != blur || oldWidget.covered != covered;
+}
+
+/// The developer setting "Opaque glass": every piece of glass, scroll edges
+/// included, is drawn in its own colour over the page, not see-through and
+/// without blur, to feel on a device what the glass costs. Set once around
+/// the app's pages, above any [GlassScope], so a sheet's own scope doesn't
+/// undo it.
+class GlassOpaque extends InheritedWidget {
+  final bool opaque;
+
+  const GlassOpaque({super.key, required this.opaque, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassOpaque>()?.opaque ??
+      false;
+
+  @override
+  bool updateShouldNotify(GlassOpaque oldWidget) => oldWidget.opaque != opaque;
 }
 
 /// Frosted glass: a blurred, translucent fill with a light inner edge and a
@@ -77,18 +96,25 @@ class GlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final solid = MediaQuery.highContrastOf(context);
+    final opaque = GlassOpaque.of(context);
     final a = opacity.clamp(0.0, 1.0);
     Color fade(Color c) => a == 1 ? c : c.withValues(alpha: c.a * a);
+    final glassFill = fill ?? (solid ? palette.surface : palette.glassFill);
 
     final shaped = ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
       child: _maybeBlur(
-        solid: solid || !(blur ?? GlassScope.blurOf(context)),
+        solid: solid || opaque || !(blur ?? GlassScope.blurOf(context)),
         sigma: 18 * a,
         child: DecoratedBox(
           decoration: ShapeDecoration(
             shape: shape,
-            color: fade(fill ?? (solid ? palette.surface : palette.glassFill)),
+            // Opaque glass: its colour as it looks over the page.
+            color: fade(
+              opaque
+                  ? Color.alphaBlend(glassFill, palette.background)
+                  : glassFill,
+            ),
           ),
           position: DecorationPosition.background,
           child: DecoratedBox(

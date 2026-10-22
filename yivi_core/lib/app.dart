@@ -51,6 +51,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _privacyScreenLoaded = false;
   var _appearance = Appearance.system;
+  StreamSubscription<bool>? _glassOpaqueSubscription;
+  var _glassOpaque = false;
 
   // TODO: When switching to Riverpod we should add a provider for the
   // router, as that will automatically preserve its state during rebuilds.
@@ -91,6 +93,14 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             setState(() => _appearance = appearance);
           }
         });
+    _glassOpaqueSubscription = ref
+        .read(preferencesProvider)
+        .getGlassOpaque()
+        .listen((off) {
+          if (mounted && off != _glassOpaque) {
+            setState(() => _glassOpaque = off);
+          }
+        });
     _handleUpdateSchemes();
     _listenShowNameChangedNotification();
   }
@@ -102,6 +112,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
     _appearanceSubscription?.cancel();
+    _glassOpaqueSubscription?.cancel();
     _enrollmentStatusSubscription?.cancel();
     super.dispose();
   }
@@ -212,6 +223,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
                   router: _router,
                   // The page under an open sheet doesn't blur (performance).
                   child: GlassSheetCover(
+                    opaqueGlass: _glassOpaque,
                     child: child ?? const SizedBox.shrink(),
                   ),
                 ),

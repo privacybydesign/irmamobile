@@ -100,7 +100,9 @@ class ScrollEdgeBand extends StatelessWidget {
   Widget _band(BuildContext context, double t) {
     if (t <= 0) return const SizedBox.expand();
     final palette = YiviPalette.of(context);
-    final solid = MediaQuery.highContrastOf(context);
+    // Opaque glass (developer setting): the band in full colour, as with
+    // high contrast.
+    final solid = MediaQuery.highContrastOf(context) || GlassOpaque.of(context);
     // Under an open sheet nothing of it shows: no blur to redo every frame.
     final blur = !GlassScope.coveredOf(context);
     final base = color ?? palette.background;
