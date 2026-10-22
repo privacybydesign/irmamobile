@@ -4,6 +4,7 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 
 import "floating_bar_placement.dart";
+import "glass_sheet.dart";
 import "pill_buttons.dart";
 
 /// Where the buttons of a sheet page sit ([GlassSheetPage.bottom], and the
@@ -16,6 +17,11 @@ class SheetBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // In place while the content slides over to another page.
+    return GlassSheetHold(child: _bar(context));
+  }
+
+  Widget _bar(BuildContext context) {
     if (useSheetColumns(context)) {
       // A phone held sideways: a line above, and the buttons at the right
       // (see [SheetActionRow]).
@@ -154,7 +160,9 @@ class SheetSplit extends StatelessWidget {
                     if (actions != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
-                        child: actions,
+                        // In place while the content slides over to
+                        // another page.
+                        child: GlassSheetHold(child: actions),
                       ),
                   ],
                 ),

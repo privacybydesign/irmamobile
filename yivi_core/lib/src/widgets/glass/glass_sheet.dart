@@ -1049,6 +1049,9 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   /// What each page has in its bar, by page key (see [_SheetPageRole.chrome]).
   final _chrome = <Object?, _Chrome>{};
 
+  /// The pages with buttons held in place (see [GlassSheetHold]).
+  final _held = <Object?>{};
+
   /// Whether a page is coming in or going out ([_slide] below 1).
   final _moving = ValueNotifier(false);
 
@@ -1078,10 +1081,18 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
           _slide.value = 1;
         },
       );
-    } else {
+    } else if (_swipedOut) {
       _swipedOut = false;
       _shown = widget.pages;
       _slide.value = 1;
+    } else if (_shown.length > oldWidget.pages.length) {
+      // Rebuilt while a page slides out (the keyboard going, say): it slides
+      // on, with the pages under it as they are now.
+      _shown = [...widget.pages, _shown.last];
+    } else {
+      // Rebuilt while a page slides in (the keyboard of its field coming up,
+      // say): the slide goes on instead of jumping to its end.
+      _shown = widget.pages;
     }
   }
 
@@ -1112,7 +1123,6 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final top = _shown.last;
     final under = _shown.length > 1 ? _shown[_shown.length - 2] : null;
     return LayoutBuilder(
@@ -1166,9 +1176,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                       moving: moving,
                       reduce: reduce,
                       leaving: leaving,
-                      shade: page == top && moving && under != null
-                          ? palette.sheet
-                          : null,
+                      width: constraints.maxWidth,
                     ),
               ],
             );
@@ -1185,7 +1193,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
     required bool moving,
     required bool reduce,
     required bool leaving,
-    required Color? shade,
+    required double width,
   }) {
     final shown = top || moving;
     return KeyedSubtree(
@@ -1212,11 +1220,12 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   animation: _slide,
                   moving: moving && (top ? _shown.length > 1 : true),
                   reduce: reduce,
-                  shade: shade,
+                  width: width,
                   memory: _memory,
                   fadeIn: _fadeIn,
                   fadeOut: _fadeOut,
                   chrome: _chrome,
+                  held: _held,
                   pageKey: page.key,
                   otherKey: moving ? other : null,
                   child: page,
@@ -1243,8 +1252,8 @@ class _SheetPageRole extends InheritedWidget {
   final bool moving;
   final bool reduce;
 
-  /// Behind what slides of the top page while it moves.
-  final Color? shade;
+  /// The width the pages slide across.
+  final double width;
   final Map<Object, Object?> memory;
 
   /// The opacity of what is in the top page's bar alone, and of what is in
@@ -1257,6 +1266,9 @@ class _SheetPageRole extends InheritedWidget {
   /// its own as it builds, and reads the other page's ([otherKey]) to fade
   /// what they do not share.
   final Map<Object?, _Chrome> chrome;
+
+  /// The pages with buttons held in place (see [GlassSheetHold]).
+  final Set<Object?> held;
   final Key? pageKey;
 
   /// The page this one changes with while [moving]; null otherwise.
@@ -1267,11 +1279,12 @@ class _SheetPageRole extends InheritedWidget {
     required this.animation,
     required this.moving,
     required this.reduce,
-    required this.shade,
+    required this.width,
     required this.memory,
     required this.fadeIn,
     required this.fadeOut,
     required this.chrome,
+    required this.held,
     required this.pageKey,
     required this.otherKey,
     required super.child,
@@ -1285,29 +1298,29 @@ class _SheetPageRole extends InheritedWidget {
   /// top, out underneath.
   Animation<double> get ownOpacity => top ? fadeIn : fadeOut;
 
-  /// [child] where this page is: the top one slides in from the right (or
-  /// fades in), the one under it moves a third of the way left.
+  /// [child] where this page is: the content slides over, the top page in
+  /// from the right as the one under it goes out to the left, side by side
+  /// (or, with reduced motion, the one fades into the other).
   Widget slide(Widget child) {
-    if (!top) {
-      return reduce
-          ? child
-          : _Slide(animation: animation, from: 0, to: -0.3, child: child);
+    if (reduce) {
+      return FadeTransition(
+        opacity: top ? animation : ReverseAnimation(animation),
+        child: child,
+      );
     }
-    final shade = this.shade;
-    final shaded = shade == null
-        ? child
-        : DecoratedBox(
-            decoration: BoxDecoration(
-              color: shade,
-              boxShadow: const [
-                BoxShadow(color: Color(0x1F000000), blurRadius: 16),
-              ],
-            ),
-            child: child,
-          );
-    return reduce
-        ? FadeTransition(opacity: animation, child: shaded)
-        : _Slide(animation: animation, from: 1, to: 0, child: shaded);
+    return _Slide(
+      animation: animation,
+      from: top ? 1 : 0,
+      to: top ? 0 : -1,
+      child: child,
+    );
+  }
+
+  /// How far [slide] has moved this page, as a fraction of [width].
+  double get slidOffset {
+    if (reduce) return 0;
+    final t = animation.value;
+    return top ? 1 - t : -t;
   }
 
   /// How the title of this page shows: fading in on top, out underneath.
@@ -1322,7 +1335,7 @@ class _SheetPageRole extends InheritedWidget {
       animation != old.animation ||
       moving != old.moving ||
       reduce != old.reduce ||
-      shade != old.shade ||
+      width != old.width ||
       otherKey != old.otherKey;
 }
 
@@ -1349,6 +1362,67 @@ class _Slide extends AnimatedWidget {
     return FractionalTranslation(
       translation: Offset(from + (to - from) * t, 0),
       child: child,
+    );
+  }
+}
+
+/// The buttons of a page of [GlassSheetPages] (its bottom bar, or the
+/// actions of a [SheetSplit]): they stay in place while the content slides
+/// over to the next page. When both pages have them, the new page's take
+/// their place at once; when only one does, they fade.
+class GlassSheetHold extends StatefulWidget {
+  final Widget child;
+
+  const GlassSheetHold({super.key, required this.child});
+
+  @override
+  State<GlassSheetHold> createState() => _GlassSheetHoldState();
+}
+
+class _GlassSheetHoldState extends State<GlassSheetHold> {
+  _SheetPageRole? _role;
+
+  @override
+  void dispose() {
+    _role?.held.remove(_role?.pageKey);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final role = _role = _SheetPageRole.maybeOf(context);
+    if (role == null) return widget.child;
+    role.held.add(role.pageKey);
+    final otherKey = role.otherKey;
+    if (otherKey == null) return widget.child;
+    final otherHeld = role.held.contains(otherKey);
+    if (!otherHeld && !role.top) {
+      // The new page builds after this one: look again once it has
+      // noted its buttons.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && role.held.contains(otherKey)) setState(() {});
+      });
+    }
+    // Both pages have buttons: the top page's stand in for the other's.
+    final Widget shown = otherHeld
+        ? Visibility(
+            visible: role.top,
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            child: widget.child,
+          )
+        : FadeTransition(opacity: role.ownOpacity, child: widget.child);
+    return IgnorePointer(
+      ignoring: !role.top,
+      child: AnimatedBuilder(
+        animation: role.animation,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(-role.slidOffset * role.width, 0),
+          child: child,
+        ),
+        child: shown,
+      ),
     );
   }
 }

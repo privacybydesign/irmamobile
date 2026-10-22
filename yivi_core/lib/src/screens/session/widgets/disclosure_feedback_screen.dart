@@ -10,8 +10,8 @@ import "../../../widgets/action_feedback.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/landscape_action_bar.dart";
 import "../models/disclosure_view_model.dart";
+import "issuance_permission.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
@@ -166,8 +166,9 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
       onPressed: () => widget.onDismiss(context),
     );
 
-    // A phone held sideways: the check and the words at the left, what was
-    // shared at the right, the button at the bottom right.
+    // A phone held sideways, as the issuance success: the check and the
+    // button in the panel at the left, the words and what was shared at the
+    // right, scrolling the full height.
     if (!useSessionColumns(context) && useSheetColumns(context)) {
       return PopScope(
         canPop: false,
@@ -177,50 +178,31 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           wide: true,
           scrollsUnderBars: true,
           cornerClose: true,
-          bottomNavigationBar: LandscapeActionBar(child: button),
-          body: Builder(
-            builder: (context) {
-              final insets = MediaQuery.paddingOf(context);
-              final top = cornerContentTop(context);
-              return Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16 + insets.left,
-                  top,
-                  16 + insets.right,
-                  insets.bottom,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 28,
-                  children: [
-                    Expanded(
-                      flex: 10,
-                      child: Center(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: heading,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 11,
-                      child: ListView(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        children: [
-                          for (final (n, d) in details.indexed) ...[
-                            if (n > 0) const SizedBox(height: 12),
-                            d,
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+          body: IssuanceLandscape(
+            key: const Key("share_done_landscape"),
+            title: title,
+            note: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                text,
+                style: palette
+                    .body(15)
+                    .copyWith(height: 22 / 15, color: palette.heading),
+              ),
+            ),
+            overview: const [Center(child: _DoneCheck())],
+            receives: [
+              for (final (n, d) in details.indexed) ...[
+                if (n > 0) const SizedBox(height: 12),
+                d,
+              ],
+            ],
+            actions: FancyPillButton(
+              key: const Key("ok_button"),
+              label: FlutterI18n.translate(context, "share.done.button"),
+              size: PillSize.regular,
+              onPressed: () => widget.onDismiss(context),
+            ),
           ),
         ),
       );

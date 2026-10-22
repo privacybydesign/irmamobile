@@ -443,6 +443,135 @@ void main() {
       expect(shown(find.text("progress")), 1);
     });
 
+    group("pages with buttons", () {
+      late StateSetter setPages;
+      var two = false;
+
+      /// Two pages; the second has a button when [secondButton].
+      Future<void> open(WidgetTester tester, {bool secondButton = true}) async {
+        two = false;
+        await tester.pumpWidget(_app());
+        await tester.pumpAndSettle();
+        showGlassSheet<void>(
+          context: _page,
+          builder: (_) => StatefulBuilder(
+            builder: (context, setState) {
+              setPages = setState;
+              return GlassSheetPages(
+                onBack: () => setState(() => two = false),
+                pages: [
+                  const GlassSheetPage(
+                    key: ValueKey("one"),
+                    title: "First",
+                    bottom: SizedBox(
+                      key: Key("first_button"),
+                      height: 52,
+                      child: Text("Next"),
+                    ),
+                    child: Text("first page"),
+                  ),
+                  if (two)
+                    GlassSheetPage(
+                      key: const ValueKey("two"),
+                      title: "Second",
+                      onBack: () => setState(() => two = false),
+                      bottom: secondButton
+                          ? const SizedBox(
+                              key: Key("second_button"),
+                              height: 52,
+                              child: Text("Add"),
+                            )
+                          : null,
+                      child: const Text("second page"),
+                    ),
+                ],
+              );
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      double shown(WidgetTester tester, Finder finder) => tester
+          .widgetList<FadeTransition>(
+            find.ancestor(of: finder, matching: find.byType(FadeTransition)),
+          )
+          .fold(1.0, (o, f) => o * f.opacity.value);
+
+      testWidgets("the content slides over side by side; the button stays", (
+        tester,
+      ) async {
+        await open(tester);
+        final button = tester.getRect(find.byKey(const Key("first_button")));
+        final first = tester.getTopLeft(find.text("first page"));
+
+        setPages(() => two = true);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 120));
+        // Mid-slide: the new button already where the old one was, the old
+        // one hidden; the old content on its way out to the left, the new
+        // coming in from the right, not over it.
+        expect(tester.getRect(find.byKey(const Key("second_button"))), button);
+        expect(
+          tester
+              .widget<Visibility>(
+                find
+                    .ancestor(
+                      of: find.byKey(const Key("first_button")),
+                      matching: find.byType(Visibility),
+                    )
+                    .first,
+              )
+              .visible,
+          isFalse,
+        );
+        final out = tester.getRect(find.text("first page"));
+        final into = tester.getRect(find.text("second page"));
+        expect(out.left, lessThan(first.dx));
+        expect(into.left, greaterThanOrEqualTo(out.right - 0.01));
+
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(const Key("second_button"))), button);
+        expect(tester.getTopLeft(find.text("second page")).dx, first.dx);
+      });
+
+      testWidgets("no fill or shadow behind the page coming in", (
+        tester,
+      ) async {
+        await open(tester);
+        setPages(() => two = true);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 120));
+        expect(
+          find.ancestor(
+            of: find.text("second page"),
+            matching: find.byWidgetPredicate(
+              (w) =>
+                  w is DecoratedBox &&
+                  w.decoration is BoxDecoration &&
+                  (w.decoration as BoxDecoration).boxShadow != null,
+            ),
+          ),
+          findsNothing,
+        );
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets("a button only one page has fades in place", (tester) async {
+        await open(tester, secondButton: false);
+        final button = tester.getRect(find.byKey(const Key("first_button")));
+
+        setPages(() => two = true);
+        await tester.pump();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 60));
+        final old = find.byKey(const Key("first_button"));
+        expect(tester.getRect(old), button);
+        expect(shown(tester, old), inExclusiveRange(0, 1));
+        await tester.pumpAndSettle();
+      });
+    });
+
     testWidgets("with reduced motion the page fades in instead of sliding", (
       tester,
     ) async {

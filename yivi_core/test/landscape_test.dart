@@ -138,8 +138,8 @@ void main() {
     });
   });
 
-  testWidgets("shared: the check left, what was shared right, Done bottom "
-      "right", (tester) async {
+  testWidgets("shared: the check and Done left, what was shared right, "
+      "the full height", (tester) async {
     await pump(
       tester,
       DisclosureFeedbackScreen(
@@ -166,8 +166,12 @@ void main() {
     final tile = tester.getRect(find.byType(SharedCardTile));
     expect(tile.left, greaterThan(check.right));
     final ok = tester.getRect(find.byKey(const Key("ok_button")));
-    expect(ok.width, 320);
-    expect(ok.right, 874 - 62 - 16);
+    // In the panel under the check, as on the issuance success.
+    expect(ok.right, lessThan(tile.left));
+    expect(ok.top, greaterThan(check.bottom));
+    // The list has the right column to the bottom: no bar under it.
+    final list = tester.getRect(find.byKey(const Key("issuance_scroll_view")));
+    expect(list.bottom, 402);
   });
 
   testWidgets("a dialog: wider, its buttons side by side, the first right", (
