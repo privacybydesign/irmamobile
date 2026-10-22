@@ -88,9 +88,10 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        // Clear of a side panel (an unfolded phone).
                         Positioned(
-                          left: 16,
-                          right: 16,
+                          left: 16 + MediaQuery.paddingOf(context).left,
+                          right: 16 + MediaQuery.paddingOf(context).right,
                           bottom: FloatingBarPlacement.tabBarBottom(context),
                           child: PushAway(
                             direction: PushAwayDirection.down,

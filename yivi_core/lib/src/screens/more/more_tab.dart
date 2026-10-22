@@ -59,9 +59,9 @@ class _MoreTabState extends ConsumerState<MoreTab> {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    // Held sideways Instellingen and Veelgestelde vragen open in a pane
-    // beside the list (Instellingen until another is picked).
-    final withPane = usePhoneLandscape(context);
+    // On a tablet and held sideways Instellingen and Veelgestelde vragen
+    // open in a pane beside the list (Instellingen until another is picked).
+    final withPane = useHomePanes(context);
     final page = ref.watch(selectedMorePageProvider) ?? MorePage.settings;
     void open(MorePage p, VoidCallback push) => withPane
         ? ref.read(selectedMorePageProvider.notifier).select(p)
@@ -75,8 +75,6 @@ class _MoreTabState extends ConsumerState<MoreTab> {
       ),
     );
 
-    // In the tablet layout the sections sit in two columns.
-    final expanded = isExpandedLayout(context);
     final appManagement = <Widget>[
       Semantics(
         sortKey: const OrdinalSortKey(0),
@@ -155,7 +153,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: expanded ? 960 : 640),
+            constraints: const BoxConstraints(maxWidth: 640),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -169,29 +167,8 @@ class _MoreTabState extends ConsumerState<MoreTab> {
                     ),
                   ),
                 ),
-                if (expanded)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 24,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: appManagement,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: about,
-                        ),
-                      ),
-                    ],
-                  )
-                else ...[
-                  ...appManagement,
-                  ...about,
-                ],
+                ...appManagement,
+                ...about,
                 const SizedBox(height: 32),
                 PillButton(
                   key: const Key("log_out_button"),

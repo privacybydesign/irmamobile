@@ -67,7 +67,14 @@ class TwoPane extends StatelessWidget {
                       duration: MediaQuery.disableAnimationsOf(context)
                           ? Duration.zero
                           : const Duration(milliseconds: 220),
-                      child: detail ?? placeholder ?? const SizedBox.shrink(),
+                      child:
+                          detail ??
+                          // Centred in what is in sight: clear of a side
+                          // panel on the right (an unfolded phone).
+                          Padding(
+                            padding: EdgeInsets.only(right: padding.right),
+                            child: placeholder ?? const SizedBox.shrink(),
+                          ),
                     ),
                   ),
                 ),

@@ -54,11 +54,11 @@ Widget activityHandoff(BuildContext context, LogInfo log, Widget child) {
 }
 
 /// Instellingen or Veelgestelde vragen on their own screen: in the More
-/// tab's pane. Only on a phone held sideways; on a tablet they stay sheets.
+/// tab's pane, on a tablet and on a phone held sideways.
 Widget morePageHandoff(BuildContext context, MorePage page, Widget child) {
   final tabs = context.read<HomeTabState>();
   return PaneHandoff(
-    paneAvailable: usePhoneLandscape,
+    paneAvailable: useHomePanes,
     onHandoff: (container) {
       tabs.add(IrmaNavBarTab.more);
       container.read(selectedMorePageProvider.notifier).select(page);
