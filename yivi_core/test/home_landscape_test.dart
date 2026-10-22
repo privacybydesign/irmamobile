@@ -22,6 +22,7 @@ import "package:yivi_core/src/screens/home/widgets/glass_tab_bar.dart";
 import "package:yivi_core/src/screens/home/widgets/irma_nav_bar.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
 
 import "helpers/credential_factory.dart";
@@ -250,6 +251,26 @@ void main() {
         findsOneWidget,
       );
       expect(left("address") - left("personal"), closeTo(16, 0.5));
+    });
+
+    testWidgets("beside a side panel the card in the pane keeps its shape", (
+      tester,
+    ) async {
+      // An iPhone Duo unfolded, held sideways: the control bar at the right.
+      await pump(
+        tester,
+        view: const Size(951, 669),
+        insets: const FakeViewPadding(right: 84, bottom: 34),
+      );
+      final art = find.descendant(
+        of: find.byKey(const Key("credential_detail_pane_personal")),
+        matching: find.byType(CredentialCardArt),
+      );
+      final card = tester.getSize(art.first);
+      expect(
+        card.width / card.height,
+        moreOrLessEquals(CredentialCardArt.aspectRatio, epsilon: 0.01),
+      );
     });
 
     testWidgets("the search field floats on top of the cards", (tester) async {

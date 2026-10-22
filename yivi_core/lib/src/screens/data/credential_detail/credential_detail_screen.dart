@@ -305,12 +305,18 @@ class CredentialDetailPane extends ConsumerWidget {
       onSwitch: onSwitch,
       onDeleted: onDeleted,
     );
+    final padding = paneContentPadding(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = (constraints.maxWidth - 64).clamp(0.0, 460.0);
+        // The room inside the padding, which is wider at a side panel: a
+        // card any wider would be squeezed to fit, out of proportion.
+        final width = (constraints.maxWidth - padding.horizontal).clamp(
+          0.0,
+          460.0,
+        );
         return ListView(
           key: Key("credential_detail_pane_$hash"),
-          padding: paneContentPadding(context),
+          padding: padding,
           children: [
             if (compact)
               _CompactHeader(credential: credential, hintText: hintText)
