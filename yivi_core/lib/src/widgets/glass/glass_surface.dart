@@ -161,6 +161,9 @@ class GlassSurface extends StatelessWidget {
     return CustomPaint(
       painter: _OuterShadowPainter(
         shape: shape,
+        // Nothing shows through opaque glass: no need to keep the shadow
+        // from under it.
+        under: opaque || glassFill.a == 1,
         shadows: [
           BoxShadow(
             color: fade(palette.glassShadow),
@@ -206,47 +209,79 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
-/// Paints [shadows] around [shape] but not under it. A shadow under the
-/// translucent glass would show through it, and the blur would pick it up,
-/// so the glass looked dark (a black slab in the dark theme) wherever
-/// content scrolled underneath.
+/// Paints [shadows] around [shape], and not under it unless [under]. A
+/// shadow under translucent glass would show through it, and the blur would
+/// pick it up, so the glass looked dark (a black slab in the dark theme)
+/// wherever content scrolled underneath.
+///
+/// Cheap to draw: each shadow is a blurred rounded rectangle, which the
+/// renderer draws directly, where a blurred path (a superellipse) is blurred
+/// in a layer of its own, over its whole size, on every frame. Under a blur
+/// of 24 the two shapes look the same. On a mid-range Android phone the
+/// path shadow of a sheet cost more than everything else on screen.
 class _OuterShadowPainter extends CustomPainter {
-  _OuterShadowPainter({required this.shape, required this.shadows});
+  _OuterShadowPainter({
+    required this.shape,
+    required this.shadows,
+    this.under = false,
+  });
 
   final ShapeBorder shape;
   final List<BoxShadow> shadows;
+  final bool under;
+
+  /// [shape] in [rect] as a rounded rectangle, or null for another shape.
+  RRect? _rrect(Rect rect) => switch (shape) {
+    StadiumBorder() => RRect.fromRectAndRadius(
+      rect,
+      Radius.circular(rect.shortestSide / 2),
+    ),
+    CircleBorder() => RRect.fromRectAndRadius(
+      Rect.fromCircle(center: rect.center, radius: rect.shortestSide / 2),
+      Radius.circular(rect.shortestSide / 2),
+    ),
+    RoundedRectangleBorder(:final borderRadius) ||
+    RoundedSuperellipseBorder(
+      :final borderRadius,
+    ) => borderRadius.resolve(TextDirection.ltr).toRRect(rect),
+    _ => null,
+  };
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final body = shape.getOuterPath(rect);
-    final reach = shadows.fold<double>(
-      0,
-      (r, s) => max(r, s.blurSigma * 3 + s.offset.distance + s.spreadRadius),
-    );
-    canvas
-      ..save()
-      ..clipPath(
-        Path.combine(
-          PathOperation.difference,
-          Path()..addRect(rect.inflate(reach + 1)),
-          body,
-        ),
+    if (!under) {
+      final reach = shadows.fold<double>(
+        0,
+        (r, s) => max(r, s.blurSigma * 3 + s.offset.distance + s.spreadRadius),
       );
-    for (final shadow in shadows) {
-      canvas.drawPath(
-        shape.getOuterPath(
-          rect.shift(shadow.offset).inflate(shadow.spreadRadius),
-        ),
-        shadow.toPaint(),
-      );
+      canvas
+        ..save()
+        ..clipPath(
+          Path.combine(
+            PathOperation.difference,
+            Path()..addRect(rect.inflate(reach + 1)),
+            shape.getOuterPath(rect),
+          ),
+        );
     }
-    canvas.restore();
+    for (final shadow in shadows) {
+      final at = rect.shift(shadow.offset).inflate(shadow.spreadRadius);
+      final rrect = _rrect(at);
+      if (rrect != null) {
+        canvas.drawRRect(rrect, shadow.toPaint());
+      } else {
+        canvas.drawPath(shape.getOuterPath(at), shadow.toPaint());
+      }
+    }
+    if (!under) canvas.restore();
   }
 
   @override
   bool shouldRepaint(_OuterShadowPainter old) =>
-      old.shape != shape || !listEquals(old.shadows, shadows);
+      old.shape != shape ||
+      old.under != under ||
+      !listEquals(old.shadows, shadows);
 }
 
 /// A round glass button with an icon, like the close and plus buttons.
