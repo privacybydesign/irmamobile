@@ -23,6 +23,7 @@ import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.da
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
@@ -148,6 +149,38 @@ void main() {
         find.text("These 2 cards have been added to Yivi."),
         findsOneWidget,
       );
+    });
+
+    testWidgets("sideways beside a side panel: the pile and its check stay "
+        "in the panel", (tester) async {
+      // An iPhone Duo unfolded, held sideways: the control bar at the right.
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = const Size(951, 669)
+        ..padding = const FakeViewPadding(right: 84, bottom: 34);
+      addTearDown(tester.view.reset);
+      await _pump(
+        tester,
+        IssuanceSuccessScreen(
+          credentials: [testCredential("a"), testCredential("b")],
+          onDismiss: (_) {},
+        ),
+      );
+
+      final panel = tester.getRect(find.byKey(const Key("issuance_panel")));
+      final check = tester.getRect(find.byKey(const Key("received_check")));
+      expect(check.right, lessThanOrEqualTo(panel.right));
+      // On the corner of the front card, as on a single card.
+      final front = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(CardPile),
+              matching: find.byType(CredentialCardArt),
+            )
+            .last,
+      );
+      expect(check.center.dx, moreOrLessEquals(front.right - 14, epsilon: 8));
+      expect(check.center.dy, moreOrLessEquals(front.top + 10, epsilon: 8));
     });
 
     testWidgets("inside a request: next comes the request", (tester) async {

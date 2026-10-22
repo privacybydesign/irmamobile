@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -264,34 +266,51 @@ class _ReceivedCard extends StatelessWidget {
 }
 
 /// Several received cards as the pile from the permission screen, with one
-/// check at its top right.
+/// check on the front card's corner, where the single card has it.
 class _ReceivedPile extends StatelessWidget {
   final List<schemaless.Credential> cards;
   final List<GlobalKey> cardKeys;
 
   const _ReceivedPile(this.cards, {required this.cardKeys});
 
+  /// The width the pile is drawn for, its cards 200 wide.
+  static const double _designWidth = 320;
+
   @override
   Widget build(BuildContext context) {
-    const pile = CardPile(cards: []);
-    return Center(
-      child: _Arrive(
-        child: SizedBox(
-          width: 320,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              CardPile(cards: cards, cardKeys: cardKeys),
-              // Over the right edge of the pile's widest card.
-              Positioned(
-                left: (320 - pile.cardWidth) / 2 + pile.cardWidth + 6,
-                top: -14,
-                child: const _CheckBadge(size: 52),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Smaller where there is less room (the panel of a phone held
+        // sideways), so the pile and its check stay inside it.
+        final width = math.min(_designWidth, constraints.maxWidth);
+        final pile = CardPile(
+          cards: cards,
+          cardKeys: cardKeys,
+          cardWidth: 200 * width / _designWidth,
+        );
+        final front = cards.length - 1;
+        final frontLeft =
+            (width - pile.cardWidth) / 2 + CardPile.placementOf(front).dx;
+        const check = 52.0;
+        return Center(
+          child: _Arrive(
+            child: SizedBox(
+              width: width,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  pile,
+                  Positioned(
+                    left: frontLeft + pile.cardWidth + 12 - check,
+                    top: CardPile.margin + front * CardPile.step - 16,
+                    child: const _CheckBadge(size: check),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
