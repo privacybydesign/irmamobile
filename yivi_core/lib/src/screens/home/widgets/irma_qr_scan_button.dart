@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -44,8 +45,8 @@ Future<void> openQrCodeScanner(
       builder: (dialogCtx) => Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560, maxHeight: 700),
-          child: ClipRSuperellipse(
-            borderRadius: const BorderRadius.all(Radius.circular(38)),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.sheet)),
             // The scanner lays itself out for the dialog, not the screen
             // (e.g. portrait in a landscape window).
             child: LayoutBuilder(

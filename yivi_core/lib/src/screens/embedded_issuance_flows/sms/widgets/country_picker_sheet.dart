@@ -4,6 +4,7 @@ import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/credentials_search.dart";
+import "../../../../theme/yivi_corners.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../widgets/glass/glass_group.dart";
@@ -33,7 +34,7 @@ class CountryFlag extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: palette.divider,
-          shape: RoundedSuperellipseBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(width * 0.16),
             side: BorderSide(color: palette.text.withValues(alpha: 0.08)),
           ),
@@ -145,8 +146,8 @@ class _CountryPickerState extends State<_CountryPicker> {
             itemCount: list.length,
             itemBuilder: (context, i) => Material(
               color: palette.surface,
-              shape: const RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
               ),
               clipBehavior: Clip.antiAlias,
               child: Center(child: row(list[i])),

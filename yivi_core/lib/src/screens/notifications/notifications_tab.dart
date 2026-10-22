@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart" hide Notification;
 
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
@@ -234,7 +235,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                                     padding: const EdgeInsets.only(bottom: 8),
                                     child: IrmaDismissible(
                                       key: Key(notification.id),
-                                      borderRadius: BorderRadius.circular(24),
+                                      borderRadius: BorderRadius.circular(YiviCorners.card),
                                       onDismissed: () =>
                                           _onNotificationDismiss(notification),
                                       child: NotificationCard(

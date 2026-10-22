@@ -7,6 +7,7 @@ import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
@@ -69,8 +70,8 @@ class ActivityCard extends ConsumerWidget {
           scale: 0.98,
           child: Material(
             color: palette.surface,
-            shape: RoundedSuperellipseBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
               side: BorderSide(
                 width: 2,
                 color: selected ? palette.primary : Colors.transparent,
@@ -195,8 +196,8 @@ class ActivityCardStack extends StatelessWidget {
                   width: cardWidth,
                   height: _cardHeight,
                   decoration: ShapeDecoration(
-                    shape: RoundedSuperellipseBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.thumbnail)),
                       side: BorderSide(color: palette.outline, width: 1.5),
                     ),
                   ),

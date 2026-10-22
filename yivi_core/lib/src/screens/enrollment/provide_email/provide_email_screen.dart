@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -84,7 +85,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                     height: 96,
                     decoration: BoxDecoration(
                       color: palette.warningSurface,
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: BorderRadius.circular(YiviCorners.iconTile),
                     ),
                     child: Icon(
                       Icons.mail_outline_rounded,

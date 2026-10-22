@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 
@@ -51,8 +52,8 @@ class SheetPictureCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: const [
           BoxShadow(

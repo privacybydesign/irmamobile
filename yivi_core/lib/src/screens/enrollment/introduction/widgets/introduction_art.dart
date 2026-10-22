@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../../package_name.dart";
 import "../../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../../theme/yivi_corners.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/test_detection.dart";
 import "../../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -223,8 +224,8 @@ class _ShareOnly extends StatelessWidget {
                 offset: Offset(0, 16 * (1 - v)),
                 child: GlassSurface(
                   opacity: v,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
                   ),
                   fill: palette.glassStrongFill,
                   padding: const EdgeInsets.symmetric(

@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -26,8 +27,8 @@ class GlassSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassSurface(
-      shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(32)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.pane)),
       ),
       padding: const EdgeInsets.fromLTRB(12, 24, 12, 16),
       child: Column(

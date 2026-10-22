@@ -5,6 +5,7 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
 
 import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -119,8 +120,8 @@ class NotificationCard extends ConsumerWidget {
       excludeSemantics: true,
       child: Material(
         color: palette.surface,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
           side: BorderSide(
             width: 2,
             color: selected ? palette.primary : Colors.transparent,

@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
@@ -477,8 +478,8 @@ class _Group extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: const [
           BoxShadow(
@@ -544,8 +545,8 @@ class _Note extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: ShapeDecoration(
         color: palette.errorSurface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
       ),
       child: Text(

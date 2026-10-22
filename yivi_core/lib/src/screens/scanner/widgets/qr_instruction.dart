@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/translated_text.dart";
@@ -31,8 +32,8 @@ class QRInstruction extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: GlassSurface(
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(28)),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
           ),
           fill: fill,
           padding: const EdgeInsets.all(16),

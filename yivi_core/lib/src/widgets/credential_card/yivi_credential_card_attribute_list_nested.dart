@@ -476,8 +476,8 @@ class _Card extends StatelessWidget {
         color: palette.isDark
             ? const Color(0xFF222831)
             : const Color(0xFFF2F7FA),
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
       ),
       child: Padding(

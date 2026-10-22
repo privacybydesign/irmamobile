@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
 import "glass/glass_surface.dart";
@@ -34,8 +35,8 @@ class YiviDialog extends StatelessWidget {
               child: Material(
                 type: MaterialType.transparency,
                 child: GlassSurface(
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(32)),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.sheet)),
                   ),
                   fill: MediaQuery.highContrastOf(context)
                       ? palette.surface

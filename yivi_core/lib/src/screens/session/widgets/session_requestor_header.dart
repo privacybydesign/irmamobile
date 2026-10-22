@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/glass/glass_surface.dart";
@@ -301,8 +302,8 @@ class RequestorCard extends StatelessWidget {
           );
     final decoration = ShapeDecoration(
       color: palette.surface,
-      shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
       ),
       shadows: const [
         BoxShadow(
@@ -373,8 +374,8 @@ class RequestorCard extends StatelessWidget {
             key: const Key("session_requestor_header"),
             decoration: ShapeDecoration(
               color: palette.surface,
-              shape: const RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.all(Radius.circular(24)),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
               ),
               shadows: const [
                 BoxShadow(

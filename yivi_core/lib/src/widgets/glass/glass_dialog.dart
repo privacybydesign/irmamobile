@@ -3,6 +3,7 @@ import "dart:io";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "glass_surface.dart";
@@ -168,8 +169,8 @@ class GlassDialog extends StatelessWidget {
                 type: MaterialType.transparency,
                 child: GlassSurface(
                   key: cardKey,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(32)),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.sheet)),
                   ),
                   fill: MediaQuery.highContrastOf(context)
                       ? palette.surface

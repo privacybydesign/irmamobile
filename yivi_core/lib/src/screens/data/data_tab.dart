@@ -20,6 +20,7 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/instance_hint.dart";
@@ -778,8 +779,8 @@ class _ListRow extends StatelessWidget {
       pressDepth: 4,
       child: Material(
         color: palette.surface,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
           side: BorderSide(
             width: 2,
             color: selected ? palette.primary : Colors.transparent,
@@ -1196,8 +1197,8 @@ class _ProblematicCredentialCard extends ConsumerWidget {
 
     return Material(
       color: palette.errorSurface,
-      shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),

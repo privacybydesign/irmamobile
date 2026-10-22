@@ -10,6 +10,7 @@ import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/nfc_credentials.dart";
@@ -573,8 +574,8 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                     ),
                     decoration: ShapeDecoration(
                       color: palette.successSurface,
-                      shape: const RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
                       ),
                     ),
                     child: Row(
@@ -610,8 +611,8 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     final palette = YiviPalette.of(context);
     return Material(
       color: palette.surface,
-      shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(18)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Center(child: row),

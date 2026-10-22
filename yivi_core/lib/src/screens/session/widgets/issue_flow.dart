@@ -15,6 +15,7 @@ import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
@@ -1042,8 +1043,8 @@ class _Note extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: ShapeDecoration(
         color: palette.infoSurface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
       ),
       child: Text(

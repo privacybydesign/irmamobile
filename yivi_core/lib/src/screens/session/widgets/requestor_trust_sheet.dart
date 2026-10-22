@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -299,8 +300,8 @@ class _Group extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: const [
           BoxShadow(
@@ -365,7 +366,7 @@ class _FactRow extends StatelessWidget {
               height: 36,
               decoration: ShapeDecoration(
                 color: tile,
-                shape: const RoundedSuperellipseBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
               ),
@@ -406,7 +407,7 @@ class _DoRow extends StatelessWidget {
               height: 36,
               decoration: ShapeDecoration(
                 color: palette.tint,
-                shape: const RoundedSuperellipseBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
               ),

@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../models/schemaless/session_state.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/date_formatter.dart";
 import "card_art/credential_card_art.dart";
@@ -126,8 +127,8 @@ class DisclosedCardTile extends ConsumerWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
           side: BorderSide(
             width: 2,
             color: selected ? palette.primary : Colors.transparent,

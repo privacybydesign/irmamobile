@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
@@ -165,8 +166,8 @@ class _BrowserHandOff extends StatelessWidget {
       alignment: Alignment.center,
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(32)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
         ),
         shadows: [
           BoxShadow(

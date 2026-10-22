@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 
@@ -27,8 +28,8 @@ class TwoPane extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final phone = usePhoneLandscape(context);
-    const shape = RoundedSuperellipseBorder(
-      borderRadius: BorderRadius.all(Radius.circular(32)),
+    const shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(YiviCorners.pane)),
     );
 
     // On a phone held sideways the pane goes 12 from the top and bottom

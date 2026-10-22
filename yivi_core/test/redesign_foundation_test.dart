@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_corners.dart";
 import "package:yivi_core/src/widgets/adaptive_page.dart";
 import "package:yivi_core/src/widgets/app_toast.dart";
 import "package:yivi_core/src/widgets/code_input.dart";
@@ -190,7 +191,7 @@ void main() {
       push(navigator, "settings");
       await tester.pumpAndSettle();
 
-      final sheet = tester.getRect(find.byType(ClipRSuperellipse).last);
+      final sheet = tester.getRect(_sheetFrame.last);
       expect(sheet.size, const Size(540, 760));
       expect(sheet.center, const Offset(590, 410));
       // The app stays visible behind the sheet.
@@ -206,9 +207,7 @@ void main() {
       push(navigator, "language");
       await tester.pumpAndSettle();
 
-      final frames = tester
-          .widgetList<ClipRSuperellipse>(find.byType(ClipRSuperellipse))
-          .length;
+      final frames = tester.widgetList(_sheetFrame).length;
       expect(frames, 2);
       expect(
         tester.getRect(find.byKey(const Key("language"))).left,
@@ -262,3 +261,11 @@ void main() {
     expect(find.text("You have been logged out"), findsOneWidget);
   });
 }
+
+/// The clip of a tablet sheet's frame.
+final _sheetFrame = find.byWidgetPredicate(
+  (w) =>
+      w is ClipRRect &&
+      w.borderRadius ==
+          const BorderRadius.all(Radius.circular(YiviCorners.sheet)),
+);

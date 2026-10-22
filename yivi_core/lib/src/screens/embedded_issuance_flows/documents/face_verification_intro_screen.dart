@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -63,8 +64,8 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     final tipsGroup = DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: cardShadow,
       ),
@@ -90,8 +91,8 @@ class FaceVerificationIntroScreen extends StatelessWidget {
               alignment: Alignment.center,
               decoration: ShapeDecoration(
                 color: palette.surface,
-                shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(24)),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
                 ),
                 shadows: cardShadow,
               ),
@@ -143,8 +144,8 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: ShapeDecoration(
                   color: palette.surface,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(28)),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
                   ),
                   shadows: cardShadow,
                 ),

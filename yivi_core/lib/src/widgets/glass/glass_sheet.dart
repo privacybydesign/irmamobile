@@ -2,6 +2,7 @@ import "package:flutter/scheduler.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../irma_app_bar.dart";
@@ -453,7 +454,7 @@ class _GlassSheet extends StatelessWidget {
     required this.child,
   });
 
-  static const _radius = Radius.circular(38);
+  static const _radius = Radius.circular(YiviCorners.sheet);
 
   @override
   Widget build(BuildContext context) {
@@ -461,7 +462,7 @@ class _GlassSheet extends StatelessWidget {
     final radius = attached
         ? const BorderRadius.vertical(top: _radius)
         : const BorderRadius.all(_radius);
-    final shape = RoundedSuperellipseBorder(borderRadius: radius);
+    final shape = RoundedRectangleBorder(borderRadius: radius);
     final media = MediaQuery.of(context);
     // Opaque and not blurred: the glass fill let only a trace of the blurred
     // page through, and that blur, redone every frame over the whole sheet,
@@ -1289,7 +1290,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           // Clipped to the sheet's top corners itself: its blur doesn't
           // follow the sheet's rounded clip, and filled the corners square.
           Positioned.fill(
-            child: ClipRSuperellipse(
+            child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
                 top: _GlassSheet._radius,
               ),

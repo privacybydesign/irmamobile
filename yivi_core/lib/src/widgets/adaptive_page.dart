@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 import "pane_handoff.dart";
@@ -177,8 +178,8 @@ class _AdaptiveRoute<T> extends PageRoute<T>
             height: height,
             child: DecoratedBox(
               decoration: ShapeDecoration(
-                shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(38)),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.sheet)),
                 ),
                 shadows: _stacked
                     ? null
@@ -190,8 +191,8 @@ class _AdaptiveRoute<T> extends PageRoute<T>
                         ),
                       ],
               ),
-              child: ClipRSuperellipse(
-                borderRadius: const BorderRadius.all(Radius.circular(38)),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.sheet)),
                 // The screen inside thinks it has the whole window: give it
                 // the sheet's size and no system insets.
                 child: MediaQuery(

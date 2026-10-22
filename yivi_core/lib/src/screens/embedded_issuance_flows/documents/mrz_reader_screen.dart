@@ -8,6 +8,7 @@ import "package:permission_handler/permission_handler.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
@@ -286,7 +287,7 @@ class _CameraScaffold extends StatelessWidget {
               bottom: 24 + padding.bottom,
               child: DarkGlass(
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(32)),
+                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
                 ),
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -335,8 +336,8 @@ class _SheetCamera extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = ClipRSuperellipse(
-      borderRadius: const BorderRadius.all(Radius.circular(28)),
+    final card = ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
       child: ColoredBox(color: const Color(0xFF121417), child: body),
     );
     final manual = PillButton(

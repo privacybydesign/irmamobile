@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 
 /// A rounded group of rows on a surface, with thin dividers between them,
@@ -21,7 +22,7 @@ class GlassGroup extends StatelessWidget {
     this.header,
   });
 
-  static const radius = BorderRadius.all(Radius.circular(24));
+  static const radius = BorderRadius.all(Radius.circular(YiviCorners.card));
 
   static BoxShadow _shadow(YiviPalette palette) => BoxShadow(
     color: palette.isDark ? const Color(0x40000000) : const Color(0x17000000),
@@ -38,7 +39,7 @@ class GlassGroup extends StatelessWidget {
       decoration: _GroupDecoration(shadow: _shadow(palette)),
       child: Material(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(borderRadius: radius),
+        shape: const RoundedRectangleBorder(borderRadius: radius),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -119,7 +120,7 @@ class SliverGlassGroup extends StatelessWidget {
             // pressed row lights up inside the group, not square over it.
             itemBuilder: (context, i) => Material(
               type: MaterialType.transparency,
-              shape: RoundedSuperellipseBorder(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(
                   top: i == 0 ? GlassGroup.radius.topLeft : Radius.zero,
                   bottom: i == itemCount - 1
@@ -145,16 +146,15 @@ class SliverGlassGroup extends StatelessWidget {
 
 /// A group's look: [color] in the group's rounded shape, over a soft
 /// [shadow]. The shadow is a blurred rounded rectangle, which the renderer
-/// draws directly; as a shape's shadow (a superellipse path) it was blurred
-/// in a layer of its own, over the whole group, on every frame. Under a blur
-/// of 6 the corners look the same.
+/// draws directly; a shape's shadow is a path, blurred in a layer of its
+/// own, over the whole group, on every frame.
 class _GroupDecoration extends Decoration {
   final Color? color;
   final BoxShadow shadow;
 
   const _GroupDecoration({this.color, required this.shadow});
 
-  static const _shape = RoundedSuperellipseBorder(
+  static const _shape = RoundedRectangleBorder(
     borderRadius: GlassGroup.radius,
   );
 

@@ -2,6 +2,7 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/app_toast.dart";
@@ -48,8 +49,8 @@ class TechnicalDetailsSheet extends StatelessWidget {
       DecoratedBox(
         decoration: ShapeDecoration(
           color: palette.surface,
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(22)),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
           ),
           shadows: const [
             BoxShadow(

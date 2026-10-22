@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../../theme/yivi_corners.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../widgets/glass/sheet_action_row.dart";
 import "../../../../widgets/translated_text.dart";
@@ -56,8 +57,8 @@ class ManualEntryLayout extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: ShapeDecoration(
             color: palette.surface,
-            shape: const RoundedSuperellipseBorder(
-              borderRadius: BorderRadius.all(Radius.circular(24)),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
             ),
             shadows: const [
               BoxShadow(
@@ -91,8 +92,8 @@ class ManualEntryLayout extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: const [
           BoxShadow(

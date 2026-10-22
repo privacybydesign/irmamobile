@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "requestor_trust_sheet.dart";
@@ -73,8 +74,8 @@ class PairingRequired extends StatelessWidget {
                     height: 96,
                     decoration: ShapeDecoration(
                       color: palette.surface,
-                      shape: const RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(32)),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
                       ),
                       shadows: [shadow],
                     ),
@@ -126,8 +127,8 @@ class PairingRequired extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: ShapeDecoration(
                           color: palette.surface,
-                          shape: const RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
                           ),
                           shadows: [shadow],
                         ),

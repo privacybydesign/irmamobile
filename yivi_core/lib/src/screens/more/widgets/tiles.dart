@@ -293,7 +293,7 @@ class Tile extends StatelessWidget {
                 height: 36,
                 decoration: ShapeDecoration(
                   color: squareFill,
-                  shape: const RoundedSuperellipseBorder(
+                  shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(12)),
                   ),
                 ),

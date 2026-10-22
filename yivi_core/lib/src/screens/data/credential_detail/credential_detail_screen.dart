@@ -8,6 +8,7 @@ import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
@@ -784,8 +785,8 @@ class _Group extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: const [
           BoxShadow(
@@ -795,8 +796,8 @@ class _Group extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRSuperellipse(
-        borderRadius: const BorderRadius.all(Radius.circular(24)),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
         child: Padding(padding: padding, child: child),
       ),
     );

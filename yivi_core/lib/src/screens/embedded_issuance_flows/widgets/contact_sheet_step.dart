@@ -6,6 +6,7 @@ import "../../../models/email_code_pointer.dart";
 import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/handle_pointer.dart";
@@ -428,8 +429,8 @@ class _SentTo extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(18)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
         ),
         shadows: const [
           BoxShadow(
@@ -448,7 +449,7 @@ class _SentTo extends StatelessWidget {
               height: 36,
               decoration: ShapeDecoration(
                 color: fill,
-                shape: const RoundedSuperellipseBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
               ),

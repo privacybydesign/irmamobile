@@ -202,8 +202,6 @@ class GlassSurface extends StatelessWidget {
         borderRadius: borderRadius,
         side: side,
       ),
-      RoundedSuperellipseBorder(:final borderRadius) =>
-        RoundedSuperellipseBorder(borderRadius: borderRadius, side: side),
       _ => shape,
     };
   }
@@ -215,10 +213,10 @@ class GlassSurface extends StatelessWidget {
 /// wherever content scrolled underneath.
 ///
 /// Cheap to draw: each shadow is a blurred rounded rectangle, which the
-/// renderer draws directly, where a blurred path (a superellipse) is blurred
-/// in a layer of its own, over its whole size, on every frame. Under a blur
-/// of 24 the two shapes look the same. On a mid-range Android phone the
-/// path shadow of a sheet cost more than everything else on screen.
+/// renderer draws directly, where a blurred path is blurred in a layer of
+/// its own, over its whole size, on every frame. On a mid-range Android
+/// phone the path shadow of a sheet cost more than everything else on
+/// screen.
 class _OuterShadowPainter extends CustomPainter {
   _OuterShadowPainter({
     required this.shape,
@@ -240,10 +238,9 @@ class _OuterShadowPainter extends CustomPainter {
       Rect.fromCircle(center: rect.center, radius: rect.shortestSide / 2),
       Radius.circular(rect.shortestSide / 2),
     ),
-    RoundedRectangleBorder(:final borderRadius) ||
-    RoundedSuperellipseBorder(
-      :final borderRadius,
-    ) => borderRadius.resolve(TextDirection.ltr).toRRect(rect),
+    RoundedRectangleBorder(:final borderRadius) => borderRadius
+        .resolve(TextDirection.ltr)
+        .toRRect(rect),
     _ => null,
   };
 

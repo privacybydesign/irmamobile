@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
+import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "base64_image.dart";
 import "credential_card/yivi_credential_card_header.dart";
@@ -208,8 +209,8 @@ class _RequestorHeaderBase extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: ShapeDecoration(
         color: backgroundColor ?? palette.surface,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
           // The known-party box has a green edge, as in the design.
           side: backgroundColor == palette.successSurface
               ? BorderSide(color: palette.successOutline)

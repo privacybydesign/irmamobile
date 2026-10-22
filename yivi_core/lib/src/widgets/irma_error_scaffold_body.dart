@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
 import "glass/pill_buttons.dart";
@@ -94,7 +95,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: palette.surface,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(YiviCorners.card),
                     boxShadow: [
                       BoxShadow(
                         color: palette.glassShadow,

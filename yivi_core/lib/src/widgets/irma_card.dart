@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_corners.dart";
 
 enum IrmaCardStyle { normal, outlined, highlighted, danger }
 
@@ -29,8 +30,7 @@ class IrmaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    // Rounder than the 8 pt of the old cards, like the groups of the redesign.
-    const radius = BorderRadius.all(Radius.circular(20));
+    const radius = YiviCorners.cardRadius;
 
     BoxDecoration boxDecoration;
     switch (style) {

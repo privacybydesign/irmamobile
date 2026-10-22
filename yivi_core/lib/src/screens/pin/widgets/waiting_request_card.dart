@@ -5,6 +5,7 @@ import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/session_preview.dart";
 import "../../../providers/waiting_request_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
@@ -64,8 +65,8 @@ class WaitingRequestCard extends StatelessWidget {
       child: ExcludeSemantics(
         child: GlassSurface(
           key: const Key("waiting_request_card"),
-          shape: RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(compact ? 24 : 28)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
           ),
           padding: compact
               ? const EdgeInsets.fromLTRB(14, 10, 14, 10)

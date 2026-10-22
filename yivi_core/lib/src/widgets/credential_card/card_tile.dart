@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "card_art/credential_card_art.dart";
 
@@ -60,8 +61,8 @@ class CardTile extends StatelessWidget {
     this.titleMaxLines = 1,
   });
 
-  static const _shape = RoundedSuperellipseBorder(
-    borderRadius: BorderRadius.all(Radius.circular(24)),
+  static const _shape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
   );
 
   @override
@@ -74,8 +75,8 @@ class CardTile extends StatelessWidget {
           )
         : ShapeDecoration(
             color: palette.surface,
-            shape: RoundedSuperellipseBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
               side: outline != null
                   ? BorderSide(color: outline!, width: 1.5)
                   : BorderSide.none,
@@ -341,9 +342,9 @@ class CardTileOutline extends StatelessWidget {
             child: DecoratedBox(
               key: const Key("card_tile_outline"),
               decoration: ShapeDecoration(
-                shape: RoundedSuperellipseBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: const BorderRadius.all(
-                    Radius.circular(24 + _ring + _gap),
+                    Radius.circular(YiviCorners.card + _ring + _gap),
                   ),
                   side: BorderSide(color: palette.primary, width: _ring),
                 ),

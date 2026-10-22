@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -194,8 +195,8 @@ class SessionDialogFrame extends StatelessWidget {
           height: (size.height * 0.85).clamp(0.0, 760.0),
           child: DecoratedBox(
             decoration: const ShapeDecoration(
-              shape: RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.all(Radius.circular(38)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(YiviCorners.pane)),
               ),
               shadows: [
                 BoxShadow(
@@ -205,8 +206,8 @@ class SessionDialogFrame extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipRSuperellipse(
-              borderRadius: const BorderRadius.all(Radius.circular(38)),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.pane)),
               // The screen inside keeps to the card, not the device edges.
               child: MediaQuery.removePadding(
                 context: context,

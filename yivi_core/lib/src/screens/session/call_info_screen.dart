@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -72,8 +73,8 @@ class CallInfoScreen extends StatelessWidget {
       if (number != null && number.isNotEmpty)
         GlassSurface(
           key: const Key("call_number"),
-          shape: const RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Text(

@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -46,8 +47,8 @@ class ContactIntro extends StatelessWidget {
               height: 88,
               decoration: ShapeDecoration(
                 color: fill,
-                shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
                 ),
               ),
               child: Icon(icon, size: 44, color: ink),

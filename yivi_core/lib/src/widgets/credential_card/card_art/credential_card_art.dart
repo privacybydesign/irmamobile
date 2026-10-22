@@ -411,7 +411,7 @@ class _Logo extends StatelessWidget {
         padding: const EdgeInsets.all(5),
         decoration: const ShapeDecoration(
           color: Colors.white,
-          shape: RoundedSuperellipseBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(12)),
           ),
         ),
@@ -427,7 +427,7 @@ class _Logo extends StatelessWidget {
       alignment: Alignment.center,
       decoration: ShapeDecoration(
         color: foreground,
-        shape: RoundedSuperellipseBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
