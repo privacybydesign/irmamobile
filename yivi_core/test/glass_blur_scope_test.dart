@@ -99,6 +99,37 @@ void main() {
     expect(_blurIn("page_glass"), findsOneWidget);
   });
 
+  testWidgets("the page under a fully open sheet is laid out but not drawn, "
+      "until the sheet moves", (tester) async {
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    final glass = find.byKey(const Key("page_glass"), skipOffstage: false);
+    bool drawn() => tester
+        .widgetList<Offstage>(
+          find.ancestor(of: glass, matching: find.byType(Offstage)),
+        )
+        .every((o) => !o.offstage);
+
+    _open();
+    // Also on the first frame, when the hero controller measures the sheet
+    // offstage: the screen was black for a frame.
+    await tester.pump();
+    expect(drawn(), isTrue);
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(drawn(), isTrue);
+
+    await tester.pumpAndSettle();
+    expect(drawn(), isFalse);
+    // Still laid out: what is on it keeps its size and state.
+    expect(tester.getSize(glass), const Size(200, 48));
+
+    Navigator.of(_page).pop();
+    await tester.pump();
+    expect(drawn(), isTrue);
+    await tester.pumpAndSettle();
+    expect(drawn(), isTrue);
+  });
+
   testWidgets("the developer setting makes all glass opaque, without blur", (
     tester,
   ) async {

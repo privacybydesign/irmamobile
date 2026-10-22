@@ -832,7 +832,11 @@ void main() {
         );
         expect(find.text("Ask me later"), findsOneWidget);
         expect(find.text("Dismiss"), findsOneWidget);
-        expect(find.byType(EmailLinkBanner), findsOneWidget);
+        // Kept on the page under the sheet (not drawn while it is open).
+        expect(
+          find.byType(EmailLinkBanner, skipOffstage: false),
+          findsOneWidget,
+        );
       },
     );
 

@@ -204,9 +204,10 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   void dispose() {
     // Closed in the middle of a gesture (e.g. by the session ending).
     _stopGesture();
-    animation?.removeStatusListener(_onCoverStatus);
+    controller?.removeStatusListener(_onCoverStatus);
     _cover(false);
     _pull.dispose();
+    _backdrop.dispose();
     super.dispose();
   }
 
@@ -225,10 +226,30 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   /// This sheet is fully open: the page under it is covered (GlassSheetCover).
   bool _covering = false;
 
+  /// While fully open the sheet hides the route under it: that page, which
+  /// shows only as the dimmed strip above the sheet, stays built and laid
+  /// out but is not drawn ([ModalRoute.offstage]), and the sheet paints the
+  /// strip itself ([_backdrop]). Drawn, the page cost a third of every frame
+  /// on a mid-range Android phone. It is back as soon as the sheet moves.
+  final _backdrop = ValueNotifier<bool>(false);
+
+  /// The route under this sheet.
+  ModalRoute<dynamic>? _below;
+
   void _cover(bool covering) {
     if (covering == _covering) return;
     _covering = covering;
     GlassSheetCover.covering.value += covering ? 1 : -1;
+    _backdrop.value = covering;
+    _below?.offstage = covering;
+  }
+
+  @override
+  void didChangePrevious(Route<dynamic>? previousRoute) {
+    super.didChangePrevious(previousRoute);
+    if (_covering) _below?.offstage = false;
+    _below = previousRoute is ModalRoute ? previousRoute : null;
+    if (_covering) _below?.offstage = true;
   }
 
   void _onCoverStatus(AnimationStatus status) =>
@@ -237,7 +258,11 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   @override
   void install() {
     super.install();
-    animation!.addStatusListener(_onCoverStatus);
+    // The controller, not [animation]: on the first frame of the push the
+    // hero controller puts this route offstage to measure it, and offstage
+    // its [animation] reads as completed. Taken for fully open, that hid the
+    // page under the sheet as well, and the screen was black for a frame.
+    controller!.addStatusListener(_onCoverStatus);
   }
 
   @override
@@ -359,23 +384,51 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) => AnimatedBuilder(
-    animation: animation,
-    child: child,
-    builder: (context, child) {
-      final t = animation.value;
-      final shown = _gesture
-          ? t
-          : (animation.status == AnimationStatus.reverse
-                    ? Curves.easeInCubic
-                    : Curves.easeOutCubic)
-                .transform(t);
-      return FractionalTranslation(
-        translation: Offset(0, 1 - shown),
-        child: child,
-      );
-    },
-  );
+  ) {
+    final sheet = AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final t = animation.value;
+        final shown = _gesture
+            ? t
+            : (animation.status == AnimationStatus.reverse
+                      ? Curves.easeInCubic
+                      : Curves.easeOutCubic)
+                  .transform(t);
+        return FractionalTranslation(
+          translation: Offset(0, 1 - shown),
+          child: child,
+        );
+      },
+    );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // The dimmed page as it looked around the sheet, flat, while the
+        // page itself is not drawn; a tap on it closes the sheet, as one on
+        // the barrier does. The sheet stays the Stack's second child either
+        // way, so it keeps its state.
+        ValueListenableBuilder<bool>(
+          valueListenable: _backdrop,
+          builder: (context, backdrop, _) => !backdrop
+              ? const SizedBox.shrink()
+              : GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  excludeFromSemantics: true,
+                  onTap: () => navigator?.maybePop(),
+                  child: ColoredBox(
+                    color: Color.alphaBlend(
+                      barrier,
+                      YiviPalette.of(context).background,
+                    ),
+                  ),
+                ),
+        ),
+        sheet,
+      ],
+    );
+  }
 }
 
 /// The look of every sheet: frosted glass, corners of 38 (concentric with a
@@ -405,11 +458,10 @@ class _GlassSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final shape = RoundedSuperellipseBorder(
-      borderRadius: attached
-          ? const BorderRadius.vertical(top: _radius)
-          : const BorderRadius.all(_radius),
-    );
+    final radius = attached
+        ? const BorderRadius.vertical(top: _radius)
+        : const BorderRadius.all(_radius);
+    final shape = RoundedSuperellipseBorder(borderRadius: radius);
     final media = MediaQuery.of(context);
     // Opaque and not blurred: the glass fill let only a trace of the blurred
     // page through, and that blur, redone every frame over the whole sheet,

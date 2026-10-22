@@ -479,8 +479,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
-      expect(find.text("de Vries"), findsOneWidget);
+      // Included on the page under the sheet (not drawn while it is open).
+      expect(
+        find.byKey(const Key("share_slot_0"), skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(find.text("de Vries", skipOffstage: false), findsOneWidget);
     });
 
     testWidgets("leaving the sheet without adding changes nothing", (
@@ -1456,7 +1460,9 @@ void main() {
       );
       // No full-screen PIN route; the lock above the pad, as on the full
       // screen PIN (the design's "PIN to share, in the sheet").
-      expect(find.byType(Scaffold), findsOneWidget);
+      // The one Scaffold is the page under the sheet (not drawn while the
+      // sheet is open).
+      expect(find.byType(Scaffold, skipOffstage: false), findsOneWidget);
       expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
       expect(
         find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),

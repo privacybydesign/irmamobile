@@ -23,24 +23,19 @@ class GlassGroup extends StatelessWidget {
 
   static const radius = BorderRadius.all(Radius.circular(24));
 
+  static BoxShadow _shadow(YiviPalette palette) => BoxShadow(
+    color: palette.isDark ? const Color(0x40000000) : const Color(0x17000000),
+    blurRadius: 6,
+    offset: const Offset(0, 1),
+  );
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     // The fill is a Material, so rows that paint ink (ListTile, InkWell)
     // show their splashes on it; the shadow sits on a box around it.
     final group = DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: const RoundedSuperellipseBorder(borderRadius: radius),
-        shadows: [
-          BoxShadow(
-            color: palette.isDark
-                ? const Color(0x40000000)
-                : const Color(0x17000000),
-            blurRadius: 6,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: _GroupDecoration(shadow: _shadow(palette)),
       child: Material(
         color: palette.surface,
         shape: const RoundedSuperellipseBorder(borderRadius: radius),
@@ -114,20 +109,9 @@ class SliverGlassGroup extends StatelessWidget {
             ),
           ),
         DecoratedSliver(
-          decoration: ShapeDecoration(
+          decoration: _GroupDecoration(
             color: palette.surface,
-            shape: const RoundedSuperellipseBorder(
-              borderRadius: GlassGroup.radius,
-            ),
-            shadows: [
-              BoxShadow(
-                color: palette.isDark
-                    ? const Color(0x40000000)
-                    : const Color(0x17000000),
-                blurRadius: 6,
-                offset: const Offset(0, 1),
-              ),
-            ],
+            shadow: GlassGroup._shadow(palette),
           ),
           sliver: SliverList.separated(
             itemCount: itemCount,
@@ -156,5 +140,59 @@ class SliverGlassGroup extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// A group's look: [color] in the group's rounded shape, over a soft
+/// [shadow]. The shadow is a blurred rounded rectangle, which the renderer
+/// draws directly; as a shape's shadow (a superellipse path) it was blurred
+/// in a layer of its own, over the whole group, on every frame. Under a blur
+/// of 6 the corners look the same.
+class _GroupDecoration extends Decoration {
+  final Color? color;
+  final BoxShadow shadow;
+
+  const _GroupDecoration({this.color, required this.shadow});
+
+  static const _shape = RoundedSuperellipseBorder(
+    borderRadius: GlassGroup.radius,
+  );
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) => _GroupPainter(this);
+
+  @override
+  bool operator ==(Object other) =>
+      other is _GroupDecoration &&
+      other.color == color &&
+      other.shadow == shadow;
+
+  @override
+  int get hashCode => Object.hash(color, shadow);
+}
+
+class _GroupPainter extends BoxPainter {
+  final _GroupDecoration decoration;
+
+  _GroupPainter(this.decoration);
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    final rect = offset & configuration.size!;
+    final shadow = decoration.shadow;
+    canvas.drawRRect(
+      GlassGroup.radius.toRRect(
+        rect.shift(shadow.offset).inflate(shadow.spreadRadius),
+      ),
+      shadow.toPaint(),
+    );
+    final color = decoration.color;
+    if (color != null) {
+      _GroupDecoration._shape.paintInterior(
+        canvas,
+        rect,
+        Paint()..color = color,
+      );
+    }
   }
 }

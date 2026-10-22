@@ -99,6 +99,12 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 
   void _onPullReleased(double velocity) {
+    // Only while this page is on top: the pull stays as the page closes (the
+    // heroes fly back from where it was pulled to), and its list settles
+    // again during the close, which reported the release once more. A
+    // second close popped the page below too, and from home that sends the
+    // app to the background.
+    if (ModalRoute.of(context)?.isCurrent != true) return;
     // A downward flick has a negative scroll velocity.
     if (_pull.value > _dismissDistance || velocity < -_dismissVelocity) {
       // The heroes fly back from where the page was pulled to.
