@@ -111,16 +111,8 @@ class IrmaPreferences {
          defaultValue: 0,
        ),
        _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false),
-       _readyChipPending = preferences.getBool(
-         _readyChipPendingKey,
-         defaultValue: false,
-       ),
-       _installReferrerRead = preferences.getBool(
-         _installReferrerReadKey,
-         defaultValue: false,
-       ),
-       _backToWebsitePending = preferences.getBool(
-         _backToWebsitePendingKey,
+       _scanTipPending = preferences.getBool(
+         _scanTipPendingKey,
          defaultValue: false,
        ),
        _emailLinked = preferences.getBool(_emailLinkedKey, defaultValue: false),
@@ -278,25 +270,14 @@ class IrmaPreferences {
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
 
-  // --- Onboarding v2 (see privacybydesign/irmamobile#742) -------------------
+  // --- Enrollment -------------------------------------------------------------
 
-  /// Set when onboarding completes, until the empty data tab has shown the
-  /// "ready" chip once.
-  static const String _readyChipPendingKey = "preference.ready_chip_pending";
-  final Preference<bool> _readyChipPending;
+  /// Set when the enrollment completes, until the empty Data tab has pointed
+  /// out the Scan button once.
+  static const String _scanTipPendingKey = "preference.scan_tip_pending";
+  final Preference<bool> _scanTipPending;
 
-  /// Whether the Play install referrer has been read. It is read once.
-  static const String _installReferrerReadKey =
-      "preference.install_referrer_read";
-  final Preference<bool> _installReferrerRead;
-
-  /// Set when the install referrer says the install started on a website,
-  /// until the "go back to the website" screen has been shown once.
-  static const String _backToWebsitePendingKey =
-      "preference.back_to_website_pending";
-  final Preference<bool> _backToWebsitePending;
-
-  // --- E-mail linking (FeatureFlag.emailLinking) ------------------------------
+  // --- E-mail linking ----------------------------------------------------------
   // All wiped by clearAll().
 
   /// Whether this install has linked an e-mail address to the keyshare server.
@@ -457,25 +438,13 @@ class IrmaPreferences {
     await _reviewLastAskEpochMs.setValue(nowEpochMs);
   }
 
-  // --- Onboarding v2 --------------------------------------------------------
+  // --- Enrollment -----------------------------------------------------------
 
-  Stream<bool> getReadyChipPending() => _readyChipPending;
+  Stream<bool> getScanTipPending() => _scanTipPending;
 
-  Future<bool> markReadyChipPending() => _readyChipPending.setValue(true);
+  Future<bool> markScanTipPending() => _scanTipPending.setValue(true);
 
-  Future<bool> markReadyChipShown() => _readyChipPending.setValue(false);
-
-  Stream<bool> getInstallReferrerRead() => _installReferrerRead;
-
-  Future<bool> markInstallReferrerRead() => _installReferrerRead.setValue(true);
-
-  Stream<bool> getBackToWebsitePending() => _backToWebsitePending;
-
-  Future<bool> markBackToWebsitePending() =>
-      _backToWebsitePending.setValue(true);
-
-  Future<bool> markBackToWebsiteShown() =>
-      _backToWebsitePending.setValue(false);
+  Future<bool> markScanTipShown() => _scanTipPending.setValue(false);
 
   // --- E-mail linking -------------------------------------------------------
 

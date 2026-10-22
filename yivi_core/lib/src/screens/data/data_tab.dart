@@ -4,16 +4,12 @@ import "package:collection/collection.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../package_name.dart";
-import "../../data/feature_flags.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/credentials_search.dart";
 import "../../providers/email_linking_provider.dart";
-import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
@@ -36,7 +32,7 @@ import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../add_data/add_data_sheet.dart";
 import "credential_detail/credential_detail_screen.dart";
-import "empty_data_routes.dart";
+import "empty_data_start.dart";
 import "wallet/card_hero.dart";
 import "wallet/issuance_flight.dart";
 import "wallet/wallet_transition.dart";
@@ -66,12 +62,6 @@ class _DataTabState extends ConsumerState<DataTab> {
     setState(() => _query = q);
     ref.read(dataSearchQueryProvider.notifier).set(q);
   }
-
-  // We use the global key of the add_data button to provide the 'pointing man' image with the
-  // global location of the button, so it can calculate the correct angle to point to.
-  // We don't want a completely global key, as that would cause problems since GoRouter keeps multiple instances
-  // of a page alive for transitions, so we have to pass it down the widget tree.
-  final _addDataButtonKey = GlobalKey(debugLabel: "add_data_button_key");
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +103,7 @@ class _DataTabState extends ConsumerState<DataTab> {
                       ),
                     ),
                     GlassIconButton(
-                      key: _addDataButtonKey,
+                      key: const Key("data_tab_add_data"),
                       size: 48,
                       semanticsLabel: FlutterI18n.translate(
                         context,
@@ -129,11 +119,7 @@ class _DataTabState extends ConsumerState<DataTab> {
           ),
         ),
       ],
-      child: _Content(
-        query: _query,
-        addDataButtonKey: _addDataButtonKey,
-        topInset: top + _topBarHeight + 8,
-      ),
+      child: _Content(query: _query, topInset: top + _topBarHeight + 8),
     );
 
     return Scaffold(
@@ -144,14 +130,9 @@ class _DataTabState extends ConsumerState<DataTab> {
   }
 
   /// Whether the cards sit next to a detail pane: on a tablet, and on a
-  /// phone held sideways once there is a card to show (the empty tab's
-  /// pointing man needs the whole width there).
-  bool _withPane(BuildContext context) {
-    if (isExpandedLayout(context)) return true;
-    if (!usePhoneLandscape(context)) return false;
-    final cards = ref.watch(schemalessCredentialOrderControllerProvider).value;
-    return cards?.isNotEmpty ?? false;
-  }
+  /// phone held sideways. Without cards the pane offers the ways to get
+  /// started.
+  bool _withPane(BuildContext context) => useHomePanes(context);
 
   /// The tablet layout: the cards next to the details of the open card
   /// (the first card until the user picks one).
@@ -166,6 +147,7 @@ class _DataTabState extends ConsumerState<DataTab> {
     final selection = ref.read(selectedCardProvider.notifier);
     return TwoPane(
       list: list,
+      placeholder: const EmptyDataPane(),
       detail: hash == null
           ? null
           : CredentialDetailPane(
@@ -180,23 +162,15 @@ class _DataTabState extends ConsumerState<DataTab> {
 
 class _Content extends ConsumerWidget {
   final String query;
-  final GlobalKey addDataButtonKey;
   final double topInset;
 
-  const _Content({
-    required this.query,
-    required this.addDataButtonKey,
-    required this.topInset,
-  });
+  const _Content({required this.query, required this.topInset});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
     final snapshot = ref.watch(schemalessCredentialsProvider);
     final ordered = ref.watch(schemalessCredentialOrderControllerProvider);
-    // Read next to the credentials so it has loaded by the time they have.
-    final onboardingV2 =
-        ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ?? false;
 
     return switch ((snapshot, ordered)) {
       (AsyncError(), _) || (_, AsyncError()) => Center(
@@ -220,11 +194,19 @@ class _Content extends ConsumerWidget {
                     if (ref.watch(emailBannerVisibleProvider))
                       const EmailLinkBanner(),
                     Expanded(
-                      child: onboardingV2
-                          ? const EmptyDataRoutes()
-                          : _NoCredentialsYet(
-                              addDataButtonKey: addDataButtonKey,
-                            ),
+                      // Next to the pane only the title; the pane has the
+                      // ways to get started.
+                      child: useHomePanes(context)
+                          // In the upper half: the Scan tip shows beside the
+                          // rail's Scan button, low in the column.
+                          ? const Align(
+                              alignment: Alignment(0, -0.5),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: EmptyDataTitle(),
+                              ),
+                            )
+                          : const EmptyDataStart(),
                     ),
                   ],
                 ),
@@ -780,7 +762,9 @@ class _ListRow extends StatelessWidget {
       child: Material(
         color: palette.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(YiviCorners.card),
+          ),
           side: BorderSide(
             width: 2,
             color: selected ? palette.primary : Colors.transparent,
@@ -1023,158 +1007,6 @@ class _NoResults extends StatelessWidget {
             style: palette.body(14).copyWith(color: palette.secondaryText),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ============================================================================================
-
-// Image of a man that always points towards the add data button to indicate that button should be pressed
-class _ToAddDataButtonPointingImage extends StatefulWidget {
-  const _ToAddDataButtonPointingImage({required this.addDataButtonKey});
-
-  final GlobalKey addDataButtonKey;
-
-  @override
-  State<_ToAddDataButtonPointingImage> createState() =>
-      _ToAddDataButtonPointingImageState();
-}
-
-class _ToAddDataButtonPointingImageState
-    extends State<_ToAddDataButtonPointingImage> {
-  final _imageKey = GlobalKey(debugLabel: "to_add_data_pointing_image_key");
-  static const pi = 3.1415;
-  double rotationAngle = 0.0;
-
-  double _calculateRotation() {
-    final addDataButtonRenderBox =
-        widget.addDataButtonKey.currentContext?.findRenderObject()
-            as RenderBox?;
-    final imageRenderBox =
-        _imageKey.currentContext?.findRenderObject() as RenderBox?;
-
-    if (imageRenderBox == null || addDataButtonRenderBox == null) {
-      return 100.0;
-    }
-
-    final plusButtonCenter = addDataButtonRenderBox.localToGlobal(
-      addDataButtonRenderBox.size.center(Offset.zero),
-    );
-    final imageCenter = imageRenderBox.localToGlobal(
-      imageRenderBox.size.center(Offset.zero),
-    );
-
-    final deltaX = plusButtonCenter.dx - imageCenter.dx;
-    final deltaY = imageCenter.dy - plusButtonCenter.dy;
-    final targetAngle = atan2(deltaY, deltaX);
-
-    final referenceAngleDeg =
-        55.0; // angle of the arm inside the image in degrees
-    final referenceAngle = referenceAngleDeg * pi / 180.0;
-
-    return targetAngle - referenceAngle;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final rotation = _calculateRotation();
-      if ((rotationAngle * 10000).round() != (rotation * 10000).round()) {
-        setState(() => rotationAngle = rotation);
-      }
-    });
-
-    return Transform(
-      key: const Key("to_add_data_button_pointing_image"),
-      alignment: Alignment.center,
-      transform: Matrix4.identity()
-        ..rotateY(pi) // 180-degree flip (π radians)
-        ..rotateZ(rotationAngle),
-      child: SvgPicture.asset(
-        key: _imageKey,
-        yiviAsset("arrow_back/pointing_up.svg"),
-      ),
-    );
-  }
-}
-
-class _NoCredentialsYet extends StatelessWidget {
-  const _NoCredentialsYet({required this.addDataButtonKey});
-
-  final GlobalKey addDataButtonKey;
-
-  @override
-  Widget build(BuildContext context) {
-    return OrientationBuilder(
-      builder: (context, orientation) {
-        if (orientation == Orientation.portrait) {
-          return _buildPortraitOrientation(context);
-        }
-        return _buildLandscapeOrientation(context);
-      },
-    );
-  }
-
-  Padding _buildLandscapeOrientation(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 300),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TranslatedText(
-                  "data_tab.empty.title",
-                  style: palette.display(26, weight: FontWeight.w700),
-                  textAlign: TextAlign.start,
-                ),
-                const SizedBox(height: 16),
-                TranslatedText(
-                  "data_tab.empty.subtitle",
-                  textAlign: TextAlign.start,
-                  style: palette.body(16),
-                ),
-              ],
-            ),
-          ),
-          _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
-        ],
-      ),
-    );
-  }
-
-  Padding _buildPortraitOrientation(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 16),
-            _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
-            const SizedBox(height: 32),
-            TranslatedText(
-              "data_tab.empty.title",
-              style: palette.display(26, weight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TranslatedText(
-              "data_tab.empty.subtitle",
-              textAlign: TextAlign.center,
-              style: palette.body(16),
-            ),
-          ],
-        ),
       ),
     );
   }

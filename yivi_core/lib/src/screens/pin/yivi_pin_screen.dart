@@ -96,6 +96,10 @@ class YiviPinScreen extends StatefulWidget {
   final String? instructionKey;
   final String? instruction;
 
+  /// A small grey line above the title, such as "Step 1 of 3" while
+  /// enrolling.
+  final String? stepLabel;
+
   /// In the place of the logo: what the PIN is for (the request waiting
   /// behind the lock screen).
   final Widget? header;
@@ -122,6 +126,7 @@ class YiviPinScreen extends StatefulWidget {
     this.scaffoldKey,
     this.instructionKey,
     this.instruction,
+    this.stepLabel,
     this.header,
     this.detail,
     this.detailKind = PinDetailKind.info,
@@ -313,7 +318,11 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       onSubmit: _submitFromKeyboard,
       child: OrientationBuilder(
         builder: (context, orientation) {
-          if (context.isTabletDevice) return _bodyTablet(context);
+          // Held upright a tablet has the centred column; held sideways
+          // the keypad goes on the right, as on a phone held sideways.
+          if (context.isTabletDevice && orientation == Orientation.portrait) {
+            return _bodyTablet(context);
+          }
           if (Orientation.portrait == orientation) {
             return _bodyPortrait(context);
           }
@@ -334,6 +343,16 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       ] else if (header == null && widget.showMark) ...[
         _buildHeaderMark(context),
         const SizedBox(height: 24),
+      ],
+      if (widget.stepLabel case final step?) ...[
+        Text(
+          step,
+          textAlign: TextAlign.center,
+          style: YiviPalette.of(
+            context,
+          ).body(14).copyWith(color: YiviPalette.of(context).secondaryText),
+        ),
+        const SizedBox(height: 6),
       ],
       _buildInstructionText(context),
       ?_buildDetail(context),

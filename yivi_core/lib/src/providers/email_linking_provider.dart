@@ -5,12 +5,10 @@ import "dart:io" show HttpStatus;
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
-import "../data/feature_flags.dart";
 import "../models/email_code_pointer.dart";
 import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
 import "email_issuance_provider.dart";
-import "feature_flag_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
 import "schemaless_credentials_provider.dart";
@@ -26,12 +24,22 @@ final _keyshareEmailLinkUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier(""),
 );
 
+final _keyshareEmailLinkProvider = Provider<String>(
+  (ref) =>
+      ref.watch(localBackendsProvider)?.keyshareEmailLink ??
+      ref.watch(_keyshareEmailLinkUrlProvider),
+);
+
+/// Whether an e-mail address can be linked: the keyshare server's link
+/// endpoint is known. The enrollment's e-mail step, the banner and the
+/// settings entry only show when it is.
+final emailLinkingOfferedProvider = Provider<bool>(
+  (ref) => ref.watch(_keyshareEmailLinkProvider).isNotEmpty,
+);
+
 final keyshareEmailLinkApiProvider = Provider<KeyshareEmailLinkApi>(
-  (ref) => DefaultKeyshareEmailLinkApi(
-    url:
-        ref.watch(localBackendsProvider)?.keyshareEmailLink ??
-        ref.watch(_keyshareEmailLinkUrlProvider),
-  ),
+  (ref) =>
+      DefaultKeyshareEmailLinkApi(url: ref.watch(_keyshareEmailLinkProvider)),
 );
 
 abstract class KeyshareEmailLinkApi {
@@ -81,13 +89,12 @@ final _emailBannerSnoozedUntilProvider = StreamProvider<DateTime>(
   (ref) => ref.watch(preferencesProvider).getEmailBannerSnoozedUntil(),
 );
 
-/// Whether the e-mail linking flow is available: the flag is on and no address
-/// is linked yet. The banner and the settings entry both follow it.
+/// Whether the e-mail linking flow is available: linking is offered and no
+/// address is linked yet. The banner and the settings entry both follow it.
 final emailLinkAvailableProvider = Provider<bool>((ref) {
-  final flagOn =
-      ref.watch(featureFlagProvider(FeatureFlag.emailLinking)).value ?? false;
+  final offered = ref.watch(emailLinkingOfferedProvider);
   final linked = ref.watch(_emailLinkedProvider).value ?? true;
-  return flagOn && !linked;
+  return offered && !linked;
 });
 
 /// Whether the banner on the Gegevens tab shows. It stays hidden until every

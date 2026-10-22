@@ -23,6 +23,13 @@ class GlassRail extends StatelessWidget {
   /// The rail's width; the content starts 12 to the right of it.
   static const double width = 60;
 
+  /// The round Scan QR button under the tabs.
+  static const double scanButtonSize = 56;
+
+  /// The height of the tabs (four 48 buttons, 6 apart, in 6 of glass), the
+  /// 12 between, and the Scan button.
+  static const double height = 6 + 4 * 48 + 3 * 6 + 6 + 12 + scanButtonSize;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -48,7 +55,10 @@ class GlassRail extends StatelessWidget {
             ],
           ),
         ),
-        const GlassQrButton(key: Key("nav_button_scanner"), size: 56),
+        const GlassQrButton(
+          key: Key("nav_button_scanner"),
+          size: scanButtonSize,
+        ),
       ],
     );
   }

@@ -10,14 +10,15 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/screens/enrollment/accept_terms/widgets/error_reporting_check_box.dart";
+import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_switch.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 import "helpers/test_translation_loader.dart";
 
 // Companion to terms_check_box_semantics_test.dart (#638): the error reporting
-// checkbox has the same shape — its label lives in a sibling rich-text widget,
-// so without a merged label a screen reader announces only role and state.
+// switch on the welcome page has the same shape — its label lives in a sibling
+// rich-text widget, so without a merged label a screen reader announces only
+// role and state.
 
 class _RecordingBridge extends IrmaBridge {
   @override
@@ -27,8 +28,7 @@ class _RecordingBridge extends IrmaBridge {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const englishLabel =
-      "Optional: Share error messages and app status with Yivi";
+  const englishLabel = "Share error messages and app status with Yivi";
 
   // The report-errors value must be seeded explicitly rather than left to
   // setMockInitialValues: the preference store is not rebuilt per test, so a
@@ -64,7 +64,7 @@ void main() {
               ),
               ...GlobalMaterialLocalizations.delegates,
             ],
-            home: Scaffold(body: ErrorReportingCheckBox()),
+            home: const Scaffold(body: ErrorReportSwitch()),
           ),
         ),
       ),
@@ -81,11 +81,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  final checkbox = find.byKey(const Key("error_reporting_checkbox"));
+  final checkbox = find.byKey(const Key("error_reporting_switch"));
 
-  testWidgets("announces its label, checkbox role and unchecked state", (
-    tester,
-  ) async {
+  testWidgets("announces its label, switch role and off state", (tester) async {
     final handle = tester.ensureSemantics();
     final repo = await repository();
     addTearDown(repo.close);
@@ -97,8 +95,8 @@ void main() {
         // The visible label is three styled spans; the label joins them in
         // reading order so the spoken sentence matches the written one.
         label: englishLabel,
-        hasCheckedState: true,
-        isChecked: false,
+        hasToggledState: true,
+        isToggled: false,
         hasEnabledState: true,
         isEnabled: true,
         isFocusable: true,
@@ -110,7 +108,7 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets("announces the checked state once error reporting is on", (
+  testWidgets("announces the on state once error reporting is on", (
     tester,
   ) async {
     final handle = tester.ensureSemantics();
@@ -122,8 +120,8 @@ void main() {
       tester.getSemantics(checkbox),
       matchesSemantics(
         label: englishLabel,
-        hasCheckedState: true,
-        isChecked: true,
+        hasToggledState: true,
+        isToggled: true,
         hasEnabledState: true,
         isEnabled: true,
         isFocusable: true,
@@ -143,7 +141,7 @@ void main() {
 
     expect(
       tester.getSemantics(checkbox).label,
-      "Optioneel: Foutmeldingen en app status delen met Yivi",
+      "Foutmeldingen en app status delen met Yivi",
     );
 
     handle.dispose();
@@ -166,7 +164,7 @@ void main() {
     tester.semantics.tap(
       find.semantics.byPredicate(
         (node) => node.id == checkboxNodeId,
-        describeMatch: (_) => "the error reporting checkbox node",
+        describeMatch: (_) => "the error reporting switch node",
       ),
     );
     // Required: without a pump the write started by onChanged never progresses,
@@ -195,18 +193,16 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets("the label beside the checkbox is one node, not three", (
-    tester,
-  ) async {
+  testWidgets("the label beside the switch is one node", (tester) async {
     final handle = tester.ensureSemantics();
     final repo = await repository();
     addTearDown(repo.close);
     await pumpCheckBox(tester, repo: repo);
 
     // RenderParagraph would otherwise split the sentence at the tappable span,
-    // announcing "Optional:", "Share error messages and app status" and "with
-    // Yivi" as three separate nodes. The checkbox carries the same label, so
-    // exclude it by id to leave just the text's node.
+    // announcing "Share error messages and app status" and "with Yivi" as
+    // separate nodes. The switch carries the same label, so exclude it by id
+    // to leave just the text's node.
     final checkboxNodeId = tester.getSemantics(checkbox).id;
     final labelNode = find.semantics.byPredicate(
       (node) => node.label == englishLabel && node.id != checkboxNodeId,

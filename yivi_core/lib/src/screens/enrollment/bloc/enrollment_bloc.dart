@@ -1,147 +1,157 @@
+import "dart:async";
+
 import "package:flutter_bloc/flutter_bloc.dart";
 
-import "../../../data/feature_flags.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/enrollment_events.dart";
 import "../../../models/session.dart";
-import "../introduction/introduction_screen.dart";
-import "../introduction/models/introduction_entry.dart";
 
 part "enrollment_event.dart";
 part "enrollment_state.dart";
 
+/// The enrollment: the welcome page, a PIN (twice), Face ID when the device
+/// has it, and the optional e-mail address.
+///
+/// The account is made as soon as the PIN is confirmed, while Face ID and the
+/// e-mail step show: linking the address issues a credential, which needs it.
+/// "Setting up" only shows when the account is not there yet after the last
+/// step.
 class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   final String language;
   final IrmaRepository repo;
 
-  String? _email;
+  /// Whether to offer Face ID, Touch ID or the fingerprint: the device has
+  /// one enrolled and the user has not chosen yet.
+  final Future<bool> Function() biometricOffered;
+
+  /// Whether the e-mail step can link an address (the keyshare server's link
+  /// endpoint is known).
+  final bool Function() emailOffered;
+
   String? _pin;
+  var _offerBiometric = false;
+  var _offerEmail = false;
 
-  /// Whether the e-mail step is left out (`FeatureFlag.emailLinking`). Read once
-  /// the PIN is confirmed, which is where the step would start.
-  var _emailStepSkipped = false;
+  /// The account being made, from the moment the PIN is confirmed: null when
+  /// it worked, else the error.
+  Future<SessionError?>? _account;
 
-  EnrollmentBloc({required this.language, required this.repo})
-    : super(EnrollmentIntroduction());
+  /// Where to go once a failed account is made after all.
+  EnrollmentState Function()? _afterRetry;
 
-  /// Onboarding v2 keeps only the first introduction step.
-  Future<int> _introductionStepCount() async {
-    final onboardingV2 = await repo.preferences
-        .getFeatureFlag(FeatureFlag.onboardingV2)
-        .first;
-    return onboardingV2 ? 1 : IntroductionScreen.introductionSteps.length;
+  EnrollmentBloc({
+    required this.language,
+    required this.repo,
+    required this.biometricOffered,
+    required this.emailOffered,
+  }) : super(EnrollmentWelcome());
+
+  /// The PIN chosen in this enrollment, for the sessions of the e-mail step,
+  /// which would otherwise ask for it again. Never stored.
+  String? get pin => _pin;
+
+  /// Completes with null once the account is made, or with the error.
+  Future<SessionError?> get account => _account ?? _startAccount();
+
+  Future<SessionError?> _startAccount() {
+    return _account = repo
+        .enroll(email: "", pin: _pin!, language: language)
+        .then((event) => event is EnrollmentFailureEvent ? event.error : null);
   }
 
-  Future<EnrollmentState> _enroll() async {
-    var enrollment = await repo.enroll(
-      email: _email?.trim() ?? "",
-      pin: _pin!,
-      language: language,
-    );
-    if (enrollment is EnrollmentFailureEvent) {
-      return EnrollmentFailed(error: enrollment.error);
-    } else if (_email != null) {
-      return EnrollmentEmailSent(email: _email!);
+  int get _stepCount => 1 + (_offerBiometric ? 1 : 0) + (_offerEmail ? 1 : 0);
+
+  EnrollmentStepNumber? get _pinStep =>
+      _stepCount > 1 ? EnrollmentStepNumber(1, _stepCount) : null;
+
+  EnrollmentState _biometricOrNext() => _offerBiometric
+      ? EnrollmentBiometric(step: EnrollmentStepNumber(2, _stepCount))
+      : _emailOrDone();
+
+  EnrollmentState _emailOrDone() => _offerEmail
+      ? EnrollmentEmail(step: EnrollmentStepNumber(_stepCount, _stepCount))
+      : Enrolling();
+
+  /// After the last step: the home screen once the account is there.
+  Stream<EnrollmentState> _finish() async* {
+    yield Enrolling();
+    final error = await account;
+    if (error == null) {
+      yield EnrollmentCompleted();
+    } else {
+      _afterRetry = EnrollmentCompleted.new;
+      yield EnrollmentFailed(error: error);
     }
-    return EnrollmentCompleted();
   }
 
   @override
   Stream<EnrollmentState> mapEventToState(EnrollmentBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
 
-    // Retry enrollment
     if (event is EnrollmentRetried) {
       yield Enrolling();
-      yield await _enroll();
-    }
-    // Introduction
-    else if (state is EnrollmentIntroduction) {
-      if (event is EnrollmentNextPressed) {
-        if (state.currentStepIndex < await _introductionStepCount() - 1) {
-          yield EnrollmentIntroduction(
-            currentStepIndex: state.currentStepIndex + 1,
-          );
-        } else {
-          yield EnrollmentAcceptTerms();
-        }
-      } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: state.currentStepIndex > 0
-              ? state.currentStepIndex - 1
-              : 0,
-        );
+      final error = await _startAccount();
+      if (error != null) {
+        yield EnrollmentFailed(error: error);
+      } else {
+        yield (_afterRetry ?? EnrollmentCompleted.new)();
       }
-    }
-    // Accept terms
-    else if (state is EnrollmentAcceptTerms) {
-      if (event is EnrollmentNextPressed) {
+    } else if (event is EnrollmentAccountFailed) {
+      _afterRetry = _emailOrDone;
+      yield EnrollmentFailed(error: event.error);
+    } else if (state is EnrollmentWelcome) {
+      if (event is EnrollmentTermsUpdated) {
+        yield EnrollmentWelcome(isAccepted: event.isAccepted);
+      } else if (event is EnrollmentNextPressed) {
         if (!state.isAccepted) {
           throw ("Continuing without accepting the terms is not possible");
         }
-        yield EnrollmentChoosePin();
-      } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: await _introductionStepCount() - 1,
-          entry: IntroductionEntry.returning,
-        );
+        // Known now, so the PIN steps can say how many steps there are.
+        _offerBiometric = await biometricOffered();
+        _offerEmail = emailOffered();
+        yield EnrollmentChoosePin(step: _pinStep);
       }
-      // Terms are toggled
-      else if (event is EnrollmentTermsUpdated) {
-        yield EnrollmentAcceptTerms(isAccepted: event.isAccepted);
-      }
-    }
-    // Choose Pin
-    else if (state is EnrollmentChoosePin) {
+    } else if (state is EnrollmentChoosePin) {
       if (event is EnrollmentPinChosen) {
         _pin = event.pin;
-        yield EnrollmentConfirmPin();
+        yield EnrollmentConfirmPin(step: _pinStep);
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentAcceptTerms(isAccepted: true);
+        yield EnrollmentWelcome(isAccepted: true);
       }
-    }
-    // Confirm Pin
-    else if (state is EnrollmentConfirmPin) {
+    } else if (state is EnrollmentConfirmPin) {
       if (event is EnrollmentPinMismatch) {
-        yield EnrollmentChoosePin();
-      }
-      if (event is EnrollmentPinConfirmed) {
+        yield EnrollmentChoosePin(step: _pinStep);
+      } else if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
-          _emailStepSkipped = await repo.preferences
-              .getFeatureFlag(FeatureFlag.emailLinking)
-              .first;
-          if (_emailStepSkipped) {
-            yield Enrolling();
-            yield await _enroll();
+          unawaited(_startAccount());
+          final next = _biometricOrNext();
+          if (next is Enrolling) {
+            yield* _finish();
           } else {
-            yield EnrollmentProvideEmail();
+            yield next;
           }
         } else {
-          yield EnrollmentConfirmPin(confirmationFailed: true);
+          yield EnrollmentConfirmPin(step: _pinStep, confirmationFailed: true);
         }
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentChoosePin();
+        yield EnrollmentChoosePin(step: _pinStep);
       }
-    }
-    // Provide email
-    else if (state is EnrollmentProvideEmail) {
-      if (event is EnrollmentEmailProvided || event is EnrollmentEmailSkipped) {
-        _email = event is EnrollmentEmailProvided ? event.email : null;
-        yield Enrolling();
-        yield await _enroll();
+    } else if (state is EnrollmentBiometric &&
+        event is EnrollmentBiometricDone) {
+      final next = _emailOrDone();
+      if (next is Enrolling) {
+        yield* _finish();
+      } else {
+        yield next;
       }
-      if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentChoosePin();
-      }
-    } else if (state is EnrollmentEmailSent) {
-      if (event is EnrollmentNextPressed) {
-        yield EnrollmentCompleted();
-      }
+    } else if (state is EnrollmentEmail && event is EnrollmentEmailDone) {
+      yield* _finish();
     } else if (state is EnrollmentFailed &&
         event is EnrollmentPreviousPressed) {
-      yield _emailStepSkipped
-          ? EnrollmentChoosePin()
-          : EnrollmentProvideEmail(email: _email);
+      // Start over from the PIN: the account was not made with this one.
+      _account = null;
+      _afterRetry = null;
+      yield EnrollmentChoosePin(step: _pinStep);
     }
   }
 }

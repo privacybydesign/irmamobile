@@ -4,12 +4,12 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
@@ -24,6 +24,9 @@ void main() {
 
   late IrmaPreferences prefs;
 
+  /// Whether the keyshare server's link endpoint is known.
+  var linkingOffered = false;
+
   setUpAll(() => SharedPreferences.setMockInitialValues({}));
 
   setUp(() async {
@@ -32,11 +35,15 @@ void main() {
       mostRecentTermsUrlEn: "",
     );
     await prefs.clearAll();
+    linkingOffered = false;
   });
 
   Future<void> pumpSettings(WidgetTester tester) async {
     final widget = ProviderScope(
-      overrides: [preferencesProvider.overrideWithValue(prefs)],
+      overrides: [
+        preferencesProvider.overrideWithValue(prefs),
+        emailLinkingOfferedProvider.overrideWithValue(linkingOffered),
+      ],
       child: IrmaRepositoryProvider(
         repository: IrmaRepository(client: _SilentBridge(), preferences: prefs),
         child: IrmaTheme(
@@ -69,17 +76,17 @@ void main() {
     }
   }
 
-  testWidgets("has no e-mail entry with the flag off", (tester) async {
+  testWidgets("has no e-mail entry when linking is not offered", (tester) async {
     await pumpSettings(tester);
 
     expect(find.byKey(const Key("link_email_link")), findsNothing);
     expect(find.text("Link email address"), findsNothing);
   });
 
-  testWidgets("offers to link an e-mail address with the flag on", (
+  testWidgets("offers to link an e-mail address when offered", (
     tester,
   ) async {
-    await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+    linkingOffered = true;
     await pumpSettings(tester);
 
     expect(find.byKey(const Key("link_email_link")), findsOneWidget);
@@ -87,7 +94,7 @@ void main() {
   });
 
   testWidgets("drops the entry once an address is linked", (tester) async {
-    await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+    linkingOffered = true;
     await prefs.markEmailLinked();
     await pumpSettings(tester);
 

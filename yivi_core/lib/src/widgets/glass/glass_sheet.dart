@@ -54,13 +54,21 @@ Future<T?> showGlassSheet<T>({
         return MediaQuery.removeViewInsets(
           context: context,
           removeBottom: true,
+          // In the safe area: clear of a side panel (an unfolded phone
+          // held sideways) or a notch.
           child: Padding(
-            padding: EdgeInsets.only(top: top, left: 24, right: 24),
+            padding: EdgeInsets.only(
+              top: top,
+              left: 24 + media.padding.left,
+              right: 24 + media.padding.right,
+            ),
             child: Align(
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: tabletSheetWidth(media.size.width),
+                  maxWidth: tabletSheetWidth(
+                    media.size.width - media.padding.left - media.padding.right,
+                  ),
                   maxHeight: height,
                 ),
                 child: Material(

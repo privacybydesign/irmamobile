@@ -6,7 +6,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:http/http.dart" as http;
 import "package:http/testing.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/protocol.dart";
@@ -34,6 +33,9 @@ void main() {
 
   late IrmaPreferences prefs;
 
+  /// Whether the keyshare server's link endpoint is known.
+  var linkingOffered = false;
+
   setUpAll(() => SharedPreferences.setMockInitialValues({}));
 
   setUp(() async {
@@ -42,6 +44,7 @@ void main() {
       mostRecentTermsUrlEn: "",
     );
     await prefs.clearAll();
+    linkingOffered = false;
   });
 
   // Most tests are about an install that already holds a credential, where
@@ -54,6 +57,7 @@ void main() {
       overrides: [
         preferencesProvider.overrideWithValue(prefs),
         hasCredentialsProvider.overrideWithValue(hasCredentials),
+        emailLinkingOfferedProvider.overrideWithValue(linkingOffered),
         ...overrides,
       ],
     );
@@ -75,31 +79,31 @@ void main() {
   }
 
   group("banner on the Gegevens tab", () {
-    test("is hidden while the flag is off", () async {
+    test("is hidden while linking is not offered", () async {
       expect(await readVisible(newContainer()), isFalse);
     });
 
-    test("shows with the flag on and nothing linked or dismissed", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+    test("shows when offered and nothing is linked or dismissed", () async {
+      linkingOffered = true;
 
       expect(await readVisible(newContainer()), isTrue);
     });
 
     test("is hidden until the data tab has a credential", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
 
       expect(await readVisible(newContainer(const [], false)), isFalse);
     });
 
     test("is hidden once an address is linked", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await prefs.markEmailLinked();
 
       expect(await readVisible(newContainer()), isFalse);
     });
 
     test("is hidden until the snooze has passed", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
 
       await prefs.snoozeEmailBannerUntil(
         DateTime.now().add(const Duration(days: 1)),
@@ -113,7 +117,7 @@ void main() {
     });
 
     test("comes back when the snooze ends while the app stays open", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await prefs.snoozeEmailBannerUntil(
         DateTime.now().add(const Duration(milliseconds: 200)),
       );
@@ -133,7 +137,7 @@ void main() {
     test(
       "stays hidden after Negeren, even when the snooze has passed",
       () async {
-        await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+        linkingOffered = true;
         await prefs.snoozeEmailBannerUntil(
           DateTime.now().subtract(const Duration(days: 30)),
         );
@@ -146,7 +150,7 @@ void main() {
     test(
       "the settings entry stays available after the banner is gone",
       () async {
-        await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+        linkingOffered = true;
         await prefs.dismissEmailBanner();
         final container = newContainer();
         final subscription = container.listen(
@@ -160,7 +164,7 @@ void main() {
     );
 
     test("the settings entry is gone once an address is linked", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await prefs.markEmailLinked();
       final container = newContainer();
       final subscription = container.listen(

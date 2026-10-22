@@ -7,8 +7,6 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
-import "package:yivi_core/src/screens/enrollment/provide_email/email_sent_screen.dart";
-import "package:yivi_core/src/screens/enrollment/provide_email/provide_email_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/no_internet_screen.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
@@ -146,13 +144,6 @@ void main() {
         ActivityDetailsScreen(args: ActivityDetailsScreenArgs(logEntry: _log)),
     "error": () => ErrorScreen(onTapClose: () {}, details: "details"),
     "no internet": () => NoInternetScreen(onTapClose: () {}),
-    "provide e-mail": () => ProvideEmailScreen(
-      onEmailProvided: (_) {},
-      onEmailSkipped: () {},
-      onPrevious: () {},
-    ),
-    "e-mail sent": () =>
-        EmailSentScreen(email: "jan@example.com", onContinue: () {}),
     "call info": () => CallInfoScreen(otherParty: "Gemeente"),
     "add data permission": () => IssuancePermission(
       issuedCredentials: [

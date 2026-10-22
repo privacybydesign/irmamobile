@@ -10,6 +10,9 @@ class YiviConfirmPinScaffold extends StatelessWidget {
   final bool longPin;
   final ValueNotifier<String> newPinNotifier;
 
+  /// "Step 1 of 3" above the title, while enrolling.
+  final String? stepLabel;
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   YiviConfirmPinScaffold({
@@ -17,6 +20,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
     required this.onBack,
     required this.instructionKey,
     required this.newPinNotifier,
+    this.stepLabel,
     required this.onPinMismatch,
   }) : longPin = newPinNotifier.value.length > shortPinSize;
 
@@ -38,6 +42,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,
         lockIcon: true,
+        stepLabel: stepLabel,
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: _comparePins,

@@ -15,8 +15,13 @@ class YiviDialog extends StatelessWidget {
     final palette = YiviPalette.of(context);
 
     return AnimatedPadding(
+      // Centred in the safe area, clear of a side panel or a notch.
       padding:
           MediaQuery.viewInsetsOf(context) +
+          EdgeInsets.only(
+            left: MediaQuery.paddingOf(context).left,
+            right: MediaQuery.paddingOf(context).right,
+          ) +
           const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
@@ -36,7 +41,9 @@ class YiviDialog extends StatelessWidget {
                 type: MaterialType.transparency,
                 child: GlassSurface(
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.sheet)),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(YiviCorners.sheet),
+                    ),
                   ),
                   fill: MediaQuery.highContrastOf(context)
                       ? palette.surface

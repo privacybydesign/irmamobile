@@ -23,6 +23,7 @@ import "src/util/privacy_screen.dart";
 import "src/widgets/glass/glass_sheet.dart";
 import "src/widgets/legacy_material_bridge.dart";
 import "src/widgets/lock_gate.dart";
+import "src/widgets/side_panel_inset.dart";
 import "src/widgets/store_review_gate.dart";
 import "src/widgets/unfocus_on_tap_outside.dart";
 
@@ -217,17 +218,20 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             supportedLocales: defaultSupportedLocales(),
             showSemanticsDebugger: false,
             routerConfig: _router,
-            // A tap outside a text field puts the keyboard away.
-            builder: (context, child) => UnfocusOnTapOutside(
-              child: LegacyMaterialBridge(
-                child: LockGate(
-                  router: _router,
-                  child: StoreReviewGate(
+            // Beside a panel down the side of an upright screen; a tap
+            // outside a text field puts the keyboard away.
+            builder: (context, child) => SidePanelInset(
+              child: UnfocusOnTapOutside(
+                child: LegacyMaterialBridge(
+                  child: LockGate(
                     router: _router,
-                    // The page under an open sheet doesn't blur (performance).
-                    child: GlassSheetCover(
-                      opaqueGlass: _glassOpaque,
-                      child: child ?? const SizedBox.shrink(),
+                    child: StoreReviewGate(
+                      router: _router,
+                      // The page under an open sheet doesn't blur (performance).
+                      child: GlassSheetCover(
+                        opaqueGlass: _glassOpaque,
+                        child: child ?? const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                 ),

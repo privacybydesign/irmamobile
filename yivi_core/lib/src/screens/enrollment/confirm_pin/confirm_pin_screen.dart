@@ -8,18 +8,21 @@ class ConfirmPinScreen extends StatelessWidget {
   final StringCallback submitConfirmationPin;
   final VoidCallback onPrevious;
   final ValueNotifier<String> newPinNotifier;
+  final String? stepLabel;
   final VoidCallback onPinMismatch;
 
   const ConfirmPinScreen({
     required this.submitConfirmationPin,
     required this.onPrevious,
     required this.newPinNotifier,
+    this.stepLabel,
     required this.onPinMismatch,
   });
 
   @override
   Widget build(BuildContext context) {
     return YiviConfirmPinScaffold(
+      stepLabel: stepLabel,
       submit: submitConfirmationPin,
       onBack: onPrevious,
       instructionKey: "enrollment.confirm_pin.instruction",

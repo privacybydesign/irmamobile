@@ -87,9 +87,12 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// once its header has scrolled away. The title is then not shown.
   final Widget? startBar;
 
-  /// The actions 16 from the screen's edge, not 16 inside the safe area: in
-  /// landscape the close button sits in the corner, beside the content. The
-  /// bar then shows no title (the content starts at the top).
+  /// In landscape the close button sits in the corner, beside the content:
+  /// the bar then shows no title (the content starts at the top). On a phone
+  /// held sideways the corner is 16 from the screen's edge, in the strip of
+  /// the Dynamic Island, which sits halfway down and leaves the corners free
+  /// (see [cornerIsFree]). Where the inset is a panel down the whole side (an
+  /// unfolded phone), the actions stay 16 inside the safe area.
   final bool edgeActions;
 
   /// The hard scroll edge behind the bar once content is under it. Off where
@@ -162,7 +165,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.fromLTRB(
           16 + padding.left,
           16,
-          16 + (edgeActions ? 0 : padding.right),
+          16 + (edgeActions && cornerIsFree(context) ? 0 : padding.right),
           8,
         ),
         child: Stack(
@@ -312,4 +315,13 @@ class _AppBarEdgeState extends State<_AppBarEdge> {
 
   @override
   Widget build(BuildContext context) => ScrollEdgeBand(under: _under);
+}
+
+/// Whether the top corners beside the safe area are free to use: on a phone
+/// held sideways the safe area is the same on both sides (the Dynamic Island
+/// is only halfway down one of them). An inset on one side only is a panel
+/// down the whole side, as on an unfolded phone, and covers the corner too.
+bool cornerIsFree(BuildContext context) {
+  final padding = MediaQuery.paddingOf(context);
+  return padding.left == padding.right;
 }

@@ -127,8 +127,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/change_pin",
         builder: (context, state) => ChangePinScreen(),
       ),
+      // The enrollment lays itself out for every size (two columns when the
+      // window is wider than high), so it gets the whole window.
       _adaptive(
-        mode: PresentationMode.full,
+        mode: PresentationMode.window,
         phone: PhoneTransition.push,
         path: "/enrollment",
         builder: (context, state) => EnrollmentScreen(),

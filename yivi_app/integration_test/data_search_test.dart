@@ -25,12 +25,12 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets("empty-app-shows-image", (tester) async {
+    testWidgets("empty-app-shows-ways-to-start", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      final image = find.byKey(const Key("to_add_data_button_pointing_image"));
-      expect(image, findsOneWidget);
+      expect(find.text("No data yet"), findsOneWidget);
+      expect(find.byKey(const Key("empty_data_qr")), findsOneWidget);
     });
 
     testWidgets("empty-app-search-no-crash", (tester) async {
@@ -42,10 +42,7 @@ void main() {
       await searchWallet(tester, "hello");
       expect(countCredentialCards(tester), equals(0));
       // The empty wallet keeps showing its explanation while searching.
-      expect(
-        find.byKey(const Key("to_add_data_button_pointing_image")),
-        findsOneWidget,
-      );
+      expect(find.text("No data yet"), findsOneWidget);
 
       await searchWallet(tester, "");
       expect(countCredentialCards(tester), equals(0));

@@ -106,8 +106,8 @@ extension RoutingHelpers on BuildContext {
     go("/enrollment");
   }
 
-  void goBackToWebsiteScreen() {
-    go("/back_to_website");
+  void pushBackToWebsiteScreen() {
+    push("/back_to_website");
   }
 
   void goIssueWizardSuccessScreen({

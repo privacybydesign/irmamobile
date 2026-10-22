@@ -384,8 +384,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _buildSuccess(SessionState session) {
     final linking = ref.read(emailLinkingProvider);
 
-    // E-mail linking (FeatureFlag.emailLinking): once the address is issued,
-    // share it with the keyshare server, and finish on its own screen.
+    // E-mail linking: once the address is issued, share it with the keyshare
+    // server, and finish on its own screen.
     if (_handedOverToKeyshare ||
         linking.issuanceSessionId == widget.sessionId) {
       if (!_handedOverToKeyshare) {

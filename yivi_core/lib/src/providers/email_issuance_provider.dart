@@ -120,7 +120,7 @@ enum EmailIssuancePurpose {
   /// Add the e-mail credential, as from the add data screen.
   addCredential,
 
-  /// Link the address to the keyshare server (`FeatureFlag.emailLinking`).
+  /// Link the address to the keyshare server.
   linkKeyshare,
 }
 

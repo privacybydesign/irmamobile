@@ -296,18 +296,6 @@
   },
   "enrollment": {
     "introduction": {
-      "step_1": {
-        "title": "Yivi is an app for your digital identity",
-        "explanation": "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app"
-      },
-      "step_2": {
-        "title": "With Yivi you're in control over your data",
-        "explanation": "Easy, secure and swift. You're in control of what you're sharing and with whom."
-      },
-      "step_3": {
-        "title": "Securely on your phone",
-        "explanation": "Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi."
-      },
       "art": {
         "email": "Email address",
         "personal": "Personal data",
@@ -322,52 +310,52 @@
     "confirm_pin": {
       "instruction": "Enter your PIN again"
     },
-    "email": {
-      "provide": {
-        "title": "Add e-mail address",
-        "header": "Link your e-mail address to your Yivi app",
-        "explanation": "An e-mail address allows you to remotely disable your Yivi app, in case your mobile has been lost or stolen",
-        "input": {
-          "label": "E-mail address",
-          "hint": "Fill in",
-          "invalid": "Invalid e-mail address"
-        },
-        "confirm_skip_dialog": {
-          "title": "Are you sure?",
-          "explanation": "Adding an e-mail address increases safety",
-          "decline": "Enter an e-mail address"
-        }
-      },
-      "confirm": {
-        "title": "Confirm your e-mail address",
-        "header": "Our e-mail has been sent to:",
-        "explanation": "It can take a few minutes until the e-mail arrives. Didn't receive our e-mail? Please check your spam folder.",
-        "explanation_extra_markdown": "You have received an e-mail from **noreply@mail.yivi.app**. Open the link in this message to link your e-mail address to your Yivi app."
-      }
-    },
     "terms_and_conditions": {
-      "title": "Our values",
-      "explanation": "With Yivi, you're taking back control over your online data and protecting your online privacy.",
-      "point_1": "You decide what data you store, and what you share.",
-      "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
-      "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
-      "required": "required"
+      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})"
     },
     "error_reporting": {
       "accept": {
         "share_errors": "Share error messages and app status",
-        "with_yivi": "with Yivi",
-        "optional": "Optional"
+        "with_yivi": "with Yivi"
       },
       "dialog": {
         "title": "Error and app status reporting",
         "explanation": "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions."
       }
     },
-    "submit": {
-      "title": "Logging in",
-      "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
+    "step": "Step {current} of {total}",
+    "step_optional": "Step {current} of {total} · optional",
+    "setting_up": "Setting up your app",
+    "welcome": {
+      "title": "Your digital identity, safe on your phone",
+      "value_1_title": "Your official data, in one app",
+      "value_1_text": "Name, date of birth, address and more.",
+      "value_2_title": "You decide what you share",
+      "value_2_text": "Only what is asked, only with whom you choose.",
+      "value_3_title": "Only on your phone",
+      "value_3_text": "Nobody sees your data or what you share, not even Yivi.",
+      "start": "Get started"
+    },
+    "biometric": {
+      "title_face_id": "Open Yivi with Face ID?",
+      "title_face": "Open Yivi with face unlock?",
+      "title_touch_id": "Open Yivi with Touch ID?",
+      "title_fingerprint": "Open Yivi with your fingerprint?",
+      "body": "Faster than typing your PIN. To share data, Yivi still asks for your PIN. You can change this later in Settings.",
+      "use_face_id": "Use Face ID",
+      "use_face": "Use face unlock",
+      "use_touch_id": "Use Touch ID",
+      "use_fingerprint": "Use fingerprint",
+      "not_now": "Not now"
+    },
+    "email_step": {
+      "title": "Link your email address?",
+      "body": "Then you can log in to MyYivi to see where you used Yivi, and block the app if you lose your phone. We email you a code to check the address is yours, and link it to your app in MyYivi.",
+      "code_title": "Check your email",
+      "code_body": "Enter the code from the email we sent you.",
+      "skip": "Skip",
+      "try_again": "Try again",
+      "not_linked": "We could not link the address. Try again, or skip for now."
     }
   },
   "error": {
@@ -457,10 +445,6 @@
     }
   },
   "data_tab": {
-    "empty": {
-      "title": "Obtain your personal data",
-      "subtitle": "Tap on the plus icon to obtain your personal data."
-    },
     "expired_label": "{name}, expired",
     "favourites": {
       "title": "Favourites",
@@ -470,20 +454,25 @@
     "section_count-1": "{count} item",
     "section_count-2": "{count} items",
     "start": {
-      "ready": "Your Yivi app is ready",
-      "title": "How do you want to start?",
-      "website_title": "Did you come from a website on this phone?",
-      "website_text": "Go back to your browser and tap 'Open Yivi app' again.",
-      "qr_title": "Do you see a QR code on a computer?",
-      "qr_text": "Tap Scan QR below."
+      "title": "No data yet",
+      "website_text": "Tap “Open Yivi app” there",
+      "qr_title": "Got a QR code?",
+      "text": "Data gets added when an organisation asks for it, or when you add it yourself.",
+      "get_started": "Get started",
+      "qr_text_bar": "Scan it with the Scan button at the bottom",
+      "qr_text_rail": "Scan it with the Scan button on the left",
+      "website_title_phone": "On a website on this phone?",
+      "website_title_tablet": "On a website on this tablet?",
+      "add_title": "Add data yourself",
+      "add_text": "Your email address, phone number, passport…"
     }
   },
   "back_to_website": {
-    "title": "Your Yivi app is ready. Go back to the website.",
-    "text": "You came here from a website. Go back to your browser and tap 'Open Yivi app' there again. Yivi then opens by itself and continues where you left off.",
+    "title": "Go back to the website",
     "sketch_button": "Open Yivi app",
-    "hint": "Not working anymore? Reload the page on the website and try again.",
-    "other": "I want to do something else"
+    "hint": "Not working? Reload the page on the website and try again.",
+    "step_1": "Switch back to your browser, to the website that asked for Yivi.",
+    "step_2": "Tap “Open Yivi app” there. Yivi then shows what the website asks."
   },
   "issuance": {
     "title": "Add data",
@@ -1574,5 +1563,11 @@
     "semantics": {
       "stop": "Stop this request"
     }
+  },
+  "scan_tip": {
+    "title": "Scan QR codes here",
+    "text_bar": "The button is always at the bottom.",
+    "text_rail": "The button is always under the menu.",
+    "ok": "Got it"
   }
 }

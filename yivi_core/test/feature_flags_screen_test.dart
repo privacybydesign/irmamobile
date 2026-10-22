@@ -119,8 +119,8 @@ void main() {
     final keys = FeatureFlag.values.map((flag) => flag.prefKey).toSet();
     expect(keys, hasLength(FeatureFlag.values.length));
     expect(
-      FeatureFlag.onboardingV2.prefKey,
-      "preference.feature_flag.onboardingV2",
+      FeatureFlag.dataTabV2.prefKey,
+      "preference.feature_flag.dataTabV2",
     );
   });
 
@@ -147,13 +147,13 @@ void main() {
 
     final emitted = <bool>[];
     container.listen(
-      featureFlagProvider(FeatureFlag.emailLinking),
+      featureFlagProvider(FeatureFlag.formFieldsV2),
       (_, next) => next.whenData(emitted.add),
       fireImmediately: true,
     );
 
-    await container.read(featureFlagProvider(FeatureFlag.emailLinking).future);
-    await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+    await container.read(featureFlagProvider(FeatureFlag.formFieldsV2).future);
+    await prefs.setFeatureFlag(FeatureFlag.formFieldsV2, true);
     await Future<void>.delayed(Duration.zero);
 
     expect(emitted, [false, true]);

@@ -17,7 +17,6 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/progress.dart";
-import "../../enrollment/provide_email/provide_email_screen.dart";
 import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
 import "../util/snackbar.dart";
@@ -128,18 +127,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     final navigator = Navigator.of(context);
-    final email = await navigator.push(
-      MaterialPageRoute(
-        builder: (context) => ProvideEmailScreen(
-          onEmailProvided: (email) => navigator.pop(email),
-          onEmailSkipped: () => navigator.pop(""),
-          onPrevious: () => navigator.pop(),
-        ),
-      ),
-    );
-    if (email == null) return;
-    if (!context.mounted) return;
-
     showSnackbar(
       context,
       FlutterI18n.translate(
@@ -152,7 +139,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
     repo.bridgedDispatch(
       EnrollEvent(
-        email: email,
+        email: "",
         pin: pin,
         language: language,
         schemeId: schemeManagerId,

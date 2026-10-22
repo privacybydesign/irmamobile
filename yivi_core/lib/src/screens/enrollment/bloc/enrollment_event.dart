@@ -20,13 +20,18 @@ class EnrollmentTermsUpdated implements EnrollmentBlocEvent {
   EnrollmentTermsUpdated({required this.isAccepted});
 }
 
-class EnrollmentEmailProvided implements EnrollmentBlocEvent {
-  final String email;
+/// Face ID was turned on or declined: the page is done either way.
+class EnrollmentBiometricDone implements EnrollmentBlocEvent {}
 
-  EnrollmentEmailProvided(this.email);
+/// The e-mail step was skipped, or the address is linked.
+class EnrollmentEmailDone implements EnrollmentBlocEvent {}
+
+/// The e-mail step needs the account, and it could not be made.
+class EnrollmentAccountFailed implements EnrollmentBlocEvent {
+  final SessionError error;
+
+  EnrollmentAccountFailed(this.error);
 }
-
-class EnrollmentEmailSkipped implements EnrollmentBlocEvent {}
 
 class EnrollmentNextPressed implements EnrollmentBlocEvent {}
 

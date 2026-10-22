@@ -45,75 +45,120 @@ class StatusBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final hasDisc = icon != null || picture != null;
+    final disc = hasDisc
+        ? _Disc(
+            tone: tone,
+            color: discColor,
+            child:
+                picture ??
+                Icon(
+                  icon,
+                  size: 64,
+                  color: iconColor ?? ToneDisc.colors(palette, tone).$2,
+                ),
+          )
+        : null;
 
-    return Center(
-      child: SingleChildScrollView(
-        // Below and above the floating bars, scrolling underneath them.
-        padding: BarInsets.of(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Wider than high (a phone or tablet held sideways): the disc on the
+        // left, what happened on the right, as the enrollment's pages.
+        final sideways =
+            hasDisc &&
+            constraints.maxWidth > constraints.maxHeight &&
+            constraints.maxWidth >= 560;
+        final insets = BarInsets.of(
           context,
           const EdgeInsets.fromLTRB(32, 24, 32, 32),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null || picture != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 32),
-                  child: _Disc(
-                    tone: tone,
-                    color: discColor,
-                    child:
-                        picture ??
-                        Icon(
-                          icon,
-                          size: 64,
-                          color: iconColor ?? ToneDisc.colors(palette, tone).$2,
-                        ),
-                  ),
-                ),
-              Semantics(
-                header: true,
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: palette
-                      .display(26, weight: FontWeight.w700)
-                      .copyWith(height: 34 / 26),
+        );
+        if (!sideways) {
+          return Center(
+            child: SingleChildScrollView(
+              // Below and above the floating bars, scrolling underneath them.
+              padding: insets,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (disc != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 32),
+                        child: disc,
+                      ),
+                    ..._texts(palette, TextAlign.center),
+                  ],
                 ),
               ),
-              if ((message ?? "").isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    message!,
-                    textAlign: TextAlign.center,
-                    style: palette.body(16).copyWith(height: 24 / 16),
+            ),
+          );
+        }
+        return Padding(
+          padding: EdgeInsets.only(left: insets.left, right: insets.right),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Row(
+                spacing: 48,
+                children: [
+                  Expanded(child: Center(child: disc)),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        top: insets.top,
+                        bottom: insets.bottom,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: _texts(palette, TextAlign.start),
+                      ),
+                    ),
                   ),
-                ),
-              if ((note ?? "").isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    note!,
-                    textAlign: TextAlign.center,
-                    style: palette
-                        .body(14)
-                        .copyWith(
-                          height: 20 / 14,
-                          color: palette.secondaryText,
-                        ),
-                  ),
-                ),
-              if (footer != null)
-                Padding(padding: const EdgeInsets.only(top: 24), child: footer),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
+
+  List<Widget> _texts(YiviPalette palette, TextAlign align) => [
+    Semantics(
+      header: true,
+      child: Text(
+        title,
+        textAlign: align,
+        style: palette
+            .display(26, weight: FontWeight.w700)
+            .copyWith(height: 34 / 26),
+      ),
+    ),
+    if ((message ?? "").isNotEmpty)
+      Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Text(
+          message!,
+          textAlign: align,
+          style: palette.body(16).copyWith(height: 24 / 16),
+        ),
+      ),
+    if ((note ?? "").isNotEmpty)
+      Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Text(
+          note!,
+          textAlign: align,
+          style: palette
+              .body(14)
+              .copyWith(height: 20 / 14, color: palette.secondaryText),
+        ),
+      ),
+    if (footer != null)
+      Padding(padding: const EdgeInsets.only(top: 24), child: footer),
+  ];
 }
 
 /// A 140 pt disc in the tone's soft colour, with a slow pulse ring behind it.

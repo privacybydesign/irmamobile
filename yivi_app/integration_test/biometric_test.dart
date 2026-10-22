@@ -8,6 +8,7 @@ import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
@@ -29,7 +30,9 @@ void main() {
     const Key("pin_biometric_button"),
   );
   final biometricToggle = find.byKey(const Key("biometric_toggle"));
-  final emailScreen = find.byKey(const Key("email_input_field"));
+  // Without the MijnYivi link endpoint there is no e-mail step: the
+  // enrollment ends on the home screen.
+  final homeScreen = find.byType(HomeScreen);
   final homeTab = find.byType(DataTab).hitTestable();
 
   Future<bool> enabledPref() =>
@@ -48,8 +51,8 @@ void main() {
 
     final nextButton = find.byKey(const Key("enrollment_next_button"));
 
-    // Walks introduction -> terms -> choose pin -> confirm pin, after which the
-    // biometric dialog appears (a biometric is "available" via the fake).
+    // Walks the welcome page -> choose pin -> confirm pin, after which the
+    // Face ID page appears (a biometric is "available" via the fake).
     Future<void> walkToBiometricDialog(
       WidgetTester tester, {
       required bool authSucceeds,
@@ -64,13 +67,7 @@ void main() {
       );
       expect(find.byType(EnrollmentScreen), findsOneWidget);
 
-      // Introduction (3 steps)
-      for (var i = 0; i < 3; i++) {
-        await tester.tap(nextButton);
-        await tester.pump(const Duration(milliseconds: 500));
-      }
-
-      // Terms
+      // Welcome: accept the terms
       final checkbox = find.byKey(const Key("accept_terms_checkbox"));
       await tester.scrollUntilVisible(checkbox.hitTestable(), 50);
       await tester.tapAndSettle(checkbox);
@@ -83,9 +80,7 @@ void main() {
       await enterPin(tester, "12345");
     }
 
-    testWidgets("enable persists the preference and advances to email", (
-      tester,
-    ) async {
+    testWidgets("enable persists the preference and finishes", (tester) async {
       await walkToBiometricDialog(tester, authSucceeds: true);
 
       await tester.waitFor(enableButton);
@@ -93,17 +88,17 @@ void main() {
 
       // Wait for the flow to advance (dialog closed, prefs committed) before
       // asserting.
-      await tester.waitFor(emailScreen);
+      await tester.waitFor(homeScreen);
       expect(await enabledPref(), true);
     });
 
-    testWidgets("skip records a decline and advances to email", (tester) async {
+    testWidgets("skip records a decline and finishes", (tester) async {
       await walkToBiometricDialog(tester, authSucceeds: true);
 
       await tester.waitFor(notNowButton);
       await tester.tapAndSettle(notNowButton);
 
-      await tester.waitFor(emailScreen);
+      await tester.waitFor(homeScreen);
       expect(await enabledPref(), false);
       expect(await dismissedPref(), true);
     });
@@ -116,7 +111,7 @@ void main() {
       await tester.waitFor(enableButton);
       await tester.tapAndSettle(enableButton);
 
-      await tester.waitFor(emailScreen);
+      await tester.waitFor(homeScreen);
       // Not enabled, and not dismissed — so the post-unlock prompt can re-ask.
       expect(await enabledPref(), false);
       expect(await dismissedPref(), false);

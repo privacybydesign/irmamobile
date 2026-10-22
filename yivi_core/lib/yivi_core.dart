@@ -9,7 +9,6 @@ import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
-import "src/providers/install_referrer_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
@@ -30,8 +29,6 @@ import "src/widgets/preferred_language_builder.dart";
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
-export "src/providers/install_referrer_provider.dart"
-    show InstallReferrerService;
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"
     show faceCaptureUrlProvider, faceVerificationConfigProvider;
@@ -56,7 +53,6 @@ Future<void> runYiviApp({
   SmsRetriever? smsRetriever,
   RegulaFaceServiceBuilder? regulaFaceService,
   StoreReviewService? storeReviewService,
-  InstallReferrerService? installReferrerService,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
@@ -128,9 +124,6 @@ Future<void> runYiviApp({
           // dependency stays out of the FOSS build; null there disables the
           // whole review prompt
           storeReviewServiceProvider.overrideWithValue(storeReviewService),
-          installReferrerServiceProvider.overrideWithValue(
-            installReferrerService,
-          ),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)

@@ -283,7 +283,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         key: const Key("contact_sheet_code"),
         bar: bar,
         [
-          _SentTo(
+          ContactSentTo(
             label: _k("sent_to"),
             target: state.target,
             email: _email,
@@ -318,7 +318,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               child: FieldError(errorText, align: TextAlign.center),
             )
           else
-            _ResendRow(
+            ContactResendRow(
               hint: _sentAgain ? _t("contact_sheet.sent_again") : _k("hint"),
               label: _t("contact_sheet.send_again"),
               onTap: () => _sendAgain(state.target),
@@ -401,15 +401,16 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   }
 }
 
-/// Where the code went, folded into one row, with "Change".
-class _SentTo extends StatelessWidget {
+/// Where the code went, folded into one row, with "Change". Also the
+/// enrollment's e-mail step.
+class ContactSentTo extends StatelessWidget {
   final String label;
   final String target;
   final bool email;
   final String changeLabel;
   final VoidCallback onChange;
 
-  const _SentTo({
+  const ContactSentTo({
     required this.label,
     required this.target,
     required this.email,
@@ -517,12 +518,12 @@ class _SentTo extends StatelessWidget {
 }
 
 /// A hint under the code ("Not there? Check your spam.") and "Send again".
-class _ResendRow extends StatelessWidget {
+class ContactResendRow extends StatelessWidget {
   final String hint;
   final String label;
   final VoidCallback onTap;
 
-  const _ResendRow({
+  const ContactResendRow({
     required this.hint,
     required this.label,
     required this.onTap,

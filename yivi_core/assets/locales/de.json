@@ -299,18 +299,6 @@
   },
   "enrollment": {
     "introduction": {
-      "step_1": {
-        "title": "Yivi ist eine App für Ihre digitale Identität",
-        "explanation": "Ihr offizieller Name, Geburtsdatum, Adresse, Sozialversicherungsnummer und mehr. Sicher gespeichert in Ihrer Yivi-App"
-      },
-      "step_2": {
-        "title": "Mit Yivi haben Sie die Kontrolle über Ihre Daten",
-        "explanation": "Einfach, sicher und schnell. Sie entscheiden, was Sie teilen und mit wem."
-      },
-      "step_3": {
-        "title": "Sicher auf Ihrem Telefon",
-        "explanation": "Nur Sie können auf die Daten auf Ihrem Telefon zugreifen. Niemand kann zuschauen, nicht einmal Yivi."
-      },
       "art": {
         "email": "E-Mail-Adresse",
         "personal": "Persönliche Daten",
@@ -325,52 +313,52 @@
     "confirm_pin": {
       "instruction": "Geben Sie Ihre PIN erneut ein"
     },
-    "email": {
-      "provide": {
-        "title": "E-Mail-Adresse hinzufügen",
-        "header": "Verknüpfen Sie Ihre E-Mail-Adresse mit Ihrer Yivi-App",
-        "explanation": "Mit deiner E-Mail-Adresse kannst du die Yivi-App aus der Ferne sperren. Zum Beispiel bei Verlust oder Diebstahl deines Mobiltelefons.",
-        "input": {
-          "label": "E-Mail-Adresse",
-          "hint": "Ausfüllen",
-          "invalid": "Ungültige E-Mail-Adresse"
-        },
-        "confirm_skip_dialog": {
-          "title": "Sind Sie sicher?",
-          "explanation": "Das Hinzufügen einer E-Mail-Adresse erhöht die Sicherheit",
-          "decline": "E-Mail-Adresse eingeben"
-        }
-      },
-      "confirm": {
-        "title": "Bestätigen Sie Ihre E-Mail-Adresse",
-        "header": "Unsere E-Mail wurde gesendet an:",
-        "explanation": "Es kann einige Minuten dauern, bis die E-Mail ankommt. Haben Sie unsere E-Mail nicht erhalten? Bitte überprüfen Sie Ihren Spam-Ordner.",
-        "explanation_extra_markdown": "Sie haben eine E-Mail von **noreply@mail.yivi.app** erhalten. Öffnen Sie den Link in dieser Nachricht, um Ihre E-Mail-Adresse mit Ihrer Yivi-App zu verknüpfen."
-      }
-    },
     "terms_and_conditions": {
-      "title": "Unsere Werte",
-      "explanation": "Mit Yivi übernehmen Sie die Kontrolle über Ihre Online-Daten und schützen Ihre Online-Privatsphäre.",
-      "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
-      "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
-      "point_3": "Niemand schaut zu, auch Yivi nicht!",
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
-      "required": "erforderlich"
+      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
     },
     "error_reporting": {
       "accept": {
         "share_errors": "Fehlermeldungen und App-Status teilen",
-        "with_yivi": "mit Yivi",
-        "optional": "Optional"
+        "with_yivi": "mit Yivi"
       },
       "dialog": {
         "title": "Fehler- und App-Status-Berichterstattung",
         "explanation": "Durch die Aktivierung der Fehlerberichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern. Diese Option ermöglicht es Ihrer App auch, uns eine regelmäßige App-Statusmeldung zu senden. Natürlich tun wir all das, ohne Zugriff auf Ihre persönlichen Informationen oder Transaktionen zu haben."
       }
     },
-    "submit": {
-      "title": "Anmeldung",
-      "progress_enrollment": "Willkommen! Bitte warten Sie einen Moment, wir melden Sie an."
+    "step": "Schritt {current} von {total}",
+    "step_optional": "Schritt {current} von {total} · optional",
+    "setting_up": "Ihre App wird eingerichtet",
+    "welcome": {
+      "title": "Ihre digitale Identität, sicher auf Ihrem Handy",
+      "value_1_title": "Ihre offiziellen Daten in einer App",
+      "value_1_text": "Name, Geburtsdatum, Adresse und mehr.",
+      "value_2_title": "Sie entscheiden, was Sie teilen",
+      "value_2_text": "Nur was gefragt wird, nur mit wem Sie wählen.",
+      "value_3_title": "Nur auf Ihrem Handy",
+      "value_3_text": "Niemand sieht Ihre Daten oder was Sie teilen, auch Yivi nicht.",
+      "start": "Los geht's"
+    },
+    "biometric": {
+      "title_face_id": "Yivi mit Face ID öffnen?",
+      "title_face": "Yivi mit Gesichtserkennung öffnen?",
+      "title_touch_id": "Yivi mit Touch ID öffnen?",
+      "title_fingerprint": "Yivi mit Ihrem Fingerabdruck öffnen?",
+      "body": "Schneller als die PIN einzutippen. Zum Teilen von Daten fragt Yivi weiterhin nach Ihrer PIN. Sie können das später in den Einstellungen ändern.",
+      "use_face_id": "Face ID verwenden",
+      "use_face": "Gesichtserkennung verwenden",
+      "use_touch_id": "Touch ID verwenden",
+      "use_fingerprint": "Fingerabdruck verwenden",
+      "not_now": "Jetzt nicht"
+    },
+    "email_step": {
+      "title": "Ihre E-Mail-Adresse verknüpfen?",
+      "body": "Dann können Sie sich bei MyYivi anmelden, um zu sehen, wo Sie Yivi verwendet haben, und die App sperren, wenn Sie Ihr Handy verlieren. Wir senden Ihnen einen Code per E-Mail, um zu prüfen, dass die Adresse Ihnen gehört, und verknüpfen sie in MyYivi mit Ihrer App.",
+      "code_title": "Schauen Sie in Ihre E-Mails",
+      "code_body": "Geben Sie den Code aus der E-Mail ein, die wir Ihnen geschickt haben.",
+      "skip": "Überspringen",
+      "try_again": "Erneut versuchen",
+      "not_linked": "Wir konnten die Adresse nicht verknüpfen. Versuchen Sie es erneut oder überspringen Sie es vorerst."
     }
   },
   "error": {
@@ -460,10 +448,6 @@
     }
   },
   "data_tab": {
-    "empty": {
-      "title": "Holen Sie sich Ihre persönlichen Daten",
-      "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
-    },
     "expired_label": "{name}, abgelaufen",
     "favourites": {
       "title": "Favoriten",
@@ -473,20 +457,25 @@
     "section_count-1": "{count} Eintrag",
     "section_count-2": "{count} Einträge",
     "start": {
-      "ready": "Ihre Yivi-App ist bereit",
-      "title": "Wie möchten Sie beginnen?",
-      "website_title": "Kamen Sie von einer Website auf diesem Telefon?",
-      "website_text": "Gehen Sie zurück zu Ihrem Browser und tippen Sie noch einmal auf 'Yivi-App öffnen'.",
-      "qr_title": "Sehen Sie einen QR-Code auf einem Computer?",
-      "qr_text": "Tippen Sie unten auf QR scannen."
+      "title": "Noch keine Daten",
+      "website_text": "Tippen Sie dort auf „Yivi-App öffnen“",
+      "qr_title": "Haben Sie einen QR-Code?",
+      "text": "Daten kommen hinzu, wenn eine Organisation danach fragt oder wenn Sie sie selbst hinzufügen.",
+      "get_started": "Los geht's",
+      "qr_text_bar": "Scannen Sie ihn mit der Scan-Taste unten",
+      "qr_text_rail": "Scannen Sie ihn mit der Scan-Taste links",
+      "website_title_phone": "Auf einer Website auf diesem Handy?",
+      "website_title_tablet": "Auf einer Website auf diesem Tablet?",
+      "add_title": "Daten selbst hinzufügen",
+      "add_text": "Ihre E-Mail-Adresse, Telefonnummer, Ihr Reisepass…"
     }
   },
   "back_to_website": {
-    "title": "Ihre Yivi-App ist bereit. Gehen Sie zurück zur Website.",
-    "text": "Sie kamen von einer Website hierher. Gehen Sie zurück zu Ihrem Browser und tippen Sie dort noch einmal auf 'Yivi-App öffnen'. Yivi öffnet sich dann automatisch und macht dort weiter, wo Sie waren.",
+    "title": "Gehen Sie zurück zur Website",
     "sketch_button": "Yivi-App öffnen",
-    "hint": "Funktioniert es nicht mehr? Laden Sie die Seite auf der Website neu und versuchen Sie es noch einmal.",
-    "other": "Ich möchte etwas anderes tun"
+    "hint": "Funktioniert es nicht? Laden Sie die Seite auf der Website neu und versuchen Sie es noch einmal.",
+    "step_1": "Wechseln Sie zurück zu Ihrem Browser, zu der Website, die nach Yivi gefragt hat.",
+    "step_2": "Tippen Sie dort auf „Yivi-App öffnen“. Yivi zeigt dann, was die Website fragt."
   },
   "issuance": {
     "title": "Daten hinzufügen",
@@ -1574,5 +1563,11 @@
     "semantics": {
       "stop": "Diese Anfrage beenden"
     }
+  },
+  "scan_tip": {
+    "title": "Hier QR-Codes scannen",
+    "text_bar": "Die Taste ist immer unten.",
+    "text_rail": "Die Taste ist immer unter dem Menü.",
+    "ok": "Verstanden"
   }
 }

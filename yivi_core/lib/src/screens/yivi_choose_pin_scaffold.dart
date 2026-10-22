@@ -11,10 +11,14 @@ class YiviChoosePinScaffold extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final ValueNotifier<String> newPinNotifier;
 
+  /// "Step 1 of 3" above the title, while enrolling.
+  final String? stepLabel;
+
   YiviChoosePinScaffold({
     required this.submit,
     required this.onBack,
     required this.newPinNotifier,
+    this.stepLabel,
   });
 
   void _submit(String pin) {
@@ -50,6 +54,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
               return YiviPinScreen(
                 scaffoldKey: _scaffoldKey,
                 lockIcon: true,
+                stepLabel: stepLabel,
                 instructionKey: instructionKey,
                 maxPinSize: maxPinSize,
                 onSubmit: _submit,

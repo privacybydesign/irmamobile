@@ -299,18 +299,6 @@
   },
   "enrollment": {
     "introduction": {
-      "step_1": {
-        "title": "Yivi is een app voor jouw digitale identiteit",
-        "explanation": "Jouw officiële naam, geboortedatum, adres, BSN en meer. Veilig opgeslagen in jouw Yivi-app."
-      },
-      "step_2": {
-        "title": "Met Yivi heb je controle over jouw gegevens",
-        "explanation": "Makkelijk, veilig en snel. Jij kiest wat je deelt en met wie."
-      },
-      "step_3": {
-        "title": "Veilig op jouw mobiel",
-        "explanation": "Alleen jij hebt toegang tot de gegevens op jouw mobiel. Niemand kan meekijken, zelfs Yivi niet."
-      },
       "art": {
         "email": "E-mailadres",
         "personal": "Persoonsgegevens",
@@ -325,52 +313,52 @@
     "confirm_pin": {
       "instruction": "Vul je pincode nog een keer in"
     },
-    "email": {
-      "provide": {
-        "title": "E-mailadres toevoegen",
-        "header": "Koppel je e-mailadres aan je Yivi-app",
-        "explanation": "Met je e-mailadres kun je de Yivi-app op afstand blokkeren. Bijvoorbeeld bij verlies of diefstal van je mobiel.",
-        "input": {
-          "label": "E-mailadres",
-          "hint": "Vul in",
-          "invalid": "Incorrect e-mailadres"
-        },
-        "confirm_skip_dialog": {
-          "title": "Weet je het zeker?",
-          "explanation": "Een e-mailadres koppelen is veiliger.",
-          "decline": "Voer e-mailadres in"
-        }
-      },
-      "confirm": {
-        "title": "Bevestig onze e-mail",
-        "header": "Onze e-mail is gestuurd naar:",
-        "explanation": "Het kan even duren voordat onze e-mail verschijnt. Geen e-mail ontvangen? Controleer of hij in je spamfolder zit.",
-        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@mail.yivi.app**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
-      }
-    },
     "terms_and_conditions": {
-      "title": "Onze waarden",
-      "explanation": "Met Yivi pak jij de controle over jouw online gegevens. Zo bescherm je jouw online privacy.",
-      "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
-      "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
-      "point_3": "Niemand kijkt mee, ook Yivi niet!",
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})",
-      "required": "verplicht"
+      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})"
     },
     "error_reporting": {
       "accept": {
         "share_errors": "Foutmeldingen en app status delen",
-        "with_yivi": "met Yivi",
-        "optional": "Optioneel"
+        "with_yivi": "met Yivi"
       },
       "dialog": {
         "title": "Foutmeldingen en app status delen",
         "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
       }
     },
-    "submit": {
-      "title": "Aanmelden",
-      "progress_enrollment": "Welkom! Even geduld, we melden je aan."
+    "step": "Stap {current} van {total}",
+    "step_optional": "Stap {current} van {total} · optioneel",
+    "setting_up": "Je app wordt klaargezet",
+    "welcome": {
+      "title": "Je digitale identiteit, veilig op je telefoon",
+      "value_1_title": "Je officiële gegevens in één app",
+      "value_1_text": "Naam, geboortedatum, adres en meer.",
+      "value_2_title": "Jij bepaalt wat je deelt",
+      "value_2_text": "Alleen wat er gevraagd wordt, alleen met wie jij kiest.",
+      "value_3_title": "Alleen op je telefoon",
+      "value_3_text": "Niemand ziet je gegevens of wat je deelt, ook Yivi niet.",
+      "start": "Aan de slag"
+    },
+    "biometric": {
+      "title_face_id": "Yivi openen met Face ID?",
+      "title_face": "Yivi openen met gezichtsherkenning?",
+      "title_touch_id": "Yivi openen met Touch ID?",
+      "title_fingerprint": "Yivi openen met je vingerafdruk?",
+      "body": "Sneller dan je pincode intikken. Om gegevens te delen vraagt Yivi nog steeds om je pincode. Je kunt dit later wijzigen in Instellingen.",
+      "use_face_id": "Face ID gebruiken",
+      "use_face": "Gezichtsherkenning gebruiken",
+      "use_touch_id": "Touch ID gebruiken",
+      "use_fingerprint": "Vingerafdruk gebruiken",
+      "not_now": "Niet nu"
+    },
+    "email_step": {
+      "title": "Je e-mailadres koppelen?",
+      "body": "Dan kun je inloggen bij MijnYivi om te zien waar je Yivi gebruikte, en je app blokkeren als je je telefoon kwijtraakt. We mailen je een code om te checken dat het adres van jou is, en koppelen het aan je app in MijnYivi.",
+      "code_title": "Kijk in je mail",
+      "code_body": "Vul de code in uit de e-mail die we je stuurden.",
+      "skip": "Overslaan",
+      "try_again": "Opnieuw proberen",
+      "not_linked": "We konden het adres niet koppelen. Probeer het opnieuw, of sla het nu over."
     }
   },
   "error": {
@@ -460,10 +448,6 @@
     }
   },
   "data_tab": {
-    "empty": {
-      "title": "Haal je gegevens op",
-      "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
-    },
     "expired_label": "{name}, verlopen",
     "favourites": {
       "title": "Favorieten",
@@ -473,20 +457,25 @@
     "section_count-1": "{count} gegeven",
     "section_count-2": "{count} gegevens",
     "start": {
-      "ready": "Je Yivi-app is klaar",
-      "title": "Hoe wil je beginnen?",
-      "website_title": "Kwam je van een website op deze telefoon?",
-      "website_text": "Ga terug naar je browser en tik nog een keer op 'Open Yivi-app'.",
-      "qr_title": "Zie je een QR-code op een computer?",
-      "qr_text": "Tik op Scan QR hieronder."
+      "title": "Nog geen gegevens",
+      "website_text": "Tik daar op ‘Open Yivi-app’",
+      "qr_title": "Heb je een QR-code?",
+      "text": "Gegevens komen erbij als een organisatie erom vraagt, of als je ze zelf toevoegt.",
+      "get_started": "Aan de slag",
+      "qr_text_bar": "Scan hem met de Scan-knop onderaan",
+      "qr_text_rail": "Scan hem met de Scan-knop links",
+      "website_title_phone": "Op een website op deze telefoon?",
+      "website_title_tablet": "Op een website op deze tablet?",
+      "add_title": "Zelf gegevens toevoegen",
+      "add_text": "Je e-mailadres, telefoonnummer, paspoort…"
     }
   },
   "back_to_website": {
-    "title": "Je Yivi-app is klaar. Ga terug naar de website.",
-    "text": "Je kwam hier vanaf een website. Ga terug naar je browser en tik daar nog een keer op 'Open Yivi-app'. Yivi opent dan vanzelf en gaat verder waar je was.",
+    "title": "Ga terug naar de website",
     "sketch_button": "Open Yivi-app",
-    "hint": "Werkt het niet meer? Laad de pagina op de website opnieuw en probeer het nog een keer.",
-    "other": "Ik wil iets anders doen"
+    "hint": "Werkt het niet? Laad de pagina op de website opnieuw en probeer het nog een keer.",
+    "step_1": "Ga terug naar je browser, naar de website die om Yivi vroeg.",
+    "step_2": "Tik daar op ‘Open Yivi-app’. Yivi laat dan zien wat de website vraagt."
   },
   "issuance": {
     "title": "Gegevens toevoegen",
@@ -1574,5 +1563,11 @@
     "semantics": {
       "stop": "Stop dit verzoek"
     }
+  },
+  "scan_tip": {
+    "title": "Scan hier QR-codes",
+    "text_bar": "De knop staat altijd onderaan.",
+    "text_rail": "De knop staat altijd onder het menu.",
+    "ok": "Begrepen"
   }
 }

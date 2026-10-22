@@ -13,11 +13,13 @@ enum PresentationMode {
   /// in inside the same frame.
   sheet,
 
-  /// A centred column on the plain background (enrollment, the lock screen,
-  /// full-screen system states).
+  /// A centred column on the plain background (the lock screen,
+  /// full-screen system states) on an upright tablet. Wider than high the
+  /// screen gets the whole window and lays itself out sideways.
   full,
 
-  /// The whole window, for screens with their own tablet layout (sessions).
+  /// The whole window, for screens with their own tablet layout (sessions,
+  /// the enrollment).
   window,
 }
 
@@ -135,28 +137,41 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       return child;
     }
     final palette = YiviPalette.of(context);
+    final size = MediaQuery.sizeOf(context);
+    // Placed in the safe area: clear of a notch, the Dynamic Island or a
+    // side panel (an unfolded phone held sideways).
+    final insets = MediaQuery.paddingOf(context);
+    final safeWidth = size.width - insets.left - insets.right;
 
     if (_page.mode == PresentationMode.full) {
-      final size = MediaQuery.sizeOf(context);
+      // Wider than high the screen has the room to lay itself out sideways.
+      if (size.width > size.height) return child;
+      final width = fullColumnWidth.clamp(0.0, safeWidth);
       return ColoredBox(
         color: palette.background,
-        child: Center(
-          child: SizedBox(
-            width: fullColumnWidth,
-            // The screen inside lays out for the column, not the window.
-            child: MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(size: Size(fullColumnWidth, size.height)),
-              child: child,
+        child: Padding(
+          padding: EdgeInsets.only(left: insets.left, right: insets.right),
+          child: Center(
+            child: SizedBox(
+              width: width,
+              // The screen inside lays out for the column, not the window.
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  size: Size(width, size.height),
+                  padding: insets.copyWith(left: 0, right: 0),
+                  viewPadding: MediaQuery.viewPaddingOf(
+                    context,
+                  ).copyWith(left: 0, right: 0),
+                ),
+                child: child,
+              ),
             ),
           ),
         ),
       );
     }
 
-    final size = MediaQuery.sizeOf(context);
-    final width = sheetSize.width.clamp(0.0, size.width - 48);
+    final width = sheetSize.width.clamp(0.0, safeWidth - 48);
     final height = sheetSize.height.clamp(0.0, size.height - 60);
     return Stack(
       children: [
@@ -172,36 +187,43 @@ class _AdaptiveRoute<T> extends PageRoute<T>
               ),
             ),
           ),
-        Center(
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: DecoratedBox(
-              decoration: ShapeDecoration(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.sheet)),
-                ),
-                shadows: _stacked
-                    ? null
-                    : const [
-                        BoxShadow(
-                          color: Color(0x4D000000),
-                          blurRadius: 80,
-                          offset: Offset(0, 30),
-                        ),
-                      ],
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.sheet)),
-                // The screen inside thinks it has the whole window: give it
-                // the sheet's size and no system insets.
-                child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    size: Size(width, height),
-                    padding: EdgeInsets.zero,
-                    viewPadding: EdgeInsets.zero,
+        Padding(
+          padding: EdgeInsets.only(left: insets.left, right: insets.right),
+          child: Center(
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(YiviCorners.sheet),
+                    ),
                   ),
-                  child: child,
+                  shadows: _stacked
+                      ? null
+                      : const [
+                          BoxShadow(
+                            color: Color(0x4D000000),
+                            blurRadius: 80,
+                            offset: Offset(0, 30),
+                          ),
+                        ],
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(YiviCorners.sheet),
+                  ),
+                  // The screen inside thinks it has the whole window: give it
+                  // the sheet's size and no system insets.
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      size: Size(width, height),
+                      padding: EdgeInsets.zero,
+                      viewPadding: EdgeInsets.zero,
+                    ),
+                    child: child,
+                  ),
                 ),
               ),
             ),

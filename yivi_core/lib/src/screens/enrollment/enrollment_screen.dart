@@ -6,84 +6,75 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
-import "../../providers/feature_flag_provider.dart";
-import "../../providers/install_referrer_provider.dart";
+import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
 import "../pin/providers/biometric_provider.dart";
-import "../pin/widgets/biometric_opt_in_dialog.dart";
-import "accept_terms/accept_terms_screen.dart";
+import "biometric/enrollment_biometric_screen.dart";
 import "bloc/enrollment_bloc.dart";
 import "choose_pin/choose_pin_screen.dart";
 import "confirm_pin/confirm_pin_screen.dart";
 import "confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
+import "email/enrollment_email_screen.dart";
 import "enrollment_failed_screen.dart";
-import "introduction/introduction_screen.dart";
-import "provide_email/email_sent_screen.dart";
-import "provide_email/provide_email_screen.dart";
+import "welcome/welcome_screen.dart";
 
 class EnrollmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
+    final container = ProviderScope.containerOf(context, listen: false);
     return BlocProvider(
       create: (_) => EnrollmentBloc(
         language: FlutterI18n.currentLocale(context)!.languageCode,
         repo: repo,
+        // Once, only if a biometric is enrolled and the user hasn't chosen.
+        biometricOffered: () async {
+          final available = await container.read(
+            biometricAvailableProvider.future,
+          );
+          final enabled = await repo.preferences.getBiometricEnabled().first;
+          final dismissed = await repo.preferences
+              .getBiometricPromptDismissed()
+              .first;
+          return available && !enabled && !dismissed;
+        },
+        emailOffered: () => container.read(emailLinkingOfferedProvider),
       ),
       child: _ProvidedEnrollmentScreen(repo: repo),
     );
   }
 }
 
-class _ProvidedEnrollmentScreen extends ConsumerWidget {
+class _ProvidedEnrollmentScreen extends StatelessWidget {
   final IrmaRepository repo;
 
   const _ProvidedEnrollmentScreen({required this.repo});
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
-    if (!context.mounted) return;
-    final onboardingV2 = await repo.preferences
-        .getFeatureFlag(FeatureFlag.onboardingV2)
-        .first;
-    if (!context.mounted) return;
-
+    // The empty Data tab points out the Scan button on the first visit.
+    await repo.preferences.markScanTipPending();
     // LockGate handles displaying the PIN overlay if the app is still
     // locked after enrollment.
-    if (!onboardingV2) {
-      context.goHomeScreen();
-      return;
-    }
-
-    await repo.preferences.markReadyChipPending();
-    final backToWebsite = await repo.preferences
-        .getBackToWebsitePending()
-        .first;
-    if (!context.mounted) return;
-
-    if (backToWebsite) {
-      context.goBackToWebsiteScreen();
-    } else {
-      context.goHomeScreen();
-    }
+    if (context.mounted) context.goHomeScreen();
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Starts reading the install referrer as soon as onboarding opens, so it
-    // is known by the time onboarding completes. Completion does not wait for
-    // it: a Play call that never answers would leave the user stuck on the
-    // last PIN step, and a missed read only skips the website screen.
-    if (ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ??
-        false) {
-      ref.watch(installReferrerReaderProvider);
-    }
+  String _step(BuildContext context, EnrollmentStepNumber step) =>
+      FlutterI18n.translate(
+        context,
+        "enrollment.step",
+        translationParams: {
+          "current": "${step.number}",
+          "total": "${step.total}",
+        },
+      );
 
+  @override
+  Widget build(BuildContext context) {
     final bloc = context.read<EnrollmentBloc>();
     void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
@@ -108,18 +99,22 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
             _onEnrollmentCompleted(context);
           }
         },
-        builder: (context, blocState) {
-          var state = blocState;
-          if (state is EnrollmentIntroduction) {
-            return IntroductionScreen(
-              currentStepIndex: state.currentStepIndex,
-              entry: state.entry,
+        builder: (context, state) {
+          if (state is EnrollmentWelcome) {
+            return WelcomeScreen(
+              isAccepted: state.isAccepted,
               onContinue: addOnNextPressed,
-              onPrevious: addOnPreviousPressed,
+              onToggleAccepted: (isAccepted) {
+                repo.preferences.markLatestTermsAsAccepted(isAccepted);
+                addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
+              },
             );
           }
           if (state is EnrollmentChoosePin) {
             return ChoosePinScreen(
+              stepLabel: state.step == null
+                  ? null
+                  : _step(context, state.step!),
               onPrevious: addOnPreviousPressed,
               onChoosePin: (pin) => addEvent(EnrollmentPinChosen(pin)),
               newPinNotifier: newPin,
@@ -127,30 +122,13 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
           }
           if (state is EnrollmentConfirmPin) {
             return ConfirmPinScreen(
+              stepLabel: state.step == null
+                  ? null
+                  : _step(context, state.step!),
               newPinNotifier: newPin,
               onPrevious: addOnPreviousPressed,
-              // After the PIN is confirmed, offer biometric unlock (once, only
-              // if a biometric is enrolled and the user hasn't already chosen).
-              // Then advance to the email step.
-              submitConfirmationPin: (pin) async {
-                final container = ProviderScope.containerOf(
-                  context,
-                  listen: false,
-                );
-                final available = await container.read(
-                  biometricAvailableProvider.future,
-                );
-                final enabled = await repo.preferences
-                    .getBiometricEnabled()
-                    .first;
-                final dismissed = await repo.preferences
-                    .getBiometricPromptDismissed()
-                    .first;
-                if (context.mounted && available && !enabled && !dismissed) {
-                  await showBiometricOptInDialog(context);
-                }
-                if (context.mounted) addEvent(EnrollmentPinConfirmed(pin));
-              },
+              submitConfirmationPin: (pin) =>
+                  addEvent(EnrollmentPinConfirmed(pin)),
               onPinMismatch: () {
                 showDialog(
                   barrierDismissible: false,
@@ -165,30 +143,27 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
               },
             );
           }
-          if (state is EnrollmentProvideEmail) {
-            return ProvideEmailScreen(
-              email: state.email,
-              onPrevious: addOnPreviousPressed,
-              onEmailSkipped: () => addEvent(EnrollmentEmailSkipped()),
-              onEmailProvided: (email) =>
-                  addEvent(EnrollmentEmailProvided(email)),
+          if (state is EnrollmentBiometric) {
+            return EnrollmentBiometricScreen(
+              stepLabel: _step(context, state.step),
+              onDone: () => addEvent(EnrollmentBiometricDone()),
             );
           }
-          if (state is EnrollmentEmailSent) {
-            return EmailSentScreen(
-              email: state.email,
-              onContinue: addOnNextPressed,
-            );
-          }
-          if (state is EnrollmentAcceptTerms) {
-            return AcceptTermsScreen(
-              isAccepted: state.isAccepted,
-              onPrevious: addOnPreviousPressed,
-              onContinue: addOnNextPressed,
-              onToggleAccepted: (isAccepted) {
-                repo.preferences.markLatestTermsAsAccepted(isAccepted);
-                addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
-              },
+          if (state is EnrollmentEmail) {
+            return EnrollmentEmailScreen(
+              stepLabel: FlutterI18n.translate(
+                context,
+                "enrollment.step_optional",
+                translationParams: {
+                  "current": "${state.step.number}",
+                  "total": "${state.step.total}",
+                },
+              ),
+              account: () => bloc.account,
+              pin: bloc.pin!,
+              onDone: () => addEvent(EnrollmentEmailDone()),
+              onAccountFailed: (error) =>
+                  addEvent(EnrollmentAccountFailed(error)),
             );
           }
           if (state is EnrollmentFailed) {
@@ -197,19 +172,19 @@ class _ProvidedEnrollmentScreen extends ConsumerWidget {
               onRetryEnrollment: () => addEvent(EnrollmentRetried()),
             );
           }
-          // Loading, initial or submitting: the logo and a spinner, with
-          // "Logging in" while the account is being created.
-          return _SigningUp(showText: state is Enrolling);
+          // Waiting for the account after the last step: the logo, a
+          // spinner and "Setting up your app".
+          return _SettingUp(showText: state is Enrolling);
         },
       ),
     );
   }
 }
 
-class _SigningUp extends StatelessWidget {
+class _SettingUp extends StatelessWidget {
   final bool showText;
 
-  const _SigningUp({required this.showText});
+  const _SettingUp({required this.showText});
 
   @override
   Widget build(BuildContext context) {
@@ -233,16 +208,10 @@ class _SigningUp extends StatelessWidget {
               if (showText) ...[
                 const SizedBox(height: 24),
                 TranslatedText(
-                  "enrollment.submit.title",
+                  "enrollment.setting_up",
                   isHeader: true,
                   textAlign: TextAlign.center,
                   style: palette.display(20),
-                ),
-                const SizedBox(height: 8),
-                TranslatedText(
-                  "enrollment.submit.progress_enrollment",
-                  textAlign: TextAlign.center,
-                  style: palette.body(16),
                 ),
               ],
             ],

@@ -1,4 +1,7 @@
+import "dart:math";
+
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/native_events.dart";
@@ -16,6 +19,7 @@ import "widgets/glass_sidebar.dart";
 import "widgets/glass_tab_bar.dart";
 import "widgets/irma_nav_bar.dart";
 import "widgets/pending_pointer_listener.dart";
+import "widgets/scan_tip.dart";
 
 /// Having different transition types causes separate instances of the HomeScreen to be created.
 /// In order to keep the selected tab state across these instances, we move
@@ -108,6 +112,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (tabState == .data) _scanTipOverBar(context),
                       ],
                     ),
             ),
@@ -157,7 +162,40 @@ class HomeScreen extends StatelessWidget {
             child: GlassRail(selectedTab: tab, onChangeTab: changeTab),
           ),
         ),
+        if (tab == .data) _scanTipBesideRail(context, railLeft),
       ],
+    );
+  }
+
+  /// The first-visit tip above the Scan button, at the right end of the tab
+  /// bar (which is centred and at most 640 wide).
+  Widget _scanTipOverBar(BuildContext context) {
+    final padding = MediaQuery.paddingOf(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final available = width - 32 - padding.left - padding.right;
+    return Positioned(
+      right: 16 + padding.right + max(0.0, (available - 640) / 2),
+      bottom: FloatingBarPlacement.tabBarBottom(context) + 64 + 12,
+      child: const _ScanTipWhenDue(rail: false),
+    );
+  }
+
+  /// The first-visit tip beside the rail's Scan button, the bottom of the
+  /// rail, which is centred top to bottom.
+  Widget _scanTipBesideRail(BuildContext context, double railLeft) {
+    final padding = MediaQuery.paddingOf(context);
+    final height = MediaQuery.sizeOf(context).height;
+    final railMiddle =
+        padding.top + (height - padding.top - padding.bottom) / 2;
+    final scanMiddle =
+        railMiddle + GlassRail.height / 2 - GlassRail.scanButtonSize / 2;
+    return Positioned(
+      left: railLeft + GlassRail.width + 12,
+      top: scanMiddle,
+      child: const FractionalTranslation(
+        translation: Offset(0, -0.5),
+        child: _ScanTipWhenDue(rail: true),
+      ),
     );
   }
 
@@ -194,4 +232,16 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+class _ScanTipWhenDue extends ConsumerWidget {
+  final bool rail;
+
+  const _ScanTipWhenDue({required this.rail});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      ref.watch(scanTipVisibleProvider)
+      ? ScanTip(rail: rail)
+      : const SizedBox.shrink();
 }

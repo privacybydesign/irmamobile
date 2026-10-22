@@ -8,7 +8,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -45,9 +44,6 @@ Future<IrmaPreferences> freshPreferences() async {
   await preferences.clearAll();
   return preferences;
 }
-
-Future<void> enableOnboardingV2(IrmaPreferences preferences) =>
-    preferences.setFeatureFlag(FeatureFlag.onboardingV2, true);
 
 /// Lets writes to the preference store finish; they run on the real event loop
 /// rather than the test's fake clock.

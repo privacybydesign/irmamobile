@@ -205,10 +205,12 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                     ScrollEdgeBand(under: under, opacity: chromeOpacity()),
               ),
               bar: [
+                // Inside the safe area: clear of the Dynamic Island or an
+                // unfolded phone's side panel.
                 Positioned(
                   top: padding.top + 16,
-                  left: 16,
-                  right: 16,
+                  left: 16 + padding.left,
+                  right: 16 + padding.right,
                   // Faded by the glass itself: a FadeTransition would
                   // darken its blur until the fade ends (see
                   // GlassSurface.opacity).

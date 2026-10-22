@@ -7,7 +7,10 @@ import "package:yivi_core/src/widgets/adaptive_page.dart";
 import "package:yivi_core/src/widgets/app_toast.dart";
 import "package:yivi_core/src/widgets/code_input.dart";
 import "package:yivi_core/src/widgets/irma_confirmation_dialog.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/irma_info_scaffold_body.dart";
+import "package:yivi_core/src/widgets/status_body.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
@@ -157,6 +160,80 @@ void main() {
     });
   });
 
+  group("StatusBody", () {
+    for (final (name, size, sideways) in [
+      ("upright", const Size(390, 844), false),
+      ("phone sideways", const Size(844, 390), true),
+      ("unfolded phone sideways", const Size(951, 669), true),
+    ]) {
+      testWidgets("$name: the disc ${sideways ? "beside" : "above"} the "
+          "title", (tester) async {
+        _setWindow(tester, size);
+        await pumpTranslated(
+          tester,
+          _app(
+            home: const Scaffold(
+              body: StatusBody(
+                title: "Update required",
+                message: "Update Yivi to keep using it.",
+                icon: Icons.system_update_rounded,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final disc = tester.getRect(find.byIcon(Icons.system_update_rounded));
+        final title = tester.getRect(find.text("Update required"));
+        if (sideways) {
+          expect(disc.right, lessThan(title.left));
+        } else {
+          expect(disc.bottom, lessThan(title.top));
+        }
+      });
+    }
+  });
+
+  group("IrmaAppBar", () {
+    Future<Rect> closeIn(WidgetTester tester, FakeViewPadding padding) async {
+      _setWindow(tester, const Size(951, 669));
+      tester.view.padding = padding;
+      await pumpTranslated(
+        tester,
+        _app(
+          home: Scaffold(
+            appBar: IrmaAppBar(
+              titleString: "",
+              edgeActions: true,
+              actions: [IrmaCloseButton(onTap: () {})],
+            ),
+            body: const SizedBox.shrink(),
+          ),
+        ),
+      );
+      return tester.getRect(find.byType(IrmaCloseButton));
+    }
+
+    testWidgets("a corner close button stays clear of a side panel", (
+      tester,
+    ) async {
+      final close = await closeIn(
+        tester,
+        const FakeViewPadding(right: 84, bottom: 34),
+      );
+      expect(close.right, 951 - 84 - 16);
+    });
+
+    testWidgets("a corner close button uses the corner beside the Dynamic "
+        "Island", (tester) async {
+      final close = await closeIn(
+        tester,
+        const FakeViewPadding(left: 62, right: 62, bottom: 21),
+      );
+      expect(close.right, 951 - 16);
+    });
+  });
+
   group("AdaptivePage", () {
     Future<GlobalKey<NavigatorState>> pumpHome(WidgetTester tester) async {
       final navigator = GlobalKey<NavigatorState>();
@@ -198,6 +275,34 @@ void main() {
       expect(find.text("home"), findsOneWidget);
     });
 
+    testWidgets("centres the sheet in the safe area, clear of a side panel", (
+      tester,
+    ) async {
+      // An unfolded phone held sideways: a panel down the right side.
+      _setWindow(tester, const Size(951, 669));
+      tester.view.padding = const FakeViewPadding(right: 84, bottom: 34);
+      final navigator = await pumpHome(tester);
+
+      push(navigator, "settings");
+      await tester.pumpAndSettle();
+
+      final sheet = tester.getRect(_sheetFrame.last);
+      expect(sheet.right, lessThanOrEqualTo(951 - 84 - 24));
+      expect(sheet.center.dx, closeTo((951 - 84) / 2, 0.5));
+    });
+
+    testWidgets("gives a full-screen state the whole window on an unfolded "
+        "phone held sideways", (tester) async {
+      _setWindow(tester, const Size(951, 669));
+      tester.view.padding = const FakeViewPadding(right: 84, bottom: 34);
+      final navigator = await pumpHome(tester);
+
+      push(navigator, "pin", mode: PresentationMode.full);
+      await tester.pumpAndSettle();
+
+      expect(tester.getSize(find.byType(Scaffold).last).width, 951);
+    });
+
     testWidgets("a sheet from a sheet uses the same frame", (tester) async {
       _setWindow(tester, const Size(1180, 820));
       final navigator = await pumpHome(tester);
@@ -225,16 +330,28 @@ void main() {
       expect(tester.getSize(find.byType(Scaffold).last), const Size(390, 844));
     });
 
-    testWidgets("is a centred column for full-screen states on a tablet", (
-      tester,
-    ) async {
-      _setWindow(tester, const Size(1180, 820));
+    testWidgets("is a centred column for full-screen states on an upright "
+        "tablet", (tester) async {
+      // A 13" iPad held upright: from 900 wide.
+      _setWindow(tester, const Size(1032, 1376));
       final navigator = await pumpHome(tester);
 
-      push(navigator, "enrollment", mode: PresentationMode.full);
+      push(navigator, "pin", mode: PresentationMode.full);
       await tester.pumpAndSettle();
 
       expect(tester.getSize(find.byType(Scaffold).last).width, 560);
+      expect(find.text("home"), findsNothing);
+    });
+
+    testWidgets("gives full-screen states the whole window when wider than "
+        "high, to lay out sideways", (tester) async {
+      _setWindow(tester, const Size(1180, 820));
+      final navigator = await pumpHome(tester);
+
+      push(navigator, "pin", mode: PresentationMode.full);
+      await tester.pumpAndSettle();
+
+      expect(tester.getSize(find.byType(Scaffold).last).width, 1180);
       expect(find.text("home"), findsNothing);
     });
   });

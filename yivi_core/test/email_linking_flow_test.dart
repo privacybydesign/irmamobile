@@ -10,7 +10,6 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -111,6 +110,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late IrmaPreferences prefs;
+
+  /// Whether the keyshare server's link endpoint is known.
+  var linkingOffered = false;
   late IrmaRepository repo;
   late _FakeEmailIssuerApi issuerApi;
   late _FakeKeyshareLinkApi linkApi;
@@ -135,6 +137,7 @@ void main() {
     repo = IrmaRepository(client: _SilentBridge(), preferences: prefs);
     issuerApi = _FakeEmailIssuerApi();
     linkApi = _FakeKeyshareLinkApi();
+    linkingOffered = false;
   });
 
   // Mirrors the routes the flow uses in routing.dart: the real router builds
@@ -150,6 +153,7 @@ void main() {
         irmaRepositoryProvider.overrideWithValue(repo),
         emailIssuerApiProvider.overrideWithValue(issuerApi),
         keyshareEmailLinkApiProvider.overrideWithValue(linkApi),
+        emailLinkingOfferedProvider.overrideWithValue(linkingOffered),
         ...overrides,
       ],
     );
@@ -251,9 +255,7 @@ void main() {
   }
 
   group("code link in the e-mail", () {
-    test("is queued as a pointer with the flag on", () async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
-
+    test("is queued as a pointer", () async {
       repo.dispatch(
         HandleURLEvent(
           url:
@@ -268,18 +270,6 @@ void main() {
       expect(pointer, isA<EmailCodePointer>());
       expect((pointer as EmailCodePointer).code, "ABC123");
       expect(pointer.email, "jan@example.com");
-    });
-
-    test("is treated as an unknown URL with the flag off", () async {
-      repo.dispatch(
-        HandleURLEvent(
-          url:
-              "https://open.yivi.app/-/email#code=ABC123&email=jan%40example.com",
-        ),
-      );
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-
-      expect(repo.pendingPointer, isNull);
     });
   });
 
@@ -784,10 +774,10 @@ void main() {
       await settle(tester);
     }
 
-    testWidgets("shows the copy of the design with the flag on", (
+    testWidgets("shows the copy of the design when linking is offered", (
       tester,
     ) async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await pumpBanner(tester);
 
       expect(find.text("Secure your Yivi app"), findsOneWidget);
@@ -803,13 +793,13 @@ void main() {
 
     testWidgets("waits for the first credential, so it is not there right "
         "after enrollment", (tester) async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await pumpBanner(tester, hasCredentials: false);
 
       expect(find.byType(EmailLinkBanner), findsNothing);
     });
 
-    testWidgets("is absent with the flag off", (tester) async {
+    testWidgets("is absent when linking is not offered", (tester) async {
       await pumpBanner(tester);
 
       expect(find.byType(EmailLinkBanner), findsNothing);
@@ -819,7 +809,7 @@ void main() {
     testWidgets(
       "the close button opens the sheet, and closing it keeps the banner",
       (tester) async {
-        await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+        linkingOffered = true;
         await pumpBanner(tester);
 
         await tester.tap(find.byKey(const Key("email_link_banner_close")));
@@ -841,7 +831,7 @@ void main() {
     );
 
     testWidgets("Ask me later hides the banner for now", (tester) async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await pumpBanner(tester);
 
       await tester.tap(find.byKey(const Key("email_link_banner_close")));
@@ -868,7 +858,7 @@ void main() {
     });
 
     testWidgets("Dismiss hides the banner for good", (tester) async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await pumpBanner(tester);
 
       await tester.tap(find.byKey(const Key("email_link_banner_close")));
@@ -882,7 +872,7 @@ void main() {
     });
 
     testWidgets("the link opens the e-mail flow for linking", (tester) async {
-      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      linkingOffered = true;
       await pumpBanner(tester);
       repo.dispatch(
         SchemalessCredentialStoreEvent(

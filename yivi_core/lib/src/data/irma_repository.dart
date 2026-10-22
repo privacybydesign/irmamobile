@@ -43,7 +43,6 @@ import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "app_language.dart";
-import "feature_flags.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -680,17 +679,10 @@ class IrmaRepository {
     });
   }
 
-  /// The e-mail code link in [url], or null when it is not one or e-mail
-  /// linking is off, so the link is then treated like any other unknown URL.
-  Future<EmailCodePointer?> _emailCodePointer(String url) async {
-    final pointer = EmailCodePointer.tryParse(url);
-    if (pointer == null) return null;
-
-    final linkingOn = await preferences
-        .getFeatureFlag(FeatureFlag.emailLinking)
-        .first;
-    return linkingOn ? pointer : null;
-  }
+  /// The e-mail code link in [url], or null when it is not one. Only a user
+  /// who asked for a code gets such a link.
+  Future<EmailCodePointer?> _emailCodePointer(String url) async =>
+      EmailCodePointer.tryParse(url);
 
   Stream<Pointer?> getPendingPointer() {
     return _pendingPointerSubject.stream;
@@ -910,8 +902,7 @@ class IrmaRepository {
   }
 
   /// Opens the e-mail issuance flow with the e-mail issuer of the default
-  /// scheme, to link the address to the keyshare server afterwards
-  /// (`FeatureFlag.emailLinking`).
+  /// scheme, to link the address to the keyshare server afterwards.
   Future<void> startEmailLinking(BuildContext context, WidgetRef ref) async {
     final credentialId = "$defaultKeyshareScheme.sidn-pbdf.email";
     final store = await getCredentialStoreItems().first;

@@ -5,7 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/screens/enrollment/accept_terms/widgets/terms_check_box.dart";
+import "package:yivi_core/src/screens/enrollment/welcome/widgets/terms_check_box.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 import "helpers/test_translation_loader.dart";

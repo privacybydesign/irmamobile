@@ -29,7 +29,8 @@ class SessionScaffold extends StatelessWidget {
   final Widget? startBar;
 
   /// Landscape with a panel at the left: the close button in the corner, 16
-  /// from the edge, and no scroll edge band (see [IrmaAppBar.edgeActions]).
+  /// inside the safe area, and no scroll edge band (see
+  /// [IrmaAppBar.edgeActions]).
   final bool cornerClose;
 
   const SessionScaffold({

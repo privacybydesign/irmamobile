@@ -13,7 +13,7 @@ import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
 
 /// Banner at the top of the Gegevens tab that asks the user to link an e-mail
-/// address, so the app can be blocked remotely (`FeatureFlag.emailLinking`).
+/// address, so the app can be blocked remotely.
 class EmailLinkBanner extends ConsumerWidget {
   const EmailLinkBanner({super.key});
 
