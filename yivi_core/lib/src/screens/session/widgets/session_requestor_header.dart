@@ -375,7 +375,9 @@ class RequestorCard extends StatelessWidget {
             decoration: ShapeDecoration(
               color: palette.surface,
               shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(YiviCorners.card),
+                ),
               ),
               shadows: const [
                 BoxShadow(

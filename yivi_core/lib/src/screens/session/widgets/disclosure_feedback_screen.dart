@@ -181,8 +181,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           body: Builder(
             builder: (context) {
               final insets = MediaQuery.paddingOf(context);
-              final top =
-                  (insets.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+              final top = cornerContentTop(context);
               return Padding(
                 padding: EdgeInsets.fromLTRB(
                   16 + insets.left,

@@ -588,7 +588,7 @@ class IssuanceLandscape extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final insets = MediaQuery.paddingOf(context);
     // The bar holds only the close button, in the corner beside the column.
-    final top = (insets.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+    final top = cornerContentTop(context);
     // On a wide screen (a tablet, an unfolded phone) at most
     // [sidewaysMaxWidth], centred.
     return Padding(

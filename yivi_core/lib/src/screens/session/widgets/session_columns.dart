@@ -6,9 +6,11 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 
-/// The most a session screen's sideways layout (the panel at the left, the
-/// content at the right) is wide, centred, on a tablet or an unfolded phone.
-const double sidewaysMaxWidth = 1000;
+/// The most a session screen's sideways layout is wide, centred: the 324
+/// panel at the left, and the cards at the right at most 480 wide (on a
+/// phone held sideways about 390), so they don't stretch on a tablet or an
+/// unfolded phone.
+const double sidewaysMaxWidth = 324 + 16 + 480 + 16;
 
 /// Whether the session screens use their two-column tablet layouts: on a
 /// tablet held upright. Wider than high they use the layout of a phone held

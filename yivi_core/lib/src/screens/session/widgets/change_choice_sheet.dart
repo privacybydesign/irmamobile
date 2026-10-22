@@ -19,6 +19,7 @@ import "../models/disclosure_view_model.dart";
 import "empty_card_spot.dart";
 import "issue_flow.dart";
 import "issue_sheet_progress.dart";
+import "session_columns.dart";
 import "shared_card_tile.dart";
 
 export "issue_flow.dart" show issuerOpenerProvider;
@@ -182,15 +183,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// "Back to {requestor}": the new card flies into its spot as the sheet
   /// closes. Without a spot to fly to, or for a card of another type than
   /// the one being added (an issuance that happened to come in meanwhile),
-  /// the sheet just closes. On a tablet, where the sheet is a dialog over
-  /// the page, the card fades into its spot instead (the share screen).
+  /// the sheet just closes. On a tablet held upright, where the share screen
+  /// has its tablet columns, the card fades into its spot instead; held
+  /// sideways (also an unfolded phone) it flies, as on the phone.
   void _finish() {
     final cards = issueAdded ?? const <schemaless.Credential>[];
     final landing = widget.landingKey;
     final i = cards.indexWhere(
       (c) => c.credentialId == issueAdding?.credentialId,
     );
-    if (landing != null && i >= 0 && !isExpandedLayout(context)) {
+    if (landing != null && i >= 0 && !useSessionColumns(context)) {
       CardFlight.start(
         context,
         source: issueAddedKeys[i],

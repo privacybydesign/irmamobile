@@ -325,3 +325,13 @@ bool cornerIsFree(BuildContext context) {
   final padding = MediaQuery.paddingOf(context);
   return padding.left == padding.right;
 }
+
+/// Where the content of a screen with its close button in the corner
+/// ([IrmaAppBar.edgeActions]) starts: at the top, beside the button, when
+/// the corner is free ([cornerIsFree]); below the bar when the button is
+/// inside the safe area, so it never sits over the content.
+double cornerContentTop(BuildContext context) {
+  final top = MediaQuery.paddingOf(context).top;
+  if (!cornerIsFree(context)) return top + 8;
+  return (top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+}

@@ -1561,48 +1561,58 @@ void main() {
       );
     });
 
-    testWidgets("tablet: the same steps in the dialog, and nothing flies", (
-      tester,
-    ) async {
-      final nested = StreamController<SessionState>();
-      addTearDown(nested.close);
-      await _pump(
-        tester,
-        size: const Size(1180, 820),
-        session: _session([
-          DisclosurePickOne(
-            optional: false,
-            ownedOptions: const [],
-            obtainableOptions: [_descriptor("idcard", "ID card")],
-          ),
-        ]),
-        nested: {nestedId: nested.stream},
-      );
-      await tester.tap(find.byKey(const Key("share_spot_0")));
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
-        findsOneWidget,
-      );
-      await tester.tap(find.byKey(const Key("sheet_go_button")));
-      await tester.pumpAndSettle();
-      comeBack(tester);
-      nested.add(issuance(SessionStatus.requestPermission));
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
-        findsOneWidget,
-      );
-      nested.add(issuance(SessionStatus.success));
-      await tester.pumpAndSettle();
+    for (final (name, size, flies) in [
+      // Upright, the share screen has its tablet columns: the card fades in.
+      ("tablet upright", const Size(1032, 1376), false),
+      // Sideways it has the phone's panel, with spots the card flies into.
+      ("tablet sideways", const Size(1180, 820), true),
+      ("unfolded phone sideways", const Size(951, 669), true),
+    ]) {
+      testWidgets("$name: the same steps in the dialog, and the card "
+          "${flies ? "flies into its spot" : "fades in"}", (tester) async {
+        final nested = StreamController<SessionState>();
+        addTearDown(nested.close);
+        await _pump(
+          tester,
+          size: size,
+          session: _session([
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: const [],
+              obtainableOptions: [_descriptor("idcard", "ID card")],
+            ),
+          ]),
+          nested: {nestedId: nested.stream},
+        );
+        await tester.tap(find.byKey(const Key("share_spot_0")));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+          findsOneWidget,
+        );
+        await tester.tap(find.byKey(const Key("sheet_go_button")));
+        await tester.pumpAndSettle();
+        comeBack(tester);
+        nested.add(issuance(SessionStatus.requestPermission));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
+          findsOneWidget,
+        );
+        nested.add(issuance(SessionStatus.success));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const Key("sheet_back_to_request")));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 200));
-      expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
-    });
+        await tester.tap(find.byKey(const Key("sheet_back_to_request")));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(
+          find.byKey(const Key("sheet_flight_card")),
+          flies ? findsOneWidget : findsNothing,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+      });
+    }
 
     testWidgets("choosing does not ask: the choice list just closes", (
       tester,

@@ -75,7 +75,9 @@ class PairingRequired extends StatelessWidget {
                     decoration: ShapeDecoration(
                       color: palette.surface,
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(YiviCorners.iconTile),
+                        ),
                       ),
                       shadows: [shadow],
                     ),
@@ -128,7 +130,9 @@ class PairingRequired extends StatelessWidget {
                         decoration: ShapeDecoration(
                           color: palette.surface,
                           shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(YiviCorners.card),
+                            ),
                           ),
                           shadows: [shadow],
                         ),

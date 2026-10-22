@@ -109,28 +109,32 @@ void main() {
       expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 16);
     });
 
-    testWidgets("success: the card left, the words right, OK bottom right", (
-      tester,
-    ) async {
+    testWidgets("success: the card and OK in the panel, the words and "
+        "what is now in the app right", (tester) async {
       await pump(
         tester,
         IssuanceSuccessScreen(credentials: [ticket], onDismiss: (_) {}),
       );
+      final panel = find.byKey(const Key("issuance_panel"));
       expect(
-        find.byKey(const Key("action_feedback_landscape")),
+        find.byKey(const Key("issuance_success_landscape")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: panel, matching: find.byType(CredentialCardArt)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: panel,
+          matching: find.byKey(const Key("ok_button")),
+        ),
         findsOneWidget,
       );
       final card = tester.getRect(find.byType(CredentialCardArt).first);
-      final title = tester.getRect(
-        find.descendant(
-          of: find.byKey(const Key("action_feedback_landscape")),
-          matching: find.text("Success"),
-        ),
-      );
+      final title = tester.getRect(find.text("Success"));
       expect(title.left, greaterThan(card.right));
-      final ok = tester.getRect(find.byKey(const Key("ok_button")));
-      expect(ok.width, 320);
-      expect(ok.right, 874 - 62 - 16);
+      expect(find.text("In your app"), findsOneWidget);
     });
   });
 

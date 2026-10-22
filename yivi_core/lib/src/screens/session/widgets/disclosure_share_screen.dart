@@ -380,8 +380,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               final media = MediaQuery.paddingOf(context);
               // The bar holds only the close button, in the corner beside
               // the column: the content starts at the top of the screen.
-              final top =
-                  (media.top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+              final top = cornerContentTop(context);
               // On a wide screen (a tablet, an unfolded phone) at most
               // [sidewaysMaxWidth], centred.
               return Padding(

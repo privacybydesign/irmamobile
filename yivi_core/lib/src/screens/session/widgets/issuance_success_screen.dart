@@ -1,11 +1,18 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../data/wallet/issuance_flight.dart";
+import "issuance_permission.dart";
+import "session_columns.dart";
+import "session_scaffold.dart";
 
 /// "Success" after adding cards: the card with a green check, or the pile
 /// of cards with one check for several.
@@ -73,6 +80,59 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
         ? "issuance.success_feedback.text"
         : "issuance.success_feedback.added_${many ? "many" : "one"}"
               "${back == null ? "" : "_back"}";
+
+    // Held sideways, as the share screen and the permission: the card and
+    // the button in a panel at the left, the words and what is now in the
+    // app at the right.
+    if (cards.isNotEmpty &&
+        !useSessionColumns(context) &&
+        useSheetColumns(context)) {
+      String t(String key) =>
+          FlutterI18n.translate(context, key, translationParams: params);
+      final palette = YiviPalette.of(context);
+      return PopScope(
+        canPop: false,
+        child: SessionScaffold(
+          appBarTitle: "issuance.success_feedback.header",
+          onDismiss: _done,
+          wide: true,
+          scrollsUnderBars: true,
+          cornerClose: true,
+          body: IssuanceLandscape(
+            key: const Key("issuance_success_landscape"),
+            title: t("issuance.success_feedback.header"),
+            note: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                t(text),
+                style: palette.body(16).copyWith(height: 24 / 16),
+              ),
+            ),
+            overview: [
+              Padding(
+                // Room for the check over the card's corner.
+                padding: const EdgeInsets.only(top: 14),
+                child: IssuanceReceived(cards: cards, cardKeys: _cardKeys),
+              ),
+            ],
+            receives: IssuanceOffer(
+              cards: cards,
+              showRequestChip: false,
+            ).receives(context, headingKey: "data.add.in_your_app"),
+            actions: FancyPillButton(
+              key: const Key("ok_button"),
+              label: t(
+                back == null
+                    ? "action_feedback.ok"
+                    : "issuance.success_feedback.back_to",
+              ),
+              size: PillSize.regular,
+              onPressed: _done,
+            ),
+          ),
+        ),
+      );
+    }
 
     return ActionFeedback(
       success: true,
