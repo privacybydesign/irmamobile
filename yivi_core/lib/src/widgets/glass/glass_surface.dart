@@ -81,6 +81,10 @@ class GlassSurface extends StatelessWidget {
   /// strength fade, and only [child] goes through an opacity layer.
   final double opacity;
 
+  /// Dark glass, for a camera picture or a photo: a smoky fill with a faint
+  /// rim and no light sheen, in either theme. Give its content white.
+  final bool dark;
+
   const GlassSurface({
     super.key,
     required this.child,
@@ -90,7 +94,12 @@ class GlassSurface extends StatelessWidget {
     this.shadow = true,
     this.opacity = 1,
     this.blur,
+    this.dark = false,
   });
+
+  /// The fill and rim of [dark] glass.
+  static const darkFill = Color(0x8C282C32);
+  static const darkRim = Color(0x29FFFFFF);
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +108,15 @@ class GlassSurface extends StatelessWidget {
     final opaque = GlassOpaque.of(context);
     final a = opacity.clamp(0.0, 1.0);
     Color fade(Color c) => a == 1 ? c : c.withValues(alpha: c.a * a);
-    final glassFill = fill ?? (solid ? palette.surface : palette.glassFill);
+    final glassFill =
+        fill ??
+        (dark
+            ? (solid ? const Color(0xFF282C32) : darkFill)
+            : (solid ? palette.surface : palette.glassFill));
+    // Dark glass lies over a dark picture, not over the page.
+    final under = dark ? Colors.black : palette.background;
+    final rim = dark ? darkRim : palette.glassBorder;
+    final sheen = dark ? 0.0 : (solid ? 0.0 : palette.glassHighlight.a * 0.35);
 
     final shaped = ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
@@ -111,9 +128,7 @@ class GlassSurface extends StatelessWidget {
             shape: shape,
             // Opaque glass: its colour as it looks over the page.
             color: fade(
-              opaque
-                  ? Color.alphaBlend(glassFill, palette.background)
-                  : glassFill,
+              opaque ? Color.alphaBlend(glassFill, under) : glassFill,
             ),
           ),
           position: DecorationPosition.background,
@@ -131,9 +146,7 @@ class GlassSurface extends StatelessWidget {
                   // A share of the theme's own highlight: a soft white
                   // sheen in light, only a faint one on dark glass (an
                   // absolute 35% white glowed there).
-                  palette.glassHighlight.withValues(
-                    alpha: solid ? 0 : palette.glassHighlight.a * 0.35 * a,
-                  ),
+                  palette.glassHighlight.withValues(alpha: sheen * a),
                   palette.glassHighlight.withValues(alpha: 0),
                 ],
                 stops: const [0, 0.5],
@@ -143,9 +156,7 @@ class GlassSurface extends StatelessWidget {
             child: DecoratedBox(
               // The light edge, in front so content scrolling under it
               // keeps a crisp rim.
-              decoration: ShapeDecoration(
-                shape: _withSide(shape, fade(palette.glassBorder)),
-              ),
+              decoration: ShapeDecoration(shape: _withSide(shape, fade(rim))),
               position: DecorationPosition.foreground,
               child: Padding(
                 padding: padding ?? EdgeInsets.zero,
@@ -238,9 +249,8 @@ class _OuterShadowPainter extends CustomPainter {
       Rect.fromCircle(center: rect.center, radius: rect.shortestSide / 2),
       Radius.circular(rect.shortestSide / 2),
     ),
-    RoundedRectangleBorder(:final borderRadius) => borderRadius
-        .resolve(TextDirection.ltr)
-        .toRRect(rect),
+    RoundedRectangleBorder(:final borderRadius) =>
+      borderRadius.resolve(TextDirection.ltr).toRRect(rect),
     _ => null,
   };
 
@@ -306,9 +316,6 @@ class GlassIconButton extends StatelessWidget {
     this.opacity = 1,
   });
 
-  /// The fill of [dark] glass.
-  static const darkFill = Color(0x6B1C1C1E);
-
   @override
   Widget build(BuildContext context) {
     final a = opacity.clamp(0.0, 1.0);
@@ -322,7 +329,8 @@ class GlassIconButton extends StatelessWidget {
           scale: 1.08,
           child: GlassSurface(
             shape: const CircleBorder(),
-            fill: fill ?? (dark ? darkFill : null),
+            fill: fill,
+            dark: dark,
             opacity: a,
             child: Material(
               type: MaterialType.transparency,

@@ -734,26 +734,28 @@
     "hide": "Pincode verbergen"
   },
   "qr_scanner": {
-    "title": "QR Code Scannen",
+    "title": "QR-code scannen",
     "instruction": {
-      "title": "Begin met scannen",
-      "message": "Richt je mobiel op een Yivi QR-code",
-      "semantic": "Begin met scannen! Richt je mobiel op een Yivi QR-code."
+      "message": "Richt je camera op een Yivi QR-code",
+      "side": "Richt je camera op een Yivi QR-code. Het scannen gaat vanzelf.",
+      "semantic": "Richt je camera op een Yivi QR-code."
     },
+    "searching": "Zoeken naar een QR-code…",
     "success": {
-      "title": "Gelukt",
-      "message": "De QR-code is gescand",
+      "message": "Gelukt, de QR-code is gescand",
+      "short": "Gelukt, gescand",
       "semantic": "Gelukt! De QR-code is gescand."
     },
     "error": {
-      "title": "Sorry",
       "message": "Dit is geen Yivi QR-code",
       "semantic": "Sorry! Dit is geen Yivi QR-code."
     },
-    "permission_dialog": {
-      "title": "Schakel camera in",
-      "content": "Geef Yivi toegang tot je camera. Ga naar instellingen om toestemming te geven.",
-      "settings": "Open instellingen"
+    "torch": "Zaklamp",
+    "torch_on": "Zaklamp aan",
+    "no_camera": {
+      "title": "Geen toegang tot je camera",
+      "message": "Geef Yivi toegang tot je camera om QR-codes te scannen. Dat doe je in Instellingen.",
+      "open_settings": "Open Instellingen"
     }
   },
   "reset_pin": {

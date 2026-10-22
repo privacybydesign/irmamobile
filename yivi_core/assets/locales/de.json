@@ -736,24 +736,26 @@
   "qr_scanner": {
     "title": "QR-Code scannen",
     "instruction": {
-      "title": "Scannen starten",
-      "message": "Richten Sie die Kamera Ihres Mobilgeräts auf den Yivi-QR-Code",
-      "semantic": "Scannen starten! Richten Sie die Kamera Ihres Mobilgeräts auf den Yivi-QR-Code."
+      "message": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code",
+      "side": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code. Das Scannen geht von selbst.",
+      "semantic": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code."
     },
+    "searching": "Suche nach einem QR-Code…",
     "success": {
-      "title": "Erfolg",
-      "message": "QR-Code gescannt",
-      "semantic": "Erfolg! QR-Code gescannt."
+      "message": "Erledigt, der QR-Code ist gescannt",
+      "short": "Erledigt, gescannt",
+      "semantic": "Erledigt! Der QR-Code ist gescannt."
     },
     "error": {
-      "title": "Entschuldigung",
       "message": "Dies ist kein Yivi-QR-Code",
       "semantic": "Entschuldigung! Dies ist kein Yivi-QR-Code."
     },
-    "permission_dialog": {
-      "title": "Kamera einschalten",
-      "content": "Geben Sie Yivi die Berechtigung, Ihre Kamera zu verwenden. Gehen Sie zu den Einstellungen, um die Berechtigung zu erteilen.",
-      "settings": "Einstellungen öffnen"
+    "torch": "Taschenlampe",
+    "torch_on": "Taschenlampe an",
+    "no_camera": {
+      "title": "Kein Zugriff auf Ihre Kamera",
+      "message": "Geben Sie Yivi Zugriff auf Ihre Kamera, um QR-Codes zu scannen. Das tun Sie in den Einstellungen.",
+      "open_settings": "Einstellungen öffnen"
     }
   },
   "reset_pin": {

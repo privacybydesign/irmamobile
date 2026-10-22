@@ -1,9 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
 /// The dimmed camera around the scan window and the window's corner
-/// brackets, as in the design: a 300 pt window with 40 pt corners and 56 pt
-/// brackets, dimmed in dark grey, or green after a Yivi QR code and red after
-/// another code.
+/// brackets: dimmed in dark grey, or green after a Yivi QR code and red
+/// after another code, with the window itself lightly tinted to match.
 class QROverlay extends CustomPainter {
   /// Where the window is, in the painter's coordinates.
   final Rect window;
@@ -14,24 +13,41 @@ class QROverlay extends CustomPainter {
   /// wrong QR code found
   final bool error;
 
-  QROverlay({required this.window, required this.found, required this.error});
+  /// How far the brackets are moved sideways, for the shake after a wrong
+  /// code.
+  final double shake;
 
-  static const _designSize = 300.0;
+  QROverlay({
+    required this.window,
+    required this.found,
+    required this.error,
+    this.shake = 0,
+  });
+
+  static const radius = 16.0;
+  static const _bracket = 38.0;
+  static const _stroke = 5.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    // The corners and brackets keep the design's proportions in a smaller
-    // window.
-    final scale = window.width / _designSize;
-    final radius = 40 * scale;
-    final cornerSize = 56 * scale;
-    final rrect = RRect.fromRectAndRadius(window, Radius.circular(radius));
+    final rrect = RRect.fromRectAndRadius(
+      window,
+      const Radius.circular(radius),
+    );
 
-    final (overlayColor, cornerColor) = error
-        ? (const Color(0x8C961414), const Color(0xFFFF6B6B))
+    final (overlayColor, tint, cornerColor) = error
+        ? (
+            const Color(0x9E300808),
+            const Color(0x29BD1919),
+            const Color(0xFFFF6B6B),
+          )
         : found
-        ? (const Color(0x8C006E2A), const Color(0xFF3DDC84))
-        : (const Color(0x8C121417), Colors.white);
+        ? (
+            const Color(0x9E062816),
+            const Color(0x3821915A),
+            const Color(0xFF3DD07A),
+          )
+        : (const Color(0x940A0C0E), null, Colors.white);
 
     // Punch the scan window out of the dimming overlay using BlendMode.clear.
     // This must happen inside its own offscreen layer: BlendMode.clear writes
@@ -50,33 +66,36 @@ class QROverlay extends CustomPainter {
         ..blendMode = BlendMode.clear,
     );
     canvas.restore();
+    if (tint != null) canvas.drawRRect(rrect, Paint()..color = tint);
 
-    // Corner brackets that follow the window's rounded corners.
-    final left = window.left, top = window.top;
-    final right = window.right, bottom = window.bottom;
-    final r = Radius.circular(radius);
+    // Corner brackets just outside the window, round its corners.
+    final frame = window.inflate(_stroke / 2).shift(Offset(shake, 0));
+    final r = radius + _stroke / 2;
+    final rr = Radius.circular(r);
+    final left = frame.left, top = frame.top;
+    final right = frame.right, bottom = frame.bottom;
     final corners = Path()
-      ..moveTo(left, top + cornerSize)
-      ..lineTo(left, top + radius)
-      ..arcToPoint(Offset(left + radius, top), radius: r)
-      ..lineTo(left + cornerSize, top)
-      ..moveTo(right - cornerSize, top)
-      ..lineTo(right - radius, top)
-      ..arcToPoint(Offset(right, top + radius), radius: r)
-      ..lineTo(right, top + cornerSize)
-      ..moveTo(right, bottom - cornerSize)
-      ..lineTo(right, bottom - radius)
-      ..arcToPoint(Offset(right - radius, bottom), radius: r)
-      ..lineTo(right - cornerSize, bottom)
-      ..moveTo(left + cornerSize, bottom)
-      ..lineTo(left + radius, bottom)
-      ..arcToPoint(Offset(left, bottom - radius), radius: r)
-      ..lineTo(left, bottom - cornerSize);
+      ..moveTo(left, top + _bracket)
+      ..lineTo(left, top + r)
+      ..arcToPoint(Offset(left + r, top), radius: rr)
+      ..lineTo(left + _bracket, top)
+      ..moveTo(right - _bracket, top)
+      ..lineTo(right - r, top)
+      ..arcToPoint(Offset(right, top + r), radius: rr)
+      ..lineTo(right, top + _bracket)
+      ..moveTo(right, bottom - _bracket)
+      ..lineTo(right, bottom - r)
+      ..arcToPoint(Offset(right - r, bottom), radius: rr)
+      ..lineTo(right - _bracket, bottom)
+      ..moveTo(left + _bracket, bottom)
+      ..lineTo(left + r, bottom)
+      ..arcToPoint(Offset(left, bottom - r), radius: rr)
+      ..lineTo(left, bottom - _bracket);
     canvas.drawPath(
       corners,
       Paint()
         ..color = cornerColor
-        ..strokeWidth = 4
+        ..strokeWidth = _stroke
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke,
     );
@@ -84,5 +103,8 @@ class QROverlay extends CustomPainter {
 
   @override
   bool shouldRepaint(QROverlay old) =>
-      old.window != window || old.found != found || old.error != error;
+      old.window != window ||
+      old.found != found ||
+      old.error != error ||
+      old.shake != shake;
 }

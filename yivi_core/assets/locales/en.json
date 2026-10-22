@@ -731,26 +731,28 @@
     "hide": "Hide PIN"
   },
   "qr_scanner": {
-    "title": "Scan QR Code",
+    "title": "Scan QR code",
     "instruction": {
-      "title": "Start scanning",
-      "message": "Aim the camera of your mobile at the Yivi QR code",
-      "semantic": "Start scanning! Aim the camera of your mobile at the Yivi QR code."
+      "message": "Point your camera at a Yivi QR code",
+      "side": "Point your camera at a Yivi QR code. It scans by itself.",
+      "semantic": "Point your camera at a Yivi QR code."
     },
+    "searching": "Looking for a QR code…",
     "success": {
-      "title": "Success",
-      "message": "QR code scanned",
-      "semantic": "Success! QR code scanned."
+      "message": "Done, the QR code is scanned",
+      "short": "Done, scanned",
+      "semantic": "Done! The QR code is scanned."
     },
     "error": {
-      "title": "Sorry",
       "message": "This is not a Yivi QR code",
       "semantic": "Sorry! This is not a Yivi QR code."
     },
-    "permission_dialog": {
-      "title": "Turn camera on",
-      "content": "Give Yivi permission to use your camera. Go to settings to give permission.",
-      "settings": "Open settings"
+    "torch": "Flashlight",
+    "torch_on": "Flashlight on",
+    "no_camera": {
+      "title": "No access to your camera",
+      "message": "Give Yivi access to your camera to scan QR codes. You do this in Settings.",
+      "open_settings": "Open Settings"
     }
   },
   "reset_pin": {

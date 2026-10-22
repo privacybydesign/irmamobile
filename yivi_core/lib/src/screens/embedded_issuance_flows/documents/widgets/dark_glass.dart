@@ -11,11 +11,15 @@ class DarkGlass extends StatelessWidget {
   final ShapeBorder shape;
   final EdgeInsetsGeometry padding;
 
+  /// A colour instead of the smoke, e.g. green or red for a result.
+  final Color? tint;
+
   const DarkGlass({
     super.key,
     required this.child,
     this.shape = const StadiumBorder(),
     this.padding = EdgeInsets.zero,
+    this.tint,
   });
 
   static const fill = Color(0x6B1C1C1E);
@@ -36,7 +40,9 @@ class DarkGlass extends StatelessWidget {
     final opaque = GlassOpaque.of(context);
     final glass = DecoratedBox(
       decoration: ShapeDecoration(
-        color: opaque ? Color.alphaBlend(fill, Colors.black) : fill,
+        color: opaque
+            ? Color.alphaBlend(tint ?? fill, Colors.black)
+            : tint ?? fill,
         shape: edged,
       ),
       child: Padding(padding: padding, child: child),

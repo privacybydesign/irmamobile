@@ -13,9 +13,22 @@ class IrmaCloseButton extends StatelessWidget {
   /// Fades the button with its page; see [GlassSurface.opacity].
   final double opacity;
 
-  const IrmaCloseButton({super.key, this.onTap, this.opacity = 1});
+  /// Dark glass with a white cross, over a photo or a camera picture.
+  final bool dark;
 
-  const IrmaCloseButton.filled({super.key, this.onTap, this.opacity = 1});
+  const IrmaCloseButton({
+    super.key,
+    this.onTap,
+    this.opacity = 1,
+    this.dark = false,
+  });
+
+  const IrmaCloseButton.filled({
+    super.key,
+    this.onTap,
+    this.opacity = 1,
+    this.dark = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +36,12 @@ class IrmaCloseButton extends StatelessWidget {
       semanticsLabel: FlutterI18n.translate(context, "accessibility.close"),
       onTap: onTap ?? Navigator.of(context).pop,
       opacity: opacity,
-      icon: Icon(Icons.close, size: 22, color: YiviPalette.of(context).text),
+      dark: dark,
+      icon: Icon(
+        Icons.close,
+        size: 22,
+        color: dark ? Colors.white : YiviPalette.of(context).text,
+      ),
     );
   }
 }

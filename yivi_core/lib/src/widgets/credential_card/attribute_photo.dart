@@ -442,6 +442,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                       key: const Key("photo_viewer_close"),
                       onTap: _close,
                       opacity: opacity,
+                      dark: true,
                     ),
                   ),
                 ),
