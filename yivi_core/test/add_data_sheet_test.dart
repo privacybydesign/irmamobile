@@ -1047,8 +1047,8 @@ void main() {
       expect(find.byType(SheetBottomBar), findsNothing);
     });
 
-    testWidgets("a passport: Start in the bar, the picture at the left, the "
-        "words at the right", (tester) async {
+    testWidgets("a passport: Start in the bar, the words at the left, the "
+        "picture at the right", (tester) async {
       await _pump(
         tester,
         size: side,
@@ -1082,7 +1082,7 @@ void main() {
       );
       expect(start.left, greaterThan(bar.right));
       expect(start.bottom, lessThan(picture.top));
-      expect(title.left, greaterThan(picture.right));
+      expect(title.right, lessThan(picture.left));
       expect(
         find.byKey(const ValueKey(("issue_sheet_progress", 2, 5))),
         findsOneWidget,

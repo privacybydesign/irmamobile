@@ -79,40 +79,24 @@ class FaceVerificationIntroScreen extends StatelessWidget {
         ),
       ),
     );
-    // In a sheet held sideways: the face and Start at the left, the
-    // explanation and the tips at the right.
+    // In a sheet held sideways, as on every step of the document flows: the
+    // explanation, the tips and Start at the left, the face at the right.
     if (documentStepSplit(context)) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: SheetSplit(
+          endFills: true,
           start: [
-            Container(
-              height: 200,
-              alignment: Alignment.center,
-              decoration: ShapeDecoration(
-                color: palette.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-                ),
-                shadows: cardShadow,
+            Padding(
+              padding: const .symmetric(horizontal: 4),
+              child: TranslatedText(
+                "face_verification.intro.explanation",
+                style: palette.body(15).copyWith(height: 22 / 15),
               ),
-              child: const FittedBox(child: FaceFrameIllustration()),
             ),
+            tipsGroup,
           ],
-          end: Column(
-            crossAxisAlignment: .stretch,
-            spacing: 12,
-            children: [
-              Padding(
-                padding: const .symmetric(horizontal: 4),
-                child: TranslatedText(
-                  "face_verification.intro.explanation",
-                  style: palette.body(15).copyWith(height: 22 / 15),
-                ),
-              ),
-              tipsGroup,
-            ],
-          ),
+          end: const SheetPictureCard(child: FaceFrameIllustration()),
           actions: DocumentFlowFooter.sheetActions(context, buttons),
         ),
       );
@@ -145,7 +129,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                 decoration: ShapeDecoration(
                   color: palette.surface,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(YiviCorners.card),
+                    ),
                   ),
                   shadows: cardShadow,
                 ),

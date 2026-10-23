@@ -108,30 +108,28 @@ class DocumentInstructionScreen extends StatelessWidget {
           style: .secondary,
         ),
     ];
-    // In a sheet held sideways: the picture and Start at the left, the
-    // words at the right.
+    // In a sheet held sideways, as on every step of the document flows: the
+    // words and Start at the left, the picture at the right.
     if (documentStepSplit(context)) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: SheetSplit(
+          endFills: true,
           start: [
-            AspectRatio(
+            // The title at the top of the column.
+            ...words(TextAlign.start, top: 0, size: 20),
+          ],
+          end: Center(
+            child: AspectRatio(
               aspectRatio: _pictureWidth / _pictureHeight,
               child: FittedBox(child: picture),
             ),
-          ],
-          end: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // The title at the top of the column.
-              ...words(TextAlign.start, top: 0, size: 20),
-            ],
           ),
           actions: DocumentFlowFooter.sheetActions(context, buttons),
         ),
       );
     }
-    // A phone held sideways: the picture at the left, the words at the
+    // A phone held sideways: the words at the left, the picture at the
     // right.
     final landscape = useSheetColumns(context);
 
@@ -154,17 +152,17 @@ class DocumentInstructionScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 28,
                   children: [
-                    // Smaller: the sheet has little height sideways.
-                    SizedBox(
-                      width: _pictureWidth * 0.7,
-                      height: _pictureHeight * 0.7,
-                      child: FittedBox(child: picture),
-                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: words(TextAlign.start),
                       ),
+                    ),
+                    // Smaller: the sheet has little height sideways.
+                    SizedBox(
+                      width: _pictureWidth * 0.7,
+                      height: _pictureHeight * 0.7,
+                      child: FittedBox(child: picture),
                     ),
                   ],
                 )

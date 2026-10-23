@@ -1,14 +1,25 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_step_in_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/adaptive_layout.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
 
-Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
+Widget _wrap({
+  required VoidCallback onStart,
+  required VoidCallback onCancel,
+  bool inWideSheet = false,
+}) {
+  final screen = FaceVerificationIntroScreen(
+    onStart: onStart,
+    onCancel: onCancel,
+  );
   // TestContext disables the intro animation's repeating ticker so
   // pumpAndSettle does not hang.
   return TestContext(
@@ -23,7 +34,11 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
           ),
           ...GlobalMaterialLocalizations.delegates,
         ],
-        home: FaceVerificationIntroScreen(onStart: onStart, onCancel: onCancel),
+        home: inWideSheet
+            ? DocumentStepInSheet(
+                child: SheetWidthScope(width: 874, child: screen),
+              )
+            : screen,
       ),
     ),
   );
@@ -72,5 +87,24 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(cancelled, 1);
+  });
+
+  testWidgets("in a sheet held sideways: the words at the left, the face at "
+      "the right", (tester) async {
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(874, 402);
+    addTearDown(tester.view.reset);
+    await pumpTranslated(
+      tester,
+      _wrap(onStart: () {}, onCancel: () {}, inWideSheet: true),
+    );
+    await tester.pumpAndSettle();
+
+    final words = tester.getRect(
+      find.textContaining("confirm you're the person shown in the document"),
+    );
+    final face = tester.getRect(find.byType(FaceFrameIllustration));
+    expect(words.right, lessThan(face.left));
   });
 }
