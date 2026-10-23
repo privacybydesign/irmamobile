@@ -412,6 +412,9 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     final justAdded = widget.justAdded;
     return GlassSheetPage(
       title: _t("data.add.title"),
+      // The close button at the top left: on the pages after this one the
+      // top right is for the way on, and they close by a drag down.
+      closeAtStart: true,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       slivers: [
         if (justAdded != null)

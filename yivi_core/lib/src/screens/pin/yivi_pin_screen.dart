@@ -426,18 +426,21 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  /// Landscape phone: the screen in two halves. The keypad fills the right
-  /// half: as big as it fits there (up to [_maxScale] times the upright
-  /// size; smaller only where the height is short), its keys spread over the
-  /// half's width. Everything else is in the left half, centred, with the
-  /// link under the field.
+  /// Landscape phone: the screen in two halves. The keypad is in the right
+  /// half, the same pad as held upright (the same keys and the same room
+  /// between them), smaller only where the height is short. Everything else
+  /// is in the left half, centred, with the link under the field.
   Widget _bodyLandscape(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
-    return Padding(
-      padding: EdgeInsets.only(bottom: padding.bottom),
-      child: Row(
-        children: [
-          Expanded(
+    // The keypad in the middle of the half's height: as much room above it
+    // as below, where it keeps clear of the home indicator (the device's
+    // own inset, not the room a sheet adds under its content).
+    final inset = MediaQuery.viewPaddingOf(context).bottom;
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: padding.bottom),
             child: Center(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -455,43 +458,33 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               ),
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // A little room above and below the keys.
-                  final scale = [
-                    _maxScale,
-                    (constraints.maxHeight - 8) / PinKeypad.height,
-                    constraints.maxWidth / PinKeypad.width,
-                  ].reduce(min);
-                  // The columns spread out to fill the half, never closer
-                  // than held upright, nor so far apart they stop reading
-                  // as one pad.
-                  final gap =
-                      ((constraints.maxWidth / scale - 3 * PinKeypad.keySize) /
-                              2)
-                          .clamp(PinKeypad.defaultColumnGap, _maxColumnGap);
-                  return Center(
-                    child: SizedBox(
-                      width: PinKeypad.widthFor(gap) * scale,
-                      height: PinKeypad.height * scale,
-                      child: FittedBox(child: _buildKeypad(columnGap: gap)),
-                    ),
-                  );
-                },
-              ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: inset),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // A little room above and below the keys; never larger
+                // than held upright.
+                final scale = [
+                  1.0,
+                  (constraints.maxHeight - 8) / PinKeypad.height,
+                  constraints.maxWidth / PinKeypad.width,
+                ].reduce(min);
+                return Center(
+                  child: SizedBox(
+                    width: PinKeypad.width * scale,
+                    height: PinKeypad.height * scale,
+                    child: FittedBox(child: _buildKeypad()),
+                  ),
+                );
+              },
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-
-  /// See [_bodyLandscape].
-  static const double _maxColumnGap = 80;
-  static const double _maxScale = 1.5;
 
   /// Tablet: the phone's column in the middle of the screen (or of the form
   /// sheet the PIN is in), the keypad at full size. A tablet is held with two

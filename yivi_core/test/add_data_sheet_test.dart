@@ -666,6 +666,24 @@ void main() {
       );
     });
 
+    testWidgets("the list has its close button at the top left; the "
+        "details none, only the way on at the top right", (tester) async {
+      await _pump(tester);
+      final close = tester.getRect(find.byType(IrmaCloseButton));
+      final title = tester.getRect(
+        find.byKey(const Key("glass_sheet_title")).last,
+      );
+      expect(close.right, lessThan(title.left));
+      await tester.tap(
+        find.byKey(const Key("pbdf.gemeente.personalData_tile")),
+      );
+      await tester.pumpAndSettle();
+      // Back at the left; no close button on the details (the list under
+      // them keeps its own, hidden).
+      expect(find.byType(IrmaCloseButton).hitTestable(), findsNothing);
+      expect(find.bySemanticsLabel("Go back"), findsWidgets);
+    });
+
     testWidgets("closing asks once adding has started, not before", (
       tester,
     ) async {
@@ -677,7 +695,16 @@ void main() {
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.bySemanticsLabel("Close"));
+      // No close button on the step: a drag down on its header closes.
+      expect(find.byType(IrmaCloseButton), findsNothing);
+      final g = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key("glass_sheet_title")).last),
+      );
+      for (var i = 0; i < 10; i++) {
+        await g.moveBy(const Offset(0, 50));
+        await tester.pump();
+      }
+      await g.up();
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_stop_dialog")), findsOneWidget);
       expect(

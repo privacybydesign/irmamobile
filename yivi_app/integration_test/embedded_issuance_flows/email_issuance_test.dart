@@ -134,11 +134,10 @@ Future<void> _enterEmail(
   await _pumpFor(tester);
 }
 
-/// Closing the sheet on the step asks "Stop adding …?"; stopping closes it.
+/// Closing the sheet on the step (a drag down on its header: the step has no
+/// close button) asks "Stop adding …?"; stopping closes it.
 Future<void> _stop(WidgetTester tester) async {
-  await tester.tap(
-    find.descendant(of: _sheet, matching: find.bySemanticsLabel("Close")).last,
-  );
+  await dragSheetHeaderDown(tester);
   // The field keeps its blinking cursor under the question: no settling.
   await tester.pumpUntilFound(find.byKey(const Key("sheet_stop_confirm")));
   await tester.tap(find.byKey(const Key("sheet_stop_confirm")));

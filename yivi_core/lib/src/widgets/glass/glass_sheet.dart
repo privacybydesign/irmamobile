@@ -167,15 +167,68 @@ Widget _formSheet(BuildContext context, WidgetBuilder builder) {
           ),
           child: Material(
             type: MaterialType.transparency,
-            child: _GlassSheet(
-              attached: false,
-              height: height,
-              keyboard: covered,
-              child: builder(context),
+            child: _FormSheetDrag(
+              child: _GlassSheet(
+                attached: false,
+                height: height,
+                keyboard: covered,
+                child: builder(context),
+              ),
             ),
           ),
         ),
       ),
+    ),
+  );
+}
+
+/// A drag down on a form sheet's header moves it down with the finger; far
+/// enough or fast enough it closes (through [Navigator.maybePop], so a
+/// [GlassSheetConfirmDismiss] asks first), else it springs back. As a
+/// native iPad form sheet.
+class _FormSheetDrag extends StatefulWidget {
+  final Widget child;
+
+  const _FormSheetDrag({required this.child});
+
+  @override
+  State<_FormSheetDrag> createState() => _FormSheetDragState();
+}
+
+class _FormSheetDragState extends State<_FormSheetDrag>
+    with SingleTickerProviderStateMixin {
+  late final _offset = AnimationController.unbounded(vsync: this);
+
+  @override
+  void dispose() {
+    _offset.dispose();
+    super.dispose();
+  }
+
+  void _back() => _offset.animateTo(
+    0,
+    duration: const Duration(milliseconds: 260),
+    curve: Curves.easeOutCubic,
+  );
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    // Kept out of the semantics tree, as the phone sheet's drag.
+    excludeFromSemantics: true,
+    behavior: HitTestBehavior.opaque,
+    onVerticalDragUpdate: (d) =>
+        _offset.value = math.max(0, _offset.value + (d.primaryDelta ?? 0)),
+    onVerticalDragEnd: (d) {
+      final close = _offset.value > 120 || d.velocity.pixelsPerSecond.dy > 700;
+      _back();
+      if (close) Navigator.of(context).maybePop();
+    },
+    onVerticalDragCancel: _back,
+    child: AnimatedBuilder(
+      animation: _offset,
+      builder: (context, child) =>
+          Transform.translate(offset: Offset(0, _offset.value), child: child),
+      child: widget.child,
     ),
   );
 }
@@ -211,13 +264,14 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   );
 
   /// While something important happens in the sheet (a [PopScope] in it does
-  /// not let it close, see [GlassSheetConfirmDismiss]), a drag or pull down
-  /// does not move the sheet at all: its list just scrolls. A tap outside,
-  /// the close button and the system back still ask first.
+  /// not let it close, see [GlassSheetConfirmDismiss]), a pull of its list
+  /// does not move the sheet: the list just scrolls. A drag on its header
+  /// still moves it, and letting go to close asks first, as a tap outside
+  /// and the system back do (the issuance pages have no close button: the
+  /// header is how they are left).
   bool get _held => popDisposition == RoutePopDisposition.doNotPop;
 
-  /// The current drag on the sheet's header moves it (it was not [_held]
-  /// when it started).
+  /// A drag on the sheet's header is moving it.
   bool _dragging = false;
 
   // From the start of a drag or pull until the sheet has settled after it:
@@ -451,8 +505,8 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                   excludeFromSemantics: true,
                   behavior: HitTestBehavior.opaque,
                   onVerticalDragStart: (_) {
-                    _dragging = !_held;
-                    if (_dragging) _startGesture();
+                    _dragging = true;
+                    _startGesture();
                   },
                   onVerticalDragUpdate: (d) {
                     if (_dragging) {
@@ -799,9 +853,15 @@ class GlassSheetHeader extends StatelessWidget {
   /// Called instead of [action]'s own callback (a slot's latest one).
   final VoidCallback? onAction;
 
-  /// False on a page that is done ("Success"): no close button, no
-  /// "Cancel"; its way on is the way out.
+  /// False on a page that is left by dragging its header down (the pages of
+  /// adding a card) or by its way on ("Success"): no close button, no
+  /// "Cancel".
   final bool closable;
+
+  /// The close button at the start of the bar instead of the end (the
+  /// first page of Add data, whose pages after it have the way on there).
+  /// Without [onBack] only.
+  final bool closeAtStart;
 
   /// The title fades while pages of [GlassSheetPages] change (the bar
   /// itself stays put); null when it simply shows.
@@ -831,6 +891,7 @@ class GlassSheetHeader extends StatelessWidget {
     this.action,
     this.onAction,
     this.closable = true,
+    this.closeAtStart = false,
     this.titleOpacity,
     this.backOpacity,
     this.actionOpacity,
@@ -913,7 +974,10 @@ class GlassSheetHeader extends StatelessWidget {
     );
     // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
     void close() => Navigator.of(context).maybePop();
-    final Widget? start = floating
+    final closeStart = !floating && closable && closeAtStart && onBack == null;
+    final Widget? start = closeStart
+        ? shown(IrmaCloseButton(onTap: close))
+        : floating
         ? (onBack != null || closable
               ? shown(
                   _BarTextButton(
@@ -952,7 +1016,8 @@ class GlassSheetHeader extends StatelessWidget {
             ),
           ),
         ),
-      if (!floating && closable) shown(IrmaCloseButton(onTap: close)),
+      if (!floating && closable && !closeStart)
+        shown(IrmaCloseButton(onTap: close)),
     ];
     return Padding(
       // Room under the buttons, also once content scrolls under the bar and
@@ -1672,9 +1737,13 @@ class GlassSheetPage extends StatefulWidget {
   /// the page can put theirs in its [SheetActionSlot] instead.
   final SheetAction? action;
 
-  /// False on a page that is done ("Success"): no close button, no
-  /// "Cancel" in the bar; its way on is the way out.
+  /// False on a page that is left by dragging its header down (the pages
+  /// of adding a card) or by its way on ("Success"): no close button, no
+  /// "Cancel" in the bar.
   final bool closable;
+
+  /// See [GlassSheetHeader.closeAtStart].
+  final bool closeAtStart;
 
   /// Right under the title bar, the full width of the sheet, and above the
   /// scrolling [child], staying put while the page scrolls (the progress of
@@ -1711,6 +1780,7 @@ class GlassSheetPage extends StatefulWidget {
     this.bottom,
     this.action,
     this.closable = true,
+    this.closeAtStart = false,
     this.pinned,
     this.subtitle,
     this.padding = EdgeInsets.zero,
@@ -1792,6 +1862,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                 ? null
                 : () => _slot.action?.onTap?.call(),
             closable: widget.closable,
+            closeAtStart: widget.closeAtStart,
             buttons: top,
             titleOpacity: role?.titleOpacity,
             backOpacity: moving && other != null && !other.back

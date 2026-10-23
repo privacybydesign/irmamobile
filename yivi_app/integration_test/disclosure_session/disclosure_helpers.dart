@@ -120,9 +120,7 @@ Future<void> evaluateRequestorHeader(
   expect(
     find.descendant(
       of: header,
-      matching: find.text(
-        isVerified ? "Registered with Yivi" : "Not checked",
-      ),
+      matching: find.text(isVerified ? "Registered with Yivi" : "Not checked"),
     ),
     findsOneWidget,
   );
@@ -426,14 +424,26 @@ Future<void> startAdding(WidgetTester tester, String credentialId) async {
   await tapAddOnDetails(tester);
 }
 
-/// Closes the open sheet without changing anything.
+/// Closes the open sheet without changing anything: its close button, or
+/// on the pages of adding a card (which have none) a drag down on its
+/// header.
 Future<void> closeChoiceSheet(WidgetTester tester) async {
-  await tester.tapAndSettle(
-    find.descendant(
-      of: findChoiceSheet(),
-      matching: find.bySemanticsLabel("Close"),
-    ),
+  final close = find.descendant(
+    of: findChoiceSheet(),
+    matching: find.bySemanticsLabel("Close"),
   );
+  if (close.hitTestable().evaluate().isNotEmpty) {
+    await tester.tapAndSettle(close.hitTestable().first);
+  } else {
+    final g = await tester.startGesture(
+      tester.getCenter(find.byKey(const Key("glass_sheet_title")).last),
+    );
+    for (var i = 0; i < 10; i++) {
+      await g.moveBy(const Offset(0, 50));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await g.up();
+  }
   await tester.waitUntilDisappeared(findChoiceSheet());
 }
 

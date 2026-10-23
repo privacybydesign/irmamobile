@@ -140,6 +140,22 @@ void main() {
       expect(sheet.width, 540);
     });
 
+    testWidgets("a tablet: a drag down on the form sheet closes it", (
+      tester,
+    ) async {
+      await open(tester, const Size(820, 1180));
+      final g = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key("glass_sheet_title"))),
+      );
+      for (var i = 0; i < 6; i++) {
+        await g.moveBy(const Offset(0, 40));
+        await tester.pump();
+      }
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(find.text("Step"), findsNothing);
+    });
+
     testWidgets("greyed out: a tap does nothing", (tester) async {
       await open(tester, const Size(874, 402), enabled: false);
       await tester.tap(find.byKey(const Key("next")));
@@ -331,29 +347,60 @@ void main() {
       });
     }
 
-    // Something important happens in it: a drag does not move it at all.
-    final drags = <String, Finder>{
-      "a drag down on its header": find.text("Sheet"),
-      "a pull of its list": find.text("row 2"),
-    };
-    for (final MapEntry(key: way, value: start) in drags.entries) {
-      testWidgets("$way does not move it, and asks nothing", (tester) async {
-        await open(tester, answer: false);
-        final top = tester.getRect(find.byType(GlassSheetPage)).top;
-        final g = await tester.startGesture(tester.getCenter(start));
-        for (var i = 0; i < 6; i++) {
-          await g.moveBy(const Offset(0, 60));
-          await tester.pump();
-          expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
-        }
-        await g.up();
-        await tester.pumpAndSettle();
-        expect(_asked, 0);
-        expect(find.text("Sheet"), findsOneWidget);
+    // Something important happens in it: a pull of its list does not move
+    // it at all.
+    testWidgets("a pull of its list does not move it, and asks nothing", (
+      tester,
+    ) async {
+      await open(tester, answer: false);
+      final top = tester.getRect(find.byType(GlassSheetPage)).top;
+      final g = await tester.startGesture(tester.getCenter(find.text("row 2")));
+      for (var i = 0; i < 6; i++) {
+        await g.moveBy(const Offset(0, 60));
+        await tester.pump();
         expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
-        expect(_gestureStuck(tester), isFalse);
-      });
-    }
+      }
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(_asked, 0);
+      expect(find.text("Sheet"), findsOneWidget);
+      expect(_gestureStuck(tester), isFalse);
+    });
+
+    // A drag on its header is how the pages of adding a card are left (they
+    // have no close button): it moves the sheet, and letting go far enough
+    // asks; on no the sheet springs back.
+    testWidgets("a drag down on its header moves it and asks; no keeps it", (
+      tester,
+    ) async {
+      await open(tester, answer: false);
+      final top = tester.getRect(find.byType(GlassSheetPage)).top;
+      final g = await tester.startGesture(tester.getCenter(find.text("Sheet")));
+      for (var i = 0; i < 8; i++) {
+        await g.moveBy(const Offset(0, 60));
+        await tester.pump();
+      }
+      expect(tester.getRect(find.byType(GlassSheetPage)).top, greaterThan(top));
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(_asked, 1);
+      expect(find.text("Sheet"), findsOneWidget);
+      expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
+      expect(_gestureStuck(tester), isFalse);
+    });
+
+    testWidgets("a drag down on its header, yes: it closes", (tester) async {
+      await open(tester, answer: true);
+      final g = await tester.startGesture(tester.getCenter(find.text("Sheet")));
+      for (var i = 0; i < 8; i++) {
+        await g.moveBy(const Offset(0, 60));
+        await tester.pump();
+      }
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(_asked, 1);
+      expect(find.text("Sheet"), findsNothing);
+    });
 
     testWidgets("asks nothing while ask is false", (tester) async {
       await tester.pumpWidget(_app());

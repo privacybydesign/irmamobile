@@ -171,6 +171,8 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         "issuance.pre-authorized_code.tx_code_screen.continue",
       );
       return GlassSheetPage(
+        // Left by dragging its header down: no close button.
+        closable: false,
         key: const Key("sheet_openid4vci_tx_code"),
         title: FlutterI18n.translate(
           context,

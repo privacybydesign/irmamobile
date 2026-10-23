@@ -103,6 +103,8 @@ class _OpenID4VCIAuthCodePendingScreenState
 
     if (widget.inSheet) {
       return GlassSheetPage(
+        // Left by dragging its header down: no close button.
+        closable: false,
         key: const Key("sheet_openid4vci_authcode"),
         title: FlutterI18n.translate(
           context,

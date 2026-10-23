@@ -136,14 +136,20 @@ void main() {
       expect(style.fontFamily, contains("Alexandria"));
     });
 
-    testWidgets("held sideways the keys are at least as big as held upright, "
-        "filling the right half", (tester) async {
-      Size key() =>
-          tester.getRect(find.byKey(const Key("number_pad_key_5"))).size;
+    testWidgets("held sideways the pad is the upright one: the same room "
+        "between the keys, in the right half", (tester) async {
+      Rect key(int n) => tester.getRect(find.byKey(Key("number_pad_key_$n")));
+      // The room between two keys side by side, and above each other, as a
+      // part of a key's width.
+      (double, double) gaps() => (
+        (key(2).left - key(1).right) / key(1).width,
+        (key(4).top - key(1).bottom) / key(1).width,
+      );
       _phone(tester);
       await pumpTranslated(tester, _app(choose()));
       await tester.pumpAndSettle();
-      final upright = key();
+      final upright = gaps();
+      final uprightWidth = key(5).width;
 
       // An iPhone 17 held sideways.
       _phone(tester, const Size(874, 402));
@@ -153,15 +159,26 @@ void main() {
         bottom: 21,
       );
       await tester.pumpAndSettle();
-      expect(key().width, greaterThanOrEqualTo(upright.width));
+      final (across, down) = gaps();
+      expect(across, closeTo(upright.$1, 0.02));
+      expect(down, closeTo(upright.$2, 0.02));
+      expect(key(5).width, lessThanOrEqualTo(uprightWidth));
 
-      // Spread over the right half of the screen, clear of the side insets.
-      final one = tester.getRect(find.byKey(const Key("number_pad_key_1")));
-      final three = tester.getRect(find.byKey(const Key("number_pad_key_3")));
-      const half = (874 - 62 - 62) / 2;
-      expect(one.left, greaterThanOrEqualTo(62 + half));
-      expect(three.right, lessThanOrEqualTo(874 - 62));
-      expect(three.right - one.left, greaterThan(half * 0.8));
+      // In the middle of its half's height: as much room above as below.
+      final half = tester.getRect(
+        find
+            .ancestor(
+              of: find.byKey(const Key("number_pad_key_5")),
+              matching: find.byType(Expanded),
+            )
+            .first,
+      );
+      expect((key(1).top + key(0).bottom) / 2, closeTo(half.center.dy, 1));
+
+      // In the right half of the screen, clear of the side insets.
+      const halfWidth = (874 - 62 - 62) / 2;
+      expect(key(1).left, greaterThanOrEqualTo(62 + halfWidth));
+      expect(key(3).right, lessThanOrEqualTo(874 - 62));
     });
 
     for (final size in const [Size(320, 568), Size(844, 390)]) {

@@ -514,12 +514,7 @@ void main() {
 
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
+      await _dragSheetDown(tester);
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key("share_add_optional_0")), findsOneWidget);
@@ -868,13 +863,16 @@ void main() {
       );
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-      // Close is the way out (it asks, as it does on the details).
-      await tester.tap(
+      // No close button: a drag down on the header is the way out (it
+      // asks, as it does on the details).
+      expect(
         find.descendant(
           of: find.byKey(const Key("disclosure_choice_sheet")),
           matching: find.byType(IrmaCloseButton),
         ),
+        findsNothing,
       );
+      await _dragSheetDown(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await tester.pumpAndSettle();
@@ -1632,24 +1630,14 @@ void main() {
       nested.add(issuance(SessionStatus.requestPermission));
       await tester.pumpAndSettle();
 
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
+      await _dragSheetDown(tester);
       await tester.pumpAndSettle();
       expect(find.text("Stop adding ID card?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_keep")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
+      await _dragSheetDown(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await tester.pumpAndSettle();
@@ -1723,12 +1711,7 @@ void main() {
       await _pump(tester, session: _session([_passportOrIdCard()]));
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
+      await _dragSheetDown(tester);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_stop_dialog")), findsNothing);
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
@@ -1862,12 +1845,7 @@ void main() {
       // The field has focus at once: the keyboard is up.
       expect(tester.testTextInput.isVisible, isTrue);
       // A focused field's cursor blinks, so the pages never settle.
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
+      await _dragSheetDown(tester);
       await _pumpFor(tester);
       expect(find.text("Stop adding email address?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
@@ -2039,7 +2017,8 @@ void main() {
     testWidgets("the sheet's own bar: no Cancel, closing asks", (tester) async {
       await open(tester);
       // The screen's own bar and Cancel are gone; the sheet's bar has the
-      // title, back and close, also for screen readers.
+      // title and back, also for screen readers (no close: a drag down on
+      // the header closes).
       expect(inSheet(find.byType(IrmaAppBar)), findsNothing);
       expect(
         inSheet(find.byKey(DocumentFlowButton.secondaryKey)),
@@ -2048,12 +2027,7 @@ void main() {
       expect(find.bySemanticsLabel("Scan passport"), findsOneWidget);
       expect(find.bySemanticsLabel("Go back"), findsWidgets);
 
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
+      await _dragSheetDown(tester);
       await _pumpFor(tester);
       expect(find.text("Stop adding passport?"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
@@ -2626,4 +2600,17 @@ class _FakeEmailApi implements EmailIssuerApi {
       continueOnSecondDevice: true,
     );
   }
+}
+
+/// Drags the sheet down by its header (the issuance pages have no close
+/// button): far enough to close it, which asks first once adding started.
+Future<void> _dragSheetDown(WidgetTester tester) async {
+  final g = await tester.startGesture(
+    tester.getCenter(find.byKey(const Key("glass_sheet_title")).last),
+  );
+  for (var i = 0; i < 10; i++) {
+    await g.moveBy(const Offset(0, 50));
+    await tester.pump();
+  }
+  await g.up();
 }

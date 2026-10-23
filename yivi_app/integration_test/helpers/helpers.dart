@@ -1681,3 +1681,18 @@ Future<void> tapAddCredentialTile(
   await tester.pumpAndSettle();
   await tester.tapAndSettle(addCredentialTile);
 }
+
+/// Drags the open sheet down by its header, far enough to close it: the
+/// pages of adding a card have no close button. Once adding has started it
+/// asks first ("Stop adding …?").
+Future<void> dragSheetHeaderDown(WidgetTester tester) async {
+  final g = await tester.startGesture(
+    tester.getCenter(find.byKey(const Key("glass_sheet_title")).last),
+  );
+  for (var i = 0; i < 10; i++) {
+    await g.moveBy(const Offset(0, 50));
+    await tester.pump(const Duration(milliseconds: 16));
+  }
+  await g.up();
+  await tester.pump(const Duration(milliseconds: 400));
+}

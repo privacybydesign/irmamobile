@@ -187,6 +187,8 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
   @override
   Widget build(BuildContext context) {
     return GlassSheetPage(
+      // Left by dragging its header down: no close button.
+      closable: false,
       title: FlutterI18n.translate(context, _titleKey),
       onBack: _back,
       pinned: IssueSheetProgress(

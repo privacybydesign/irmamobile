@@ -713,6 +713,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           )
         : null;
     return GlassSheetPage(
+      // Left by dragging its header down: no close button.
+      closable: false,
       // The card's name: the page is about it (the progress under the bar
       // says where in adding it you are).
       title: d.name,
@@ -783,6 +785,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (useSheetColumns(context)) {
       final content = offer == null ? null : _offerContent(offer);
       return GlassSheetPage(
+        // Left by dragging its header down: no close button.
+        closable: false,
         title: _t("issuance.title"),
         onBack: issueBack,
         action: action,
@@ -812,6 +816,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       );
     }
     return GlassSheetPage(
+      // Left by dragging its header down: no close button.
+      closable: false,
       title: _t("issuance.title"),
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
@@ -928,6 +934,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       if (parameters == null) {
         // Granted at once (see _onNested); the next state follows.
         return GlassSheetPage(
+          // Left by dragging its header down: no close button.
+          closable: false,
           title: _t("issuance.title"),
           onBack: () => _dismissNested(sessionId),
           child: Padding(
@@ -1161,6 +1169,8 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
       sessionAwaitingInteractionProvider(widget.sessionId),
     );
     return GlassSheetPage(
+      // Left by dragging its header down: no close button.
+      closable: false,
       title: FlutterI18n.translate(context, "issuance.title"),
       onBack: widget.onCancel,
       pinned: widget.subject == null || widget.total == 0

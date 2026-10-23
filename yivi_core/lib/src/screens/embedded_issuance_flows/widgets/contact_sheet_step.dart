@@ -415,6 +415,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
     final landscape = useSheetColumns(context);
     return GlassSheetPage(
+      // Left by dragging its header down: no close button.
+      closable: false,
       title: _t(
         _email
             ? "email_issuance.enter_email.title"
