@@ -380,61 +380,71 @@ class _Details extends ConsumerWidget {
           ),
           SizedBox(
             height: 81 + 6 + 10 + 4 + 16,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: siblings.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 8),
-              itemBuilder: (context, i) {
-                final s = siblings[i];
-                final selected = s.hash == credential.hash;
-                return Semantics(
-                  button: true,
-                  selected: selected,
-                  label: "${s.name}, ${hintTexts[s.hash] ?? ""}",
-                  excludeSemantics: true,
-                  child: GestureDetector(
-                    onTap: () => onSwitch(s.hash),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: ShapeDecoration(
-                            // Follows the card's corners, 5 points out (the
-                            // gap and the ring).
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  CredentialCardArt.radiusFor(128) +
-                                  const BorderRadius.all(Radius.circular(5)),
-                              side: BorderSide(
-                                width: 2,
-                                color: selected
-                                    ? palette.primary
-                                    : Colors.transparent,
+            // Opens with the card shown in view (a card picked here opens a
+            // new pane): in the middle when the row has to scroll.
+            child: _SiblingScroll(
+              index: siblings.indexWhere((s) => s.hash == credential.hash),
+              count: siblings.length,
+              builder: (controller) => ListView.separated(
+                controller: controller,
+                scrollDirection: Axis.horizontal,
+                itemCount: siblings.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, i) {
+                  final s = siblings[i];
+                  final selected = s.hash == credential.hash;
+                  return Semantics(
+                    button: true,
+                    selected: selected,
+                    label: "${s.name}, ${hintTexts[s.hash] ?? ""}",
+                    excludeSemantics: true,
+                    child: GestureDetector(
+                      onTap: () => onSwitch(s.hash),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: ShapeDecoration(
+                              // Follows the card's corners, 5 points out (the
+                              // gap and the ring).
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    CredentialCardArt.radiusFor(128) +
+                                    const BorderRadius.all(Radius.circular(5)),
+                                side: BorderSide(
+                                  width: 2,
+                                  color: selected
+                                      ? palette.primary
+                                      : Colors.transparent,
+                                ),
                               ),
                             ),
+                            child: CredentialCardArt(
+                              credential: s,
+                              width: 128,
+                              hintText: hintTexts[s.hash],
+                            ),
                           ),
-                          child: CredentialCardArt(
-                            credential: s,
-                            width: 128,
-                            hintText: hintTexts[s.hash],
+                          const SizedBox(height: 4),
+                          // Under the card itself, not its ring (3 apart and
+                          // 2 wide).
+                          Container(
+                            width: 136,
+                            padding: const EdgeInsets.only(left: 5),
+                            child: Text(
+                              hintTexts[s.hash] ?? "",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: palette.body(12),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        SizedBox(
-                          width: 136,
-                          child: Text(
-                            hintTexts[s.hash] ?? "",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: palette.body(12),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -829,5 +839,58 @@ class _AboutRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// The horizontal row of the cards of a type, opening with the one at
+/// [index] in view: scrolled so it is in the middle when the row is wider
+/// than its room.
+class _SiblingScroll extends StatefulWidget {
+  final int index;
+  final int count;
+  final Widget Function(ScrollController controller) builder;
+
+  const _SiblingScroll({
+    required this.index,
+    required this.count,
+    required this.builder,
+  });
+
+  /// One card in the row: 128, its ring (3 apart, 2 wide) on both sides.
+  static const double _item = 128 + 10;
+  static const double _gap = 8;
+
+  @override
+  State<_SiblingScroll> createState() => _SiblingScrollState();
+}
+
+class _SiblingScrollState extends State<_SiblingScroll> {
+  ScrollController? _controller;
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      _controller ??= ScrollController(
+        initialScrollOffset: _offset(constraints.maxWidth),
+      );
+      return widget.builder(_controller!);
+    },
+  );
+
+  double _offset(double width) {
+    const item = _SiblingScroll._item, gap = _SiblingScroll._gap;
+    final total = widget.count * item + (widget.count - 1) * gap;
+    final i = widget.index;
+    if (i < 0 || total <= width) return 0;
+    final start = i * (item + gap);
+    // Already in view from the start: leave the row where it begins.
+    if (start + item <= width) return 0;
+    return (start + item / 2 - width / 2).clamp(0.0, total - width);
   }
 }

@@ -239,7 +239,8 @@ void main() {
       );
       expect(content.padding, const EdgeInsets.fromLTRB(20, 20, 62, 20 + 21));
 
-      double left(String hash) => tester.getTopLeft(tile(hash)).dx;
+      // By the centre: the open card also tilts a little.
+      double left(String hash) => tester.getCenter(tile(hash)).dx;
       final rest = left("address");
       expect(left("personal") - rest, closeTo(16, 0.5));
 
@@ -251,6 +252,53 @@ void main() {
         findsOneWidget,
       );
       expect(left("address") - left("personal"), closeTo(16, 0.5));
+    });
+
+    testWidgets("the open card tilts a little to the right", (tester) async {
+      await pump(tester);
+      final turned = tester
+          .widgetList<Transform>(
+            find.ancestor(
+              of: tile("personal"),
+              matching: find.byType(Transform),
+            ),
+          )
+          .map((t) => t.transform.getRotation().entry(1, 0))
+          .where((sin) => sin.abs() > 0.001);
+      // Clockwise: about 2 degrees.
+      expect(turned.single, closeTo(0.035, 0.002));
+      final straight = tester
+          .widgetList<Transform>(
+            find.ancestor(
+              of: tile("address"),
+              matching: find.byType(Transform),
+            ),
+          )
+          .where((t) => t.transform.getRotation().entry(1, 0).abs() > 0.001);
+      expect(straight, isEmpty);
+    });
+
+    testWidgets("a card that opens out of view comes to the middle", (
+      tester,
+    ) async {
+      await pump(tester);
+      final view = tester.getRect(find.byKey(const Key("wallet_scroll")));
+      // The last card: its foot is under the bottom edge (45 for the
+      // home indicator and the room under the list).
+      final was = tester.getRect(tile("email"));
+      expect(was.bottom, greaterThan(view.bottom - 45));
+      // Picked elsewhere (among the cards of its type in the pane).
+      container(tester).read(selectedCardProvider.notifier).select("email");
+      await tester.pumpAndSettle();
+      final card = tester.getRect(tile("email"));
+      expect(card.top, lessThan(was.top));
+      // All in view (its tilt reaches a few points further).
+      expect(card.bottom, lessThanOrEqualTo(view.bottom - 45 + 6));
+      // A card all in view does not move the list.
+      final before = tester.getCenter(tile("address")).dy;
+      container(tester).read(selectedCardProvider.notifier).select("address");
+      await tester.pumpAndSettle();
+      expect(tester.getCenter(tile("address")).dy, closeTo(before, 1));
     });
 
     testWidgets("beside a side panel the card in the pane keeps its shape", (
@@ -291,7 +339,8 @@ void main() {
       tester,
     ) async {
       await pump(tester, view: _tablet, insets: FakeViewPadding.zero);
-      double left(String hash) => tester.getTopLeft(tile(hash)).dx;
+      // By the centre: the open card also tilts a little.
+      double left(String hash) => tester.getCenter(tile(hash)).dx;
       expect(left("personal") - left("address"), closeTo(16, 0.5));
     });
 

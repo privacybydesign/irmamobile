@@ -68,6 +68,17 @@ class _DataTabState extends ConsumerState<DataTab> {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final top = padding.top + FloatingBarPlacement.topGap(context);
+    final topInset = top + _topBarHeight + 8;
+
+    // A card that opens in the detail pane (tapped, or picked among the
+    // cards of its type in the pane) comes into view in the list: to the
+    // middle when it was not all in view.
+    ref.listen(selectedCardProvider, (_, hash) {
+      if (hash == null || !_withPane(context)) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _revealCard(context, hash, top: topInset);
+      });
+    });
 
     // The cards scroll under the floating search row; the edge goes away
     // with the row when a card opens.
@@ -119,7 +130,7 @@ class _DataTabState extends ConsumerState<DataTab> {
           ),
         ),
       ],
-      child: _Content(query: _query, topInset: top + _topBarHeight + 8),
+      child: _Content(query: _query, topInset: topInset),
     );
 
     return Scaffold(
@@ -158,6 +169,103 @@ class _DataTabState extends ConsumerState<DataTab> {
             ),
     );
   }
+}
+
+/// Brings the card [hash] into view in the list next to the detail pane:
+/// when part of it (or of its strip, in the stack) is under the search row
+/// at the top ([top] high) or the bottom, or off screen, the list scrolls
+/// it to the middle of what is in view. A card not built yet (far down a
+/// long list or grid) is first scrolled to by its place in the list.
+void _revealCard(
+  BuildContext context,
+  String hash, {
+  required double top,
+  bool again = true,
+}) {
+  final card = _CardButtonState.shown[hash];
+  final cardBox = card?.context.findRenderObject();
+  if (card == null || cardBox is! RenderBox || !cardBox.hasSize) {
+    if (again) _scrollTowards(context, hash, top: top);
+    return;
+  }
+  final scrollable = Scrollable.maybeOf(card.context);
+  final viewBox = scrollable?.context.findRenderObject();
+  if (scrollable == null || viewBox is! RenderBox) return;
+  final position = scrollable.position;
+  final view = viewBox.localToGlobal(Offset.zero) & viewBox.size;
+  final bottom = MediaQuery.paddingOf(context).bottom + bottomBarSpace(context);
+  final visible = Rect.fromLTRB(
+    view.left,
+    view.top + top,
+    view.right,
+    view.bottom - bottom,
+  );
+  final origin = cardBox.localToGlobal(Offset.zero);
+  final target = Rect.fromLTWH(
+    origin.dx,
+    origin.dy,
+    cardBox.size.width,
+    min(card.widget.revealHeight ?? cardBox.size.height, cardBox.size.height),
+  );
+  if (target.top >= visible.top && target.bottom <= visible.bottom) return;
+  final to = (position.pixels + target.center.dy - visible.center.dy).clamp(
+    position.minScrollExtent,
+    position.maxScrollExtent,
+  );
+  if (MediaQuery.disableAnimationsOf(context)) {
+    position.jumpTo(to);
+  } else {
+    position.animateTo(
+      to,
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeOutCubic,
+    );
+  }
+}
+
+/// A card that is not built yet: jumps the list to about where it is (by
+/// its place among the cards built), then reveals it properly.
+void _scrollTowards(BuildContext context, String hash, {required double top}) {
+  final built = _CardButtonState.shown.values.where((s) => s.mounted).toList();
+  if (built.isEmpty) return;
+  final scrollable = Scrollable.maybeOf(built.first.context);
+  if (scrollable == null) return;
+  final cards =
+      ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).read(schemalessCredentialOrderControllerProvider).value ??
+      const <schemaless.Credential>[];
+  final index = cards.indexWhere((c) => c.hash == hash);
+  if (index < 0) return;
+  // The built cards' places and offsets give the room one card takes.
+  final placed = <(int, double)>[
+    for (final s in built)
+      if (cards.indexWhere((c) => c.hash == s.widget.credential.hash)
+          case final i when i >= 0)
+        if (s.context.findRenderObject() case final RenderBox box
+            when box.hasSize)
+          (i, box.localToGlobal(Offset.zero).dy),
+  ]..sort((a, b) => a.$1.compareTo(b.$1));
+  if (placed.length < 2) return;
+  final (firstIndex, firstY) = placed.first;
+  final (lastIndex, lastY) = placed.last;
+  if (lastIndex == firstIndex) return;
+  final perCard = (lastY - firstY) / (lastIndex - firstIndex);
+  final position = scrollable.position;
+  final targetY = firstY + (index - firstIndex) * perCard;
+  final viewBox = scrollable.context.findRenderObject();
+  if (viewBox is! RenderBox) return;
+  final viewTop = viewBox.localToGlobal(Offset.zero).dy;
+  position.jumpTo(
+    (position.pixels + targetY - viewTop - viewBox.size.height / 2).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    ),
+  );
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (context.mounted) _revealCard(context, hash, top: top, again: false);
+  });
 }
 
 class _Content extends ConsumerWidget {
@@ -545,6 +653,9 @@ class _StackView extends StatelessWidget {
   /// How far the card open in the detail pane slides out of the stack.
   static const double nudge = 16;
 
+  /// How far it tilts to the right (clockwise), in radians: about 2°.
+  static const double tilt = 0.035;
+
   final List<schemaless.Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
@@ -600,6 +711,10 @@ class _StackView extends StatelessWidget {
                         credential: c,
                         hintText: hintTexts[c.hash],
                         pressDepth: 6,
+                        // Under the next card only its strip shows.
+                        revealHeight: i == cards.length - 1
+                            ? null
+                            : _stripHeight,
                         child: CardHero(
                           credential: c,
                           width: width,
@@ -619,8 +734,9 @@ class _StackView extends StatelessWidget {
 }
 
 /// The card open in the detail pane slides [_StackView.nudge] to the right,
-/// out of the stack toward its details, on a deeper shadow; it slides back
-/// when another card opens.
+/// out of the stack toward its details, and tilts a little to the right
+/// ([_StackView.tilt]), on a deeper shadow; it slides back when another
+/// card opens.
 class _Nudge extends StatelessWidget {
   final bool open;
   final double width;
@@ -646,19 +762,22 @@ class _Nudge extends StatelessWidget {
       child: child,
       builder: (context, t, child) => Transform.translate(
         offset: Offset(t * _StackView.nudge, 0),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: CredentialCardArt.radiusFor(width),
-            boxShadow: [
-              if (t > 0)
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.26 * t),
-                  blurRadius: 22,
-                  offset: const Offset(0, 8),
-                ),
-            ],
+        child: Transform.rotate(
+          angle: t * _StackView.tilt,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: CredentialCardArt.radiusFor(width),
+              boxShadow: [
+                if (t > 0)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.26 * t),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+              ],
+            ),
+            child: child,
           ),
-          child: child,
         ),
       ),
     );
@@ -928,11 +1047,17 @@ class _CardButton extends StatefulWidget {
   /// the list and grid, where the cards are smaller.
   final double pressDepth;
 
+  /// How much of the card, from its top, shows (a card in the stack under
+  /// the next one: its strip); null when all of it does. What has to be in
+  /// view when it opens in the detail pane ([_revealCard]).
+  final double? revealHeight;
+
   const _CardButton({
     required this.credential,
     required this.child,
     this.hintText,
     this.pressDepth = 0,
+    this.revealHeight,
   });
 
   @override
@@ -940,7 +1065,34 @@ class _CardButton extends StatefulWidget {
 }
 
 class _CardButtonState extends State<_CardButton> {
+  /// The cards on screen by hash, to bring the one that opens in the
+  /// detail pane into view ([_revealCard]).
+  static final shown = <String, _CardButtonState>{};
+
   bool _pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    shown[widget.credential.hash] = this;
+  }
+
+  @override
+  void didUpdateWidget(_CardButton old) {
+    super.didUpdateWidget(old);
+    if (old.credential.hash != widget.credential.hash) {
+      if (shown[old.credential.hash] == this) shown.remove(old.credential.hash);
+      shown[widget.credential.hash] = this;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (shown[widget.credential.hash] == this) {
+      shown.remove(widget.credential.hash);
+    }
+    super.dispose();
+  }
 
   void _press(bool pressed) {
     if (mounted && pressed != _pressed) setState(() => _pressed = pressed);
