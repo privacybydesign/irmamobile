@@ -56,6 +56,11 @@ const _longPinMinimum = 6;
 /// went wrong (red), or a warning (amber, with a "Why?" link).
 enum PinDetailKind { info, error, warning }
 
+/// How the instruction reads: the screen's heading (the lock screen, choosing
+/// a PIN), or a quiet line under a [YiviPinScreen.header] that is the
+/// heading itself (the request waiting behind the lock).
+enum PinInstructionStyle { heading, line }
+
 /// The shared PIN entry widget: number pad + hardware-keyboard input + the PIN
 /// field + optional secure-PIN check and biometric key. Owns the entered digits
 /// as local state ([EnterPinState]) — no bloc, no provider, since the buffer is
@@ -104,6 +109,17 @@ class YiviPinScreen extends StatefulWidget {
   /// behind the lock screen).
   final Widget? header;
 
+  /// The instruction as the heading, or as a line under [header].
+  final PinInstructionStyle instructionStyle;
+
+  /// Upright: the room between the PIN field and the keypad.
+  final double upperGap;
+
+  /// Upright: everything above the keypad in the middle of the room left
+  /// for it, instead of low on the keypad (the PIN page of a sheet, under
+  /// its bar).
+  final bool centreUpper;
+
   /// A short line under the instruction: what comes next, what went wrong
   /// or why the PIN can't be entered, in [detailKind]'s colour.
   final String? detail;
@@ -128,6 +144,9 @@ class YiviPinScreen extends StatefulWidget {
     this.instruction,
     this.stepLabel,
     this.header,
+    this.instructionStyle = PinInstructionStyle.heading,
+    this.upperGap = 40,
+    this.centreUpper = false,
     this.detail,
     this.detailKind = PinDetailKind.info,
     this.detailClock = false,
@@ -339,7 +358,9 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     return [
       if (header != null && withHeader) ...[
         header,
-        const SizedBox(height: 24),
+        SizedBox(
+          height: widget.instructionStyle == PinInstructionStyle.line ? 8 : 24,
+        ),
       ] else if (header == null && widget.showMark) ...[
         _buildHeaderMark(context),
         const SizedBox(height: 24),
@@ -373,7 +394,9 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     // small, does it join the block that scales down as a whole.
     final header = widget.header;
     final headerApart =
-        header != null && MediaQuery.sizeOf(context).height >= 700;
+        header != null &&
+        !widget.centreUpper &&
+        MediaQuery.sizeOf(context).height >= 700;
     final column = SizedBox(
       width: 358,
       child: Column(
@@ -381,7 +404,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         children: [
           if (!headerApart) const SizedBox(height: 16),
           ..._upperPart(context, withHeader: !headerApart),
-          const SizedBox(height: 40),
+          SizedBox(height: widget.upperGap),
           _buildKeypad(),
         ],
       ),
@@ -410,11 +433,16 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             column,
           ] else
             Expanded(
+              // In a sheet, in the middle of the room under its bar.
               child: Align(
-                alignment: Alignment.bottomCenter,
+                alignment: widget.centreUpper
+                    ? Alignment.center
+                    : Alignment.bottomCenter,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.bottomCenter,
+                  alignment: widget.centreUpper
+                      ? Alignment.center
+                      : Alignment.bottomCenter,
                   child: column,
                 ),
               ),
@@ -821,7 +849,8 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   Widget _buildInstructionText(BuildContext context) {
     return Center(
       child: Semantics(
-        header: true,
+        // A line under a header that is the heading itself is not one.
+        header: widget.instructionStyle == PinInstructionStyle.heading,
         // container: without it the header flag and this text have no node of
         // their own and fold into the nearest ancestor node, which merged the
         // heading with the PIN-dots entry state into a single announcement.
@@ -831,10 +860,22 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               FlutterI18n.translate(context, widget.instructionKey!),
           textAlign: TextAlign.center,
           // Under a header a size smaller, to stay on one line and leave the
-          // header its room.
-          style: widget.header == null
-              ? YiviPalette.of(context).display(22).copyWith(height: 30 / 22)
-              : YiviPalette.of(context).display(19).copyWith(height: 26 / 19),
+          // header its room; as a line, quiet.
+          style: switch ((widget.instructionStyle, widget.header == null)) {
+            (PinInstructionStyle.line, _) =>
+              YiviPalette.of(context)
+                  .display(15, weight: FontWeight.w600)
+                  .copyWith(
+                    height: 21 / 15,
+                    color: YiviPalette.of(context).heading,
+                  ),
+            (_, true) => YiviPalette.of(
+              context,
+            ).display(22).copyWith(height: 30 / 22),
+            (_, false) => YiviPalette.of(
+              context,
+            ).display(19).copyWith(height: 26 / 19),
+          },
         ),
       ),
     );

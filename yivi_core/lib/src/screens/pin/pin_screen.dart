@@ -22,7 +22,7 @@ import "../../widgets/irma_close_button.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
-import "widgets/waiting_request_card.dart";
+import "widgets/waiting_request_announcement.dart";
 import "yivi_pin_screen.dart";
 
 /// Builds the biometric button glyph for [type], tinted to the keypad colour:
@@ -268,10 +268,9 @@ class _PinScreenState extends ConsumerState<PinScreen>
     var subtitle = blocked
         ? FlutterI18n.translate(context, "pin.blocked_title")
         : FlutterI18n.translate(context, "pin.subtitle");
-    String? detail = line?.text;
+    final detail = line?.text;
     if (waiting != null) {
-      subtitle = FlutterI18n.translate(context, waitingHeadKey(waiting));
-      detail ??= waitingDetail(context, waiting);
+      subtitle = FlutterI18n.translate(context, waitingLineKey(waiting));
     }
 
     void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
@@ -312,7 +311,13 @@ class _PinScreenState extends ConsumerState<PinScreen>
                 instruction: subtitle,
                 header: waiting == null
                     ? null
-                    : WaitingRequestCard(request: waiting, compact: true),
+                    : WaitingRequestAnnouncement(request: waiting),
+                // Under the announcement (the heading) a quiet line, the
+                // block well clear of the keypad.
+                instructionStyle: waiting == null
+                    ? PinInstructionStyle.heading
+                    : PinInstructionStyle.line,
+                upperGap: waiting == null ? 40 : 48,
                 detail: detail,
                 detailKind: line == null
                     ? PinDetailKind.info

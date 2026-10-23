@@ -10,7 +10,8 @@ import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_preview.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/waiting_request_provider.dart";
-import "package:yivi_core/src/screens/pin/widgets/waiting_request_card.dart";
+import "package:yivi_core/src/screens/pin/widgets/waiting_request_announcement.dart";
+import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -29,7 +30,7 @@ TrustedParty _party(String name, {required bool verified}) => TrustedParty(
   verified: verified,
 );
 
-/// The card and the line under the heading, for what waits.
+/// The announcement and the key of the line under it, for what waits.
 class _Waiting extends ConsumerWidget {
   const _Waiting();
 
@@ -39,9 +40,8 @@ class _Waiting extends ConsumerWidget {
     if (waiting == null) return const Text("nothing waits");
     return Column(
       children: [
-        WaitingRequestCard(request: waiting),
-        Text(waitingHeadKey(waiting), key: const Key("head")),
-        Text(waitingDetail(context, waiting) ?? "", key: const Key("detail")),
+        WaitingRequestAnnouncement(request: waiting),
+        Text(waitingLineKey(waiting), key: const Key("line")),
       ],
     );
   }
@@ -84,7 +84,16 @@ void main() {
   String text(WidgetTester tester, String key) =>
       tester.widget<Text>(find.byKey(Key(key))).data ?? "";
 
-  testWidgets("a registered requestor: its name, what it wants, the check", (
+  String sentence(WidgetTester tester) =>
+      text(tester, "waiting_request_sentence");
+
+  /// No trust line and no host on the screen: just the sentence.
+  void onlyTheSentence(WidgetTester tester, {String? host}) {
+    expect(find.byKey(const Key("waiting_request_pill")), findsNothing);
+    if (host != null) expect(find.textContaining(host), findsNothing);
+  }
+
+  testWidgets("a registered requestor: who and what, in one sentence", (
     tester,
   ) async {
     answer(
@@ -96,22 +105,22 @@ void main() {
       ),
     );
     await pump(tester, _pointer("issuing"));
-    expect(find.text("Webshop Noord"), findsOneWidget);
-    expect(find.text("is offering data"), findsOneWidget);
-    expect(find.text("Registered with Yivi"), findsOneWidget);
+    expect(sentence(tester), "Webshop Noord is offering data");
     expect(
       find.byKey(const ValueKey(("waiting_request_badge", "add"))),
       findsOneWidget,
     );
-    expect(text(tester, "head"), "waiting_request.head");
-    expect(text(tester, "detail"), "");
+    expect(text(tester, "line"), "waiting_request.line.see");
+    onlyTheSentence(tester, host: "shop.example.com");
     // Asked once, for this pointer.
     final asked = bridge.dispatched.whereType<PreviewSessionEvent>().toList();
     expect(asked, hasLength(1));
     expect(asked.single.key, "https://shop.example.com/irma/session/abc");
   });
 
-  testWidgets("not in the scheme: the host, said plainly", (tester) async {
+  testWidgets("not in the scheme: its host as the name, no trust line", (
+    tester,
+  ) async {
     answer(
       SessionPreview(
         kind: SessionPreviewKind.disclosure,
@@ -121,14 +130,12 @@ void main() {
       ),
     );
     await pump(tester, _pointer("disclosing"));
-    expect(find.text("shop.example.com"), findsOneWidget);
-    expect(find.text("is asking for data"), findsOneWidget);
-    expect(find.text("Not known by Yivi"), findsOneWidget);
+    expect(sentence(tester), "shop.example.com is asking for data");
+    expect(text(tester, "line"), "waiting_request.line.see");
+    onlyTheSentence(tester);
   });
 
-  testWidgets("OpenID4VP: only the website, and what comes next", (
-    tester,
-  ) async {
+  testWidgets("OpenID4VP: generic, without the host", (tester) async {
     answer(
       const SessionPreview(
         kind: SessionPreviewKind.disclosure,
@@ -137,41 +144,158 @@ void main() {
       ),
     );
     await pump(tester, _pointer("disclosing", protocol: Protocol.openid4vp));
-    expect(find.text("verifier.example.eu"), findsOneWidget);
-    expect(find.text("Website"), findsOneWidget);
-    expect(
-      text(tester, "detail"),
-      "Next you see who they are and what they ask",
-    );
+    expect(sentence(tester), "A request for data is waiting");
+    expect(find.byKey(const Key("waiting_request_generic")), findsOneWidget);
+    expect(text(tester, "line"), "waiting_request.line.who");
+    onlyTheSentence(tester, host: "verifier.example.eu");
   });
 
-  testWidgets("before irmago answers: what the pointer says", (tester) async {
+  testWidgets("OpenID4VCI: generic, without the host", (tester) async {
+    answer(
+      const SessionPreview(
+        kind: SessionPreviewKind.issuance,
+        knowledge: SessionPreviewKnowledge.host,
+        host: "issuer.example.eu",
+      ),
+    );
+    await pump(tester, _pointer("issuing", protocol: Protocol.openid4vci));
+    expect(sentence(tester), "Data is being offered");
+    expect(text(tester, "line"), "waiting_request.line.who");
+    onlyTheSentence(tester, host: "issuer.example.eu");
+  });
+
+  testWidgets("before irmago answers: the kind the pointer says", (
+    tester,
+  ) async {
     await pump(tester, _pointer("signing"));
-    expect(find.text("A request is waiting"), findsOneWidget);
-    expect(find.text("is asking for a signature"), findsOneWidget);
-    expect(
-      text(tester, "detail"),
-      "Next you see who it is from and what they ask",
-    );
+    expect(sentence(tester), "A request for a signature is waiting");
+    expect(text(tester, "line"), "waiting_request.line.who");
   });
 
-  testWidgets("a redirect pointer: nothing known yet", (tester) async {
+  testWidgets("a redirect pointer: that a request waits", (tester) async {
     answer(SessionPreview.unknown);
     await pump(tester, _pointer("redirect"));
-    expect(find.text("A request is waiting"), findsOneWidget);
-    expect(find.text("is asking for data"), findsNothing);
-    expect(text(tester, "head"), "waiting_request.head_unknown");
+    expect(sentence(tester), "A request is waiting");
+    expect(text(tester, "line"), "waiting_request.line.who");
   });
 
-  testWidgets("the link in an email: the address it adds", (tester) async {
+  testWidgets("the link in an email: what it adds, not the address", (
+    tester,
+  ) async {
     await pump(
       tester,
       EmailCodePointer(email: "sanne@devries.example", code: "ABC123"),
     );
-    expect(find.text("sanne@devries.example"), findsOneWidget);
-    expect(find.text("Add this email address to Yivi"), findsOneWidget);
-    expect(text(tester, "head"), "waiting_request.head_email");
-    expect(text(tester, "detail"), "You opened the link in your email");
+    expect(sentence(tester), "Add your email address to Yivi");
+    expect(text(tester, "line"), "waiting_request.line.see");
+    expect(find.text("sanne@devries.example"), findsNothing);
+  });
+
+  testWidgets("a request already going: whose, and to go on", (tester) async {
+    await pumpHome(
+      tester,
+      repo: repo,
+      home: Builder(
+        builder: (context) {
+          final waiting = WaitingRequest(
+            inFlight: true,
+            preview: SessionPreview(
+              kind: SessionPreviewKind.disclosure,
+              knowledge: SessionPreviewKnowledge.registered,
+              requestor: _party("Webshop Noord", verified: true),
+            ),
+          );
+          return Column(
+            children: [
+              WaitingRequestAnnouncement(request: waiting),
+              Text(waitingLineKey(waiting), key: const Key("line")),
+            ],
+          );
+        },
+      ),
+    );
+    expect(
+      sentence(tester),
+      "You were in the middle of a request from Webshop Noord",
+    );
+    expect(text(tester, "line"), "waiting_request.line.continue");
+  });
+
+  group("on the PIN screen", () {
+    final waiting = WaitingRequest(
+      preview: SessionPreview(
+        kind: SessionPreviewKind.disclosure,
+        knowledge: SessionPreviewKnowledge.registered,
+        requestor: _party("Webshop Noord", verified: true),
+      ),
+    );
+
+    /// The PIN screen with the announcement, as the lock screen ([sheet]
+    /// false) or the scanner sheet's page draws it, in a window of [size].
+    Future<void> pin(
+      WidgetTester tester,
+      Size size, {
+      bool sheet = false,
+    }) async {
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = size;
+      addTearDown(tester.view.reset);
+      await pumpHome(
+        tester,
+        repo: repo,
+        home: YiviPinScreen(
+          header: WaitingRequestAnnouncement(request: waiting),
+          showMark: false,
+          instruction: "Enter your PIN to see it",
+          instructionStyle: PinInstructionStyle.line,
+          upperGap: 48,
+          centreUpper: sheet,
+          maxPinSize: 5,
+          onSubmit: (_) {},
+        ),
+      );
+    }
+
+    Rect key(WidgetTester tester, int n) =>
+        tester.getRect(find.byKey(Key("number_pad_key_$n")));
+    Rect sentenceRect(WidgetTester tester) =>
+        tester.getRect(find.byKey(const Key("waiting_request_sentence")));
+    Rect line(WidgetTester tester) =>
+        tester.getRect(find.text("Enter your PIN to see it"));
+
+    testWidgets("upright: two lines, the block 48 or more above the keypad", (
+      tester,
+    ) async {
+      await pin(tester, const Size(390, 844));
+      // Only the sentence and the line between the avatar and the dots.
+      expect(find.byKey(const Key("pin_screen_detail")), findsNothing);
+      expect(line(tester).top, greaterThan(sentenceRect(tester).bottom));
+      expect(key(tester, 1).top - line(tester).bottom, greaterThan(48));
+    });
+
+    testWidgets("in the sheet: in the middle of the room above the keypad", (
+      tester,
+    ) async {
+      await pin(tester, const Size(390, 782), sheet: true);
+      final block = tester.getRect(
+        find.byKey(const Key("waiting_request_announcement")),
+      );
+      final room = key(tester, 1).top - 48;
+      // The block (announcement to dots) has as much room above as below.
+      final above = block.top;
+      expect(above, greaterThan(40));
+      expect(block.top, lessThan(room / 2));
+    });
+
+    testWidgets("sideways: a centred column in the left half", (tester) async {
+      await pin(tester, const Size(874, 402));
+      final sentence = sentenceRect(tester);
+      final half = 874 / 2;
+      expect(sentence.center.dx, closeTo(half / 2, 24));
+      expect(line(tester).center.dx, closeTo(sentence.center.dx, 2));
+      expect(key(tester, 1).left, greaterThan(half));
+    });
   });
 
   testWidgets("nothing waits", (tester) async {

@@ -8,7 +8,7 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
-import "package:yivi_core/src/screens/pin/widgets/waiting_request_card.dart";
+import "package:yivi_core/src/screens/pin/widgets/waiting_request_announcement.dart";
 import "package:yivi_core/src/screens/scanner/lock_scanner_sheet.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
@@ -227,12 +227,16 @@ Future<void> testUnlockPageSaysWho(
 
   final card = find.descendant(
     of: find.byKey(const Key("lock_scanner_unlock")),
-    matching: find.byType(WaitingRequestCard),
+    matching: find.byType(WaitingRequestAnnouncement),
   );
+  // One sentence: who (a party in the scheme) and what.
   await tester.waitFor(
-    find.descendant(of: card, matching: find.text("is offering data")),
+    find.descendant(
+      of: card,
+      matching: find.textContaining("is offering data"),
+    ),
   );
-  expect(find.text("Enter your PIN to see the request"), findsWidgets);
+  expect(find.text("Enter your PIN to see it"), findsWidgets);
   expect(
     find.descendant(of: card, matching: find.textContaining("staging")),
     findsWidgets,
@@ -264,7 +268,7 @@ Future<void> testDisclosureGoesFullScreen(
   );
   scannerState.onQrScanned(session);
   await tester.pumpAndSettle(const Duration(seconds: 3));
-  await tester.waitFor(find.text("is asking for data"));
+  await tester.waitFor(find.textContaining("is asking for data"));
 
   await unlock(tester);
   await tester.waitFor(find.byType(DisclosureShareScreen).hitTestable());
@@ -314,12 +318,15 @@ Future<void> testLinkWhileLockedShowsCard(
 
   final card = find.descendant(
     of: find.byType(PinScreen),
-    matching: find.byType(WaitingRequestCard),
+    matching: find.byType(WaitingRequestAnnouncement),
   );
   await tester.waitFor(
-    find.descendant(of: card, matching: find.text("is offering data")),
+    find.descendant(
+      of: card,
+      matching: find.textContaining("is offering data"),
+    ),
   );
-  expect(find.text("Enter your PIN to see the request"), findsOneWidget);
+  expect(find.text("Enter your PIN to see it"), findsOneWidget);
   expect(find.byType(LockScannerSheet), findsNothing);
 
   await unlock(tester);

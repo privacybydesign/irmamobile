@@ -1547,25 +1547,23 @@
     "not_sent_phone": "We could not send a text to this number. Check it and try again."
   },
   "waiting_request": {
-    "kind": {
-      "disclosure": "is asking for data",
-      "issuance": "is offering data",
-      "signature": "is asking for a signature",
-      "email": "Add this email address to Yivi"
+    "sentence": {
+      "disclosure": "{name} is asking for data",
+      "issuance": "{name} is offering data",
+      "signature": "{name} is asking for a signature",
+      "email": "Add your email address to Yivi",
+      "in_flight": "You were in the middle of a request from {name}"
     },
-    "unknown_title": "A request is waiting",
-    "pill": {
-      "website": "Website",
-      "unknown": "Not known by Yivi"
+    "generic": {
+      "disclosure": "A request for data is waiting",
+      "issuance": "Data is being offered",
+      "signature": "A request for a signature is waiting",
+      "unknown": "A request is waiting"
     },
-    "head": "Enter your PIN to see the request",
-    "head_email": "Enter your PIN to add it",
-    "head_unknown": "Enter your PIN to see it",
-    "detail": {
-      "host": "Next you see who they are and what they ask",
-      "unknown": "Next you see who it is from and what they ask",
-      "email": "You opened the link in your email",
-      "in_flight": "You were in the middle of this request"
+    "line": {
+      "see": "Enter your PIN to see it",
+      "who": "Enter your PIN to see who it is",
+      "continue": "Enter your PIN to continue"
     },
     "unlock_title": "Unlock Yivi",
     "stop": {

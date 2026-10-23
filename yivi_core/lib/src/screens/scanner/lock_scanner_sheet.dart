@@ -15,7 +15,7 @@ import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/sheet_action_row.dart";
 import "../pin/pin_screen.dart" show pinStateLine;
 import "../pin/providers/pin_unlock_provider.dart";
-import "../pin/widgets/waiting_request_card.dart";
+import "../pin/widgets/waiting_request_announcement.dart";
 import "../pin/yivi_pin_screen.dart";
 import "../reset_pin/reset_pin_screen.dart";
 import "../session/widgets/issue_flow.dart";
@@ -251,16 +251,20 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
               child: YiviPinScreen(
                 header: waiting == null
                     ? null
-                    : WaitingRequestCard(request: waiting, compact: true),
+                    : WaitingRequestAnnouncement(request: waiting),
                 showMark: false,
                 instruction: waiting != null
-                    ? t(waitingHeadKey(waiting))
+                    ? t(waitingLineKey(waiting))
                     : blocked
                     ? t("pin.blocked_title")
                     : t("pin.subtitle"),
-                detail:
-                    line?.text ??
-                    (waiting == null ? null : waitingDetail(context, waiting)),
+                instructionStyle: waiting == null
+                    ? PinInstructionStyle.heading
+                    : PinInstructionStyle.line,
+                upperGap: waiting == null ? 40 : 48,
+                // In the middle of the room between the bar and the keypad.
+                centreUpper: true,
+                detail: line?.text,
                 detailKind: line == null
                     ? PinDetailKind.info
                     : PinDetailKind.error,

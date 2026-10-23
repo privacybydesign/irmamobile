@@ -1547,25 +1547,23 @@
     "not_sent_phone": "We konden geen sms naar dit nummer sturen. Controleer het en probeer het opnieuw."
   },
   "waiting_request": {
-    "kind": {
-      "disclosure": "vraagt om gegevens",
-      "issuance": "biedt gegevens aan",
-      "signature": "vraagt om een ondertekening",
-      "email": "Voeg dit e-mailadres toe aan Yivi"
+    "sentence": {
+      "disclosure": "{name} vraagt om gegevens",
+      "issuance": "{name} biedt gegevens aan",
+      "signature": "{name} vraagt om een handtekening",
+      "email": "Je e-mailadres aan Yivi toevoegen",
+      "in_flight": "Je was bezig met een verzoek van {name}"
     },
-    "unknown_title": "Er wacht een verzoek",
-    "pill": {
-      "website": "Website",
-      "unknown": "Niet bekend bij Yivi"
+    "generic": {
+      "disclosure": "Er wacht een verzoek om gegevens",
+      "issuance": "Er worden gegevens aangeboden",
+      "signature": "Er wacht een verzoek om een handtekening",
+      "unknown": "Er wacht een verzoek"
     },
-    "head": "Voer je pincode in om het verzoek te zien",
-    "head_email": "Voer je pincode in om het toe te voegen",
-    "head_unknown": "Voer je pincode in om het te zien",
-    "detail": {
-      "host": "Daarna zie je wie het zijn en wat ze vragen",
-      "unknown": "Daarna zie je van wie het is en wat ze vragen",
-      "email": "Je opende de link in je e-mail",
-      "in_flight": "Je was bezig met dit verzoek"
+    "line": {
+      "see": "Voer je pincode in om het te zien",
+      "who": "Voer je pincode in om te zien wie het is",
+      "continue": "Voer je pincode in om verder te gaan"
     },
     "unlock_title": "Ontgrendel Yivi",
     "stop": {

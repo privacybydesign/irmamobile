@@ -1547,25 +1547,23 @@
     "not_sent_phone": "Wir konnten keine SMS an diese Nummer senden. Prüfe sie und versuche es erneut."
   },
   "waiting_request": {
-    "kind": {
-      "disclosure": "fragt nach Daten",
-      "issuance": "bietet Daten an",
-      "signature": "bittet um eine Unterschrift",
-      "email": "Diese E-Mail-Adresse zu Yivi hinzufügen"
+    "sentence": {
+      "disclosure": "{name} fragt nach Daten",
+      "issuance": "{name} bietet Daten an",
+      "signature": "{name} bittet um eine Unterschrift",
+      "email": "Deine E-Mail-Adresse zu Yivi hinzufügen",
+      "in_flight": "Du warst mitten in einer Anfrage von {name}"
     },
-    "unknown_title": "Eine Anfrage wartet",
-    "pill": {
-      "website": "Website",
-      "unknown": "Yivi nicht bekannt"
+    "generic": {
+      "disclosure": "Eine Anfrage nach Daten wartet",
+      "issuance": "Es werden Daten angeboten",
+      "signature": "Eine Bitte um eine Unterschrift wartet",
+      "unknown": "Eine Anfrage wartet"
     },
-    "head": "Gib deine PIN ein, um die Anfrage zu sehen",
-    "head_email": "Gib deine PIN ein, um sie hinzuzufügen",
-    "head_unknown": "Gib deine PIN ein, um sie zu sehen",
-    "detail": {
-      "host": "Danach siehst du, wer sie sind und was sie fragen",
-      "unknown": "Danach siehst du, von wem sie ist und was gefragt wird",
-      "email": "Du hast den Link in deiner E-Mail geöffnet",
-      "in_flight": "Du warst mitten in dieser Anfrage"
+    "line": {
+      "see": "Gib deine PIN ein, um sie zu sehen",
+      "who": "Gib deine PIN ein, um zu sehen, wer es ist",
+      "continue": "Gib deine PIN ein, um fortzufahren"
     },
     "unlock_title": "Yivi entsperren",
     "stop": {
