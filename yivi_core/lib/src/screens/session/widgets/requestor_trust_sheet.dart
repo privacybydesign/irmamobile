@@ -110,6 +110,7 @@ class RequestorTrustSheet extends StatelessWidget {
     String t(String key, [Map<String, String>? params]) =>
         FlutterI18n.translate(context, key, translationParams: params);
     void open(String url) => IrmaRepositoryProvider.of(context).openURL(url);
+    final sideways = useSheetColumns(context);
 
     final anchor = requestor.trustAnchor ?? "";
     final source = elsewhereSourceOf(requestor);
@@ -227,7 +228,12 @@ class RequestorTrustSheet extends StatelessWidget {
         title: "",
         // No bar once scrolled either: only the close button floats.
         edge: false,
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        // Held sideways the columns scroll each on their own.
+        padding: sideways
+            ? EdgeInsets.zero
+            : const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        scrolls: !sideways,
+        childClearsBottom: sideways,
         child: _columns(
           context,
           [
@@ -307,7 +313,7 @@ class RequestorTrustSheet extends StatelessWidget {
 
   /// Who it is ([who]: logo, verdict, sentence) above the facts and what to
   /// do ([facts]); on a phone held sideways who it is at the left and the
-  /// rest at the right.
+  /// rest at the right, each column scrolling on its own.
   static Widget _columns(
     BuildContext context,
     List<Widget> who,
@@ -319,13 +325,9 @@ class RequestorTrustSheet extends StatelessWidget {
         children: [...who, const SizedBox(height: 18), ...facts],
       );
     }
-    return SheetColumns(
+    return SheetSplit(
       startWidth: 260,
-      gap: 28,
-      start: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: who,
-      ),
+      start: who,
       end: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: facts,

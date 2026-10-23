@@ -105,8 +105,10 @@ void main() {
       final above = tester.getRect(add).top - 16;
       final middle = (room + above) / 2;
       expect(tester.getRect(card).center.dy, closeTo(middle, 24));
-      // Close in the corner, beside the column.
-      expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 16);
+      // Close in the corner, beside the column, clear of the rounded corner.
+      final close = tester.getRect(find.byType(IrmaCloseButton));
+      expect(close.right, 874 - 24);
+      expect(close.top, 24);
     });
 
     testWidgets("success: the card and OK in the panel, the words and "

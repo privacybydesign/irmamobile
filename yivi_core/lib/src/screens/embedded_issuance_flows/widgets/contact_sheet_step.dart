@@ -320,6 +320,12 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         busy: _verifying,
         onTap: complete ? () => _verify(_codeController.text) : null,
       );
+      final sideways = useSheetColumns(context);
+      final resend = ContactResendRow(
+        hint: _sentAgain ? _t("contact_sheet.sent_again") : _k("hint"),
+        label: _t("contact_sheet.send_again"),
+        onTap: () => _sendAgain(state.target),
+      );
       body = _split(
         key: const Key("contact_sheet_code"),
         [
@@ -330,6 +336,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             changeLabel: _t("contact_sheet.change"),
             onChange: _change,
           ),
+          // Held sideways the hint and "Send again" go under where the code
+          // went, at the left; the boxes are alone at the right.
+          if (sideways && errorText == null) resend,
         ],
         [
           ContactCodeField(
@@ -357,12 +366,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               key: const Key("contact_sheet_error"),
               child: FieldError(errorText, align: TextAlign.center),
             )
-          else
-            ContactResendRow(
-              hint: _sentAgain ? _t("contact_sheet.sent_again") : _k("hint"),
-              label: _t("contact_sheet.send_again"),
-              onTap: () => _sendAgain(state.target),
-            ),
+          else if (!sideways)
+            resend,
         ],
       );
     } else {
@@ -574,14 +579,16 @@ class ContactResendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final inline = useSheetColumns(context) && !SheetSplit.isIn(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
       child: Row(
-        // Sideways on one line: the link right after the hint.
-        spacing: useSheetColumns(context) ? 16 : 0,
+        // Sideways, outside the split's narrow column, on one line: the link
+        // right after the hint.
+        spacing: inline ? 16 : 0,
         children: [
           Flexible(
-            fit: useSheetColumns(context) ? FlexFit.loose : FlexFit.tight,
+            fit: inline ? FlexFit.loose : FlexFit.tight,
             child: Semantics(
               liveRegion: true,
               child: Text(

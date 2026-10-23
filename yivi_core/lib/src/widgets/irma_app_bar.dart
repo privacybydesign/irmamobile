@@ -66,6 +66,10 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// (once content scrolls under it) clears the buttons.
   static const double toolbarHeight = 68;
 
+  /// How far a close button in a free corner ([edgeActions]) is from the top
+  /// and the side of the screen: clear of an iPhone's rounded corner.
+  static const double cornerInset = 24;
+
   final String? titleTranslationKey;
   final String? titleString;
   final Widget? title;
@@ -159,14 +163,17 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: plainTitle,
           );
 
+    // In a free corner (landscape) the close button keeps clear of the
+    // screen's rounded corner: further in than the 16 elsewhere.
+    final corner = edgeActions && cornerIsFree(context);
     final toolbar = SizedBox(
       height: toolbarHeight,
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           16 + padding.left,
-          16,
-          16 + (edgeActions && cornerIsFree(context) ? 0 : padding.right),
-          8,
+          corner ? cornerInset : 16,
+          corner ? cornerInset : 16 + padding.right,
+          corner ? 0 : 8,
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -333,5 +340,6 @@ bool cornerIsFree(BuildContext context) {
 double cornerContentTop(BuildContext context) {
   final top = MediaQuery.paddingOf(context).top;
   if (!cornerIsFree(context)) return top + 8;
-  return (top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) + 16;
+  return (top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) +
+      IrmaAppBar.cornerInset;
 }

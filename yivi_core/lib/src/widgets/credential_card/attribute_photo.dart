@@ -392,9 +392,11 @@ class _PhotoViewerState extends State<_PhotoViewer>
                           ),
                         ),
                         child: Padding(
+                          // At the height of the card details' close
+                          // button, 16 under the safe area.
                           padding: EdgeInsets.fromLTRB(
                             16 + padding.left,
-                            padding.top + 4,
+                            padding.top + 16,
                             16 + padding.right,
                             24,
                           ),
@@ -426,7 +428,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                 // bar, not in it: the bar fades through an Opacity, which
                 // would turn the glass dark (see GlassSurface.opacity).
                 Positioned(
-                  top: padding.top + 4,
+                  top: padding.top + 16,
                   right: 16 + padding.right,
                   child: TweenAnimationBuilder<double>(
                     tween: Tween(

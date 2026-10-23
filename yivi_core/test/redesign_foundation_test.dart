@@ -230,7 +230,9 @@ void main() {
         tester,
         const FakeViewPadding(left: 62, right: 62, bottom: 21),
       );
-      expect(close.right, 951 - 16);
+      // Clear of the screen's rounded corner.
+      expect(close.right, 951 - 24);
+      expect(close.top, 24);
     });
   });
 

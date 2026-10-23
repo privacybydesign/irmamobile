@@ -1522,9 +1522,9 @@
     "together": "These go together. {requestor} gets both, or neither.",
     "also_share": "Share too",
     "dont_share": "Don't share",
-    "lead_side": "Next to this is exactly what they get. Nothing is sent until you press the share button.",
-    "lead_side_sign": "Next to this is exactly what they get. Nothing is sent until you press the sign button.",
-    "lead_side_receive": "You share what is next to this and get a card in return. Nothing is sent until you press the share button.",
+    "lead_side": "{requestor} only gets what is next to this, and only when you press the share button. Everything else stays on your phone.",
+    "lead_side_sign": "{requestor} only gets what is next to this, and only when you press the sign button. Everything else stays on your phone.",
+    "lead_side_receive": "You only share what is next to this and get a card in return, only when you press the share button. Everything else stays on your phone.",
     "add_both": "Add both"
   },
   "contact_sheet": {

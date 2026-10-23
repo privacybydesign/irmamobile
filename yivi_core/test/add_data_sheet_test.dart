@@ -635,6 +635,16 @@ void main() {
       );
     });
 
+    testWidgets("Success says so in the bar", (tester) async {
+      await toSuccess(tester);
+      expect(
+        tester
+            .widget<Text>(find.byKey(const Key("glass_sheet_title")).last)
+            .data,
+        "Success",
+      );
+    });
+
     testWidgets("Success comes in as a page of its own, from the right", (
       tester,
     ) async {

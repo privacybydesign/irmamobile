@@ -356,13 +356,19 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         ],
         ...requestedPart,
       ];
-      final sideLead = required.isEmpty && optional.isNotEmpty
+      // Held sideways one sentence in the panel says both what they get
+      // and that nothing else leaves the phone: no footnote under the list.
+      final combined = !(required.isEmpty && optional.isNotEmpty);
+      final sideLead = !combined
           ? lead
-          : t(switch (kind) {
-              "sign" => "share.lead_side_sign",
-              "share_receive" => "share.lead_side_receive",
-              _ => "share.lead_side",
-            });
+          : t(
+              switch (kind) {
+                "sign" => "share.lead_side_sign",
+                "share_receive" => "share.lead_side_receive",
+                _ => "share.lead_side",
+              },
+              {"requestor": requestor},
+            );
       return SessionScaffold(
         appBarTitle: "share.bar.$kind",
         onDismiss: widget.onDismiss,
@@ -435,12 +441,13 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                                               CrossAxisAlignment.stretch,
                                           children: _laidOut(column),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 28,
+                                        if (!combined)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 28,
+                                            ),
+                                            child: pageEnd,
                                           ),
-                                          child: pageEnd,
-                                        ),
                                       ],
                                     ),
                                   ),

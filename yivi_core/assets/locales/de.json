@@ -1522,9 +1522,9 @@
     "together": "Diese gehören zusammen. {requestor} bekommt beide oder keine.",
     "also_share": "Auch teilen",
     "dont_share": "Nicht teilen",
-    "lead_side": "Daneben steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
-    "lead_side_sign": "Daneben steht genau, was sie bekommen. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Unterschreiben tippst.",
-    "lead_side_receive": "Du teilst, was daneben steht, und bekommst eine Karte zurück. Es wird erst etwas gesendet, wenn du auf die Schaltfläche zum Teilen tippst.",
+    "lead_side": "{requestor} bekommt nur, was daneben steht, und erst, wenn du auf die Schaltfläche zum Teilen tippst. Alles andere bleibt auf deinem Telefon.",
+    "lead_side_sign": "{requestor} bekommt nur, was daneben steht, und erst, wenn du auf die Schaltfläche zum Unterschreiben tippst. Alles andere bleibt auf deinem Telefon.",
+    "lead_side_receive": "Du teilst nur, was daneben steht, und bekommst eine Karte zurück, erst wenn du auf die Schaltfläche zum Teilen tippst. Alles andere bleibt auf deinem Telefon.",
     "add_both": "Beide hinzufügen"
   },
   "contact_sheet": {

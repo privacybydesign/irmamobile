@@ -2362,13 +2362,16 @@ void main() {
       expect(find.descendant(of: panel, matching: card), findsOneWidget);
       expect(find.descendant(of: panel, matching: _share), findsOneWidget);
       expect(find.byType(IrmaBottomBarBase), findsNothing);
+      // One sentence in the panel says what they get and that nothing else
+      // leaves the phone; no footnote under the list.
       expect(
         find.text(
-          "Next to this is exactly what they get. Nothing is sent until you "
-          "press the share button.",
+          "Webshop Noord only gets what is next to this, and only when you "
+          "press the share button. Everything else stays on your phone.",
         ),
         findsOneWidget,
       );
+      expect(find.byKey(const Key("share_footnote")), findsNothing);
       // No pill in the bar, also once scrolled.
       await tester.drag(
         find.byKey(const Key("share_scroll_view")),
@@ -2376,8 +2379,9 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(RequestorCompactBar), findsNothing);
-      // Close in the corner, 16 from the edge, beside the column.
-      expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 16);
+      // Close in the corner, 24 from the edge (clear of the rounded
+      // corner), beside the column.
+      expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 24);
     });
 
     for (final (name, size, padding) in [

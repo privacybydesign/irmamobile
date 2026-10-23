@@ -1522,9 +1522,9 @@
     "together": "Deze horen bij elkaar. {requestor} krijgt ze allebei, of geen van beide.",
     "also_share": "Ook delen",
     "dont_share": "Niet delen",
-    "lead_side": "Hiernaast staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te delen drukt.",
-    "lead_side_sign": "Hiernaast staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te ondertekenen drukt.",
-    "lead_side_receive": "Je deelt wat hiernaast staat en krijgt een kaartje terug. Er gaat pas iets weg als je op de knop om te delen drukt.",
+    "lead_side": "{requestor} krijgt alleen wat hiernaast staat, en pas als je op de knop om te delen drukt. Al het andere blijft op je telefoon.",
+    "lead_side_sign": "{requestor} krijgt alleen wat hiernaast staat, en pas als je op de knop om te ondertekenen drukt. Al het andere blijft op je telefoon.",
+    "lead_side_receive": "Je deelt alleen wat hiernaast staat en krijgt een kaartje terug, pas als je op de knop om te delen drukt. Al het andere blijft op je telefoon.",
     "add_both": "Allebei toevoegen"
   },
   "contact_sheet": {

@@ -1058,13 +1058,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               ),
             ),
           );
-    // The bar keeps the step's title; "Success" is the heading below. Done:
+    // The bar says "Success"; what was added is the heading below. Done:
     // no progress, no close button; the way on is the way out.
     // A phone held sideways: the card with its check and the words at the
     // left; what is now in the app at the right.
     if (useSheetColumns(context)) {
       return GlassSheetPage(
-        title: _t("issuance.title"),
+        title: _t("issuance.success_feedback.header"),
         action: action,
         closable: false,
         subtitle: _requestorLine(subject),
@@ -1106,7 +1106,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       );
     }
     return GlassSheetPage(
-      title: _t("issuance.title"),
+      title: _t("issuance.success_feedback.header"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
       closable: false,
