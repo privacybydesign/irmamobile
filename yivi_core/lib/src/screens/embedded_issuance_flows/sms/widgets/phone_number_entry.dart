@@ -84,10 +84,15 @@ class PhoneNumberEntry extends ConsumerStatefulWidget {
   final FocusNode focusNode;
   final ValueChanged<bool> onValidChanged;
 
+  /// The keyboard's return key ("Next"): the step's way on. The phone pad
+  /// has none on iOS; elsewhere it does.
+  final VoidCallback? onSubmitted;
+
   const PhoneNumberEntry({
     super.key,
     required this.focusNode,
     required this.onValidChanged,
+    this.onSubmitted,
   });
 
   @override
@@ -224,6 +229,10 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
       controller: _controller,
       focusNode: widget.focusNode,
       keyboardType: TextInputType.phone,
+      textInputAction: widget.onSubmitted == null ? null : .next,
+      onSubmitted: widget.onSubmitted == null
+          ? null
+          : (_) => widget.onSubmitted!(),
       autofillHints: const [AutofillHints.telephoneNumberNational],
       textDirection: TextDirection.ltr,
       style: palette

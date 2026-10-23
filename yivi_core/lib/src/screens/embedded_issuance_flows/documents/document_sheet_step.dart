@@ -7,6 +7,7 @@ import "../../../models/mrz.dart";
 import "../../../providers/ocr_processor_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "document_flow_steps.dart";
 import "document_step_in_sheet.dart";
@@ -95,6 +96,12 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
       if (mounted && screen != _screen) setState(() => _screen = screen);
     },
     onRoot: () => widget.onBack(),
+    // A new screen starts with an empty slot in the bar: it puts its own
+    // way on there, or has none.
+    onPush: () {
+      final context = _navigator.currentContext;
+      if (context != null) SheetActionSlot.maybeOf(context)?.set(null);
+    },
   );
 
   /// The screen on top, for the bar's title and the progress.
@@ -317,11 +324,13 @@ class _ScreenObserver extends NavigatorObserver {
   final Route<void> root;
   final ValueChanged<_Screen> onScreen;
   final VoidCallback onRoot;
+  final VoidCallback onPush;
 
   _ScreenObserver({
     required this.root,
     required this.onScreen,
     required this.onRoot,
+    required this.onPush,
   });
 
   void _show(Route<dynamic>? route) {
@@ -333,8 +342,11 @@ class _ScreenObserver extends NavigatorObserver {
   }
 
   @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) =>
-      _show(route);
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    // Over another screen (not the first ones, as the navigator starts).
+    if (previousRoute is _SheetScreenRoute) onPush();
+    _show(route);
+  }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {

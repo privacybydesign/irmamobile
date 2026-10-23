@@ -5,6 +5,7 @@ import "../screens/embedded_issuance_flows/documents/document_step_in_sheet.dart
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "glass/floating_bar_placement.dart";
+import "glass/glass_sheet.dart";
 import "glass/pill_buttons.dart";
 import "glass/sheet_action_row.dart";
 
@@ -85,9 +86,10 @@ enum DocumentFlowFooterStyle {
 }
 
 /// The bar of buttons at the bottom of a document flow screen. In a sheet
-/// ([DocumentStepInSheet]) it is the sheet's own: a [SheetActionRow] where
-/// every sheet page has its buttons, so Start sits where "Add" did on the
-/// page before.
+/// ([DocumentStepInSheet]) it is the sheet's own: on a phone held upright a
+/// [SheetActionRow] where every sheet page has its buttons, so Start sits
+/// where "Add" did on the page before; elsewhere the way on goes in the
+/// sheet's bar ([SheetSlotAction]) and the other choice is a link.
 class DocumentFlowFooter extends StatelessWidget {
   const DocumentFlowFooter({
     required this.buttons,
@@ -145,18 +147,50 @@ class DocumentFlowFooter extends StatelessWidget {
     );
   }
 
-  Widget _inSheet(BuildContext context) =>
-      SheetBottomBar(child: sheetActions(context, buttons));
+  Widget _inSheet(BuildContext context) {
+    final actions = sheetActions(context, buttons);
+    if (!sheetActionInBar(context)) return SheetBottomBar(child: actions);
+    // The way on is in the bar; the other choice, if any, a link at the
+    // bottom.
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: FloatingBarPlacement.buttonBottom(context),
+      ),
+      child: actions,
+    );
+  }
 
   /// [buttons] (all [DocumentFlowButton]s) as the buttons of a step in a
-  /// sheet: the way on and the way back side by side. Without a bar: for
-  /// the left column of a sheet held sideways ([SheetSplit]).
+  /// sheet: on a phone held upright the way on and the way back side by
+  /// side; elsewhere the way on in the sheet's bar ([SheetSlotAction]) and
+  /// the way back as a link. Without a bar: also for the left column of a
+  /// sheet held sideways ([SheetSplit]).
   static Widget sheetActions(BuildContext context, List<Widget> buttons) {
     final flowButtons = buttons.cast<DocumentFlowButton>();
     final primary = flowButtons.where((b) => b.style == .primary).firstOrNull;
     final secondary = flowButtons.where((b) => b.style != .primary).firstOrNull;
     String? label(DocumentFlowButton? b) =>
         b == null ? null : FlutterI18n.translate(context, b.labelKey);
+    if (sheetActionInBar(context)) {
+      return SheetSlotAction(
+        action: primary == null
+            ? null
+            : SheetAction(
+                key: primary.key,
+                label: label(primary)!,
+                onTap: primary.onPressed,
+              ),
+        child: secondary == null
+            ? const SizedBox.shrink()
+            : Center(
+                child: TextLink(
+                  key: secondary.key,
+                  label: label(secondary)!,
+                  onPressed: secondary.onPressed,
+                ),
+              ),
+      );
+    }
     return SheetActionRow(
       primaryKey: primary?.key,
       primaryLabel: label(primary),

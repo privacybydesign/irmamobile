@@ -114,8 +114,8 @@ void main() {
   });
 
   group("IssueSheetProgress", () {
-    // A phone held upright: sideways it goes in the sheet's bar, compact
-    // (see the test at the end of this group).
+    // A phone held upright (sideways, who it is for goes under the bar's
+    // title: see the first test).
     setUp(() {
       TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
         ..physicalSize = const Size(390, 844)
@@ -127,36 +127,40 @@ void main() {
         ..resetDevicePixelRatio(),
     );
 
-    testWidgets("sideways: short segments and '2 of 4', no requestor", (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(874, 402);
-      await pumpTranslated(
-        tester,
-        _wrap(
-          Column(
-            children: [
-              IssueSheetProgress(
-                subject: IssueSheetSubject.request(_shop),
-                step: 2,
-                total: 4,
-              ),
-              IssueSheetRequestorLine(
-                subject: IssueSheetSubject.request(_shop),
-              ),
-            ],
+    testWidgets(
+      "sideways: the line, and who it is for once (under the title)",
+      (tester) async {
+        tester.view.physicalSize = const Size(874, 402);
+        await pumpTranslated(
+          tester,
+          _wrap(
+            Column(
+              children: [
+                IssueSheetProgress(
+                  subject: IssueSheetSubject.request(_shop),
+                  step: 2,
+                  total: 4,
+                ),
+                IssueSheetRequestorLine(
+                  subject: IssueSheetSubject.request(_shop),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-      expect(find.text("2 of 4"), findsOneWidget);
-      expect(
-        tester.getSize(find.byKey(const Key("issue_sheet_progress_1"))).width,
-        22,
-      );
-      expect(find.bySemanticsLabel("Step 2 of 4"), findsOneWidget);
-      // Who it is for: once, the line for under the bar's title.
-      expect(find.text("For Webshop Noord"), findsOneWidget);
-    });
+        );
+        // No count to read; screen readers hear it.
+        expect(find.text("2 of 4"), findsNothing);
+        expect(
+          tester
+              .getSize(find.byKey(const Key("issue_sheet_progress_line")))
+              .height,
+          3,
+        );
+        expect(find.bySemanticsLabel("Step 2 of 4"), findsOneWidget);
+        // Who it is for: once, the line for under the bar's title.
+        expect(find.text("For Webshop Noord"), findsOneWidget);
+      },
+    );
 
     testWidgets("says who it is for and which step", (tester) async {
       await pumpTranslated(
@@ -176,15 +180,15 @@ void main() {
       expect(find.bySemanticsLabel("Step 2 of 3"), findsOneWidget);
     });
 
-    /// The filled part of segment [i]: its colour and how much of it.
-    (Color, double) segment(WidgetTester tester, int i) {
+    /// The filled part of the line: its colour and how much of it.
+    (Color, double) line(WidgetTester tester) {
       // The top page's bar: while pages change the one under it is there too.
-      final bar = find.byKey(Key("issue_sheet_progress_$i")).last;
+      final bar = find.byKey(const Key("issue_sheet_progress_line")).last;
       final fill = tester.widget<FractionallySizedBox>(
         find.descendant(of: bar, matching: find.byType(FractionallySizedBox)),
       );
       final ink = tester.widget<ColoredBox>(
-        find.descendant(of: bar, matching: find.byType(ColoredBox)),
+        find.descendant(of: bar, matching: find.byType(ColoredBox)).last,
       );
       return (ink.color, fill.widthFactor!);
     }
@@ -200,13 +204,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final green = YiviPalette.light.successText;
-      expect(segment(tester, 1), (green, 1.0));
-      expect(segment(tester, 2), (green, 1.0));
-      expect(segment(tester, 3).$2, 0.0);
+      final (ink, part) = line(tester);
+      expect(ink, YiviPalette.light.successText);
+      expect(part, closeTo(2 / 3, 0.001));
     });
 
-    testWidgets("done: all steps green and 'Done'", (tester) async {
+    testWidgets("done: the whole line green", (tester) async {
       await pumpTranslated(
         tester,
         _wrap(
@@ -218,16 +221,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      // No count under the line; screen readers hear it.
       expect(find.text("Done"), findsNothing);
       expect(find.bySemanticsLabel("All steps done"), findsOneWidget);
-      final green = YiviPalette.light.successText;
-      for (var i = 1; i <= 3; i++) {
-        expect(segment(tester, i), (green, 1.0));
-      }
+      expect(line(tester), (YiviPalette.light.successText, 1.0));
     });
 
-    testWidgets("the next step's bar fills on from where the last stood", (
+    testWidgets("the next step's line fills on from where the last stood", (
       tester,
     ) async {
       late StateSetter setStep;
@@ -264,12 +263,12 @@ void main() {
       setStep(() => step = 2);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 200));
-      // Half way from step 1 to step 2: the second segment is partly blue.
-      final part = segment(tester, 2).$2;
-      expect(part, greaterThan(0));
-      expect(part, lessThan(1));
+      // Half way from step 1 to step 2.
+      final part = line(tester).$2;
+      expect(part, greaterThan(1 / 3));
+      expect(part, lessThan(2 / 3));
       await tester.pumpAndSettle();
-      expect(segment(tester, 2).$2, 1.0);
+      expect(line(tester).$2, closeTo(2 / 3, 0.001));
     });
   });
 }

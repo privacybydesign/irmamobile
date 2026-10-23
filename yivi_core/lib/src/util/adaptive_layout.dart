@@ -26,6 +26,13 @@ bool useSidebar(BuildContext context) =>
 bool isExpandedLayout(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= expandedLayoutBreakpoint;
 
+/// Whether sheets are form sheets in the middle of the window, as on an
+/// iPad: on the tablet layouts, and on any window whose short side is a
+/// tablet's (an 11-inch iPad or an unfolded phone held upright, under the
+/// tablet breakpoint). Phones, upright or sideways, get the bottom sheet.
+bool useFormSheet(BuildContext context) =>
+    isExpandedLayout(context) || MediaQuery.sizeOf(context).shortestSide >= 700;
+
 /// A phone held sideways (or a narrow landscape split view): wider than
 /// high, but narrower than the tablet layouts. The share and issuance
 /// screens then keep who asks and the button in a panel at the left, and

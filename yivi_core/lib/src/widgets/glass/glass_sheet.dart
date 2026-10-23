@@ -18,7 +18,7 @@ import "sheet_action_row.dart";
 /// attached to the bottom of the screen, as tall as a native iOS sheet (its
 /// top at the top of the safe area, where the Data tab's search field
 /// starts), that closes on a tap outside it or a drag down. It is a page route, so a [Hero] can fly into it. On
-/// tablets it is a centred dialog with the same look.
+/// tablets ([useFormSheet]) it is a form sheet in the middle, 540 wide.
 ///
 /// To ask before it closes (for example while something is under way in it),
 /// wrap the content in a [GlassSheetConfirmDismiss].
@@ -32,7 +32,7 @@ Future<T?> showGlassSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
 }) {
-  if (isExpandedLayout(context)) {
+  if (useFormSheet(context)) {
     // A page route, as on the phone, so heroes fly into the sheet (they
     // don't into a dialog's popup route).
     return Navigator.of(context, rootNavigator: true).push(
@@ -52,10 +52,14 @@ Future<T?> showGlassSheet<T>({
   );
 }
 
-/// The width of a sheet on a tablet (a dialog in the middle): 80% of the
-/// window, from 520 up to 880, past which its lines would get too long to
-/// read. Wide enough for two columns ([useSheetColumns]).
-double tabletSheetWidth(double window) => (window * 0.8).clamp(520.0, 880.0);
+/// The width of a sheet on a tablet (a form sheet in the middle): 540, as
+/// an iOS form sheet, or less in a narrow window. One column: under
+/// [sheetColumnsWidth].
+double tabletSheetWidth(double window) => math.min(540.0, window - 48);
+
+/// The height of a sheet on a tablet: at most 85% of the window, and no
+/// taller than 720 (a native form sheet's proportions; the QR scanner's).
+double tabletSheetHeight(double window) => math.min(window * 0.85, 720.0);
 
 /// The scroll physics for a list in a sheet (see [GlassSheetScope]).
 ScrollPhysics? glassSheetScrollPhysics(BuildContext context) =>
@@ -128,8 +132,8 @@ class _GlassFormSheetRoute<T> extends PageRoute<T> {
 Widget _formSheet(BuildContext context, WidgetBuilder builder) {
   final media = MediaQuery.of(context);
   final screen = media.size.height;
-  // Every sheet as tall as the dialog may be, as on the phone.
-  final height = screen * 0.85;
+  // Every sheet as tall as a form sheet may be.
+  final height = tabletSheetHeight(screen);
   final keyboard = media.viewInsets.bottom;
   // Centred; with the keyboard up it moves up, as a native form sheet,
   // centred in the room above the keyboard but no higher than 12
@@ -648,7 +652,11 @@ class _GlassSheetState extends State<_GlassSheet> {
                           bottom: attached ? media.viewPadding.bottom : 0,
                         ),
                       ),
-                      child: widget.child,
+                      // Its bar has text buttons when it floats.
+                      child: GlassSheetFloating(
+                        floating: !attached,
+                        child: widget.child,
+                      ),
                     ),
                   ),
                 ),
@@ -729,10 +737,48 @@ class _GlassSheetNoRimState extends State<GlassSheetNoRim> {
   Widget build(BuildContext context) => widget.child;
 }
 
-/// The top of a sheet, as the navigation bar of a native iOS sheet: a
-/// short centred title, the same round glass close button as on a full
-/// screen, and a back button when [onBack] is set. Explanatory text goes at
-/// the top of the sheet's scrolling content, not here.
+/// Whether the sheet around [context] floats in the middle of the window
+/// (a tablet's form sheet) rather than being attached to the bottom edge.
+/// Its bar then has text buttons, as a native iPad form sheet: "Cancel" or
+/// "‹ Back" at the left, the way on at the right, no close button.
+class GlassSheetFloating extends InheritedWidget {
+  final bool floating;
+
+  const GlassSheetFloating({
+    super.key,
+    required this.floating,
+    required super.child,
+  });
+
+  static bool of(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<GlassSheetFloating>()
+          ?.floating ??
+      false;
+
+  @override
+  bool updateShouldNotify(GlassSheetFloating old) => old.floating != floating;
+}
+
+/// Whether a sheet page shows its way on ([SheetAction]) in its bar: on a
+/// tablet's form sheet and in a wide sheet (a phone held sideways), where
+/// the keyboard would cover a button at the bottom. A phone held upright has
+/// it at the bottom, in the thumb's reach, right above the keyboard.
+bool sheetActionInBar(BuildContext context) =>
+    GlassSheetFloating.of(context) || useSheetColumns(context);
+
+/// The top of a sheet, as the navigation bar of a native iOS sheet: the
+/// title in the middle, the ways out at the sides, and in the bar the way
+/// on ([action]) where [sheetActionInBar] puts it there.
+///
+/// - Phone: the round glass back button at the left when [onBack] is set,
+///   [action] and the round close button at the right.
+/// - Tablet (a floating form sheet): text buttons, as on an iPad: "‹ Back"
+///   when [onBack] is set, else "Cancel", at the left; [action] at the
+///   right; no close button (a tap outside the sheet closes it).
+///
+/// Explanatory text goes at the top of the sheet's scrolling content, not
+/// here.
 class GlassSheetHeader extends StatelessWidget {
   static Duration _switch(BuildContext context) =>
       MediaQuery.disableAnimationsOf(context)
@@ -743,8 +789,19 @@ class GlassSheetHeader extends StatelessWidget {
 
   /// In the title's place while not null (Add data's search field, once the
   /// list has scrolled it away): between the buttons, the title faded out.
+  /// On a phone held sideways it stands next to the title instead.
   final Widget? titleWidget;
   final VoidCallback? onBack;
+
+  /// The way on, in the bar at the right (see [sheetActionInBar]).
+  final SheetAction? action;
+
+  /// Called instead of [action]'s own callback (a slot's latest one).
+  final VoidCallback? onAction;
+
+  /// False on a page that is done ("Success"): no close button, no
+  /// "Cancel"; its way on is the way out.
+  final bool closable;
 
   /// The title fades while pages of [GlassSheetPages] change (the bar
   /// itself stays put); null when it simply shows.
@@ -754,13 +811,13 @@ class GlassSheetHeader extends StatelessWidget {
   /// comes from or goes back to has none; null when it simply shows.
   final Animation<double>? backOpacity;
 
+  /// [action] fades in or out while pages change, when the other page has
+  /// none; null when it simply shows.
+  final Animation<double>? actionOpacity;
+
   /// Off for the page under the top one: its buttons sit under the top
   /// page's own.
   final bool buttons;
-
-  /// On a phone held sideways: after the title, before the close button
-  /// (the progress of adding a card).
-  final Widget? trailing;
 
   /// On a phone held sideways: a second line under the title (who a card is
   /// added for).
@@ -771,118 +828,30 @@ class GlassSheetHeader extends StatelessWidget {
     required this.title,
     this.titleWidget,
     this.onBack,
+    this.action,
+    this.onAction,
+    this.closable = true,
     this.titleOpacity,
     this.backOpacity,
+    this.actionOpacity,
     this.buttons = true,
-    this.trailing,
     this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (useSheetColumns(context)) return _row(context);
+    final sideways = useSheetColumns(context);
+    if (sideways && this.titleWidget != null) return _row(context);
     final palette = YiviPalette.of(context);
-    return Padding(
-      // Room under the buttons, also once content scrolls under the bar and
-      // its edge shows.
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 44),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Padding(
-              // Clear of the buttons on both sides, so it stays centred.
-              padding: const EdgeInsets.symmetric(horizontal: 56),
-              // Names the page (see GlassSheetPages): a screen reader reads
-              // it when the page comes in.
-              child: Semantics(
-                header: true,
-                namesRoute: true,
-                child: AnimatedOpacity(
-                  // Gone while a widget takes its place; it still names the
-                  // page.
-                  opacity: titleWidget == null ? 1 : 0,
-                  duration: _switch(context),
-                  child: FadeTransition(
-                    opacity: titleOpacity ?? kAlwaysCompleteAnimation,
-                    // A new title on the same page (a screen changing below
-                    // the bar) fades in over the old one.
-                    child: AnimatedSwitcher(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 200),
-                      child: KeyedSubtree(
-                        key: ValueKey(title),
-                        child: Text(
-                          title,
-                          key: const Key("glass_sheet_title"),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .display(17)
-                              .copyWith(height: 22 / 17, color: palette.text),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned.directional(
-              textDirection: Directionality.of(context),
-              // Where the buttons are, also on the page under the top one
-              // (which draws none): it must not get wider while it fades.
-              start: onBack != null ? 52 : 0,
-              end: 52,
-              top: 0,
-              bottom: 0,
-              // Fades with the title while pages change, as the title would.
-              child: FadeTransition(
-                opacity: titleOpacity ?? kAlwaysCompleteAnimation,
-                child: AnimatedSwitcher(
-                  duration: _switch(context),
-                  child: titleWidget == null
-                      ? const SizedBox.shrink()
-                      : KeyedSubtree(
-                          key: const ValueKey("glass_sheet_title_widget"),
-                          child: Center(child: titleWidget),
-                        ),
-                ),
-              ),
-            ),
-            if (onBack != null && buttons)
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: FadeTransition(
-                  opacity: backOpacity ?? kAlwaysCompleteAnimation,
-                  child: YiviBackButton(onTap: onBack),
-                ),
-              ),
-            if (buttons)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
-                child: IrmaCloseButton(
-                  onTap: () => Navigator.of(context).maybePop(),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// A phone held sideways: one row, so the content gets the height. The
-  /// back button, the title at the start (with [subtitle] under it), then
-  /// the search field ([titleWidget], next to the title rather than in its
-  /// place) or [trailing], and the close button.
-  Widget _row(BuildContext context) {
-    final palette = YiviPalette.of(context);
+    final floating = GlassSheetFloating.of(context);
     final titleWidget = this.titleWidget;
-    final trailing = this.trailing;
-    final subtitle = this.subtitle;
+    final subtitle = sideways ? this.subtitle : null;
+    final action = sheetActionInBar(context) ? this.action : null;
+    final onBack = this.onBack;
+
+    // Names the page (see GlassSheetPages): a screen reader reads it when
+    // the page comes in. A new title on the same page (a screen changing
+    // below the bar) fades in over the old one.
     final text = Semantics(
       header: true,
       namesRoute: true,
@@ -893,13 +862,142 @@ class GlassSheetHeader extends StatelessWidget {
           child: Text(
             title,
             key: const Key("glass_sheet_title"),
-            maxLines: 1,
+            textAlign: TextAlign.center,
+            maxLines: sideways ? 1 : 2,
             overflow: TextOverflow.ellipsis,
             style: palette
                 .display(17)
-                .copyWith(height: 20 / 17, color: palette.text),
+                .copyWith(
+                  height: (sideways ? 20 : 22) / 17,
+                  color: palette.text,
+                ),
           ),
         ),
+      ),
+    );
+    final heading = FadeTransition(
+      opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedOpacity(
+            // Gone while a widget takes its place; it still names the page.
+            opacity: titleWidget == null ? 1 : 0,
+            duration: _switch(context),
+            child: subtitle == null
+                ? text
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [text, subtitle],
+                  ),
+          ),
+          AnimatedSwitcher(
+            duration: _switch(context),
+            child: titleWidget == null
+                ? const SizedBox.shrink()
+                : KeyedSubtree(
+                    key: const ValueKey("glass_sheet_title_widget"),
+                    child: titleWidget,
+                  ),
+          ),
+        ],
+      ),
+    );
+
+    Widget shown(Widget child) => Visibility(
+      visible: buttons,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      child: child,
+    );
+    // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
+    void close() => Navigator.of(context).maybePop();
+    final Widget? start = floating
+        ? (onBack != null || closable
+              ? shown(
+                  _BarTextButton(
+                    key: const Key("glass_sheet_text_back"),
+                    label: FlutterI18n.translate(
+                      context,
+                      onBack != null ? "ui.previous" : "ui.cancel",
+                    ),
+                    chevron: onBack != null,
+                    onTap: onBack ?? close,
+                  ),
+                )
+              : null)
+        : (onBack != null
+              ? shown(
+                  FadeTransition(
+                    opacity: backOpacity ?? kAlwaysCompleteAnimation,
+                    child: YiviBackButton(onTap: onBack),
+                  ),
+                )
+              : null);
+    final end = <Widget>[
+      if (action != null)
+        Flexible(
+          child: shown(
+            FadeTransition(
+              opacity: actionOpacity ?? kAlwaysCompleteAnimation,
+              child: AnimatedSwitcher(
+                duration: _switch(context),
+                child: SheetBarButton(
+                  key: ValueKey((action.label, action.busy, action.enabled)),
+                  action: action,
+                  onTap: onAction,
+                ),
+              ),
+            ),
+          ),
+        ),
+      if (!floating && closable) shown(IrmaCloseButton(onTap: close)),
+    ];
+    return Padding(
+      // Room under the buttons, also once content scrolls under the bar and
+      // its edge shows; less above them on a phone held sideways.
+      padding: EdgeInsets.fromLTRB(16, sideways ? 12 : 16, 16, 12),
+      child: SizedBox(
+        height: 44,
+        child: CustomMultiChildLayout(
+          delegate: _BarLayout(Directionality.of(context)),
+          children: [
+            if (start != null) LayoutId(id: _BarSlot.start, child: start),
+            LayoutId(id: _BarSlot.title, child: heading),
+            if (end.isNotEmpty)
+              LayoutId(
+                id: _BarSlot.end,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 10,
+                  children: end,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A phone held sideways with a search field ([titleWidget], Add data's
+  /// list): one row, the back button, the title at the start, the search
+  /// field next to it, and the close button.
+  Widget _row(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final titleWidget = this.titleWidget!;
+    final subtitle = this.subtitle;
+    final text = Semantics(
+      header: true,
+      namesRoute: true,
+      child: Text(
+        title,
+        key: const Key("glass_sheet_title"),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: palette
+            .display(17)
+            .copyWith(height: 20 / 17, color: palette.text),
       ),
     );
     final heading = FadeTransition(
@@ -932,34 +1030,141 @@ class GlassSheetHeader extends StatelessWidget {
                   child: YiviBackButton(onTap: onBack),
                 ),
               ),
-            if (titleWidget != null) ...[
-              heading,
-              Expanded(
-                child: FadeTransition(
-                  opacity: titleOpacity ?? kAlwaysCompleteAnimation,
-                  child: titleWidget,
-                ),
-              ),
-            ] else ...[
-              Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: heading,
-                ),
-              ),
-              ?trailing,
-            ],
-            Visibility(
-              visible: buttons,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
-              child: IrmaCloseButton(
-                onTap: () => Navigator.of(context).maybePop(),
+            heading,
+            Expanded(
+              child: FadeTransition(
+                opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+                child: titleWidget,
               ),
             ),
+            if (closable)
+              Visibility(
+                visible: buttons,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
+                child: IrmaCloseButton(
+                  onTap: () => Navigator.of(context).maybePop(),
+                ),
+              ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+enum _BarSlot { start, title, end }
+
+/// The bar's three parts: the buttons at the start and the end as wide as
+/// they are, the title in the middle of the bar, kept clear of the wider
+/// side on both sides so it stays centred.
+class _BarLayout extends MultiChildLayoutDelegate {
+  final TextDirection direction;
+
+  _BarLayout(this.direction);
+
+  static const double _gap = 12;
+
+  @override
+  void performLayout(Size size) {
+    // A long label (the success's "Back to {requestor}") shortens itself
+    // rather than squeeze the title out.
+    final loose = BoxConstraints.loose(Size(size.width * 0.42, size.height));
+    var startWidth = 0.0, endWidth = 0.0;
+    Size? startSize, endSize;
+    if (hasChild(_BarSlot.start)) {
+      startSize = layoutChild(_BarSlot.start, loose);
+      startWidth = startSize.width;
+    }
+    if (hasChild(_BarSlot.end)) {
+      endSize = layoutChild(_BarSlot.end, loose);
+      endWidth = endSize.width;
+    }
+    final side = math.max(startWidth, endWidth);
+    final clear = side == 0 ? 0.0 : side + _gap;
+    final titleWidth = math.max(0.0, size.width - 2 * clear);
+    final titleSize = layoutChild(
+      _BarSlot.title,
+      BoxConstraints(
+        minWidth: titleWidth,
+        maxWidth: titleWidth,
+        maxHeight: size.height,
+      ),
+    );
+    positionChild(
+      _BarSlot.title,
+      Offset(clear, (size.height - titleSize.height) / 2),
+    );
+    final ltr = direction == TextDirection.ltr;
+    if (startSize != null) {
+      positionChild(
+        _BarSlot.start,
+        Offset(
+          ltr ? 0 : size.width - startSize.width,
+          (size.height - startSize.height) / 2,
+        ),
+      );
+    }
+    if (endSize != null) {
+      positionChild(
+        _BarSlot.end,
+        Offset(
+          ltr ? size.width - endSize.width : 0,
+          (size.height - endSize.height) / 2,
+        ),
+      );
+    }
+  }
+
+  @override
+  bool shouldRelayout(_BarLayout old) => old.direction != direction;
+}
+
+/// A text button in the bar of a tablet's form sheet: "Cancel", or "‹ Back"
+/// with a chevron.
+class _BarTextButton extends StatelessWidget {
+  final String label;
+  final bool chevron;
+  final VoidCallback onTap;
+
+  const _BarTextButton({
+    super.key,
+    required this.label,
+    required this.chevron,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (chevron)
+                Icon(Icons.chevron_left_rounded, size: 28, color: palette.link),
+              Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: chevron ? 0 : 4,
+                  end: 4,
+                ),
+                child: Text(
+                  label,
+                  style: palette.body(17).copyWith(color: palette.link),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1344,7 +1549,7 @@ class _SheetPageRole extends InheritedWidget {
 }
 
 /// What a [GlassSheetPage] has in its bar.
-typedef _Chrome = ({bool back, bool pinned});
+typedef _Chrome = ({bool back, bool pinned, bool action});
 
 /// Moves [child] sideways by a fraction of its width, from [from] (slide 0)
 /// to [to] (slide 1), repainting only.
@@ -1462,8 +1667,18 @@ class GlassSheetPage extends StatefulWidget {
   final List<Widget>? slivers;
   final Widget? bottom;
 
-  /// Under the title bar and above the scrolling [child], staying put while
-  /// the page scrolls (e.g. the progress of adding a card).
+  /// The way on: at the bottom on a phone held upright (under [bottom]), in
+  /// the bar at the top right elsewhere ([sheetActionInBar]). Screens inside
+  /// the page can put theirs in its [SheetActionSlot] instead.
+  final SheetAction? action;
+
+  /// False on a page that is done ("Success"): no close button, no
+  /// "Cancel" in the bar; its way on is the way out.
+  final bool closable;
+
+  /// Right under the title bar, the full width of the sheet, and above the
+  /// scrolling [child], staying put while the page scrolls (the progress of
+  /// adding a card).
   final Widget? pinned;
 
   /// On a phone held sideways: a second line under the title (see
@@ -1494,6 +1709,8 @@ class GlassSheetPage extends StatefulWidget {
     this.child,
     this.slivers,
     this.bottom,
+    this.action,
+    this.closable = true,
     this.pinned,
     this.subtitle,
     this.padding = EdgeInsets.zero,
@@ -1509,10 +1726,12 @@ class GlassSheetPage extends StatefulWidget {
 
 class _GlassSheetPageState extends State<GlassSheetPage> {
   final _under = ScrollEdgeNotifier();
+  final _slot = SheetActionSlot();
 
   @override
   void dispose() {
     _under.dispose();
+    _slot.dispose();
     super.dispose();
   }
 
@@ -1523,7 +1742,13 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final title = widget.title;
     final onBack = widget.onBack;
     final pinned = widget.pinned;
-    role?.chrome[role.pageKey] = (back: onBack != null, pinned: pinned != null);
+    final action = widget.action;
+    final inBar = sheetActionInBar(context);
+    role?.chrome[role.pageKey] = (
+      back: onBack != null,
+      pinned: pinned != null,
+      action: inBar && (action != null || _slot.action != null),
+    );
     // While pages change, what only one of the two pages has fades; what
     // both have stays put (the top page's stands in for the other's).
     final moving = role != null && role.otherKey != null;
@@ -1550,36 +1775,44 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                 ? FadeTransition(opacity: role.ownOpacity, child: pinned)
                 : pinned,
           );
-    // A phone held sideways: the pinned part (the progress) goes in the bar,
-    // after the title.
-    final inBar = useSheetColumns(context);
     final head = <Widget>[
       // In pages the bar stays put while pages change; only the titles fade
-      // into each other.
-      GlassSheetHeader(
-        title: title,
-        titleWidget: widget.titleWidget,
-        onBack: onBack,
-        buttons: top,
-        titleOpacity: role?.titleOpacity,
-        backOpacity: moving && other != null && !other.back
-            ? role.ownOpacity
-            : null,
-        trailing: inBar ? pinnedShown(pinned) : null,
-        subtitle: inBar ? widget.subtitle : null,
+      // into each other. The way on in the bar comes from the page, or from
+      // a screen inside it (the slot).
+      ListenableBuilder(
+        listenable: _slot,
+        builder: (context, _) {
+          final slotted = action == null ? _slot.action : null;
+          return GlassSheetHeader(
+            title: title,
+            titleWidget: widget.titleWidget,
+            onBack: onBack,
+            action: inBar ? (action ?? slotted) : null,
+            onAction: slotted == null
+                ? null
+                : () => _slot.action?.onTap?.call(),
+            closable: widget.closable,
+            buttons: top,
+            titleOpacity: role?.titleOpacity,
+            backOpacity: moving && other != null && !other.back
+                ? role.ownOpacity
+                : null,
+            actionOpacity: moving && other != null && !other.action
+                ? role.ownOpacity
+                : null,
+            subtitle: widget.subtitle,
+          );
+        },
       ),
-      if (pinned != null && !inBar)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: pinnedShown(pinned),
-        ),
+      // The progress: a line the full width of the sheet, under the bar.
+      ?pinnedShown(pinned),
     ];
     final body = ScrollEdgeListener(
       notifier: _under,
       child: Column(
         mainAxisSize: role == null ? MainAxisSize.min : MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _body(context),
+        children: _body(context, inBar ? null : action),
       ),
     );
     // Taps on the bar stay on the bar, also where content is under it.
@@ -1606,24 +1839,46 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         ],
       ),
     );
-    return BarOverBody(
-      expand: role != null,
-      bar: bar,
-      body: role == null ? body : role.slide(body),
+    return SheetActionSlotScope(
+      slot: _slot,
+      child: BarOverBody(
+        expand: role != null,
+        bar: bar,
+        body: role == null ? body : role.slide(body),
+      ),
     );
   }
 
-  /// What scrolls, and the button under it.
-  List<Widget> _body(BuildContext context) {
-    final bottom = widget.bottom;
+  /// What scrolls, and the buttons under it: [GlassSheetPage.bottom] and
+  /// [action] (the way on, when it is not in the bar).
+  List<Widget> _body(BuildContext context, SheetAction? action) {
     final padding = widget.padding;
     final child = widget.child;
     final slivers = widget.slivers;
+    final button = action == null
+        ? null
+        : SheetActionRow(
+            primaryKey: action.key,
+            primaryLabel: action.label,
+            onPrimary: action.enabled ? action.onTap : null,
+            primaryLeading: action.busy ? const SheetBusySpinner() : null,
+          );
+    final given = widget.bottom;
+    final bottom = button == null
+        ? given
+        : given == null
+        ? button
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 10,
+            children: [given, button],
+          );
     return [
-      if (!widget.scrolls)
+      if (!widget.scrolls) ...[
         Expanded(
           child: Padding(
-            padding: widget.childClearsBottom
+            padding: widget.childClearsBottom || bottom != null
                 ? padding
                 : padding.add(
                     EdgeInsets.only(
@@ -1632,8 +1887,9 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                   ),
             child: child,
           ),
-        )
-      else if (bottom == null)
+        ),
+        if (bottom != null) SheetBottomBar(child: bottom),
+      ] else if (bottom == null)
         Flexible(
           child: GlassSheetScrollView(
             padding: padding,

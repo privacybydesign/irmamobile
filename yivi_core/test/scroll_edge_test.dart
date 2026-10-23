@@ -121,7 +121,11 @@ void main() {
       await tester.drag(find.text("row 4"), const Offset(0, -60));
       await tester.pumpAndSettle();
       final progress = tester.getRect(find.byKey(const Key("progress")));
-      expect(tester.getRect(_band).bottom, greaterThan(progress.bottom));
+      // The progress line ends the bar: the edge reaches down to it.
+      expect(
+        tester.getRect(_band).bottom,
+        greaterThanOrEqualTo(progress.bottom),
+      );
     });
 
     testWidgets("a tap on the header does not reach the content under it", (

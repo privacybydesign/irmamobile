@@ -110,10 +110,11 @@ class _OpenID4VCIAuthCodePendingScreenState
         ),
         onBack: widget.onDismiss,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        bottom: SheetActionRow(
-          primaryKey: const Key("sheet_openid4vci_open_browser"),
-          primaryLabel: buttonLabel,
-          onPrimary: _launching ? null : _handleOpenBrowser,
+        action: SheetAction(
+          key: const Key("sheet_openid4vci_open_browser"),
+          label: buttonLabel,
+          busy: _launching,
+          onTap: _handleOpenBrowser,
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),

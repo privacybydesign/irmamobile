@@ -23,10 +23,14 @@ class EmailAddressEntry extends ConsumerStatefulWidget {
   final FocusNode focusNode;
   final ValueChanged<bool> onValidChanged;
 
+  /// The keyboard's return key ("Next"): the step's way on.
+  final VoidCallback? onSubmitted;
+
   const EmailAddressEntry({
     super.key,
     required this.focusNode,
     required this.onValidChanged,
+    this.onSubmitted,
   });
 
   @override
@@ -86,6 +90,10 @@ class EmailAddressEntryState extends ConsumerState<EmailAddressEntry> {
         focusNode: widget.focusNode,
         key: const Key("email_input_field"),
         keyboardType: .emailAddress,
+        textInputAction: widget.onSubmitted == null ? null : .next,
+        onFieldSubmitted: widget.onSubmitted == null
+            ? null
+            : (_) => widget.onSubmitted!(),
         autofillHints: const [AutofillHints.email],
         autocorrect: false,
         enableSuggestions: false,

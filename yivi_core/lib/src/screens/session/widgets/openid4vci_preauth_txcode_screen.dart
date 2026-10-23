@@ -179,12 +179,12 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         onBack: widget.onDismiss,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         // A code of a known length is sent once it is complete.
-        bottom: length != null
+        action: length != null
             ? null
-            : SheetActionRow(
-                primaryKey: const Key("sheet_openid4vci_tx_code_continue"),
-                primaryLabel: continueLabel,
-                onPrimary: _textController.text.isNotEmpty
+            : SheetAction(
+                key: const Key("sheet_openid4vci_tx_code_continue"),
+                label: continueLabel,
+                onTap: _textController.text.isNotEmpty
                     ? () => widget.onSubmit(_textController.text)
                     : null,
               ),

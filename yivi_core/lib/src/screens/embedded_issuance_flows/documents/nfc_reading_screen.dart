@@ -18,6 +18,7 @@ import "../../../providers/nfc_settings_provider.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
@@ -490,15 +491,17 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       onPressed: cancel,
     );
     const keys = "document_flow.nfc";
+    // On a tablet (an Android one: an iPad has no NFC) it says tablet.
+    final device = useFormSheet(context) ? "_tablet" : "";
 
     final (picture, text, actions) = switch (stage) {
       _NfcStage.waiting => (
         _waitingPicture(context),
         (
-          "$keys.waiting_title",
+          "$keys.waiting_title$device",
           _documentType == .passport
               ? "$keys.waiting_body_passport"
-              : "$keys.waiting_body_card",
+              : "$keys.waiting_body_card$device",
         ),
         [
           if (state is DocumentReaderPending && !_listensAtOnce)
@@ -520,12 +523,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ),
       _NfcStage.done => (
         const NfcDoneCheck(),
-        ("$keys.done_title", "$keys.done_body"),
+        ("$keys.done_title", "$keys.done_body$device"),
         <NfcStageAction>[],
       ),
       _NfcStage.nfcOff => (
         const NfcOffIllustration(),
-        ("$keys.off_title", "$keys.off_body"),
+        ("$keys.off_title", "$keys.off_body$device"),
         [
           if (defaultTargetPlatform == .android)
             NfcStageAction.primary(

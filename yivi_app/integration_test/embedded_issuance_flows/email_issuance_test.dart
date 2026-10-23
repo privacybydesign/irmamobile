@@ -36,8 +36,8 @@ void main() {
         findsNothing,
       );
 
-      // Sending again works (only the first send fails); the code comes on
-      // the same page.
+      // Sending again works (only the first send fails); the code page
+      // slides in.
       await tester.tap(find.byKey(const Key("contact_sheet_send")));
       await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_code")));
       expect(api.numEmailsSent, 2);

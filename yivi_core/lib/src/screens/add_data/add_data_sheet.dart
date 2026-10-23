@@ -171,13 +171,18 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   );
 
   @override
-  Widget issueSuccessBar(List<schemaless.Credential> cards) => SheetActionRow(
-    secondaryKey: const Key("sheet_add_more"),
-    secondaryLabel: _t("data.add.add_more"),
-    onSecondary: _addMore,
-    primaryKey: const Key("sheet_done"),
-    primaryLabel: _t("data.add.done"),
-    onPrimary: _done,
+  SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
+      SheetAction(
+        key: const Key("sheet_done"),
+        label: _t("ui.done"),
+        onTap: _done,
+      );
+
+  @override
+  IssueSuccessLink issueSuccessLink(List<schemaless.Credential> cards) => (
+    key: const Key("sheet_add_more"),
+    label: _t("data.add.add_more"),
+    onTap: _addMore,
   );
 
   String _t(String key, [Map<String, String>? params]) =>

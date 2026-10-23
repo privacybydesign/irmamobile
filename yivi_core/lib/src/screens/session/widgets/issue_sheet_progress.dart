@@ -28,12 +28,12 @@ class _ForCard extends IssueSheetSubject {
   const _ForCard(this.card);
 }
 
-/// Where adding a card stands, under the bar of the sheet it is added in:
-/// a tag ([subject]): "For {requestor}", so it is clear the card is for the
-/// request behind the sheet, or the card itself when there is no request;
-/// then a segment per step of the flow ([total]: the details, the steps that
-/// prove it, adding it) and "1 of 4". The segments fill green up to the
-/// step; once the card is added ([done]) all are filled and it says "Done".
+/// Where adding a card stands, right under the bar of the sheet it is added
+/// in: a thin line the full width of the sheet that fills up to the step of
+/// the flow ([total]: the details, the steps that prove it, adding it); once
+/// the card is added ([done]) it is full. During a request "For {requestor}"
+/// goes under it ([subject]), so it is clear the card is for the request
+/// behind the sheet.
 ///
 /// Each step of the sheet has a progress of its own, so the bar remembers
 /// where it stood ([GlassSheetPages.memoryOf]) and fills (or empties) on from
@@ -151,76 +151,10 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     final done = widget.done;
     final params = {"step": "$step", "total": "${widget.total}"};
     final ink = palette.successText;
-    final track = ink.withValues(alpha: 0.15);
+    final track = palette.text.withValues(alpha: 0.12);
 
-    // A phone held sideways: in the sheet's bar, after the title: short
-    // segments and "2 of 4" (or "Done"); who it is for goes under the title
-    // ([IssueSheetRequestorLine]).
-    final compact = useSheetColumns(context);
-    Widget segment(int i) => AnimatedBuilder(
-      animation: _curve,
-      builder: (context, _) {
-        final part = (_now - (i - 1)).clamp(0.0, 1.0);
-        return Container(
-          key: Key("issue_sheet_progress_$i"),
-          height: 4,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(2),
-            color: track,
-          ),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FractionallySizedBox(
-              widthFactor: part,
-              heightFactor: 1,
-              child: ColoredBox(color: ink),
-            ),
-          ),
-        );
-      },
-    );
-    if (compact) {
-      return Semantics(
-        key: ValueKey((
-          "issue_sheet_progress",
-          done ? widget.total : step,
-          widget.total,
-        )),
-        liveRegion: true,
-        label: done
-            ? t("share.sheet.progress_done_label")
-            : t("share.step_count", params),
-        excludeSemantics: true,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 10,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 4,
-              children: [
-                for (var i = 1; i <= widget.total; i++)
-                  SizedBox(width: 22, child: segment(i)),
-              ],
-            ),
-            Text(
-              done
-                  ? t("share.sheet.progress_done")
-                  : t("share.sheet.progress_short", params),
-              key: const Key("issue_sheet_progress_text"),
-              style: palette
-                  .body(13, weight: FontWeight.w600)
-                  .copyWith(
-                    color: done ? palette.successText : palette.secondaryText,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-            ),
-          ],
-        ),
-      );
-    }
-
+    // One thin line the full width of the sheet, right under the bar, says
+    // where you are; the bar's title says what.
     final line = Semantics(
       // The step and the total, for a test to find without a visible count.
       key: ValueKey((
@@ -234,25 +168,36 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
           ? t("share.sheet.progress_done_label")
           : t("share.step_count", params),
       excludeSemantics: true,
-      child: Row(
-        spacing: 4,
-        children: [
-          for (var i = 1; i <= widget.total; i++) Expanded(child: segment(i)),
-        ],
+      child: Container(
+        key: const Key("issue_sheet_progress_line"),
+        height: 3,
+        color: track,
+        child: AnimatedBuilder(
+          animation: _curve,
+          builder: (context, _) => Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FractionallySizedBox(
+              widthFactor: (_now / widget.total).clamp(0.0, 1.0),
+              heightFactor: 1,
+              child: ColoredBox(color: ink),
+            ),
+          ),
+        ),
       ),
     );
 
-    // One thin line says where you are; the bar's title says what. During a
-    // request a quiet line under it says who it is for.
+    // During a request a quiet line under it says who it is for; on a phone
+    // held sideways that goes under the bar's title instead
+    // ([IssueSheetRequestorLine]).
     return switch (widget.subject) {
-      _ForRequest(:final requestor) => Column(
+      _ForRequest(:final requestor) when !useSheetColumns(context) => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           line,
           Padding(
             key: const Key("issue_sheet_for_requestor"),
-            padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
+            padding: const EdgeInsets.fromLTRB(18, 10, 18, 2),
             child: Row(
               spacing: 8,
               children: [
@@ -274,14 +219,14 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
           ),
         ],
       ),
-      _ForCard() => line,
+      _ => line,
     };
   }
 }
 
-/// Who a card is added for, under the title in the bar of the sheet, on a
-/// phone held sideways (in portrait [IssueSheetProgress] shows it under its
-/// line): the requestor's avatar and "For {requestor}". Nothing when the
+/// Who a card is added for, centred under the title in the bar of the
+/// sheet, on a phone held sideways (elsewhere [IssueSheetProgress] shows it
+/// under its line): the requestor's avatar and "For {requestor}". Nothing when the
 /// card is not added for a request.
 class IssueSheetRequestorLine extends StatelessWidget {
   final IssueSheetSubject subject;

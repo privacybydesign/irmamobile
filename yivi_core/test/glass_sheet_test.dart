@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/glass/glass_surface.dart";
+import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -63,6 +64,129 @@ bool _gestureStuck(WidgetTester tester) =>
     tester.state<NavigatorState>(find.byType(Navigator)).userGestureInProgress;
 
 void main() {
+  group("the way on (SheetAction)", () {
+    var tapped = 0;
+
+    /// Opens a page with a way on, a back and a step in a window of [size].
+    Future<void> open(
+      WidgetTester tester,
+      Size size, {
+      bool enabled = true,
+      bool closable = true,
+    }) async {
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = size;
+      addTearDown(tester.view.reset);
+      tapped = 0;
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => GlassSheetPage(
+          title: "Step",
+          onBack: () {},
+          closable: closable,
+          action: SheetAction(
+            key: const Key("next"),
+            label: "Next",
+            onTap: enabled ? () => tapped++ : null,
+          ),
+          child: const Text("content"),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Rect title(WidgetTester tester) =>
+        tester.getRect(find.byKey(const Key("glass_sheet_title")));
+
+    testWidgets("a phone held upright: at the bottom, with back and close", (
+      tester,
+    ) async {
+      await open(tester, const Size(390, 844));
+      final next = tester.getRect(find.byKey(const Key("next")));
+      expect(next.top, greaterThan(700));
+      expect(next.width, greaterThan(300));
+      expect(find.byType(IrmaCloseButton), findsOneWidget);
+      await tester.tap(find.byKey(const Key("next")));
+      expect(tapped, 1);
+    });
+
+    testWidgets("a phone held sideways: in the bar, before the close button", (
+      tester,
+    ) async {
+      await open(tester, const Size(874, 402));
+      final next = tester.getRect(find.byKey(const Key("next")));
+      final close = tester.getRect(find.byType(IrmaCloseButton));
+      expect(next.center.dy, closeTo(title(tester).center.dy, 2));
+      expect(next.height, 36);
+      expect(next.right, lessThan(close.left));
+      // The title stays in the middle of the sheet.
+      final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
+      expect(title(tester).center.dx, closeTo(sheet.center.dx, 1));
+      await tester.tap(find.byKey(const Key("next")));
+      expect(tapped, 1);
+    });
+
+    testWidgets("a tablet: Back as text at the left, the way on at the "
+        "right, no close button", (tester) async {
+      await open(tester, const Size(820, 1180));
+      expect(find.byType(IrmaCloseButton), findsNothing);
+      expect(find.text("Previous"), findsOneWidget);
+      final next = tester.getRect(find.byKey(const Key("next")));
+      expect(next.center.dy, closeTo(title(tester).center.dy, 2));
+      final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
+      expect(sheet.width, 540);
+    });
+
+    testWidgets("greyed out: a tap does nothing", (tester) async {
+      await open(tester, const Size(874, 402), enabled: false);
+      await tester.tap(find.byKey(const Key("next")));
+      expect(tapped, 0);
+    });
+
+    testWidgets("done (not closable): no close button", (tester) async {
+      await open(tester, const Size(390, 844), closable: false);
+      expect(find.byType(IrmaCloseButton), findsNothing);
+    });
+
+    testWidgets("a screen inside the page puts its way on in the bar", (
+      tester,
+    ) async {
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = const Size(874, 402);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => GlassSheetPage(
+          title: "Step",
+          child: Builder(
+            builder: (context) {
+              SheetActionSlot.maybeOf(context)?.set(
+                SheetAction(
+                  key: const Key("slotted"),
+                  label: "Start",
+                  onTap: () => tapped++,
+                ),
+              );
+              return const Text("screen");
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      tapped = 0;
+      final start = tester.getRect(find.byKey(const Key("slotted")));
+      expect(start.center.dy, closeTo(title(tester).center.dy, 2));
+      await tester.tap(find.byKey(const Key("slotted")));
+      expect(tapped, 1);
+    });
+  });
+
   setUp(() {
     final view =
         TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
@@ -260,7 +384,9 @@ void main() {
       view.physicalSize = const Size(1180, 820);
       addTearDown(() => view.physicalSize = const Size(400, 800));
       await open(tester, answer: false);
-      await tester.tap(find.byType(IrmaCloseButton));
+      // A form sheet has "Cancel" at the left of its bar, no close button.
+      expect(find.byType(IrmaCloseButton), findsNothing);
+      await tester.tap(find.byKey(const Key("glass_sheet_text_back")));
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();

@@ -1,3 +1,4 @@
+import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
@@ -301,5 +302,174 @@ class SheetActionRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// The way on of a sheet page, as data: where it shows is the page's
+/// business ([GlassSheetPage.action]). On a phone held upright it is the
+/// wide button at the bottom, right above the keyboard; everywhere else
+/// (sideways, on a tablet) the capsule at the top right of the bar
+/// ([SheetBarButton]), where the keyboard never covers it. A page has one
+/// at most; other choices are links in its content.
+@immutable
+class SheetAction {
+  final String label;
+
+  /// Null: greyed out (the step is not ready, or finishes by itself).
+  final VoidCallback? onTap;
+
+  /// Under way: a spinner before the label, and greyed out.
+  final bool busy;
+
+  /// For tests to find it, wherever it shows.
+  final Key? key;
+
+  const SheetAction({
+    required this.label,
+    this.onTap,
+    this.busy = false,
+    this.key,
+  });
+
+  /// Whether it is ready to be tapped.
+  bool get enabled => onTap != null && !busy;
+
+  /// Whether [other] looks the same (its callback aside).
+  bool looksLike(SheetAction? other) =>
+      other != null &&
+      other.label == label &&
+      other.busy == busy &&
+      other.enabled == enabled &&
+      other.key == key;
+}
+
+/// Where screens that are not the sheet page itself (the document screens,
+/// in a navigator of their own inside the page) put their way on: the page
+/// shows the slot's [action] in its bar when it has none of its own. On a
+/// phone held upright those screens keep their own buttons at the bottom.
+class SheetActionSlot extends ChangeNotifier {
+  SheetAction? _action;
+  Object? _owner;
+
+  SheetAction? get action => _action;
+
+  /// Who put the [action] there (see [set]).
+  Object? get owner => _owner;
+
+  /// Puts [action] in the slot (null clears it), for [owner]. Safe to call
+  /// from a build: a change that shows is told after the frame; a new
+  /// callback alone is taken without a rebuild (the bar's button calls the
+  /// latest one).
+  void set(SheetAction? action, {Object? owner}) {
+    final shows = action == null ? _action != null : !action.looksLike(_action);
+    _action = action;
+    _owner = action == null ? null : owner;
+    if (!shows) return;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (_alive) notifyListeners();
+    });
+  }
+
+  bool _alive = true;
+
+  @override
+  void dispose() {
+    _alive = false;
+    super.dispose();
+  }
+
+  /// The slot of the sheet page around [context], if any.
+  static SheetActionSlot? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<SheetActionSlotScope>()?.slot;
+}
+
+/// Hands the page's [SheetActionSlot] to the screens inside it.
+class SheetActionSlotScope extends InheritedWidget {
+  final SheetActionSlot slot;
+
+  const SheetActionSlotScope({
+    super.key,
+    required this.slot,
+    required super.child,
+  });
+
+  @override
+  bool updateShouldNotify(SheetActionSlotScope old) => old.slot != slot;
+}
+
+/// A sheet's way on in its bar: a capsule in the faceted red, as wide as
+/// its label, greyed out while [SheetAction.enabled] is false.
+class SheetBarButton extends StatelessWidget {
+  final SheetAction action;
+
+  /// Called instead of the action's own callback (the slot's latest one).
+  final VoidCallback? onTap;
+
+  const SheetBarButton({super.key, required this.action, this.onTap});
+
+  @override
+  Widget build(BuildContext context) => FancyPillButton(
+    key: action.key,
+    label: action.label,
+    onPressed: action.enabled ? (onTap ?? action.onTap) : null,
+    size: PillSize.bar,
+    leading: action.busy ? const SheetBusySpinner(size: 14) : null,
+  );
+}
+
+/// The white spinner before the label of a button that is under way.
+class SheetBusySpinner extends StatelessWidget {
+  final double size;
+
+  const SheetBusySpinner({super.key, this.size = 18});
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: size,
+    child: CircularProgressIndicator(
+      strokeWidth: size < 16 ? 2.4 : 3,
+      color: const Color(0xFFFFFFFF),
+    ),
+  );
+}
+
+/// Puts [action] in the [SheetActionSlot] of the sheet page around it while
+/// its route is the current one (a document screen in the page's own
+/// navigator), and shows [child] in its place. A screen that becomes
+/// current again (the one above it popped) puts its action back; one that
+/// goes takes its action with it, unless another put one there since.
+class SheetSlotAction extends StatefulWidget {
+  final SheetAction? action;
+  final Widget child;
+
+  const SheetSlotAction({
+    super.key,
+    required this.action,
+    this.child = const SizedBox.shrink(),
+  });
+
+  @override
+  State<SheetSlotAction> createState() => _SheetSlotActionState();
+}
+
+class _SheetSlotActionState extends State<SheetSlotAction> {
+  SheetActionSlot? _slot;
+
+  @override
+  Widget build(BuildContext context) {
+    final slot = _slot = SheetActionSlot.maybeOf(context);
+    if (slot != null && (ModalRoute.isCurrentOf(context) ?? true)) {
+      slot.set(widget.action, owner: this);
+    }
+    return widget.child;
+  }
+
+  @override
+  void dispose() {
+    // Only what this one put there: a screen that rebuilt in another place
+    // (or another screen) may have taken the slot since.
+    final slot = _slot;
+    if (slot != null && identical(slot.owner, this)) slot.set(null);
+    super.dispose();
   }
 }

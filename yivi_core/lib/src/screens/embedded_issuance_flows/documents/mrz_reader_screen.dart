@@ -13,6 +13,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -287,7 +288,9 @@ class _CameraScaffold extends StatelessWidget {
               bottom: 24 + padding.bottom,
               child: DarkGlass(
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(YiviCorners.card),
+                  ),
                 ),
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -340,11 +343,27 @@ class _SheetCamera extends StatelessWidget {
       borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
       child: ColoredBox(color: const Color(0xFF121417), child: body),
     );
-    final manual = PillButton(
-      key: const Key("bottom_bar_primary"),
-      label: FlutterI18n.translate(context, manualLabel),
-      onPressed: onManual,
-    );
+    // With the way on in the sheet's bar, the camera moves on by itself:
+    // a greyed-out "Next" there, and "Enter manually" a link.
+    final inBar = sheetActionInBar(context);
+    final Widget manual = inBar
+        ? SheetSlotAction(
+            action: SheetAction(
+              label: FlutterI18n.translate(context, "ui.next"),
+            ),
+            child: Center(
+              child: TextLink(
+                key: const Key("bottom_bar_primary"),
+                label: FlutterI18n.translate(context, manualLabel),
+                onPressed: onManual,
+              ),
+            ),
+          )
+        : PillButton(
+            key: const Key("bottom_bar_primary"),
+            label: FlutterI18n.translate(context, manualLabel),
+            onPressed: onManual,
+          );
     // Held sideways: what to do and "Enter manually" at the left, the
     // camera at the right.
     final instruction = instructionKey;

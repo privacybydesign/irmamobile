@@ -27,7 +27,32 @@ Future<void> _pump(
 
 void main() {
   group("pill sizes", () {
-    for (final size in PillSize.values) {
+    testWidgets("a fancy pill of size bar is 36 high, as wide as its label", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: FancyPillButton(
+                key: const Key("fancy"),
+                label: "Next",
+                onPressed: () {},
+                size: PillSize.bar,
+              ),
+            ),
+          ],
+        ),
+      );
+      final size = tester.getSize(find.byKey(const Key("fancy")));
+      expect(size.height, 36);
+      expect(size.width, lessThan(120));
+    });
+
+    // The bar's size is the fancy pill's alone (the way on in a sheet's bar).
+    for (final size in [PillSize.large, PillSize.regular]) {
       testWidgets("a fancy and a text pill of size ${size.name} are "
           "${size.height} high", (tester) async {
         await _pump(

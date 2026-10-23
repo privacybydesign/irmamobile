@@ -10,7 +10,11 @@ import "glass_surface.dart";
 /// next to another one always has the same size.
 enum PillSize {
   large(56),
-  regular(52);
+  regular(52),
+
+  /// The way on in the bar of a sheet (see `SheetBarButton`): a capsule as
+  /// wide as its label.
+  bar(36);
 
   final double height;
 
@@ -44,13 +48,23 @@ class FancyPillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final enabled = onPressed != null;
+    final bar = size == PillSize.bar;
+    final text = Text(
+      label,
+      textAlign: TextAlign.center,
+      maxLines: bar ? 1 : null,
+      overflow: bar ? TextOverflow.ellipsis : null,
+      style: palette
+          .display(bar ? 15 : 16, weight: FontWeight.w700)
+          .copyWith(color: Colors.white),
+    );
     return Semantics(
       button: true,
       enabled: enabled,
       label: label,
       excludeSemantics: true,
       child: Opacity(
-        opacity: enabled ? 1 : 0.5,
+        opacity: enabled ? 1 : (bar ? 0.4 : 0.5),
         child: PressScale(
           child: DecoratedBox(
             decoration: const ShapeDecoration(shape: StadiumBorder()),
@@ -89,27 +103,22 @@ class FancyPillButton extends StatelessWidget {
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
                           minHeight: size.height,
-                          minWidth: double.infinity,
+                          minWidth: bar ? 0 : double.infinity,
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: bar ? 16 : 20,
+                            vertical: bar ? 0 : 8,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: bar
+                                ? MainAxisSize.min
+                                : MainAxisSize.max,
                             spacing: 8,
                             children: [
                               ?leading,
-                              Flexible(
-                                child: Text(
-                                  label,
-                                  textAlign: TextAlign.center,
-                                  style: palette
-                                      .display(16, weight: FontWeight.w700)
-                                      .copyWith(color: Colors.white),
-                                ),
-                              ),
+                              Flexible(child: text),
                               ?trailing,
                             ],
                           ),

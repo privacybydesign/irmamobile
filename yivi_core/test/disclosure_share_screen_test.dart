@@ -2489,8 +2489,8 @@ void main() {
       expect(idcard.left, greaterThan(passport.right));
     });
 
-    testWidgets("adding: the card and the button left, what you get right; "
-        "the progress next to the title, who it is for under it", (
+    testWidgets("adding: the button in the bar, the card left, what you get "
+        "right; the progress under the bar, who it is for under the title", (
       tester,
     ) async {
       await pumpSideways(
@@ -2505,29 +2505,25 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_spot_0")));
       await tester.pumpAndSettle();
-      // The button at the bottom of the left column, as wide as it; no bar.
+      // The way on in the bar, right of the centred title; no bottom bar.
       final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
-      expect(go.left, 62 + 20);
-      expect(go.width, 280);
-      // As low as the buttons of a full screen.
-      expect(go.bottom, inInclusiveRange(402 - 40, 402 - 16));
+      final title = tester.getRect(find.byKey(const Key("glass_sheet_title")));
+      expect(go.left, greaterThan(title.right));
+      expect(go.top, lessThan(title.bottom));
       expect(find.byType(SheetBottomBar), findsNothing);
       final youGet = tester.getRect(find.byKey(const Key("add_data_you_get")));
-      expect(youGet.left, greaterThan(go.right));
-      // One bar: the title, the progress with "1 of 3" after it, and under
-      // the title who the card is for.
-      final title = tester.getRect(find.byKey(const Key("glass_sheet_title")));
-      final count = tester.getRect(
-        find.byKey(const Key("issue_sheet_progress_text")),
+      expect(youGet.top, greaterThan(go.bottom));
+      // The test's card goes via a website: three steps, as a line.
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsOneWidget,
       );
-      // The test's card goes via a website: three steps.
-      expect(find.text("1 of 3"), findsOneWidget);
-      expect(count.center.dy, closeTo(title.bottom, 12));
+      // Under the title, centred with it: who the card is for.
       final forWho = tester.getRect(
         find.byKey(const Key("issue_sheet_for_requestor")),
       );
       expect(forWho.top, greaterThanOrEqualTo(title.bottom));
-      expect(forWho.left, title.left);
+      expect(forWho.center.dx, closeTo(title.center.dx, 2));
     });
 
     testWidgets("who is this, and the technical details, in two columns", (

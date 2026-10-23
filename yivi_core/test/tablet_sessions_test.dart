@@ -175,9 +175,9 @@ void main() {
 
     expect(find.byType(BottomSheet), findsNothing);
     final options = tester.getRect(find.text("options"));
-    // 80% of the window, 520 to 880: 825.6 on this tablet held upright.
+    // A form sheet of 540, as on an iPad.
     final width = tabletSheetWidth(_tablet.width);
-    expect(width, closeTo(825.6, 0.1));
+    expect(width, 540);
     expect(options.left, greaterThan((_tablet.width - width) / 2 - 1));
     expect(options.right, lessThan((_tablet.width + width) / 2 + 1));
   });

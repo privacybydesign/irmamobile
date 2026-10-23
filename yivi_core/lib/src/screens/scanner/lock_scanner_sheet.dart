@@ -90,11 +90,12 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
   );
 
   @override
-  Widget issueSuccessBar(List<schemaless.Credential> cards) => SheetActionRow(
-    primaryKey: const Key("sheet_done"),
-    primaryLabel: _t("data.add.done"),
-    onPrimary: _close,
-  );
+  SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
+      SheetAction(
+        key: const Key("sheet_done"),
+        label: _t("ui.done"),
+        onTap: _close,
+      );
 
   /// The lock overlay has no router; a session handed over full screen goes
   /// on the app's own navigator.

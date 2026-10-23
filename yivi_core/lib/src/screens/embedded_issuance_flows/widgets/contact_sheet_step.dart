@@ -23,12 +23,18 @@ import "contact_widgets.dart";
 /// Which contact detail a [ContactSheetStep] adds.
 enum ContactKind { email, phone }
 
-/// Step 2 of adding an e-mail address or phone number in a sheet (the Change
-/// sheet of a request, or Add data), made for a sheet with the keyboard up:
-/// one page with a line on what happens, the address or number, and after
-/// "Send code" the code boxes under a folded "Code sent to …" row. The code
-/// checks itself once it is complete; errors show where they happen. The
-/// sheet's close button and back are the way out, so there is one button.
+/// Steps 2 and 3 of adding an e-mail address or phone number in a sheet (the
+/// Change sheet of a request, or Add data), made for a sheet with the
+/// keyboard up, as two pages of it: the address or number with a line on
+/// what happens ([code] false), and after "Send code" the code boxes under a
+/// folded "Code sent to …" row ([code] true), which slides in over it. The
+/// code checks itself once it is complete; errors show where they happen.
+/// The sheet's close button and back are the way out, so each page has one
+/// way on ([SheetAction]): at the bottom on a phone held upright, in the bar
+/// elsewhere; the keyboard's return key does the same.
+///
+/// Both pages follow the flow's provider; the sheet shows the code page
+/// while its stage is the code ([ContactSheetStep.atCode]).
 ///
 /// The same issuer calls as the full screens (`emailIssuanceProvider`,
 /// `smsIssuanceProvider`). The checked code starts the issuance through
@@ -42,7 +48,11 @@ class ContactSheetStep extends ConsumerStatefulWidget {
   /// The flow's number of steps; the address is step 2, the code step 3.
   final int total;
 
-  /// Back: to the details.
+  /// The code page (step 3); else the address (step 2).
+  final bool code;
+
+  /// Back from the address: to the details. (Back from the code is to the
+  /// address, filled in.)
   final VoidCallback onBack;
 
   const ContactSheetStep({
@@ -50,8 +60,34 @@ class ContactSheetStep extends ConsumerStatefulWidget {
     required this.kind,
     required this.subject,
     this.total = 4,
+    this.code = false,
     required this.onBack,
   });
+
+  /// Whether [kind]'s flow is at the code, so the sheet shows the code page.
+  /// Watches the flow from a build; [watch] false reads it once (a
+  /// callback).
+  static bool atCode(WidgetRef ref, ContactKind kind, {bool watch = true}) {
+    if (kind == ContactKind.email) {
+      final state = watch
+          ? ref.watch(emailIssuanceProvider)
+          : ref.read(emailIssuanceProvider);
+      return state.stage == EmailIssuanceStage.enteringVerificationCode;
+    }
+    final state = watch
+        ? ref.watch(smsIssuanceProvider)
+        : ref.read(smsIssuanceProvider);
+    return state.stage == SmsIssuanceStage.enteringVerificationCode;
+  }
+
+  /// Back from the code to the address, filled in, to change it.
+  static void backToAddress(WidgetRef ref, ContactKind kind) {
+    if (kind == ContactKind.email) {
+      ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
+    } else {
+      ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
+    }
+  }
 
   @override
   ConsumerState<ContactSheetStep> createState() => _ContactSheetStepState();
@@ -90,7 +126,10 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     super.initState();
     // The keyboard comes up at once: the field is what the page is for.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _stageNow() == _Stage.entering) {
+      if (!mounted) return;
+      if (widget.code) {
+        _codeFocus.requestFocus();
+      } else if (_stageNow() == _Stage.entering) {
         _focusNode.requestFocus();
       }
     });
@@ -196,18 +235,12 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     }
   }
 
-  /// Back on the address, filled in, to change it.
+  /// Back on the address, filled in, to change it: the code page slides
+  /// away (the address page under it focuses its field as it comes back).
   void _change() {
     _codeController.clear();
     _sentAgain = false;
-    if (_email) {
-      ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
-    } else {
-      ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _focusNode.requestFocus();
-    });
+    ContactSheetStep.backToAddress(ref, widget.kind);
   }
 
   void _sendAgain(String target) {
@@ -216,24 +249,32 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     _send(target);
   }
 
-  /// Back leaves the step for the details; coming back starts at the
-  /// address again.
-  void _back() {
-    if (_stageNow() == _Stage.code) _change();
-    widget.onBack();
+  /// Back from the code is to the address; from the address it leaves the
+  /// step for the details.
+  void _back() => widget.code ? _change() : widget.onBack();
+
+  /// The address page's field gets the keyboard again when the code page
+  /// over it goes (see [GlassSheetPages.isTopPage]).
+  bool _wasTop = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final top = GlassSheetPages.isTopPage(context);
+    if (!widget.code && top && !_wasTop) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _focusNode.requestFocus();
+      });
+    }
+    _wasTop = top;
   }
 
   // ---------- the page ----------
 
-  /// The step's content: [start] above [end] (the buttons under the
-  /// page); on a phone held sideways in two columns, the explanation and
-  /// [bar] at the left, the field at the right ([SheetSplit]).
-  Widget _split(
-    List<Widget> start,
-    List<Widget> end, {
-    required Widget bar,
-    Key? key,
-  }) {
+  /// The step's content: [start] above [end]; on a phone held sideways in
+  /// two columns, the explanation at the left, the field at the right
+  /// ([SheetSplit]). The way on is the page's ([SheetAction]).
+  Widget _split(List<Widget> start, List<Widget> end, {Key? key}) {
     if (!useSheetColumns(context)) {
       return Column(
         key: key,
@@ -248,17 +289,19 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: end,
       ),
-      actions: bar,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final state = _read();
-    final code = state.stage == _Stage.code;
+    final code = widget.code;
+    final atCode = state.stage == _Stage.code;
     final sending = state.stage == _Stage.sending;
     final error = state.error;
-    final String? errorText = _none(error)
+    // Each page shows its own errors: the code's on the code page, a code
+    // that was not sent on the address page.
+    final String? errorText = _none(error) || code != atCode
         ? null
         : code
         ? _wrongCode(error)
@@ -267,21 +310,18 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         : _k("not_sent");
 
     final Widget body;
-    final SheetActionRow bar;
+    final SheetAction action;
     if (code) {
       final complete =
           _codeController.text.length == (_email ? emailCodeLength : 6);
-      bar = SheetActionRow(
-        primaryKey: const Key("contact_sheet_verify"),
-        primaryLabel: _t("contact_sheet.check_code"),
-        primaryLeading: _verifying ? const _Spinner() : null,
-        onPrimary: complete && !_verifying
-            ? () => _verify(_codeController.text)
-            : null,
+      action = SheetAction(
+        key: const Key("contact_sheet_verify"),
+        label: _t("contact_sheet.check_code"),
+        busy: _verifying,
+        onTap: complete ? () => _verify(_codeController.text) : null,
       );
       body = _split(
         key: const Key("contact_sheet_code"),
-        bar: bar,
         [
           ContactSentTo(
             label: _k("sent_to"),
@@ -326,14 +366,13 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         ],
       );
     } else {
-      bar = SheetActionRow(
-        primaryKey: const Key("contact_sheet_send"),
-        primaryLabel: _t("contact_sheet.send_code"),
-        primaryLeading: sending ? const _Spinner() : null,
-        onPrimary: _valid && !sending ? _submitTarget : null,
+      action = SheetAction(
+        key: const Key("contact_sheet_send"),
+        label: _t("contact_sheet.send_code"),
+        busy: sending,
+        onTap: _valid ? _submitTarget : null,
       );
       body = _split(
-        bar: bar,
         [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -354,6 +393,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               key: _emailKey,
               focusNode: _focusNode,
               onValidChanged: (valid) => setState(() => _valid = valid),
+              onSubmitted: _submitTarget,
             )
           else
             PhoneNumberEntry(
@@ -362,6 +402,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               onValidChanged: (valid) {
                 if (mounted) setState(() => _valid = valid);
               },
+              onSubmitted: _submitTarget,
             ),
           if (errorText != null)
             KeyedSubtree(
@@ -383,8 +424,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       padding: landscape
           ? EdgeInsets.zero
           : const EdgeInsets.symmetric(horizontal: 16),
-      // Sideways the buttons are in the left column, above the keyboard.
-      bottom: landscape ? null : bar,
+      action: action,
       scrolls: !landscape,
       childClearsBottom: landscape,
       // Two steps of their own: the address, then the code.
@@ -559,14 +599,4 @@ class ContactResendRow extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Spinner extends StatelessWidget {
-  const _Spinner();
-
-  @override
-  Widget build(BuildContext context) => const SizedBox.square(
-    dimension: 18,
-    child: CircularProgressIndicator(strokeWidth: 3, color: Color(0xFFFFFFFF)),
-  );
 }

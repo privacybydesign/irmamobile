@@ -148,33 +148,37 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   };
 
   @override
-  Widget issueSuccessBar(List<schemaless.Credential> cards) {
+  SheetAction issueSuccessAction(List<schemaless.Credential> cards) {
     // A card of a set: on to the other one, which the request needs too.
     final next = _nextOfSet(cards);
     if (next != null) {
-      return SheetActionRow(
-        secondaryKey: const Key("sheet_together_later"),
-        secondaryLabel: _t("share.sheet.later"),
-        onSecondary: _finish,
-        primaryKey: const Key("sheet_together_next"),
-        primaryLabel: _t("share.sheet.together_add_next", {
+      return SheetAction(
+        key: const Key("sheet_together_next"),
+        label: _t("share.sheet.together_add_next", {
           "next": _inSentence(next.name),
         }),
-        onPrimary: () => setState(() {
+        onTap: () => setState(() {
           issueReset();
           issueOpen(next);
         }),
       );
     }
-    return SheetActionRow(
-      primaryKey: const Key("sheet_back_to_request"),
-      primaryLabel: _t(
-        "issuance.success_feedback.back_to",
-        _successParams(cards),
-      ),
-      onPrimary: _finish,
+    return SheetAction(
+      key: const Key("sheet_back_to_request"),
+      label: _t("issuance.success_feedback.back_to", _successParams(cards)),
+      onTap: _finish,
     );
   }
+
+  @override
+  IssueSuccessLink? issueSuccessLink(List<schemaless.Credential> cards) =>
+      _nextOfSet(cards) == null
+      ? null
+      : (
+          key: const Key("sheet_together_later"),
+          label: _t("share.sheet.later"),
+          onTap: _finish,
+        );
 
   @override
   String issueSuccessText(List<schemaless.Credential> cards) {

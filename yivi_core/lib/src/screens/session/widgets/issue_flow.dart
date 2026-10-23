@@ -80,8 +80,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Called on "Add", before the issuer is contacted.
   void beforeIssueAdd(CredentialDescriptor d) {}
 
-  /// The buttons of "Success", for the added [cards].
-  Widget issueSuccessBar(List<schemaless.Credential> cards);
+  /// The way on from "Success" (in the bar, or at the bottom of a phone
+  /// held upright), for the added [cards].
+  SheetAction issueSuccessAction(List<schemaless.Credential> cards);
+
+  /// Another choice on "Success" ("Add more", "Later"), as a link under
+  /// what is now in the app; none by default.
+  IssueSuccessLink? issueSuccessLink(List<schemaless.Credential> cards) => null;
 
   /// The text under "Success", for the added [cards].
   String issueSuccessText(List<schemaless.Credential> cards);
@@ -396,8 +401,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         _document = null;
         _faceCheck = false;
       });
-    } else if (_contact != null) {
-      setState(() => _contact = null);
+    } else if (_contact case final kind?) {
+      // From the code to the address; from the address to the details.
+      if (ContactSheetStep.atCode(ref, kind, watch: false)) {
+        ContactSheetStep.backToAddress(ref, kind);
+      } else {
+        setState(() => _contact = null);
+      }
     } else {
       issueLeave();
     }
@@ -547,16 +557,29 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         key: ValueKey(("add", adding.credentialId)),
         child: _buildDetails(adding, subject, total),
       ),
-      if (_contact != null)
+      if (_contact case final kind?) ...[
         KeyedSubtree(
-          key: ValueKey(("prove", _contact)),
+          key: ValueKey(("prove", kind)),
           child: ContactSheetStep(
-            kind: _contact!,
+            kind: kind,
             subject: subject,
             total: total,
             onBack: () => setState(() => _contact = null),
           ),
         ),
+        // Once the code is sent, its page slides in over the address.
+        if (ContactSheetStep.atCode(ref, kind))
+          KeyedSubtree(
+            key: ValueKey(("code", kind)),
+            child: ContactSheetStep(
+              kind: kind,
+              subject: subject,
+              total: total,
+              code: true,
+              onBack: () => setState(() => _contact = null),
+            ),
+          ),
+      ],
       if (_document != null)
         KeyedSubtree(
           key: ValueKey(("document", _document)),
@@ -647,28 +670,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               )),
             ) !=
             ExternalIssuerStatus.notExternal;
-    // One button: the close button and back are the way out.
-    final actions = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 10,
-      children: [
-        // Where "Add" goes, right above it.
-        if (external)
-          _HostNote(
+    // One way on: the close button and back are the way out. The note on
+    // the website says which one.
+    final action = SheetAction(
+      key: const Key("sheet_go_button"),
+      label: _opened
+          ? _t("share.sheet.open_again")
+          : _t("data.add.details.get_button"),
+      onTap: () => _add(d),
+    );
+    // Where "Add" goes: at the foot of what the card is.
+    final hostNote = external
+        ? _HostNote(
             key: const Key("sheet_external_note"),
             text: _t("data.add.details.external_note", {"host": host}),
-          ),
-        SheetActionRow(
-          primaryKey: const Key("sheet_go_button"),
-          // The note above says which website.
-          primaryLabel: _opened
-              ? _t("share.sheet.open_again")
-              : _t("data.add.details.get_button"),
-          onPrimary: () => _add(d),
-        ),
-      ],
-    );
+          )
+        : null;
     final opened = _opened
         ? _Note(
             key: const Key("sheet_opened_note"),
@@ -683,23 +700,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           part: part,
           cardWidth: cardWidth,
         );
-    // A phone held sideways: the card, its name and the button at the
-    // left, what it is and what you get at the right.
+    // A phone held sideways: the card and its name at the left, what it
+    // is and what you get at the right; the way on is in the bar.
     final split = useSheetColumns(context)
         ? SheetSplit(
-            start: [
-              part(
-                AddDataDetailsPart.card,
-                // Smaller when a note on the website goes above the button.
-                cardWidth: external || _opened ? 180 : 220,
-              ),
-            ],
+            start: [part(AddDataDetailsPart.card, cardWidth: 250)],
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 12,
-              children: [?opened, part(AddDataDetailsPart.rest)],
+              children: [?opened, part(AddDataDetailsPart.rest), ?hostNote],
             ),
-            actions: actions,
           )
         : null;
     return GlassSheetPage(
@@ -717,7 +727,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           : const EdgeInsets.symmetric(horizontal: 16),
       scrolls: split == null,
       childClearsBottom: split != null,
-      bottom: split == null ? actions : null,
+      action: action,
       pinned: IssueSheetProgress(
         subject: subject,
         step: _opened ? 2 : 1,
@@ -729,7 +739,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
-            children: [?opened, part(AddDataDetailsPart.all)],
+            children: [?opened, part(AddDataDetailsPart.all), ?hostNote],
           ),
     );
   }
@@ -761,22 +771,21 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final offer = state != null && _isOffer(state) && !awaiting ? state : null;
     final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
 
-    final actions = SheetActionRow(
-      primaryKey: const Key("sheet_issue_add"),
-      primaryLabel: cards.length > 1
+    final action = SheetAction(
+      key: const Key("sheet_issue_add"),
+      label: cards.length > 1
           ? _t("issuance.add_many", {"count": "${cards.length}"})
           : _t("issuance.add"),
-      onPrimary: offer == null || nestedId == null
-          ? null
-          : () => _grant(nestedId),
+      onTap: offer == null || nestedId == null ? null : () => _grant(nestedId),
     );
-    // A phone held sideways: the card(s) and the button at the left, the
-    // question and the values at the right.
+    // A phone held sideways: the card(s) at the left, the question and the
+    // values at the right; the way on is in the bar.
     if (useSheetColumns(context)) {
       final content = offer == null ? null : _offerContent(offer);
       return GlassSheetPage(
         title: _t("issuance.title"),
         onBack: issueBack,
+        action: action,
         pinned: _progress(subject, total),
         subtitle: _requestorLine(subject),
         scrolls: false,
@@ -799,7 +808,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                     ...content.receives(context),
                   ],
                 ),
-          actions: actions,
         ),
       );
     }
@@ -808,7 +816,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: actions,
+      action: action,
       pinned: _progress(subject, total),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -953,13 +961,29 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     int total,
   ) {
     final palette = YiviPalette.of(context);
-    // The bar keeps the step's title; "Success" is the heading below.
-    // A phone held sideways: the card with its check, the words and the
-    // buttons at the left; what is now in the app at the right.
+    final action = issueSuccessAction(cards);
+    final link = issueSuccessLink(cards);
+    final linkButton = link == null
+        ? null
+        : Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Center(
+              child: TextLink(
+                key: link.key,
+                label: link.label,
+                onPressed: link.onTap,
+              ),
+            ),
+          );
+    // The bar keeps the step's title; "Success" is the heading below. Done:
+    // no progress, no close button; the way on is the way out.
+    // A phone held sideways: the card with its check and the words at the
+    // left; what is now in the app at the right.
     if (useSheetColumns(context)) {
       return GlassSheetPage(
         title: _t("issuance.title"),
-        pinned: _progress(subject, total, done: true),
+        action: action,
+        closable: false,
         subtitle: _requestorLine(subject),
         scrolls: false,
         childClearsBottom: true,
@@ -986,22 +1010,23 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           end: Column(
             key: const Key("sheet_added_values"),
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: cards.isEmpty
-                ? const []
-                : IssuanceOffer(
-                    cards: cards,
-                    showRequestChip: false,
-                  ).receives(context, headingKey: "data.add.in_your_app"),
+            children: [
+              if (cards.isNotEmpty)
+                ...IssuanceOffer(
+                  cards: cards,
+                  showRequestChip: false,
+                ).receives(context, headingKey: "data.add.in_your_app"),
+              ?linkButton,
+            ],
           ),
-          actions: issueSuccessBar(cards),
         ),
       );
     }
     return GlassSheetPage(
       title: _t("issuance.title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      bottom: issueSuccessBar(cards),
-      pinned: _progress(subject, total, done: true),
+      action: action,
+      closable: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -1024,11 +1049,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             textAlign: TextAlign.center,
             style: palette.body(16).copyWith(height: 24 / 16),
           ),
+          ?linkButton,
         ],
       ),
     );
   }
 }
+
+/// A choice on "Success" besides its way on, as a link
+/// ([IssueFlow.issueSuccessLink]).
+typedef IssueSuccessLink = ({String label, VoidCallback onTap, Key key});
 
 /// An explanation above a step, in the info colour.
 class _Note extends StatelessWidget {
@@ -1057,7 +1087,7 @@ class _Note extends StatelessWidget {
   }
 }
 
-/// Where adding happens, quietly above the button that goes there.
+/// Where adding happens, quietly at the foot of the card's details.
 class _HostNote extends StatelessWidget {
   final String text;
 
