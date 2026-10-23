@@ -170,8 +170,8 @@ void main() {
 
       expect(
         find.bySemanticsLabel(
-          "Een open paspoort op de pagina met de pasfoto. De twee regels "
-          "onderaan zijn gemarkeerd.",
+          "Een telefoon boven een open paspoort, met de camera op de twee "
+          "regels onderaan de pagina met de pasfoto.",
         ),
         findsOneWidget,
       );

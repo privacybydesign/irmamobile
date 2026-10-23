@@ -914,19 +914,19 @@
         "title": "Öffnen Sie Ihren Reisepass auf der Seite mit dem Foto",
         "body": "Halten Sie Ihren Reisepass vor die Kamera und achten Sie darauf, dass die ganze Seite gut sichtbar ist. Drücken Sie danach auf Start.",
         "tip": "Halten Sie den Reisepass nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
-        "image_alt": "Ein geöffneter Reisepass auf der Seite mit dem Foto. Die beiden Zeilen unten sind markiert."
+        "image_alt": "Ein Handy über einem geöffneten Reisepass, die Kamera auf den beiden Zeilen unten auf der Seite mit dem Foto."
       },
       "id_card": {
         "title": "Verwenden Sie die Rückseite Ihres Personalausweises",
         "body": "Halten Sie Ihren Personalausweis vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
         "tip": "Halten Sie die Karte nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
-        "image_alt": "Die Rückseite eines Personalausweises. Die drei Zeilen unten sind markiert."
+        "image_alt": "Ein Handy über der Rückseite eines Personalausweises, die Kamera auf den drei Zeilen unten."
       },
       "driving_licence": {
         "title": "Verwenden Sie die Vorderseite Ihres Führerscheins",
         "body": "Halten Sie Ihren Führerschein vor die Kamera und achten Sie darauf, dass die ganze Vorderseite gut sichtbar ist. Drücken Sie danach auf Start.",
         "tip": "Halten Sie den Führerschein nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
-        "image_alt": "Die Vorderseite eines Führerscheins. Die Zeile unten ist markiert."
+        "image_alt": "Ein Handy über der Vorderseite eines Führerscheins, die Kamera auf der Zeile unten."
       }
     },
     "nfc": {
