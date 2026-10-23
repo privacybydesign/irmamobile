@@ -42,7 +42,7 @@ class ScanTip extends ConsumerWidget {
         child: GlassSurface(
           key: const Key("scan_tip"),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.sheet)),
+            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.dialog)),
           ),
           fill: palette.glassStrongFill,
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),

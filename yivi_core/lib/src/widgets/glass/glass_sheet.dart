@@ -1005,13 +1005,17 @@ class GlassSheetHeader extends StatelessWidget {
           child: shown(
             FadeTransition(
               opacity: actionOpacity ?? kAlwaysCompleteAnimation,
-              child: AnimatedSwitcher(
+              // Changes in place (a new label, the spinner, greyed out or not),
+              // as the button at the bottom does; only its width eases. A
+              // cross-fade showed two capsules at once.
+              child: AnimatedSize(
                 duration: _switch(context),
-                child: SheetBarButton(
-                  key: ValueKey((action.label, action.busy, action.enabled)),
-                  action: action,
-                  onTap: onAction,
-                ),
+                curve: Curves.easeOutCubic,
+                alignment: AlignmentDirectional.centerEnd,
+                // Drawn whole while the room eases: clipped, a growing
+                // capsule showed a square edge.
+                clipBehavior: Clip.none,
+                child: SheetBarButton(action: action, onTap: onAction),
               ),
             ),
           ),

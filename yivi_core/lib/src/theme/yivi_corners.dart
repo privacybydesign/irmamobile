@@ -11,8 +11,13 @@ class YiviCorners {
   /// Panes beside a list: on a tablet, and in phone landscape.
   static const pane = 18.0;
 
-  /// Sheets and dialogs.
-  static const sheet = 20.0;
+  /// Sheets (and the tablet's form-sheet pages): concentric with the round
+  /// 44 close and back buttons 16 in from their edges (22 + 16), as a native
+  /// iOS sheet.
+  static const sheet = 38.0;
+
+  /// Dialogs and tip bubbles.
+  static const dialog = 20.0;
 
   /// Large icon tiles (about 90 to 100 points).
   static const iconTile = 20.0;

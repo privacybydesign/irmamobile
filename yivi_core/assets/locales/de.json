@@ -234,7 +234,13 @@
       "done": "Fertig",
       "added_more": "{name} hinzugefügt. Noch etwas anderes hinzufügen?",
       "in_your_app": "In deiner App",
-      "needs_nfc": "Braucht NFC"
+      "needs_nfc": "Braucht NFC",
+      "website": {
+        "heading": "Weiter auf der Website",
+        "body": "{issuer} bittet Sie, auf der Website zu bestätigen, wer Sie sind. Danach kommen Sie von selbst hierher zurück.",
+        "open": "Website öffnen",
+        "caption": "Die Website öffnet sich in Ihrem Browser; diese Anfrage wartet hier auf Sie."
+      }
     },
     "search": {
       "no_results": "Keine Daten gefunden für '{query}'."
@@ -1443,6 +1449,7 @@
     },
     "tech": {
       "link": "Technische Details",
+      "link_text": "Wie diese Anfrage aufgebaut ist, für Neugierige",
       "title": "Technische Details",
       "intro": "Für Neugierige. Du brauchst nichts davon, um zu entscheiden.",
       "copy": "Alle Details kopieren",

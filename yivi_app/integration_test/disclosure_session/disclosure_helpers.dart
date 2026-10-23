@@ -269,12 +269,14 @@ Future<void> tapSpot(WidgetTester tester, int i) async {
   expect(findChoiceSheet(), findsOneWidget);
 }
 
-/// Taps "Add" on the details in the open sheet (step 1 of 3): the issuer's
+/// Taps "Add" on the details in the open sheet (step 1 of 3), then "Open
+/// website" on the page that says where adding goes (step 2): the issuer's
 /// website opens while the sheet waits (see [startAdding]).
 Future<void> tapAddOnDetails(WidgetTester tester) async {
   final go = find.byKey(const Key("sheet_go_button"));
   expect(go, findsOneWidget);
   await tester.tapAndSettle(go);
+  await tester.tapAndSettle(find.byKey(const Key("sheet_open_website")));
   expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
 }
 

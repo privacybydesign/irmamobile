@@ -63,71 +63,77 @@ class FancyPillButton extends StatelessWidget {
       enabled: enabled,
       label: label,
       excludeSemantics: true,
-      child: Opacity(
-        opacity: enabled ? 1 : (bar ? 0.4 : 0.5),
-        child: PressScale(
-          child: DecoratedBox(
-            decoration: const ShapeDecoration(shape: StadiumBorder()),
-            child: ClipPath(
-              clipper: const ShapeBorderClipper(shape: StadiumBorder()),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: ExcludeSemantics(
-                      child: SvgPicture.asset(
-                        yiviAsset("ui/btn-bg.svg"),
-                        fit: BoxFit.fill,
-                      ),
+      child: PressScale(
+        // Greyed out under a veil of the page's colour rather than see-
+        // through: an opaque button covers the one it replaces while sheet
+        // pages change, instead of showing its label through its own.
+        child: DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: ShapeDecoration(
+            shape: const StadiumBorder(),
+            color: enabled
+                ? null
+                : palette.background.withValues(alpha: bar ? 0.6 : 0.5),
+          ),
+          child: ClipPath(
+            clipper: const ShapeBorderClipper(shape: StadiumBorder()),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ExcludeSemantics(
+                    child: SvgPicture.asset(
+                      yiviAsset("ui/btn-bg.svg"),
+                      fit: BoxFit.fill,
                     ),
                   ),
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.28),
-                            ),
+                ),
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.28),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Material(
-                    type: MaterialType.transparency,
-                    child: InkWell(
-                      highlightColor: Colors.transparent,
-                      onTap: onPressed,
-                      // The size's height is the least: a label that wraps at a
-                      // large text size makes the pill taller.
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: size.height,
-                          minWidth: bar ? 0 : double.infinity,
+                ),
+                Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    highlightColor: Colors.transparent,
+                    onTap: onPressed,
+                    // The size's height is the least: a label that wraps at a
+                    // large text size makes the pill taller.
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: size.height,
+                        minWidth: bar ? 0 : double.infinity,
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: bar ? 16 : 20,
+                          vertical: bar ? 0 : 8,
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: bar ? 16 : 20,
-                            vertical: bar ? 0 : 8,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: bar
-                                ? MainAxisSize.min
-                                : MainAxisSize.max,
-                            spacing: 8,
-                            children: [
-                              ?leading,
-                              Flexible(child: text),
-                              ?trailing,
-                            ],
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: bar
+                              ? MainAxisSize.min
+                              : MainAxisSize.max,
+                          spacing: 8,
+                          children: [
+                            ?leading,
+                            Flexible(child: text),
+                            ?trailing,
+                          ],
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

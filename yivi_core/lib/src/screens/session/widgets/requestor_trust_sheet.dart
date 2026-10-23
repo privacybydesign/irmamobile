@@ -9,7 +9,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
+import "../models/technical_details.dart";
 import "session_requestor_header.dart";
+import "technical_details_sheet.dart";
 
 const _portalOrganisations = "https://portal.yivi.app/organizations";
 const _portal = "https://portal.yivi.app";
@@ -20,19 +22,66 @@ const _euTrustedList =
 /// sheet, opened from the requestor card and from the warning banner.
 ///
 /// [onDontShare] is "Don't share" for a party nobody vouches for: it closes
-/// the request.
+/// the request. With [technicalDetails] the sheet ends with a row that opens
+/// them, as a subpage of the sheet.
 Future<void> showRequestorTrustSheet({
   required BuildContext context,
   required TrustedParty requestor,
   VoidCallback? onDontShare,
+  List<TechGroup>? technicalDetails,
 }) => showGlassSheet<void>(
   context: context,
-  builder: (_) => RequestorTrustSheet(
-    key: const Key("requestor_trust_sheet"),
+  builder: (_) => _TrustSheetPages(
     requestor: requestor,
     onDontShare: onDontShare,
+    technicalDetails: technicalDetails,
   ),
 );
+
+/// The trust sheet and, when there are technical details, their subpage,
+/// which slides in over it.
+class _TrustSheetPages extends StatefulWidget {
+  final TrustedParty requestor;
+  final VoidCallback? onDontShare;
+  final List<TechGroup>? technicalDetails;
+
+  const _TrustSheetPages({
+    required this.requestor,
+    this.onDontShare,
+    this.technicalDetails,
+  });
+
+  @override
+  State<_TrustSheetPages> createState() => _TrustSheetPagesState();
+}
+
+class _TrustSheetPagesState extends State<_TrustSheetPages> {
+  var _tech = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = widget.technicalDetails;
+    return GlassSheetPages(
+      onBack: () => setState(() => _tech = false),
+      pages: [
+        RequestorTrustSheet(
+          key: const Key("requestor_trust_sheet"),
+          requestor: widget.requestor,
+          onDontShare: widget.onDontShare,
+          onTechnicalDetails: groups == null
+              ? null
+              : () => setState(() => _tech = true),
+        ),
+        if (_tech && groups != null)
+          TechnicalDetailsSheet(
+            key: const Key("technical_details_sheet"),
+            groups: groups,
+            onBack: () => setState(() => _tech = false),
+          ),
+      ],
+    );
+  }
+}
 
 /// The trust sheet, made to be read at a glance: no title text, the party's
 /// logo with its badge, a verdict and one sentence, three facts (✓ in the
@@ -42,10 +91,15 @@ class RequestorTrustSheet extends StatelessWidget {
   final TrustedParty requestor;
   final VoidCallback? onDontShare;
 
+  /// Opens the technical details of the request (a subpage); no row for
+  /// them when null.
+  final VoidCallback? onTechnicalDetails;
+
   const RequestorTrustSheet({
     super.key,
     required this.requestor,
     this.onDontShare,
+    this.onTechnicalDetails,
   });
 
   @override
@@ -228,6 +282,23 @@ class RequestorTrustSheet extends StatelessWidget {
               ),
             ),
             _Group(children: [for (final d in dos) _DoRow(item: d)]),
+            // For the curious, last and out of the way.
+            if (onTechnicalDetails case final open?) ...[
+              const SizedBox(height: 22),
+              _Group(
+                children: [
+                  _DoRow(
+                    item: _Do(
+                      key: const Key("trust_sheet_technical_details"),
+                      icon: Icons.code_rounded,
+                      title: t("share.tech.link"),
+                      subtitle: t("share.tech.link_text"),
+                      onTap: open,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

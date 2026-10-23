@@ -234,7 +234,13 @@
       "done": "Klaar",
       "added_more": "{name} toegevoegd. Nog iets anders toevoegen?",
       "in_your_app": "In je app",
-      "needs_nfc": "Heeft NFC nodig"
+      "needs_nfc": "Heeft NFC nodig",
+      "website": {
+        "heading": "Ga verder op de website",
+        "body": "{issuer} vraagt je om op de website te bevestigen wie je bent. Daarna kom je vanzelf hier terug.",
+        "open": "Website openen",
+        "caption": "De website opent in je browser; dit verzoek wacht hier op je."
+      }
     },
     "search": {
       "no_results": "Geen gegevens gevonden voor '{query}'."
@@ -1443,6 +1449,7 @@
     },
     "tech": {
       "link": "Technische details",
+      "link_text": "Hoe dit verzoek in elkaar zit, voor wie het wil weten",
       "title": "Technische details",
       "intro": "Voor wie het wil weten. Je hebt dit niet nodig om te beslissen.",
       "copy": "Alle details kopiëren",

@@ -8,6 +8,7 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
+import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -186,6 +187,18 @@ void main() {
       _log(LogType.signature, message: List.filled(600, "word").join(" ")),
     );
     await expectBarFollowsHeader(tester);
+  });
+
+  testWidgets("no band behind the bar once scrolled: the compact title in "
+      "its capsule and the close button float", (tester) async {
+    await pump(
+      tester,
+      _log(LogType.signature, message: List.filled(600, "word").join(" ")),
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -800));
+    await tester.pumpAndSettle();
+    expect(find.byType(ActivityCompactBar), findsOneWidget);
+    expect(find.byType(ScrollEdgeBand), findsNothing);
   });
 
   testWidgets("with a name on two lines the bar waits for the whole header", (

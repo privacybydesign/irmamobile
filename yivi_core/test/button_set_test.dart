@@ -169,6 +169,30 @@ void main() {
       );
       expect(opacity.opacity, 0.5);
     });
+
+    testWidgets("a disabled fancy pill is veiled, not see-through", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const FancyPillButton(label: "Next", onPressed: null),
+      );
+      // Opaque: no Opacity around it, a veil in the page's colour on it.
+      expect(
+        find.ancestor(of: find.text("Next"), matching: find.byType(Opacity)),
+        findsNothing,
+      );
+      final veil = tester
+          .widgetList<DecoratedBox>(
+            find.ancestor(
+              of: find.text("Next"),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .where((d) => d.position == DecorationPosition.foreground)
+          .single;
+      expect((veil.decoration as ShapeDecoration).color?.a, closeTo(0.5, 0.01));
+    });
   });
 
   group("small buttons", () {

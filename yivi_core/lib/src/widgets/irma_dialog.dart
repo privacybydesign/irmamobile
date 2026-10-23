@@ -42,7 +42,7 @@ class YiviDialog extends StatelessWidget {
                 child: GlassSurface(
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
-                      Radius.circular(YiviCorners.sheet),
+                      Radius.circular(YiviCorners.dialog),
                     ),
                   ),
                   fill: MediaQuery.highContrastOf(context)

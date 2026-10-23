@@ -10,24 +10,16 @@ import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../models/technical_details.dart";
 
-/// The technical details of a request, for the curious. Opened from the
-/// quiet link at the very end of the share screen; nothing in it is needed
-/// to decide.
-Future<void> showTechnicalDetailsSheet({
-  required BuildContext context,
-  required List<TechGroup> groups,
-}) => showGlassSheet<void>(
-  context: context,
-  builder: (_) => TechnicalDetailsSheet(
-    key: const Key("technical_details_sheet"),
-    groups: groups,
-  ),
-);
-
+/// The technical details of a request, for the curious: a subpage of the
+/// requestor's sheet (see [RequestorTrustSheet]), reached from the last row
+/// there; nothing in it is needed to decide.
 class TechnicalDetailsSheet extends StatelessWidget {
   final List<TechGroup> groups;
 
-  const TechnicalDetailsSheet({super.key, required this.groups});
+  /// Back to the requestor's sheet.
+  final VoidCallback? onBack;
+
+  const TechnicalDetailsSheet({super.key, required this.groups, this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +69,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
     ];
     return GlassSheetPage(
       title: t("share.tech.title"),
+      onBack: onBack,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

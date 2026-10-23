@@ -15,7 +15,6 @@ import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/navigation.dart";
@@ -32,7 +31,7 @@ import "../models/disclosure_view_model.dart";
 import "issuance_permission.dart";
 import "issuance_success_screen.dart";
 import "issue_sheet_progress.dart";
-import "openid4vci_authcode_pending_screen.dart";
+import "issue_website_step.dart";
 import "openid4vci_preauth_txcode_screen.dart";
 import "session_pin_entry_screen.dart";
 
@@ -128,6 +127,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The issuer's website was opened for [issueAdding].
   bool _opened = false;
 
+  /// The page that sends the user to the issuer's website is shown (step
+  /// 2): "Add" on the details of a card from a website.
+  bool _website = false;
+
+  /// OpenID4VCI sessions whose login page in the browser was opened.
+  final _vciOpened = <int>{};
+
   /// Yivi's own e-mail or phone step for [issueAdding] is shown (step 2).
   ContactKind? _contact;
 
@@ -153,6 +159,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// irmago asks for the PIN for the issuance in the sheet.
   bool _pin = false;
+
+  /// The PIN page was shown for the issuance: it stays under "Success", so
+  /// "Success" comes in over it (forward) instead of the PIN going away.
+  bool _pinShown = false;
+
+  /// The last offer shown, for the offer page while "Success" covers it.
+  SessionState? _lastOffer;
 
   // The repository only once something is added, kept for dispose (where
   // ref is unsafe). The host notifier up front for the same reason.
@@ -181,6 +194,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     setState(() {
       _nestedId = sessionId;
       issueAdded = null;
+      _pinShown = false;
+      _lastOffer = null;
     });
   }
 
@@ -230,6 +245,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     issueAdding = d;
     _direct = false;
     _opened = false;
+    _website = false;
   });
 
   /// Back from the details to the root page, leaving nothing behind. When
@@ -259,7 +275,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     issueAdded = null;
     issueAdding = null;
     _nestedId = null;
+    _pinShown = false;
+    _lastOffer = null;
     _opened = false;
+    _website = false;
     _contact = null;
     _document = null;
     _faceCheck = false;
@@ -278,8 +297,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ..invalidate(smsIssuanceProvider);
     }
     _nestedId = null;
+    _pinShown = false;
+    _lastOffer = null;
     issueAdded = null;
     _opened = false;
+    _website = false;
     _contact = null;
     _document = null;
     _faceCheck = false;
@@ -340,9 +362,32 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       await open(pageContext, d, ref);
       return;
     }
+    // The issuer's website: first the page that says so.
+    setState(() => _website = true);
+  }
+
+  /// "Open website" on the website page: the sheet waits for what comes
+  /// back from the issuer.
+  Future<void> _openWebsite(CredentialDescriptor d) async {
     _hosts.register(this);
     setState(() => _opened = true);
-    await open(context, d, ref);
+    await ref.read(issuerOpenerProvider)(context, d, ref);
+  }
+
+  /// Back from the website page to the details. Once the website was
+  /// opened, adding has started: it asks first, and ends the wait.
+  Future<void> _leaveWebsite() async {
+    if (_opened && !await issueConfirmStop()) return;
+    if (!mounted) return;
+    if (_opened) {
+      _repo.clearInAppLaunches();
+      _hosts.unregister(this);
+    }
+    setState(() {
+      _website = false;
+      _opened = false;
+      _website = false;
+    });
   }
 
   /// "Stop adding {name}?" before a started adding is left.
@@ -393,6 +438,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       _dismissNested(nested);
       setState(() {
         _nestedId = null;
+        _pinShown = false;
+        _lastOffer = null;
         _document = null;
         _faceCheck = false;
       });
@@ -401,6 +448,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         _document = null;
         _faceCheck = false;
       });
+    } else if (_website) {
+      _leaveWebsite();
     } else if (_contact case final kind?) {
       // From the code to the address; from the address to the details.
       if (ContactSheetStep.atCode(ref, kind, watch: false)) {
@@ -444,6 +493,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (status == SessionStatus.dismissed) {
       if (_standalone && issueAdding == null) {
         _nestedId = null;
+        _pinShown = false;
+        _lastOffer = null;
         _pin = false;
         issueSessionEnded();
         return;
@@ -453,6 +504,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       setState(() {
         _pin = false;
         _nestedId = null;
+        _pinShown = false;
+        _lastOffer = null;
         _document = null;
       });
       return;
@@ -460,6 +513,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     // The PIN is a page in the sheet, on top of the issuance, while irmago
     // asks for it.
     final pin = status == SessionStatus.requestPin;
+    if (pin) _pinShown = true;
     if (pin != _pin) setState(() => _pin = pin);
     // OpenID4VCI without a transaction code: granted at once, as on the
     // session screen; the next state follows.
@@ -557,6 +611,21 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         key: ValueKey(("add", adding.credentialId)),
         child: _buildDetails(adding, subject, total),
       ),
+      // Step 2 for a card from a website: where you go, and the way there.
+      if (_website)
+        KeyedSubtree(
+          key: ValueKey(("web", adding.credentialId)),
+          child: IssueWebsiteStep(
+            title: adding.name,
+            host: hostOf(adding.issueURL) ?? adding.issuer.name,
+            issuer: adding.issuer.name,
+            opened: _opened,
+            onOpen: () => _openWebsite(adding),
+            onBack: _leaveWebsite,
+            pinned: IssueSheetProgress(subject: subject, step: 2, total: total),
+            subtitle: IssueSheetRequestorLine(subject: subject),
+          ),
+        ),
       if (_contact case final kind?) ...[
         KeyedSubtree(
           key: ValueKey(("prove", kind)),
@@ -604,7 +673,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           key: ValueKey(("issue", nested)),
           child: _buildIssuance(nested, subject, total),
         ),
-      if (nested != null && _pin)
+      if (nested != null && (_pin || (issueAdded != null && _pinShown)))
         KeyedSubtree(
           key: ValueKey(("pin", nested)),
           child: _NestedPin(
@@ -613,6 +682,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             total: total,
             onCancel: () => _dismissNested(nested),
           ),
+        ),
+      // "Success": a page of its own, coming in forward over the offer (or
+      // the PIN).
+      if (issueAdded case final added?)
+        KeyedSubtree(
+          key: ValueKey(("done", nested)),
+          child: _buildSuccess(added, subject, total),
         ),
     ];
   }
@@ -637,7 +713,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         key: ValueKey(("issue", nested)),
         child: _buildIssuance(nested, subject, 0),
       ),
-      if (nested != null && _pin)
+      if (nested != null && (_pin || (issueAdded != null && _pinShown)))
         KeyedSubtree(
           key: ValueKey(("pin", nested)),
           child: _NestedPin(
@@ -646,6 +722,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             total: 0,
             onCancel: () => _dismissNested(nested),
           ),
+        ),
+      if (issueAdded case final added?)
+        KeyedSubtree(
+          key: ValueKey(("done", nested)),
+          child: _buildSuccess(added, subject, 0),
         ),
     ];
   }
@@ -659,24 +740,20 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   ) {
     final host = hostOf(d.issueURL) ?? "";
     final faq = _faqFor(d.credentialId);
-    // A card from an issuer's website: say up front that "Add" leaves Yivi
-    // for it (once open, the note below takes over).
+    // A card from an issuer's website: say up front that adding goes there
+    // (the next page says it again, with the way there).
     final external =
-        !_opened &&
         ref.watch(
-              externalIssuerStatusProvider((
-                credentialId: d.credentialId,
-                issueUrl: d.issueURL,
-              )),
-            ) !=
-            ExternalIssuerStatus.notExternal;
-    // One way on: the close button and back are the way out. The note on
-    // the website says which one.
+          externalIssuerStatusProvider((
+            credentialId: d.credentialId,
+            issueUrl: d.issueURL,
+          )),
+        ) !=
+        ExternalIssuerStatus.notExternal;
+    // One way on: dragging the sheet down and back are the way out.
     final action = SheetAction(
       key: const Key("sheet_go_button"),
-      label: _opened
-          ? _t("share.sheet.open_again")
-          : _t("data.add.details.get_button"),
+      label: _t("data.add.details.get_button"),
       onTap: () => _add(d),
     );
     // Where "Add" goes: at the foot of what the card is.
@@ -684,12 +761,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ? _HostNote(
             key: const Key("sheet_external_note"),
             text: _t("data.add.details.external_note", {"host": host}),
-          )
-        : null;
-    final opened = _opened
-        ? _Note(
-            key: const Key("sheet_opened_note"),
-            text: _t("share.sheet.opened_note", {"host": host}),
           )
         : null;
     Widget part(AddDataDetailsPart part, {double cardWidth = 220}) =>
@@ -708,7 +779,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 12,
-              children: [?opened, part(AddDataDetailsPart.rest), ?hostNote],
+              children: [part(AddDataDetailsPart.rest), ?hostNote],
             ),
           )
         : null;
@@ -719,29 +790,21 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // says where in adding it you are).
       title: d.name,
       // The sheet's first page has no back: close is the way out.
-      onBack: _direct
-          ? null
-          : () async {
-              if (!_opened || await issueConfirmStop()) issueLeave();
-            },
+      onBack: _direct ? null : issueLeave,
       padding: split != null
           ? EdgeInsets.zero
           : const EdgeInsets.symmetric(horizontal: 16),
       scrolls: split == null,
       childClearsBottom: split != null,
       action: action,
-      pinned: IssueSheetProgress(
-        subject: subject,
-        step: _opened ? 2 : 1,
-        total: total,
-      ),
+      pinned: IssueSheetProgress(subject: subject, step: 1, total: total),
       subtitle: IssueSheetRequestorLine(subject: subject),
       child:
           split ??
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
-            children: [?opened, part(AddDataDetailsPart.all), ?hostNote],
+            children: [part(AddDataDetailsPart.all), ?hostNote],
           ),
     );
   }
@@ -758,9 +821,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// Step 3: the issuance that came back, then "Success".
   Widget _buildIssuance(int? nestedId, IssueSheetSubject? subject, int total) {
-    final added = issueAdded;
-    if (added != null) return _buildSuccess(added, subject, total);
-
     final state = nestedId == null
         ? null
         : ref.watch(sessionStateProvider(nestedId)).value;
@@ -770,7 +830,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final awaiting =
         nestedId != null &&
         ref.watch(sessionAwaitingInteractionProvider(nestedId));
-    final offer = state != null && _isOffer(state) && !awaiting ? state : null;
+    // Under "Success" (sliding away as it comes in) the offer as it was:
+    // the session has moved on by then.
+    final current = state != null && _isOffer(state) && !awaiting
+        ? state
+        : null;
+    if (current != null) _lastOffer = current;
+    final offer = current ?? (issueAdded != null ? _lastOffer : null);
     final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
 
     final action = SheetAction(
@@ -778,6 +844,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       label: cards.length > 1
           ? _t("issuance.add_many", {"count": "${cards.length}"})
           : _t("issuance.add"),
+      // Under way once tapped, until "Success" comes in.
+      busy: awaiting,
       onTap: offer == null || nestedId == null ? null : () => _grant(nestedId),
     );
     // A phone held sideways: the card(s) at the left, the question and the
@@ -953,13 +1021,20 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         onDismiss: () => _dismissNested(sessionId),
       );
     }
-    return OpenID4VCIAuthCodePendingScreen(
-      inSheet: true,
-      requestor: state.requestor,
-      offeredCredentialTypes: state.offeredCredentialTypes!,
-      onOpenBrowser: () =>
-          _repo.authenticateOpenID4VCI(state.authorizationRequestUrl!),
-      onDismiss: () => _dismissNested(sessionId),
+    // The issuer's login in the browser: the website page of adding a
+    // card, as for a card from a website.
+    final url = state.authorizationRequestUrl!;
+    return IssueWebsiteStep(
+      key: const Key("sheet_openid4vci_authcode"),
+      title: _t("issuance.authorization_code.pending.title"),
+      host: hostOf(url) ?? state.requestor.name,
+      issuer: state.requestor.name,
+      opened: _vciOpened.contains(sessionId),
+      onOpen: () async {
+        setState(() => _vciOpened.add(sessionId));
+        await _repo.authenticateOpenID4VCI(url);
+      },
+      onBack: () => _dismissNested(sessionId),
     );
   }
 
@@ -1067,33 +1142,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 /// A choice on "Success" besides its way on, as a link
 /// ([IssueFlow.issueSuccessLink]).
 typedef IssueSuccessLink = ({String label, VoidCallback onTap, Key key});
-
-/// An explanation above a step, in the info colour.
-class _Note extends StatelessWidget {
-  final String text;
-
-  const _Note({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: ShapeDecoration(
-        color: palette.infoSurface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-        ),
-      ),
-      child: Text(
-        text,
-        style: palette
-            .body(14)
-            .copyWith(height: 20 / 14, color: palette.noteText),
-      ),
-    );
-  }
-}
 
 /// Where adding happens, quietly at the foot of the card's details.
 class _HostNote extends StatelessWidget {

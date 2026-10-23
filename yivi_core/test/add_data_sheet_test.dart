@@ -533,6 +533,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
+      // Step 2 says where adding goes; its way on opens the website.
+      await tester.tap(find.byKey(const Key("sheet_open_website")));
+      await tester.pumpAndSettle();
       return (calls, nested);
     }
 
@@ -570,6 +573,89 @@ void main() {
       await tester.pumpAndSettle();
       return (calls, nested);
     }
+
+    for (final (name, size, inBar) in [
+      ("upright", const Size(390, 844), false),
+      ("sideways", const Size(874, 402), true),
+      ("on a tablet", const Size(820, 1180), true),
+    ]) {
+      testWidgets("$name: Add first shows where adding goes, step 2; its way "
+          "on opens the website", (tester) async {
+        final calls = await _pump(tester, size: size);
+        await tester.tap(
+          find.byKey(const Key("pbdf.gemeente.personalData_tile")),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("sheet_go_button")));
+        await tester.pumpAndSettle();
+        // Nothing opened yet: the page says where adding goes.
+        expect(calls.obtained, isEmpty);
+        expect(find.byKey(const Key("sheet_website_heading")), findsOneWidget);
+        expect(find.byKey(const Key("sheet_website_host")), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+          findsOneWidget,
+        );
+        final open = tester.getRect(
+          find.byKey(const Key("sheet_open_website")),
+        );
+        final title = tester.getRect(
+          find.byKey(const Key("glass_sheet_title")).last,
+        );
+        // At the bottom upright; in the bar sideways and on a tablet.
+        if (inBar) {
+          expect(open.center.dy, closeTo(title.center.dy, 2));
+        } else {
+          expect(open.top, greaterThan(size.height - 120));
+        }
+        await tester.tap(find.byKey(const Key("sheet_open_website")));
+        await tester.pumpAndSettle();
+        expect(calls.obtained, ["pbdf.gemeente.personalData"]);
+        expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
+        expect(find.text("Open again"), findsOneWidget);
+      });
+    }
+
+    testWidgets("back from the website page, before it opened: the details, "
+        "without asking", (tester) async {
+      await _pump(tester);
+      await tester.tap(
+        find.byKey(const Key("pbdf.gemeente.personalData_tile")),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_stop_dialog")), findsNothing);
+      expect(find.byKey(const Key("sheet_website_heading")), findsNothing);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("Success comes in as a page of its own, from the right", (
+      tester,
+    ) async {
+      final (_, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_issue_add")));
+      await tester.pump();
+      nested.add(issuance(SessionStatus.success));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 120));
+      // Half way: the offer goes out to the left as Success comes in.
+      final added = tester.getRect(find.byKey(const Key("sheet_added_text")));
+      expect(added.left, greaterThan(40));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(const Key("sheet_added_text"))).left,
+        lessThan(added.left),
+      );
+    });
 
     testWidgets("the website opens; the issuance comes back as step 3", (
       tester,
@@ -759,7 +845,8 @@ void main() {
         tester,
       ) async {
         await openWebsite(tester, size: side);
-        final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
+        // The website page: its way on (Open again) in the bar.
+        final go = tester.getRect(find.byKey(const Key("sheet_open_website")));
         final opened = tester.getRect(
           find.byKey(const Key("sheet_opened_note")),
         );

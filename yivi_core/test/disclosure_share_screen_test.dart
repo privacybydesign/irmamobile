@@ -375,8 +375,16 @@ void main() {
     expect(find.byKey(const Key("add_data_disclosure_note")), findsOneWidget);
     expect(calls.obtained, isEmpty);
 
-    // Then the website, with the sheet waiting for the user to come back.
+    // Then a page that says where adding goes, step 2 of 3; nothing opens
+    // yet.
     await tester.tap(find.byKey(const Key("sheet_go_button")));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("sheet_website_heading")), findsOneWidget);
+    expect(calls.obtained, isEmpty);
+
+    // Its way on opens the website, with the sheet waiting for the user to
+    // come back.
+    await tester.tap(find.byKey(const Key("sheet_open_website")));
     await tester.pumpAndSettle();
     expect(calls.obtained, ["idcard"]);
     expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
@@ -475,6 +483,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_open_website")));
+      await tester.pumpAndSettle();
       expect(calls.obtained, ["idcard"]);
       // Not included before the card is there (behind the sheet, which
       // waits for the user to come back).
@@ -559,6 +569,8 @@ void main() {
       expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
       expect(find.text("Address"), findsWidgets);
       await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_open_website")));
       await tester.pumpAndSettle();
       expect(calls.obtained, ["address"]);
     });
@@ -1481,6 +1493,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_open_website")));
+      await tester.pumpAndSettle();
       return (calls, nested);
     }
 
@@ -1682,6 +1696,8 @@ void main() {
           findsOneWidget,
         );
         await tester.tap(find.byKey(const Key("sheet_go_button")));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("sheet_open_website")));
         await tester.pumpAndSettle();
         comeBack(tester);
         nested.add(issuance(SessionStatus.requestPermission));
@@ -2292,29 +2308,24 @@ void main() {
       );
     });
 
-    testWidgets("a short page: the footnote and details at its bottom", (
-      tester,
-    ) async {
+    testWidgets("technical details: not on the page, but the last row of "
+        "the requestor's sheet, a subpage there", (tester) async {
       await _pump(tester, session: _session(email()));
-      final link = tester.getRect(
-        find.byKey(const Key("share_technical_details")),
-      );
-      final button = tester.getRect(_share);
-      // Just above the bar, not right under the card.
-      expect(button.top - link.bottom, lessThan(140));
-    });
-
-    testWidgets("technical details: last on the page, in their own sheet", (
-      tester,
-    ) async {
-      await _pump(tester, session: _session(email()));
-      final link = find.byKey(const Key("share_technical_details"));
+      expect(find.byKey(const Key("share_technical_details")), findsNothing);
+      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.pumpAndSettle();
+      final row = find.byKey(const Key("trust_sheet_technical_details"));
       await tester.scrollUntilVisible(
-        link,
+        row,
         200,
-        scrollable: find.byType(Scrollable).first,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key("requestor_trust_sheet")),
+              matching: find.byType(Scrollable),
+            )
+            .first,
       );
-      await tester.tap(link);
+      await tester.tap(row);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("technical_details_sheet")), findsOneWidget);
       expect(find.text("IRMA"), findsOneWidget);
@@ -2327,6 +2338,11 @@ void main() {
         ),
         findsNothing,
       );
+      // Back to the requestor's sheet.
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("technical_details_sheet")), findsNothing);
+      expect(find.byKey(const Key("trust_sheet_head")), findsOneWidget);
     });
   });
 
@@ -2509,18 +2525,11 @@ void main() {
       final head = tester.getRect(find.byKey(const Key("trust_sheet_head")));
       final fact = tester.getRect(find.text("Yivi checked who they are"));
       expect(fact.left, greaterThan(head.right));
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key("requestor_trust_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-      );
-      await tester.pumpAndSettle();
 
-      final link = find.byKey(const Key("share_technical_details"));
-      await tester.ensureVisible(link);
+      final row = find.byKey(const Key("trust_sheet_technical_details"));
+      await tester.ensureVisible(row);
       await tester.pumpAndSettle();
-      await tester.tap(link);
+      await tester.tap(row);
       await tester.pumpAndSettle();
       final who = tester.getRect(find.text("WHO ASKS"));
       final how = tester.getRect(find.text("HOW YOU SHARE"));

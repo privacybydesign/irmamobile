@@ -33,7 +33,6 @@ import "session_columns.dart";
 import "session_requestor_header.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
-import "technical_details_sheet.dart";
 
 /// The share screen: who asks, as the subject of the page ("Webshop Noord
 /// is asking for your data"), one card per requested item with only the
@@ -178,10 +177,17 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         if (p.optional) (i, p),
     ];
     final trust = requestorTrustOf(session.requestor);
+    // Who is asking, and at its foot, as a subpage, the technical details
+    // of the request: for the curious, well out of the way.
     void openTrust() => showRequestorTrustSheet(
       context: context,
       requestor: session.requestor,
       onDontShare: widget.onClose,
+      technicalDetails: technicalDetailsOf(
+        session,
+        _sharedCredentials(pickOnes, selections),
+        t,
+      ),
     );
 
     final ask = t("share.ask.$kind");
@@ -268,23 +274,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final footnote = showFootnote(button, selections)
         ? _Footnote(text: t("share.footnote", {"requestor": requestor}))
         : null;
-    // For the curious: last on the page, small and grey, out of the way of
-    // the button.
-    final techLink = _TechLink(
-      label: t("share.tech.link"),
-      onTap: () => showTechnicalDetailsSheet(
-        context: context,
-        groups: technicalDetailsOf(
-          session,
-          _sharedCredentials(pickOnes, selections),
-          t,
-        ),
-      ),
-    );
     final pageEnd = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [?footnote, techLink],
+      children: [?footnote],
     );
 
     // Nobody vouches for the requestor: Share becomes "Share anyway", asks
@@ -1343,58 +1336,6 @@ class _TrustWash extends StatelessWidget {
         ),
         Positioned.fill(child: child),
       ],
-    );
-  }
-}
-
-/// "Technical details", quiet and last on the page.
-class _TechLink extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _TechLink({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Center(
-        child: Semantics(
-          button: true,
-          child: InkWell(
-            highlightColor: Colors.transparent,
-            key: const Key("share_technical_details"),
-            onTap: onTap,
-            customBorder: const StadiumBorder(),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 6,
-                  children: [
-                    ExcludeSemantics(
-                      child: Icon(
-                        Icons.code_rounded,
-                        size: 16,
-                        color: palette.secondaryText,
-                      ),
-                    ),
-                    Text(
-                      label,
-                      style: palette
-                          .body(13, weight: FontWeight.w600)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
