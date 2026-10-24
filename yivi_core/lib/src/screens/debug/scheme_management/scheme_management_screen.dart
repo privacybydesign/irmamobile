@@ -15,6 +15,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -24,7 +25,6 @@ import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
 import "requestor_scheme_detail_screen.dart";
 import "scheme_manager_detail_screen.dart";
-import "widgets/confirm_scheme_public_key_dialog.dart";
 import "widgets/provide_scheme_url_dialog.dart";
 import "widgets/scheme_manager_tile.dart";
 
@@ -100,13 +100,12 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
 
     // Show the second dialog to confirm the public key.
-    final publicKeyConfirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) =>
-              ConfirmSchemePublicKeyDialog(publicKey: publicKey),
-        ) ??
-        false;
+    final publicKeyConfirmed = await showConfirmDialog(
+      context,
+      titleKey: "debug.confirm_scheme_public_key_dialog_title",
+      // Not a key: shown as it is.
+      messageKey: publicKey,
+    );
 
     if (!publicKeyConfirmed) return;
 

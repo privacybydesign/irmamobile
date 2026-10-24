@@ -10,17 +10,15 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/handle_pointer.dart";
 import "../../util/navigation.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../more/widgets/tiles.dart";
 import "cert_management/cert_management_screen.dart";
-import "cert_management/widgets/cert_management_warning_dialog.dart";
 import "debug_helper.dart";
 import "scheme_management/scheme_management_screen.dart";
-import "scheme_management/widgets/scheme_management_warning_dialog.dart";
 import "session/session_helper_screen.dart";
 import "util/snackbar.dart";
-import "widgets/delete_all_credentials_confirmation_dialog.dart";
 import "widgets/local_backends_tile.dart";
 
 class DebugScreen extends StatefulWidget {
@@ -61,12 +59,12 @@ class _DebugScreenState extends State<DebugScreen> {
 
   // FIXME: make this compatible with new credential system
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => DeleteAllCredentialsConfirmationDialog(),
-        ) ??
-        false;
+    final confirmed = await showConfirmDialog(
+      context,
+      destructive: true,
+      titleKey: "debug.delete_credentials.dialog.title",
+      messageKey: "debug.delete_credentials.dialog.content",
+    );
 
     if (!confirmed) return;
 
@@ -88,12 +86,11 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   void _onOpenSchemeManagement() async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => SchemeManagementWarningDialog(),
-        ) ??
-        false;
+    final confirmed = await showConfirmDialog(
+      context,
+      titleKey: "debug.scheme_management.warning_dialog.title",
+      messageKey: "debug.scheme_management.warning_dialog.content",
+    );
 
     if (confirmed && mounted) {
       Navigator.of(
@@ -103,12 +100,11 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   void _onOpenCertManagement() async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => CertManagementWarningDialog(),
-        ) ??
-        false;
+    final confirmed = await showConfirmDialog(
+      context,
+      titleKey: "debug.cert_management.warning_dialog.title",
+      messageKey: "debug.cert_management.warning_dialog.content",
+    );
 
     if (confirmed && mounted) {
       Navigator.of(context).push(

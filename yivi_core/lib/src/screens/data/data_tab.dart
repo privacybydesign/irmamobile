@@ -153,10 +153,7 @@ class _DataTabState extends ConsumerState<DataTab> {
     final cards =
         ref.watch(schemalessCredentialOrderControllerProvider).value ??
         const <schemaless.Credential>[];
-    final selected = ref.watch(selectedCardProvider);
-    final hash = cards.any((c) => c.hash == selected)
-        ? selected
-        : cards.firstOrNull?.hash;
+    final hash = _paneCardHash(ref.watch(selectedCardProvider), cards);
     final selection = ref.read(selectedCardProvider.notifier);
     return TwoPane(
       list: list,
@@ -789,13 +786,14 @@ class _Nudge extends StatelessWidget {
   }
 }
 
-/// The card the detail pane shows: the picked one, or the first.
-String? _openInPane(WidgetRef ref, List<schemaless.Credential> cards) {
-  final selected = ref.watch(selectedCardProvider);
-  return cards.any((c) => c.hash == selected)
-      ? selected
-      : cards.firstOrNull?.hash;
-}
+/// The card the detail pane shows: the [selected] one while it is among
+/// [cards], otherwise the first.
+String? _paneCardHash(String? selected, List<schemaless.Credential> cards) =>
+    cards.any((c) => c.hash == selected) ? selected : cards.firstOrNull?.hash;
+
+/// The card the detail pane shows, followed as the pick changes.
+String? _openInPane(WidgetRef ref, List<schemaless.Credential> cards) =>
+    _paneCardHash(ref.watch(selectedCardProvider), cards);
 
 class _ListView extends ConsumerWidget {
   final List<schemaless.Credential> cards;
@@ -856,10 +854,7 @@ bool _isOpenInPane(BuildContext context, schemaless.Credential credential) {
   final cards =
       container.read(schemalessCredentialOrderControllerProvider).value ??
       const <schemaless.Credential>[];
-  final open = cards.any((c) => c.hash == selected)
-      ? selected
-      : cards.firstOrNull?.hash;
-  return open == credential.hash;
+  return _paneCardHash(selected, cards) == credential.hash;
 }
 
 class _ListRow extends StatelessWidget {
@@ -1231,7 +1226,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await DeleteCredentialConfirmationDialog.ask(context);
+    final confirmed = await confirmDeleteCredential(context);
     if (confirmed && context.mounted) {
       ref
           .read(irmaRepositoryProvider)

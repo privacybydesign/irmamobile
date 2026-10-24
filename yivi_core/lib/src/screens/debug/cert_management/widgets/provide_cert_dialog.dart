@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
 import "../../../../theme/theme.dart";
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
-import "../../../../widgets/irma_dialog.dart";
 
 class ProvideCertDialog extends StatefulWidget {
   const ProvideCertDialog({super.key});
@@ -32,12 +32,11 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       "debug.cert_management.install_cert_dialog.content",
     );
 
-    return IrmaDialog(
+    return GlassDialog(
       title: translatedTitle,
-      content: translatedContent,
-      child: Wrap(
-        runSpacing: theme.defaultSpacing,
-        alignment: WrapAlignment.center,
+      message: translatedContent,
+      body: Column(
+        spacing: theme.defaultSpacing,
         children: [
           DropdownMenu(
             dropdownMenuEntries: [
@@ -61,15 +60,17 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
               ),
             ),
           ),
-          FancyPillButton(
-            label: FlutterI18n.translate(context, "ui.add"),
-            size: PillSize.regular,
-            onPressed: () => navigator.pop(
-              NewCertificate(type: certType, pemContent: controller.text),
-            ),
-          ),
         ],
       ),
+      actions: [
+        FancyPillButton(
+          label: FlutterI18n.translate(context, "ui.add"),
+          size: PillSize.regular,
+          onPressed: () => navigator.pop(
+            NewCertificate(type: certType, pemContent: controller.text),
+          ),
+        ),
+      ],
     );
   }
 }

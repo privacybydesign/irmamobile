@@ -3,7 +3,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -20,21 +19,16 @@ class BlockedScreen extends StatelessWidget {
     // can no longer be used)
     return PopScope(
       canPop: false,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        backgroundColor: YiviPalette.of(context).background,
+      child: IrmaInfoScreen(
         appBar: IrmaAppBar(
           titleTranslationKey: "error.blocked_title",
           leading: null,
         ),
-        body: IrmaInfoScaffoldBody(
-          icon: Icons.block_rounded,
-          tone: DialogTone.danger,
-          titleTranslationKey: "error.blocked_title",
-          bodyTranslationKey: "error.types.blocked",
-        ),
-        bottomNavigationBar: IrmaBottomBar(
+        icon: Icons.block_rounded,
+        tone: DialogTone.danger,
+        titleTranslationKey: "error.blocked_title",
+        bodyTranslationKey: "error.types.blocked",
+        bottomBar: IrmaBottomBar(
           primaryDanger: true,
           primaryButtonLabel: FlutterI18n.translate(
             context,

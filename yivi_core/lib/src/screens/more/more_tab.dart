@@ -58,7 +58,6 @@ class _MoreTabState extends ConsumerState<MoreTab> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
     // On a tablet and held sideways Instellingen and Veelgestelde vragen
     // open in a pane beside the list (Instellingen until another is picked).
     final withPane = useHomePanes(context);
@@ -137,20 +136,12 @@ class _MoreTabState extends ConsumerState<MoreTab> {
       ),
     ];
 
-    // The large title's bottom: 24 + 8 above it, about 34 for itself.
     final list = TitleScrollEdge(
       title: FlutterI18n.translate(context, "home.nav_bar.more"),
-      largeTitleBottom: 24 + 8 + 34,
+      largeTitleBottom: tabTitleBottom,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          16,
-          // Held sideways the title starts level with the search field of
-          // the other tabs (12 from the top).
-          padding.top + (usePhoneLandscape(context) ? 4 : 24),
-          16,
-          padding.bottom + bottomBarSpace(context),
-        ),
+        padding: tabPagePadding(context),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: mediumContentMaxWidth),

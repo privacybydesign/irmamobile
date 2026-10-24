@@ -13,13 +13,13 @@ import "../../theme/yivi_palette.dart";
 import "../../util/email_linking.dart";
 import "../../util/language.dart";
 import "../../util/navigation.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/two_pane.dart";
 import "../more/widgets/tiles.dart";
 import "../more/widgets/tiles_radio.dart";
 import "../pin/providers/biometric_provider.dart";
-import "widgets/delete_data_confirmation_dialog.dart";
 
 class SettingsScreen extends StatefulWidget {
   /// Shown in the More tab's detail pane: no app bar, a title on the page.
@@ -228,12 +228,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 Future<void> showConfirmDeleteDialog(BuildContext context) async {
-  final confirmed =
-      await showDialog<bool>(
-        context: context,
-        builder: (context) => DeleteDataConfirmationDialog(),
-      ) ??
-      false;
+  final confirmed = await showConfirmDialog(
+    context,
+    icon: const ToneDisc(
+      icon: Icons.delete_outline_rounded,
+      tone: DialogTone.danger,
+    ),
+    destructive: true,
+    titleKey: "settings.confirm_delete_dialog.title",
+    messageKey: "settings.confirm_delete_dialog.explanation",
+    confirmKey: "settings.confirm_delete_dialog.confirm",
+    cancelKey: "settings.confirm_delete_dialog.deny",
+  );
 
   if (confirmed && context.mounted) {
     IrmaRepositoryProvider.of(context).bridgedDispatch(ClearAllDataEvent());

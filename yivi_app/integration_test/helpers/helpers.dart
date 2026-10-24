@@ -38,7 +38,6 @@ import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -48,6 +47,7 @@ import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/lock_gate.dart";
+import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/yivi_core.dart";
 
@@ -1481,7 +1481,7 @@ Future<void> deleteCredentialFromDetail(WidgetTester tester) async {
   );
   await tester.tapAndSettle(deleteButton);
 
-  final dialog = find.byType(DeleteCredentialConfirmationDialog);
+  final dialog = find.byType(GlassDialog);
   expect(dialog, findsOneWidget);
   await tester.tapAndSettle(
     find.descendant(of: dialog, matching: find.text("Delete")),

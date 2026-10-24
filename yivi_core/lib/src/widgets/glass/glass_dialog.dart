@@ -7,6 +7,7 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "glass_surface.dart";
+import "pill_buttons.dart";
 
 /// The colour of a dialog's icon disc, after what the dialog is about.
 enum DialogTone { neutral, info, success, warning, danger }
@@ -50,9 +51,9 @@ class ToneDisc extends StatelessWidget {
   }
 }
 
-/// A dialog in the glass style: a frosted card with 32 pt corners, an
-/// optional icon disc, a centred title and message, and the actions stacked
-/// below as pills (the primary one first).
+/// The app's dialog: a frosted card with 32 pt corners, an optional icon
+/// disc, a centred title and message, and the actions stacked below as pills
+/// (the primary one first). For a yes/no question, see [showConfirmDialog].
 class GlassDialog extends StatelessWidget {
   final String title;
 
@@ -68,9 +69,11 @@ class GlassDialog extends StatelessWidget {
   /// Buttons, top to bottom. Leave empty when [body] holds its own buttons.
   final List<Widget> actions;
 
-  final Key? titleKey;
-  final Key? messageKey;
-  final Key? cardKey;
+  /// Keys of the title, the message and the card, for tests; by default
+  /// `dialog_title`, `dialog_message` and `dialog`.
+  final Key titleKey;
+  final Key messageKey;
+  final Key cardKey;
 
   const GlassDialog({
     super.key,
@@ -79,9 +82,9 @@ class GlassDialog extends StatelessWidget {
     this.body,
     this.icon,
     this.actions = const [],
-    this.titleKey,
-    this.messageKey,
-    this.cardKey,
+    this.titleKey = const Key("dialog_title"),
+    this.messageKey = const Key("dialog_message"),
+    this.cardKey = const Key("dialog"),
   });
 
   @override
@@ -193,3 +196,58 @@ class GlassDialog extends StatelessWidget {
     );
   }
 }
+
+/// Asks a yes/no question in a [GlassDialog]: the [titleKey] and the
+/// [messageKey] (translation keys, with [messageParams]), the confirm button
+/// (red when confirming deletes or resets something, [destructive]) above a
+/// cancel text button. True when confirmed.
+Future<bool> showConfirmDialog(
+  BuildContext context, {
+  required String titleKey,
+  required String messageKey,
+  Map<String, String>? messageParams,
+  String confirmKey = "ui.confirm",
+  String cancelKey = "ui.cancel",
+  bool destructive = false,
+  Widget? icon,
+}) async =>
+    await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        String t(String key) => FlutterI18n.translate(context, key);
+        void close(bool confirmed) => Navigator.of(context).pop(confirmed);
+        return GlassDialog(
+          icon: icon,
+          title: t(titleKey),
+          message: FlutterI18n.translate(
+            context,
+            messageKey,
+            translationParams: messageParams,
+          ),
+          actions: [
+            if (destructive)
+              PillButton(
+                key: const Key("dialog_confirm_button"),
+                label: t(confirmKey),
+                onPressed: () => close(true),
+                style: PillStyle.dangerFilled,
+              )
+            else
+              FancyPillButton(
+                key: const Key("dialog_confirm_button"),
+                label: t(confirmKey),
+                onPressed: () => close(true),
+                size: PillSize.regular,
+              ),
+            PillButton(
+              key: const Key("dialog_cancel_button"),
+              label: t(cancelKey),
+              onPressed: () => close(false),
+              style: PillStyle.text,
+              size: PillSize.regular,
+            ),
+          ],
+        );
+      },
+    ) ??
+    false;

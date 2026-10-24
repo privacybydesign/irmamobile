@@ -3,7 +3,6 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_riverpod/misc.dart" show ProviderListenable;
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
@@ -23,10 +22,10 @@ import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
@@ -123,25 +122,25 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   bool get _listensAtOnce => defaultTargetPlatform == .android;
 
   void cancel() async {
-    final userWantsCancel = await _showCancelDialog(
+    final userWantsCancel = await showConfirmDialog(
       context,
-      titleTranslationKey: widget.translationKeys.cancelDialogTitle,
-      contentTranslationKey: widget.translationKeys.cancelDialogExplanation,
-      cancelTranslationKey: widget.translationKeys.cancelDialogDecline,
-      confirmTranslationKey: widget.translationKeys.cancelDialogConfirm,
+      titleKey: widget.translationKeys.cancelDialogTitle,
+      messageKey: widget.translationKeys.cancelDialogExplanation,
+      confirmKey: widget.translationKeys.cancelDialogConfirm,
+      cancelKey: widget.translationKeys.cancelDialogDecline,
     );
 
     if (userWantsCancel && mounted) {
-      _getDocumentReader().cancel();
+      ref.read(_reader.notifier).cancel();
       widget.onCancel?.call();
     }
   }
 
   @override
   void didPopNext() {
-    if (_readDocumentReaderState() is! DocumentReaderFailed) {
+    if (ref.read(_reader) is! DocumentReaderFailed) {
       if (mounted) {
-        _getDocumentReader().reset();
+        ref.read(_reader.notifier).reset();
       }
     }
   }
@@ -156,7 +155,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// Starts the read without a tap on Android.
   void _autoStartScanning() {
     if (!_listensAtOnce || !mounted) return;
-    if (_readDocumentReaderState() is! DocumentReaderPending) return;
+    if (ref.read(_reader) is! DocumentReaderPending) return;
 
     _startScanning();
   }
@@ -169,14 +168,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// Back from the system settings: carry on once NFC is on. The reader keeps
   /// reporting NFC as unavailable until it is reset.
   Future<void> _recheckNfc() async {
-    if (_readDocumentReaderState() is! DocumentReaderNfcUnavailable) return;
+    if (ref.read(_reader) is! DocumentReaderNfcUnavailable) return;
 
     final status = await ref
         .read(nfcStatusReaderProvider)()
         .catchError((_) => NfcStatus.notSupported);
     if (!mounted || status != NfcStatus.enabled) return;
 
-    _getDocumentReader().reset();
+    ref.read(_reader.notifier).reset();
   }
 
   @override
@@ -238,10 +237,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // would put the privacy-screen blur over the scanning animation and its
       // progress text. Hold it back until the sheet is gone.
       final result = await PrivacyScreen.suspendDuring(
-        () => _getDocumentReader().readDocument(
-          iosNfcMessages: _createStageNfcMessageMapper(),
-          activeAuthenticationParams: startValidation.nonceAndSessionId,
-        ),
+        () => ref
+            .read(_reader.notifier)
+            .readDocument(
+              iosNfcMessages: _createStageNfcMessageMapper(),
+              activeAuthenticationParams: startValidation.nonceAndSessionId,
+            ),
       );
 
       if (result != null) {
@@ -388,7 +389,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   void retry() {
-    _getDocumentReader().cancel();
+    ref.read(_reader.notifier).cancel();
     _startScanning();
   }
 
@@ -415,9 +416,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       return _buildPreparing(context);
     }
 
-    final passportState = _watchDocumentReaderState();
+    final passportState = ref.watch(_reader);
 
-    ref.listen(_readerStateProvider, (previous, next) {
+    ref.listen(_reader, (previous, next) {
       if (next is DocumentReaderPending && previous is! DocumentReaderPending) {
         _autoStartScanning();
       }
@@ -714,63 +715,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return _UiState(tipKey: tipKey, stateKey: stateKey);
   }
 
-  ProviderListenable<DocumentReaderState> get _readerStateProvider =>
+  /// The reader of [NfcReadingScreen.mrz]'s document.
+  NotifierProvider<DocumentReader, DocumentReaderState> get _reader =>
       switch (widget.mrz) {
-        ScannedPassportMrz() => passportReaderProvider(
-          widget.mrz as ScannedPassportMrz,
-        ),
-        ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
-          widget.mrz as ScannedDrivingLicenceMrz,
-        ),
-        ScannedIdCardMrz() => idCardReaderProvider(
-          widget.mrz as ScannedIdCardMrz,
-        ),
+        final ScannedPassportMrz mrz => passportReaderProvider(mrz),
+        final ScannedDrivingLicenceMrz mrz => drivingLicenceReaderProvider(mrz),
+        final ScannedIdCardMrz mrz => idCardReaderProvider(mrz),
       };
-
-  DocumentReaderState _readDocumentReaderState() {
-    return ref.read(switch (widget.mrz) {
-      ScannedPassportMrz() => passportReaderProvider(
-        widget.mrz as ScannedPassportMrz,
-      ),
-      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
-        widget.mrz as ScannedDrivingLicenceMrz,
-      ),
-      ScannedIdCardMrz() => idCardReaderProvider(
-        widget.mrz as ScannedIdCardMrz,
-      ),
-    });
-  }
-
-  DocumentReaderState _watchDocumentReaderState() {
-    return ref.watch(switch (widget.mrz) {
-      ScannedPassportMrz() => passportReaderProvider(
-        widget.mrz as ScannedPassportMrz,
-      ),
-      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
-        widget.mrz as ScannedDrivingLicenceMrz,
-      ),
-      ScannedIdCardMrz() => idCardReaderProvider(
-        widget.mrz as ScannedIdCardMrz,
-      ),
-    });
-  }
-
-  DocumentReader _getDocumentReader() {
-    final reader = ref.read(
-      switch (widget.mrz) {
-        ScannedPassportMrz() => passportReaderProvider(
-          widget.mrz as ScannedPassportMrz,
-        ),
-        ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
-          widget.mrz as ScannedDrivingLicenceMrz,
-        ),
-        ScannedIdCardMrz() => idCardReaderProvider(
-          widget.mrz as ScannedIdCardMrz,
-        ),
-      }.notifier,
-    );
-    return reader;
-  }
 
   String _getTipKeyForState(DocumentReaderState state) {
     // The states with a stage of their own (see [_stageFor]) never get here.
@@ -963,29 +914,6 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<bool> _showCancelDialog(
-  BuildContext context, {
-  required String titleTranslationKey,
-  required String contentTranslationKey,
-  required String cancelTranslationKey,
-  required String confirmTranslationKey,
-}) async {
-  return await showDialog(
-        context: context,
-        builder: (context) {
-          return IrmaConfirmationDialog(
-            titleTranslationKey: titleTranslationKey,
-            contentTranslationKey: contentTranslationKey,
-            cancelTranslationKey: cancelTranslationKey,
-            confirmTranslationKey: confirmTranslationKey,
-            onCancelPressed: () => Navigator.of(context).pop(false),
-            onConfirmPressed: () => Navigator.of(context).pop(true),
-          );
-        },
-      ) ??
-      false;
 }
 
 class _UiState {

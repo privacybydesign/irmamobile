@@ -130,15 +130,12 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
               submitConfirmationPin: (pin) =>
                   addEvent(EnrollmentPinConfirmed(pin)),
               onPinMismatch: () {
-                showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  builder: (context) => PinConfirmationFailedDialog(
-                    onPressed: () {
-                      addEvent(EnrollmentPinMismatch());
-                      context.pop();
-                    },
-                  ),
+                showPinConfirmationFailedDialog(
+                  context,
+                  onPressed: (context) {
+                    addEvent(EnrollmentPinMismatch());
+                    context.pop();
+                  },
                 );
               },
             );

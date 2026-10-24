@@ -1,8 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../pin/yivi_pin_screen.dart";
 import "../../yivi_confirm_pin_scaffold.dart";
-import "confirm_pin_reset_dialog.dart";
 
 class ConfirmPin extends StatelessWidget {
   static const String routeName = "change_pin/confirm_pin";
@@ -21,12 +21,16 @@ class ConfirmPin extends StatelessWidget {
 
   StringCallback _showConfirmDialog(BuildContext context) {
     return (String pin) async {
-      final bool? confirmed = await showDialog(
-        context: context,
-        builder: (BuildContext context) => const ConfirmPinResetDialog(),
+      final confirmed = await showConfirmDialog(
+        context,
+        icon: const ToneDisc(icon: Icons.password_rounded),
+        titleKey: "change_pin.dialog.title",
+        messageKey: "change_pin.dialog.body",
+        confirmKey: "change_pin.dialog.ok",
+        cancelKey: "change_pin.dialog.cancel",
       );
 
-      if (confirmed ?? false) {
+      if (confirmed) {
         confirmNewPin(pin);
       } else {
         cancel();

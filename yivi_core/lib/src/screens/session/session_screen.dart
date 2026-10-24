@@ -17,13 +17,13 @@ import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_feedback_screen.dart";
-import "widgets/disclosure_permission_close_dialog.dart";
 import "widgets/disclosure_share_screen.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
@@ -345,10 +345,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Future<void> _showDismissDialog() async {
-    await DisclosurePermissionCloseDialog.show(
+    final confirmed = await showConfirmDialog(
       context,
-      onConfirm: _dismissSession,
+      titleKey: "disclosure_permission.confirm_close_dialog.title",
+      messageKey: "disclosure_permission.confirm_close_dialog.explanation",
+      confirmKey: "disclosure_permission.confirm_close_dialog.confirm",
+      cancelKey: "disclosure_permission.confirm_close_dialog.decline",
     );
+    if (confirmed && mounted) _dismissSession();
   }
 
   String _getAppBarTitle(SessionState session) {

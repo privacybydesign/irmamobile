@@ -2,8 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
+import "glass/glass_dialog.dart";
 import "glass/pill_buttons.dart";
-import "irma_dialog.dart";
 
 /// Opens a new e-mail to Yivi support, or explains in a dialog that no mail
 /// app could be opened.
@@ -20,14 +20,16 @@ Future<void> openSupportMail(BuildContext context) async {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return IrmaDialog(
+          return GlassDialog(
             title: FlutterI18n.translate(context, "help.mail_error_title"),
-            content: FlutterI18n.translate(context, "help.mail_error"),
-            child: FancyPillButton(
-              label: FlutterI18n.translate(context, "help.mail_error_button"),
-              size: PillSize.regular,
-              onPressed: () => Navigator.pop(context),
-            ),
+            message: FlutterI18n.translate(context, "help.mail_error"),
+            actions: [
+              FancyPillButton(
+                label: FlutterI18n.translate(context, "help.mail_error_button"),
+                size: PillSize.regular,
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           );
         },
       );

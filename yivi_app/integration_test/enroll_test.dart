@@ -9,9 +9,9 @@ import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_switch.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
+import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/irma_dialog.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -111,7 +111,7 @@ void main() {
       await enterPin(tester, "54321");
 
       // Expect false pin dialog
-      final dialogFinder = find.byType(IrmaDialog);
+      final dialogFinder = find.byType(GlassDialog);
       expect(dialogFinder, findsOneWidget);
       expect(tester.getAllText(dialogFinder), [
         "PIN entered incorrectly",

@@ -6,7 +6,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_dialog.dart";
 import "../providers/biometric_provider.dart";
 
 /// One-time biometric opt-in, shown during enrollment (after the PIN is
@@ -60,35 +59,25 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return IrmaDialog(
+    return GlassDialog(
       icon: const ToneDisc(icon: Icons.fingerprint, tone: DialogTone.info),
       title: FlutterI18n.translate(context, "pin.biometric_prompt.title"),
-      content: FlutterI18n.translate(context, "pin.biometric_prompt.body"),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 4,
-        children: [
-          FancyPillButton(
-            key: const Key("biometric_enable"),
-            label: FlutterI18n.translate(
-              context,
-              "pin.biometric_prompt.enable",
-            ),
-            size: PillSize.regular,
-            onPressed: _busy ? null : _enable,
-          ),
-          PillButton(
-            key: const Key("biometric_not_now"),
-            label: FlutterI18n.translate(
-              context,
-              "pin.biometric_prompt.not_now",
-            ),
-            style: PillStyle.text,
-            size: PillSize.regular,
-            onPressed: _busy ? null : _notNow,
-          ),
-        ],
-      ),
+      message: FlutterI18n.translate(context, "pin.biometric_prompt.body"),
+      actions: [
+        FancyPillButton(
+          key: const Key("biometric_enable"),
+          label: FlutterI18n.translate(context, "pin.biometric_prompt.enable"),
+          size: PillSize.regular,
+          onPressed: _busy ? null : _enable,
+        ),
+        PillButton(
+          key: const Key("biometric_not_now"),
+          label: FlutterI18n.translate(context, "pin.biometric_prompt.not_now"),
+          style: PillStyle.text,
+          size: PillSize.regular,
+          onPressed: _busy ? null : _notNow,
+        ),
+      ],
     );
   }
 }

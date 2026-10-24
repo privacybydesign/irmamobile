@@ -12,7 +12,6 @@ import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/keyboard_animation_listener.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/translated_text.dart";
@@ -421,16 +420,11 @@ class ContactWaitingScreen extends StatelessWidget {
 /// Asks the question of [keys] (`$keys.title`, `.body`, `.confirm` and
 /// `.cancel`), e.g. whether to go back or to send the code again. True
 /// when confirmed.
-Future<bool> confirmContactStep(BuildContext context, String keys) async =>
-    await showDialog<bool>(
-      context: context,
-      builder: (context) => IrmaConfirmationDialog(
-        titleTranslationKey: "$keys.title",
-        contentTranslationKey: "$keys.body",
-        confirmTranslationKey: "$keys.confirm",
-        cancelTranslationKey: "$keys.cancel",
-        onCancelPressed: () => context.pop(false),
-        onConfirmPressed: () => context.pop(true),
-      ),
-    ) ??
-    false;
+Future<bool> confirmContactStep(BuildContext context, String keys) =>
+    showConfirmDialog(
+      context,
+      titleKey: "$keys.title",
+      messageKey: "$keys.body",
+      confirmKey: "$keys.confirm",
+      cancelKey: "$keys.cancel",
+    );

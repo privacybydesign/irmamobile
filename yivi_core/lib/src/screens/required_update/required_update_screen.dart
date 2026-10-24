@@ -4,7 +4,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:url_launcher/url_launcher.dart";
 
-import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -14,16 +13,12 @@ class RequiredUpdateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: YiviPalette.of(context).background,
-      body: IrmaInfoScaffoldBody(
-        icon: Icons.download_rounded,
-        tone: DialogTone.info,
-        titleTranslationKey: "update.title",
-        bodyTranslationKey: "update.explanation",
-      ),
-      bottomNavigationBar: IrmaBottomBar(
+    return IrmaInfoScreen(
+      icon: Icons.download_rounded,
+      tone: DialogTone.info,
+      titleTranslationKey: "update.title",
+      bodyTranslationKey: "update.explanation",
+      bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "update.update_app"),
         onPrimaryPressed: () {
           late String url;

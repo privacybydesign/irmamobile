@@ -1,7 +1,6 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -17,22 +16,16 @@ class TxCodeLockoutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: YiviPalette.of(context).background,
+    return IrmaInfoScreen(
       appBar: IrmaAppBar(
         titleTranslationKey: "error.details_title",
         leading: YiviBackButton(onTap: onTapClose),
       ),
-      body: IrmaInfoScaffoldBody(
-        icon: Icons.lock_outline_rounded,
-        tone: DialogTone.danger,
-        titleTranslationKey:
-            "issuance.pre-authorized_code.tx_code_lockout.title",
-        bodyTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.body",
-      ),
-      bottomNavigationBar: IrmaBottomBar(
+      icon: Icons.lock_outline_rounded,
+      tone: DialogTone.danger,
+      titleTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.title",
+      bodyTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.body",
+      bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "error.button_ok"),
         onPrimaryPressed: onTapClose,
       ),

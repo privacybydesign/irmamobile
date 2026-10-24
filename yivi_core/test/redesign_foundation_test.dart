@@ -5,9 +5,9 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_corners.dart";
 import "package:yivi_core/src/widgets/adaptive_page.dart";
 import "package:yivi_core/src/widgets/app_toast.dart";
+import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/irma_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/irma_info_scaffold_body.dart";
 import "package:yivi_core/src/widgets/status_body.dart";
 
@@ -70,26 +70,24 @@ void main() {
     });
   });
 
-  group("IrmaConfirmationDialog", () {
-    testWidgets("keeps its keys and returns the choice", (tester) async {
+  group("showConfirmDialog", () {
+    testWidgets("has the dialog's keys and returns the choice", (tester) async {
       final navigator = GlobalKey<NavigatorState>();
       await pumpTranslated(
         tester,
         _app(navigatorKey: navigator, home: const SizedBox()),
       );
 
-      final result = showDialog<bool>(
-        context: navigator.currentContext!,
-        builder: (_) => const IrmaConfirmationDialog(
-          titleTranslationKey: "ui.confirm",
-          contentTranslationKey: "ui.cancel",
-          destructive: true,
-        ),
+      final result = showConfirmDialog(
+        navigator.currentContext!,
+        titleKey: "ui.confirm",
+        messageKey: "ui.cancel",
+        destructive: true,
       );
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key("irma_dialog")), findsOneWidget);
-      expect(find.byKey(const Key("irma_dialog_title")), findsOneWidget);
+      expect(find.byKey(const Key("dialog")), findsOneWidget);
+      expect(find.byKey(const Key("dialog_title")), findsOneWidget);
       expect(find.byKey(const Key("dialog_cancel_button")), findsOneWidget);
 
       await tester.tap(find.byKey(const Key("dialog_confirm_button")));

@@ -29,7 +29,7 @@ void main() {
     final resetPinScreenFinder = find.byType(ResetPinScreen);
     final forgotPinLinkFinder = find.text("I forgot my PIN").hitTestable();
     final pinScreenFinder = find.byKey(const Key("pin_screen"));
-    final dialogFinder = find.byKey(const Key("irma_dialog"));
+    final dialogFinder = find.byKey(const Key("dialog"));
 
     testWidgets("wrong-pin", (tester) async {
       // Scenario 1 of login process

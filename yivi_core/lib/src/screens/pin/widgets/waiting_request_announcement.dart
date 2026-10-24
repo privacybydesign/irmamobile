@@ -5,7 +5,7 @@ import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/session_preview.dart";
 import "../../../providers/waiting_request_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../session/widgets/session_requestor_header.dart";
 
 /// The request waiting behind the lock screen, above the PIN, as one
@@ -234,22 +234,19 @@ Future<bool> confirmStopWaitingRequest(
           preview?.knowledge == SessionPreviewKnowledge.unregistered
       ? preview?.requestor?.name
       : null;
-  return await showDialog<bool>(
-        context: context,
-        builder: (_) => IrmaConfirmationDialog(
-          titleTranslationKey: email
-              ? "waiting_request.stop.title_email"
-              : "waiting_request.stop.title",
-          contentTranslationKey: email
-              ? "waiting_request.stop.body_email"
-              : name == null
-              ? "waiting_request.stop.body_unknown"
-              : "waiting_request.stop.body",
-          contentTranslationParams: {"name": ?name},
-          confirmTranslationKey: "waiting_request.stop.confirm",
-          cancelTranslationKey: "waiting_request.stop.keep",
-          destructive: true,
-        ),
-      ) ??
-      false;
+  return showConfirmDialog(
+    context,
+    titleKey: email
+        ? "waiting_request.stop.title_email"
+        : "waiting_request.stop.title",
+    messageKey: email
+        ? "waiting_request.stop.body_email"
+        : name == null
+        ? "waiting_request.stop.body_unknown"
+        : "waiting_request.stop.body",
+    messageParams: {"name": ?name},
+    confirmKey: "waiting_request.stop.confirm",
+    cancelKey: "waiting_request.stop.keep",
+    destructive: true,
+  );
 }

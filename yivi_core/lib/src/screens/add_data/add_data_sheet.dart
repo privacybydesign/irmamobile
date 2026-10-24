@@ -20,7 +20,6 @@ import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_action_row.dart";
-import "../../widgets/irma_dialog.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../session/widgets/issue_flow.dart";
 import "../session/widgets/issue_sheet_progress.dart";
@@ -233,18 +232,20 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   void _showNfcUnsupportedDialog() {
     showDialog<void>(
       context: context,
-      builder: (context) => IrmaDialog(
+      builder: (context) => GlassDialog(
         icon: const ToneDisc(icon: Icons.nfc_rounded, tone: DialogTone.warning),
         title: FlutterI18n.translate(context, "data.add.nfc_unsupported.title"),
-        content: FlutterI18n.translate(
+        message: FlutterI18n.translate(
           context,
           "data.add.nfc_unsupported.body",
         ),
-        child: FancyPillButton(
-          label: FlutterI18n.translate(context, "error.button_ok"),
-          size: PillSize.regular,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        actions: [
+          FancyPillButton(
+            label: FlutterI18n.translate(context, "error.button_ok"),
+            size: PillSize.regular,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
     );
   }

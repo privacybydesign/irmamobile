@@ -130,6 +130,23 @@ EdgeInsets _clear(BuildContext context, EdgeInsets base) {
 /// bar on phones, a plain margin where the tabs are a sidebar or a rail.
 double bottomBarSpace(BuildContext context) => useHomePanes(context) ? 24 : 112;
 
+/// Where the large title of a tab page (More, Notifications) ends, for its
+/// `TitleScrollEdge`: 24 + 8 above it, about 34 for itself.
+const double tabTitleBottom = 24 + 8 + 34;
+
+/// The padding of a tab page's scrolling content: 16 at the sides, below
+/// the status bar, and above the bottom bar. Held sideways the title starts
+/// level with the search field of the other tabs (12 from the top).
+EdgeInsets tabPagePadding(BuildContext context) {
+  final padding = MediaQuery.paddingOf(context);
+  return EdgeInsets.fromLTRB(
+    16,
+    padding.top + (usePhoneLandscape(context) ? 4 : 24),
+    16,
+    padding.bottom + bottomBarSpace(context),
+  );
+}
+
 /// The title at the top of a page shown in a detail pane (Instellingen,
 /// Veelgestelde vragen) instead of its app bar.
 class PaneTitle extends StatelessWidget {

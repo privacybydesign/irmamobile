@@ -1,13 +1,12 @@
 import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../sentry/sentry.dart";
-import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
+import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
-import "../../../../widgets/irma_app_bar.dart";
-import "../../../../widgets/irma_bottom_bar.dart";
-import "../../../../widgets/irma_dialog.dart";
 import "../../../../widgets/translated_text.dart";
 
 class NfcErrorDialog extends StatefulWidget {
@@ -25,29 +24,21 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return YiviDialog(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        child: Column(
-          mainAxisSize: .min,
-          mainAxisAlignment: .spaceBetween,
-          crossAxisAlignment: .start,
-          children: [
-            IrmaAppBar(
-              titleTranslationKey: "error.details_title",
-              leading: null,
-            ),
-            Row(
-              mainAxisSize: .max,
-              mainAxisAlignment: widget.sensitiveLogs == null
-                  ? .end
-                  : .spaceBetween,
-              children: [
-                if (widget.sensitiveLogs != null)
-                  Row(
+    String t(String key) => FlutterI18n.translate(context, key);
+    final palette = YiviPalette.of(context);
+    return GlassDialog(
+      title: t("error.details_title"),
+      body: Column(
+        crossAxisAlignment: .stretch,
+        children: [
+          Row(
+            mainAxisAlignment: widget.sensitiveLogs == null
+                ? .end
+                : .spaceBetween,
+            children: [
+              if (widget.sensitiveLogs != null)
+                Flexible(
+                  child: Row(
                     children: [
                       Checkbox(
                         value: _showSensitiveLogs,
@@ -57,62 +48,72 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                           });
                         },
                       ),
-                      TranslatedText("error.show_sensitive_data"),
+                      Flexible(
+                        child: TranslatedText("error.show_sensitive_data"),
+                      ),
                     ],
                   ),
-                PlainIconButton(
-                  icon: Icons.copy,
-                  semanticsLabel: MaterialLocalizations.of(
-                    context,
-                  ).copyButtonLabel,
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text: _showSensitiveLogs
-                            ? widget.sensitiveLogs!
-                            : widget.logs,
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Copied to clipboard!")),
-                    );
-                  },
                 ),
-              ],
+              PlainIconButton(
+                icon: Icons.copy,
+                semanticsLabel: MaterialLocalizations.of(
+                  context,
+                ).copyButtonLabel,
+                onPressed: () {
+                  Clipboard.setData(
+                    ClipboardData(
+                      text: _showSensitiveLogs
+                          ? widget.sensitiveLogs!
+                          : widget.logs,
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Copied to clipboard!")),
+                  );
+                },
+              ),
+            ],
+          ),
+          // The log scrolls on its own, so the buttons stay in view.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.4,
             ),
-            Flexible(
-              fit: .loose,
-              child: SingleChildScrollView(
-                padding: .all(theme.defaultSpacing),
-                child: Text(
-                  _showSensitiveLogs ? widget.sensitiveLogs! : widget.logs,
-                ),
+            child: SingleChildScrollView(
+              child: Text(
+                _showSensitiveLogs ? widget.sensitiveLogs! : widget.logs,
+                style: palette.body(13).copyWith(color: palette.secondaryText),
               ),
             ),
-            IrmaBottomBar(
-              primaryButtonLabel: "error.button_send_to_irma",
-              secondaryButtonLabel: "error.button_ok",
-              // Can't share logs when sensitive data is enabled,
-              // so the user understand they'll never send sensitive data to our Sentry logs
-              onPrimaryPressed: _showSensitiveLogs
-                  ? null
-                  : () async {
-                      reportError(
-                        Exception(widget.logs),
-                        StackTrace.current,
-                        userInitiated: true,
-                      );
-                      if (context.mounted) {
-                        context.pop();
-                      }
-                    },
-              onSecondaryPressed: () {
-                context.pop();
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+      actions: [
+        FancyPillButton(
+          label: t("error.button_send_to_irma"),
+          size: PillSize.regular,
+          // Can't share logs when sensitive data is enabled, so the user
+          // understands they'll never send sensitive data to our Sentry logs.
+          onPressed: _showSensitiveLogs
+              ? null
+              : () async {
+                  reportError(
+                    Exception(widget.logs),
+                    StackTrace.current,
+                    userInitiated: true,
+                  );
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                },
+        ),
+        PillButton(
+          label: t("error.button_ok"),
+          style: PillStyle.text,
+          size: PillSize.regular,
+          onPressed: () => context.pop(),
+        ),
+      ],
     );
   }
 }

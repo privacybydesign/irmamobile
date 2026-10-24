@@ -148,10 +148,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       value: BlocProvider.of<NotificationsBloc>(context),
       child: Scaffold(
         backgroundColor: palette.background,
-        // The large title's bottom: 24 + 8 above it, about 34 for itself.
         body: TitleScrollEdge(
           title: FlutterI18n.translate(context, "notifications.title"),
-          largeTitleBottom: 24 + 8 + 34,
+          largeTitleBottom: tabTitleBottom,
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
               if (state is NotificationsLoading) {
@@ -168,14 +167,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                   onRefresh: () => Future.sync(_onRefresh),
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      // Held sideways the title starts level with the search field
-                      // of the other tabs (12 from the top).
-                      padding.top + (usePhoneLandscape(context) ? 4 : 24),
-                      16,
-                      padding.bottom + bottomBarSpace(context),
-                    ),
+                    padding: tabPagePadding(context),
                     children: [
                       Center(
                         child: ConstrainedBox(

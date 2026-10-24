@@ -218,7 +218,7 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential credential,
   ) async {
-    final confirmed = await DeleteCredentialConfirmationDialog.ask(context);
+    final confirmed = await confirmDeleteCredential(context);
     if (confirmed && context.mounted) {
       _deleteCredential(context, credential);
       _showDeletedSnackbar();

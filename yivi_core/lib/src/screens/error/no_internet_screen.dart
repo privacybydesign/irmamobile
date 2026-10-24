@@ -1,7 +1,6 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -16,21 +15,16 @@ class NoInternetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: YiviPalette.of(context).background,
+    return IrmaInfoScreen(
       appBar: IrmaAppBar(
         titleTranslationKey: "error.details_title",
         leading: YiviBackButton(onTap: onTapClose),
       ),
-      body: IrmaInfoScaffoldBody(
-        icon: Icons.wifi_off_rounded,
-        tone: DialogTone.info,
-        titleTranslationKey: "error.no_internet_title",
-        bodyTranslationKey: "error.types.no_internet",
-      ),
-      bottomNavigationBar: IrmaBottomBar(
+      icon: Icons.wifi_off_rounded,
+      tone: DialogTone.info,
+      titleTranslationKey: "error.no_internet_title",
+      bodyTranslationKey: "error.types.no_internet",
+      bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "error.button_back"),
         onPrimaryPressed: onTapClose,
         secondaryButtonLabel: onTapRetry == null

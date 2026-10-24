@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
 import "status_body.dart";
 
@@ -29,6 +30,44 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
           : FlutterI18n.translate(context, bodyTranslationKey!),
       icon: icon,
       tone: tone,
+    );
+  }
+}
+
+/// A screen that only says something: an [IrmaInfoScaffoldBody] between an
+/// optional [appBar] and the [bottomBar] with what to do.
+class IrmaInfoScreen extends StatelessWidget {
+  final PreferredSizeWidget? appBar;
+  final IconData icon;
+  final DialogTone tone;
+  final String titleTranslationKey;
+  final String bodyTranslationKey;
+  final Widget bottomBar;
+
+  const IrmaInfoScreen({
+    super.key,
+    this.appBar,
+    required this.icon,
+    required this.tone,
+    required this.titleTranslationKey,
+    required this.bodyTranslationKey,
+    required this.bottomBar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      backgroundColor: YiviPalette.of(context).background,
+      appBar: appBar,
+      body: IrmaInfoScaffoldBody(
+        icon: icon,
+        tone: tone,
+        titleTranslationKey: titleTranslationKey,
+        bodyTranslationKey: bodyTranslationKey,
+      ),
+      bottomNavigationBar: bottomBar,
     );
   }
 }
