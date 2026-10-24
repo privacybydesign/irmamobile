@@ -1,6 +1,8 @@
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
+import "document_colors.dart";
+
 /// A document as drawn in the instruction picture, flat and front-on: the
 /// back of an ID card, the front of a driving licence, or a passport lying
 /// open on its photo page with its spine across. The machine readable zone is
@@ -32,7 +34,7 @@ class DocumentFace extends StatelessWidget {
         DocumentType.passport => _Passport(sweep: sweep),
         DocumentType.identityCard => _Card(
           sweep: sweep,
-          fill: const Color(0xFFE5EDF6),
+          fill: DocumentColors.identityCardFill,
           mrz: const [
             "I<NLDIR57K2P41<<<<<<<<<<<<<<",
             "9405143F3211044NLD<<<<<<<<<<",
@@ -43,7 +45,7 @@ class DocumentFace extends StatelessWidget {
         // the front, under the photo.
         DocumentType.drivingLicence => _Card(
           sweep: sweep,
-          fill: const Color(0xFFFCEBE4),
+          fill: DocumentColors.drivingLicenceFill,
           front: true,
           mrz: const ["D1NLD15123456789<<<<<<<<<<<<<4"],
         ),
@@ -228,8 +230,6 @@ class _Card extends StatelessWidget {
   /// it, instead of the back with the chip.
   final bool front;
 
-  static const _barColor = Color(0xFFC3CFDC);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -237,7 +237,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: fill,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFC9D4E0), width: 1.5),
+        border: Border.all(color: DocumentColors.cardBorder, width: 1.5),
       ),
       child: Stack(
         children: [
@@ -251,14 +251,14 @@ class _Card extends StatelessWidget {
               figure: const Color(0xFFE3B9C7),
               border: const Color(0xFFE3B9C7),
             ),
-            _bar(55, 12, 72, _barColor),
-            _bar(55, 23, 54, _barColor),
-            _bar(55, 34, 84, _barColor),
-            _bar(55, 45, 48, _barColor),
+            _bar(55, 12, 72, DocumentColors.cardLines),
+            _bar(55, 23, 54, DocumentColors.cardLines),
+            _bar(55, 34, 84, DocumentColors.cardLines),
+            _bar(55, 45, 48, DocumentColors.cardLines),
           ] else ...[
-            _bar(11, 11, 60, _barColor),
-            _bar(11, 22, 44, _barColor),
-            _bar(11, 33, 52, _barColor),
+            _bar(11, 11, 60, DocumentColors.cardLines),
+            _bar(11, 22, 44, DocumentColors.cardLines),
+            _bar(11, 33, 52, DocumentColors.cardLines),
             // The chip.
             const Positioned(
               right: 12,
@@ -267,7 +267,7 @@ class _Card extends StatelessWidget {
               height: 24,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Color(0xFFD6C27A),
+                  color: DocumentColors.cardChip,
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                 ),
               ),
@@ -294,7 +294,6 @@ class _Passport extends StatelessWidget {
 
   final Animation<double> sweep;
 
-  static const _cover = Color(0xFF7A1F2E);
   static const _pageLine = Color(0xFFE2D6C4);
 
   @override
@@ -310,7 +309,7 @@ class _Passport extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _cover,
+        color: DocumentColors.passportCover,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(

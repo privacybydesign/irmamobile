@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/loading_indicator.dart";
@@ -42,7 +43,7 @@ class SplashScreen extends StatelessWidget {
                       : TweenAnimationBuilder<double>(
                           tween: Tween(begin: 0, end: 1),
                           duration: const Duration(milliseconds: 900),
-                          curve: const Cubic(0.2, 0.8, 0.2, 1),
+                          curve: YiviMotion.ease,
                           child: logo,
                           builder: (context, t, child) => Opacity(
                             opacity: (t * 1.6).clamp(0.0, 1.0),

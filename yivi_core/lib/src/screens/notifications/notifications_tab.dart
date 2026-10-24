@@ -179,7 +179,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                     children: [
                       Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 640),
+                          constraints: const BoxConstraints(
+                            maxWidth: mediumContentMaxWidth,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [

@@ -313,7 +313,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     final SheetAction action;
     if (code) {
       final complete =
-          _codeController.text.length == (_email ? emailCodeLength : 6);
+          _codeController.text.length ==
+          (_email ? emailCodeLength : smsCodeLength);
       action = SheetAction(
         key: const Key("contact_sheet_verify"),
         label: _t("contact_sheet.check_code"),
@@ -350,7 +351,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             labelKey: "contact_sheet.code_label_${_email ? "email" : "phone"}",
             controller: _codeController,
             focusNode: _codeFocus,
-            length: _email ? emailCodeLength : 6,
+            length: _email ? emailCodeLength : smsCodeLength,
             invalid: errorText != null,
             smsRetriever: _email ? null : ref.watch(smsRetrieverProvider),
             onChanged: (text) {

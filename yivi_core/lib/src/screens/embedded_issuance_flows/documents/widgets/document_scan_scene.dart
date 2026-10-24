@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "document_colors.dart";
 import "document_face.dart";
 
 /// The instruction picture as a small isometric scene, as on the canvas
@@ -170,7 +171,7 @@ class _Phone extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF25282D) : const Color(0xFF1D1D1D),
+        color: dark ? const Color(0xFF25282D) : DocumentColors.phone,
         borderRadius: BorderRadius.circular(18),
         border: dark ? Border.all(color: const Color(0x29FFFFFF)) : null,
       ),

@@ -183,7 +183,7 @@ InputDecoration pillInputDecoration(
 }) {
   final palette = YiviPalette.of(context);
   OutlineInputBorder border(Color color) => OutlineInputBorder(
-    borderRadius: const BorderRadius.all(Radius.circular(18)),
+    borderRadius: PillTextField._radius,
     borderSide: BorderSide(color: color, width: 1.5),
   );
   return InputDecoration(

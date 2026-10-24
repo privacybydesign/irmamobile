@@ -75,8 +75,6 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 
   /// A pull this far, or a flick down this fast, closes the page.
-  static const _dismissDistance = 120.0;
-  static const _dismissVelocity = 700.0;
 
   late final _physics = PullToDismissPhysics(
     pull: _pull,
@@ -106,7 +104,8 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     // app to the background.
     if (ModalRoute.of(context)?.isCurrent != true) return;
     // A downward flick has a negative scroll velocity.
-    if (_pull.value > _dismissDistance || velocity < -_dismissVelocity) {
+    if (_pull.value > PullToDismissPhysics.dismissDistance ||
+        velocity < -PullToDismissPhysics.dismissVelocity) {
       // The heroes fly back from where the page was pulled to.
       _close();
     } else {
@@ -167,7 +166,10 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
 
   /// 0 at rest, 1 at twice the dismiss distance.
   double get _pullProgress =>
-      (_pull.value / (2 * _dismissDistance)).clamp(0.0, 1.0);
+      (_pull.value / (2 * PullToDismissPhysics.dismissDistance)).clamp(
+        0.0,
+        1.0,
+      );
 
   @override
   Widget build(BuildContext context) {

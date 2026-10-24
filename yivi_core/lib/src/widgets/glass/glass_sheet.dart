@@ -219,7 +219,9 @@ class _FormSheetDragState extends State<_FormSheetDrag>
     onVerticalDragUpdate: (d) =>
         _offset.value = math.max(0, _offset.value + (d.primaryDelta ?? 0)),
     onVerticalDragEnd: (d) {
-      final close = _offset.value > 120 || d.velocity.pixelsPerSecond.dy > 700;
+      final close =
+          _offset.value > PullToDismissPhysics.dismissDistance ||
+          d.velocity.pixelsPerSecond.dy > PullToDismissPhysics.dismissVelocity;
       _back();
       if (close) Navigator.of(context).maybePop();
     },
@@ -245,8 +247,6 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 
   /// A pull this far, or a flick down this fast, closes the sheet: the
   /// numbers of the credential's page.
-  static const _dismissDistance = 120.0;
-  static const _dismissVelocity = 700.0;
 
   // How far the list is pulled down at its top.
   final _pull = ValueNotifier<double>(0);
@@ -351,7 +351,11 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     _pulling = false;
     _pull.value = 0;
     // A downward flick has a negative scroll velocity.
-    _settle(close: pulled > _dismissDistance || velocity < -_dismissVelocity);
+    _settle(
+      close:
+          pulled > PullToDismissPhysics.dismissDistance ||
+          velocity < -PullToDismissPhysics.dismissVelocity,
+    );
   }
 
   bool _onScrollStart(ScrollStartNotification notification) {
@@ -460,7 +464,9 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 
   /// Ends a drag: closes on a fling down or past half way, else springs back.
   void _release(double velocity) => _settle(
-    close: velocity > 700 || (velocity >= 0 && controller!.value < 0.5),
+    close:
+        velocity > PullToDismissPhysics.dismissVelocity ||
+        (velocity >= 0 && controller!.value < 0.5),
   );
 
   @override

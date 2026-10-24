@@ -1,6 +1,7 @@
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_motion.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/pane_handoff.dart";
 
@@ -19,7 +20,7 @@ class WalletTransition {
 
   /// Closing takes a little longer, for the settle at the end.
   static const reverseDuration = Duration(milliseconds: 560);
-  static const curve = Cubic(0.2, 0.8, 0.2, 1);
+  static const curve = YiviMotion.ease;
 
   /// The curve of closing: a spring that runs a few percent past the end
   /// and settles back, so the card lands in the stack with a slight bounce

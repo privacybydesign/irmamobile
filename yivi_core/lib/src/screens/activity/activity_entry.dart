@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../theme/yivi_palette.dart";
 import "../../util/string.dart";
 
 /// What happened in a log entry.
@@ -23,7 +24,7 @@ enum ActivityKind {
     relationKey: "activity.received_from",
     noteKey: "activity.note.received",
     icon: Icons.arrow_downward_rounded,
-    badge: Color(0xFF00973A),
+    badge: YiviPalette.successMark,
   ),
   signed(
     labelKey: "activity.kind.signed",

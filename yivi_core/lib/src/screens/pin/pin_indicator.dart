@@ -15,6 +15,7 @@ class _DotPopCurve extends Curve {
 }
 
 const _dotPop = _DotPopCurve();
+const _dotPopDuration = Duration(milliseconds: 420);
 
 /// A single PIN dot. Pops in with [_dotPop]'s overshoot when [filled] turns
 /// true and shrinks cleanly back out when it turns false (digit removed).
@@ -36,7 +37,7 @@ class _PinDot extends StatefulWidget {
 class _PinDotState extends State<_PinDot> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 420), // pop in
+    duration: _dotPopDuration, // pop in
     reverseDuration: const Duration(milliseconds: 200), // shrink out
   );
 

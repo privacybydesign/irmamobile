@@ -37,6 +37,10 @@ class CardActivityItem {
 ///
 /// The history log cannot be filtered per credential yet, so this returns
 /// nothing for now; the detail view already shows the section and its rows.
+/// The widest the card and its details are: any wider, on a tablet or a
+/// phone held sideways, and they would stretch.
+const _maxWidth = 460.0;
+
 final cardActivityProvider = Provider.family<List<CardActivityItem>, String>(
   (ref, hash) => const [],
 );
@@ -80,7 +84,7 @@ class _CredentialDetailScreenState
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(
           builder: (context, constraints) {
-            final width = (constraints.maxWidth - 32).clamp(0.0, 460.0);
+            final width = (constraints.maxWidth - 32).clamp(0.0, _maxWidth);
             return ListView(
               // Pulling down at the top dismisses the page.
               physics: physics,
@@ -112,7 +116,7 @@ class _CredentialDetailScreenState
                   animation: animation,
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 460),
+                      constraints: const BoxConstraints(maxWidth: _maxWidth),
                       child: _Details(
                         credential: credential,
                         siblings: cards
@@ -194,7 +198,7 @@ class CredentialDetailPane extends ConsumerWidget {
         // card any wider would be squeezed to fit, out of proportion.
         final width = (constraints.maxWidth - padding.horizontal).clamp(
           0.0,
-          460.0,
+          _maxWidth,
         );
         return ListView(
           key: Key("credential_detail_pane_$hash"),
@@ -212,7 +216,7 @@ class CredentialDetailPane extends ConsumerWidget {
               ),
             Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 460),
+                constraints: const BoxConstraints(maxWidth: _maxWidth),
                 child: details,
               ),
             ),

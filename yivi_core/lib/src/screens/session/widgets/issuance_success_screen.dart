@@ -211,7 +211,7 @@ class _CheckBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: const Color(0xFF00973A),
+        color: YiviPalette.successMark,
         shape: BoxShape.circle,
         border: Border.all(
           color: Theme.of(context).scaffoldBackgroundColor,

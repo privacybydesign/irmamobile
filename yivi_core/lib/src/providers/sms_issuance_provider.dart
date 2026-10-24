@@ -9,6 +9,9 @@ import "../models/session.dart";
 import "../util/altcha_solver.dart";
 import "./provider_helpers.dart" as helpers;
 
+/// The number of digits in the code the SMS issuer sends.
+const smsCodeLength = 6;
+
 final smsIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://sms-issuer.staging.yivi.app"),
 );

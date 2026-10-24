@@ -46,6 +46,9 @@ class CredentialCardArt extends StatelessWidget {
   static const double designHeight = 226;
   static const double aspectRatio = designWidth / designHeight;
 
+  /// The corner radius at the design width.
+  static const double cornerRadius = 13;
+
   final schemaless.Credential credential;
 
   /// Text shown under the name on the Yivi card, usually the instance hint.
@@ -68,14 +71,14 @@ class CredentialCardArt extends StatelessWidget {
     this.edge = 0,
   });
 
-  /// The corner shape of a card of [width]: plain round corners of 13 points
-  /// at the design width, like a real ID-1 card (a 3.18 mm corner on 85.6 mm).
+  /// The corner shape of a card of [width]: plain round corners of
+  /// [cornerRadius] at the design width, like a real ID-1 card (a 3.18 mm corner on 85.6 mm).
   static ShapeBorder shapeFor(double width) =>
       RoundedRectangleBorder(borderRadius: radiusFor(width));
 
   /// The corner radius of a card of [width], for shapes that follow it.
   static BorderRadius radiusFor(double width) =>
-      BorderRadius.circular(13 * width / designWidth);
+      BorderRadius.circular(cornerRadius * width / designWidth);
 
   @override
   Widget build(BuildContext context) {
@@ -427,9 +430,7 @@ class _Logo extends StatelessWidget {
       alignment: Alignment.center,
       decoration: ShapeDecoration(
         color: foreground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Text(
         source.isEmpty ? "?" : source.characters.first.toUpperCase(),
@@ -458,7 +459,7 @@ class _EdgePainter extends CustomPainter {
 
   /// In design points: the corner radius, and how far down the sides the
   /// edge fades out after it.
-  static const _radius = 13.0;
+  static const _radius = CredentialCardArt.cornerRadius;
   static const _fade = 24.0;
 
   @override

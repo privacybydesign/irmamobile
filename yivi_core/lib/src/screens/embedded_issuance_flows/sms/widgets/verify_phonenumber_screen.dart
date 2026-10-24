@@ -115,7 +115,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
           controller: _textController,
           focusNode: _focusNode,
           smsRetriever: smsRetriever,
-          length: 6,
+          length: smsCodeLength,
           invalid: codeInvalid,
           onCompleted: _handleCode,
         ),

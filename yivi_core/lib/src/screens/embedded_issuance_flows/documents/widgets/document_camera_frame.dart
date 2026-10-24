@@ -7,6 +7,12 @@ import "../../../../theme/yivi_palette.dart";
 import "../document_step_in_sheet.dart";
 import "dark_glass.dart";
 
+/// Behind and around the document camera: the darkest stop of its frame.
+const cameraDark = Color(0xFF121417);
+
+/// The corner brackets once the document is read.
+const _found = Color(0xFF3DDC84);
+
 /// The camera of the document flow, as on the design's camera board: the
 /// camera fills the screen, dimmed around a 342 by 252 window with rounded
 /// corner brackets that turn green once the document is read, and a dark
@@ -76,11 +82,7 @@ class DocumentCameraFrame extends StatelessWidget {
                 gradient: RadialGradient(
                   center: Alignment(0, -0.2),
                   radius: 1.1,
-                  colors: [
-                    Color(0xFF3A3F45),
-                    Color(0xFF1D2024),
-                    Color(0xFF121417),
-                  ],
+                  colors: [Color(0xFF3A3F45), Color(0xFF1D2024), cameraDark],
                   stops: [0, 0.6, 1],
                 ),
               ),
@@ -91,9 +93,7 @@ class DocumentCameraFrame extends StatelessWidget {
               rect: window,
               child: IgnorePointer(
                 child: TweenAnimationBuilder<Color?>(
-                  tween: ColorTween(
-                    end: found ? const Color(0xFF3DDC84) : Colors.white,
-                  ),
+                  tween: ColorTween(end: found ? _found : Colors.white),
                   duration: const Duration(milliseconds: 300),
                   builder: (context, color, _) => CustomPaint(
                     painter: _BracketsPainter(color ?? Colors.white),
@@ -147,7 +147,7 @@ class _Hint extends StatelessWidget {
                   ? Icons.wb_sunny_outlined
                   : Icons.center_focus_weak_rounded,
               size: 20,
-              color: found ? const Color(0xFF3DDC84) : Colors.white,
+              color: found ? _found : Colors.white,
             ),
             Expanded(
               child: Text(

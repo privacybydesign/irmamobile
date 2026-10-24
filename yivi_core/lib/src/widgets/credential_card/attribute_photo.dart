@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../irma_close_button.dart";
+import "../pull_to_dismiss_physics.dart";
 
 /// A photo in a credential's values: a small picture with slightly rounded
 /// corners that opens full screen, as in WhatsApp. The photo flies there (and
@@ -245,9 +246,6 @@ class _PhotoViewerState extends State<_PhotoViewer>
 
   Offset? _doubleTapAt;
 
-  static const _dismissDistance = 120.0;
-  static const _dismissVelocity = 700.0;
-
   bool get _zoomedIn => _zoom.value.getMaxScaleOnAxis() > 1.01;
 
   @override
@@ -276,7 +274,8 @@ class _PhotoViewerState extends State<_PhotoViewer>
     if (!_dragging) return;
     _dragging = false;
     final velocity = d.velocity.pixelsPerSecond.dy;
-    if (_drag.abs() > _dismissDistance || velocity.abs() > _dismissVelocity) {
+    if (_drag.abs() > PullToDismissPhysics.dismissDistance ||
+        velocity.abs() > PullToDismissPhysics.dismissVelocity) {
       // Flies back to the card from where it was let go.
       _close();
       return;

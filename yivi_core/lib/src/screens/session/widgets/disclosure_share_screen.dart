@@ -1213,8 +1213,7 @@ class _ShareBar extends StatelessWidget {
 /// who asks, what the page is, and at its bottom the reason and the button.
 /// It scrolls only when it doesn't fit (a large text size).
 class _LandscapePanel extends StatelessWidget {
-  /// Wide, from the left safe edge, its 16 of padding included.
-  static const double width = 324;
+  static const double width = sidewaysPanelWidth;
 
   final double top;
   final String? label;

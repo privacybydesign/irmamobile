@@ -101,7 +101,9 @@ class _DataTabState extends ConsumerState<DataTab> {
             direction: PushAwayDirection.up,
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 640),
+                constraints: const BoxConstraints(
+                  maxWidth: mediumContentMaxWidth,
+                ),
                 child: Row(
                   spacing: 8,
                   children: [
@@ -378,7 +380,10 @@ class _CardList extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final contentWidth = min(constraints.maxWidth - 32, 640.0);
+        final contentWidth = min(
+          constraints.maxWidth - 32,
+          mediumContentMaxWidth,
+        );
         final side = (constraints.maxWidth - contentWidth) / 2;
         // The stack sits a little further in than the rest (1.5 times the
         // side), so its cards are a little smaller. Next to a detail pane
@@ -387,7 +392,7 @@ class _CardList extends ConsumerWidget {
         final panes = useHomePanes(context);
         final stackWidth = panes
             ? contentWidth - _StackView.nudge
-            : min(constraints.maxWidth - 48, 640.0);
+            : min(constraints.maxWidth - 48, mediumContentMaxWidth);
         final stackSide = (constraints.maxWidth - stackWidth) / 2;
         final stackPadding = panes
             ? EdgeInsets.only(left: side, right: side + _StackView.nudge)

@@ -5,6 +5,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../theme/yivi_motion.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 
@@ -94,7 +95,7 @@ class _Entrance extends StatelessWidget {
       duration: total,
       builder: (context, t, _) {
         final local = ((t - start) / (1 - start)).clamp(0.0, 1.0);
-        return builder(context, const Cubic(0.2, 0.8, 0.2, 1).transform(local));
+        return builder(context, YiviMotion.ease.transform(local));
       },
     );
   }

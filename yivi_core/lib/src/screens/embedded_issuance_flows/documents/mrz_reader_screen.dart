@@ -22,6 +22,7 @@ import "../../../widgets/translated_text.dart";
 import "document_instruction_screen.dart" show DocumentTipBox;
 import "document_step_in_sheet.dart";
 import "widgets/dark_glass.dart";
+import "widgets/document_camera_frame.dart";
 import "widgets/mrz_scanner.dart";
 
 typedef MrzController = GlobalKey<MrzScannerState>;
@@ -217,7 +218,7 @@ class _CameraScaffold extends StatelessWidget {
       // Light status bar icons over the dark camera.
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: const Color(0xFF121417),
+        backgroundColor: cameraDark,
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -333,7 +334,7 @@ class _SheetCamera extends StatelessWidget {
   Widget build(BuildContext context) {
     final card = ClipRRect(
       borderRadius: YiviCorners.cardRadius,
-      child: ColoredBox(color: const Color(0xFF121417), child: body),
+      child: ColoredBox(color: cameraDark, child: body),
     );
     // With the way on in the sheet's bar, the camera moves on by itself:
     // a greyed-out "Next" there, and "Enter manually" a link.

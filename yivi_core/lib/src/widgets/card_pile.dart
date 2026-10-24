@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:material_ui/material_ui.dart";
 
 import "../models/schemaless/schemaless_events.dart";
@@ -65,7 +67,7 @@ class CardPile extends StatelessWidget {
                     left: centre + placementOf(i).dx,
                     top: margin + i * step,
                     child: Transform.rotate(
-                      angle: placementOf(i).degrees * 3.141592653589793 / 180,
+                      angle: placementOf(i).degrees * math.pi / 180,
                       child: CredentialCardArt(
                         key: i < cardKeys.length ? cardKeys[i] : null,
                         credential: card,

@@ -553,9 +553,7 @@ class _Note extends StatelessWidget {
 /// room above [actions]; the [title] question, the [note] and [receives] at
 /// the right, scrolling.
 class IssuanceLandscape extends StatelessWidget {
-  /// Wide, from the left safe edge, its 16 of padding included (as the share
-  /// screen's panel).
-  static const double panelWidth = 324;
+  static const double panelWidth = sidewaysPanelWidth;
 
   final String title;
   final List<Widget> overview;

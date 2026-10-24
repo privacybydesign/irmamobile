@@ -26,6 +26,11 @@ class YiviShadows {
   /// (`GlassGroup`), `IrmaCard` and the welcome card.
   static BoxShadow cardIn({required bool dark}) => dark ? _cardDark : _card;
 
+  /// Under the glass lens on the selected tab (tab bar and rail).
+  static const lens = [
+    BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 2)),
+  ];
+
   /// A white card with the card corner and [card] under it.
   static ShapeDecoration surfaceCard(YiviPalette palette) => ShapeDecoration(
     color: palette.surface,

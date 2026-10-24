@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/session.dart";
 import "../../../providers/qr_scanner_factory_provider.dart";
+import "../../../theme/yivi_motion.dart";
 import "qr_overlay.dart";
 import "scan_status.dart";
 
@@ -263,7 +264,7 @@ class _ResultDisc extends StatelessWidget {
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0.4, end: 1),
         duration: const Duration(milliseconds: 300),
-        curve: const Cubic(0.3, 1.4, 0.5, 1),
+        curve: YiviMotion.overshoot,
         builder: (context, scale, child) => Opacity(
           opacity: ((scale - 0.4) / 0.6).clamp(0.0, 1.0),
           child: Transform.scale(scale: scale, child: child),

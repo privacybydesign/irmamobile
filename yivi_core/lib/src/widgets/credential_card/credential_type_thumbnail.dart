@@ -40,7 +40,8 @@ class CredentialTypeThumbnail extends StatelessWidget {
   });
 
   /// The height of a card [width] wide.
-  static double heightOf(double width) => width * 226 / 358;
+  static double heightOf(double width) =>
+      width * CredentialCardArt.designHeight / CredentialCardArt.designWidth;
 
   @override
   Widget build(BuildContext context) {

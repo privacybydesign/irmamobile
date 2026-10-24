@@ -353,7 +353,7 @@ const _ringCenter = Offset(120, 120);
 const _ringRadius = 104.0;
 const _ringStroke = 16.0;
 
-const _success = Color(0xFF00973A);
+const _success = YiviPalette.successMark;
 
 class _RingPainter extends CustomPainter {
   _RingPainter({

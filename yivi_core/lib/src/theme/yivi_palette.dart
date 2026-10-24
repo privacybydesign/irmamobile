@@ -87,6 +87,10 @@ class YiviPalette {
   /// Brand red, the same in both variants.
   final Color primary = const Color(0xFFBA3354);
 
+  /// The green of a done tick, a finished chip read and the "received"
+  /// badge: the same in both themes.
+  static const successMark = Color(0xFF00973A);
+
   const YiviPalette._({
     required this.brightness,
     required this.background,

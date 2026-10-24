@@ -6,7 +6,9 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../notifications/bloc/notifications_bloc.dart";
 import "irma_nav_bar.dart";
@@ -88,7 +90,7 @@ class _Tabs extends StatelessWidget {
                   duration: reduceMotion
                       ? Duration.zero
                       : const Duration(milliseconds: 360),
-                  curve: const Cubic(0.3, 1.4, 0.5, 1),
+                  curve: YiviMotion.overshoot,
                   left: tabWidth * selectedIndex - reach,
                   top: 0,
                   bottom: 0,
@@ -97,13 +99,7 @@ class _Tabs extends StatelessWidget {
                     decoration: ShapeDecoration(
                       shape: const StadiumBorder(),
                       color: palette.lens,
-                      shadows: const [
-                        BoxShadow(
-                          color: Color(0x14000000),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+                      shadows: YiviShadows.lens,
                     ),
                   ),
                 ),

@@ -22,6 +22,9 @@ class CardFlight {
   CardFlight._();
 
   static const flight = Duration(milliseconds: 760);
+
+  /// How long the cover in the page colour takes to fade out.
+  static const curtain = Duration(milliseconds: 460);
   static const curve = Cubic(0.3, 0.9, 0.25, 1);
 
   static OverlayEntry? _entry;
@@ -51,7 +54,7 @@ class CardFlight {
     required schemaless.Credential card,
     Duration? total,
     bool curtain = false,
-    Duration curtainDuration = const Duration(milliseconds: 460),
+    Duration curtainDuration = CardFlight.curtain,
     Widget Function(Widget card, Animation<double> clock)? wrap,
     void Function(Duration elapsed)? onTick,
     VoidCallback? onDone,
@@ -278,7 +281,7 @@ class _CheckBadge extends StatelessWidget {
     width: 56,
     height: 56,
     decoration: BoxDecoration(
-      color: const Color(0xFF00973A),
+      color: YiviPalette.successMark,
       shape: BoxShape.circle,
       border: Border.all(color: border, width: 4),
     ),

@@ -35,7 +35,6 @@ class IssuanceFlightState {
 class IssuanceFlight {
   IssuanceFlight._();
 
-  static const curtain = Duration(milliseconds: 460);
   static const insertAt = Duration(milliseconds: 420);
 
   static const stackEnd = Duration(milliseconds: 1120);
@@ -105,7 +104,6 @@ class IssuanceFlight {
           _targetRect(overlay, scroll: first),
       total: stack ? stackEnd : end,
       curtain: curtain,
-      curtainDuration: IssuanceFlight.curtain,
       // Slides under the card below its place in the stack (the first card,
       // until it joins the list), so it tucks in as it lands instead of
       // jumping under at the end.

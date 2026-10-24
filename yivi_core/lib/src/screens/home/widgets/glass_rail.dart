@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "glass_tab_bar.dart";
 import "irma_nav_bar.dart";
@@ -106,15 +107,7 @@ class _RailButton extends StatelessWidget {
             decoration: ShapeDecoration(
               shape: const CircleBorder(),
               color: selected ? palette.lens : palette.lens.withAlpha(0),
-              shadows: selected
-                  ? const [
-                      BoxShadow(
-                        color: Color(0x14000000),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ]
-                  : const [],
+              shadows: selected ? YiviShadows.lens : const [],
             ),
             child: iconWidget,
           ),

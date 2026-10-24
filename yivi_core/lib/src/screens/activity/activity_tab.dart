@@ -316,7 +316,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 direction: PushAwayDirection.up,
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 640),
+                    constraints: const BoxConstraints(
+                      maxWidth: mediumContentMaxWidth,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

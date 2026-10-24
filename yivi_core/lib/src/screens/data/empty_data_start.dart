@@ -5,15 +5,13 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../util/tablet.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
 import "../home/widgets/irma_qr_scan_button.dart";
-
-/// Widest the upright empty state is, as the rest of the tab.
-const double _maxContentWidth = 640;
 
 /// The empty Data tab, held upright: "No data yet" and the three ways to get
 /// the first data.
@@ -25,7 +23,10 @@ class EmptyDataStart extends StatelessWidget {
     final bottom = MediaQuery.paddingOf(context).bottom + 112;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final side = max(16.0, (constraints.maxWidth - _maxContentWidth) / 2);
+        final side = max(
+          16.0,
+          (constraints.maxWidth - mediumContentMaxWidth) / 2,
+        );
         return SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(side, 48, side, bottom),
           child: Column(

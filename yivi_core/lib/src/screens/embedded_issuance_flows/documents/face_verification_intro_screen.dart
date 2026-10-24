@@ -178,7 +178,7 @@ class _DocumentFlowTip extends StatelessWidget {
               width: _tickSize,
               height: _tickSize,
               decoration: const BoxDecoration(
-                color: Color(0xFF00973A),
+                color: YiviPalette.successMark,
                 shape: BoxShape.circle,
               ),
               child: const CustomPaint(

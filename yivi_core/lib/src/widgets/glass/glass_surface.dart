@@ -4,6 +4,7 @@ import "dart:ui";
 import "package:flutter/foundation.dart" show listEquals;
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 
 /// Where blur under it can be seen. The blur is the most expensive thing the
@@ -382,7 +383,7 @@ class _PressScaleState extends State<_PressScale> {
       child: AnimatedScale(
         scale: _down && !reduceMotion ? widget.scale : 1,
         duration: const Duration(milliseconds: 220),
-        curve: const Cubic(0.2, 0.8, 0.2, 1),
+        curve: YiviMotion.ease,
         child: widget.child,
       ),
     );

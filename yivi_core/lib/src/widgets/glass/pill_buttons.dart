@@ -9,8 +9,8 @@ import "glass_surface.dart";
 /// screen, [regular] in sheets, dialogs, button rows and content. A button
 /// next to another one always has the same size.
 enum PillSize {
-  large(56),
-  regular(52),
+  large(PillSize.largeHeight),
+  regular(PillSize.regularHeight),
 
   /// The way on in the bar of a sheet (see `SheetBarButton`): a capsule as
   /// wide as its label.

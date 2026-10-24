@@ -150,7 +150,7 @@ class EmptyCardSpot extends StatelessWidget {
           : SizedBox(
               key: landingKey,
               width: SharedCardTile.miniWidth,
-              height: SharedCardTile.miniWidth * 226 / 358,
+              height: CardTile.miniHeight,
               child: CustomPaint(
                 painter: DashedCardPainter(color: palette.secondaryText),
                 child: Icon(

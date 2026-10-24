@@ -102,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                             child: Center(
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(
-                                  maxWidth: 640,
+                                  maxWidth: mediumContentMaxWidth,
                                 ),
                                 child: GlassTabBar(
                                   selectedTab: tabState,
@@ -174,7 +174,10 @@ class HomeScreen extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final available = width - 32 - padding.left - padding.right;
     return Positioned(
-      right: 16 + padding.right + max(0.0, (available - 640) / 2),
+      right:
+          16 +
+          padding.right +
+          max(0.0, (available - mediumContentMaxWidth) / 2),
       bottom: FloatingBarPlacement.tabBarBottom(context) + 64 + 12,
       child: const _ScanTipWhenDue(rail: false),
     );

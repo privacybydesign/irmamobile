@@ -7,6 +7,12 @@ import "package:material_ui/material_ui.dart";
 /// physics apply, with their stretch or bounce. On release with a pull,
 /// [onRelease] gets the velocity and the content does not fling.
 class PullToDismissPhysics extends ScrollPhysics {
+  /// How far a page is pulled, or how fast (points per second) it is let go,
+  /// for it to be dismissed: the same for the card's page, a sheet and a
+  /// photo.
+  static const dismissDistance = 120.0;
+  static const dismissVelocity = 700.0;
+
   final ValueNotifier<double> pull;
   final bool Function() canPull;
   final ValueChanged<double> onRelease;

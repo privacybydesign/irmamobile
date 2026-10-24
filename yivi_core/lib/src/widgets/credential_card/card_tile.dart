@@ -15,7 +15,10 @@ import "card_art/credential_card_art.dart";
 class CardTile extends StatelessWidget {
   /// Width of the small card art, at the card's 358:226 ratio.
   static const double miniWidth = 58;
-  static const double miniHeight = miniWidth * 226 / 358;
+  static const double miniHeight =
+      miniWidth *
+      CredentialCardArt.designHeight /
+      CredentialCardArt.designWidth;
 
   final Widget art;
   final String title;

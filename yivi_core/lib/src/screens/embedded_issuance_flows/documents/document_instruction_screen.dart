@@ -13,6 +13,7 @@ import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
 import "widgets/document_instruction_illustration.dart";
+import "widgets/document_scan_scene.dart";
 
 /// Shown before the MRZ camera: how to hold the document. [onStart] opens the
 /// camera, [onCancel] leaves the flow.
@@ -24,8 +25,8 @@ class DocumentInstructionScreen extends StatelessWidget {
     super.key,
   });
 
-  static const double _pictureWidth = 320;
-  static const double _pictureHeight = 256;
+  /// The picture's card fits the scene it shows.
+  static const _pictureSize = DocumentScanScene.size;
 
   final DocumentType documentType;
   final VoidCallback onStart;
@@ -41,8 +42,8 @@ class DocumentInstructionScreen extends StatelessWidget {
     // The picture on a white card.
     final picture = Container(
       key: const Key("document_instruction_picture"),
-      width: _pictureWidth,
-      height: _pictureHeight,
+      width: _pictureSize.width,
+      height: _pictureSize.height,
       clipBehavior: Clip.antiAlias,
       decoration: YiviShadows.surfaceCard(palette),
       alignment: Alignment.center,
@@ -110,7 +111,7 @@ class DocumentInstructionScreen extends StatelessWidget {
           ],
           end: Center(
             child: AspectRatio(
-              aspectRatio: _pictureWidth / _pictureHeight,
+              aspectRatio: _pictureSize.width / _pictureSize.height,
               child: FittedBox(child: picture),
             ),
           ),
@@ -146,8 +147,8 @@ class DocumentInstructionScreen extends StatelessWidget {
                     ),
                     // Smaller: the sheet has little height sideways.
                     SizedBox(
-                      width: _pictureWidth * 0.7,
-                      height: _pictureHeight * 0.7,
+                      width: _pictureSize.width * 0.7,
+                      height: _pictureSize.height * 0.7,
                       child: FittedBox(child: picture),
                     ),
                   ],

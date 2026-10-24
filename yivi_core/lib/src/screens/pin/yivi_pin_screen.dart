@@ -40,6 +40,12 @@ typedef StringCallback = void Function(String);
 /// it can be with the link still under it.
 const _keypadToLink = 8.0;
 
+/// Width of the PIN screen's column: the field, the keypad and the link.
+const _columnWidth = 358.0;
+
+/// Opacity of the keypad and the field while they are off (blocked).
+const _dimmed = 0.4;
+
 /// Height of the PIN field, short or long, so switching between them never
 /// moves the keypad.
 const _pinFieldHeight = 52.0;
@@ -186,7 +192,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   // curve and duration as the PIN dots ([_dotPop]).
   late final _jumpController = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 420),
+    duration: _dotPopDuration,
     value: 1, // idle at full size; forward(from: 0) replays the pop
   );
   late final Animation<double> _jumpScale = CurvedAnimation(
@@ -399,7 +405,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         !widget.centreUpper &&
         MediaQuery.sizeOf(context).height >= 700;
     final column = SizedBox(
-      width: 358,
+      width: _columnWidth,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -422,7 +428,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
-                    width: 358,
+                    width: _columnWidth,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: header,
@@ -449,7 +455,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               ),
             ),
           const SizedBox(height: _keypadToLink),
-          SizedBox(width: 358, child: _buildActionLinkSlot()),
+          SizedBox(width: _columnWidth, child: _buildActionLinkSlot()),
         ],
       ),
     );
@@ -523,7 +529,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: SizedBox(
-          width: 358,
+          width: _columnWidth,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -555,7 +561,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     _keypadFor = keypadFor;
     // Blocked: the keys are dimmed as well as off.
     return _keypad = Opacity(
-      opacity: enabled ? 1 : 0.4,
+      opacity: enabled ? 1 : _dimmed,
       child: PinKeypad(
         onDigitPressed: enabled ? _digitDown : (_, _) {},
         onDigitReleased: enabled ? _digitUp : (_) {},
@@ -744,7 +750,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         ),
       );
     }
-    return Opacity(opacity: dim ? 0.4 : 1, child: field);
+    return Opacity(opacity: dim ? _dimmed : 1, child: field);
   }
 
   /// The round arrow that submits a PIN that doesn't submit itself.

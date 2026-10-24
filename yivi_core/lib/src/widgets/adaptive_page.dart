@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
+import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 import "pane_handoff.dart";
@@ -38,7 +39,7 @@ enum PhoneTransition {
   fade,
 }
 
-const _ease = Cubic(0.2, 0.8, 0.2, 1);
+const _ease = YiviMotion.ease;
 
 /// A go_router page that presents its [child] by [mode] on tablets and with
 /// [phoneTransition] on phones. With "Reduce motion" on, every transition is

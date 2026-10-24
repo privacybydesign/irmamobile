@@ -2,26 +2,22 @@ import "dart:math" as math;
 
 import "package:material_ui/material_ui.dart";
 
+import "../../../../theme/yivi_motion.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/test_detection.dart";
+import "document_colors.dart";
 
 // The pictures of the NFC stages, drawn as on the canvas boards (a 300 grid
-// for the wait, 220 for NFC off). Colours of the documents and the phone have
-// no theme token: they are the same in both themes.
+// for the wait, 220 for NFC off), in the [DocumentColors].
 
-const _coverColor = Color(0xFF7A1F2E);
 const _spineColor = Color(0xFF5F1622);
 const _goldColor = Color(0xFFC99A5B);
-const _phoneColor = Color(0xFF1D1D1D);
-const _cardBorder = Color(0xFFC9D4E0);
-const _cardChip = Color(0xFFD6C27A);
-const _cardLines = Color(0xFFC3CFDC);
 
 /// The document the phone is put on in [NfcPhoneOnDocument].
 enum NfcDocumentPicture {
   passport(null),
-  identityCard(Color(0xFFE5EDF6)),
-  drivingLicence(Color(0xFFFCEBE4));
+  identityCard(DocumentColors.identityCardFill),
+  drivingLicence(DocumentColors.drivingLicenceFill);
 
   /// The fill of a card; null for the passport cover.
   final Color? cardFill;
@@ -74,7 +70,7 @@ class _PhoneOnDocumentState extends State<_PhoneOnDocument>
   /// The second ring starts half a second after the first.
   static const _secondRingDelay = 500 / 3200;
 
-  static const _settleCurve = Cubic(0.2, 0.8, 0.2, 1);
+  static const _settleCurve = YiviMotion.ease;
 
   late final AnimationController _controller = AnimationController(
     duration: _loop,
@@ -206,7 +202,7 @@ class _Document extends StatelessWidget {
       height: 6,
       child: const DecoratedBox(
         decoration: BoxDecoration(
-          color: _cardLines,
+          color: DocumentColors.cardLines,
           borderRadius: BorderRadius.all(Radius.circular(3)),
         ),
       ),
@@ -222,7 +218,7 @@ class _Document extends StatelessWidget {
             decoration: BoxDecoration(
               color: fill,
               borderRadius: const BorderRadius.all(Radius.circular(14)),
-              border: Border.all(color: _cardBorder, width: 2),
+              border: Border.all(color: DocumentColors.cardBorder, width: 2),
             ),
             child: Stack(
               children: [
@@ -234,7 +230,7 @@ class _Document extends StatelessWidget {
                   height: 34,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: _cardChip,
+                      color: DocumentColors.cardChip,
                       borderRadius: BorderRadius.all(Radius.circular(6)),
                     ),
                   ),
@@ -263,7 +259,7 @@ class _PassportCoverPainter extends CustomPainter {
         const Rect.fromLTWH(70, 58, 160, 214),
         const Radius.circular(16),
       ),
-      Paint()..color = _coverColor,
+      Paint()..color = DocumentColors.passportCover,
     );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -314,7 +310,7 @@ class _Phone extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: _phoneColor,
+        color: DocumentColors.phone,
         borderRadius: BorderRadius.all(Radius.circular(22)),
         boxShadow: [
           BoxShadow(

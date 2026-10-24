@@ -174,7 +174,10 @@ class ActivityCardStack extends StatelessWidget {
   static const double width = 64;
   static const double height = 56;
   static const double cardWidth = 52;
-  static const double _cardHeight = cardWidth * 226 / 358;
+  static const double _cardHeight =
+      cardWidth *
+      CredentialCardArt.designHeight /
+      CredentialCardArt.designWidth;
 
   @override
   Widget build(BuildContext context) {
