@@ -6,8 +6,8 @@ import "../../../models/email_code_pointer.dart";
 import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -476,19 +476,7 @@ class ContactSentTo extends StatelessWidget {
     return Container(
       key: const Key("contact_sheet_sent_to"),
       padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: YiviShadows.surfaceCard(palette),
       child: Row(
         spacing: 12,
         children: [

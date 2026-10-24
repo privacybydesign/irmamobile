@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -226,19 +227,7 @@ class _WebsitePicture extends StatelessWidget {
     );
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: YiviShadows.surfaceCard(palette),
       child: Column(
         spacing: 12,
         children: [
