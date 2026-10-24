@@ -22,7 +22,7 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
-import "package:yivi_core/src/widgets/info_chips.dart";
+import "package:yivi_core/src/widgets/status_chip.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
@@ -145,7 +145,7 @@ void main() {
     );
     expect(find.byType(CardPile), findsNothing);
     // The issuer's chip: its name alone, nothing put before it.
-    expect(find.widgetWithText(InfoChip, "Gemeente"), findsOneWidget);
+    expect(find.widgetWithText(StatusChip, "Gemeente"), findsOneWidget);
     expect(find.text("by Gemeente"), findsNothing);
     expect(find.text("me@example.com"), findsOneWidget);
     expect(find.byKey(const Key("issuance_context")), findsNothing);

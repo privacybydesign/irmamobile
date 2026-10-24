@@ -12,10 +12,11 @@ import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
+import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "issuance_permission.dart";
@@ -73,11 +74,11 @@ class DocumentIssuancePermission extends StatelessWidget {
         for (final credential in issuedCredentials)
           Center(child: CredentialCardArt(credential: credential, width: 220)),
         if (returnedFromIssuer case final issuer?)
-          InfoChipRow(
+          StatusChipRow(
             chips: [
-              InfoChip(
+              StatusChip(
                 label: context.tr("issuance.returned_from", {"issuer": issuer}),
-                tinted: true,
+                tone: DialogTone.info,
               ),
             ],
           ),

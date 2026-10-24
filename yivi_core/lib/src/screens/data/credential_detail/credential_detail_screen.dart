@@ -18,7 +18,9 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
 import "../../add_data/add_data_sheet.dart";
@@ -348,13 +350,8 @@ class _Details extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _validityChip(context, palette, status, lang),
-            _Chip(
-              label: source,
-              background: palette.surface,
-              foreground: palette.link,
-              outline: palette.outline,
-            ),
+            _validityChip(context, status, lang),
+            StatusChip(label: source),
           ],
         ),
         if (siblings.length > 1) ...[
@@ -567,44 +564,40 @@ class _Details extends ConsumerWidget {
 
   Widget _validityChip(
     BuildContext context,
-    YiviPalette palette,
     CredentialCardStatus status,
     String lang,
   ) {
     final expiry = status.expiryDate?.dateTime;
     if (status.revoked) {
-      return _Chip(
+      return StatusChip(
         label: FlutterI18n.translate(context, "credential.revoked"),
-        background: palette.errorSurface,
-        foreground: palette.errorText,
+        tone: DialogTone.danger,
         icon: Icons.block,
       );
     }
     if (status.isExpired && expiry != null) {
-      return _Chip(
+      return StatusChip(
         label: FlutterI18n.translate(
           context,
           "credential.expired_on",
           translationParams: {"date": printableDate(expiry, lang)},
         ),
-        background: palette.errorSurface,
-        foreground: palette.errorText,
+        tone: DialogTone.danger,
         icon: Icons.warning_amber_rounded,
       );
     }
     if (status.hasWarning && expiry != null) {
-      return _Chip(
+      return StatusChip(
         label: FlutterI18n.translate(
           context,
           "credential.expires_on",
           translationParams: {"date": printableDate(expiry, lang)},
         ),
-        background: palette.warningSurface,
-        foreground: palette.warningText,
+        tone: DialogTone.warning,
         icon: Icons.schedule,
       );
     }
-    return _Chip(
+    return StatusChip(
       label: expiry == null
           ? FlutterI18n.translate(context, "wallet.detail.valid_indefinitely")
           : FlutterI18n.translate(
@@ -612,8 +605,7 @@ class _Details extends ConsumerWidget {
               "wallet.detail.valid_until",
               translationParams: {"date": printableDate(expiry, lang)},
             ),
-      background: palette.successSurface,
-      foreground: palette.successText,
+      tone: DialogTone.success,
       icon: Icons.check,
     );
   }
@@ -652,52 +644,6 @@ String _sourceLabel(BuildContext context, schemaless.Credential c) {
       ? "credential_card.source.issuer_colours"
       : "credential_card.source.yivi";
   return FlutterI18n.translate(context, key);
-}
-
-class _Chip extends StatelessWidget {
-  final String label;
-  final Color background;
-  final Color foreground;
-  final Color? outline;
-  final IconData? icon;
-
-  const _Chip({
-    required this.label,
-    required this.background,
-    required this.foreground,
-    this.outline,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      constraints: const BoxConstraints(minHeight: 28),
-      padding: EdgeInsets.fromLTRB(icon == null ? 12 : 8, 4, 12, 4),
-      decoration: ShapeDecoration(
-        color: background,
-        shape: StadiumBorder(
-          side: outline == null ? BorderSide.none : BorderSide(color: outline!),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 4,
-        children: [
-          if (icon != null) Icon(icon, size: 14, color: foreground),
-          Flexible(
-            child: Text(
-              label,
-              style: palette
-                  .body(12, weight: FontWeight.w600)
-                  .copyWith(color: foreground),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _ActivityRow extends StatelessWidget {

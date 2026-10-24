@@ -375,7 +375,7 @@ class _FoldHeader extends StatelessWidget {
                 ],
               ),
             ),
-            if (count case final count?) _CountChip(count: count),
+            if (count case final count?) StatusChip(label: "$count"),
             if (onTap != null)
               AnimatedRotation(
                 turns: open ? 0.5 : 0,
@@ -558,7 +558,7 @@ class _ListHeading extends StatelessWidget {
                     .copyWith(color: palette.secondaryText),
               ),
             ),
-            _CountChip(count: count),
+            StatusChip(label: "$count"),
           ],
         ),
       ),
@@ -593,32 +593,6 @@ class _BlockName extends StatelessWidget {
               .body(14, weight: FontWeight.w600)
               .copyWith(color: muted ? palette.secondaryText : palette.text),
         ),
-      ),
-    );
-  }
-}
-
-class _CountChip extends StatelessWidget {
-  final int count;
-  const _CountChip({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      height: 22,
-      constraints: const BoxConstraints(minWidth: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: StadiumBorder(side: BorderSide(color: palette.outline)),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        "$count",
-        style: palette
-            .body(12, weight: FontWeight.w600)
-            .copyWith(color: palette.heading, height: 1),
       ),
     );
   }

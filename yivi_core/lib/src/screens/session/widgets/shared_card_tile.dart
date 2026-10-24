@@ -12,7 +12,9 @@ import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/status_chip.dart";
 import "../models/disclosure_view_model.dart";
 
 /// Marks a [SharedCardTile] as flying in a hero (or following a drag), so
@@ -105,25 +107,22 @@ class SharedCardTile extends ConsumerWidget {
     final issuers = cards.map((c) => c.issuer.name).toSet().join(", ");
 
     final chip = problem != null
-        ? CardTileChip(
+        ? StatusChip(
             key: const Key("shared_card_chip"),
             label: FlutterI18n.translate(context, _problemKey(problem)),
-            background: palette.errorSurface,
-            foreground: palette.errorText,
+            tone: DialogTone.danger,
           )
         : lastUse
-        ? CardTileChip(
+        ? StatusChip(
             key: const Key("shared_card_chip"),
             label: FlutterI18n.translate(context, "share.problem.last_use"),
-            background: palette.warningSurface,
-            foreground: palette.warningText,
+            tone: DialogTone.warning,
           )
         : isNew
-        ? CardTileChip(
+        ? StatusChip(
             key: const Key("shared_card_new"),
             label: FlutterI18n.translate(context, "share.new_chip"),
-            background: palette.successSurface,
-            foreground: palette.successText,
+            tone: DialogTone.success,
           )
         : null;
 

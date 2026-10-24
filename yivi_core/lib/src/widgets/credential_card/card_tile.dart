@@ -231,41 +231,6 @@ class CardTileMiniCards extends StatelessWidget {
   }
 }
 
-/// The small rounded label in a [CardTile] header: a problem, "Last use",
-/// "New" or "Deleted".
-class CardTileChip extends StatelessWidget {
-  final String label;
-  final Color background;
-  final Color foreground;
-
-  const CardTileChip({
-    super.key,
-    required this.label,
-    required this.background,
-    required this.foreground,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      height: 24,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      alignment: Alignment.center,
-      decoration: ShapeDecoration(
-        color: background,
-        shape: const StadiumBorder(),
-      ),
-      child: Text(
-        label,
-        style: palette
-            .body(12, weight: FontWeight.w700)
-            .copyWith(color: foreground),
-      ),
-    );
-  }
-}
-
 /// The outline of the chosen card: a 2 pt line in the primary colour, 3 pt
 /// outside [child] (a [CardTile]), as on the credential's page. Drawn
 /// outside the card, so the card keeps its size.

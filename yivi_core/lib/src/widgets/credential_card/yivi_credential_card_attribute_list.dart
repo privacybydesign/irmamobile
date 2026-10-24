@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
+import "../status_chip.dart";
 import "../translated_text.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";

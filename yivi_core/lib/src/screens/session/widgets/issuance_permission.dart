@@ -14,12 +14,13 @@ import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/large_title_scroll_view.dart";
 import "../../../widgets/note_box.dart";
+import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "document_issuance_permission.dart";
@@ -285,7 +286,7 @@ class IssuanceOffer {
     final first = _cards.firstOrNull;
 
     final chips = [
-      InfoChip(
+      StatusChip(
         label: issuers.length > 1
             ? t(context, "issuance.from_issuers", {
                 "count": "${issuers.length}",
@@ -293,22 +294,22 @@ class IssuanceOffer {
             : issuers.firstOrNull ?? "",
       ),
       if (many)
-        InfoChip(
+        StatusChip(
           label: t(context, "issuance.card_count", {
             "count": "${_cards.length}",
           }),
         ),
       if (!many && (first?.display?.svgTemplates.isNotEmpty ?? false))
-        InfoChip(
+        StatusChip(
           label: t(context, "credential_card.source.issuer_design"),
-          tinted: true,
+          tone: DialogTone.info,
         ),
       if (showRequestChip ? _context(context, steps) : _returnedChip(context)
           case final label?)
-        InfoChip(
+        StatusChip(
           key: const Key("issuance_context"),
           label: label,
-          tinted: true,
+          tone: DialogTone.info,
         ),
     ];
 
@@ -319,7 +320,7 @@ class IssuanceOffer {
         Center(
           child: CredentialCardArt(credential: first, width: cardWidth),
         ),
-      InfoChipRow(chips: chips),
+      StatusChipRow(chips: chips),
       if (withNote) ?note(context),
     ];
   }

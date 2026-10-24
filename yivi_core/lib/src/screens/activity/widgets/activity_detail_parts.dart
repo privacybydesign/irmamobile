@@ -14,6 +14,8 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../data/wallet/wallet_detail_scaffold.dart";
 import "../activity_entry.dart";
@@ -381,17 +383,14 @@ class ActivityCredentialTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final chip = switch (card.role) {
-      ActivityRole.received => CardTileChip(
+      ActivityRole.received => StatusChip(
         label: FlutterI18n.translate(context, "activity.chip_new"),
-        background: palette.successSurface,
-        foreground: palette.successText,
+        tone: DialogTone.success,
       ),
-      ActivityRole.deleted => CardTileChip(
+      ActivityRole.deleted => StatusChip(
         label: FlutterI18n.translate(context, "activity.kind.deleted"),
-        background: palette.errorSurface,
-        foreground: palette.errorText,
+        tone: DialogTone.danger,
       ),
       _ => null,
     };
