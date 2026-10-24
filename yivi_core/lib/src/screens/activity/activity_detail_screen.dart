@@ -106,9 +106,6 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
     return WalletDetailScaffold(
       openKey: entry.key,
       closeKey: const Key("activity_detail_done"),
-      // No band behind the bar: the compact title (in its own capsule) and
-      // the close button float over the content.
-      edge: false,
       barBuilder: (context, opacity) => ValueListenableBuilder<bool>(
         valueListenable: _scrolledPast,
         builder: (context, shown, _) => TweenAnimationBuilder<double>(

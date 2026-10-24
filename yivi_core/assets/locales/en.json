@@ -39,9 +39,6 @@
     "signed_message_semantics": "Message signed from {otherParty} on {date}",
     "shared_with": "Shared with",
     "received_from": "Received from",
-    "shared_data": "Shared data",
-    "received_data": "Received data",
-    "deleted_data": "Deleted data",
     "empty_placeholder": "There are no logged activities yet",
     "yesterday": "Yesterday",
     "search_placeholder": "Search activity",
@@ -112,8 +109,7 @@
     "enter_pin": {
       "instruction": "Enter your current PIN",
       "error_title": "PIN incorrect",
-      "error": "Enter your current PIN",
-      "error_action": "OK"
+      "error": "Enter your current PIN"
     },
     "confirm_pin": {
       "instruction": "Enter your new PIN again"
@@ -193,8 +189,7 @@
   },
   "data": {
     "tab": {
-      "title": "My data",
-      "obtain_data": "Retrieve my personal data"
+      "title": "My data"
     },
     "detail": {
       "title": "Contact information"
@@ -208,11 +203,9 @@
       "details": {
         "title": "Adding data",
         "purpose_question": "What can I do with this data?",
-        "content_question": "Which data do I retrieve?",
         "howto_question": "How does it work?",
         "back_button": "Cancel",
         "get_button": "Add",
-        "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
         "obtain": "Add {credential} to my Yivi-app",
         "external_note": "Adding this happens on {host}. Follow the steps there; Yivi then opens again by itself, back here.",
         "disclosure_info_requestor": "You get all of it, but {requestor} only gets what it asks for.",
@@ -272,19 +265,11 @@
     }
   },
   "disclosure_permission": {
-    "issue_wizard": {
-      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that.",
-      "explanation_incomplete_single": "Obtain the required data and share it with the requesting party after that.",
-      "explanation_complete": "All required data has been added."
-    },
     "overview": {
       "requestor_verification": {
-        "verified_suffix": "is asking for your data. This is a known party that has registered itself with Yivi.",
-        "unverified_suffix": "is asking for your data. Warning: this party is not known by Yivi.",
         "explanation": "What does this mean?",
         "bottom_sheet": {
-          "title": "Known and unknown organizations",
-          "content_markdown": "Any organization can request data from your Yivi app.\nYou decide whether or not to agree to share that data.\nYivi helps you with this.\n\nOrganizations can register with Yivi. It is then checked who they are.\nTheir information (including name and logo) is recorded and verified.\nA green check mark will appear next to their name, so\nyou can share your data with more confidence.\nYou can find the list of registered organizations on the [Yivi Portal](https://portal.yivi.app/organizations).\n\nWith organizations that have not registered with Yivi,\nyou can still share your data.\nHowever, this is entirely your own responsibility.\nThere is no certainty about who you are sharing your data with.\n\nAre you unsure? Contact the organization directly.\nYou can recommend that they register with Yivi at:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+          "title": "Known and unknown organizations"
         }
       }
     },
@@ -455,8 +440,6 @@
       "add": "Add to favourites",
       "remove": "Remove from favourites"
     },
-    "section_count-1": "{count} item",
-    "section_count-2": "{count} items",
     "start": {
       "title": "No data yet",
       "website_text": "Tap “Open Yivi app” there",
@@ -663,14 +646,10 @@
     "share": "Share Yivi",
     "share_text": "Check out the Yivi app: https://yivi.app",
     "website": "Yivi website",
-    "need_help": "Need help?",
-    "know_more": "More information",
-    "stay_informed": "Stay informed and join the conversation",
     "slogan": "Everyone deserves privacy",
     "version": "Version {version}",
     "developer_mode_enabled": "Developer mode enabled",
     "developer_mode_already_enabled": "Developer mode already enabled",
-    "irma_website": "Yivi website",
     "irma_website_link": "https://www.yivi.app/en",
     "privacy_policy": "Yivi's privacy policy",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
@@ -802,8 +781,6 @@
   },
   "settings": {
     "title": "Settings",
-    "start_qr": "Open QR scanner on launch",
-    "start_qr_explanation": "Open QR scanner automatically after start-up",
     "report_errors": "Error and app status reporting",
     "report_errors_explanation": "By enabling error and app status reporting you are helping us improve the user experience.",
     "enable_screenshots": "Enable screenshots",
@@ -879,10 +856,6 @@
         "title": "Data expiring soon",
         "message": "This data is expiring soon: {credentialName}"
       }
-    },
-    "bell": {
-      "new_notifications": "Notifications bell - New notifications",
-      "no_new_notifications": "Notifications bell - No new notifications"
     },
     "new_count": "{count} new",
     "swipe_hint": "Swipe a notification to the left to delete it."
@@ -996,33 +969,17 @@
     },
     "nfc": {
       "introduction": "You'll now scan the data inside your driving licence.\n\nHold the back of your phone against your driving licence. Press start to start the scanning process.",
-      "start_scanning": "Start scanning",
       "title": "Read driving licence",
-      "nfc_enabled": "NFC enabled",
-      "nfc_disabled": "NFC disabled",
       "reading": "Reading...",
       "error": "Could not read driving licence. Please try again.",
-      "nfc_not_supported": "NFC is not supported on this device.",
-      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
-      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your driving licence.",
-      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
-      "tip_2": "Hold the back of your phone against your driving licence.",
-      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal.",
       "success": "Success",
       "success_explanation": "Driving licence reading completed successfully",
       "idle": "Ready to start reading driving licence",
       "cancelling": "Cancelling...",
-      "hold_near_photo_page": "Hold your phone near your driving licence.",
       "cancelled": "Cancelled",
-      "connecting": "Connecting to driving licence...",
       "finished": "Finished",
-      "reading_card_security": "Determining NFC chip access...",
       "authenticating": "Authenticating with driving licence...",
-      "reading_passport_data": "Reading driving licence data...",
-      "performing_security_verification": "Performing security verification...",
-      "completed_successfully": "Reading driving licence completed successfully.",
       "error_generic": "An error has occurred while reading driving licence.",
-      "failed_initiate_session": "Failed to initiate session with driving licence.",
       "timeout_waiting_for_tag": "Timeout while waiting for driving licence tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "You cancelled the scanning process.",
@@ -1058,33 +1015,17 @@
     },
     "nfc": {
       "introduction": "You'll now scan the data inside your ID-card.\n\nHold the back of your phone against your ID-card. Press start to start the scanning process.",
-      "start_scanning": "Start scanning",
       "title": "Read ID-card",
-      "nfc_enabled": "NFC enabled",
-      "nfc_disabled": "NFC disabled",
       "reading": "Reading...",
       "error": "Could not read ID-card. Please try again.",
-      "nfc_not_supported": "NFC is not supported on this device.",
-      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
-      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your ID-card.",
-      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
-      "tip_2": "Hold the back of your phone against your ID-card.",
-      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal.",
       "success": "Success",
       "success_explanation": "Reading ID-card completed successfully",
       "idle": "Ready to start reading ID-card",
       "cancelling": "Cancelling...",
-      "hold_near_photo_page": "Hold your phone near your ID-card.",
       "cancelled": "Cancelled",
-      "connecting": "Connecting to ID-card...",
       "finished": "Finished",
-      "reading_card_security": "Determining NFC-chip access...",
       "authenticating": "Authenticating with ID-card...",
-      "reading_passport_data": "Reading ID-card data...",
-      "performing_security_verification": "Performing security verification...",
-      "completed_successfully": "Reading ID-card completed successfully.",
       "error_generic": "An error has occurred while reading ID-card.",
-      "failed_initiate_session": "Failed to initiate session with ID-card.",
       "timeout_waiting_for_tag": "Timeout while waiting for ID-card tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "You cancelled the scanning process.",
@@ -1120,33 +1061,17 @@
     },
     "nfc": {
       "introduction": "You'll now scan the data inside your passport.\n\nHold the back of your phone against your passport. Press start to start the scanning process.",
-      "start_scanning": "Start scanning",
       "title": "Read passport",
-      "nfc_enabled": "NFC enabled",
-      "nfc_disabled": "NFC disabled",
       "reading": "Reading...",
       "error": "Could not read passport. Please try again.",
-      "nfc_not_supported": "NFC is not supported on this device.",
-      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
-      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your passport.",
-      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
-      "tip_2": "Hold the back of your phone against your passport.",
-      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal.",
       "success": "Success",
       "success_explanation": "Passport reading completed successfully",
       "idle": "Ready to start passport reading",
       "cancelling": "Cancelling...",
-      "hold_near_photo_page": "Hold your phone near your passport.",
       "cancelled": "Cancelled",
-      "connecting": "Connecting to passport...",
       "finished": "Finished",
-      "reading_card_security": "Determining NFC-chip access...",
       "authenticating": "Authenticating with passport...",
-      "reading_passport_data": "Reading passport data...",
-      "performing_security_verification": "Performing security verification...",
-      "completed_successfully": "Passport reading completed successfully.",
       "error_generic": "An error has occurred while reading passport.",
-      "failed_initiate_session": "Failed to initiate session with passport.",
       "timeout_waiting_for_tag": "Timeout while waiting for passport tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "You cancelled the scanning process.",

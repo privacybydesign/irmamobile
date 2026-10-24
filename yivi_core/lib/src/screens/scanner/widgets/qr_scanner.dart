@@ -43,17 +43,6 @@ class QRScannerState extends State<QRScanner>
     duration: const Duration(milliseconds: 420),
   );
 
-  void reset() {
-    setState(() {
-      found = false;
-      error = false;
-      if (_errorTimer?.isActive ?? false) {
-        _errorTimer?.cancel();
-      }
-      _errorTimer = null;
-    });
-  }
-
   @override
   void dispose() {
     if (_errorTimer?.isActive ?? false) {

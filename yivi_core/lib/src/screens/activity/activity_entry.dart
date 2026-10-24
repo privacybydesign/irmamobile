@@ -176,9 +176,6 @@ class ActivityEntry {
   /// Identifies the entry across reloads of the log (a [LogInfo] has no id).
   String get key => "${log.type.name}-${log.time.microsecondsSinceEpoch}";
 
-  /// Hero tag of the [index]th card of this entry.
-  String heroTag(int index) => "activity-$key-$index";
-
   factory ActivityEntry.fromLog(
     LogInfo log, {
     List<schemaless.Credential> wallet = const [],

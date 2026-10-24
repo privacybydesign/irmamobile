@@ -7,9 +7,10 @@ import "glass/floating_bar_placement.dart";
 /// fade across the screen (nothing scrolls under it there).
 class LandscapeActionBar extends StatelessWidget {
   final Widget child;
-  final double width;
 
-  const LandscapeActionBar({super.key, required this.child, this.width = 320});
+  static const double width = 320;
+
+  const LandscapeActionBar({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

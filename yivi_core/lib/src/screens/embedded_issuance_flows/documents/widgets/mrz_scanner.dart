@@ -14,11 +14,9 @@ class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   const MrzScanner({
     Key? controller,
     required this.onSuccess,
-    this.initialDirection = .back,
     required this.mrzParser,
   }) : super(key: controller);
   final void Function(MrzResult mrzResult) onSuccess;
-  final CameraLensDirection initialDirection;
   final Parser mrzParser;
 
   @override
@@ -34,7 +32,6 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     with WidgetsBindingObserver {
   bool _canProcess = true;
   bool _isBusy = false;
-  List result = [];
   bool _showSuccessCheck = false;
   final _confirmation = MrzReadingConfirmation();
   final _glareHint = GlareHint();

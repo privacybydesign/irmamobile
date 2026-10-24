@@ -35,7 +35,6 @@ class YiviChoosePinScaffold extends StatelessWidget {
       appBar: IrmaAppBar(
         titleString: "",
         leading: YiviBackButton(onTap: onBack),
-        hasBorder: false,
       ),
       body: StreamBuilder<bool>(
         stream: prefs.getLongPin(),

@@ -130,8 +130,8 @@ Future<void> evaluateRequestorHeader(
   );
 }
 
-/// Finds [text] in [card], leaving out the card picture. A [DisclosedCardTile]
-/// draws the credential name twice: next to the picture and on it.
+/// Finds [text] in [card], leaving out the card picture. A card tile draws
+/// the credential name twice: next to the picture and on it.
 Finder findCardText(Finder card, String text) => find.descendant(
   of: card,
   matching: find.byElementPredicate((element) {

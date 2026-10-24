@@ -82,23 +82,12 @@ NfcReadingTranslationKeys _translationKeys() {
     error: key,
     errorGeneric: key,
     title: key,
-    holdNearPhotoPage: key,
-    tip1: key,
-    tip2: key,
-    tip3: key,
-    successExplanation: key,
     cancelledByUser: key,
     cancelled: key,
     cancelling: key,
-    connecting: key,
-    readingCardSecurity: key,
-    readingDocumentData: key,
-    authenticating: key,
-    performingSecurityVerification: key,
     timeoutWaitingForTag: key,
     tagLostTryAgain: key,
     failedToInitiateSession: key,
-    success: key,
   );
 }
 

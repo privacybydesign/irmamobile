@@ -36,10 +36,6 @@ class IrmaPreferences {
          _reportErrorsKey,
          defaultValue: false,
        ),
-       _showDisclosureDialog = preferences.getBool(
-         _showDisclosureDialogKey,
-         defaultValue: true,
-       ),
        _glassOpaque = preferences.getBool(_glassOpaqueKey, defaultValue: false),
        _acceptedRootedRisk = preferences.getBool(
          _acceptedRootedRiskKey,
@@ -55,10 +51,6 @@ class IrmaPreferences {
        ),
        _biometricPromptDismissed = preferences.getBool(
          _biometricPromptDismissedKey,
-         defaultValue: false,
-       ),
-       _completedDisclosurePermissionIntro = preferences.getBool(
-         _completedDisclosurePermissionIntroKey,
          defaultValue: false,
        ),
        _preferredLanguageCode = preferences.getString(
@@ -162,10 +154,6 @@ class IrmaPreferences {
   static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;
 
-  static const String _showDisclosureDialogKey =
-      "preference.show_disclosure_dialog";
-  final Preference<bool> _showDisclosureDialog;
-
   /// Developer setting: opaque glass, not see-through (GlassOpaque).
   static const String _glassOpaqueKey = "preference.debug_glass_opaque";
   final Preference<bool> _glassOpaque;
@@ -198,10 +186,6 @@ class IrmaPreferences {
   /// now it's only used for cleanup-purposes
   static const String _developerModePrefVisibleKey =
       "preference.devmode_visible";
-
-  static const String _completedDisclosurePermissionIntroKey =
-      "preference.completed_disclosure_permission_intro";
-  final Preference<bool> _completedDisclosurePermissionIntro;
 
   static const String _preferredLanguageKey =
       "preference.preferred_language_code";
@@ -323,11 +307,6 @@ class IrmaPreferences {
 
   Future<bool> setReportErrors(bool value) => _reportErrors.setValue(value);
 
-  Stream<bool> getShowDisclosureDialog() => _showDisclosureDialog;
-
-  Future<bool> setShowDisclosureDialog(bool value) =>
-      _showDisclosureDialog.setValue(value);
-
   Stream<bool> getGlassOpaque() => _glassOpaque;
 
   Future<bool> setGlassOpaque(bool value) => _glassOpaque.setValue(value);
@@ -351,12 +330,6 @@ class IrmaPreferences {
 
   Future<bool> setBiometricPromptDismissed(bool value) =>
       _biometricPromptDismissed.setValue(value);
-
-  Stream<bool> getCompletedDisclosurePermissionIntro() =>
-      _completedDisclosurePermissionIntro;
-
-  Future<bool> setCompletedDisclosurePermissionIntro(bool value) =>
-      _completedDisclosurePermissionIntro.setValue(value);
 
   Stream<String> getPreferredLanguageCode() => _preferredLanguageCode;
 
@@ -399,8 +372,6 @@ class IrmaPreferences {
   List<String> getCardOrder() => _cardOrder.getValue();
 
   Future<bool> setCardOrder(List<String> hashes) => _cardOrder.setValue(hashes);
-
-  Stream<String> getWalletView() => _walletView;
 
   String getWalletViewNow() => _walletView.getValue();
 

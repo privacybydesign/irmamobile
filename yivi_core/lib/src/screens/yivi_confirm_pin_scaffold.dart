@@ -37,7 +37,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
       appBar: IrmaAppBar(
         titleString: "",
         leading: YiviBackButton(onTap: onBack),
-        hasBorder: false,
       ),
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,

@@ -35,7 +35,6 @@ class IssuanceFlightState {
 class IssuanceFlight {
   IssuanceFlight._();
 
-  static const flight = CardFlight.flight;
   static const curtain = Duration(milliseconds: 460);
   static const insertAt = Duration(milliseconds: 420);
 

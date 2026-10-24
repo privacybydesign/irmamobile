@@ -57,7 +57,6 @@ class DocumentIssuancePermission extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: "issuance.title",
         leading: null,
-        hasBorder: false,
         // Sideways: close in the corner, beside the column.
         edgeActions: landscape,
         edge: !landscape,

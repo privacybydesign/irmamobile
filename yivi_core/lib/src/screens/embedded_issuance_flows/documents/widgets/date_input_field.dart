@@ -13,24 +13,12 @@ class DateInputField extends StatefulWidget {
   final String requiredText;
   final String dateInvalidText;
 
-  /// Optional: date picker bounds & default.
-  final DateTime? firstDate;
-  final DateTime? lastDate;
-  final DateTime? initialDate;
-
-  /// Optional: how the picked date is rendered into the text field (defaults to yyyy-MM-dd).
-  final String Function(BuildContext context, DateTime date)? formatDate;
-
   const DateInputField({
     required this.controller,
     required this.labelText,
     required this.requiredText,
     required this.dateInvalidText,
     this.fieldKey,
-    this.firstDate,
-    this.lastDate,
-    this.initialDate,
-    this.formatDate,
     super.key,
   });
 
@@ -53,8 +41,6 @@ class _DateInputFieldState extends State<DateInputField> {
     );
   }
 
-  String _defaultFormat(BuildContext _, DateTime d) => _dateFormat.format(d);
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -64,7 +50,6 @@ class _DateInputFieldState extends State<DateInputField> {
       field: TextFormField(
         key: widget.fieldKey ?? const Key("date_input_field"),
         controller: widget.controller,
-        readOnly: false,
         keyboardType: .number,
         textInputAction: .next,
         cursorColor: palette.link,
@@ -85,16 +70,15 @@ class _DateInputFieldState extends State<DateInputField> {
                 context: context,
                 initialDatePickerMode: .day,
                 initialEntryMode: .calendarOnly,
-                initialDate: widget.initialDate ?? DateTime(now.year - 25),
-                firstDate: widget.firstDate ?? DateTime(1900),
-                lastDate: widget.lastDate ?? DateTime(2100),
+                initialDate: DateTime(now.year - 25),
+                firstDate: DateTime(1900),
+                lastDate: DateTime(2100),
               );
               if (pickedDate != null && mounted) {
-                final fmt = widget.formatDate ?? _defaultFormat;
                 if (!context.mounted) {
                   return;
                 }
-                final text = fmt(context, pickedDate);
+                final text = _dateFormat.format(pickedDate);
                 // Set both text and caret to end to avoid selection glitches.
                 widget.controller.value = widget.controller.value.copyWith(
                   text: text,

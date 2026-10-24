@@ -43,23 +43,12 @@ class NfcReadingTranslationKeys {
   final String error;
   final String errorGeneric;
   final String title;
-  final String holdNearPhotoPage;
-  final String tip1;
-  final String tip2;
-  final String tip3;
-  final String successExplanation;
   final String cancelledByUser;
   final String cancelled;
   final String cancelling;
-  final String connecting;
-  final String readingCardSecurity;
-  final String readingDocumentData;
-  final String authenticating;
-  final String performingSecurityVerification;
   final String timeoutWaitingForTag;
   final String tagLostTryAgain;
   final String failedToInitiateSession;
-  final String success;
 
   NfcReadingTranslationKeys({
     required this.cancelDialogTitle,
@@ -69,23 +58,12 @@ class NfcReadingTranslationKeys {
     required this.error,
     required this.errorGeneric,
     required this.title,
-    required this.holdNearPhotoPage,
-    required this.tip1,
-    required this.tip2,
-    required this.tip3,
-    required this.successExplanation,
     required this.cancelledByUser,
     required this.cancelled,
     required this.cancelling,
-    required this.connecting,
-    required this.readingCardSecurity,
-    required this.readingDocumentData,
-    required this.authenticating,
-    required this.performingSecurityVerification,
     required this.timeoutWaitingForTag,
     required this.tagLostTryAgain,
     required this.failedToInitiateSession,
-    required this.success,
   });
 }
 
@@ -423,7 +401,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         _UiState(
           stateKey: widget.translationKeys.error,
           tipKey: widget.translationKeys.errorGeneric,
-          progress: 0,
         ),
         issuanceError!,
         illustrationAsset: _issuanceErrorIsFaceMatch
@@ -731,11 +708,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   _UiState passportReadingStateToUiState(DocumentReaderState state) {
-    final progress = progressForState(state);
     final stateKey = _getTranslationKeyForState(state);
     final tipKey = _getTipKeyForState(state);
 
-    return _UiState(tipKey: tipKey, progress: progress, stateKey: stateKey);
+    return _UiState(tipKey: tipKey, stateKey: stateKey);
   }
 
   ProviderListenable<DocumentReaderState> get _readerStateProvider =>
@@ -797,16 +773,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   String _getTipKeyForState(DocumentReaderState state) {
+    // The states with a stage of their own (see [_stageFor]) never get here.
     return switch (state) {
-      DocumentReaderPending() => widget.translationKeys.holdNearPhotoPage,
-      DocumentReaderConnecting() => widget.translationKeys.tip2,
-      DocumentReaderAuthenticating() => widget.translationKeys.tip2,
-      DocumentReaderReadingCOM() => widget.translationKeys.tip3,
-      DocumentReaderReadingCardAccess() => widget.translationKeys.tip3,
-      DocumentReaderReadingDataGroup() => widget.translationKeys.tip1,
-      DocumentReaderReadingSOD() => widget.translationKeys.tip2,
-      DocumentReaderActiveAuthentication() => widget.translationKeys.tip1,
-      DocumentReaderSuccess() => widget.translationKeys.successExplanation,
       DocumentReaderFailed(:final error) => _readingErrorToHintKey(error),
       DocumentReaderCancelling() => widget.translationKeys.cancelledByUser,
       DocumentReaderCancelled() => widget.translationKeys.cancelledByUser,
@@ -815,22 +783,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   String _getTranslationKeyForState(DocumentReaderState state) {
+    // The states with a stage of their own (see [_stageFor]) never get here.
     return switch (state) {
-      DocumentReaderPending() => widget.translationKeys.holdNearPhotoPage,
       DocumentReaderCancelled() => widget.translationKeys.cancelled,
       DocumentReaderCancelling() => widget.translationKeys.cancelledByUser,
       DocumentReaderFailed() => widget.translationKeys.error,
-      DocumentReaderConnecting() => widget.translationKeys.connecting,
-      DocumentReaderReadingCardAccess() =>
-        widget.translationKeys.readingCardSecurity,
-      DocumentReaderReadingCOM() => widget.translationKeys.readingDocumentData,
-      DocumentReaderAuthenticating() => widget.translationKeys.authenticating,
-      DocumentReaderReadingDataGroup() =>
-        widget.translationKeys.readingDocumentData,
-      DocumentReaderReadingSOD() => widget.translationKeys.readingDocumentData,
-      DocumentReaderActiveAuthentication() =>
-        widget.translationKeys.performingSecurityVerification,
-      DocumentReaderSuccess() => widget.translationKeys.success,
       _ => "",
     };
   }
@@ -1033,12 +990,7 @@ Future<bool> _showCancelDialog(
 
 class _UiState {
   final String tipKey;
-  final double progress;
   final String stateKey;
 
-  _UiState({
-    required this.tipKey,
-    required this.progress,
-    required this.stateKey,
-  });
+  _UiState({required this.tipKey, required this.stateKey});
 }

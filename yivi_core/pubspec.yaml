@@ -111,7 +111,6 @@ flutter:
     - assets/help/computer_login/
     - assets/reset/
     - assets/non-free/
-    - assets/disclosure/
     - assets/ui/
     - assets/success/
     - assets/vehicles/

@@ -44,9 +44,6 @@ abstract final class DocumentFlowSteps {
     final keys = MrzReaderTranslationKeys(
       title: "$s.scan.title",
       manualEntryButton: "$s.scan.manual",
-      error: "$s.scan.error",
-      success: "$s.scan.success",
-      successExplanation: "$s.scan.success_explanation",
     );
     return switch (type) {
       .drivingLicence => MrzReaderScreen(
@@ -147,24 +144,12 @@ abstract final class DocumentFlowSteps {
         error: "$s.nfc.error",
         errorGeneric: "$s.nfc.error_generic",
         title: "$s.nfc.title",
-        holdNearPhotoPage: "$s.nfc.hold_near_photo_page",
-        tip1: "$s.nfc.tip_1",
-        tip2: "$s.nfc.tip_2",
-        tip3: "$s.nfc.tip_3",
-        successExplanation: "$s.nfc.success_explanation",
         cancelledByUser: "$s.nfc.cancelled_by_user",
         cancelled: "$s.nfc.cancelled",
         cancelling: "$s.nfc.cancelling",
-        connecting: "$s.nfc.connecting",
-        readingCardSecurity: "$s.nfc.reading_card_security",
-        readingDocumentData: "$s.nfc.reading_passport_data",
-        authenticating: "$s.nfc.authenticating",
-        performingSecurityVerification:
-            "$s.nfc.performing_security_verification",
         timeoutWaitingForTag: "$s.nfc.timeout_waiting_for_tag",
         tagLostTryAgain: "$s.nfc.tag_lost_try_again",
         failedToInitiateSession: "$s.nfc.failed_to_initiate_session",
-        success: "$s.nfc.success",
       ),
       mrz: mrz,
       onCancel: onCancel,

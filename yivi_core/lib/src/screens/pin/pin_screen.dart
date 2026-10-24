@@ -278,7 +278,6 @@ class _PinScreenState extends ConsumerState<PinScreen>
     return YiviPinScaffold(
       appBar: IrmaAppBar(
         titleString: "",
-        hasBorder: false,
         // Hide the leading button (the lock screen's QR scanner) while a session
         // is waiting — pending or in flight — scanning another is pointless; the
         // user should just enter their PIN.

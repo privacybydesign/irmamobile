@@ -6,7 +6,6 @@ import "package:collection/collection.dart";
 import "package:cupertino_ui/cupertino_ui.dart";
 // ignore: depend_on_referenced_packages
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -40,7 +39,6 @@ import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/disclosed_card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -50,8 +48,6 @@ import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/lock_gate.dart";
-import "package:yivi_core/src/widgets/radio_indicator.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/yivi_core.dart";
 
@@ -473,12 +469,10 @@ Future<void> evaluateRequestor(
   Finder reqeustorInfoFinder,
   String expectedName,
 ) async {
-  // A session shows the RequestorHeader; an activity, its party card.
+  // An activity shows its party card.
   final finder = find.descendant(
     of: reqeustorInfoFinder,
-    matching: find.byWidgetPredicate(
-      (w) => w is RequestorHeader || w is ActivityPartyCard,
-    ),
+    matching: find.byWidgetPredicate((w) => w is ActivityPartyCard),
     matchRoot: true,
   );
   expect(finder, findsAtLeast(1));
@@ -500,7 +494,7 @@ typedef AttrRow = (String label, Object value);
 typedef Block = List<AttrRow>;
 
 /// Finds the credential cards shown in a session or a log: the owned
-/// candidates of a disclosure ([DisclosedCardTile]), the credentials of an
+/// candidates of a disclosure ([SharedCardTile]), the credentials of an
 /// activity ([ActivityCredentialTile]) and the cards still drawn as a
 /// [YiviCredentialCard] (obtainable options in a choice). Tree order is kept,
 /// so `.at(i)` follows the screen order.
@@ -508,7 +502,6 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
     find.byWidgetPredicate(
       (w) =>
           w is YiviCredentialCard ||
-          w is DisclosedCardTile ||
           (w is SharedCardTile && !w.ghost) ||
           w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
@@ -541,7 +534,6 @@ Finder findCredentialDetail() => find.byType(CredentialDetailScreen);
 
 bool _isCardRoot(Widget w) =>
     w is YiviCredentialCard ||
-    w is DisclosedCardTile ||
     w is SharedCardTile ||
     w is ActivityCredentialTile ||
     w is CredentialDetailScreen ||
@@ -564,7 +556,6 @@ Element _cardRoot(Finder finder) {
         matching: find.byWidgetPredicate(
           (w) =>
               w is YiviCredentialCard ||
-              w is DisclosedCardTile ||
               (w is SharedCardTile && !w.ghost) ||
               w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
@@ -591,7 +582,7 @@ String? _statusName(CredentialCardStatus status) => status.revoked
 
 /// Checks a credential card. Works on every way the app draws a credential:
 /// - [YiviCredentialCard] (activity details, obtainable options in a choice);
-/// - [DisclosedCardTile] (owned candidates in a disclosure);
+/// - [SharedCardTile] (owned candidates in a disclosure);
 /// - [CredentialDetailScreen] (the data tab's card detail; see
 ///   [navigateToCredentialDetailsPage] and [findCredentialDetail]);
 /// - [CredentialCardArt] on the issuance permission (see [findIssuanceCards]).
@@ -617,7 +608,6 @@ Future<void> evaluateCredentialCard(
   /// rendered text for that label is colored green if it matches, red
   /// otherwise. Flat-only — only `String` values are honored.
   List<AttrRow>? attributesCompareTo,
-  bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
   bool? isRevoked,
@@ -643,7 +633,6 @@ Future<void> evaluateCredentialCard(
       instancesRemaining: instancesRemaining,
       attributes: attributes,
       attributesCompareTo: attributesCompareTo,
-      isSelected: isSelected,
       footerText: footerText,
       style: style,
       isRevoked: isRevoked,
@@ -663,82 +652,6 @@ Future<void> evaluateCredentialCard(
   final CredentialCardStatus status;
   final Finder attributeListFinder;
   switch (widget) {
-    case DisclosedCardTile():
-      final instance = widget.instance;
-      status = CredentialCardStatus(
-        expiryDateUnix: instance.expiryDate,
-        revoked: instance.revoked,
-        batchInstanceCountsRemaining: {
-          instance.format: instance.batchInstanceCountRemaining,
-        },
-        credentialId: instance.credentialId,
-        issueUrl: instance.issueUrl,
-      );
-      attributeListFinder = find.descendant(
-        of: rootFinder,
-        matching: find.byType(YiviCredentialCardAttributeList),
-      );
-
-      // The tile's own texts, without the card picture and the attributes:
-      // the credential name, then the issuer name.
-      if (credentialName != null || issuerName != null) {
-        final ownTexts = _textsOutside(rootFinder, [
-          find.descendant(
-            of: rootFinder,
-            matching: find.byType(CredentialCardArt),
-          ),
-          attributeListFinder,
-        ]);
-        if (credentialName != null) {
-          expect(ownTexts.firstOrNull, credentialName);
-        }
-        if (issuerName != null) {
-          // The tile says "by {issuer}".
-          expect(
-            ownTexts.elementAtOrNull(1),
-            FlutterI18n.translate(
-              tester.element(rootFinder),
-              "credential.issued_by",
-              translationParams: {"issuer": issuerName},
-            ),
-          );
-        }
-      }
-
-      if (isSelected != null) {
-        final radio = find.descendant(
-          of: rootFinder,
-          matching: find.byType(RadioIndicator),
-        );
-        expect(radio, findsOneWidget);
-        expect(tester.widget<RadioIndicator>(radio).isSelected, isSelected);
-      }
-
-      if (style != null) {
-        switch (style) {
-          case IrmaCardStyle.highlighted:
-            expect(widget.selected, isTrue, reason: "style highlighted");
-          case IrmaCardStyle.danger:
-            expect(
-              status.isExpired || status.revoked,
-              isTrue,
-              reason: "style danger: the credential should be unusable",
-            );
-          case IrmaCardStyle.normal || IrmaCardStyle.outlined:
-            expect(widget.selected, isFalse, reason: "style $style");
-            expect(
-              status.isExpired || status.revoked,
-              isFalse,
-              reason: "style $style: the credential should be usable",
-            );
-        }
-      }
-
-      if (instancesRemaining != null) {
-        // The tile has no instance-count footer: check what it draws.
-        expect(instance.batchInstanceCountRemaining, instancesRemaining);
-      }
-
     case SharedCardTile():
       // A card (or cards that go together) on the share screen: what is
       // shared is what is selected, so there is no selection to check.
@@ -771,13 +684,6 @@ Future<void> evaluateCredentialCard(
         if (issuerName != null) {
           expect(ownTexts.elementAtOrNull(1), issuerName);
         }
-      }
-      if (isSelected != null) {
-        expect(
-          isSelected,
-          isTrue,
-          reason: "a card on the share screen is always the selected one",
-        );
       }
       if (style != null) {
         final unusable = status.isExpired || status.revoked;
@@ -816,10 +722,9 @@ Future<void> evaluateCredentialCard(
           expect(ownTexts.elementAtOrNull(1), issuerName);
         }
       }
-      if (isSelected != null || style != null || instancesRemaining != null) {
+      if (style != null || instancesRemaining != null) {
         throw ArgumentError(
-          "isSelected, style and instancesRemaining do not apply to an "
-          "activity credential",
+          "style and instancesRemaining do not apply to an activity credential",
         );
       }
 
@@ -859,9 +764,6 @@ Future<void> evaluateCredentialCard(
           find.descendant(of: rootFinder, matching: find.text(issuerName)),
           findsWidgets,
         );
-      }
-      if (isSelected != null) {
-        throw ArgumentError("isSelected does not apply to the detail screen");
       }
       if (style != null) {
         switch (style) {
@@ -964,9 +866,6 @@ Future<void> evaluateCredentialCard(
       if (issuerName != null) {
         expect(credential.issuer.name, issuerName);
       }
-      if (isSelected != null) {
-        throw ArgumentError("isSelected does not apply to a card picture");
-      }
       if (style != null) {
         expect(
           status.isExpired || status.revoked,
@@ -1019,7 +918,7 @@ Future<void> evaluateCredentialCard(
       } else if (expectReobtainButton == false) {
         expect(reobtain, findsNothing);
       }
-    } else if (widget is DisclosedCardTile || widget is SharedCardTile) {
+    } else if (widget is SharedCardTile) {
       // No button on the tile: check the credential would offer one.
       expect(status.showReobtain, isReobtainable, reason: "reobtainable");
     }
@@ -1127,7 +1026,6 @@ Future<void> _evaluateYiviCredentialCard(
   int? instancesRemaining,
   List<AttrRow>? attributes,
   List<AttrRow>? attributesCompareTo,
-  bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
   bool? isRevoked,
@@ -1240,19 +1138,6 @@ Future<void> _evaluateYiviCredentialCard(
       matching: find.byType(YiviCredentialCardAttributeList),
     );
     _evaluateAttributes(tester, cardAttList, attributes, attributesCompareTo);
-  }
-
-  if (isSelected != null) {
-    final radioIndicatorFinder = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(RadioIndicator),
-    );
-
-    expect(radioIndicatorFinder, findsOneWidget);
-    final radioIndicatorWidget =
-        radioIndicatorFinder.evaluate().single.widget as RadioIndicator;
-
-    expect(radioIndicatorWidget.isSelected, isSelected);
   }
 
   // Check the footer

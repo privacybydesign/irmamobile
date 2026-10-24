@@ -36,7 +36,7 @@ class CardFlight {
   /// false without doing anything when it cannot: no source on screen, or a
   /// flight under way.
   ///
-  /// [total] is how long the overlay stays, at least [duration] (the flight
+  /// [total] is how long the overlay stays, at least [flight] (the flight
   /// itself). With [curtain] a cover in the page colour fades out over
   /// [curtainDuration] under the card, hiding a switch of screens. [wrap]
   /// wraps the flying card, e.g. to tuck it under the card below its place.
@@ -49,7 +49,6 @@ class CardFlight {
     required GlobalKey source,
     required CardFlightTarget target,
     required schemaless.Credential card,
-    Duration duration = flight,
     Duration? total,
     bool curtain = false,
     Duration curtainDuration = const Duration(milliseconds: 460),
@@ -73,10 +72,10 @@ class CardFlight {
         card: card,
         from: from,
         target: target,
-        duration: duration,
+        duration: flight,
         total: reduceMotion
             ? (curtain ? curtainDuration : Duration.zero)
-            : (total == null || total < duration ? duration : total),
+            : (total == null || total < flight ? flight : total),
         curtain: curtain,
         curtainDuration: curtainDuration,
         reduceMotion: reduceMotion,

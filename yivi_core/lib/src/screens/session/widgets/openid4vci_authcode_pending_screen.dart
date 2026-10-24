@@ -87,7 +87,6 @@ class _OpenID4VCIAuthCodePendingScreenState
           padding: const EdgeInsets.only(bottom: 16),
           child: YiviCredentialCard.fromDescriptor(
             descriptor: descriptor,
-            compact: false,
             hideNotObtainable: true,
           ),
         ),

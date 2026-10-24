@@ -5,13 +5,11 @@ import "../theme/theme.dart";
 import "glass/pill_buttons.dart";
 import "irma_bottom_bar_base.dart";
 
-enum IrmaBottomBarAlignment { horizontal, vertical, automatic }
+enum IrmaBottomBarAlignment { horizontal, automatic }
 
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
-  final IconData? primaryButtonTrailingIcon;
   final VoidCallback? onPrimaryPressed;
-  final bool showTooltipOnPrimary;
 
   /// The primary is a red pill, for an action that deletes data.
   final bool primaryDanger;
@@ -22,9 +20,7 @@ class IrmaBottomBar extends StatelessWidget {
   const IrmaBottomBar({
     super.key,
     this.primaryButtonLabel,
-    this.primaryButtonTrailingIcon,
     this.onPrimaryPressed,
-    this.showTooltipOnPrimary = false,
     this.primaryDanger = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
@@ -47,13 +43,6 @@ class IrmaBottomBar extends StatelessWidget {
             : FancyPillButton(
                 key: const Key("bottom_bar_primary"),
                 label: FlutterI18n.translate(context, primaryButtonLabel!),
-                trailing: primaryButtonTrailingIcon == null
-                    ? null
-                    : Icon(
-                        primaryButtonTrailingIcon,
-                        size: 20,
-                        color: Colors.white,
-                      ),
                 onPressed: onPrimaryPressed,
               ),
       ),
@@ -80,9 +69,8 @@ class IrmaBottomBar extends StatelessWidget {
 
     // Change layout according to limited height (i.e. landscape mode) and alignment setting.
     final vertical =
-        alignment == IrmaBottomBarAlignment.vertical ||
         alignment == IrmaBottomBarAlignment.automatic &&
-            mediaQuery.size.height > 450;
+        mediaQuery.size.height > 450;
     return IrmaBottomBarBase(
       // "Cancel" under the main button sits low, as on iOS.
       endsWithTextButton: vertical && secondaryButtonLabel != null,

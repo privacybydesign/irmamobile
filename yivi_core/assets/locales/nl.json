@@ -39,9 +39,6 @@
     "signed_message_semantics": "Bericht getekend van {otherParty} op {date}",
     "shared_with": "Gedeeld met",
     "received_from": "Ontvangen van",
-    "shared_data": "Gedeelde gegevens",
-    "received_data": "Ontvangen gegevens",
-    "deleted_data": "Verwijderde gegevens",
     "empty_placeholder": "Er zijn momenteel geen activiteiten",
     "yesterday": "Gisteren",
     "search_placeholder": "Zoek in activiteit",
@@ -112,8 +109,7 @@
     "enter_pin": {
       "instruction": "Vul eerst je huidige pincode in",
       "error_title": "Verkeerde pincode",
-      "error": "Vul je huidige pincode in",
-      "error_action": "OK"
+      "error": "Vul je huidige pincode in"
     },
     "confirm_pin": {
       "instruction": "Vul je nieuwe pincode nog een keer in."
@@ -193,8 +189,7 @@
   },
   "data": {
     "tab": {
-      "title": "Mijn gegevens",
-      "obtain_data": "Haal mijn persoonlijke gegevens op"
+      "title": "Mijn gegevens"
     },
     "detail": {
       "title": "Contactgegevens"
@@ -208,11 +203,9 @@
       "details": {
         "title": "Gegevens toevoegen",
         "purpose_question": "Wat kan ik met deze gegevens?",
-        "content_question": "Welke gegevens haal ik op?",
         "howto_question": "Hoe werkt het?",
         "back_button": "Annuleer",
         "get_button": "Voeg toe",
-        "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
         "obtain": "Voeg {credential} toe aan mijn Yivi-app",
         "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier.",
         "disclosure_info_requestor": "Je krijgt alles, maar {requestor} krijgt alleen wat erom gevraagd wordt.",
@@ -272,19 +265,11 @@
     }
   },
   "disclosure_permission": {
-    "issue_wizard": {
-      "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
-      "explanation_incomplete_single": "Haal de benodigde gegevens op en deel ze daarna met de partij die daarom vraagt.",
-      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
-    },
     "overview": {
       "requestor_verification": {
-        "verified_suffix": "vraagt om je gegevens. Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
-        "unverified_suffix": "vraagt om je gegevens. Waarschuwing: deze partij is niet bekend bij Yivi.",
         "explanation": "Wat betekent dit?",
         "bottom_sheet": {
-          "title": "Bekende en onbekende organisaties",
-          "content_markdown": "Iedere organisatie kan gegevens van jou opvragen uit je Yivi app.\nJe kiest zelf of je akkoord gaat om die gegevens te delen.\nYivi helpt je daarbij.\n\n\n\nOrganisaties kunnen zich bij Yivi melden. Dan wordt\ngecontroleerd om wie het gaat en worden hun gegevens\n(waaronder naam en logo) vastgelegd en gecontroleerd.\n\nEr komt dan een groen vinkje bij te staan.\nJe kunt dan met meer vertrouwen je gegevens delen.\n\nJe kunt de lijst met geregistreerde organisaties\nvinden op de [Yivi Portal](https://portal.yivi.app/organizations).\n\nMet organisaties die zich niet bij Yivi geregistreerd\nhebben kun je nog steeds je gegevens delen. Dat is\ndan echter helemaal je eigen verantwoordelijkheid.\nEr is geen zekerheid met wie je dan je gegevens\ndeelt.\n\nTwijfel je? Neem dan contact om met de organisatie\nzelf. Je kunt aanraden dat ze zich bij Yivi\nregistreren op:\n\n[https://portal.yivi.app](https://portal.yivi.app)."
+          "title": "Bekende en onbekende organisaties"
         }
       }
     },
@@ -458,8 +443,6 @@
       "add": "Voeg toe aan favorieten",
       "remove": "Verwijder uit favorieten"
     },
-    "section_count-1": "{count} gegeven",
-    "section_count-2": "{count} gegevens",
     "start": {
       "title": "Nog geen gegevens",
       "website_text": "Tik daar op ‘Open Yivi-app’",
@@ -666,14 +649,10 @@
     "share": "Deel Yivi",
     "share_text": "Kijk eens naar de Yivi-app: https://yivi.app",
     "website": "Yivi-website",
-    "need_help": "Hulp nodig?",
-    "know_more": "Meer weten",
-    "stay_informed": "Blijf op de hoogte en praat mee",
     "slogan": "Iedereen heeft recht op privacy",
     "version": "Versie {version}",
     "developer_mode_enabled": "Developer modus ingeschakeld",
     "developer_mode_already_enabled": "Developer modus is al ingeschakeld",
-    "irma_website": "Yivi-website",
     "irma_website_link": "https://yivi.app",
     "privacy_policy": "Yivi's privacyregels",
     "privacy_policy_link": "https://www.yivi.app/privacy",
@@ -805,8 +784,6 @@
   },
   "settings": {
     "title": "Instellingen",
-    "start_qr": "QR-scanner direct openen",
-    "start_qr_explanation": "QR-scanner automatisch openen na het opstarten van de app.",
     "report_errors": "Foutmeldingen en app status delen",
     "report_errors_explanation": "Door deze informatie te delen help je ons de gebruikservaring te verbeteren.",
     "enable_screenshots": "Screenshots toestaan",
@@ -882,10 +859,6 @@
         "title": "Gegevens verlopen bijna",
         "message": "Deze gegevens verlopen bijna: {credentialName}"
       }
-    },
-    "bell": {
-      "new_notifications": "Notificatie Bel, Nieuwe notificaties",
-      "no_new_notifications": "Notificatie Bel, Geen nieuwe notificaties"
     },
     "new_count": "{count} nieuw",
     "swipe_hint": "Veeg een melding naar links om hem te verwijderen."
@@ -999,33 +972,17 @@
     },
     "nfc": {
       "introduction": "Je gaat nu de gegevens uit je rijbewijs lezen.\n\nHoud de achterkant van je telefoon tegen je rijbewijs aan. Druk vervolgens op start om het uitlezen te starten.",
-      "start_scanning": "Start",
       "title": "Lees rijbewijs",
-      "nfc_enabled": "NFC ingeschakeld",
-      "nfc_disabled": "NFC uitgeschakeld",
       "reading": "Lezen...",
       "error": "Kon rijbewijs niet lezen.\nProbeer het opnieuw.",
-      "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
-      "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
-      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd je telefoon stil op je rijbewijs.",
-      "tip_1": "Beweeg je telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
-      "tip_2": "Houd de achterkant van je telefoon tegen je rijbewijs.",
-      "tip_3": "Problemen met lezen? Probeer de hoes van je telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
       "success": "Succes",
       "success_explanation": "rijbewijs succesvol uitgelezen.",
       "idle": "Klaar om rijbewijs te lezen",
       "cancelling": "Bezig met annuleren...",
-      "hold_near_photo_page": "Houd je telefoon bij het rijbewijs",
       "cancelled": "Geannuleerd",
-      "connecting": "Verbinden met rijbewijs...",
       "finished": "Voltooid",
-      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
       "authenticating": "Authenticatie met rijbewijs...",
-      "reading_passport_data": "Rijbewijsgegevens lezen...",
-      "performing_security_verification": "Bezig met veiligheidsverificatie...",
-      "completed_successfully": "Rijbewijs succesvol uitgelezen.",
       "error_generic": "Er is een fout opgetreden bij het lezen van het rijbewijs.",
-      "failed_initiate_session": "Kan sessie met rijbewijs niet starten. Controleer de ingevoerde gegevens.",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op rijbewijstag",
       "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
       "cancelled_by_user": "Je hebt het scannen geannuleerd.",
@@ -1061,33 +1018,17 @@
     },
     "nfc": {
       "introduction": "Je gaat nu de gegevens uit je identiteitskaart lezen.\n\nHoud de achterkant van je telefoon tegen je identiteitskaart aan. Druk vervolgens op start om het uitlezen te starten.",
-      "start_scanning": "Start",
       "title": "Lees identiteitskaart",
-      "nfc_enabled": "NFC ingeschakeld",
-      "nfc_disabled": "NFC uitgeschakeld",
       "reading": "Lezen...",
       "error": "Kon identiteitskaart niet lezen.\nProbeer het opnieuw.",
-      "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
-      "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
-      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd je telefoon stil op je identiteitskaart.",
-      "tip_1": "Beweeg je telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
-      "tip_2": "Houd de achterkant van je telefoon tegen je identiteitskaart.",
-      "tip_3": "Problemen met lezen? Probeer de hoes van je telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
       "success": "Succes",
       "success_explanation": "Identiteitskaart succesvol uitgelezen.",
       "idle": "Klaar om identiteitskaart te lezen",
       "cancelling": "Bezig met annuleren...",
-      "hold_near_photo_page": "Houd je telefoon bij de identiteitskaart",
       "cancelled": "Geannuleerd",
-      "connecting": "Verbinden met identiteitskaart...",
       "finished": "Voltooid",
-      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
       "authenticating": "Authenticatie met identiteitskaart...",
-      "reading_passport_data": "Persoonsgegevens lezen...",
-      "performing_security_verification": "Bezig met veiligheidsverificatie...",
-      "completed_successfully": "Identiteitskaart succesvol uitgelezen.",
       "error_generic": "Er is een fout opgetreden bij het lezen van de identiteitskaart.",
-      "failed_initiate_session": "Kan sessie met identiteitskaart niet starten. Controleer de ingevoerde gegevens.",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op tag",
       "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
       "cancelled_by_user": "Je hebt het scannen geannuleerd.",
@@ -1123,33 +1064,17 @@
     },
     "nfc": {
       "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nHoud de achterkant van je telefoon tegen je paspoort aan. Druk vervolgens op start om het uitlezen te starten.",
-      "start_scanning": "Start",
       "title": "Lees paspoort",
-      "nfc_enabled": "NFC ingeschakeld",
-      "nfc_disabled": "NFC uitgeschakeld",
       "reading": "Lezen...",
       "error": "Kon paspoort niet lezen.\nProbeer het opnieuw.",
-      "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
-      "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
-      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd je telefoon stil op je paspoort.",
-      "tip_1": "Beweeg je telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
-      "tip_2": "Houd de achterkant van je telefoon tegen je paspoort.",
-      "tip_3": "Problemen met lezen? Probeer de hoes van je telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
       "success": "Succes",
       "success_explanation": "Paspoort succesvol uitgelezen.",
       "idle": "Klaar om paspoort te lezen",
       "cancelling": "Bezig met annuleren...",
-      "hold_near_photo_page": "Houd je telefoon bij het paspoort",
       "cancelled": "Geannuleerd",
-      "connecting": "Verbinden met paspoort...",
       "finished": "Voltooid",
-      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
       "authenticating": "Authenticatie met paspoort...",
-      "reading_passport_data": "Paspoortgegevens lezen...",
-      "performing_security_verification": "Bezig met veiligheidsverificatie...",
-      "completed_successfully": "Paspoort succesvol uitgelezen.",
       "error_generic": "Er is een fout opgetreden bij het lezen van het paspoort.",
-      "failed_initiate_session": "Kan sessie met paspoort niet starten. Controleer de ingevoerde gegevens.",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op paspoorttag",
       "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
       "cancelled_by_user": "Je hebt het scannen geannuleerd.",

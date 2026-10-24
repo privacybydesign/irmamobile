@@ -13,10 +13,6 @@ class IrmaConfirmationDialog extends StatelessWidget {
   final String? confirmTranslationKey;
   final Function()? onConfirmPressed;
 
-  /// Makes cancelling the primary action, for confirmations of something the
-  /// user probably did not mean to do.
-  final bool nudgeCancel;
-
   /// Confirming deletes or resets something: the confirm button turns red.
   final bool destructive;
 
@@ -31,7 +27,6 @@ class IrmaConfirmationDialog extends StatelessWidget {
     this.onCancelPressed,
     this.confirmTranslationKey,
     this.onConfirmPressed,
-    this.nudgeCancel = false,
     this.destructive = false,
     this.icon,
   });
@@ -45,15 +40,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
     final confirmLabel = t(confirmTranslationKey ?? "ui.confirm");
     final cancelLabel = t(cancelTranslationKey ?? "ui.cancel");
 
-    final Widget confirmButton = nudgeCancel
-        ? PillButton(
-            key: const Key("dialog_confirm_button"),
-            label: confirmLabel,
-            onPressed: onConfirm,
-            style: destructive ? PillStyle.danger : PillStyle.text,
-            size: PillSize.regular,
-          )
-        : destructive
+    final Widget confirmButton = destructive
         ? PillButton(
             key: const Key("dialog_confirm_button"),
             label: confirmLabel,
@@ -67,20 +54,13 @@ class IrmaConfirmationDialog extends StatelessWidget {
             size: PillSize.regular,
           );
 
-    final Widget cancelButton = nudgeCancel
-        ? FancyPillButton(
-            key: const Key("dialog_cancel_button"),
-            label: cancelLabel,
-            onPressed: onCancel,
-            size: PillSize.regular,
-          )
-        : PillButton(
-            key: const Key("dialog_cancel_button"),
-            label: cancelLabel,
-            onPressed: onCancel,
-            style: PillStyle.text,
-            size: PillSize.regular,
-          );
+    final Widget cancelButton = PillButton(
+      key: const Key("dialog_cancel_button"),
+      label: cancelLabel,
+      onPressed: onCancel,
+      style: PillStyle.text,
+      size: PillSize.regular,
+    );
 
     // Built on IrmaDialog, so tests and callers that look for an IrmaDialog
     // keep finding it.
@@ -95,9 +75,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 4,
-        children: nudgeCancel
-            ? [cancelButton, confirmButton]
-            : [confirmButton, cancelButton],
+        children: [confirmButton, cancelButton],
       ),
     );
   }

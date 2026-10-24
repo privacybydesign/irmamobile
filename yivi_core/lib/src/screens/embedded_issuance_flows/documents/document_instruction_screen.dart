@@ -139,10 +139,7 @@ class DocumentInstructionScreen extends StatelessWidget {
       backgroundColor: inSheet ? Colors.transparent : palette.background,
       appBar: inSheet
           ? null
-          : IrmaAppBar(
-              titleTranslationKey: documentType.scanTitleKey,
-              hasBorder: false,
-            ),
+          : IrmaAppBar(titleTranslationKey: documentType.scanTitleKey),
       body: SingleChildScrollView(
         // 24 below the floating app bar and from the sides, as on the board.
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),

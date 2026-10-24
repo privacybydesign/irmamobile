@@ -129,7 +129,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         backgroundColor: palette.background,
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.enter_phone.title",
-          hasBorder: false,
         ),
         body: KeyboardAnimationListener(
           key: _scrollableKey,

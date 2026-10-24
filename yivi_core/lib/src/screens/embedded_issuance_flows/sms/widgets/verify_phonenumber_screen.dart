@@ -143,7 +143,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
           appBar: IrmaAppBar(
             titleTranslationKey: "sms_issuance.verify_code.title",
             leading: YiviBackButton(onTap: _goBack),
-            hasBorder: false,
           ),
           body: KeyboardAnimationListener(
             onKeyboardSettled: (context, inset, visible) {

@@ -114,43 +114,6 @@ void main() {
     });
   }
 
-  group("change choice", () {
-    Future<void> open(WidgetTester tester, Size size) async {
-      await pump(
-        tester,
-        size,
-        Builder(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: TextButton(
-                onPressed: () => pushSessionSubscreen(
-                  context,
-                  const Scaffold(body: Center(child: Text("choices"))),
-                ),
-                child: const Text("open"),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text("open"));
-      await tester.pumpAndSettle();
-    }
-
-    testWidgets("tablet: a centred dialog", (tester) async {
-      await open(tester, _tablet);
-      expect(find.byType(SessionDialogFrame), findsOneWidget);
-      final rect = tester.getRect(find.text("choices"));
-      expect(rect.center.dx, closeTo(_tablet.width / 2, 1));
-    });
-
-    testWidgets("phone: a page", (tester) async {
-      await open(tester, _phone);
-      expect(find.byType(SessionDialogFrame), findsNothing);
-      expect(find.text("choices"), findsOneWidget);
-    });
-  });
-
   testWidgets("a Yivi sheet is a centred dialog on tablet", (tester) async {
     await pump(
       tester,

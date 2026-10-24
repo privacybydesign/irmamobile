@@ -24,7 +24,6 @@ void main() {
     void Function(int)? onDigitCancelled,
     VoidCallback? onBackspace,
     Widget Function(Widget pad)? wrap,
-    double columnGap = PinKeypad.defaultColumnGap,
   }) async {
     await tester.pumpWidget(
       IrmaTheme(
@@ -35,7 +34,7 @@ void main() {
           ],
           home: Scaffold(
             body: SizedBox(
-              width: PinKeypad.widthFor(columnGap) + 16,
+              width: PinKeypad.width + 16,
               height: 400,
               child: (wrap ?? (pad) => pad)(
                 PinKeypad(
@@ -43,7 +42,6 @@ void main() {
                   onDigitReleased: onDigitReleased ?? (_) {},
                   onDigitCancelled: onDigitCancelled ?? (_) {},
                   onBackspace: onBackspace ?? () {},
-                  columnGap: columnGap,
                 ),
               ),
             ),
@@ -214,26 +212,6 @@ void main() {
       expect(pressed, [1, 2, 1, 4]);
     });
 
-    testWidgets("spread out wider, the gaps still go to the nearest key", (
-      tester,
-    ) async {
-      final pressed = <int>[];
-      await pumpKeypad(
-        tester,
-        onDigitPressed: (digit, _) => pressed.add(digit),
-        wrap: (pad) => Align(alignment: Alignment.topLeft, child: pad),
-        columnGap: 64,
-      );
-      final one = tester.getRect(find.byKey(const Key("number_pad_key_1")));
-      final two = tester.getRect(find.byKey(const Key("number_pad_key_2")));
-      expect(two.left - one.right, 64);
-      // Left of the middle of the wide gap: 1; right of it: 2.
-      await tester.tapAt(Offset(one.right + 28, one.center.dy));
-      await tester.tapAt(Offset(two.left - 28, two.center.dy));
-      await tester.pumpAndSettle();
-      expect(pressed, [1, 2]);
-    });
-
     testWidgets("backspace acts on release, the empty slot does nothing", (
       tester,
     ) async {
@@ -246,10 +224,7 @@ void main() {
       );
       final zero = tester.getRect(find.byKey(const Key("number_pad_key_0")));
       final gesture = await tester.startGesture(
-        zero.center.translate(
-          PinKeypad.keySize + PinKeypad.defaultColumnGap,
-          0,
-        ),
+        zero.center.translate(PinKeypad.keySize + PinKeypad.columnGap, 0),
       );
       await tester.pump();
       expect(backspaces, 0);
@@ -257,10 +232,7 @@ void main() {
       expect(backspaces, 1);
       // The bottom-left slot is empty without biometrics.
       await tester.tapAt(
-        zero.center.translate(
-          -(PinKeypad.keySize + PinKeypad.defaultColumnGap),
-          0,
-        ),
+        zero.center.translate(-(PinKeypad.keySize + PinKeypad.columnGap), 0),
       );
       await tester.pumpAndSettle();
       expect(pressed, isEmpty);

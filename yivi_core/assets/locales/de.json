@@ -39,9 +39,6 @@
     "signed_message_semantics": "Nachricht von {otherParty} am {date} signiert",
     "shared_with": "Geteilt mit",
     "received_from": "Empfangen von",
-    "shared_data": "Geteilte Daten",
-    "received_data": "Empfangene Daten",
-    "deleted_data": "Gelöschte Daten",
     "empty_placeholder": "Es gibt noch keine gespeicherten Aktivitäten",
     "yesterday": "Gestern",
     "search_placeholder": "Aktivität durchsuchen",
@@ -112,8 +109,7 @@
     "enter_pin": {
       "instruction": "Geben Sie Ihre aktuelle PIN ein",
       "error_title": "PIN falsch",
-      "error": "Geben Sie Ihre aktuelle PIN ein",
-      "error_action": "OK"
+      "error": "Geben Sie Ihre aktuelle PIN ein"
     },
     "confirm_pin": {
       "instruction": "Geben Sie Ihre neue PIN zur Bestätigung erneut ein"
@@ -193,8 +189,7 @@
   },
   "data": {
     "tab": {
-      "title": "Meine Daten",
-      "obtain_data": "Meine persönlichen Daten abrufen"
+      "title": "Meine Daten"
     },
     "detail": {
       "title": "Kontaktinformationen"
@@ -208,11 +203,9 @@
       "details": {
         "title": "Daten hinzufügen",
         "purpose_question": "Was kann ich mit diesen Daten machen?",
-        "content_question": "Welche Daten rufe ich ab?",
         "howto_question": "Wie funktioniert es?",
         "back_button": "Abbrechen",
         "get_button": "Hinzufügen",
-        "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
         "obtain": "{credential} zu meiner Yivi-App hinzufügen",
         "external_note": "Das Hinzufügen geschieht auf {host}. Folge dort den Schritten; Yivi öffnet sich danach von selbst wieder, zurück hier.",
         "disclosure_info_requestor": "Du bekommst alles, aber {requestor} bekommt nur, was erfragt wird.",
@@ -272,19 +265,11 @@
     }
   },
   "disclosure_permission": {
-    "issue_wizard": {
-      "explanation_incomplete": "Meine Daten Schritt für Schritt abrufen und danach mit der anfragenden Partei teilen.",
-      "explanation_incomplete_single": "Die benötigten Daten abrufen und danach mit der anfragenden Partei teilen.",
-      "explanation_complete": "Alle erforderlichen Daten wurden hinzugefügt."
-    },
     "overview": {
       "requestor_verification": {
-        "verified_suffix": "fragt nach Ihren Daten. Dies ist eine bekannte Partei, die sich bei Yivi registriert hat.",
-        "unverified_suffix": "fragt nach Ihren Daten. Warnung: Diese Partei ist Yivi nicht bekannt.",
         "explanation": "Was bedeutet das?",
         "bottom_sheet": {
-          "title": "Bekannte und unbekannte Organisationen",
-          "content_markdown": "Jede Organisation kann Daten aus Ihrer Yivi-App anfordern.\nSie entscheiden, ob Sie dem Teilen dieser Daten zustimmen oder nicht.\nYivi hilft Ihnen dabei.\n\nOrganisationen können sich bei Yivi registrieren. Es wird dann überprüft, wer sie sind.\nIhre Informationen (einschließlich Name und Logo) werden erfasst und verifiziert.\nNeben ihrem Namen erscheint dann ein grünes Häkchen, damit\nSie Ihre Daten mit mehr Vertrauen teilen können.\nDie Liste der registrierten Organisationen finden Sie im [Yivi-Portal](https://portal.yivi.app/organizations).\n\nMit Organisationen, die sich nicht bei Yivi registriert haben,\nkönnen Sie trotzdem Ihre Daten teilen.\nDies geschieht jedoch auf eigene Verantwortung.\nEs gibt keine Gewissheit darüber, mit wem Sie Ihre Daten teilen.\n\nSind Sie sich nicht sicher? Wenden Sie sich dann direkt an die Organisation.\nSie können ihnen empfehlen, sich bei Yivi zu registrieren unter:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+          "title": "Bekannte und unbekannte Organisationen"
         }
       }
     },
@@ -458,8 +443,6 @@
       "add": "Zu Favoriten hinzufügen",
       "remove": "Aus Favoriten entfernen"
     },
-    "section_count-1": "{count} Eintrag",
-    "section_count-2": "{count} Einträge",
     "start": {
       "title": "Noch keine Daten",
       "website_text": "Tippen Sie dort auf „Yivi-App öffnen“",
@@ -666,14 +649,10 @@
     "share": "Yivi teilen",
     "share_text": "Schauen Sie sich die Yivi-App an: https://yivi.app",
     "website": "Yivi-Webseite",
-    "need_help": "Brauchen Sie Hilfe?",
-    "know_more": "Weitere Informationen",
-    "stay_informed": "Bleiben Sie informiert und nehmen Sie an der Diskussion teil",
     "slogan": "Jeder hat das Recht auf Privatsphäre",
     "version": "Version {version}",
     "developer_mode_enabled": "Entwicklermodus aktiviert",
     "developer_mode_already_enabled": "Entwicklermodus bereits aktiviert",
-    "irma_website": "Yivi-Webseite",
     "irma_website_link": "https://www.yivi.app/en",
     "privacy_policy": "Yivi-Datenschutzrichtlinie",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
@@ -805,8 +784,6 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "start_qr": "QR-Scanner beim Start öffnen",
-    "start_qr_explanation": "QR-Scanner automatisch nach dem Start öffnen",
     "report_errors": "Fehler- und App-Status-Berichterstattung",
     "report_errors_explanation": "Durch die Aktivierung der Fehler- und App-Status-Berichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern.",
     "enable_screenshots": "Screenshots aktivieren",
@@ -882,10 +859,6 @@
         "title": "Daten laufen bald ab",
         "message": "Diese Daten laufen bald ab: {credentialName}"
       }
-    },
-    "bell": {
-      "new_notifications": "Mitteilungsglocke - Neue Mitteilungen",
-      "no_new_notifications": "Mitteilungsglocke - Keine neuen Mitteilungen"
     },
     "new_count": "{count} neu",
     "swipe_hint": "Wische eine Mitteilung nach links, um sie zu löschen."
@@ -999,33 +972,17 @@
     },
     "nfc": {
       "introduction": "Sie scannen jetzt die Daten in Ihrem Führerschein.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Führerschein. Drücken Sie Start, um den Scanvorgang zu starten.",
-      "start_scanning": "Scannen starten",
       "title": "Führerschein lesen",
-      "nfc_enabled": "NFC aktiviert",
-      "nfc_disabled": "NFC deaktiviert",
       "reading": "Lesen...",
       "error": "Führerschein konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
-      "nfc_not_supported": "NFC wird auf diesem Gerät nicht unterstützt.",
-      "nfc_disabled_explanation": "NFC ist deaktiviert. Bitte aktivieren Sie NFC in den Systemeinstellungen und versuchen Sie es erneut.",
-      "nfc_interrupted": "Lesevorgang unterbrochen. Versuchen Sie es erneut und halten Sie Ihr Telefon ruhig auf Ihrem Führerschein.",
-      "tip_1": "Bewegen Sie Ihr Telefon nicht. Das Lesen dauert normalerweise nur 10-20 Sekunden.",
-      "tip_2": "Halten Sie die Rückseite Ihres Telefons an Ihren Führerschein.",
-      "tip_3": "Probleme beim Lesen? Versuchen Sie, die Hülle Ihres Telefons zu entfernen. Das verstärkt oft das NFC-Signal.",
       "success": "Erfolg",
       "success_explanation": "Führerschein erfolgreich gelesen",
       "idle": "Bereit zum Starten des Lesens des Führerscheins",
       "cancelling": "Abbrechen...",
-      "hold_near_photo_page": "Halten Sie Ihr Telefon an Ihren Führerschein.",
       "cancelled": "Abgebrochen",
-      "connecting": "Verbindung zum Führerschein wird hergestellt...",
       "finished": "Fertig",
-      "reading_card_security": "NFC-Chip-Zugriff wird ermittelt...",
       "authenticating": "Authentifizierung mit Führerschein...",
-      "reading_passport_data": "Führerscheindaten werden gelesen...",
-      "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
-      "completed_successfully": "Führerschein erfolgreich gelesen.",
       "error_generic": "Beim Lesen des Führerscheins ist ein Fehler aufgetreten.",
-      "failed_initiate_session": "Verbindung mit Führerschein konnte nicht gestartet werden.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Führerschein-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
@@ -1061,33 +1018,17 @@
     },
     "nfc": {
       "introduction": "Sie scannen jetzt die Daten in Ihrem Personalausweis.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Personalausweis. Drücken Sie Start, um den Scanvorgang zu starten.",
-      "start_scanning": "Scannen starten",
       "title": "Personalausweis lesen",
-      "nfc_enabled": "NFC aktiviert",
-      "nfc_disabled": "NFC deaktiviert",
       "reading": "Lesen...",
       "error": "Personalausweis konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
-      "nfc_not_supported": "NFC wird auf diesem Gerät nicht unterstützt.",
-      "nfc_disabled_explanation": "NFC ist deaktiviert. Bitte aktivieren Sie NFC in den Systemeinstellungen und versuchen Sie es erneut.",
-      "nfc_interrupted": "Lesevorgang unterbrochen. Versuchen Sie es erneut und halten Sie Ihr Telefon ruhig auf Ihrem Personalausweis.",
-      "tip_1": "Bewegen Sie Ihr Telefon nicht. Das Lesen dauert normalerweise nur 10-20 Sekunden.",
-      "tip_2": "Halten Sie die Rückseite Ihres Telefons an Ihren Personalausweis.",
-      "tip_3": "Probleme beim Lesen? Versuchen Sie, die Hülle Ihres Telefons zu entfernen. Das verstärkt oft das NFC-Signal.",
       "success": "Erfolg",
       "success_explanation": "Personalausweis erfolgreich gelesen",
       "idle": "Bereit zum Starten des Lesens des Personalausweises",
       "cancelling": "Abbrechen...",
-      "hold_near_photo_page": "Halten Sie Ihr Telefon an Ihren Personalausweis.",
       "cancelled": "Abgebrochen",
-      "connecting": "Verbindung zum Personalausweis wird hergestellt...",
       "finished": "Fertig",
-      "reading_card_security": "NFC-Chip-Zugriff wird ermittelt...",
       "authenticating": "Authentifizierung mit Personalausweis...",
-      "reading_passport_data": "Personalausweisdaten werden gelesen...",
-      "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
-      "completed_successfully": "Personalausweis erfolgreich gelesen.",
       "error_generic": "Beim Lesen des Personalausweises ist ein Fehler aufgetreten.",
-      "failed_initiate_session": "Verbindung mit Personalausweis konnte nicht gestartet werden.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Personalausweis-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
@@ -1123,33 +1064,17 @@
     },
     "nfc": {
       "introduction": "Sie scannen jetzt die Daten in Ihrem Reisepass.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Reisepass. Drücken Sie Start, um den Scanvorgang zu starten.",
-      "start_scanning": "Scannen starten",
       "title": "Reisepass lesen",
-      "nfc_enabled": "NFC aktiviert",
-      "nfc_disabled": "NFC deaktiviert",
       "reading": "Lesen...",
       "error": "Reisepass konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
-      "nfc_not_supported": "NFC wird auf diesem Gerät nicht unterstützt.",
-      "nfc_disabled_explanation": "NFC ist deaktiviert. Bitte aktivieren Sie NFC in den Systemeinstellungen und versuchen Sie es erneut.",
-      "nfc_interrupted": "Lesevorgang unterbrochen. Versuchen Sie es erneut und halten Sie Ihr Telefon ruhig auf Ihrem Reisepass.",
-      "tip_1": "Bewegen Sie Ihr Telefon nicht. Das Lesen dauert normalerweise nur 10-20 Sekunden.",
-      "tip_2": "Halten Sie die Rückseite Ihres Telefons an Ihren Reisepass.",
-      "tip_3": "Probleme beim Lesen? Versuchen Sie, die Hülle Ihres Telefons zu entfernen. Das verstärkt oft das NFC-Signal.",
       "success": "Erfolg",
       "success_explanation": "Reisepass erfolgreich gelesen",
       "idle": "Bereit zum Starten des Lesens des Reisepasses",
       "cancelling": "Abbrechen...",
-      "hold_near_photo_page": "Halten Sie Ihr Telefon an Ihren Reisepass.",
       "cancelled": "Abgebrochen",
-      "connecting": "Verbindung zum Reisepass wird hergestellt...",
       "finished": "Fertig",
-      "reading_card_security": "NFC-Chip-Zugriff wird ermittelt...",
       "authenticating": "Authentifizierung mit Reisepass...",
-      "reading_passport_data": "Reisepassdaten werden gelesen...",
-      "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
-      "completed_successfully": "Reisepass erfolgreich gelesen.",
       "error_generic": "Beim Lesen des Reisepasses ist ein Fehler aufgetreten.",
-      "failed_initiate_session": "Verbindung mit Reisepass konnte nicht gestartet werden.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Reisepass-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",

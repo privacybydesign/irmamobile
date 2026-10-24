@@ -130,7 +130,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         extendBody: true,
         key: Key("$onScreenKeyboardShown"),
         backgroundColor: palette.background,
-        appBar: IrmaAppBar(titleTranslationKey: titleKey, hasBorder: false),
+        appBar: IrmaAppBar(titleTranslationKey: titleKey),
         body: KeyboardAnimationListener(
           onKeyboardSettled: (context, inset, visible) {
             _handleFocusChange();

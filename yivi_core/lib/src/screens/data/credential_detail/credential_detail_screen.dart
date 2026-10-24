@@ -75,8 +75,6 @@ class _CredentialDetailScreenState
     return WalletDetailScaffold(
       openKey: _hash,
       closeKey: const Key("credential_detail_done"),
-      // No bar: only the close button floats over the card and its details.
-      edge: false,
       builder: (context, physics, animation) {
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(

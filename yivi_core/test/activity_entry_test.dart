@@ -152,7 +152,7 @@ void main() {
     expect(entry.cards, isEmpty);
   });
 
-  test("the key and hero tags stay the same for the same entry", () {
+  test("the key stays the same for the same entry", () {
     LogInfo log() => _log(
       LogType.removal,
       removal: RemovalLog(credentials: [_credential("mobile")]),
@@ -160,7 +160,5 @@ void main() {
     final a = ActivityEntry.fromLog(log());
     final b = ActivityEntry.fromLog(log());
     expect(a.key, b.key);
-    expect(a.heroTag(0), b.heroTag(0));
-    expect(a.heroTag(0), isNot(a.heroTag(1)));
   });
 }

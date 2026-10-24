@@ -81,8 +81,6 @@ class SessionPreview {
     },
     knowledge: SessionPreviewKnowledge.none,
   );
-
-  bool get isIssuance => kind == SessionPreviewKind.issuance;
 }
 
 /// Asks irmago what [request] would start and who it is from, without

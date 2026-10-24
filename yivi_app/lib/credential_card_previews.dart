@@ -240,7 +240,6 @@ YiviCredentialCard _card({
       credentialId: "irma-demo.MijnOverheid.root",
       issueUrl: issueUrl,
     ),
-    compact: false,
     style: style,
     hideFooter: hideFooter,
   );

@@ -100,23 +100,12 @@ NfcReadingTranslationKeys _translationKeys() {
     error: "$key.error",
     errorGeneric: "$key.error_generic",
     title: "$key.title",
-    holdNearPhotoPage: "$key.hold_near_photo_page",
-    tip1: "$key.tip_1",
-    tip2: "$key.tip_2",
-    tip3: "$key.tip_3",
-    successExplanation: "$key.success_explanation",
     cancelledByUser: "$key.cancelled_by_user",
     cancelled: "$key.cancelled",
     cancelling: "$key.cancelling",
-    connecting: "$key.connecting",
-    readingCardSecurity: "$key.reading_card_security",
-    readingDocumentData: "$key.reading_passport_data",
-    authenticating: "$key.authenticating",
-    performingSecurityVerification: "$key.performing_security_verification",
     timeoutWaitingForTag: "$key.timeout_waiting_for_tag",
     tagLostTryAgain: "$key.tag_lost_try_again",
     failedToInitiateSession: "$key.failed_initiate_session",
-    success: "$key.success",
   );
 }
 

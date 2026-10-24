@@ -35,24 +35,12 @@ Future<void> openSupportMail(BuildContext context) async {
   }
 }
 
-class ContactLink extends StatelessWidget {
-  final String translationKey;
-
-  const ContactLink({required this.translationKey});
-
-  @override
-  Widget build(BuildContext context) {
-    return Link(label: translationKey, onTap: () => openSupportMail(context));
-  }
-}
-
 /// A text link: [label] (a translation key or a text) as a [TextLink].
 class Link extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-  final TextAlign? textAlign;
 
-  const Link({required this.label, required this.onTap, this.textAlign});
+  const Link({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +49,7 @@ class Link extends StatelessWidget {
       key: const Key("irma_link"),
       child: TextLink(
         label: FlutterI18n.translate(context, label),
-        textAlign: textAlign ?? TextAlign.center,
+        textAlign: TextAlign.center,
         onPressed: onTap,
       ),
     );

@@ -162,7 +162,6 @@ class _CredentialsDetailsScreenState
                   padding: .only(bottom: theme.defaultSpacing),
                   child: YiviCredentialCard.fromCredential(
                     credential: cred,
-                    compact: false,
                     headerTrailing: isDeletable || isReobtainable
                         ? PlainIconButton(
                             icon: Icons.more_horiz_rounded,

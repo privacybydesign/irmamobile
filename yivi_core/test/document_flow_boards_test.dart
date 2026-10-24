@@ -164,8 +164,7 @@ void main() {
       expect(tip.color, const Color(0xFF123254));
     });
 
-    testWidgets("the picture has a text for screen readers, the bar has no "
-        "line", (tester) async {
+    testWidgets("the picture has a text for screen readers", (tester) async {
       await pumpScreen(tester);
 
       expect(
@@ -174,10 +173,6 @@ void main() {
           "regels onderaan de pagina met de pasfoto.",
         ),
         findsOneWidget,
-      );
-      expect(
-        tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).hasBorder,
-        isFalse,
       );
     });
 
@@ -207,9 +202,6 @@ void main() {
         translationKeys: MrzReaderTranslationKeys(
           title: "passport.scan.title",
           manualEntryButton: "passport.scan.manual",
-          error: "passport.scan.error",
-          success: "passport.scan.success",
-          successExplanation: "passport.scan.success_explanation",
         ),
         onSuccess: (_) {},
         onManualAdd: () {},
@@ -308,11 +300,7 @@ void main() {
         tester.getTopLeft(find.text("Je paspoort mag dicht blijven.")).dy,
         tester.getRect(find.text("Leg je telefoon op je paspoort")).bottom + 10,
       );
-      _expectFooterButton(
-        tester,
-        _secondary(),
-        top: _phone.height - 8 - 56,
-      );
+      _expectFooterButton(tester, _secondary(), top: _phone.height - 8 - 56);
     });
 
     testWidgets("G4: a ring of 240 with the percentage at 44", (tester) async {
@@ -760,11 +748,7 @@ void main() {
         isNot(TextDecoration.underline),
       );
       _expectFooterButton(tester, _primary());
-      _expectFooterButton(
-        tester,
-        _secondary(),
-        top: _phone.height - 8 - 56,
-      );
+      _expectFooterButton(tester, _secondary(), top: _phone.height - 8 - 56);
     });
 
     testWidgets("the close button is on the right of the bar", (tester) async {

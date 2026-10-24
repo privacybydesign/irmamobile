@@ -4,7 +4,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
-import "package:yivi_core/src/widgets/link.dart";
+import "package:yivi_core/src/screens/more/widgets/tiles.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -181,8 +181,8 @@ void main() {
       // Check if the contact link is present
       await tester.scrollUntilVisible(
         find.descendant(
-          of: find.byType(ContactLink),
-          matching: find.text("Send an e-mail"),
+          of: find.byType(ContactLinkTile),
+          matching: find.text("Contact us"),
         ),
         75,
       );

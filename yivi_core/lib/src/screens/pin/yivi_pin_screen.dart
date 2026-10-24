@@ -543,13 +543,12 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   Widget? _keypad;
   List<Object?> _keypadFor = const [];
 
-  Widget _buildKeypad({double columnGap = PinKeypad.defaultColumnGap}) {
+  Widget _buildKeypad() {
     final enabled = widget.enabled;
     final keypadFor = [
       enabled,
       widget.onBiometricUnlock,
       widget.biometricGlyph,
-      columnGap,
     ];
     if (_keypad != null && listEquals(keypadFor, _keypadFor)) return _keypad!;
     _keypadFor = keypadFor;
@@ -563,7 +562,6 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         onBackspace: enabled ? () => _enterNumber(-1) : () {},
         onBiometricUnlock: widget.onBiometricUnlock,
         biometricGlyph: widget.biometricGlyph,
-        columnGap: columnGap,
       ),
     );
   }

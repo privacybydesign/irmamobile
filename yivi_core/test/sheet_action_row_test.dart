@@ -209,23 +209,6 @@ void main() {
       expect(part, closeTo(2 / 3, 0.001));
     });
 
-    testWidgets("done: the whole line green", (tester) async {
-      await pumpTranslated(
-        tester,
-        _wrap(
-          IssueSheetProgress(
-            subject: IssueSheetSubject.request(_shop),
-            step: 3,
-            done: true,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text("Done"), findsNothing);
-      expect(find.bySemanticsLabel("All steps done"), findsOneWidget);
-      expect(line(tester), (YiviPalette.light.successText, 1.0));
-    });
-
     testWidgets("the next step's line fills on from where the last stood", (
       tester,
     ) async {

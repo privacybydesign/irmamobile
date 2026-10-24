@@ -30,8 +30,8 @@ class _ForCard extends IssueSheetSubject {
 
 /// Where adding a card stands, right under the bar of the sheet it is added
 /// in: a thin line the full width of the sheet that fills up to the step of
-/// the flow ([total]: the details, the steps that prove it, adding it); once
-/// the card is added ([done]) it is full. During a request "For {requestor}"
+/// the flow ([total]: the details, the steps that prove it, adding it).
+/// During a request "For {requestor}"
 /// goes under it ([subject]), so it is clear the card is for the request
 /// behind the sheet.
 ///
@@ -48,14 +48,12 @@ class IssueSheetProgress extends StatefulWidget {
   /// or phone number (the address and the code), 5 for a document (6 with a
   /// face check).
   final int total;
-  final bool done;
 
   const IssueSheetProgress({
     super.key,
     required this.subject,
     required this.step,
     this.total = 3,
-    this.done = false,
   }) : assert(step >= 1 && step <= total);
 
   @override
@@ -89,7 +87,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   /// page it covered left it.
   bool _wasTop = true;
 
-  double get _to => (widget.done ? widget.total : widget.step).toDouble();
+  double get _to => widget.step.toDouble();
 
   @override
   void didChangeDependencies() {
@@ -107,9 +105,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   @override
   void didUpdateWidget(IssueSheetProgress old) {
     super.didUpdateWidget(old);
-    if (old.step != widget.step ||
-        old.done != widget.done ||
-        old.total != widget.total) {
+    if (old.step != widget.step || old.total != widget.total) {
       _go(from: _now);
     }
   }
@@ -148,7 +144,6 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     String t(String key, [Map<String, String>? params]) =>
         FlutterI18n.translate(context, key, translationParams: params);
     final step = widget.step;
-    final done = widget.done;
     final params = {"step": "$step", "total": "${widget.total}"};
     final ink = palette.successText;
     final track = palette.text.withValues(alpha: 0.12);
@@ -157,16 +152,10 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     // where you are; the bar's title says what.
     final line = Semantics(
       // The step and the total, for a test to find without a visible count.
-      key: ValueKey((
-        "issue_sheet_progress",
-        done ? widget.total : step,
-        widget.total,
-      )),
+      key: ValueKey(("issue_sheet_progress", step, widget.total)),
       // Read out when the step changes.
       liveRegion: true,
-      label: done
-          ? t("share.sheet.progress_done_label")
-          : t("share.step_count", params),
+      label: t("share.step_count", params),
       excludeSemantics: true,
       child: Container(
         key: const Key("issue_sheet_progress_line"),

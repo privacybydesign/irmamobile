@@ -30,10 +30,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       extendBody: true,
       backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: titleTranslationKey,
-        hasBorder: false,
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: StatusBody(
         icon: Icons.error_outline_rounded,
         tone: DialogTone.danger,

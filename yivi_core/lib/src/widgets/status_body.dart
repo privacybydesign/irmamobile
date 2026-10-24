@@ -20,9 +20,6 @@ class StatusBody extends StatelessWidget {
   final Widget? picture;
   final DialogTone tone;
 
-  /// Overrides the icon colour that [tone] picks.
-  final Color? iconColor;
-
   /// Overrides the disc colour that [tone] picks, e.g. white behind a logo.
   final Color? discColor;
 
@@ -37,7 +34,6 @@ class StatusBody extends StatelessWidget {
     this.icon,
     this.picture,
     this.tone = DialogTone.neutral,
-    this.iconColor,
     this.discColor,
     this.footer,
   });
@@ -52,11 +48,7 @@ class StatusBody extends StatelessWidget {
             color: discColor,
             child:
                 picture ??
-                Icon(
-                  icon,
-                  size: 64,
-                  color: iconColor ?? ToneDisc.colors(palette, tone).$2,
-                ),
+                Icon(icon, size: 64, color: ToneDisc.colors(palette, tone).$2),
           )
         : null;
 

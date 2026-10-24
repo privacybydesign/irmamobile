@@ -5,7 +5,6 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_corners.dart";
 import "package:yivi_core/src/widgets/adaptive_page.dart";
 import "package:yivi_core/src/widgets/app_toast.dart";
-import "package:yivi_core/src/widgets/code_input.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/irma_confirmation_dialog.dart";
@@ -96,46 +95,6 @@ void main() {
       await tester.tap(find.byKey(const Key("dialog_confirm_button")));
       await tester.pumpAndSettle();
       expect(await result, isTrue);
-    });
-  });
-
-  group("CodeInput", () {
-    testWidgets("fills the boxes and reports the complete code", (
-      tester,
-    ) async {
-      String? completed;
-      await pumpTranslated(
-        tester,
-        _app(
-          home: Scaffold(
-            body: CodeInput(
-              length: 4,
-              fieldKey: const Key("code"),
-              onCompleted: (code) => completed = code,
-            ),
-          ),
-        ),
-      );
-
-      await tester.enterText(find.byKey(const Key("code")), "12a3");
-      await tester.pump();
-      expect(completed, isNull, reason: "letters are filtered out");
-      expect(find.text("1"), findsOneWidget);
-      expect(find.text("3"), findsOneWidget);
-
-      await tester.enterText(find.byKey(const Key("code")), "1234");
-      await tester.pump();
-      expect(completed, "1234");
-    });
-
-    testWidgets("shows the error under the boxes", (tester) async {
-      await pumpTranslated(
-        tester,
-        _app(
-          home: const Scaffold(body: CodeInput(errorText: "Invalid code")),
-        ),
-      );
-      expect(find.text("Invalid code"), findsOneWidget);
     });
   });
 

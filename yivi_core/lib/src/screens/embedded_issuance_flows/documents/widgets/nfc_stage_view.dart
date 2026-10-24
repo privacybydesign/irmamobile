@@ -155,11 +155,7 @@ class NfcStageScaffold extends StatelessWidget {
       // In a sheet its bar has the title, back and close.
       appBar: DocumentStepInSheet.of(context)
           ? null
-          : IrmaAppBar(
-              titleTranslationKey: appBarTitleKey,
-              leading: leading,
-              hasBorder: false,
-            ),
+          : IrmaAppBar(titleTranslationKey: appBarTitleKey, leading: leading),
       body: SafeArea(
         child: isLandscape
             ? Row(

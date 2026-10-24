@@ -141,7 +141,6 @@ class MissingDataHarness {
         mostRecentTermsUrlEn: "",
       );
       await prefs.clearAll();
-      await prefs.setCompletedDisclosurePermissionIntro(true);
     });
 
     final repo = IrmaRepository(client: bridge, preferences: prefs);

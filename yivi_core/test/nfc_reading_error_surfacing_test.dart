@@ -200,24 +200,12 @@ NfcReadingTranslationKeys _passportKeys() => NfcReadingTranslationKeys(
   error: "passport.nfc.error",
   errorGeneric: "passport.nfc.error_generic",
   title: "passport.nfc.title",
-  holdNearPhotoPage: "passport.nfc.hold_near_photo_page",
-  tip1: "passport.nfc.tip_1",
-  tip2: "passport.nfc.tip_2",
-  tip3: "passport.nfc.tip_3",
-  successExplanation: "passport.nfc.success_explanation",
   cancelledByUser: "passport.nfc.cancelled_by_user",
   cancelled: "passport.nfc.cancelled",
   cancelling: "passport.nfc.cancelling",
-  connecting: "passport.nfc.connecting",
-  readingCardSecurity: "passport.nfc.reading_card_security",
-  readingDocumentData: "passport.nfc.reading_passport_data",
-  authenticating: "passport.nfc.authenticating",
-  performingSecurityVerification:
-      "passport.nfc.performing_security_verification",
   timeoutWaitingForTag: "passport.nfc.timeout_waiting_for_tag",
   tagLostTryAgain: "passport.nfc.tag_lost_try_again",
   failedToInitiateSession: "passport.nfc.failed_to_initiate_session",
-  success: "passport.nfc.success",
 );
 
 /// Pumps the NFC reading screen on a router that also owns the `/error` route

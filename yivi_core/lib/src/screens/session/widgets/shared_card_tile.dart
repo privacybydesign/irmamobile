@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
@@ -10,7 +11,6 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/disclosed_card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../models/disclosure_view_model.dart";
@@ -185,9 +185,7 @@ class SharedCardTile extends ConsumerWidget {
           : null,
       art: _landing(
         context,
-        CardTileMiniCards(
-          cards: [for (final c in cards) DisclosedCardTile.cardFor(c, wallet)],
-        ),
+        CardTileMiniCards(cards: [for (final c in cards) _cardFor(c, wallet)]),
       ),
       title: name,
       subtitle: issuers,
@@ -265,3 +263,28 @@ class SharedCardTile extends ConsumerWidget {
   static String _problemKey(CardProblem p) =>
       "share.problem.${_problemName(p)}";
 }
+
+/// The card picture of [instance]: the wallet card with the same hash
+/// (which carries the issuer's design), or one built from the instance.
+schemaless.Credential _cardFor(
+  SelectableCredentialInstance instance,
+  List<schemaless.Credential> wallet,
+) =>
+    wallet.firstWhereOrNull((c) => c.hash == instance.hash) ??
+    schemaless.Credential(
+      credentialId: instance.credentialId,
+      hash: instance.hash,
+      name: instance.name,
+      issuer: instance.issuer,
+      image: instance.image,
+      credentialInstanceIds: {instance.format: instance.hash},
+      batchInstanceCountsRemaining: {
+        instance.format: instance.batchInstanceCountRemaining,
+      },
+      attributes: instance.attributes,
+      revoked: instance.revoked,
+      revocationSupported: instance.revocationSupported,
+      issueUrl: instance.issueUrl,
+      issuanceDate: instance.issuanceDate,
+      expiryDate: instance.expiryDate,
+    );

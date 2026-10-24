@@ -65,7 +65,6 @@ class IrmaDialog extends StatelessWidget {
   final String title;
   final String content;
   final Widget child;
-  final String? image;
 
   /// Shown above the title, usually a [ToneDisc].
   final Widget? icon;
@@ -74,7 +73,6 @@ class IrmaDialog extends StatelessWidget {
     required this.title,
     required this.content,
     required this.child,
-    this.image,
     this.icon,
   });
 
@@ -90,11 +88,6 @@ class IrmaDialog extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (image != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Center(child: Image.asset(image!, width: 240)),
-            ),
           Padding(padding: const EdgeInsets.only(top: 16), child: child),
         ],
       ),

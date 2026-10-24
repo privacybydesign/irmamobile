@@ -113,7 +113,6 @@ class FaceVerificationIntroScreen extends StatelessWidget {
           : IrmaAppBar(
               titleTranslationKey: "face_verification.title",
               leading: YiviBackButton(onTap: onCancel),
-              hasBorder: false,
             ),
       body: SingleChildScrollView(
         padding: const .fromLTRB(16, 16, 16, 32),

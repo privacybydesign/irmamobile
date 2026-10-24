@@ -29,16 +29,10 @@ typedef MrzController = GlobalKey<MrzScannerState>;
 class MrzReaderTranslationKeys {
   final String title;
   final String manualEntryButton;
-  final String error;
-  final String success;
-  final String successExplanation;
 
   MrzReaderTranslationKeys({
     required this.title,
     required this.manualEntryButton,
-    required this.error,
-    required this.success,
-    required this.successExplanation,
   });
 }
 
@@ -121,7 +115,6 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
             title: widget.translationKeys.title,
             body: body,
             manualLabel: widget.translationKeys.manualEntryButton,
-            cancelLabel: "document_flow.cancel",
             onManual: widget.onManualAdd,
             onCancel: widget.onCancel,
           );
@@ -204,7 +197,6 @@ class _CameraScaffold extends StatelessWidget {
   final String title;
   final Widget body;
   final String manualLabel;
-  final String cancelLabel;
   final VoidCallback onManual;
   final VoidCallback onCancel;
 
@@ -212,7 +204,6 @@ class _CameraScaffold extends StatelessWidget {
     required this.title,
     required this.body,
     required this.manualLabel,
-    required this.cancelLabel,
     required this.onManual,
     required this.onCancel,
   });
@@ -306,7 +297,10 @@ class _CameraScaffold extends StatelessWidget {
                     ),
                     PillButton(
                       key: const Key("bottom_bar_secondary"),
-                      label: FlutterI18n.translate(context, cancelLabel),
+                      label: FlutterI18n.translate(
+                        context,
+                        "document_flow.cancel",
+                      ),
                       style: PillStyle.text,
                       onDark: true,
                       onPressed: onCancel,

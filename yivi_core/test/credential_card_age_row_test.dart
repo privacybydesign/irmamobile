@@ -273,7 +273,6 @@ void main() {
               revoked: false,
               batchInstanceCountsRemaining: const {},
             ),
-            compact: false,
             hideFooter: true,
           ),
         ),

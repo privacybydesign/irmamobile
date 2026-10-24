@@ -336,12 +336,11 @@ class SmallPill extends StatelessWidget {
 }
 
 /// A text action: "Send again", "Show details", "Back to the website".
-/// Open Sans 15 semibold in the link colour, no underline; [underline] only
-/// for a link inside running text. The touch target is 44 high.
+/// Open Sans 15 semibold in the link colour, no underline. The touch target
+/// is 44 high.
 class TextLink extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final bool underline;
 
   /// For a dark picture such as the camera.
   final Color? color;
@@ -351,7 +350,6 @@ class TextLink extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
-    this.underline = false,
     this.color,
     this.textAlign = TextAlign.center,
   });
@@ -383,9 +381,7 @@ class TextLink extends StatelessWidget {
                       .body(15, weight: FontWeight.w600)
                       .copyWith(
                         color: fg,
-                        decoration: underline
-                            ? TextDecoration.underline
-                            : TextDecoration.none,
+                        decoration: TextDecoration.none,
                         decorationColor: fg,
                       ),
                 ),

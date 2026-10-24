@@ -1,7 +1,6 @@
 import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -262,71 +261,4 @@ class SessionCentred extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Frames a full session screen (with its own scaffold) as a centred card
-/// for a dialog on tablets, e.g. "Change choice".
-class SessionDialogFrame extends StatelessWidget {
-  final Widget child;
-
-  const SessionDialogFrame({super.key, required this.child});
-
-  static const double width = 520;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SizedBox(
-          width: width,
-          height: (size.height * 0.85).clamp(0.0, 760.0),
-          child: DecoratedBox(
-            decoration: const ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(YiviCorners.pane),
-                ),
-              ),
-              shadows: [
-                BoxShadow(
-                  color: Color(0x4D000000),
-                  blurRadius: 80,
-                  offset: Offset(0, 30),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(YiviCorners.pane),
-              ),
-              // The screen inside keeps to the card, not the device edges.
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                removeBottom: true,
-                removeLeft: true,
-                removeRight: true,
-                child: child,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Opens [screen] as a page on phones and as a centred dialog on tablets.
-Future<T?> pushSessionSubscreen<T>(BuildContext context, Widget screen) {
-  if (useSessionColumns(context)) {
-    return showDialog<T>(
-      context: context,
-      builder: (_) => SessionDialogFrame(child: screen),
-    );
-  }
-  return Navigator.of(
-    context,
-  ).push<T>(MaterialPageRoute(builder: (_) => screen));
 }

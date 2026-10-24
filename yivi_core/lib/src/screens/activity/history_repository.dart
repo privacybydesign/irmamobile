@@ -7,10 +7,6 @@ import "../../data/irma_repository.dart";
 import "../../models/irma_configuration.dart";
 import "../../models/log_entry.dart";
 
-class LogEntries extends UnmodifiableListView<LogInfo> {
-  LogEntries(super.list);
-}
-
 class HistoryState {
   final UnmodifiableListView<LogInfo> logEntries;
   final bool loading;

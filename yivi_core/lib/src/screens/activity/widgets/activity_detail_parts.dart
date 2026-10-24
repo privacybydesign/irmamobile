@@ -34,8 +34,8 @@ String activityTime(BuildContext context, DateTime time) =>
     DateFormat.jm(_lang(context)).format(time);
 
 /// "Today", "Yesterday", "6 days ago", "3 weeks ago" …
-String activityAgo(BuildContext context, DateTime time, {DateTime? now}) {
-  final n = now ?? DateTime.now();
+String activityAgo(BuildContext context, DateTime time) {
+  final n = DateTime.now();
   final days = DateTime(
     n.year,
     n.month,
@@ -67,7 +67,6 @@ class ActivityPartyLogo extends StatelessWidget {
   /// A ring around the logo, drawn inside [size], that sets it apart from
   /// what is under it.
   final Color? ring;
-  final double ringWidth;
 
   const ActivityPartyLogo({
     super.key,
@@ -75,7 +74,6 @@ class ActivityPartyLogo extends StatelessWidget {
     required this.size,
     this.circle = false,
     this.ring,
-    this.ringWidth = 2,
   });
 
   @override
@@ -84,7 +82,7 @@ class ActivityPartyLogo extends StatelessWidget {
     final logo = party.logo;
     final side = ring == null
         ? BorderSide.none
-        : BorderSide(color: ring!, width: ringWidth);
+        : BorderSide(color: ring!, width: 2);
     final ShapeBorder shape = circle
         ? CircleBorder(side: side)
         : RoundedRectangleBorder(

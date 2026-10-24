@@ -981,18 +981,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   Widget? _requestorLine(IssueSheetSubject? subject) =>
       subject == null ? null : IssueSheetRequestorLine(subject: subject);
 
-  Widget? _progress(
-    IssueSheetSubject? subject,
-    int total, {
-    bool done = false,
-  }) => subject == null || total == 0
+  Widget? _progress(IssueSheetSubject? subject, int total) =>
+      subject == null || total == 0
       ? null
-      : IssueSheetProgress(
-          subject: subject,
-          step: total,
-          total: total,
-          done: done,
-        );
+      : IssueSheetProgress(subject: subject, step: total, total: total);
 
   /// OpenID4VCI's transaction code or authorization-code step, as a page.
   /// Back declines the issuance.

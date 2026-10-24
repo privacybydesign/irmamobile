@@ -191,7 +191,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           appBar: IrmaAppBar(
             titleTranslationKey: titleKey,
             leading: YiviBackButton(onTap: _goBack),
-            hasBorder: false,
           ),
           body: KeyboardAnimationListener(
             onKeyboardSettled: (context, inset, visible) {
@@ -274,7 +273,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                   onSecondaryPressed: () => showResendSmsDialog(state.email),
                 )
               : IrmaBottomBar(
-                  secondaryButtonLabel: "email_issuance.verify_code.back_button",
+                  secondaryButtonLabel:
+                      "email_issuance.verify_code.back_button",
                   onSecondaryPressed: context.pop,
                 ),
         ),

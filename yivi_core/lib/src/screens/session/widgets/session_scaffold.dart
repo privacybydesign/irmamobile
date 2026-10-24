@@ -9,7 +9,6 @@ class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;
   final String appBarTitle;
   final VoidCallback? onDismiss;
-  final VoidCallback? onPrevious;
 
   /// The body spans the whole width, for the two-column tablet layouts
   /// ([SessionColumns]) that centre themselves.
@@ -34,9 +33,8 @@ class SessionScaffold extends StatelessWidget {
   final bool cornerClose;
 
   const SessionScaffold({
-    Key? key,
+    super.key,
     this.onDismiss,
-    this.onPrevious,
     this.bottomNavigationBar,
     this.body,
     required this.appBarTitle,
@@ -67,7 +65,7 @@ class SessionScaffold extends StatelessWidget {
         startBar: startBar,
         edgeActions: cornerClose,
         edge: !cornerClose,
-        leading: onPrevious != null ? YiviBackButton(onTap: onPrevious) : null,
+        leading: null,
         actions: [
           if (onDismiss != null) IrmaCloseButton.filled(onTap: onDismiss),
         ],

@@ -69,7 +69,6 @@ class GlassSurface extends StatelessWidget {
 
   /// Replaces the glass fill, e.g. for the tinted QR button.
   final Color? fill;
-  final bool shadow;
 
   /// Blurs what is behind it; by default as its [GlassScope] says.
   final bool? blur;
@@ -95,7 +94,6 @@ class GlassSurface extends StatelessWidget {
     this.shape = const StadiumBorder(),
     this.padding,
     this.fill,
-    this.shadow = true,
     this.opacity = 1,
     this.blur,
     this.dark = false,
@@ -175,7 +173,6 @@ class GlassSurface extends StatelessWidget {
       ),
     );
 
-    if (!shadow) return shaped;
     return CustomPaint(
       painter: _OuterShadowPainter(
         shape: shape,
@@ -304,7 +301,6 @@ class GlassIconButton extends StatelessWidget {
   final VoidCallback? onTap;
   final String semanticsLabel;
   final double size;
-  final Color? fill;
 
   /// Dark glass, for a live camera picture. Give it a white icon.
   final bool dark;
@@ -318,7 +314,6 @@ class GlassIconButton extends StatelessWidget {
     required this.onTap,
     required this.semanticsLabel,
     this.size = 44,
-    this.fill,
     this.dark = false,
     this.opacity = 1,
   });
@@ -336,7 +331,6 @@ class GlassIconButton extends StatelessWidget {
           scale: 1.08,
           child: GlassSurface(
             shape: const CircleBorder(),
-            fill: fill,
             dark: dark,
             opacity: a,
             child: Material(

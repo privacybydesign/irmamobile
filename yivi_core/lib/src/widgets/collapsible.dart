@@ -13,7 +13,6 @@ class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
   final ScrollController? parentScrollController;
-  final bool initiallyExpanded;
 
   /// Draws no card of its own, for a question in a GlassGroup with others.
   final bool flat;
@@ -23,7 +22,6 @@ class Collapsible extends StatefulWidget {
     required this.header,
     required this.content,
     this.parentScrollController,
-    this.initiallyExpanded = false,
     this.flat = false,
   });
 
@@ -37,14 +35,6 @@ class _CollapsibleState extends State<Collapsible> {
   ); // expand duration of _Collapsible
 
   bool _isExpanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      _isExpanded = widget.initiallyExpanded;
-    });
-  }
 
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
@@ -106,7 +96,7 @@ class _CollapsibleState extends State<Collapsible> {
 
     final palette = YiviPalette.of(context);
     final tile = ConfigurableExpansionTile(
-      initiallyExpanded: widget.initiallyExpanded,
+      initiallyExpanded: false,
       onExpansionChanged: _onExpansionChanged,
       animatedWidgetFollowingHeader: Padding(
         padding: EdgeInsets.all(theme.tinySpacing),

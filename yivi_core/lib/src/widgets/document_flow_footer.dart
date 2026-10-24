@@ -16,9 +16,6 @@ enum DocumentFlowButtonStyle {
 
   /// A plain text pill of the same height, for Cancel and the other choices.
   secondary,
-
-  /// A text link ([TextLink]).
-  text,
 }
 
 class DocumentFlowButton extends StatelessWidget {
@@ -29,10 +26,8 @@ class DocumentFlowButton extends StatelessWidget {
     super.key,
   });
 
+  /// Both styles have this height.
   static const double height = PillSize.largeHeight;
-
-  /// The text buttons under the main one have its height.
-  static const double secondaryHeight = PillSize.largeHeight;
 
   /// The keys of the two button positions, the same as IrmaBottomBar's.
   static const primaryKey = Key("bottom_bar_primary");
@@ -46,7 +41,7 @@ class DocumentFlowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = FlutterI18n.translate(context, labelKey);
     // The pills of the redesign: the faceted red one for the main action,
-    // plain text pills for the others (underlined for a text link).
+    // plain text pills for the others.
     final Widget button = switch (style) {
       .primary => FancyPillButton(
         label: label,
@@ -59,7 +54,6 @@ class DocumentFlowButton extends StatelessWidget {
         style: PillStyle.text,
         size: PillSize.large,
       ),
-      .text => TextLink(label: label, onPressed: onPressed),
     };
 
     // [height] is the least: a label that wraps at a large text size makes
@@ -69,7 +63,7 @@ class DocumentFlowButton extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
           minWidth: double.infinity,
-          minHeight: style == .primary ? height : secondaryHeight,
+          minHeight: height,
         ),
         child: button,
       ),

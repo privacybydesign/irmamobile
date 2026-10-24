@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
 import "../change_pin/widgets/confirm_pin.dart";
@@ -28,7 +27,6 @@ class ChangePinScreen extends ConsumerStatefulWidget {
 class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  IrmaThemeData get theme => IrmaTheme.of(context);
   final newPin = ValueNotifier<String>("");
 
   Map<String, WidgetBuilder> _routeBuilders() {

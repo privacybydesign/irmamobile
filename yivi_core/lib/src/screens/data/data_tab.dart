@@ -1056,7 +1056,7 @@ class _CardButton extends StatefulWidget {
     required this.credential,
     required this.child,
     this.hintText,
-    this.pressDepth = 0,
+    required this.pressDepth,
     this.revealHeight,
   });
 
@@ -1117,20 +1117,18 @@ class _CardButtonState extends State<_CardButton> {
         behavior: HitTestBehavior.opaque,
         // A tap down arrives only once it is not a scroll (or after a short
         // wait), so scrolling over the stack does not push cards.
-        onTapDown: depth == 0 ? null : (_) => _press(true),
-        onTapUp: depth == 0 ? null : (_) => _press(false),
-        onTapCancel: depth == 0 ? null : () => _press(false),
+        onTapDown: (_) => _press(true),
+        onTapUp: (_) => _press(false),
+        onTapCancel: () => _press(false),
         onTap: () => openCard(context, credential),
-        child: depth == 0
-            ? widget.child
-            : TweenAnimationBuilder<double>(
-                tween: Tween(end: _pressed && !reduceMotion ? depth : 0),
-                duration: Duration(milliseconds: _pressed ? 90 : 260),
-                curve: _pressed ? Curves.easeOut : Curves.easeOutBack,
-                child: widget.child,
-                builder: (context, dy, child) =>
-                    Transform.translate(offset: Offset(0, dy), child: child),
-              ),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(end: _pressed && !reduceMotion ? depth : 0),
+          duration: Duration(milliseconds: _pressed ? 90 : 260),
+          curve: _pressed ? Curves.easeOut : Curves.easeOutBack,
+          child: widget.child,
+          builder: (context, dy, child) =>
+              Transform.translate(offset: Offset(0, dy), child: child),
+        ),
       ),
     );
   }
@@ -1249,15 +1247,6 @@ class _ProblematicCredentialCard extends ConsumerWidget {
     }
   }
 }
-
-/// The cards of the same type as [credential] (including itself), in the
-/// user's order.
-List<schemaless.Credential> sameTypeCards(
-  List<schemaless.Credential> cards,
-  schemaless.Credential credential,
-) => cards
-    .where((c) => c.credentialId == credential.credentialId)
-    .sortedBy<num>((c) => cards.indexOf(c));
 
 /// Marks the first card picture as the landing slot of a received card, and
 /// hides the card that is flying in (with [hash]).

@@ -2,7 +2,6 @@ import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_surface.dart";
 import "glass/pill_buttons.dart";
@@ -61,7 +60,6 @@ class YiviBackButton extends StatelessWidget {
 /// Unlike Material's AppBar it does not clip, so the glass buttons keep their
 /// soft shadow.
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  /// 16 above the 44 pt buttons and the buttons themselves.
   /// 16 above the 44 pt buttons and 8 below them, so the edge under the bar
   /// (once content scrolls under it) clears the buttons.
   static const double toolbarHeight = 68;
@@ -75,10 +73,6 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
   final Widget? leading;
   final List<Widget> actions;
-
-  /// A solid bar with a line under it, for the screens of the old design.
-  final bool hasBorder;
-  final PreferredSizeWidget? bottom;
 
   /// Shows the title only while true, fading it in and out. For screens
   /// whose content starts with a large title (see `LargeTitleScrollView`),
@@ -110,8 +104,6 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.leading = const YiviBackButton(),
     this.actions = const [],
-    this.hasBorder = false,
-    this.bottom,
     this.titleVisibility,
     this.startBar,
     this.edgeActions = false,
@@ -123,7 +115,6 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
 
@@ -222,20 +213,9 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [toolbar, ?bottom],
+        children: [toolbar],
       ),
     );
-
-    if (hasBorder) {
-      return DecoratedBox(
-        key: const Key("irma_app_bar"),
-        decoration: BoxDecoration(
-          color: palette.background,
-          border: Border(bottom: BorderSide(color: theme.tertiary)),
-        ),
-        child: content,
-      );
-    }
 
     // Behind the status bar and the buttons: the hard scroll edge once the
     // page's content is under the bar (see [ScrollEdgeBand]).
@@ -249,8 +229,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize =>
-      Size.fromHeight(toolbarHeight + (bottom?.preferredSize.height ?? 0));
+  Size get preferredSize => const Size.fromHeight(toolbarHeight);
 }
 
 /// What a screen under a floating [IrmaAppBar] and bottom bar needs: with

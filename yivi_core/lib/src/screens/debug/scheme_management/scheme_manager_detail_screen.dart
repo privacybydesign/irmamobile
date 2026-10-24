@@ -40,7 +40,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     return navigator.push(
       MaterialPageRoute(
         builder: (context) => YiviPinScaffold(
-          appBar: IrmaAppBar(titleString: title, hasBorder: false),
+          appBar: IrmaAppBar(titleString: title),
           body: YiviPinScreen(
             instruction: instruction,
             maxPinSize: maxPinSize,
