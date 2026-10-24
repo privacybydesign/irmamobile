@@ -194,6 +194,10 @@ class _ActionBar extends StatelessWidget {
   /// The buttons for the left column of a sheet held sideways; hidden but
   /// keeping their room when there are none, as the bar does.
   Widget sheetActions(BuildContext context) {
+    // Upright, the page's bottom bar keeps its room itself.
+    if (actions.isEmpty && SheetSlotAction.atBottom(context)) {
+      return const SheetSlotAction(action: null);
+    }
     final buttons = actions.isEmpty
         ? [_button(null)]
         : [for (final action in actions) _button(action)];
@@ -211,7 +215,11 @@ class _ActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Hidden rather than removed: a stage without an action keeps the bar's
-    // height, so the area above it does not resize.
+    // height, so the area above it does not resize (upright in a sheet the
+    // page's bottom bar does that).
+    if (actions.isEmpty && SheetSlotAction.atBottom(context)) {
+      return const SheetSlotAction(action: null);
+    }
     if (actions.isEmpty) {
       return Visibility(
         visible: false,

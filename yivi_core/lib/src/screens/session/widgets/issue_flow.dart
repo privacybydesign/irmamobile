@@ -144,6 +144,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// more in the progress.
   bool _faceCheck = false;
 
+  /// Counts the times adding the document went back to its chip screen, to
+  /// read it again ([DocumentSheetStep.readAgain]).
+  int _readAgain = 0;
+
   /// The issuance that came back from the issuer, shown in the sheet.
   int? _nestedId;
 
@@ -313,6 +317,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _clearSteps();
   }
 
+  /// Adding a document goes back to its chip screen, which starts over: the
+  /// issuer asks for a face check again if it wants one.
+  void _backToChip() {
+    if (_document == null) return;
+    _readAgain++;
+    _faceCheck = false;
+  }
+
   void _dismissNested(int sessionId) => _repo.bridgedDispatch(
     SessionUserInteractionEvent.dismiss(sessionId: sessionId),
   );
@@ -439,12 +451,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (_pin && nested != null) {
       _dismissNested(nested);
     } else if (nested != null && issueAdded == null) {
-      // Back on the details: a document is read again from the start.
+      // A step back: a document's chip screen, to read it again; the
+      // website or the address page, as they were.
       _dismissNested(nested);
       setState(() {
         _forgetSession();
-        _document = null;
-        _faceCheck = false;
+        _backToChip();
       });
     } else if (_document != null) {
       setState(() {
@@ -500,12 +512,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         issueSessionEnded();
         return;
       }
-      // Cancelled on the permission or the PIN: back on the details, to try
-      // again.
+      // Cancelled on the permission or the PIN: a step back, to try again.
       setState(() {
         _pin = false;
         _forgetSession();
-        _document = null;
+        _backToChip();
       });
       return;
     }
@@ -665,6 +676,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             onFaceCheck: () {
               if (!_faceCheck) setState(() => _faceCheck = true);
             },
+            readAgain: _readAgain,
           ),
         ),
       if (nested != null || issueAdded != null)
@@ -783,12 +795,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           )
         : null;
     return GlassSheetPage(
-      // Left by dragging its header down: no close button.
-      closable: false,
+      // The sheet's first page has no back: its close button is the way out,
+      // where back is on the pages after it. Otherwise left by back or by
+      // dragging its header down.
+      closable: _direct,
+      closeAtStart: true,
       // The card's name: the page is about it (the progress under the bar
       // says where in adding it you are).
       title: d.name,
-      // The sheet's first page has no back: close is the way out.
       onBack: _direct ? null : issueLeave,
       padding: split != null
           ? EdgeInsets.zero

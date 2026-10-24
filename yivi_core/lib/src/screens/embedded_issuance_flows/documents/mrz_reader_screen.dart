@@ -337,7 +337,22 @@ class _SheetCamera extends StatelessWidget {
       child: ColoredBox(color: cameraDark, child: body),
     );
     // With the way on in the sheet's bar, the camera moves on by itself:
-    // a greyed-out "Next" there, and "Enter manually" a link.
+    // a greyed-out "Next" there, and "Enter manually" a link. Upright in a
+    // sheet the same two in the page's bottom bar, which stays put.
+    if (SheetSlotAction.atBottom(context)) {
+      return SheetSlotAction(
+        action: SheetAction(label: FlutterI18n.translate(context, "ui.next")),
+        secondary: SheetAction(
+          key: const Key("bottom_bar_primary"),
+          label: FlutterI18n.translate(context, manualLabel),
+          onTap: onManual,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: card,
+        ),
+      );
+    }
     final inBar = sheetActionInBar(context);
     final Widget manual = inBar
         ? SheetSlotAction(

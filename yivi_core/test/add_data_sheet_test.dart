@@ -996,14 +996,34 @@ void main() {
         ),
       );
       expect(screen.documentType, documentType);
-      // Start is the sheet's own button, where "Add" was.
-      final start = tester.getRect(
+      // Start is the sheet's own button, where "Add" was: in the page's
+      // bottom bar, not in the instruction screen.
+      final startButton = find.descendant(
+        of: _sheet,
+        matching: find.byKey(const Key("bottom_bar_primary")),
+      );
+      expect(
         find.descendant(
           of: find.byType(DocumentInstructionScreen),
           matching: find.byKey(const Key("bottom_bar_primary")),
         ),
+        findsNothing,
       );
-      expect(start, add);
+      expect(tester.getRect(startButton), add);
+
+      // On to typing it in: the bar stays put while the screen slides in;
+      // only its labels change.
+      await tester.tap(startButton);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 120));
+      final next = find.descendant(
+        of: _sheet,
+        matching: find.byKey(const Key("bottom_bar_primary")),
+      );
+      expect(next, findsOneWidget);
+      expect(tester.getRect(next), add);
+      await _pumpFor(tester);
+      expect(tester.getRect(next), add);
     });
   }
 

@@ -875,16 +875,20 @@ void main() {
       );
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-      // No close button: a drag down on the header is the way out (it
-      // asks, as it does on the details).
-      expect(
-        find.descendant(
-          of: find.byKey(const Key("disclosure_choice_sheet")),
-          matching: find.byType(IrmaCloseButton),
-        ),
-        findsNothing,
+      // The close button is the way out, at the left where back is on the
+      // pages after it (it asks, as a drag down on the header does).
+      final close = find.descendant(
+        of: find.byKey(const Key("disclosure_choice_sheet")),
+        matching: find.byType(IrmaCloseButton),
       );
-      await _dragSheetDown(tester);
+      expect(close, findsOneWidget);
+      expect(
+        tester.getCenter(close).dx,
+        lessThan(
+          tester.getCenter(find.byKey(const Key("glass_sheet_title")).last).dx,
+        ),
+      );
+      await tester.tap(close);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await tester.pumpAndSettle();
@@ -2030,6 +2034,89 @@ void main() {
       expect(find.byType(DocumentInstructionScreen), findsNothing);
     });
 
+    testWidgets("the progress glides from step to step inside it", (
+      tester,
+    ) async {
+      await open(tester);
+      // The part of the line that is filled.
+      double filled() {
+        final line = inSheet(
+          find.byKey(const Key("issue_sheet_progress_line")),
+        ).last;
+        final fill = find
+            .descendant(of: line, matching: find.byType(ColoredBox))
+            .last;
+        return tester.getSize(fill).width / tester.getSize(line).width;
+      }
+
+      expect(filled(), closeTo(2 / 5, 0.01));
+      await tester.tap(inSheet(find.byKey(DocumentFlowButton.primaryKey)));
+      // The step changes a frame after the screen is pushed.
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      final halfway = filled();
+      expect(halfway, greaterThan(2 / 5 + 0.02));
+      expect(halfway, lessThan(3 / 5 - 0.02));
+      await _pumpFor(tester);
+      expect(filled(), closeTo(3 / 5, 0.01));
+    });
+
+    testWidgets("a swipe back steps back a screen, not to the details", (
+      tester,
+    ) async {
+      await open(tester);
+      await tester.tap(inSheet(find.byKey(DocumentFlowButton.primaryKey)));
+      await _pumpFor(tester);
+      expect(
+        inSheet(find.byType(PassportMrzManualEntryScreen)),
+        findsOneWidget,
+      );
+
+      // Half way the screen follows the finger, the instruction under it.
+      final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
+      final swipe = await tester.startGesture(
+        Offset(sheet.left + 20, sheet.center.dy),
+      );
+      for (var i = 0; i < 10; i++) {
+        await swipe.moveBy(Offset(sheet.width * 0.04, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      final entry = tester.getRect(
+        inSheet(find.byType(PassportMrzManualEntryScreen)),
+      );
+      expect(entry.left - sheet.left, closeTo(sheet.width * 0.4 - 18, 30));
+      expect(
+        inSheet(find.byKey(const Key("document_instruction_picture"))),
+        findsOneWidget,
+      );
+      await swipe.moveBy(Offset(sheet.width * 0.2, 0));
+      await swipe.up();
+      await _pumpFor(tester);
+
+      // The instruction, step 2: the details are not on screen.
+      expect(inSheet(find.byType(PassportMrzManualEntryScreen)), findsNothing);
+      expect(
+        inSheet(find.byKey(const ValueKey(("issue_sheet_progress", 2, 5)))),
+        findsOneWidget,
+      );
+      expect(
+        inSheet(find.byKey(const Key("document_instruction_picture"))),
+        findsOneWidget,
+      );
+
+      // From the instruction a swipe goes back to the details.
+      await tester.dragFrom(
+        Offset(sheet.left + 20, sheet.center.dy),
+        Offset(sheet.width * 0.7, 0),
+      );
+      await _pumpFor(tester);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 1, 5))),
+        findsOneWidget,
+      );
+    });
+
     testWidgets("the sheet's own bar: no Cancel, closing asks", (tester) async {
       await open(tester);
       // The screen's own bar and Cancel are gone; the sheet's bar has the
@@ -2082,7 +2169,9 @@ void main() {
         );
         expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
 
-        // Back there: on the details, the document to be read again.
+        // Back there: a step back, the document to be read again (the
+        // chip screen starts over; here no chip was read, so the
+        // instruction is on top).
         await tester.tap(find.bySemanticsLabel("Go back").last);
         await tester.pump();
         nested.add(
@@ -2096,10 +2185,10 @@ void main() {
         );
         await _pumpFor(tester);
         expect(
-          find.byKey(const ValueKey(("issue_sheet_progress", 1, 5))),
+          find.byKey(const ValueKey(("issue_sheet_progress", 2, 5))),
           findsOneWidget,
         );
-        expect(find.byType(DocumentInstructionScreen), findsNothing);
+        expect(find.byType(DocumentInstructionScreen), findsOneWidget);
       },
     );
   });

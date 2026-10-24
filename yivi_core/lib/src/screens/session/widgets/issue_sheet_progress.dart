@@ -106,7 +106,11 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   void didUpdateWidget(IssueSheetProgress old) {
     super.didUpdateWidget(old);
     if (old.step != widget.step || old.total != widget.total) {
-      _go(from: _now);
+      // Where the bar stands now, towards the old step (`_to` is already
+      // the new one), as a part of the whole: a face check that adds a step
+      // keeps the bar where it is.
+      final now = _from + (old.step - _from) * _curve.value;
+      _go(from: now / old.total * widget.total);
     }
   }
 

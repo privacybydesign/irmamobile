@@ -346,12 +346,22 @@ class SheetAction {
 /// Where screens that are not the sheet page itself (the document screens,
 /// in a navigator of their own inside the page) put their way on: the page
 /// shows the slot's [action] in its bar when it has none of its own. On a
-/// phone held upright those screens keep their own buttons at the bottom.
+/// phone held upright a page that [takesBottom] shows [action] and
+/// [secondary] in its own bottom bar, which stays put while the screens
+/// change (only the labels change, as the title does).
 class SheetActionSlot extends ChangeNotifier {
   SheetAction? _action;
+  SheetAction? _secondary;
   Object? _owner;
 
+  /// The page shows the slot's buttons at its bottom on a phone held
+  /// upright (`GlassSheetPage.slotBottom`).
+  bool takesBottom = false;
+
   SheetAction? get action => _action;
+
+  /// The other choice next to [action] at the bottom (upright only).
+  SheetAction? get secondary => _secondary;
 
   /// Who put the [action] there (see [set]).
   Object? get owner => _owner;
@@ -360,10 +370,13 @@ class SheetActionSlot extends ChangeNotifier {
   /// from a build: a change that shows is told after the frame; a new
   /// callback alone is taken without a rebuild (the bar's button calls the
   /// latest one).
-  void set(SheetAction? action, {Object? owner}) {
-    final shows = action == null ? _action != null : !action.looksLike(_action);
+  void set(SheetAction? action, {SheetAction? secondary, Object? owner}) {
+    bool differs(SheetAction? a, SheetAction? b) =>
+        a == null ? b != null : !a.looksLike(b);
+    final shows = differs(action, _action) || differs(secondary, _secondary);
     _action = action;
-    _owner = action == null ? null : owner;
+    _secondary = secondary;
+    _owner = action == null && secondary == null ? null : owner;
     if (!shows) return;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_alive) notifyListeners();
@@ -440,13 +453,22 @@ class SheetBusySpinner extends StatelessWidget {
 /// goes takes its action with it, unless another put one there since.
 class SheetSlotAction extends StatefulWidget {
   final SheetAction? action;
+
+  /// See [SheetActionSlot.secondary].
+  final SheetAction? secondary;
   final Widget child;
 
   const SheetSlotAction({
     super.key,
     required this.action,
+    this.secondary,
     this.child = const SizedBox.shrink(),
   });
+
+  /// Whether the screen at [context] puts its buttons in the bottom bar of
+  /// the sheet page around it ([SheetActionSlot.takesBottom]).
+  static bool atBottom(BuildContext context) =>
+      SheetActionSlot.maybeOf(context)?.takesBottom ?? false;
 
   @override
   State<SheetSlotAction> createState() => _SheetSlotActionState();
@@ -459,7 +481,7 @@ class _SheetSlotActionState extends State<SheetSlotAction> {
   Widget build(BuildContext context) {
     final slot = _slot = SheetActionSlot.maybeOf(context);
     if (slot != null && (ModalRoute.isCurrentOf(context) ?? true)) {
-      slot.set(widget.action, owner: this);
+      slot.set(widget.action, secondary: widget.secondary, owner: this);
     }
     return widget.child;
   }

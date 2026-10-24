@@ -143,6 +143,8 @@ class DocumentFlowFooter extends StatelessWidget {
 
   Widget _inSheet(BuildContext context) {
     final actions = sheetActions(context, buttons);
+    // Upright, in the page's own bottom bar (it puts them there).
+    if (SheetSlotAction.atBottom(context)) return actions;
     if (!sheetActionInBar(context)) return SheetBottomBar(child: actions);
     // The way on is in the bar; the other choice, if any, a link at the
     // bottom.
@@ -156,15 +158,25 @@ class DocumentFlowFooter extends StatelessWidget {
 
   /// [buttons] (all [DocumentFlowButton]s) as the buttons of a step in a
   /// sheet: on a phone held upright the way on and the way back side by
-  /// side; elsewhere the way on in the sheet's bar ([SheetSlotAction]) and
-  /// the way back as a link. Without a bar: also for the left column of a
-  /// sheet held sideways ([SheetSplit]).
+  /// side, in the bottom bar of the sheet page ([SheetSlotAction.atBottom]),
+  /// which stays put while the steps change; elsewhere the way on in the
+  /// sheet's bar ([SheetSlotAction]) and the way back as a link. Without a
+  /// bar: also for the left column of a sheet held sideways ([SheetSplit]).
   static Widget sheetActions(BuildContext context, List<Widget> buttons) {
     final flowButtons = buttons.cast<DocumentFlowButton>();
     final primary = flowButtons.where((b) => b.style == .primary).firstOrNull;
     final secondary = flowButtons.where((b) => b.style != .primary).firstOrNull;
     String? label(DocumentFlowButton? b) =>
         b == null ? null : FlutterI18n.translate(context, b.labelKey);
+    SheetAction? asAction(DocumentFlowButton? b) => b == null
+        ? null
+        : SheetAction(key: b.key, label: label(b)!, onTap: b.onPressed);
+    if (SheetSlotAction.atBottom(context)) {
+      return SheetSlotAction(
+        action: asAction(primary),
+        secondary: asAction(secondary),
+      );
+    }
     if (sheetActionInBar(context)) {
       return SheetSlotAction(
         action: primary == null

@@ -1291,6 +1291,23 @@ class GlassSheetConfirmDismiss extends StatelessWidget {
 /// each other) and its pinned part stay where they are, so the sheet's top
 /// does not move between steps. Any other page slides as a whole when it is
 /// wrapped in a [GlassSheetPageMotion].
+/// A page of [GlassSheetPages] with screens of its own (adding a document):
+/// while [enabled], a back swipe on the page goes back one of its screens,
+/// following the finger, instead of back a page of the sheet.
+abstract interface class GlassSheetInnerSwipe {
+  /// Whether a swipe that starts now goes back a screen in the page.
+  bool get enabled;
+
+  void start();
+
+  /// [delta]: the part of the page's width the finger moved, to the right.
+  void update(double delta);
+
+  /// [velocity]: the finger's speed when let go, in points per second, to
+  /// the right.
+  void end(double velocity);
+}
+
 class GlassSheetPages extends StatefulWidget {
   final List<Widget> pages;
   final VoidCallback onBack;
@@ -1306,6 +1323,19 @@ class GlassSheetPages extends StatefulWidget {
   /// at all), not the one under it.
   static bool isTopPage(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_SheetPageRole>()?.top ?? true;
+
+  /// Hands the back swipe on the page around [context] to [swipe] while it
+  /// is [GlassSheetInnerSwipe.enabled] (a page with screens of its own, as
+  /// adding a document); null hands it back to the sheet.
+  static void setInnerSwipe(BuildContext context, GlassSheetInnerSwipe? swipe) {
+    final role = context.getInheritedWidgetOfExactType<_SheetPageRole>();
+    if (role == null) return;
+    if (swipe == null) {
+      role.inner.remove(role.pageKey);
+    } else {
+      role.inner[role.pageKey] = swipe;
+    }
+  }
 
   @override
   State<GlassSheetPages> createState() => _GlassSheetPagesState();
@@ -1339,6 +1369,13 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   /// The pages with buttons held in place (see [GlassSheetHold]).
   final _held = <Object?>{};
+
+  /// The pages that take the back swipe themselves, by page key (see
+  /// [GlassSheetPages.setInnerSwipe]).
+  final _inner = <Object?, GlassSheetInnerSwipe>{};
+
+  /// The page that takes the swipe under way, if one does.
+  GlassSheetInnerSwipe? _innerDrag;
 
   /// Whether a page is coming in or going out ([_slide] below 1).
   final _moving = ValueNotifier(false);
@@ -1391,12 +1428,37 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
     super.dispose();
   }
 
+  void _dragStart() {
+    final inner = _inner[_shown.last.key];
+    if (_slide.value == 1 && inner != null && inner.enabled) {
+      // Back a screen inside the page, not a page of the sheet.
+      _innerDrag = inner..start();
+    } else {
+      // Takes over from a slide, as on iOS.
+      _slide.stop();
+    }
+    _dragging = true;
+  }
+
   void _dragUpdate(DragUpdateDetails d, double width) {
-    _slide.value -= (d.primaryDelta ?? 0) / width;
+    final delta = (d.primaryDelta ?? 0) / width;
+    final inner = _innerDrag;
+    if (inner != null) {
+      inner.update(delta);
+    } else if (_canSwipe) {
+      _slide.value -= delta;
+    }
   }
 
   void _dragEnd(double velocity) {
     _dragging = false;
+    final inner = _innerDrag;
+    if (inner != null) {
+      _innerDrag = null;
+      inner.end(velocity);
+      return;
+    }
+    if (!_canSwipe) return;
     final back = velocity > 500 || (velocity >= -100 && _slide.value < 0.5);
     if (!back) {
       _slide.animateTo(1, curve: Curves.easeOutCubic);
@@ -1413,27 +1475,23 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   Widget build(BuildContext context) {
     final top = _shown.last;
     final under = _shown.length > 1 ? _shown[_shown.length - 2] : null;
+    // A page with screens of its own takes the swipe also as the only page.
+    final swipes = _canSwipe || _inner.containsKey(top.key);
     return LayoutBuilder(
       builder: (context, constraints) => GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onHorizontalDragStart: _canSwipe
-            ? (_) {
-                // Takes over from a slide, as on iOS.
-                _slide.stop();
-                _dragging = true;
-              }
-            : null,
-        onHorizontalDragUpdate: _canSwipe
+        onHorizontalDragStart: swipes ? (_) => _dragStart() : null,
+        onHorizontalDragUpdate: swipes
             ? (d) {
                 if (_dragging) _dragUpdate(d, constraints.maxWidth);
               }
             : null,
-        onHorizontalDragEnd: _canSwipe
+        onHorizontalDragEnd: swipes
             ? (d) {
                 if (_dragging) _dragEnd(d.velocity.pixelsPerSecond.dx);
               }
             : null,
-        onHorizontalDragCancel: _canSwipe
+        onHorizontalDragCancel: swipes
             ? () {
                 if (_dragging) _dragEnd(0);
               }
@@ -1514,6 +1572,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   fadeOut: _fadeOut,
                   chrome: _chrome,
                   held: _held,
+                  inner: _inner,
                   pageKey: page.key,
                   otherKey: moving ? other : null,
                   child: page,
@@ -1557,6 +1616,10 @@ class _SheetPageRole extends InheritedWidget {
 
   /// The pages with buttons held in place (see [GlassSheetHold]).
   final Set<Object?> held;
+
+  /// The pages that take the back swipe themselves (see
+  /// [GlassSheetPages.setInnerSwipe]).
+  final Map<Object?, GlassSheetInnerSwipe> inner;
   final Key? pageKey;
 
   /// The page this one changes with while [moving]; null otherwise.
@@ -1573,6 +1636,7 @@ class _SheetPageRole extends InheritedWidget {
     required this.fadeOut,
     required this.chrome,
     required this.held,
+    required this.inner,
     required this.pageKey,
     required this.otherKey,
     required super.child,
@@ -1784,6 +1848,12 @@ class GlassSheetPage extends StatefulWidget {
   /// bar has no title).
   final bool edge;
 
+  /// With [scrolls] false, on a phone held upright: the bottom bar shows
+  /// the buttons the screens inside put in the page's [SheetActionSlot]
+  /// (the document steps), and stays put while they change; it keeps its
+  /// room while a screen has none.
+  final bool slotBottom;
+
   const GlassSheetPage({
     super.key,
     required this.title,
@@ -1801,6 +1871,7 @@ class GlassSheetPage extends StatefulWidget {
     this.scrolls = true,
     this.childClearsBottom = false,
     this.edge = true,
+    this.slotBottom = false,
   }) : assert((child == null) != (slivers == null), "child or slivers"),
        assert(scrolls || child != null, "a page that fills itself has a child");
 
@@ -1828,6 +1899,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final pinned = widget.pinned;
     final action = widget.action;
     final inBar = sheetActionInBar(context);
+    _slot.takesBottom = widget.slotBottom && !widget.scrolls && !inBar;
     role?.chrome[role.pageKey] = (
       back: onBack != null,
       pinned: pinned != null,
@@ -1959,6 +2031,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             spacing: 10,
             children: [given, button],
           );
+    if (_slot.takesBottom) return _slotBody(padding, child!);
     return [
       if (!widget.scrolls) ...[
         Expanded(
@@ -1999,6 +2072,66 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         ),
         SheetBottomBar(child: bottom),
       ],
+    ];
+  }
+}
+
+/// The body of a page whose bottom bar shows the slot's buttons
+/// ([GlassSheetPage.slotBottom]).
+extension on _GlassSheetPageState {
+  List<Widget> _slotBody(EdgeInsets padding, Widget child) {
+    SheetAction? latest(SheetAction? a, SheetAction? Function() now) =>
+        a == null || !a.enabled
+        ? a
+        : SheetAction(
+            key: a.key,
+            label: a.label,
+            busy: a.busy,
+            // The latest callback (the slot takes a new one without a
+            // rebuild).
+            onTap: () => now()?.onTap?.call(),
+          );
+    return [
+      Expanded(
+        child: Padding(
+          padding: padding,
+          // The bar under it keeps clear of the home indicator.
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: child,
+          ),
+        ),
+      ),
+      ListenableBuilder(
+        listenable: _slot,
+        builder: (context, _) {
+          final primary = latest(_slot.action, () => _slot.action);
+          final secondary = latest(_slot.secondary, () => _slot.secondary);
+          final empty = primary == null && secondary == null;
+          final row = SheetActionRow(
+            primaryKey: primary?.key,
+            // A screen without buttons: the bar keeps its room, empty.
+            primaryLabel: empty ? " " : primary?.label,
+            onPrimary: primary?.onTap,
+            primaryLeading: primary?.busy ?? false
+                ? const SheetBusySpinner()
+                : null,
+            secondaryKey: secondary?.key,
+            secondaryLabel: secondary?.label,
+            onSecondary: secondary?.onTap,
+          );
+          return SheetBottomBar(
+            child: Visibility(
+              visible: !empty,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: row,
+            ),
+          );
+        },
+      ),
     ];
   }
 }

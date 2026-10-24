@@ -58,6 +58,10 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
   /// The chip screen's own cancel, already confirmed there.
   final VoidCallback onStopped;
 
+  /// Changed: back from adding the document, the chip screen starts over to
+  /// read it again.
+  final int readAgain;
+
   const DocumentSheetStep({
     super.key,
     required this.type,
@@ -66,14 +70,22 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
     required this.onBack,
     required this.onStopped,
     required this.onFaceCheck,
+    this.readAgain = 0,
   });
 
   @override
   ConsumerState<DocumentSheetStep> createState() => _DocumentSheetStepState();
 }
 
-class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
+class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
+    implements GlassSheetInnerSwipe {
   final _navigator = GlobalKey<NavigatorState>();
+
+  /// The screen on top of the navigator.
+  _SheetScreenRoute<dynamic>? _top;
+
+  /// The screen a back swipe is taking away.
+  _SheetScreenRoute<dynamic>? _swiping;
 
   /// Under the instruction, so popping the instruction is noticed and
   /// leaves the flow.
@@ -82,8 +94,11 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
   );
   late final _observer = _ScreenObserver(
     root: _root,
-    onScreen: (screen) {
-      if (mounted && screen != _screen) setState(() => _screen = screen);
+    onScreen: (route) {
+      _top = route;
+      if (mounted && route.screen != _screen) {
+        setState(() => _screen = route.screen);
+      }
     },
     onRoot: () => widget.onBack(),
     // A new screen starts with an empty slot in the bar: it puts its own
@@ -99,6 +114,82 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
 
   /// The chip screen is open: the camera reports a read more than once.
   var _reading = false;
+
+  /// The chip screen, while it is in the navigator.
+  _SheetScreenRoute<void>? _chip;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A swipe back goes back a screen here, not to the details.
+    GlassSheetPages.setInnerSwipe(context, this);
+  }
+
+  @override
+  void didUpdateWidget(DocumentSheetStep old) {
+    super.didUpdateWidget(old);
+    if (widget.readAgain != old.readAgain) _chipAgain();
+  }
+
+  // Past the instruction a swipe takes the screen on top away, as back
+  // does; the instruction itself goes back to the details (the sheet's).
+  @override
+  bool get enabled {
+    final top = _top;
+    return top != null &&
+        top.screen != _Screen.instruction &&
+        top.popGestureEnabled;
+  }
+
+  @override
+  void start() => (_swiping = _top)?.dragStart();
+
+  @override
+  void update(double delta) => _swiping?.dragUpdate(delta);
+
+  @override
+  void end(double velocity) {
+    _swiping?.dragEnd(velocity);
+    _swiping = null;
+  }
+
+  /// The chip screen anew, to read the document again (back from adding
+  /// it): the screens after it go, the chip screen starts over.
+  void _chipAgain() {
+    final chip = _chip;
+    final mrz = chip?.mrz;
+    final navigator = _navigator.currentState;
+    if (chip == null || mrz == null || !chip.isActive || navigator == null) {
+      return;
+    }
+    navigator
+      ..popUntil((route) => route == chip)
+      ..replace(oldRoute: chip, newRoute: _chipRoute(mrz, animate: false));
+  }
+
+  /// The chip screen for [mrz]; while it is open the camera's reads are
+  /// ignored.
+  _SheetScreenRoute<void> _chipRoute(ScannedMrz mrz, {bool animate = true}) {
+    _reading = true;
+    final route = _chip = _SheetScreenRoute<void>(
+      _Screen.chip,
+      (_) => _nfc(mrz),
+      animate: animate,
+      mrz: mrz,
+    );
+    route.popped.whenComplete(() {
+      if (_chip != route) return;
+      _reading = false;
+      _chip = null;
+    });
+    return route;
+  }
+
+  Widget _nfc(ScannedMrz mrz) => DocumentFlowSteps.nfc(
+    mrz,
+    onCancel: widget.onStopped,
+    faceIntro: _faceIntro,
+  );
 
   Future<T?>? _push<T>(_Screen screen, WidgetBuilder builder) =>
       _navigator.currentState?.push<T>(_SheetScreenRoute<T>(screen, builder));
@@ -138,15 +229,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
 
   void _read(ScannedMrz mrz) {
     if (_reading) return;
-    _reading = true;
-    _push<void>(
-      _Screen.chip,
-      (_) => DocumentFlowSteps.nfc(
-        mrz,
-        onCancel: widget.onStopped,
-        faceIntro: _faceIntro,
-      ),
-    )?.whenComplete(() => _reading = false);
+    _navigator.currentState?.push(_chipRoute(mrz));
   }
 
   /// The face check's intro as the next screen in the sheet; back (or "not
@@ -187,9 +270,11 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep> {
         total: widget.total,
       ),
       subtitle: IssueSheetRequestorLine(subject: widget.subject),
-      // The screens fill the page and have their own buttons at the bottom.
+      // The screens fill the page; upright their buttons are in the page's
+      // bottom bar, which stays put while they change.
       scrolls: false,
       childClearsBottom: true,
+      slotBottom: true,
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
@@ -234,7 +319,42 @@ class _SheetScreenRoute<T> extends PageRoute<T> {
   final _Screen screen;
   final WidgetBuilder builder;
 
-  _SheetScreenRoute(this.screen, this.builder);
+  /// False: in place at once (a screen started over in its own place).
+  final bool animate;
+
+  /// What the chip screen reads with.
+  final ScannedMrz? mrz;
+
+  _SheetScreenRoute(this.screen, this.builder, {this.animate = true, this.mrz});
+
+  /// A back swipe takes this screen away, following the finger
+  /// ([GlassSheetInnerSwipe]).
+  void dragStart() => navigator?.didStartUserGesture();
+
+  void dragUpdate(double delta) =>
+      controller?.value = (controller!.value - delta).clamp(0, 1);
+
+  /// As the sheet's own pages: back when flung right, or let go past half.
+  void dragEnd(double velocity) {
+    final controller = this.controller!;
+    final back = velocity > 500 || (velocity >= -100 && controller.value < 0.5);
+    if (back) {
+      navigator?.pop();
+    } else {
+      controller.forward();
+    }
+    if (!controller.isAnimating) {
+      navigator?.didStopUserGesture();
+      return;
+    }
+    late final AnimationStatusListener done;
+    done = (_) {
+      if (controller.isAnimating) return;
+      navigator?.didStopUserGesture();
+      controller.removeStatusListener(done);
+    };
+    controller.addStatusListener(done);
+  }
 
   @override
   Color? get barrierColor => null;
@@ -246,7 +366,8 @@ class _SheetScreenRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 340);
+  Duration get transitionDuration =>
+      animate ? const Duration(milliseconds: 340) : Duration.zero;
 
   @override
   Widget buildPage(
@@ -262,19 +383,25 @@ class _SheetScreenRoute<T> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final curve = CurvedAnimation(
-      parent: animation,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInOutCubic,
-    );
+    // Under a finger the screens follow it, without a curve.
+    final swiped = navigator?.userGestureInProgress ?? false;
+    final Animation<double> curve = swiped
+        ? animation
+        : CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInOutCubic,
+          );
     if (MediaQuery.disableAnimationsOf(context)) {
       return FadeTransition(opacity: curve, child: child);
     }
-    final behind = CurvedAnimation(
-      parent: secondaryAnimation,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInOutCubic,
-    );
+    final Animation<double> behind = swiped
+        ? secondaryAnimation
+        : CurvedAnimation(
+            parent: secondaryAnimation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInOutCubic,
+          );
     return SlideTransition(
       position: Tween(
         begin: Offset.zero,
@@ -314,7 +441,7 @@ class _SheetScreenRoute<T> extends PageRoute<T> {
 /// the instruction is popped off (back from the first screen).
 class _ScreenObserver extends NavigatorObserver {
   final Route<void> root;
-  final ValueChanged<_Screen> onScreen;
+  final ValueChanged<_SheetScreenRoute<dynamic>> onScreen;
   final VoidCallback onRoot;
   final VoidCallback onPush;
 
@@ -327,9 +454,8 @@ class _ScreenObserver extends NavigatorObserver {
 
   void _show(Route<dynamic>? route) {
     if (route is _SheetScreenRoute) {
-      final screen = route.screen;
       // Not during the navigator's own build.
-      WidgetsBinding.instance.addPostFrameCallback((_) => onScreen(screen));
+      WidgetsBinding.instance.addPostFrameCallback((_) => onScreen(route));
     }
   }
 
