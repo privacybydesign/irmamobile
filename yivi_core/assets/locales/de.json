@@ -937,6 +937,7 @@
   "face_verification": {
     "title": "Gesichtsverifizierung",
     "preparing": "Einen Moment, Ihre Daten werden vorbereitet…",
+    "preparing_title": "Daten abrufen",
     "hold_upright": {
       "title": "Halten Sie Ihr Telefon aufrecht",
       "body": "Die Gesichtsprüfung wird fortgesetzt, sobald Ihr Telefon wieder aufrecht ist."

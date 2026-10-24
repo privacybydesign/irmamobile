@@ -17,6 +17,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_ver
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_step_in_sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
@@ -88,6 +89,15 @@ class _FailingIssuanceIssuer extends _AnnouncingPassportIssuer {
     RawDocumentData documentDataResult,
     DocumentType docType,
   ) async => throw Exception(message);
+}
+
+/// An issuer that is still being contacted: the loader stays up.
+class _WaitingIssuanceIssuer extends _AnnouncingPassportIssuer {
+  @override
+  Future<IrmaSessionPointer> startIrmaIssuanceSession(
+    RawDocumentData documentDataResult,
+    DocumentType docType,
+  ) => Completer<IrmaSessionPointer>().future;
 }
 
 /// Liveness service that completes with a transaction id, so the flow gets past
@@ -216,14 +226,18 @@ Future<GoRouter> _pumpNfcScreen(
   PassportIssuer issuer, {
   DocumentReader<PassportData>? reader,
   RegulaFaceService? faceService,
+  ValueNotifier<bool>? sheetPreparing,
 }) async {
+  final screen = NfcReadingScreen(mrz: _mrz, translationKeys: _passportKeys());
   final router = GoRouter(
     initialLocation: "/nfc",
     routes: [
       GoRoute(
         path: "/nfc",
-        builder: (_, _) =>
-            NfcReadingScreen(mrz: _mrz, translationKeys: _passportKeys()),
+        // As a step of the sheet when its notifier is given.
+        builder: (_, _) => sheetPreparing == null
+            ? screen
+            : DocumentStepInSheet(preparing: sheetPreparing, child: screen),
       ),
       GoRoute(
         path: "/elsewhere",
@@ -411,6 +425,38 @@ void main() {
     // instead of throwing a full-screen error over where they navigated to.
     expect(find.text("elsewhere"), findsOneWidget);
     expect(find.textContaining("issuer unreachable"), findsNothing);
+  }, variant: _ios);
+
+  testWidgets("in a sheet, the step is told while the loader is up", (
+    tester,
+  ) async {
+    // A phone held upright: the sheet step keeps its buttons at the bottom.
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final preparing = ValueNotifier(false);
+    addTearDown(preparing.dispose);
+    await _pumpNfcScreen(
+      tester,
+      _WaitingIssuanceIssuer(),
+      reader: _SucceedingPassportReader(),
+      faceService: _PassingFaceService(),
+      sheetPreparing: preparing,
+    );
+    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+    await tester.pumpAndSettle();
+    expect(preparing.value, isFalse);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FaceVerificationIntroScreen),
+        matching: find.byKey(const Key("bottom_bar_primary")),
+      ),
+    );
+    await _pumpFrames(tester);
+    // The loader, and the sheet's bar can say the data is being fetched.
+    expect(find.text("One moment, preparing your data…"), findsOneWidget);
+    expect(preparing.value, isTrue);
   }, variant: _ios);
 
   testWidgets("a rejected face match gets the failed-face illustration", (

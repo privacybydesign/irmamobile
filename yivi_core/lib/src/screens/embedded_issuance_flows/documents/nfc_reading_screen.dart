@@ -395,6 +395,20 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    // In a sheet its bar says the data is being fetched while the loader
+    // shows: once the face check over it is gone (the loader is switched on
+    // under it). After the build: it rebuilds the sheet's bar.
+    final preparing = DocumentStepInSheet.preparingOf(context);
+    final shown =
+        _preparingIssuance && (ModalRoute.isCurrentOf(context) ?? true);
+    if (preparing != null && preparing.value != shown) {
+      final value = shown;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Still here, so the sheet step around it is too.
+        if (mounted) preparing.value = value;
+      });
+    }
+
     // an issuance error is different from a passport nfc scanning error
     if (issuanceError != null) {
       return _buildError(
@@ -575,7 +589,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // In a sheet its bar has the title.
       appBar: DocumentStepInSheet.of(context)
           ? null
-          : IrmaAppBar(titleTranslationKey: "face_verification.title"),
+          : IrmaAppBar(
+              titleTranslationKey: "face_verification.preparing_title",
+            ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),

@@ -937,6 +937,7 @@
   "face_verification": {
     "title": "Gezichtsverificatie",
     "preparing": "Een moment, je gegevens worden voorbereid…",
+    "preparing_title": "Gegevens ophalen",
     "hold_upright": {
       "title": "Houd je telefoon rechtop",
       "body": "De gezichtscontrole gaat verder zodra je telefoon weer rechtop is."

@@ -96,6 +96,8 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
     root: _root,
     onScreen: (route) {
       _top = route;
+      // Another screen on top (or the chip screen anew): no longer waiting.
+      if (mounted) _preparing.value = false;
       if (mounted && route.screen != _screen) {
         setState(() => _screen = route.screen);
       }
@@ -114,6 +116,24 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
 
   /// The chip screen is open: the camera reports a read more than once.
   var _reading = false;
+
+  /// The chip screen waits for the issuer after the face check: the bar
+  /// says the data is being fetched.
+  final _preparing = ValueNotifier(false);
+
+  @override
+  void initState() {
+    super.initState();
+    _preparing.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _preparing.dispose();
+    super.dispose();
+  }
 
   /// The chip screen, while it is in the navigator.
   _SheetScreenRoute<void>? _chip;
@@ -246,16 +266,18 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
     return start ?? false;
   }
 
-  String get _titleKey => switch (_screen) {
-    _Screen.instruction ||
-    _Screen.reader ||
-    _Screen.manual => widget.type.scanTitleKey,
-    _Screen.chip => widget.type.scanTitleKey.replaceFirst(
-      ".scan.title",
-      ".nfc.title",
-    ),
-    _Screen.face => "face_verification.title",
-  };
+  String get _titleKey => _preparing.value
+      ? "face_verification.preparing_title"
+      : switch (_screen) {
+          _Screen.instruction ||
+          _Screen.reader ||
+          _Screen.manual => widget.type.scanTitleKey,
+          _Screen.chip => widget.type.scanTitleKey.replaceFirst(
+            ".scan.title",
+            ".nfc.title",
+          ),
+          _Screen.face => "face_verification.title",
+        };
 
   @override
   Widget build(BuildContext context) {
@@ -279,6 +301,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
         context: context,
         removeTop: true,
         child: DocumentStepInSheet(
+          preparing: _preparing,
           // System back steps back in the flow first.
           child: NavigatorPopHandler(
             onPopWithResult: (_) => _back(),

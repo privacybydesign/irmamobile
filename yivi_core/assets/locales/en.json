@@ -934,6 +934,7 @@
   "face_verification": {
     "title": "Face verification",
     "preparing": "One moment, preparing your data…",
+    "preparing_title": "Getting your data",
     "hold_upright": {
       "title": "Hold your phone upright",
       "body": "The face check continues once your phone is upright again."

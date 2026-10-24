@@ -9,11 +9,19 @@ import "../../../util/adaptive_layout.dart";
 /// title, back and close), and let the sheet's glass show behind them. The
 /// same screens on their full-screen routes have no marker and keep both.
 class DocumentStepInSheet extends InheritedWidget {
-  const DocumentStepInSheet({super.key, required super.child});
+  /// Set by the chip screen while it waits for the issuer after the face
+  /// check (a loading screen), so the sheet's bar can say so in its title.
+  final ValueNotifier<bool>? preparing;
+
+  const DocumentStepInSheet({super.key, this.preparing, required super.child});
 
   /// Whether the screen at [context] is a step in a sheet.
   static bool of(BuildContext context) =>
       context.getInheritedWidgetOfExactType<DocumentStepInSheet>() != null;
+
+  /// See [preparing]; null outside a sheet.
+  static ValueNotifier<bool>? preparingOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<DocumentStepInSheet>()?.preparing;
 
   @override
   bool updateShouldNotify(DocumentStepInSheet oldWidget) => false;
