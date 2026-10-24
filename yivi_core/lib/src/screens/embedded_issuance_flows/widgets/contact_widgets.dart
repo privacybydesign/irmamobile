@@ -335,7 +335,9 @@ class ContactCodeField extends StatelessWidget {
               onChanged: onChanged,
               onCompleted: onCompleted,
               pinAnimationType: .scale,
-              hapticFeedbackType: .lightImpact,
+              // The keyboard already gives feedback on every key; Pinput's
+              // own on top of it made each digit buzz twice.
+              hapticFeedbackType: .disabled,
             );
           },
         ),

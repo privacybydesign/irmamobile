@@ -10,10 +10,12 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
+import "../../widgets/scroll_to_top.dart";
 import "../activity/activity_tab.dart";
 import "../data/data_tab.dart";
 import "../data/wallet/wallet_transition.dart";
 import "../more/more_tab.dart";
+import "../notifications/bloc/notifications_bloc.dart";
 import "../notifications/notifications_tab.dart";
 import "widgets/glass_rail.dart";
 import "widgets/glass_sidebar.dart";
@@ -34,98 +36,136 @@ class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  /// The tabs, kept alive across the layouts (tab bar, rail, sidebar).
+  final _keptTabs = GlobalKey();
+
+  /// Each tab, to scroll its lists up when its button is tapped again.
+  final _tabKeys = {for (final tab in IrmaNavBarTab.values) tab: GlobalKey()};
+
+  /// Another tab, or, on the tab already selected, its lists back to the
+  /// top, as on iOS.
+  void _changeTab(IrmaNavBarTab tab) {
+    final tabs = context.read<HomeTabState>();
+    if (tab == tabs.state) {
+      final shown = _tabKeys[tab]!.currentContext;
+      if (shown != null) scrollListsToTop(shown);
+      return;
+    }
+    tabs.add(tab);
+  }
+
   @override
   Widget build(BuildContext context) {
-    changeTab(IrmaNavBarTab tab) {
-      context.read<HomeTabState>().add(tab);
-    }
+    final changeTab = _changeTab;
 
     final palette = YiviPalette.of(context);
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
-    return BlocBuilder<HomeTabState, IrmaNavBarTab>(
-      builder: (context, tabState) {
-        // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
-        // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
-        // root route in the navigator. In that case, we background the app on Android.
-        // On iOS, there is no back button so we don't have to handle this case.
-        return PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, popResult) {
-            if (tabState == .data) {
-              IrmaRepositoryProvider.of(
-                context,
-              ).bridgedDispatch(AndroidSendToBackgroundEvent());
-            } else {
-              changeTab(.data);
-            }
-          },
-          child: PendingPointerListener(
-            child: Scaffold(
-              backgroundColor: palette.background,
-              resizeToAvoidBottomInset: false,
-              body: useSidebar(context)
-                  ? _withSidebar(context, tabState, changeTab)
-                  : useHomePanes(context)
-                  ? _withRail(context, tabState, changeTab)
-                  : Stack(
-                      children: [
-                        Positioned.fill(child: _tab(tabState, changeTab)),
-                        // Fades the content out under the floating tab bar.
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: 96 + bottomPadding,
-                          child: IgnorePointer(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    palette.background.withValues(alpha: 0),
-                                    palette.background.withValues(alpha: 0.85),
-                                  ],
+    // The tabs are kept alive, so leaving Notifications is no dispose of it:
+    // what it showed counts as read once another tab is picked.
+    return BlocListener<HomeTabState, IrmaNavBarTab>(
+      listenWhen: (previous, next) =>
+          previous == .notifications && next != .notifications,
+      listener: (context, _) =>
+          context.read<NotificationsBloc>().add(MarkAllNotificationsAsRead()),
+      child: BlocBuilder<HomeTabState, IrmaNavBarTab>(
+        builder: (context, tabState) {
+          // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
+          // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
+          // root route in the navigator. In that case, we background the app on Android.
+          // On iOS, there is no back button so we don't have to handle this case.
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, popResult) {
+              if (tabState == .data) {
+                IrmaRepositoryProvider.of(
+                  context,
+                ).bridgedDispatch(AndroidSendToBackgroundEvent());
+              } else {
+                changeTab(.data);
+              }
+            },
+            child: PendingPointerListener(
+              child: Scaffold(
+                backgroundColor: palette.background,
+                resizeToAvoidBottomInset: false,
+                body: useSidebar(context)
+                    ? _withSidebar(context, tabState, changeTab)
+                    : useHomePanes(context)
+                    ? _withRail(context, tabState, changeTab)
+                    : Stack(
+                        children: [
+                          Positioned.fill(child: _tab(tabState, changeTab)),
+                          // Fades the content out under the floating tab bar.
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 96 + bottomPadding,
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      palette.background.withValues(alpha: 0),
+                                      palette.background.withValues(
+                                        alpha: 0.85,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        // Clear of a side panel (an unfolded phone).
-                        Positioned(
-                          left: 16 + MediaQuery.paddingOf(context).left,
-                          right: 16 + MediaQuery.paddingOf(context).right,
-                          bottom: FloatingBarPlacement.tabBarBottom(context),
-                          child: PushAway(
-                            direction: PushAwayDirection.down,
-                            child: CentredMaxWidth(
-                              maxWidth: mediumContentMaxWidth,
-                              child: GlassTabBar(
-                                selectedTab: tabState,
-                                onChangeTab: changeTab,
+                          // Clear of a side panel (an unfolded phone).
+                          Positioned(
+                            left: 16 + MediaQuery.paddingOf(context).left,
+                            right: 16 + MediaQuery.paddingOf(context).right,
+                            bottom: FloatingBarPlacement.tabBarBottom(context),
+                            child: PushAway(
+                              direction: PushAwayDirection.down,
+                              child: CentredMaxWidth(
+                                maxWidth: mediumContentMaxWidth,
+                                child: GlassTabBar(
+                                  selectedTab: tabState,
+                                  onChangeTab: changeTab,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        if (tabState == .data) _scanTipOverBar(context),
-                      ],
-                    ),
+                          if (tabState == .data) _scanTipOverBar(context),
+                        ],
+                      ),
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
+  /// The selected tab, with the ones visited before kept alive out of
+  /// sight, so going back to a tab finds it as it was left.
   Widget _tab(IrmaNavBarTab tab, ValueChanged<IrmaNavBarTab> changeTab) =>
-      switch (tab) {
-        .notifications => NotificationsTab(),
-        .data => DataTab(),
-        .activity => ActivityTab(),
-        .more => MoreTab(onChangeTab: changeTab),
-      };
+      _KeptTabs(
+        key: _keptTabs,
+        selected: tab,
+        tabKeys: _tabKeys,
+        builder: (tab) => switch (tab) {
+          .notifications => NotificationsTab(),
+          .data => DataTab(),
+          .activity => ActivityTab(),
+          .more => MoreTab(onChangeTab: changeTab),
+        },
+      );
 
   /// A phone held sideways, and a tablet below [sidebarBreakpoint]: a
   /// floating rail on the left instead of the tab bar, with the tab (a list
@@ -232,6 +272,61 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The tabs visited so far, built once and kept; only [selected] is in
+/// sight, the others take no taps, focus, tickers or hero flights.
+class _KeptTabs extends StatefulWidget {
+  final IrmaNavBarTab selected;
+  final Map<IrmaNavBarTab, GlobalKey> tabKeys;
+  final Widget Function(IrmaNavBarTab tab) builder;
+
+  const _KeptTabs({
+    super.key,
+    required this.selected,
+    required this.tabKeys,
+    required this.builder,
+  });
+
+  @override
+  State<_KeptTabs> createState() => _KeptTabsState();
+}
+
+class _KeptTabsState extends State<_KeptTabs> {
+  final _visited = <IrmaNavBarTab>{};
+
+  @override
+  Widget build(BuildContext context) {
+    _visited.add(widget.selected);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        for (final tab in IrmaNavBarTab.values)
+          if (_visited.contains(tab))
+            KeyedSubtree(
+              key: ValueKey(tab),
+              child: _kept(tab, shown: tab == widget.selected),
+            ),
+      ],
+    );
+  }
+
+  Widget _kept(IrmaNavBarTab tab, {required bool shown}) => Offstage(
+    offstage: !shown,
+    child: TickerMode(
+      enabled: shown,
+      child: HeroMode(
+        enabled: shown,
+        child: ExcludeFocus(
+          excluding: !shown,
+          child: KeyedSubtree(
+            key: widget.tabKeys[tab],
+            child: widget.builder(tab),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _ScanTipWhenDue extends ConsumerWidget {

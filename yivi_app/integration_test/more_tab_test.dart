@@ -5,6 +5,7 @@ import "package:integration_test/integration_test.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
 import "package:yivi_core/src/screens/more/widgets/tiles.dart";
+import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -27,10 +28,16 @@ void main() {
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
 
-      // Check screen header title (the tab has no app bar any more; its
-      // title is the first text on the page)
+      // Check the page's large title (the bar has the same title, shown
+      // once the large one scrolls under it)
       expect(
-        find.descendant(of: find.byType(MoreTab), matching: find.text("More")),
+        find.descendant(
+          of: find.descendant(
+            of: find.byType(MoreTab),
+            matching: find.byType(TabLargeTitle),
+          ),
+          matching: find.text("More"),
+        ),
         findsOneWidget,
       );
 

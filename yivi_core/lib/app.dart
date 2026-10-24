@@ -20,6 +20,7 @@ import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
+import "src/widgets/scroll_to_top.dart";
 import "src/widgets/glass/glass_sheet.dart";
 import "src/widgets/legacy_material_bridge.dart";
 import "src/widgets/lock_gate.dart";
@@ -220,17 +221,19 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             routerConfig: _router,
             // Beside a panel down the side of an upright screen; a tap
             // outside a text field puts the keyboard away.
-            builder: (context, child) => SidePanelInset(
-              child: UnfocusOnTapOutside(
-                child: LegacyMaterialBridge(
-                  child: LockGate(
-                    router: _router,
-                    child: StoreReviewGate(
+            builder: (context, child) => StatusBarScrollsToTop(
+              child: SidePanelInset(
+                child: UnfocusOnTapOutside(
+                  child: LegacyMaterialBridge(
+                    child: LockGate(
                       router: _router,
-                      // The page under an open sheet doesn't blur (performance).
-                      child: GlassSheetCover(
-                        opaqueGlass: _glassOpaque,
-                        child: child ?? const SizedBox.shrink(),
+                      child: StoreReviewGate(
+                        router: _router,
+                        // The page under an open sheet doesn't blur (performance).
+                        child: GlassSheetCover(
+                          opaqueGlass: _glassOpaque,
+                          child: child ?? const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                   ),

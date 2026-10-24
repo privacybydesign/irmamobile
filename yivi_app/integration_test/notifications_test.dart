@@ -11,6 +11,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.da
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";
@@ -211,8 +212,13 @@ Future<void> testEmptyState(
   await tester.tapAndSettle(_notificationBellFinder);
   expect(_notificationsScreenFinder, findsOneWidget);
 
+  // The page's large title (the bar has the same title, shown once the
+  // large one scrolls under it).
   final screenTitleFinder = find.descendant(
-    of: _notificationsScreenFinder,
+    of: find.descendant(
+      of: _notificationsScreenFinder,
+      matching: find.byType(TabLargeTitle),
+    ),
     matching: find.text("Notifications"),
   );
   expect(screenTitleFinder, findsOneWidget);
@@ -262,10 +268,7 @@ Future<void> testReadAllNotifications(
   await tester.pumpAndSettle();
 
   // Bell should still indicate unread (we haven't left the tab yet).
-  expect(
-    notificationsIndicatorShown(tester),
-    true,
-  );
+  expect(notificationsIndicatorShown(tester), true);
 
   final notificationCardFinder = find.byType(NotificationCard);
   expect(notificationCardFinder, findsOneWidget);
@@ -281,10 +284,7 @@ Future<void> testReadAllNotifications(
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await tester.pumpAndSettle();
 
-  expect(
-    notificationsIndicatorShown(tester),
-    false,
-  );
+  expect(notificationsIndicatorShown(tester), false);
 
   await tester.tapAndSettle(_notificationBellFinder);
   expect(_notificationsScreenFinder, findsOneWidget);
@@ -440,10 +440,7 @@ Future<void> testMultipleNotificationsAndPerCardNavigation(
     _cardWithContent(_expiringSoonContent),
     read: false,
   );
-  expect(
-    notificationsIndicatorShown(tester),
-    true,
-  );
+  expect(notificationsIndicatorShown(tester), true);
 
   // Tap the expiring card → SD-JWT email details. Back.
   await tester.tapAndSettle(_cardWithContent(_expiringSoonContent));
@@ -471,10 +468,7 @@ Future<void> testMultipleNotificationsAndPerCardNavigation(
   // Leave the tab once more; bell indicator should be off now.
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await tester.pumpAndSettle();
-  expect(
-    notificationsIndicatorShown(tester),
-    false,
-  );
+  expect(notificationsIndicatorShown(tester), false);
 }
 
 Future<void> testOrphanRecordCleanupOnCredentialDelete(
@@ -516,10 +510,7 @@ Future<void> testLifecycleResumeTriggersLoadNotifications(
 
   // Pre-condition: Initialize ran with 0 creds before issuance, and no event
   // has retriggered LoadNotifications since. Bell is off.
-  expect(
-    notificationsIndicatorShown(tester),
-    false,
-  );
+  expect(notificationsIndicatorShown(tester), false);
 
   // Drive the lifecycle observer in app.dart that calls
   // notificationsBloc.add(LoadNotifications()) on resume.
@@ -528,10 +519,7 @@ Future<void> testLifecycleResumeTriggersLoadNotifications(
   );
   await tester.pumpAndSettle();
 
-  expect(
-    notificationsIndicatorShown(tester),
-    true,
-  );
+  expect(notificationsIndicatorShown(tester), true);
 
   await tester.tapAndSettle(_notificationBellFinder);
   expect(_notificationsScreenFinder, findsOneWidget);
