@@ -635,12 +635,7 @@ class _Details extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => DeleteCredentialConfirmationDialog(),
-        ) ??
-        false;
+    final confirmed = await DeleteCredentialConfirmationDialog.ask(context);
     if (!confirmed || !context.mounted) return;
     // Shown on the Data tab, once this page has closed.
     final toast = appToastFor(context, overTabBar: true);

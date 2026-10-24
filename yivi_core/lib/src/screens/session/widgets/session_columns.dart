@@ -16,6 +16,38 @@ const double sidewaysPanelWidth = 324;
 /// tablet or an unfolded phone.
 const double sidewaysMaxWidth = sidewaysPanelWidth + 16 + 480 + 16;
 
+/// A session screen's sideways layout: the [panel] at the left
+/// ([sidewaysPanelWidth] wide) and the [content] beside it, 16 apart,
+/// inside the left and right safe area and, on a wide screen (a tablet, an
+/// unfolded phone), at most [sidewaysMaxWidth], centred.
+class SidewaysLayout extends StatelessWidget {
+  final Widget panel;
+  final Widget content;
+
+  const SidewaysLayout({super.key, required this.panel, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    final insets = MediaQuery.paddingOf(context);
+    return Padding(
+      padding: EdgeInsets.only(left: insets.left, right: insets.right),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: sidewaysMaxWidth),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(width: sidewaysPanelWidth, child: panel),
+              const SizedBox(width: 16),
+              Expanded(child: content),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Whether the session screens use their two-column tablet layouts: on a
 /// tablet held upright. Wider than high they use the layout of a phone held
 /// sideways instead ([useSheetColumns]): who asks and the button in a panel

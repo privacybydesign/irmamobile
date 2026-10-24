@@ -1,11 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../providers/sms_issuance_provider.dart";
-import "../../../theme/theme.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
+import "../widgets/contact_widgets.dart";
 import "widgets/enter_phonenumber_screen.dart";
 import "widgets/verify_phonenumber_screen.dart";
 
@@ -21,31 +18,10 @@ class SmsIssuanceScreen extends ConsumerWidget {
     return switch (state.stage) {
       .enteringPhoneNumber => EnterPhoneScreen(),
       .enteringVerificationCode => VerifyPhoneScreen(),
-      .waiting => _WaitingScreen(),
+      .waiting => const ContactWaitingScreen(
+        titleKey: "sms_issuance.enter_phone.title",
+        backKey: "sms_issuance.enter_phone.back_button",
+      ),
     };
-  }
-}
-
-class _WaitingScreen extends StatelessWidget {
-  const _WaitingScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "sms_issuance.enter_phone.title",
-      ),
-      body: Padding(
-        padding: .all(theme.defaultSpacing),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
-        onSecondaryPressed: context.pop,
-      ),
-    );
   }
 }

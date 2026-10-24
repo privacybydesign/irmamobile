@@ -1,13 +1,10 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/email_code_pointer.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
-import "../../../theme/theme.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
+import "../widgets/contact_widgets.dart";
 import "widgets/enter_email_screen.dart";
 import "widgets/verify_email_screen.dart";
 
@@ -71,31 +68,10 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
     return switch (state.stage) {
       .enteringEmail => EnterEmailScreen(purpose: widget.purpose),
       .enteringVerificationCode => VerifyEmailScreen(purpose: widget.purpose),
-      .waiting => _WaitingScreen(),
+      .waiting => const ContactWaitingScreen(
+        titleKey: "email_issuance.enter_email.title",
+        backKey: "email_issuance.enter_email.back_button",
+      ),
     };
-  }
-}
-
-class _WaitingScreen extends StatelessWidget {
-  const _WaitingScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "email_issuance.enter_email.title",
-      ),
-      body: Padding(
-        padding: .all(theme.defaultSpacing),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: "email_issuance.enter_email.back_button",
-        onSecondaryPressed: context.pop,
-      ),
-    );
   }
 }

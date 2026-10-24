@@ -9,7 +9,6 @@ import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
-import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -148,42 +147,20 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
   }
 
   Future<void> _goBack() async {
-    final result = await showDialog(
-      context: context,
-      builder: (context) => IrmaConfirmationDialog(
-        titleTranslationKey: "sms_issuance.verify_code.back_dialog.title",
-        contentTranslationKey: "sms_issuance.verify_code.back_dialog.body",
-        confirmTranslationKey: "sms_issuance.verify_code.back_dialog.confirm",
-        cancelTranslationKey: "sms_issuance.verify_code.back_dialog.cancel",
-        onCancelPressed: () => context.pop(false),
-        onConfirmPressed: () => context.pop(true),
-      ),
+    final result = await confirmContactStep(
+      context,
+      "sms_issuance.verify_code.back_dialog",
     );
-    if (result ?? false) {
+    if (result) {
       ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
     }
   }
 
   Future<void> showResendSmsDialog(String phoneNumber) async {
-    final bool resend =
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return IrmaConfirmationDialog(
-              titleTranslationKey:
-                  "sms_issuance.verify_code.resend_dialog.title",
-              contentTranslationKey:
-                  "sms_issuance.verify_code.resend_dialog.body",
-              confirmTranslationKey:
-                  "sms_issuance.verify_code.resend_dialog.confirm",
-              cancelTranslationKey:
-                  "sms_issuance.verify_code.resend_dialog.cancel",
-              onCancelPressed: () => context.pop(false),
-              onConfirmPressed: () => context.pop(true),
-            );
-          },
-        ) ??
-        false;
+    final resend = await confirmContactStep(
+      context,
+      "sms_issuance.verify_code.resend_dialog",
+    );
 
     if (!resend || !mounted) {
       return;

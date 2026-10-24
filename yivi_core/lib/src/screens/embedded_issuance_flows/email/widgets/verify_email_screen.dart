@@ -12,7 +12,6 @@ import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
-import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
@@ -231,42 +230,20 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   }
 
   Future<void> _goBack() async {
-    final result = await showDialog(
-      context: context,
-      builder: (context) => IrmaConfirmationDialog(
-        titleTranslationKey: "email_issuance.verify_code.back_dialog.title",
-        contentTranslationKey: "email_issuance.verify_code.back_dialog.body",
-        confirmTranslationKey: "email_issuance.verify_code.back_dialog.confirm",
-        cancelTranslationKey: "email_issuance.verify_code.back_dialog.cancel",
-        onCancelPressed: () => context.pop(false),
-        onConfirmPressed: () => context.pop(true),
-      ),
+    final result = await confirmContactStep(
+      context,
+      "email_issuance.verify_code.back_dialog",
     );
-    if (result ?? false) {
+    if (result) {
       ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
     }
   }
 
   Future<void> showResendSmsDialog(String email) async {
-    final bool resend =
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return IrmaConfirmationDialog(
-              titleTranslationKey:
-                  "email_issuance.verify_code.resend_dialog.title",
-              contentTranslationKey:
-                  "email_issuance.verify_code.resend_dialog.body",
-              confirmTranslationKey:
-                  "email_issuance.verify_code.resend_dialog.confirm",
-              cancelTranslationKey:
-                  "email_issuance.verify_code.resend_dialog.cancel",
-              onCancelPressed: () => context.pop(false),
-              onConfirmPressed: () => context.pop(true),
-            );
-          },
-        ) ??
-        false;
+    final resend = await confirmContactStep(
+      context,
+      "email_issuance.verify_code.resend_dialog",
+    );
 
     if (!resend || !mounted) {
       return;

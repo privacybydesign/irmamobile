@@ -274,9 +274,21 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void issueReset() {
     issueAdded = null;
     issueAdding = null;
+    _forgetSession();
+    _clearSteps();
+  }
+
+  /// The issuance in the sheet is gone: no session, no PIN page kept under
+  /// "Success", no offer kept.
+  void _forgetSession() {
     _nestedId = null;
     _pinShown = false;
     _lastOffer = null;
+  }
+
+  /// None of the steps that prove the card is under way: no website opened,
+  /// no e-mail, phone or document step.
+  void _clearSteps() {
     _opened = false;
     _website = false;
     _contact = null;
@@ -296,15 +308,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ..invalidate(emailIssuanceProvider)
         ..invalidate(smsIssuanceProvider);
     }
-    _nestedId = null;
-    _pinShown = false;
-    _lastOffer = null;
+    _forgetSession();
     issueAdded = null;
-    _opened = false;
-    _website = false;
-    _contact = null;
-    _document = null;
-    _faceCheck = false;
+    _clearSteps();
   }
 
   void _dismissNested(int sessionId) => _repo.bridgedDispatch(
@@ -386,7 +392,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     setState(() {
       _website = false;
       _opened = false;
-      _website = false;
     });
   }
 
@@ -437,9 +442,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // Back on the details: a document is read again from the start.
       _dismissNested(nested);
       setState(() {
-        _nestedId = null;
-        _pinShown = false;
-        _lastOffer = null;
+        _forgetSession();
         _document = null;
         _faceCheck = false;
       });
@@ -492,9 +495,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     }
     if (status == SessionStatus.dismissed) {
       if (_standalone && issueAdding == null) {
-        _nestedId = null;
-        _pinShown = false;
-        _lastOffer = null;
+        _forgetSession();
         _pin = false;
         issueSessionEnded();
         return;
@@ -503,9 +504,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // again.
       setState(() {
         _pin = false;
-        _nestedId = null;
-        _pinShown = false;
-        _lastOffer = null;
+        _forgetSession();
         _document = null;
       });
       return;

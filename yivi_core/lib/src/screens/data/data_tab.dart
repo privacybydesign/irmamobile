@@ -1231,12 +1231,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => DeleteCredentialConfirmationDialog(),
-        ) ??
-        false;
+    final confirmed = await DeleteCredentialConfirmationDialog.ask(context);
     if (confirmed && context.mounted) {
       ref
           .read(irmaRepositoryProvider)

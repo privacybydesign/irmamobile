@@ -1,5 +1,6 @@
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
@@ -9,6 +10,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/keyboard_animation_listener.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/translated_text.dart";
@@ -382,3 +386,51 @@ class ContactCodeError extends StatelessWidget {
     align: TextAlign.center,
   );
 }
+
+/// While the e-mail or SMS issuer is asked to send the code: a spinner, the
+/// step's title ([titleKey]) and a way back ([backKey]).
+class ContactWaitingScreen extends StatelessWidget {
+  final String titleKey;
+  final String backKey;
+
+  const ContactWaitingScreen({
+    super.key,
+    required this.titleKey,
+    required this.backKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      appBar: IrmaAppBar(titleTranslationKey: titleKey),
+      body: Padding(
+        padding: .all(theme.defaultSpacing),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        secondaryButtonLabel: backKey,
+        onSecondaryPressed: context.pop,
+      ),
+    );
+  }
+}
+
+/// Asks the question of [keys] (`$keys.title`, `.body`, `.confirm` and
+/// `.cancel`), e.g. whether to go back or to send the code again. True
+/// when confirmed.
+Future<bool> confirmContactStep(BuildContext context, String keys) async =>
+    await showDialog<bool>(
+      context: context,
+      builder: (context) => IrmaConfirmationDialog(
+        titleTranslationKey: "$keys.title",
+        contentTranslationKey: "$keys.body",
+        confirmTranslationKey: "$keys.confirm",
+        cancelTranslationKey: "$keys.cancel",
+        onCancelPressed: () => context.pop(false),
+        onConfirmPressed: () => context.pop(true),
+      ),
+    ) ??
+    false;

@@ -384,78 +384,43 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               // The bar holds only the close button, in the corner beside
               // the column: the content starts at the top of the screen.
               final top = cornerContentTop(context);
-              // On a wide screen (a tablet, an unfolded phone) at most
-              // [sidewaysMaxWidth], centred.
-              return Padding(
-                padding: EdgeInsets.only(left: media.left, right: media.right),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: sidewaysMaxWidth,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(
-                          width: _LandscapePanel.width,
-                          child: _LandscapePanel(
-                            top: top,
-                            label: firstLabel,
-                            card: RequestorCard.compact(
-                              requestor: session.requestor,
-                              ask: ask,
-                              onInfo: openTrust,
+              return SidewaysLayout(
+                panel: _LandscapePanel(
+                  top: top,
+                  label: firstLabel,
+                  card: RequestorCard.compact(
+                    requestor: session.requestor,
+                    ask: ask,
+                    onInfo: openTrust,
+                  ),
+                  lead: sideLead,
+                  action: bar.inline(),
+                ),
+                content: LayoutBuilder(
+                  builder: (context, constraints) => SingleChildScrollView(
+                    key: const Key("share_scroll_view"),
+                    padding: EdgeInsets.fromLTRB(0, top, 16, 16 + media.bottom),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight:
+                            (constraints.maxHeight - top - 16 - media.bottom)
+                                .clamp(0, double.infinity),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: _laidOut(column),
+                          ),
+                          if (!combined)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 28),
+                              child: pageEnd,
                             ),
-                            lead: sideLead,
-                            action: bar.inline(),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) =>
-                                SingleChildScrollView(
-                                  key: const Key("share_scroll_view"),
-                                  padding: EdgeInsets.fromLTRB(
-                                    0,
-                                    top,
-                                    16,
-                                    16 + media.bottom,
-                                  ),
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      minHeight:
-                                          (constraints.maxHeight -
-                                                  top -
-                                                  16 -
-                                                  media.bottom)
-                                              .clamp(0, double.infinity),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: _laidOut(column),
-                                        ),
-                                        if (!combined)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 28,
-                                            ),
-                                            child: pageEnd,
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -1213,8 +1178,6 @@ class _ShareBar extends StatelessWidget {
 /// who asks, what the page is, and at its bottom the reason and the button.
 /// It scrolls only when it doesn't fit (a large text size).
 class _LandscapePanel extends StatelessWidget {
-  static const double width = sidewaysPanelWidth;
-
   final double top;
   final String? label;
   final Widget card;
