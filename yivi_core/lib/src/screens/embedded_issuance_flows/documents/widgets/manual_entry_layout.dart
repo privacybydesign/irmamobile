@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../../theme/yivi_corners.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_shadows.dart";
 import "../../../../widgets/glass/sheet_action_row.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_instruction_screen.dart";
@@ -55,19 +55,7 @@ class ManualEntryLayout extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(16),
-          decoration: ShapeDecoration(
-            color: palette.surface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-            ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x17000000),
-                blurRadius: 6,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
+          decoration: YiviShadows.surfaceCard(palette),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
@@ -90,19 +78,7 @@ class ManualEntryLayout extends StatelessWidget {
     final keyboard = SheetSplit.keyboardUp(context);
     final card = Container(
       padding: const EdgeInsets.all(12),
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: YiviShadows.surfaceCard(palette),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,

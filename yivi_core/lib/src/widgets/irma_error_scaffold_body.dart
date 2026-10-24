@@ -95,7 +95,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: palette.surface,
-                    borderRadius: BorderRadius.circular(YiviCorners.card),
+                    borderRadius: YiviCorners.cardRadius,
                     boxShadow: [
                       BoxShadow(
                         color: palette.glassShadow,

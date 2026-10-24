@@ -4,8 +4,8 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -373,19 +373,7 @@ class _Group extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: YiviShadows.surfaceCard(palette),
       child: Column(
         children: [
           for (final (i, child) in children.indexed) ...[

@@ -279,9 +279,7 @@ class _CameraScaffold extends StatelessWidget {
               bottom: 24 + padding.bottom,
               child: DarkGlass(
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(YiviCorners.card),
-                  ),
+                  borderRadius: YiviCorners.cardRadius,
                 ),
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -334,7 +332,7 @@ class _SheetCamera extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final card = ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
+      borderRadius: YiviCorners.cardRadius,
       child: ColoredBox(color: const Color(0xFF121417), child: body),
     );
     // With the way on in the sheet's bar, the camera moves on by itself:

@@ -235,7 +235,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                                     padding: const EdgeInsets.only(bottom: 8),
                                     child: IrmaDismissible(
                                       key: Key(notification.id),
-                                      borderRadius: BorderRadius.circular(YiviCorners.card),
+                                      borderRadius: YiviCorners.cardRadius,
                                       onDismissed: () =>
                                           _onNotificationDismiss(notification),
                                       child: NotificationCard(

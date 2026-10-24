@@ -228,9 +228,7 @@ class SharedCardTile extends ConsumerWidget {
             decoration: ShapeDecoration(
               color: palette.background,
               shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(YiviCorners.card),
-                ),
+                borderRadius: YiviCorners.cardRadius,
               ),
             ),
             child: Text(

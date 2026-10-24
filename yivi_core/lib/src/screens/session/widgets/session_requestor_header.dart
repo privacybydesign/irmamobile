@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/irma_avatar.dart";
@@ -300,19 +300,7 @@ class RequestorCard extends StatelessWidget {
                 ),
             ],
           );
-    final decoration = ShapeDecoration(
-      color: palette.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-      ),
-      shadows: const [
-        BoxShadow(
-          color: Color(0x17000000),
-          blurRadius: 6,
-          offset: Offset(0, 1),
-        ),
-      ],
-    );
+    final decoration = YiviShadows.surfaceCard(palette);
 
     final card = compact
         ? DecoratedBox(
@@ -372,21 +360,7 @@ class RequestorCard extends StatelessWidget {
           )
         : DecoratedBox(
             key: const Key("session_requestor_header"),
-            decoration: ShapeDecoration(
-              color: palette.surface,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(YiviCorners.card),
-                ),
-              ),
-              shadows: const [
-                BoxShadow(
-                  color: Color(0x17000000),
-                  blurRadius: 6,
-                  offset: Offset(0, 1),
-                ),
-              ],
-            ),
+            decoration: decoration,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
               child: Column(

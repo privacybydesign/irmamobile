@@ -4,6 +4,7 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
@@ -43,19 +44,7 @@ class DocumentInstructionScreen extends StatelessWidget {
       width: _pictureWidth,
       height: _pictureHeight,
       clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: YiviShadows.surfaceCard(palette),
       alignment: Alignment.center,
       child: Semantics(
         image: true,
@@ -189,7 +178,7 @@ class DocumentTipBox extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: palette.outline,
-        borderRadius: BorderRadius.circular(YiviCorners.card),
+        borderRadius: YiviCorners.cardRadius,
       ),
       child: Row(
         crossAxisAlignment: .start,

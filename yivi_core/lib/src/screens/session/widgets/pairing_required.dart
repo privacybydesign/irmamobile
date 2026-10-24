@@ -130,9 +130,7 @@ class PairingRequired extends StatelessWidget {
                         decoration: ShapeDecoration(
                           color: palette.surface,
                           shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(YiviCorners.card),
-                            ),
+                            borderRadius: YiviCorners.cardRadius,
                           ),
                           shadows: [shadow],
                         ),

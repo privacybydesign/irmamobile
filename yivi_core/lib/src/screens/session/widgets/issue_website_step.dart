@@ -229,7 +229,7 @@ class _WebsitePicture extends StatelessWidget {
       decoration: ShapeDecoration(
         color: palette.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: YiviCorners.cardRadius,
         ),
         shadows: const [
           BoxShadow(
@@ -268,7 +268,7 @@ class _Note extends StatelessWidget {
       decoration: ShapeDecoration(
         color: palette.infoSurface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: YiviCorners.cardRadius,
         ),
       ),
       child: Text(

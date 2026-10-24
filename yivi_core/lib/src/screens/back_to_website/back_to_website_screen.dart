@@ -1,8 +1,8 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_shadows.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/translated_text.dart";
 import "../enrollment/widgets/enrollment_page.dart";
@@ -27,19 +27,7 @@ class BackToWebsiteScreen extends StatelessWidget {
         EnrollmentTitle("back_to_website.title", textAlign: align),
         const SizedBox(height: 16),
         DecoratedBox(
-          decoration: ShapeDecoration(
-            color: palette.surface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-            ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x17000000),
-                blurRadius: 6,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
+          decoration: YiviShadows.surfaceCard(palette),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Column(
@@ -149,21 +137,7 @@ class _BrowserSketch extends StatelessWidget {
             width: 220,
             height: 226,
             padding: const EdgeInsets.all(12),
-            decoration: ShapeDecoration(
-              color: palette.surface,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(YiviCorners.card),
-                ),
-              ),
-              shadows: const [
-                BoxShadow(
-                  color: Color(0x17000000),
-                  blurRadius: 6,
-                  offset: Offset(0, 1),
-                ),
-              ],
-            ),
+            decoration: YiviShadows.surfaceCard(palette),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

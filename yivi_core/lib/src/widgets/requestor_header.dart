@@ -66,9 +66,7 @@ class _RequestorHeaderBase extends StatelessWidget {
       decoration: ShapeDecoration(
         color: backgroundColor ?? palette.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(YiviCorners.card),
-          ),
+          borderRadius: YiviCorners.cardRadius,
           // The known-party box has a green edge, as in the design.
           side: backgroundColor == palette.successSurface
               ? BorderSide(color: palette.successOutline)

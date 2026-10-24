@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_shadows.dart";
 
 /// A rounded group of rows on a surface, with thin dividers between them,
 /// like the groups in Settings and More. An optional [header] sits above the
@@ -22,13 +23,10 @@ class GlassGroup extends StatelessWidget {
     this.header,
   });
 
-  static const radius = BorderRadius.all(Radius.circular(YiviCorners.card));
+  static const radius = YiviCorners.cardRadius;
 
-  static BoxShadow _shadow(YiviPalette palette) => BoxShadow(
-    color: palette.isDark ? const Color(0x40000000) : const Color(0x17000000),
-    blurRadius: 6,
-    offset: const Offset(0, 1),
-  );
+  static BoxShadow _shadow(YiviPalette palette) =>
+      YiviShadows.cardIn(dark: palette.isDark);
 
   @override
   Widget build(BuildContext context) {
@@ -154,9 +152,7 @@ class _GroupDecoration extends Decoration {
 
   const _GroupDecoration({this.color, required this.shadow});
 
-  static const _shape = RoundedRectangleBorder(
-    borderRadius: GlassGroup.radius,
-  );
+  static const _shape = RoundedRectangleBorder(borderRadius: GlassGroup.radius);
 
   @override
   BoxPainter createBoxPainter([VoidCallback? onChanged]) => _GroupPainter(this);

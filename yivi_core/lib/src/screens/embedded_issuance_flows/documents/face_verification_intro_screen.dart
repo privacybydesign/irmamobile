@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -51,9 +52,6 @@ class FaceVerificationIntroScreen extends StatelessWidget {
       "face_verification.intro.tip_look_straight",
       "face_verification.intro.tip_no_accessories",
     ];
-    const cardShadow = [
-      BoxShadow(color: Color(0x17000000), blurRadius: 6, offset: Offset(0, 1)),
-    ];
     final buttons = [
       DocumentFlowButton(
         key: DocumentFlowButton.primaryKey,
@@ -65,9 +63,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
       decoration: ShapeDecoration(
         color: palette.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: YiviCorners.cardRadius,
         ),
-        shadows: cardShadow,
+        shadows: YiviShadows.card,
       ),
       child: Padding(
         padding: const .symmetric(horizontal: 16, vertical: 4),
@@ -128,11 +126,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                 decoration: ShapeDecoration(
                   color: palette.surface,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(YiviCorners.card),
-                    ),
+                    borderRadius: YiviCorners.cardRadius,
                   ),
-                  shadows: cardShadow,
+                  shadows: YiviShadows.card,
                 ),
                 child: const FaceFrameIllustration(),
               ),

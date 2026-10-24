@@ -432,9 +432,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                   decoration: ShapeDecoration(
                     color: palette.successSurface,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(YiviCorners.card),
-                      ),
+                      borderRadius: YiviCorners.cardRadius,
                     ),
                   ),
                   child: Row(
@@ -469,9 +467,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     final palette = YiviPalette.of(context);
     return Material(
       color: palette.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: YiviCorners.cardRadius),
       clipBehavior: Clip.antiAlias,
       child: Center(child: row),
     );

@@ -10,6 +10,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../package_name.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../pin/providers/biometric_provider.dart";
 import "../widgets/enrollment_page.dart";
@@ -86,13 +87,7 @@ class _EnrollmentBiometricScreenState
                 Radius.circular(YiviCorners.iconTile),
               ),
             ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x17000000),
-                blurRadius: 6,
-                offset: Offset(0, 1),
-              ),
-            ],
+            shadows: YiviShadows.card,
           ),
           alignment: Alignment.center,
           child: kind == "face_id"

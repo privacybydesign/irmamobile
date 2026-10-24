@@ -121,7 +121,7 @@ class NotificationCard extends ConsumerWidget {
       child: Material(
         color: palette.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: YiviCorners.cardRadius,
           side: BorderSide(
             width: 2,
             color: selected ? palette.primary : Colors.transparent,

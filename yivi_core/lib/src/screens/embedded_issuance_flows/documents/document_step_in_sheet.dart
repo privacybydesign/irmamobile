@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 
 /// Marks the document screens shown as a step in a sheet (`DocumentSheetStep`):
@@ -50,19 +50,7 @@ class SheetPictureCard extends StatelessWidget {
     return Container(
       key: const Key("sheet_picture_card"),
       padding: const EdgeInsets.all(20),
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x17000000),
-            blurRadius: 6,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: YiviShadows.surfaceCard(palette),
       child: Center(
         child: FittedBox(fit: BoxFit.scaleDown, child: child),
       ),

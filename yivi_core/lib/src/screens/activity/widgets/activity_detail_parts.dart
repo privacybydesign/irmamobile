@@ -3,8 +3,8 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
@@ -281,13 +281,7 @@ class _HeaderPill extends StatelessWidget {
         decoration: ShapeDecoration(
           color: palette.surface,
           shape: const StadiumBorder(),
-          shadows: const [
-            BoxShadow(
-              color: Color(0x17000000),
-              blurRadius: 6,
-              offset: Offset(0, 1),
-            ),
-          ],
+          shadows: YiviShadows.card,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -488,19 +482,7 @@ class ActivitySignedMessage extends StatelessWidget {
           ),
         ),
         DecoratedBox(
-          decoration: ShapeDecoration(
-            color: palette.surface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-            ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x17000000),
-                blurRadius: 6,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
+          decoration: YiviShadows.surfaceCard(palette),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
             child: Column(

@@ -74,7 +74,7 @@ class CallInfoScreen extends StatelessWidget {
         GlassSurface(
           key: const Key("call_number"),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+            borderRadius: YiviCorners.cardRadius,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Text(

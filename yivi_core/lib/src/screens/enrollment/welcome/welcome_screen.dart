@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/translated_text.dart";
@@ -193,17 +194,9 @@ class _CheckCard extends StatelessWidget {
       decoration: ShapeDecoration(
         color: palette.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: YiviCorners.cardRadius,
         ),
-        shadows: [
-          BoxShadow(
-            color: palette.isDark
-                ? const Color(0x40000000)
-                : const Color(0x17000000),
-            blurRadius: 6,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        shadows: [YiviShadows.cardIn(dark: palette.isDark)],
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),

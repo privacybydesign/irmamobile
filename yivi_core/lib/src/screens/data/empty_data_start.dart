@@ -193,7 +193,7 @@ class _Option extends StatelessWidget {
       child: Material(
         color: palette.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+          borderRadius: YiviCorners.cardRadius,
         ),
         shadowColor: const Color(0x29000000),
         elevation: 1,

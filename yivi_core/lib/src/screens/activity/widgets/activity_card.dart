@@ -71,7 +71,7 @@ class ActivityCard extends ConsumerWidget {
           child: Material(
             color: palette.surface,
             shape: RoundedRectangleBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.card)),
+              borderRadius: YiviCorners.cardRadius,
               side: BorderSide(
                 width: 2,
                 color: selected ? palette.primary : Colors.transparent,
@@ -197,7 +197,9 @@ class ActivityCardStack extends StatelessWidget {
                   height: _cardHeight,
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(YiviCorners.thumbnail)),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(YiviCorners.thumbnail),
+                      ),
                       side: BorderSide(color: palette.outline, width: 1.5),
                     ),
                   ),

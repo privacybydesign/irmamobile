@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_shadows.dart";
 import "card_art/credential_card_art.dart";
 
 /// A card as a tile, the way the share screen shows what is shared: small
@@ -66,7 +67,7 @@ class CardTile extends StatelessWidget {
   });
 
   static const _shape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+    borderRadius: YiviCorners.cardRadius,
   );
 
   @override
@@ -80,20 +81,12 @@ class CardTile extends StatelessWidget {
         : ShapeDecoration(
             color: palette.surface,
             shape: RoundedRectangleBorder(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(YiviCorners.card),
-              ),
+              borderRadius: YiviCorners.cardRadius,
               side: outline != null
                   ? BorderSide(color: outline!, width: 1.5)
                   : BorderSide.none,
             ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x17000000),
-                blurRadius: 6,
-                offset: Offset(0, 1),
-              ),
-            ],
+            shadows: YiviShadows.card,
           );
     return CustomPaint(
       foregroundPainter: dashed

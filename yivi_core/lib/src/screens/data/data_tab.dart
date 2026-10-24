@@ -881,9 +881,7 @@ class _ListRow extends StatelessWidget {
       child: Material(
         color: palette.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(YiviCorners.card),
-          ),
+          borderRadius: YiviCorners.cardRadius,
           side: BorderSide(
             width: 2,
             color: selected ? palette.primary : Colors.transparent,
@@ -1179,9 +1177,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
 
     return Material(
       color: palette.errorSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: YiviCorners.cardRadius),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

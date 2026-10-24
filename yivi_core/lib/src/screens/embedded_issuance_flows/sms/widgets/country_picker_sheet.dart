@@ -147,7 +147,7 @@ class _CountryPickerState extends State<_CountryPicker> {
             itemBuilder: (context, i) => Material(
               color: palette.surface,
               shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+                borderRadius: YiviCorners.cardRadius,
               ),
               clipBehavior: Clip.antiAlias,
               child: Center(child: row(list[i])),

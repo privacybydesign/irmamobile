@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_corners.dart";
+import "../theme/yivi_shadows.dart";
 
 enum IrmaCardStyle { normal, outlined, highlighted, danger }
 
@@ -74,15 +75,7 @@ class IrmaCard extends StatelessWidget {
 
     if (hasShadow) {
       boxDecoration = boxDecoration.copyWith(
-        boxShadow: [
-          BoxShadow(
-            color: theme.isDark
-                ? const Color(0x40000000)
-                : const Color(0x17000000),
-            offset: const Offset(0.0, 1.0),
-            blurRadius: 6.0,
-          ),
-        ],
+        boxShadow: [YiviShadows.cardIn(dark: theme.isDark)],
       );
     }
 

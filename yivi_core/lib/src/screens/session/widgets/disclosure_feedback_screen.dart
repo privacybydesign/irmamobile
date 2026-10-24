@@ -147,7 +147,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           decoration: ShapeDecoration(
             color: palette.warningSurface,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(YiviCorners.card)),
+              borderRadius: YiviCorners.cardRadius,
             ),
           ),
           child: Text(
