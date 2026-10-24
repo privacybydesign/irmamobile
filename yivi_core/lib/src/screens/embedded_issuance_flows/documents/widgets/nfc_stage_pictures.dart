@@ -77,14 +77,10 @@ class _PhoneOnDocumentState extends State<_PhoneOnDocument>
     vsync: this,
   );
 
-  bool get _still =>
-      MediaQuery.disableAnimationsOf(context) ||
-      TestContext.isRunningIntegrationTest(context);
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_still) {
+    if (motionStill(context)) {
       _controller.stop();
       _controller.value = 0.7;
     } else if (!_controller.isAnimating) {
@@ -101,7 +97,7 @@ class _PhoneOnDocumentState extends State<_PhoneOnDocument>
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final still = _still;
+    final still = motionStill(context);
 
     return SizedBox.square(
       dimension: _size,

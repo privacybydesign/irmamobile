@@ -1,7 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../util/laid_out_box.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../widgets/slot_registry.dart";
 import "../data/wallet/wallet_transition.dart";
 import "activity_entry.dart";
 import "widgets/activity_detail_parts.dart";
@@ -9,7 +11,7 @@ import "widgets/activity_detail_parts.dart";
 /// Where a card of an activity entry is: in the row's pile ([pile]) or in a
 /// tile of the details. [ActivityFlight] measures it every frame, and hides
 /// it while the entry is in flight (the flight draws it instead).
-class ActivityFlightSlot extends StatefulWidget {
+class ActivityFlightSlot extends StatelessWidget {
   final String entryKey;
   final int index;
   final bool pile;
@@ -24,39 +26,16 @@ class ActivityFlightSlot extends StatefulWidget {
   });
 
   @override
-  State<ActivityFlightSlot> createState() => _ActivityFlightSlotState();
-}
-
-class _ActivityFlightSlotState extends State<ActivityFlightSlot> {
-  (String, int, bool) get _id => (widget.entryKey, widget.index, widget.pile);
-
-  @override
-  void didUpdateWidget(ActivityFlightSlot old) {
-    super.didUpdateWidget(old);
-    final oldId = (old.entryKey, old.index, old.pile);
-    if (ActivityFlight._slots[oldId] == context) {
-      ActivityFlight._slots.remove(oldId);
-    }
-  }
-
-  @override
-  void dispose() {
-    if (ActivityFlight._slots[_id] == context) {
-      ActivityFlight._slots.remove(_id);
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    ActivityFlight._slots[_id] = context;
-    return _HiddenInFlight(entryKey: widget.entryKey, child: widget.child);
-  }
+  Widget build(BuildContext context) => RegisteredSlot(
+    registry: ActivityFlight._slots,
+    id: (entryKey, index, pile),
+    child: _HiddenInFlight(entryKey: entryKey, child: child),
+  );
 }
 
 /// The logo on a row's pile, for [ActivityFlight]: measured and hidden like
 /// an [ActivityFlightSlot], and drawn by the flight over the cards.
-class ActivityFlightLogoSlot extends StatefulWidget {
+class ActivityFlightLogoSlot extends StatelessWidget {
   final String entryKey;
   final Widget child;
 
@@ -67,31 +46,11 @@ class ActivityFlightLogoSlot extends StatefulWidget {
   });
 
   @override
-  State<ActivityFlightLogoSlot> createState() => _ActivityFlightLogoSlotState();
-}
-
-class _ActivityFlightLogoSlotState extends State<ActivityFlightLogoSlot> {
-  @override
-  void didUpdateWidget(ActivityFlightLogoSlot old) {
-    super.didUpdateWidget(old);
-    if (ActivityFlight._logos[old.entryKey] == context) {
-      ActivityFlight._logos.remove(old.entryKey);
-    }
-  }
-
-  @override
-  void dispose() {
-    if (ActivityFlight._logos[widget.entryKey] == context) {
-      ActivityFlight._logos.remove(widget.entryKey);
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    ActivityFlight._logos[widget.entryKey] = context;
-    return _HiddenInFlight(entryKey: widget.entryKey, child: widget.child);
-  }
+  Widget build(BuildContext context) => RegisteredSlot(
+    registry: ActivityFlight._logos,
+    id: entryKey,
+    child: _HiddenInFlight(entryKey: entryKey, child: child),
+  );
 }
 
 /// Its child takes its place but does not show while [entryKey] is in
@@ -134,8 +93,8 @@ class ActivityFlight {
   /// The entry whose cards are in flight; their slots hide meanwhile.
   static final flying = ValueNotifier<String?>(null);
 
-  static final _slots = <(String, int, bool), BuildContext>{};
-  static final _logos = <String, BuildContext>{};
+  static final _slots = SlotRegistry<(String, int, bool)>();
+  static final _logos = SlotRegistry<String>();
 
   static OverlayEntry? _entry;
   static Animation<double>? _animation;
@@ -211,9 +170,8 @@ class ActivityFlight {
   /// Where [context]'s box is on the screen, with its transforms (a pile
   /// card is scaled down), or null when it is not laid out.
   static Rect? _rectOf(BuildContext? context) {
-    if (context == null || !context.mounted) return null;
-    final box = context.findRenderObject();
-    if (box is! RenderBox || !box.attached || !box.hasSize) return null;
+    final box = context.laidOutBox;
+    if (box == null) return null;
     return MatrixUtils.transformRect(
       box.getTransformTo(null),
       Offset.zero & box.size,

@@ -2,9 +2,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../util/adaptive_layout.dart";
+import "../../widgets/centred_max_width.dart";
 import "../../widgets/compact_bar.dart";
 import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_detail_scaffold.dart";
@@ -92,9 +92,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
-    final wallet =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final wallet = ref.watch(walletCardsProvider);
     final entry = ActivityEntry.fromLog(widget.logEntry, wallet: wallet);
     _entry = entry;
     // The header can change size (rotation, text size): check again after
@@ -119,16 +117,14 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
           padding.bottom + 32,
         ),
         children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: ActivityDetailBody(
-                entry: entry,
-                animation: animation,
-                flight: true,
-                onArtTap: _close,
-                headerKey: _headerKey,
-              ),
+          CentredMaxWidth(
+            maxWidth: 460,
+            child: ActivityDetailBody(
+              entry: entry,
+              animation: animation,
+              flight: true,
+              onArtTap: _close,
+              headerKey: _headerKey,
             ),
           ),
         ],
@@ -146,21 +142,17 @@ class ActivityDetailPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final wallet =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final wallet = ref.watch(walletCardsProvider);
     final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
     return ListView(
       key: Key("activity_detail_pane_${entry.key}"),
       padding: paneContentPadding(context),
       children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: ActivityDetailBody(
-              entry: entry,
-              compactHeader: usePhoneLandscape(context),
-            ),
+        CentredMaxWidth(
+          maxWidth: 560,
+          child: ActivityDetailBody(
+            entry: entry,
+            compactHeader: usePhoneLandscape(context),
           ),
         ),
       ],

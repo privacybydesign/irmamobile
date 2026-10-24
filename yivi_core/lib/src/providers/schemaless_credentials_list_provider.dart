@@ -235,20 +235,24 @@ List<String> migrateTypeOrder(
     // Without duplicates, should the stored order hold any.
     ...stored,
   ];
-  return (
-    visible: [
-      for (final hash in order)
-        ?byHash[hash],
-    ],
-    order: order,
-  );
+  return (visible: [for (final hash in order) ?byHash[hash]], order: order);
 }
+
+/// The user's cards in their order; none while they load.
+final walletCardsProvider = Provider<List<schemaless.Credential>>(
+  (ref) =>
+      ref.watch(schemalessCredentialOrderControllerProvider).value ?? const [],
+);
+
+/// The types (credential ids) of the cards in the app.
+final cardTypesInAppProvider = Provider<Set<String>>(
+  (ref) => {for (final c in ref.watch(walletCardsProvider)) c.credentialId},
+);
 
 /// The instance hint of every card, by hash, worked out over all the cards
 /// the user holds (see [instanceHintFor]).
 final instanceHintsProvider = Provider<Map<String, InstanceHint>>((ref) {
-  final cards =
-      ref.watch(schemalessCredentialOrderControllerProvider).value ?? const [];
+  final cards = ref.watch(walletCardsProvider);
   return {for (final c in cards) c.hash: instanceHintFor(c, cards)};
 });
 

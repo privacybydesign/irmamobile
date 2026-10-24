@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
+import "../../util/laid_out_box.dart";
 import "../corner_badge.dart";
 import "card_art/credential_card_art.dart";
 
@@ -101,11 +102,8 @@ class CardFlight {
 
   /// The rect of [key]'s box in [overlay]'s coordinates, for a [target] that
   /// is a widget on screen.
-  static Rect? rectOf(GlobalKey key, RenderBox overlay) {
-    final box = key.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || !box.attached || !box.hasSize) return null;
-    return box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
-  }
+  static Rect? rectOf(GlobalKey key, RenderBox overlay) =>
+      key.currentContext.rectIn(overlay);
 
   /// Ends a flight at once, without its [onDone], e.g. between tests.
   static void reset() {

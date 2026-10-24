@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "centred_max_width.dart";
 import "two_pane.dart";
 
 /// Shows [message] as a glass pill for 2.6 seconds, like "You have been
@@ -55,32 +56,28 @@ void Function(String message, {Key? key}) appToastFor(
       backgroundColor: Colors.transparent,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.fromLTRB(24, 0, 24, bottom),
-      content: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 440),
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: palette.glassStrongFill,
-              shape: StadiumBorder(
-                side: BorderSide(color: palette.glassBorder),
+      content: CentredMaxWidth(
+        maxWidth: 440,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            color: palette.glassStrongFill,
+            shape: StadiumBorder(side: BorderSide(color: palette.glassBorder)),
+            shadows: [
+              BoxShadow(
+                color: palette.glassShadow,
+                blurRadius: 24,
+                offset: const Offset(0, 8),
               ),
-              shadows: [
-                BoxShadow(
-                  color: palette.glassShadow,
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: palette
-                    .body(14, weight: FontWeight.w600)
-                    .copyWith(height: 20 / 14),
-              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: palette
+                  .body(14, weight: FontWeight.w600)
+                  .copyWith(height: 20 / 14),
             ),
           ),
         ),

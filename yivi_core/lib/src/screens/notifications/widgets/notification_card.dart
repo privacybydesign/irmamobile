@@ -84,10 +84,9 @@ class NotificationCard extends ConsumerWidget {
         ),
       };
 
-      final card =
-          (ref.watch(schemalessCredentialOrderControllerProvider).value ??
-                  const [])
-              .firstWhereOrNull((c) => c.hash == notification.credentialHash);
+      final card = (ref.watch(
+        walletCardsProvider,
+      )).firstWhereOrNull((c) => c.hash == notification.credentialHash);
       if (card != null) {
         final greyed =
             notification.type != CredentialStatusNotificationType.expiringSoon;

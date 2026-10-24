@@ -4,11 +4,13 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../../widgets/dashed_outline_painter.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "shared_card_tile.dart";
@@ -109,6 +111,12 @@ class EmptyCardSpot extends StatelessWidget {
     this.addLabel,
   });
 
+  /// The gap a dashed top edge leaves for an [EdgeAddPill] with [label].
+  static ({double width, double fromEnd}) dashGapFor(
+    BuildContext context,
+    String label,
+  ) => (width: pillWidth(context, label) + 8, fromEnd: EdgeAddPill.end - 4);
+
   /// The width of a [SmallPill] with an icon, so a dashed line can leave
   /// it out.
   static double pillWidth(BuildContext context, String label) {
@@ -133,15 +141,12 @@ class EmptyCardSpot extends StatelessWidget {
     final addLabel =
         this.addLabel ?? FlutterI18n.translate(context, "share.add");
     final canAdd = onTap != null;
-    const pillEnd = 16.0;
     final choice = kinds != null && kinds!.length > 1 ? kinds : null;
     final tile = CardTile(
       dashed: true,
       titleMaxLines: choice == null ? 1 : 3,
       subtitleMaxLines: together ? 3 : 1,
-      dashGap: canAdd
-          ? (width: pillWidth(context, addLabel) + 8, fromEnd: pillEnd - 4)
-          : null,
+      dashGap: canAdd ? dashGapFor(context, addLabel) : null,
       art: choice != null
           ? SizedBox(
               key: landingKey,
@@ -152,7 +157,14 @@ class EmptyCardSpot extends StatelessWidget {
               width: SharedCardTile.miniWidth,
               height: CardTile.miniHeight,
               child: CustomPaint(
-                painter: DashedCardPainter(color: palette.secondaryText),
+                painter: DashedOutlinePainter(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(9)),
+                  ),
+                  color: palette.secondaryText.withValues(alpha: 0.6),
+                  dash: 4,
+                  period: 7,
+                ),
                 child: Icon(
                   canAdd ? Icons.add_rounded : Icons.block_rounded,
                   size: 18,
@@ -211,20 +223,11 @@ class EmptyCardSpot extends StatelessWidget {
       children: [
         CardTileOutline(shown: selected, child: tile),
         if (canAdd)
-          PositionedDirectional(
-            top: -SmallPill.height / 2,
-            end: pillEnd,
-            // Says what a tap does; the whole spot is the button.
-            child: IgnorePointer(
-              child: ExcludeSemantics(
-                child: SmallPill(
-                  key: const Key("empty_spot_add"),
-                  label: addLabel,
-                  icon: Icons.add_rounded,
-                  onPressed: onTap,
-                ),
-              ),
-            ),
+          // Says what a tap does; the whole spot is the button.
+          EdgeAddPill(
+            pillKey: const Key("empty_spot_add"),
+            label: addLabel,
+            onPressed: onTap,
           ),
       ],
     );
@@ -299,24 +302,13 @@ class _KindsArt extends StatelessWidget {
             Positioned(
               right: -4,
               bottom: -2,
-              child: Container(
+              child: CountBadge(
                 key: const Key("empty_spot_more"),
-                height: 20,
-                constraints: const BoxConstraints(minWidth: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                alignment: Alignment.center,
-                decoration: ShapeDecoration(
-                  color: palette.link,
-                  shape: StadiumBorder(
-                    side: BorderSide(color: palette.surface, width: 2),
-                  ),
-                ),
-                child: Text(
-                  "+$more",
-                  style: palette
-                      .body(11, weight: FontWeight.w700)
-                      .copyWith(color: Colors.white, height: 1),
-                ),
+                count: more,
+                fill: palette.link,
+                ink: Colors.white,
+                size: 20,
+                fontSize: 11,
               ),
             ),
         ],
@@ -325,32 +317,36 @@ class _KindsArt extends StatelessWidget {
   }
 }
 
-/// The dashed outline of a card that is not there yet.
-class DashedCardPainter extends CustomPainter {
-  final Color color;
+/// "+ {label}" on the top edge of a dashed card, in a [Stack] over it: it
+/// says what a tap does, and the whole card is the button.
+class EdgeAddPill extends StatelessWidget {
+  /// How far from the end of the top edge the pill sits.
+  static const end = 16.0;
 
-  const DashedCardPainter({required this.color});
+  final Key? pillKey;
+  final String label;
+  final VoidCallback? onPressed;
+
+  const EdgeAddPill({
+    super.key,
+    this.pillKey,
+    required this.label,
+    required this.onPressed,
+  });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    final outline = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          (Offset.zero & size).deflate(0.75),
-          const Radius.circular(9),
+  Widget build(BuildContext context) => PositionedDirectional(
+    top: -SmallPill.height / 2,
+    end: end,
+    child: IgnorePointer(
+      child: ExcludeSemantics(
+        child: SmallPill(
+          key: pillKey,
+          label: label,
+          icon: Icons.add_rounded,
+          onPressed: onPressed,
         ),
-      );
-    for (final metric in outline.computeMetrics()) {
-      for (var d = 0.0; d < metric.length; d += 7) {
-        canvas.drawPath(metric.extractPath(d, d + 4), paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(DashedCardPainter old) => old.color != color;
+      ),
+    ),
+  );
 }

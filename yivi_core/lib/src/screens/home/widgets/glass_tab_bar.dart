@@ -67,7 +67,6 @@ class _Tabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final selectedIndex = homeTabs.indexWhere((t) => t.$1 == selectedTab);
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     // As Apple's Liquid Glass tab bar: the selection lens is wider than its
     // tab, reaching a little past it on both sides, with room for that at
@@ -87,9 +86,10 @@ class _Tabs extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 AnimatedPositioned(
-                  duration: reduceMotion
-                      ? Duration.zero
-                      : const Duration(milliseconds: 360),
+                  duration: YiviMotion.duration(
+                    context,
+                    const Duration(milliseconds: 360),
+                  ),
                   curve: YiviMotion.overshoot,
                   left: tabWidth * selectedIndex - reach,
                   top: 0,

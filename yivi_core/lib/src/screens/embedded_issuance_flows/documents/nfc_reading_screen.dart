@@ -662,25 +662,28 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         padding: .all(theme.defaultSpacing),
         child: SvgPicture.asset(yiviAsset(illustrationAsset)),
       ),
-      // In a sheet, the sheet's own buttons; its close button is the way out.
-      bottomNavigationBar: DocumentStepInSheet.of(context)
-          ? DocumentFlowFooter(
-              buttons: [
-                DocumentFlowButton(
-                  key: DocumentFlowButton.primaryKey,
-                  labelKey: "ui.retry",
-                  onPressed: retry,
-                ),
-              ],
-            )
-          : IrmaBottomBar(
-              primaryButtonLabel: "ui.retry",
-              onPrimaryPressed: retry,
-              secondaryButtonLabel: "ui.cancel",
-              onSecondaryPressed: cancel,
-            ),
+      bottomNavigationBar: _retryBar(context),
     );
   }
+
+  /// "Retry" and "Cancel"; in a sheet, only "Retry" in the sheet's own
+  /// buttons, as its close button is the way out.
+  Widget _retryBar(BuildContext context) => DocumentStepInSheet.of(context)
+      ? DocumentFlowFooter(
+          buttons: [
+            DocumentFlowButton(
+              key: DocumentFlowButton.primaryKey,
+              labelKey: "ui.retry",
+              onPressed: retry,
+            ),
+          ],
+        )
+      : IrmaBottomBar(
+          primaryButtonLabel: "ui.retry",
+          onPrimaryPressed: retry,
+          secondaryButtonLabel: "ui.cancel",
+          onSecondaryPressed: cancel,
+        );
 
   Widget _buildCancelled(BuildContext context, _UiState uiState) {
     final theme = IrmaTheme.of(context);
@@ -696,23 +699,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           yiviAsset("error/general_error_illustration.svg"),
         ),
       ),
-      // In a sheet, the sheet's own buttons; its close button is the way out.
-      bottomNavigationBar: DocumentStepInSheet.of(context)
-          ? DocumentFlowFooter(
-              buttons: [
-                DocumentFlowButton(
-                  key: DocumentFlowButton.primaryKey,
-                  labelKey: "ui.retry",
-                  onPressed: retry,
-                ),
-              ],
-            )
-          : IrmaBottomBar(
-              primaryButtonLabel: "ui.retry",
-              onPrimaryPressed: retry,
-              secondaryButtonLabel: "ui.cancel",
-              onSecondaryPressed: cancel,
-            ),
+      bottomNavigationBar: _retryBar(context),
     );
   }
 

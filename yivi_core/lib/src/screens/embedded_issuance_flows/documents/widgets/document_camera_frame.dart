@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
 import "../document_step_in_sheet.dart";
+import "corner_brackets.dart";
 import "dark_glass.dart";
 
 /// Behind and around the document camera: the darkest stop of its frame.
@@ -192,29 +193,12 @@ class _BracketsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const r = 20.0, arm = 38.0, i = 2.0;
-    final w = size.width, h = size.height;
-    final path = Path()
-      // Top left.
-      ..moveTo(i, arm)
-      ..lineTo(i, i + r)
-      ..arcToPoint(Offset(i + r, i), radius: const Radius.circular(r))
-      ..lineTo(arm, i)
-      // Top right.
-      ..moveTo(w - arm, i)
-      ..lineTo(w - i - r, i)
-      ..arcToPoint(Offset(w - i, i + r), radius: const Radius.circular(r))
-      ..lineTo(w - i, arm)
-      // Bottom right.
-      ..moveTo(w - i, h - arm)
-      ..lineTo(w - i, h - i - r)
-      ..arcToPoint(Offset(w - i - r, h - i), radius: const Radius.circular(r))
-      ..lineTo(w - arm, h - i)
-      // Bottom left.
-      ..moveTo(arm, h - i)
-      ..lineTo(i + r, h - i)
-      ..arcToPoint(Offset(i, h - i - r), radius: const Radius.circular(r))
-      ..lineTo(i, h - arm);
+    // Inset by half the stroke, so the lines stay inside.
+    final path = cornerBrackets(
+      (Offset.zero & size).deflate(2),
+      arm: 36,
+      radius: 20,
+    );
     canvas.drawPath(
       path,
       Paint()

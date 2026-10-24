@@ -3,6 +3,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../widgets/centred_max_width.dart";
+import "../../../widgets/fill_scroll_view.dart";
 import "../../../widgets/irma_app_bar.dart";
 
 /// The panel at the left of a session screen's sideways layout (the share
@@ -31,17 +33,15 @@ class SidewaysLayout extends StatelessWidget {
     final insets = MediaQuery.paddingOf(context);
     return Padding(
       padding: EdgeInsets.only(left: insets.left, right: insets.right),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: sidewaysMaxWidth),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(width: sidewaysPanelWidth, child: panel),
-              const SizedBox(width: 16),
-              Expanded(child: content),
-            ],
-          ),
+      child: CentredMaxWidth(
+        maxWidth: sidewaysMaxWidth,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: sidewaysPanelWidth, child: panel),
+            const SizedBox(width: 16),
+            Expanded(child: content),
+          ],
         ),
       ),
     );
@@ -110,55 +110,53 @@ class SessionColumns extends StatelessWidget {
           );
     return Padding(
       padding: EdgeInsets.only(left: insets.left, right: insets.right),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: startWidth + gap + endWidth),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(
-                flex: startWidth.round(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: startWidth),
-                  child: SingleChildScrollView(
-                    key: const Key("session_columns_start"),
-                    padding: EdgeInsets.only(
-                      top: insets.top,
-                      bottom: insets.bottom,
-                    ),
-                    child: start,
+      child: CentredMaxWidth(
+        maxWidth: startWidth + gap + endWidth,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Flexible(
+              flex: startWidth.round(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: startWidth),
+                child: SingleChildScrollView(
+                  key: const Key("session_columns_start"),
+                  padding: EdgeInsets.only(
+                    top: insets.top,
+                    bottom: insets.bottom,
                   ),
+                  child: start,
                 ),
               ),
-              SizedBox(width: gap),
-              Flexible(
-                flex: endWidth.round(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: endWidth),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          key: const Key("session_columns_end"),
-                          padding: EdgeInsets.only(
-                            top: insets.top,
-                            bottom: buttons == null ? insets.bottom : 16,
-                          ),
-                          child: end,
+            ),
+            SizedBox(width: gap),
+            Flexible(
+              flex: endWidth.round(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: endWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        key: const Key("session_columns_end"),
+                        padding: EdgeInsets.only(
+                          top: insets.top,
+                          bottom: buttons == null ? insets.bottom : 16,
                         ),
+                        child: end,
                       ),
-                      if (buttons != null)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: insets.bottom),
-                          child: buttons,
-                        ),
-                    ],
-                  ),
+                    ),
+                    if (buttons != null)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: insets.bottom),
+                        child: buttons,
+                      ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -211,26 +209,9 @@ class SessionColumns extends StatelessWidget {
       context,
       const EdgeInsets.fromLTRB(32, 24, 32, 32),
     );
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        padding: padding,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: (constraints.maxHeight - padding.vertical).clamp(
-              0.0,
-              double.infinity,
-            ),
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: startWidth + gap + endWidth,
-              ),
-              child: row,
-            ),
-          ),
-        ),
-      ),
+    return FillScrollView(
+      padding: padding,
+      child: CentredMaxWidth(maxWidth: startWidth + gap + endWidth, child: row),
     );
   }
 }
@@ -286,26 +267,14 @@ class SessionCentred extends StatelessWidget {
       context,
       const EdgeInsets.fromLTRB(32, 24, 32, 32),
     );
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        padding: padding,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: (constraints.maxHeight - padding.vertical).clamp(
-              0.0,
-              double.infinity,
-            ),
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: children,
-              ),
-            ),
-          ),
+    return FillScrollView(
+      padding: padding,
+      child: CentredMaxWidth(
+        maxWidth: maxWidth,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: children,
         ),
       ),
     );

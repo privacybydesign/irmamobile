@@ -13,6 +13,11 @@ class PullToDismissPhysics extends ScrollPhysics {
   static const dismissDistance = 120.0;
   static const dismissVelocity = 700.0;
 
+  /// Whether a pull of [distance], let go at [downVelocity] (points per
+  /// second, positive downwards), dismisses the page.
+  static bool shouldDismiss(double distance, double downVelocity) =>
+      distance > dismissDistance || downVelocity > dismissVelocity;
+
   final ValueNotifier<double> pull;
   final bool Function() canPull;
   final ValueChanged<double> onRelease;

@@ -4,7 +4,6 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../data/feature_flags.dart";
-import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/favourite_credentials_provider.dart";
 import "../../providers/feature_flag_provider.dart";
@@ -220,18 +219,11 @@ class _CredentialsDetailsScreenState
   ) async {
     final confirmed = await confirmDeleteCredential(context);
     if (confirmed && context.mounted) {
-      _deleteCredential(context, credential);
+      IrmaRepositoryProvider.of(
+        context,
+      ).deleteCredential(credential.credentialInstanceIds);
       _showDeletedSnackbar();
     }
-  }
-
-  void _deleteCredential(
-    BuildContext context,
-    schemaless.Credential credential,
-  ) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(
-      DeleteCredentialEvent(hashByFormat: credential.credentialInstanceIds),
-    );
   }
 
   void _showDeletedSnackbar() => showAppToast(

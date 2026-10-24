@@ -17,6 +17,7 @@ import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
+import "../models/credential_events.dart";
 import "../models/credentials.dart";
 import "../models/delete_keyshare_tokens_event.dart";
 import "../models/email_code_pointer.dart";
@@ -310,6 +311,48 @@ class IrmaRepository {
     dispatch(event);
     _bridge.dispatch(event);
   }
+
+  /// Deletes a card from the app, in all its formats: its instance hash
+  /// by format (`credentialInstanceIds`).
+  void deleteCredential(Map<CredentialFormat, String> hashByFormat) =>
+      bridgedDispatch(DeleteCredentialEvent(hashByFormat: hashByFormat));
+
+  /// Stops session [sessionId].
+  void dismissSession(int sessionId) => bridgedDispatch(
+    SessionUserInteractionEvent.dismiss(sessionId: sessionId),
+  );
+
+  /// Goes on with session [sessionId] with the PIN the user entered.
+  void enterSessionPin(int sessionId, String pin) => bridgedDispatch(
+    SessionUserInteractionEvent.pin(
+      sessionId: sessionId,
+      pin: pin,
+      proceed: true,
+    ),
+  );
+
+  /// Says yes to session [sessionId], sharing [choices].
+  void grantSession(
+    int sessionId, [
+    List<DisclosureDisconSelection> choices = const [],
+  ]) => bridgedDispatch(
+    SessionUserInteractionEvent.permission(
+      sessionId: sessionId,
+      granted: true,
+      disclosureChoices: choices,
+    ),
+  );
+
+  /// Says yes to the offer of session [sessionId], with the
+  /// [transactionCode] the issuer asked for.
+  void grantPreAuthorizedCode(int sessionId, String? transactionCode) =>
+      bridgedDispatch(
+        SessionUserInteractionEvent.preAuthorizedCodePermission(
+          sessionId: sessionId,
+          transactionCode: transactionCode,
+          proceed: true,
+        ),
+      );
 
   void markInAppLaunched(Iterable<String> credentialTypeIds) {
     final current = _credentialObtainState.value.inAppLaunchedCredentialTypes;
@@ -626,9 +669,7 @@ class IrmaRepository {
   void dismissAllActiveSessions() {
     final activeSessionIds = _sessionRepository.getActiveSessionIds();
     for (final sessionId in activeSessionIds) {
-      bridgedDispatch(
-        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
-      );
+      dismissSession(sessionId);
     }
   }
 
@@ -658,9 +699,7 @@ class IrmaRepository {
   /// that [hasInFlightSession] hides biometric for.
   void dismissAllInFlightSessions() {
     for (final sessionId in _sessionRepository.inFlightSessionIds) {
-      bridgedDispatch(
-        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
-      );
+      dismissSession(sessionId);
     }
   }
 

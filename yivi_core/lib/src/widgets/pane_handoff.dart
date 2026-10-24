@@ -1,6 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../util/after_frame.dart";
+
 /// Lets a route open or close without its transition: when the layout
 /// changes (the phone turned) rather than after a tap.
 abstract final class RouteMotion {
@@ -81,8 +83,7 @@ class _PaneHandoffState extends State<PaneHandoff> {
       return;
     }
     _handedOff = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       widget.onHandoff(_container!);
       final navigator = Navigator.of(context);
       RouteMotion.instantly(navigator.pop);

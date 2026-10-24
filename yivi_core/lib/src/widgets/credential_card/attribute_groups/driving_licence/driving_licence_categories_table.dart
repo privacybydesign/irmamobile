@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_motion.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
@@ -191,9 +192,7 @@ class _DrivingLicenceCategoriesTableState
               ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : _resizeDuration,
+                duration: YiviMotion.duration(context, _resizeDuration),
                 child: Icon(Icons.expand_more, size: 20, color: theme.link),
               ),
             ],

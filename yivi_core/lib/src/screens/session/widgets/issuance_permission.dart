@@ -3,7 +3,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
@@ -20,6 +19,7 @@ import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/large_title_scroll_view.dart";
+import "../../../widgets/note_box.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "document_issuance_permission.dart";
@@ -331,7 +331,11 @@ class IssuanceOffer {
     final text = _mismatchText(context, issuanceMismatches(_cards, _steps));
     return text == null
         ? null
-        : _Note(key: const Key("issuance_mismatch"), text: text);
+        : NoteBox(
+            key: const Key("issuance_mismatch"),
+            text: text,
+            warning: true,
+          );
   }
 
   /// "For {requestor} · step n of m" inside a request, "Back from the
@@ -497,32 +501,6 @@ class _GroupHeader extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _Note extends StatelessWidget {
-  final String text;
-
-  const _Note({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: ShapeDecoration(
-        color: palette.errorSurface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-        ),
-      ),
-      child: Text(
-        text,
-        style: palette
-            .body(14, weight: FontWeight.w600)
-            .copyWith(height: 20 / 14, color: palette.errorText),
       ),
     );
   }

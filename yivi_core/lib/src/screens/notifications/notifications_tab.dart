@@ -10,6 +10,8 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
+import "../../widgets/centred_max_width.dart";
+import "../../widgets/empty_list_message.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/irma_dismissible.dart";
 import "../../widgets/loading_indicator.dart";
@@ -53,9 +55,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
 
     // Open the card itself when it is still in the wallet.
     if (notification is CredentialStatusNotification) {
-      final cards =
-          ref.read(schemalessCredentialOrderControllerProvider).value ??
-          const [];
+      final cards = ref.read(walletCardsProvider);
       final card = cards.firstWhereOrNull(
         (c) => c.hash == notification.credentialHash,
       );
@@ -78,9 +78,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
   /// The card the detail pane shows: the picked one, or that of the newest
   /// notification about a card in the wallet.
   String? _paneHash(List<Notification> notifications) {
-    final cards =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const [];
+    final cards = ref.watch(walletCardsProvider);
     bool inWallet(String? hash) => cards.any((c) => c.hash == hash);
     final selected = ref.watch(selectedNotificationCardProvider);
     return inWallet(selected)
@@ -169,93 +167,73 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: tabPagePadding(context),
                     children: [
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: mediumContentMaxWidth,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
-                                  children: [
-                                    Expanded(
-                                      child: Semantics(
-                                        header: true,
-                                        child: TranslatedText(
-                                          "notifications.title",
-                                          style: palette.display(
-                                            26,
-                                            weight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
+                      CentredMaxWidth(
+                        maxWidth: mediumContentMaxWidth,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Expanded(
+                                    child: const TabLargeTitle(
+                                      "notifications.title",
                                     ),
-                                    if (unread > 0)
-                                      Text(
-                                        FlutterI18n.translate(
-                                          context,
-                                          "notifications.new_count",
-                                          translationParams: {
-                                            "count": "$unread",
-                                          },
-                                        ),
-                                        style: palette
-                                            .body(14)
-                                            .copyWith(color: palette.heading),
+                                  ),
+                                  if (unread > 0)
+                                    Text(
+                                      FlutterI18n.translate(
+                                        context,
+                                        "notifications.new_count",
+                                        translationParams: {"count": "$unread"},
                                       ),
-                                  ],
+                                      style: palette
+                                          .body(14)
+                                          .copyWith(color: palette.heading),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            if (notifications.isEmpty)
+                              const EmptyListMessage(
+                                "notifications.empty",
+                                top: 48,
+                              )
+                            else ...[
+                              for (final notification in notifications)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: IrmaDismissible(
+                                    key: Key(notification.id),
+                                    borderRadius: YiviCorners.cardRadius,
+                                    onDismissed: () =>
+                                        _onNotificationDismiss(notification),
+                                    child: NotificationCard(
+                                      notification: notification,
+                                      selected: notification.id == openId,
+                                      onTap: (pictureContext) =>
+                                          _onNotificationTap(
+                                            notification,
+                                            pictureContext,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: TranslatedText(
+                                  "notifications.swipe_hint",
+                                  textAlign: TextAlign.center,
+                                  style: palette
+                                      .body(12)
+                                      .copyWith(color: palette.secondaryText),
                                 ),
                               ),
-                              if (notifications.isEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 48),
-                                  child: TranslatedText(
-                                    "notifications.empty",
-                                    textAlign: TextAlign.center,
-                                    style: palette
-                                        .body(16)
-                                        .copyWith(color: palette.heading),
-                                  ),
-                                )
-                              else ...[
-                                for (final notification in notifications)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: IrmaDismissible(
-                                      key: Key(notification.id),
-                                      borderRadius: YiviCorners.cardRadius,
-                                      onDismissed: () =>
-                                          _onNotificationDismiss(notification),
-                                      child: NotificationCard(
-                                        notification: notification,
-                                        selected: notification.id == openId,
-                                        onTap: (pictureContext) =>
-                                            _onNotificationTap(
-                                              notification,
-                                              pictureContext,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: TranslatedText(
-                                    "notifications.swipe_hint",
-                                    textAlign: TextAlign.center,
-                                    style: palette
-                                        .body(12)
-                                        .copyWith(color: palette.secondaryText),
-                                  ),
-                                ),
-                              ],
                             ],
-                          ),
+                          ],
                         ),
                       ),
                     ],

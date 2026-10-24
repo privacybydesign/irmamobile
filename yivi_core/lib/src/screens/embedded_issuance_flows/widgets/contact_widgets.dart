@@ -344,7 +344,8 @@ class ContactCodeField extends StatelessWidget {
   }
 }
 
-/// "No email received?": an underlined link-blue text button, centred.
+/// "No email received?": a link-blue text button, centred, 20 below what
+/// is above it.
 class ContactTextLink extends StatelessWidget {
   final String labelKey;
   final VoidCallback onTap;

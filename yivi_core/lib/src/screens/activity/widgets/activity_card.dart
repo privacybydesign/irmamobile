@@ -4,7 +4,6 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
@@ -12,6 +11,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
+import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../data/wallet/wallet_transition.dart";
@@ -40,9 +40,7 @@ class ActivityCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final wallet =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final wallet = ref.watch(walletCardsProvider);
     final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
     final kind = entry.kind;
     final time = entry.localTime;
@@ -251,23 +249,12 @@ class ActivityCardStack extends StatelessWidget {
               Positioned(
                 left: -6,
                 top: 0,
-                child: Container(
-                  height: 18,
-                  constraints: const BoxConstraints(minWidth: 18),
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  alignment: Alignment.center,
-                  decoration: ShapeDecoration(
-                    color: palette.heading,
-                    shape: StadiumBorder(
-                      side: BorderSide(color: palette.surface, width: 2),
-                    ),
-                  ),
-                  child: Text(
-                    "+${cards.length - 3}",
-                    style: palette
-                        .body(10, weight: FontWeight.w700)
-                        .copyWith(color: palette.surface, height: 1),
-                  ),
+                child: CountBadge(
+                  count: cards.length - 3,
+                  fill: palette.heading,
+                  ink: palette.surface,
+                  size: 18,
+                  fontSize: 10,
                 ),
               ),
             // Who it was with, on the corner of the pile. What happened is

@@ -1,5 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../util/after_frame.dart";
+
 typedef KeyboardSettledCallback =
     void Function(
       BuildContext context,
@@ -48,8 +50,7 @@ class _KeyboardAnimationListenerState extends State<KeyboardAnimationListener>
     WidgetsBinding.instance.addObserver(this);
 
     // Initialize after first layout.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       _lastInset = MediaQuery.of(context).viewInsets.bottom;
     });
   }
@@ -71,9 +72,7 @@ class _KeyboardAnimationListenerState extends State<KeyboardAnimationListener>
   }
 
   void _watchInsetStability() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-
+    afterFrame(() {
       final inset = MediaQuery.of(context).viewInsets.bottom;
       widget.onKeyboardChanged?.call(inset);
 

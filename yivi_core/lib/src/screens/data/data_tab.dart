@@ -6,7 +6,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/credentials_search.dart";
 import "../../providers/email_linking_provider.dart";
@@ -19,6 +18,7 @@ import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -27,7 +27,7 @@ import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/scroll_edge.dart";
+import "../../widgets/glass/search_scroll_edge.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../add_data/add_data_sheet.dart";
@@ -75,63 +75,34 @@ class _DataTabState extends ConsumerState<DataTab> {
     // middle when it was not all in view.
     ref.listen(selectedCardProvider, (_, hash) {
       if (hash == null || !_withPane(context)) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _revealCard(context, hash, top: topInset);
-      });
+      afterFrame(() => _revealCard(context, hash, top: topInset));
     });
 
     // The cards scroll under the floating search row; the edge goes away
     // with the row when a card opens.
-    final list = ScrollEdge(
+    final list = SearchScrollEdge(
       height: top + _topBarHeight + 8,
-      // Held sideways the search row just floats over the cards, with no
-      // band under it.
-      band: (context, under) => usePhoneLandscape(context)
-          ? const SizedBox.shrink()
-          : PushAway(
-              direction: PushAwayDirection.up,
-              child: ScrollEdgeBand(under: under),
-            ),
-      bar: [
-        Positioned(
-          left: 16,
-          right: 16,
-          top: top,
-          child: PushAway(
-            direction: PushAwayDirection.up,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: mediumContentMaxWidth,
-                ),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Expanded(
-                      child: GlassSearchField(
-                        fieldKey: const Key("search_field"),
-                        hintKey: "wallet.search_placeholder",
-                        controller: _search,
-                        onChanged: _onQuery,
-                      ),
-                    ),
-                    GlassIconButton(
-                      key: const Key("data_tab_add_data"),
-                      size: 48,
-                      semanticsLabel: FlutterI18n.translate(
-                        context,
-                        "wallet.add_data",
-                      ),
-                      icon: Icon(Icons.add, size: 26, color: palette.text),
-                      onTap: () => showAddDataSheet(context),
-                    ),
-                  ],
-                ),
-              ),
+      top: top,
+      row: Row(
+        spacing: 8,
+        children: [
+          Expanded(
+            child: GlassSearchField(
+              fieldKey: const Key("search_field"),
+              hintKey: "wallet.search_placeholder",
+              controller: _search,
+              onChanged: _onQuery,
             ),
           ),
-        ),
-      ],
+          GlassIconButton(
+            key: const Key("data_tab_add_data"),
+            size: 48,
+            semanticsLabel: FlutterI18n.translate(context, "wallet.add_data"),
+            icon: Icon(Icons.add, size: 26, color: palette.text),
+            onTap: () => showAddDataSheet(context),
+          ),
+        ],
+      ),
       child: _Content(query: _query, topInset: topInset),
     );
 
@@ -150,9 +121,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   /// The tablet layout: the cards next to the details of the open card
   /// (the first card until the user picks one).
   Widget _withDetailPane(Widget list) {
-    final cards =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final cards = ref.watch(walletCardsProvider);
     final hash = _paneCardHash(ref.watch(selectedCardProvider), cards);
     final selection = ref.read(selectedCardProvider.notifier);
     return TwoPane(
@@ -229,12 +198,10 @@ void _scrollTowards(BuildContext context, String hash, {required double top}) {
   if (built.isEmpty) return;
   final scrollable = Scrollable.maybeOf(built.first.context);
   if (scrollable == null) return;
-  final cards =
-      ProviderScope.containerOf(
-        context,
-        listen: false,
-      ).read(schemalessCredentialOrderControllerProvider).value ??
-      const <schemaless.Credential>[];
+  final cards = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(walletCardsProvider);
   final index = cards.indexWhere((c) => c.hash == hash);
   if (index < 0) return;
   // The built cards' places and offsets give the room one card takes.
@@ -851,9 +818,7 @@ bool _isOpenInPane(BuildContext context, schemaless.Credential credential) {
   if (!useHomePanes(context)) return false;
   final container = ProviderScope.containerOf(context);
   final selected = container.read(selectedCardProvider);
-  final cards =
-      container.read(schemalessCredentialOrderControllerProvider).value ??
-      const <schemaless.Credential>[];
+  final cards = container.read(walletCardsProvider);
   return _paneCardHash(selected, cards) == credential.hash;
 }
 
@@ -1230,11 +1195,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
     if (confirmed && context.mounted) {
       ref
           .read(irmaRepositoryProvider)
-          .bridgedDispatch(
-            DeleteCredentialEvent(
-              hashByFormat: credential.credentialInstanceIds,
-            ),
-          );
+          .deleteCredential(credential.credentialInstanceIds);
     }
   }
 }

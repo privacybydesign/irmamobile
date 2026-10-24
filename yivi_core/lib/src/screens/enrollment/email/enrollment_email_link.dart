@@ -2,7 +2,6 @@ import "dart:async";
 
 import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../models/session.dart";
 import "../../../models/session_events.dart";
 import "../../session/models/disclosure_view_model.dart";
@@ -38,9 +37,7 @@ Future<void> runOwnSession(
   var pinGiven = false;
 
   void dismiss(SessionStatus status) {
-    repo.bridgedDispatch(
-      SessionUserInteractionEvent.dismiss(sessionId: sessionId),
-    );
+    repo.dismissSession(sessionId);
     if (!done.isCompleted) done.completeError(OwnSessionFailed(status));
   }
 
@@ -50,26 +47,17 @@ Future<void> runOwnSession(
       case SessionStatus.requestPermission:
         if (permissionGiven) return;
         permissionGiven = true;
-        repo.bridgedDispatch(
-          SessionUserInteractionEvent.permission(
-            sessionId: sessionId,
-            granted: true,
-            disclosureChoices: disclosureChoicesFor(
-              session.disclosurePlan?.disclosureChoicesOverview ?? const [],
-              const {},
-            ),
+        repo.grantSession(
+          sessionId,
+          disclosureChoicesFor(
+            session.disclosurePlan?.disclosureChoicesOverview ?? const [],
+            const {},
           ),
         );
       case SessionStatus.requestPin:
         if (pinGiven) return dismiss(session.status);
         pinGiven = true;
-        repo.bridgedDispatch(
-          SessionUserInteractionEvent.pin(
-            sessionId: sessionId,
-            proceed: true,
-            pin: pin,
-          ),
-        );
+        repo.enterSessionPin(sessionId, pin);
       case SessionStatus.success:
         done.complete();
       case SessionStatus.error || SessionStatus.dismissed:

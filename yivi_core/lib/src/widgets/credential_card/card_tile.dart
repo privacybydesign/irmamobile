@@ -4,6 +4,7 @@ import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_shadows.dart";
+import "../dashed_outline_painter.dart";
 import "card_art/credential_card_art.dart";
 
 /// A card as a tile, the way the share screen shows what is shared: small
@@ -93,7 +94,7 @@ class CardTile extends StatelessWidget {
           );
     return CustomPaint(
       foregroundPainter: dashed
-          ? _DashedOutlinePainter(
+          ? DashedOutlinePainter(
               shape: _shape,
               gap: dashGap,
               rtl: Directionality.of(context) == TextDirection.rtl,
@@ -263,55 +264,6 @@ class CardTileChip extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A dashed line along [shape], for an empty [CardTile].
-class _DashedOutlinePainter extends CustomPainter {
-  final ShapeBorder shape;
-  final Color color;
-  final ({double width, double fromEnd})? gap;
-  final bool rtl;
-
-  const _DashedOutlinePainter({
-    required this.shape,
-    required this.color,
-    this.gap,
-    this.rtl = false,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = shape.getOuterPath((Offset.zero & size).deflate(0.75));
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.save();
-    if (gap case final g?) {
-      // Leaves the line out where a button sits on the top edge.
-      final left = rtl ? g.fromEnd : size.width - g.fromEnd - g.width;
-      canvas.clipPath(
-        Path.combine(
-          PathOperation.difference,
-          Path()..addRect((Offset.zero & size).inflate(2)),
-          Path()..addRect(Rect.fromLTWH(left, -2, g.width, 8)),
-        ),
-      );
-    }
-    for (final metric in path.computeMetrics()) {
-      for (var d = 0.0; d < metric.length; d += 9) {
-        canvas.drawPath(metric.extractPath(d, d + 5), paint);
-      }
-    }
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_DashedOutlinePainter old) =>
-      old.color != color ||
-      old.shape != shape ||
-      old.gap != gap ||
-      old.rtl != rtl;
 }
 
 /// The outline of the chosen card: a 2 pt line in the primary colour, 3 pt

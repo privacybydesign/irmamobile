@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../util/laid_out_box.dart";
 import "glass/glass_surface.dart";
 
 /// Where the top bar's buttons end, from the top of the safe area: 16 above
@@ -12,8 +13,8 @@ const double _barButtonsBottom = 16 + 44;
 /// the top bar; null while the header is not laid out. Measured from the
 /// header itself, not a fixed offset: it grows when a long name wraps.
 bool? headerUnderBar(BuildContext context, GlobalKey headerKey) {
-  final box = headerKey.currentContext?.findRenderObject() as RenderBox?;
-  if (box == null || !box.hasSize || !box.attached) return null;
+  final box = headerKey.currentContext.laidOutBox;
+  if (box == null) return null;
   final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
   return bottom < MediaQuery.paddingOf(context).top + _barButtonsBottom;
 }

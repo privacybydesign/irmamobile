@@ -3,22 +3,16 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../routing.dart";
-import "../../models/schemaless/credential_store.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../models/schemaless/session_state.dart";
 import "../../models/session.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/waiting_request_provider.dart";
-import "../../util/i18n.dart";
 import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/sheet_action_row.dart";
 import "../pin/pin_screen.dart" show UnlockPinEntry;
 import "../pin/providers/pin_unlock_provider.dart";
 import "../pin/widgets/waiting_request_announcement.dart";
 import "../reset_pin/reset_pin_screen.dart";
 import "../session/widgets/issue_flow.dart";
-import "../session/widgets/issue_sheet_progress.dart";
 import "scanner_screen.dart";
 
 /// Whether the lock screen's scanner sheet carries an issuance past the
@@ -46,7 +40,7 @@ class LockScannerSheet extends ConsumerStatefulWidget {
 }
 
 class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
-    with IssueFlow<LockScannerSheet> {
+    with IssueFlow<LockScannerSheet>, StandaloneIssueFlow<LockScannerSheet> {
   /// The scanned pointer, waiting for the PIN.
   Pointer? _scanned;
 
@@ -62,36 +56,8 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
     super.dispose();
   }
 
-  // ---------- the issuance, without a request ----------
-
   @override
-  int? get underlyingSessionId => null;
-
-  @override
-  SessionState? get issueRequest => null;
-
-  @override
-  IssueSheetSubject issueSubject(CredentialDescriptor d) =>
-      IssueSheetSubject.card(d);
-
-  @override
-  String issueStopText() => context.tr("data.add.stop_text");
-
-  @override
-  String issueSuccessText(List<schemaless.Credential> cards) => context.tr(
-    cards.length > 1
-        ? "issuance.success_feedback.added_many"
-        : "issuance.success_feedback.added_one",
-    {"name": cards.firstOrNull?.name ?? "", "count": "${cards.length}"},
-  );
-
-  @override
-  SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
-      SheetAction(
-        key: const Key("sheet_done"),
-        label: context.tr("ui.done"),
-        onTap: _close,
-      );
+  void issueDone() => _close();
 
   /// The lock overlay has no router; a session handed over full screen goes
   /// on the app's own navigator.

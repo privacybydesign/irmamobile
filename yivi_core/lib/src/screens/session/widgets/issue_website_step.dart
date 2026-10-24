@@ -1,12 +1,12 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/note_box.dart";
 import "../../../widgets/surface_card.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
@@ -92,7 +92,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       ),
     ];
     final note = widget.opened
-        ? _Note(
+        ? NoteBox(
             key: const Key("sheet_opened_note"),
             text: context.tr("share.sheet.opened_note", {"host": widget.host}),
           )
@@ -236,33 +236,6 @@ class _WebsitePicture extends StatelessWidget {
             style: palette.body(13).copyWith(color: palette.secondaryText),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// An explanation in the info colour.
-class _Note extends StatelessWidget {
-  final String text;
-
-  const _Note({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: ShapeDecoration(
-        color: palette.infoSurface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-        ),
-      ),
-      child: Text(
-        text,
-        style: palette
-            .body(14)
-            .copyWith(height: 20 / 14, color: palette.noteText),
       ),
     );
   }

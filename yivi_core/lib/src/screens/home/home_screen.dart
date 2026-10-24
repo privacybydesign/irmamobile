@@ -8,6 +8,7 @@ import "../../models/native_events.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../activity/activity_tab.dart";
 import "../data/data_tab.dart";
@@ -99,15 +100,11 @@ class HomeScreen extends StatelessWidget {
                           bottom: FloatingBarPlacement.tabBarBottom(context),
                           child: PushAway(
                             direction: PushAwayDirection.down,
-                            child: Center(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: mediumContentMaxWidth,
-                                ),
-                                child: GlassTabBar(
-                                  selectedTab: tabState,
-                                  onChangeTab: changeTab,
-                                ),
+                            child: CentredMaxWidth(
+                              maxWidth: mediumContentMaxWidth,
+                              child: GlassTabBar(
+                                selectedTab: tabState,
+                                onChangeTab: changeTab,
                               ),
                             ),
                           ),

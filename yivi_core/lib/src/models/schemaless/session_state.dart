@@ -31,7 +31,10 @@ enum SessionStatus {
   dismissed,
   requestPin,
   requestPreAuthorizedCode,
-  requestAuthorizationCode,
+  requestAuthorizationCode;
+
+  /// Whether the session has ended: it worked, failed or was dismissed.
+  bool get isTerminal => this == success || this == error || this == dismissed;
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

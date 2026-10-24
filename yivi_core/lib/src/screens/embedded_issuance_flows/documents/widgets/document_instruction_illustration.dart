@@ -52,9 +52,7 @@ class _DocumentInstructionIllustrationState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final still =
-        MediaQuery.disableAnimationsOf(context) ||
-        TestContext.isRunningIntegrationTest(context);
+    final still = motionStill(context);
     if (still) {
       _sweep
         ..stop()

@@ -274,8 +274,8 @@ class _PhotoViewerState extends State<_PhotoViewer>
     if (!_dragging) return;
     _dragging = false;
     final velocity = d.velocity.pixelsPerSecond.dy;
-    if (_drag.abs() > PullToDismissPhysics.dismissDistance ||
-        velocity.abs() > PullToDismissPhysics.dismissVelocity) {
+    // Either way, up or down.
+    if (PullToDismissPhysics.shouldDismiss(_drag.abs(), velocity.abs())) {
       // Flies back to the card from where it was let go.
       _close();
       return;

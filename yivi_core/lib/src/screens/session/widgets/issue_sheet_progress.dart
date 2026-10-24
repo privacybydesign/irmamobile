@@ -57,6 +57,13 @@ class IssueSheetProgress extends StatefulWidget {
     this.total = 3,
   }) : assert(step >= 1 && step <= total);
 
+  /// The progress at the last step, adding the card; none without a
+  /// [subject], or for an issuance without steps before it ([total] 0).
+  static IssueSheetProgress? lastStep(IssueSheetSubject? subject, int total) =>
+      subject == null || total == 0
+      ? null
+      : IssueSheetProgress(subject: subject, step: total, total: total);
+
   @override
   State<IssueSheetProgress> createState() => _IssueSheetProgressState();
 }
@@ -224,6 +231,10 @@ class IssueSheetRequestorLine extends StatelessWidget {
   final IssueSheetSubject subject;
 
   const IssueSheetRequestorLine({super.key, required this.subject});
+
+  /// The line for [subject]; none without one.
+  static IssueSheetRequestorLine? maybe(IssueSheetSubject? subject) =>
+      subject == null ? null : IssueSheetRequestorLine(subject: subject);
 
   @override
   Widget build(BuildContext context) {

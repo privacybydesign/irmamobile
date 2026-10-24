@@ -1,6 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_surface.dart";
@@ -83,7 +84,6 @@ class _RailButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final color = selected ? palette.selectedTab : palette.heading;
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     // The same unread dot as on the tab bar's bell.
     final iconWidget = TabIcon(icon: icon, color: color, showDot: showDot);
@@ -98,9 +98,10 @@ class _RailButton extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: AnimatedContainer(
-            duration: reduceMotion
-                ? Duration.zero
-                : const Duration(milliseconds: 200),
+            duration: YiviMotion.duration(
+              context,
+              const Duration(milliseconds: 200),
+            ),
             width: 48,
             height: 48,
             alignment: Alignment.center,

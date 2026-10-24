@@ -3,6 +3,7 @@ import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
@@ -423,8 +424,10 @@ class _FoldState extends State<_Fold> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final reduce = MediaQuery.disableAnimationsOf(context);
-    final duration = reduce ? Duration.zero : const Duration(milliseconds: 220);
+    final duration = YiviMotion.duration(
+      context,
+      const Duration(milliseconds: 220),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

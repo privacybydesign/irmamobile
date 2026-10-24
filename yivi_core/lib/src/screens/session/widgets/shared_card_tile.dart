@@ -97,9 +97,7 @@ class SharedCardTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final wallet =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final wallet = ref.watch(walletCardsProvider);
     final cards = bundle.credentials;
     final problem = showStatus ? problemOfBundle(bundle) : null;
     final lastUse = showStatus && problem == null && cards.any(isLastUse);

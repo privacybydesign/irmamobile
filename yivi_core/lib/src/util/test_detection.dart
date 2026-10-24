@@ -13,3 +13,10 @@ class TestContext extends InheritedWidget {
     return context.findAncestorWidgetOfExactType<TestContext>() != null;
   }
 }
+
+/// Whether pictures stand still instead of moving: when the user asked for
+/// less motion, and in the integration tests, where a looping animation
+/// would never let the screen settle.
+bool motionStill(BuildContext context) =>
+    MediaQuery.disableAnimationsOf(context) ||
+    TestContext.isRunningIntegrationTest(context);

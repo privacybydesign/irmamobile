@@ -23,9 +23,7 @@ Widget cardHandoff(BuildContext context, String hash, Widget child) {
     paneAvailable: useHomePanes,
     onHandoff: (container) {
       // The page may show a sibling of the card it opened with.
-      final cards =
-          container.read(schemalessCredentialOrderControllerProvider).value ??
-          const [];
+      final cards = container.read(walletCardsProvider);
       final open = WalletTransition.openKey.value;
       final shown = cards.any((c) => c.hash == open) ? open! : hash;
       if (fromNotifications) {

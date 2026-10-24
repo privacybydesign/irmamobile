@@ -45,12 +45,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
         AppLifecycleState.resumed == state) {
       _sessionSubscription = _repo
           .getSessionState(widget.arguments.sessionID!)
-          .firstWhere(
-            (s) =>
-                s.status == SessionStatus.success ||
-                s.status == SessionStatus.error ||
-                s.status == SessionStatus.dismissed,
-          )
+          .firstWhere((s) => s.status.isTerminal)
           .asStream()
           .listen((event) {
             if (mounted) {

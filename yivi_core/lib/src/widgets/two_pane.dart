@@ -3,6 +3,7 @@ import "dart:math" as math;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 
@@ -66,9 +67,10 @@ class TwoPane extends StatelessWidget {
                     // Cards in the pane one level above it, as on a sheet.
                     child: YiviPaletteScope.onSheet(
                       child: AnimatedSwitcher(
-                        duration: MediaQuery.disableAnimationsOf(context)
-                            ? Duration.zero
-                            : const Duration(milliseconds: 220),
+                        duration: YiviMotion.duration(
+                          context,
+                          const Duration(milliseconds: 220),
+                        ),
                         child:
                             detail ??
                             // Centred in what is in sight: clear of a side

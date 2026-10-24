@@ -5,8 +5,10 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
@@ -219,9 +221,10 @@ class _FormSheetDragState extends State<_FormSheetDrag>
     onVerticalDragUpdate: (d) =>
         _offset.value = math.max(0, _offset.value + (d.primaryDelta ?? 0)),
     onVerticalDragEnd: (d) {
-      final close =
-          _offset.value > PullToDismissPhysics.dismissDistance ||
-          d.velocity.pixelsPerSecond.dy > PullToDismissPhysics.dismissVelocity;
+      final close = PullToDismissPhysics.shouldDismiss(
+        _offset.value,
+        d.velocity.pixelsPerSecond.dy,
+      );
       _back();
       if (close) Navigator.of(context).maybePop();
     },
@@ -351,11 +354,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     _pulling = false;
     _pull.value = 0;
     // A downward flick has a negative scroll velocity.
-    _settle(
-      close:
-          pulled > PullToDismissPhysics.dismissDistance ||
-          velocity < -PullToDismissPhysics.dismissVelocity,
-    );
+    _settle(close: PullToDismissPhysics.shouldDismiss(pulled, -velocity));
   }
 
   bool _onScrollStart(ScrollStartNotification notification) {
@@ -775,8 +774,7 @@ class _GlassSheetNoRimState extends State<GlassSheetNoRim> {
   void initState() {
     super.initState();
     // After this frame: the sheet is being built.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       _hiders = context.getInheritedWidgetOfExactType<_SheetRim>()?.hiders;
       _hiders?.value++;
     });
@@ -845,9 +843,7 @@ bool sheetActionInBar(BuildContext context) =>
 /// here.
 class GlassSheetHeader extends StatelessWidget {
   static Duration _switch(BuildContext context) =>
-      MediaQuery.disableAnimationsOf(context)
-      ? Duration.zero
-      : const Duration(milliseconds: 200);
+      YiviMotion.duration(context, const Duration(milliseconds: 200));
 
   final String title;
 

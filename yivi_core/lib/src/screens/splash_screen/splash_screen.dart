@@ -19,9 +19,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final still =
-        MediaQuery.disableAnimationsOf(context) ||
-        TestContext.isRunningIntegrationTest(context);
+    final still = motionStill(context);
 
     final logo = SvgPicture.asset(
       YiviPalette.of(context).logoAsset,

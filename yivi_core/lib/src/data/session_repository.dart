@@ -92,7 +92,7 @@ class SessionRepository {
     // [getSessionState]'s `containsKey` guard, so subscribers see exactly one
     // terminal emission. Prevents `_states` from growing unboundedly across
     // the app lifetime.
-    if (_isTerminalStatus(state.status)) {
+    if (state.status.isTerminal) {
       final cleaned = Map<int, SessionState>.from(nextStates)..remove(state.id);
       _states.add(UnmodifiableMapView(cleaned));
 
@@ -106,11 +106,6 @@ class SessionRepository {
       }
     }
   }
-
-  static bool _isTerminalStatus(SessionStatus status) =>
-      status == SessionStatus.success ||
-      status == SessionStatus.error ||
-      status == SessionStatus.dismissed;
 
   void _markAwaitingInteraction(int sessionId) {
     if (_awaitingInteraction.value.contains(sessionId)) return;

@@ -7,6 +7,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../home/home_screen.dart";
 import "../../home/widgets/irma_nav_bar.dart";
@@ -66,9 +67,7 @@ class IssuanceFlight {
     if (box == null || !box.hasSize || CardFlight.isFlying) return false;
 
     final container = ProviderScope.containerOf(context, listen: false);
-    final cards =
-        container.read(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final cards = container.read(walletCardsProvider);
     final card = cards.firstOrNull;
     if (card == null || card.credentialId != received.credentialId) {
       return false;
@@ -134,8 +133,8 @@ class IssuanceFlight {
     final wallet = ProviderScope.containerOf(
       context,
       listen: false,
-    ).read(schemalessCredentialOrderControllerProvider).value;
-    final first = wallet?.firstOrNull;
+    ).read(walletCardsProvider);
+    final first = wallet.firstOrNull;
     final i = first == null
         ? 0
         : received.indexWhere((c) => c.credentialId == first.credentialId);
@@ -168,9 +167,7 @@ class IssuanceFlight {
         position.jumpTo(position.minScrollExtent);
       }
     }
-    final box = target.findRenderObject() as RenderBox?;
-    if (box == null || !box.attached || !box.hasSize) return null;
-    return box.localToGlobal(Offset.zero, ancestor: overlayBox) & box.size;
+    return target.rectIn(overlayBox);
   }
 
   /// Ends a flight at once, e.g. between tests.

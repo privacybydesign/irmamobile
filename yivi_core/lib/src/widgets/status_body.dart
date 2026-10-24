@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "../util/test_detection.dart";
+import "centred_max_width.dart";
 import "glass/glass_dialog.dart";
 import "irma_app_bar.dart";
 
@@ -88,28 +89,26 @@ class StatusBody extends StatelessWidget {
         }
         return Padding(
           padding: EdgeInsets.only(left: insets.left, right: insets.right),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1000),
-              child: Row(
-                spacing: 48,
-                children: [
-                  Expanded(child: Center(child: disc)),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.only(
-                        top: insets.top,
-                        bottom: insets.bottom,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: _texts(palette, TextAlign.start),
-                      ),
+          child: CentredMaxWidth(
+            maxWidth: 1000,
+            child: Row(
+              spacing: 48,
+              children: [
+                Expanded(child: Center(child: disc)),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      top: insets.top,
+                      bottom: insets.bottom,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: _texts(palette, TextAlign.start),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -179,7 +178,7 @@ class _DiscState extends State<_Disc> with SingleTickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_still(context)) {
+    if (motionStill(context)) {
       _pulse.stop();
     } else if (!_started) {
       _started = true;
@@ -188,10 +187,6 @@ class _DiscState extends State<_Disc> with SingleTickerProviderStateMixin {
   }
 
   var _started = false;
-
-  static bool _still(BuildContext context) =>
-      MediaQuery.disableAnimationsOf(context) ||
-      TestContext.isRunningIntegrationTest(context);
 
   @override
   void dispose() {
@@ -204,7 +199,7 @@ class _DiscState extends State<_Disc> with SingleTickerProviderStateMixin {
     final fill =
         widget.color ??
         ToneDisc.colors(YiviPalette.of(context), widget.tone).$1;
-    final still = _still(context);
+    final still = motionStill(context);
     return SizedBox.square(
       dimension: _size,
       child: Stack(

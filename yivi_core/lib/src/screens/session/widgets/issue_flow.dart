@@ -7,7 +7,6 @@ import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/external_issuer_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
@@ -210,9 +209,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final nested = _nestedId;
     // A nested id means the repository was read (the website was opened).
     if (nested != null && issueAdded == null) {
-      _repoRead?.bridgedDispatch(
-        SessionUserInteractionEvent.dismiss(sessionId: nested),
-      );
+      _repoRead?.dismissSession(nested);
     }
     super.dispose();
   }
@@ -323,9 +320,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _faceCheck = false;
   }
 
-  void _dismissNested(int sessionId) => _repo.bridgedDispatch(
-    SessionUserInteractionEvent.dismiss(sessionId: sessionId),
-  );
+  void _dismissNested(int sessionId) => _repo.dismissSession(sessionId);
 
   /// How many steps adding [d] takes, for the progress: the details, the
   /// steps that prove it, and adding it. A website is one step (3 in all);
@@ -440,6 +435,26 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   /// Back in the sheet: one step back, or from the details to the root page.
+  /// The sheet: its own [root] page (under the key [rootKey]) and then the
+  /// flow's pages, asking before it closes once adding has started. Opened
+  /// on one card, the flow's first page takes the root's place.
+  Widget issueSheet({
+    required String rootKey,
+    required Widget Function() root,
+    required VoidCallback onBack,
+  }) => GlassSheetConfirmDismiss(
+    ask: issueStarted,
+    confirm: issueConfirmStop,
+    child: GlassSheetPages(
+      onBack: onBack,
+      pages: [
+        if (!issueDirect || issueAdding == null)
+          KeyedSubtree(key: ValueKey(rootKey), child: root()),
+        ...issueFlowPages(),
+      ],
+    ),
+  );
+
   void issueBack() {
     final nested = _nestedId;
     if (_standalone && issueAdding == null && nested != null) {
@@ -579,13 +594,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           s.offeredCredentialTypes != null);
 
   void _grantPreAuthorizedCode(int sessionId, String? transactionCode) =>
-      _repo.bridgedDispatch(
-        SessionUserInteractionEvent.preAuthorizedCodePermission(
-          sessionId: sessionId,
-          transactionCode: transactionCode,
-          proceed: true,
-        ),
-      );
+      _repo.grantPreAuthorizedCode(sessionId, transactionCode);
 
   void _showOverSheet(WidgetBuilder builder, {VoidCallback? then}) {
     _overSheet = true;
@@ -598,13 +607,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     });
   }
 
-  void _grant(int sessionId) => _repo.bridgedDispatch(
-    SessionUserInteractionEvent.permission(
-      sessionId: sessionId,
-      granted: true,
-      disclosureChoices: const [],
-    ),
-  );
+  void _grant(int sessionId) => _repo.grantSession(sessionId);
 
   // ---------- the pages ----------
 
@@ -868,8 +871,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         title: context.tr("issuance.title"),
         onBack: issueBack,
         action: action,
-        pinned: _progress(subject, total),
-        subtitle: _requestorLine(subject),
+        pinned: IssueSheetProgress.lastStep(subject, total),
+        subtitle: IssueSheetRequestorLine.maybe(subject),
         split: true,
         child: SheetSplit(
           key: content == null ? null : const Key("sheet_issuance"),
@@ -900,7 +903,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
-      pinned: _progress(subject, total),
+      pinned: IssueSheetProgress.lastStep(subject, total),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
@@ -984,17 +987,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           ?.contains(credentialId) ??
       false;
 
-  /// The progress over a step; none for an issuance without steps before
-  /// it ([total] 0).
-  /// Under the bar's title on a phone held sideways: who it is for.
-  Widget? _requestorLine(IssueSheetSubject? subject) =>
-      subject == null ? null : IssueSheetRequestorLine(subject: subject);
-
-  Widget? _progress(IssueSheetSubject? subject, int total) =>
-      subject == null || total == 0
-      ? null
-      : IssueSheetProgress(subject: subject, step: total, total: total);
-
   /// OpenID4VCI's transaction code or authorization-code step, as a page.
   /// Back declines the issuance.
   Widget _buildOpenIdStep(SessionState state, int sessionId) {
@@ -1068,7 +1060,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         title: context.tr("issuance.success_feedback.header"),
         action: action,
         closable: false,
-        subtitle: _requestorLine(subject),
+        subtitle: IssueSheetRequestorLine.maybe(subject),
         split: true,
         child: SheetSplit(
           start: [
@@ -1137,6 +1129,43 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       ),
     );
   }
+}
+
+/// An [IssueFlow] that adds a card on its own, not for a request (the Add
+/// data sheet, the scanner over the lock screen): no session under it, the
+/// card as the subject, and "Done" on "Success" calls [issueDone].
+mixin StandaloneIssueFlow<W extends ConsumerStatefulWidget> on IssueFlow<W> {
+  /// "Done" on "Success".
+  void issueDone();
+
+  @override
+  int? get underlyingSessionId => null;
+
+  @override
+  SessionState? get issueRequest => null;
+
+  @override
+  IssueSheetSubject issueSubject(CredentialDescriptor d) =>
+      IssueSheetSubject.card(d);
+
+  @override
+  String issueStopText() => context.tr("data.add.stop_text");
+
+  @override
+  String issueSuccessText(List<schemaless.Credential> cards) => context.tr(
+    cards.length > 1
+        ? "issuance.success_feedback.added_many"
+        : "issuance.success_feedback.added_one",
+    {"name": cards.firstOrNull?.name ?? "", "count": "${cards.length}"},
+  );
+
+  @override
+  SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
+      SheetAction(
+        key: const Key("sheet_done"),
+        label: context.tr("ui.done"),
+        onTap: issueDone,
+      );
 }
 
 /// A choice on "Success" besides its way on, as a link
@@ -1221,16 +1250,8 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
       closable: false,
       title: FlutterI18n.translate(context, "issuance.title"),
       onBack: widget.onCancel,
-      pinned: widget.subject == null || widget.total == 0
-          ? null
-          : IssueSheetProgress(
-              subject: widget.subject!,
-              step: widget.total,
-              total: widget.total,
-            ),
-      subtitle: widget.subject == null
-          ? null
-          : IssueSheetRequestorLine(subject: widget.subject!),
+      pinned: IssueSheetProgress.lastStep(widget.subject, widget.total),
+      subtitle: IssueSheetRequestorLine.maybe(widget.subject),
       // The pad fills the page and scales itself to it; it does not scroll.
       // It keeps clear of the home indicator itself (YiviPinScreen), so the
       // link under the keypad sits as low as on the full-screen PIN.
@@ -1252,13 +1273,7 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
         blockedTimeSeconds: state?.pinBlockedTimeSeconds,
         submitting: awaiting,
         maxPinSize: _longPin ? 16 : 5,
-        onPinEntered: (pin) => _repo.bridgedDispatch(
-          SessionUserInteractionEvent.pin(
-            sessionId: widget.sessionId,
-            pin: pin,
-            proceed: true,
-          ),
-        ),
+        onPinEntered: (pin) => _repo.enterSessionPin(widget.sessionId, pin),
         onCancel: widget.onCancel,
       ),
     );

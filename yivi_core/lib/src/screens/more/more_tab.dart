@@ -10,6 +10,7 @@ import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
+import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/lock_gate.dart";
@@ -142,51 +143,41 @@ class _MoreTabState extends ConsumerState<MoreTab> {
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: tabPagePadding(context),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: mediumContentMaxWidth),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                  child: Semantics(
-                    header: true,
-                    child: TranslatedText(
-                      "home.nav_bar.more",
-                      style: palette.display(26, weight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-                ...appManagement,
-                ...about,
-                const SizedBox(height: 32),
-                PillButton(
-                  key: const Key("log_out_button"),
-                  style: PillStyle.neutral,
-                  label: FlutterI18n.translate(context, "more_tab.log_out"),
-                  onPressed: () {
-                    // Confirm the deliberate logout so the user understands they
-                    // were logged out and the PIN screen is not asking for a PIN in
-                    // order to log out. Shown by the lock overlay rather than from
-                    // here: on this tab's ScaffoldMessenger the snackbar also paints
-                    // in this Scaffold, which stays mounted under the overlay.
-                    confirmLogoutOnNextLock = true;
-                    // userInitiated: skip the "scan on launch" auto-biometric on
-                    // the lock screen that follows an explicit logout.
-                    IrmaRepositoryProvider.of(
-                      context,
-                    ).lock(userInitiated: true);
-                    widget.onChangeTab(IrmaNavBarTab.data);
-                  },
-                ),
-                const SizedBox(height: 16),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: VersionButton(),
-                ),
-              ],
-            ),
+        child: CentredMaxWidth(
+          maxWidth: mediumContentMaxWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                child: const TabLargeTitle("home.nav_bar.more"),
+              ),
+              ...appManagement,
+              ...about,
+              const SizedBox(height: 32),
+              PillButton(
+                key: const Key("log_out_button"),
+                style: PillStyle.neutral,
+                label: FlutterI18n.translate(context, "more_tab.log_out"),
+                onPressed: () {
+                  // Confirm the deliberate logout so the user understands they
+                  // were logged out and the PIN screen is not asking for a PIN in
+                  // order to log out. Shown by the lock overlay rather than from
+                  // here: on this tab's ScaffoldMessenger the snackbar also paints
+                  // in this Scaffold, which stays mounted under the overlay.
+                  confirmLogoutOnNextLock = true;
+                  // userInitiated: skip the "scan on launch" auto-biometric on
+                  // the lock screen that follows an explicit logout.
+                  IrmaRepositoryProvider.of(context).lock(userInitiated: true);
+                  widget.onChangeTab(IrmaNavBarTab.data);
+                },
+              ),
+              const SizedBox(height: 16),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: VersionButton(),
+              ),
+            ],
           ),
         ),
       ),

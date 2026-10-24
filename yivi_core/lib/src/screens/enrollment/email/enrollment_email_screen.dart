@@ -10,9 +10,11 @@ import "../../../providers/email_linking_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../embedded_issuance_flows/email/widgets/email_address_entry.dart";
@@ -196,9 +198,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     _codeController.clear();
     _sentAgain = false;
     ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _emailFocus.requestFocus();
-    });
+    afterFrame(() => _emailFocus.requestFocus());
   }
 
   void _sendAgain(String email) {
@@ -250,15 +250,11 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           );
 
     final pillSize = tablet ? PillSize.large : PillSize.regular;
-    final spinner = const SizedBox.square(
-      dimension: 18,
-      child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
-    );
     final sendButton = FancyPillButton(
       key: const Key("enrollment_email_send"),
       label: context.tr("contact_sheet.send_code"),
       size: pillSize,
-      leading: sending ? spinner : null,
+      leading: sending ? const SheetBusySpinner() : null,
       onPressed: _valid && !sending ? _send : null,
     );
 

@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../translated_text.dart";
 import "scroll_edge.dart";
 
 /// The top of a tab page with a large title (More, Notifications): the hard
@@ -86,4 +87,21 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
       ),
     );
   }
+}
+
+/// The large title at the top of a tab page with a [TitleScrollEdge], from
+/// the translation at [titleKey].
+class TabLargeTitle extends StatelessWidget {
+  final String titleKey;
+
+  const TabLargeTitle(this.titleKey, {super.key});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    header: true,
+    child: TranslatedText(
+      titleKey,
+      style: YiviPalette.of(context).display(26, weight: FontWeight.w700),
+    ),
+  );
 }

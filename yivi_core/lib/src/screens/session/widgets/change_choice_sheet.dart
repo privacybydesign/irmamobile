@@ -56,38 +56,60 @@ Future<void> showChangeChoiceSheet({
   ),
 );
 
-/// The hero tag of [bundle] as the choice for pick-one [index]: the card on
-/// the share screen and the same card in the sheet, so the chosen card flies
-/// into the sheet and the picked one back.
-Object choiceHeroTag(int sessionId, int index, DisclosureBundle bundle) => (
-  "disclosure_choice",
-  sessionId,
-  index,
-  bundle.credentials.map((c) => c.hash).join("+"),
-);
+/// [child], the card of [bundle] as the choice for pick-one [index], as a
+/// hero: the card on the share screen and the same card in the sheet, so
+/// the chosen card flies into the sheet and the picked one back, also when
+/// the sheet is dragged closed.
+class ChoiceHero extends StatelessWidget {
+  final int sessionId;
+  final int index;
+  final DisclosureBundle bundle;
+  final Widget child;
 
-/// A card flying between the share screen and the sheet: the destination
-/// card without its "Change" pill or selection outline, which appear once it
-/// has landed, on a transparent material so its text and ink have one.
-///
-/// The flight's box goes from the size of one card to the other; the card
-/// keeps its own height in it, so two that differ a little (an
-/// optional card has its leave-out button) do not overflow on the way.
-Widget choiceHeroShuttle(
-  BuildContext flightContext,
-  Animation<double> animation,
-  HeroFlightDirection direction,
-  BuildContext fromContext,
-  BuildContext toContext,
-) => Material(
-  type: MaterialType.transparency,
-  child: OverflowBox(
-    alignment: Alignment.topCenter,
-    minHeight: 0,
-    maxHeight: double.infinity,
-    child: SharedCardTileInFlight(child: (toContext.widget as Hero).child),
-  ),
-);
+  const ChoiceHero({
+    super.key,
+    required this.sessionId,
+    required this.index,
+    required this.bundle,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => Hero(
+    tag: (
+      "disclosure_choice",
+      sessionId,
+      index,
+      bundle.credentials.map((c) => c.hash).join("+"),
+    ),
+    flightShuttleBuilder: _shuttle,
+    transitionOnUserGestures: true,
+    child: child,
+  );
+
+  /// A card flying between the share screen and the sheet: the destination
+  /// card without its "Change" pill or selection outline, which appear once
+  /// it has landed, on a transparent material so its text and ink have one.
+  ///
+  /// The flight's box goes from the size of one card to the other; the card
+  /// keeps its own height in it, so two that differ a little (an
+  /// optional card has its leave-out button) do not overflow on the way.
+  static Widget _shuttle(
+    BuildContext flightContext,
+    Animation<double> animation,
+    HeroFlightDirection direction,
+    BuildContext fromContext,
+    BuildContext toContext,
+  ) => Material(
+    type: MaterialType.transparency,
+    child: OverflowBox(
+      alignment: Alignment.topCenter,
+      minHeight: 0,
+      maxHeight: double.infinity,
+      child: SharedCardTileInFlight(child: (toContext.widget as Hero).child),
+    ),
+  );
+}
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
   final int sessionId;
@@ -220,19 +242,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         );
   }
 
-  /// The types of the cards in the app.
-  Set<String> _cardsInApp() => {
-    for (final c
-        in ref.read(schemalessCredentialOrderControllerProvider).value ??
-            const <schemaless.Credential>[])
-      c.credentialId,
-  };
-
   /// After adding [added], the card of the set still missing, if any.
   CredentialDescriptor? _nextOfSet(List<schemaless.Credential> added) {
     final pickOne = _pickOne;
     if (pickOne == null || !_isTogether) return null;
-    final inApp = {..._cardsInApp(), for (final c in added) c.credentialId};
+    final inApp = {
+      ...ref.read(cardTypesInAppProvider),
+      for (final c in added) c.credentialId,
+    };
     for (final d in addableOptions(pickOne)) {
       if (!inApp.contains(d.credentialId)) return d;
     }
@@ -298,22 +315,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final pickOne = pickOnes[widget.index];
     // "Add …" and its steps are subpages inside the sheet, as in a native
     // iOS sheet.
-    return GlassSheetConfirmDismiss(
-      ask: issueStarted,
-      confirm: issueConfirmStop,
-      child: GlassSheetPages(
-        onBack: _back,
-        pages: [
-          // Opened on the one card the request can use: its details are
-          // the first page.
-          if (!issueDirect || issueAdding == null)
-            KeyedSubtree(
-              key: const ValueKey("choose"),
-              child: _buildChoose(pickOne),
-            ),
-          ...issueFlowPages(),
-        ],
-      ),
+    return issueSheet(
+      rootKey: "choose",
+      root: () => _buildChoose(pickOne),
+      onBack: _back,
     );
   }
 
@@ -339,12 +344,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   Widget _buildTogether(DisclosurePickOne pickOne) {
     final palette = YiviPalette.of(context);
     final set = addableOptions(pickOne);
-    final inApp = {
-      for (final c
-          in ref.watch(schemalessCredentialOrderControllerProvider).value ??
-              const <schemaless.Credential>[])
-        c.credentialId,
-    };
+    final inApp = ref.watch(cardTypesInAppProvider);
     return GlassSheetPage(
       title: context.tr("share.sheet.together_title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -459,11 +459,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             _Label(context.tr("share.sheet.already_in_app")),
             ..._inRows(landscape, gap: 12, [
               for (final b in owned)
-                Hero(
-                  tag: choiceHeroTag(widget.sessionId, widget.index, b),
-                  flightShuttleBuilder: choiceHeroShuttle,
-                  // Also back into the overview when the sheet is dragged closed.
-                  transitionOnUserGestures: true,
+                ChoiceHero(
+                  sessionId: widget.sessionId,
+                  index: widget.index,
+                  bundle: b,
                   child: _OwnedCard(
                     key: Key("sheet_owned_${b.credentials.first.hash}"),
                     bundle: b,

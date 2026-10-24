@@ -7,6 +7,7 @@ import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -122,8 +123,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   void initState() {
     super.initState();
     // The keyboard comes up at once: the field is what the page is for.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       if (widget.code) {
         _codeFocus.requestFocus();
       } else if (_stageNow() == _Stage.entering) {
@@ -259,9 +259,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     super.didChangeDependencies();
     final top = GlassSheetPages.isTopPage(context);
     if (!widget.code && top && !_wasTop) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _focusNode.requestFocus();
-      });
+      afterFrame(() => _focusNode.requestFocus());
     }
     _wasTop = top;
   }

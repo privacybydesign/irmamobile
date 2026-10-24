@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/email_issuance_provider.dart";
+import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
 
@@ -47,8 +48,7 @@ class EmailAddressEntryState extends ConsumerState<EmailAddressEntry> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       // The address typed before, when coming back from the code.
       final email = ref.read(emailIssuanceProvider).email;
       _textController.text = email;

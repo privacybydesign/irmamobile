@@ -4,6 +4,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../util/tablet.dart";
+import "../../../widgets/centred_max_width.dart";
+import "../../../widgets/fill_scroll_view.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/translated_text.dart";
@@ -122,16 +124,9 @@ class _Centred extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        padding: padding,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: max(0, constraints.maxHeight - padding.vertical),
-          ),
-          child: Center(child: child),
-        ),
-      ),
+    return FillScrollView(
+      padding: padding,
+      child: Center(child: child),
     );
   }
 }
@@ -186,12 +181,7 @@ class _Sideways extends StatelessWidget {
     );
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: tablet ? 40 : 16),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _sidewaysMaxWidth),
-          child: columns,
-        ),
-      ),
+      child: CentredMaxWidth(maxWidth: _sidewaysMaxWidth, child: columns),
     );
   }
 }
@@ -244,28 +234,21 @@ class _UprightPhone extends StatelessWidget {
     // At least the height of the screen: the empty first child and the two
     // equal gaps put [about] in the middle of the room above [action]. No
     // intrinsic sizes, which a field with a LayoutBuilder cannot give.
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(16, top, 16, bottom),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: max(0, constraints.maxHeight - top - bottom),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox.shrink(),
-              if (about != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: about),
-                ),
-              action,
-            ],
-          ),
-        ),
+    return FillScrollView(
+      padding: EdgeInsets.fromLTRB(16, top, 16, bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox.shrink(),
+          if (about != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: about),
+            ),
+          action,
+        ],
       ),
     );
   }

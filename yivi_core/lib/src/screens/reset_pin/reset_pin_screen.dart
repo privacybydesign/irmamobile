@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
+import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -140,30 +141,28 @@ class ResetPinScreen extends StatelessWidget {
     Widget buttons,
   ) {
     final padding = MediaQuery.paddingOf(context);
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1000),
-        child: Row(
-          spacing: 48,
-          children: [
-            Expanded(child: Center(child: picture)),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  0,
-                  padding.top + 16,
-                  16,
-                  FloatingBarPlacement.buttonBottom(context),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [...texts, const SizedBox(height: 24), buttons],
-                ),
+    return CentredMaxWidth(
+      maxWidth: 1000,
+      child: Row(
+        spacing: 48,
+        children: [
+          Expanded(child: Center(child: picture)),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                0,
+                padding.top + 16,
+                16,
+                FloatingBarPlacement.buttonBottom(context),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [...texts, const SizedBox(height: 24), buttons],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

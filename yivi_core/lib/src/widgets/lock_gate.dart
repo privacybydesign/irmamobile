@@ -16,6 +16,7 @@ import "../screens/pin/widgets/biometric_opt_in_dialog.dart";
 import "../screens/reset_pin/reset_pin_screen.dart";
 import "../screens/scanner/lock_scanner_sheet.dart";
 import "../screens/terms_changed/terms_changed_dialog.dart";
+import "../util/after_frame.dart";
 import "../widgets/irma_app_bar.dart";
 import "app_toast.dart";
 
@@ -84,9 +85,7 @@ class _LockGateState extends ConsumerState<LockGate> {
         phase == SchedulerPhase.postFrameCallbacks) {
       setState(() {});
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
+      afterFrame(() => setState(() {}));
     }
   }
 
@@ -230,8 +229,7 @@ class _LogoutConfirmationState extends State<_LogoutConfirmation> {
     confirmLogoutOnNextLock = false;
     // Post-frame: the messenger's State is only reachable once this subtree is
     // mounted.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       // At the top: the PIN screen's keypad and link fill the bottom.
       showAppToast(
         context,

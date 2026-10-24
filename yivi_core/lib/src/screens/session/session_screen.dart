@@ -15,6 +15,7 @@ import "../../providers/external_issuer_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
+import "../../util/after_frame.dart";
 import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -124,14 +125,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // Go-side session.
     // We use cached values because ref is unsafe to use during dispose.
     final status = _lastSession?.value?.status;
-    final isTerminal =
-        status == SessionStatus.success ||
-        status == SessionStatus.error ||
-        status == SessionStatus.dismissed;
-    if (!isTerminal) {
-      _repo.bridgedDispatch(
-        SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
-      );
+    if (!(status?.isTerminal ?? false)) {
+      _repo.dismissSession(widget.sessionId);
     }
     super.dispose();
   }
@@ -328,20 +323,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _submitPin(String pin) {
-    _repo.bridgedDispatch(
-      SessionUserInteractionEvent.pin(
-        sessionId: widget.sessionId,
-        pin: pin,
-        proceed: true,
-      ),
-    );
+    _repo.enterSessionPin(widget.sessionId, pin);
   }
 
   void _dismissSession() {
     final repo = ref.read(irmaRepositoryProvider);
-    repo.bridgedDispatch(
-      SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
-    );
+    repo.dismissSession(widget.sessionId);
   }
 
   Future<void> _showDismissDialog() async {
@@ -376,13 +363,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
     _sharedInstances = _instancesFor(disclosureChoices);
     final repo = ref.read(irmaRepositoryProvider);
-    repo.bridgedDispatch(
-      SessionUserInteractionEvent.permission(
-        sessionId: widget.sessionId,
-        granted: true,
-        disclosureChoices: disclosureChoices,
-      ),
-    );
+    repo.grantSession(widget.sessionId, disclosureChoices);
   }
 
   Widget _buildSuccess(SessionState session) {
@@ -394,9 +375,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         linking.issuanceSessionId == widget.sessionId) {
       if (!_handedOverToKeyshare) {
         _handedOverToKeyshare = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) shareEmailWithKeyshare(context, ref);
-        });
+        afterFrame(() => shareEmailWithKeyshare(context, ref));
       }
       return _buildLoadingScreen(session);
     }
@@ -668,12 +647,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     SessionState session, {
     required String? transactionCode,
   }) {
-    _repo.bridgedDispatch(
-      SessionUserInteractionEvent.preAuthorizedCodePermission(
-        sessionId: session.id,
-        transactionCode: transactionCode,
-        proceed: true,
-      ),
-    );
+    _repo.grantPreAuthorizedCode(session.id, transactionCode);
   }
 }

@@ -2,8 +2,10 @@ import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_motion.dart";
+import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/pane_handoff.dart";
+import "../../../widgets/slot_registry.dart";
 
 /// State shared between the data tab and the card detail route while a card
 /// opens or closes, for the Wallet-style transition: the tapped card glides
@@ -247,7 +249,7 @@ class WalletStackSlot extends StatefulWidget {
     required this.child,
   });
 
-  static final _byIndex = <int, BuildContext>{};
+  static final _byIndex = SlotRegistry<int>();
   static final _indexOf = <String, int>{};
 
   /// The card drawn over [hash]'s place: the next card down the stack. For a
@@ -258,9 +260,7 @@ class WalletStackSlot extends StatefulWidget {
     final cover = index != null
         ? _byIndex[index + 1]
         : (incoming ? _byIndex[0] : null);
-    if (cover == null || !cover.mounted) return null;
-    final box = cover.findRenderObject();
-    return box is RenderBox && box.attached && box.hasSize ? box : null;
+    return cover.laidOutBox;
   }
 
   @override
@@ -269,14 +269,12 @@ class WalletStackSlot extends StatefulWidget {
 
 class _WalletStackSlotState extends State<WalletStackSlot> {
   void _register() {
-    WalletStackSlot._byIndex[widget.index] = context;
+    WalletStackSlot._byIndex.put(widget.index, context);
     WalletStackSlot._indexOf[widget.hash] = widget.index;
   }
 
   void _unregister(WalletStackSlot old) {
-    if (WalletStackSlot._byIndex[old.index] == context) {
-      WalletStackSlot._byIndex.remove(old.index);
-    }
+    WalletStackSlot._byIndex.drop(old.index, context);
     if (WalletStackSlot._indexOf[old.hash] == old.index) {
       WalletStackSlot._indexOf.remove(old.hash);
     }

@@ -8,6 +8,7 @@ import "../providers/app_locked_provider.dart";
 import "../providers/preferences_provider.dart";
 import "../providers/store_review_provider.dart";
 import "../screens/review/store_review_gate_dialog.dart";
+import "../util/after_frame.dart";
 
 /// The only route on which the review prompt may appear: the idle home screen.
 /// An exact match means nothing is stacked above the dashboard (a session,
@@ -46,9 +47,7 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate> {
         phase == SchedulerPhase.postFrameCallbacks) {
       setState(() {});
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
+      afterFrame(() => setState(() {}));
     }
   }
 
@@ -104,9 +103,7 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate> {
 
     final path = widget.router.routerDelegate.currentConfiguration.uri.path;
     if (!locked && path == _homePath) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _maybeAsk();
-      });
+      afterFrame(() => _maybeAsk());
     }
 
     return widget.child;

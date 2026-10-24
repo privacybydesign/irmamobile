@@ -14,13 +14,14 @@ import "../../providers/pane_selection_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../../util/string.dart";
+import "../../widgets/empty_list_message.dart";
 import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
-import "../../widgets/glass/scroll_edge.dart";
+import "../../widgets/glass/search_scroll_edge.dart";
 import "../../widgets/loading_indicator.dart";
-import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_transition.dart";
 import "activity_detail_screen.dart";
@@ -180,9 +181,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final firstEntries = _latestEntries.isEmpty && logEntries.isNotEmpty;
     _latestEntries = logEntries;
     if (firstEntries && useHomePanes(context)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
+      afterFrame(() => setState(() {}));
     }
     final local = FlutterI18n.currentLocale(context).toString();
     final palette = YiviPalette.of(context);
@@ -209,15 +208,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       }
     }
 
-    Widget message(String key) => Padding(
-      padding: const EdgeInsets.only(top: 32),
-      child: TranslatedText(
-        key,
-        textAlign: TextAlign.center,
-        style: palette.body(16).copyWith(color: palette.heading),
-      ),
-    );
-
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       controller: _scrollController,
@@ -233,7 +223,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         // In the list column they stay inside it, clear of the pane.
         if (tagsInList && logEntries.isNotEmpty) _tags(clip: true),
         if (logEntries.isEmpty)
-          message("activity.empty_placeholder")
+          const EmptyListMessage("activity.empty_placeholder")
         else if (shown.isEmpty && query.isEmpty && _filter != null)
           // Keeps loading older pages while there is more (see
           // _addPostFrameCallback), so this shows only once the log ended.
@@ -242,9 +232,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                   padding: EdgeInsets.only(top: 32),
                   child: Center(child: EndOfListIndicator(isLoading: true)),
                 )
-              : message("activity.filter_empty.${_filter!.name}")
+              : EmptyListMessage("activity.filter_empty.${_filter!.name}")
         else if (shown.isEmpty)
-          message("activity.no_results")
+          const EmptyListMessage("activity.no_results")
         else ...[
           for (final group in groups) ...[
             PushAway(
@@ -298,48 +288,24 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         final tagsInList = usePhoneLandscape(context);
         // The entries scroll under the search field and the tags; the edge
         // goes away with them when an entry opens.
-        return ScrollEdge(
+        return SearchScrollEdge(
           height: top + _headerHeight(withTags) - 4,
-          // Held sideways the search field just floats over the list, with
-          // no band under it.
-          band: (context, under) => usePhoneLandscape(context)
-              ? const SizedBox.shrink()
-              : PushAway(
-                  direction: PushAwayDirection.up,
-                  child: ScrollEdgeBand(under: under),
-                ),
-          bar: [
-            Positioned(
-              left: 16,
-              right: 16,
-              top: top,
-              child: PushAway(
-                direction: PushAwayDirection.up,
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: mediumContentMaxWidth,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        GlassSearchField(
-                          fieldKey: const Key("activity_search_field"),
-                          hintKey: "activity.search_placeholder",
-                          controller: _search,
-                          onChanged: _onQuery,
-                        ),
-                        if (withTags && !tagsInList) ...[
-                          const SizedBox(height: 8),
-                          _tags(),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
+          top: top,
+          row: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              GlassSearchField(
+                fieldKey: const Key("activity_search_field"),
+                hintKey: "activity.search_placeholder",
+                controller: _search,
+                onChanged: _onQuery,
               ),
-            ),
-          ],
+              if (withTags && !tagsInList) ...[
+                const SizedBox(height: 8),
+                _tags(),
+              ],
+            ],
+          ),
           child: historyState == null
               ? Center(child: LoadingIndicator())
               : _buildLogEntries(

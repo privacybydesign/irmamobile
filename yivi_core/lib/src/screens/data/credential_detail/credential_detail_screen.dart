@@ -3,7 +3,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/credential_events.dart";
 import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/irma_repository_provider.dart";
@@ -14,6 +13,7 @@ import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
 import "../../../widgets/app_toast.dart";
+import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
@@ -67,9 +67,7 @@ class _CredentialDetailScreenState
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
-    final cards =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final cards = ref.watch(walletCardsProvider);
     final credential = cards.firstWhereOrNull((c) => c.hash == _hash);
 
     final hints = ref.watch(instanceHintsProvider);
@@ -114,26 +112,24 @@ class _CredentialDetailScreenState
                 ),
                 WalletReveal(
                   animation: animation,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: _maxWidth),
-                      child: _Details(
-                        credential: credential,
-                        siblings: cards
-                            .where(
-                              (c) => c.credentialId == credential.credentialId,
-                            )
-                            .toList(),
-                        hintTexts: {
-                          for (final c in cards)
-                            c.hash: instanceHintText(
-                              context,
-                              hints[c.hash] ?? const NoHint(),
-                            ),
-                        },
-                        onSwitch: (hash) => setState(() => _hash = hash),
-                        onDeleted: _close,
-                      ),
+                  child: CentredMaxWidth(
+                    maxWidth: _maxWidth,
+                    child: _Details(
+                      credential: credential,
+                      siblings: cards
+                          .where(
+                            (c) => c.credentialId == credential.credentialId,
+                          )
+                          .toList(),
+                      hintTexts: {
+                        for (final c in cards)
+                          c.hash: instanceHintText(
+                            context,
+                            hints[c.hash] ?? const NoHint(),
+                          ),
+                      },
+                      onSwitch: (hash) => setState(() => _hash = hash),
+                      onDeleted: _close,
                     ),
                   ),
                 ),
@@ -167,9 +163,7 @@ class CredentialDetailPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cards =
-        ref.watch(schemalessCredentialOrderControllerProvider).value ??
-        const <schemaless.Credential>[];
+    final cards = ref.watch(walletCardsProvider);
     final credential = cards.firstWhereOrNull((c) => c.hash == hash);
     if (credential == null) return const SizedBox.shrink();
 
@@ -214,12 +208,7 @@ class CredentialDetailPane extends ConsumerWidget {
                   hintText: hintText,
                 ),
               ),
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: _maxWidth),
-                child: details,
-              ),
-            ),
+            CentredMaxWidth(maxWidth: _maxWidth, child: details),
           ],
         );
       },
@@ -638,9 +627,9 @@ class _Details extends ConsumerWidget {
       context,
       "credential.options.delete_success",
     );
-    IrmaRepositoryProvider.of(context).bridgedDispatch(
-      DeleteCredentialEvent(hashByFormat: credential.credentialInstanceIds),
-    );
+    IrmaRepositoryProvider.of(
+      context,
+    ).deleteCredential(credential.credentialInstanceIds);
     onDeleted();
     toast(message);
   }

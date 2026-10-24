@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/after_frame.dart";
 import "../../../widgets/glass/scroll_edge.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
@@ -104,8 +105,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     // app to the background.
     if (ModalRoute.of(context)?.isCurrent != true) return;
     // A downward flick has a negative scroll velocity.
-    if (_pull.value > PullToDismissPhysics.dismissDistance ||
-        velocity < -PullToDismissPhysics.dismissVelocity) {
+    if (PullToDismissPhysics.shouldDismiss(_pull.value, -velocity)) {
       // The heroes fly back from where the page was pulled to.
       _close();
     } else {
@@ -126,9 +126,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     // still let that page know what is open. After this build: the page
     // below listens.
     if (WalletTransition.openKey.value == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) WalletTransition.openKey.value ??= widget.openKey;
-      });
+      afterFrame(() => WalletTransition.openKey.value ??= widget.openKey);
     }
   }
 

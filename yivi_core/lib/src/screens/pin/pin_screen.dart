@@ -16,6 +16,7 @@ import "../../providers/preferences_provider.dart";
 import "../../providers/startup_url_resolved_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../theme/theme.dart";
+import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -248,8 +249,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
     if (showBiometric && biometricImmediate && !_autoTriggered) {
       _autoTriggered = true;
       final repo = ref.read(irmaRepositoryProvider);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+      afterFrame(() {
         // Skip the auto-scan if this lock followed an explicit logout; the
         // one-shot flag is consumed so a later idle-lock auto-scans normally.
         if (repo.consumeBiometricAutoUnlockSuppressed()) return;

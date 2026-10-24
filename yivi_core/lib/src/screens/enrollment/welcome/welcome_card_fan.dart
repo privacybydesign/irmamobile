@@ -84,8 +84,7 @@ class _Entrance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.disableAnimationsOf(context) ||
-        TestContext.isRunningIntegrationTest(context)) {
+    if (motionStill(context)) {
       return builder(context, 1);
     }
     final total = duration + delay;
@@ -129,9 +128,7 @@ class _FloatState extends State<_Float> with SingleTickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final still =
-        MediaQuery.disableAnimationsOf(context) ||
-        TestContext.isRunningIntegrationTest(context);
+    final still = motionStill(context);
     if (still) {
       _start?.cancel();
       _controller

@@ -10,15 +10,18 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
+import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/fill_scroll_view.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
@@ -391,32 +394,23 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   lead: sideLead,
                   action: bar.inline(),
                 ),
-                content: LayoutBuilder(
-                  builder: (context, constraints) => SingleChildScrollView(
-                    key: const Key("share_scroll_view"),
-                    padding: EdgeInsets.fromLTRB(0, top, 16, 16 + media.bottom),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight:
-                            (constraints.maxHeight - top - 16 - media.bottom)
-                                .clamp(0, double.infinity),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                content: FillScrollView(
+                  scrollKey: const Key("share_scroll_view"),
+                  padding: EdgeInsets.fromLTRB(0, top, 16, 16 + media.bottom),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: _laidOut(column),
-                          ),
-                          if (!combined)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 28),
-                              child: pageEnd,
-                            ),
-                        ],
+                        children: _laidOut(column),
                       ),
-                    ),
+                      if (!combined)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28),
+                          child: pageEnd,
+                        ),
+                    ],
                   ),
                 ),
               );
@@ -484,40 +478,29 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                 _checkHeader();
                 return false;
               },
-              child: LayoutBuilder(
-                builder: (context, constraints) => SingleChildScrollView(
-                  key: const Key("share_scroll_view"),
-                  padding: EdgeInsets.fromLTRB(
-                    16 + insets.left,
-                    16 + insets.top,
-                    16 + insets.right,
-                    16 + insets.bottom,
-                  ),
-                  // At least the screen high, so the footnote and the details
-                  // sit at its bottom also when the page is short.
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: (constraints.maxHeight - insets.vertical - 32)
-                          .clamp(0, double.infinity),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: FillScrollView(
+                scrollKey: const Key("share_scroll_view"),
+                padding: EdgeInsets.fromLTRB(
+                  16 + insets.left,
+                  16 + insets.top,
+                  16 + insets.right,
+                  16 + insets.bottom,
+                ),
+                // At least the screen high, so the footnote and the details
+                // sit at its bottom also when the page is short.
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: _laidOut([
-                            ...requestorPart,
-                            ...requestedPart,
-                          ]),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 28),
-                          child: pageEnd,
-                        ),
-                      ],
+                      children: _laidOut([...requestorPart, ...requestedPart]),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28),
+                      child: pageEnd,
+                    ),
+                  ],
                 ),
               ),
             );
@@ -603,14 +586,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     language: FlutterI18n.currentLocale(context)?.languageCode,
   );
 
-  /// The types of the cards in the app.
-  Set<String> _cardsInApp() => {
-    for (final c
-        in ref.watch(schemalessCredentialOrderControllerProvider).value ??
-            const <schemaless.Credential>[])
-      c.credentialId,
-  };
-
   static String _issuersOf(DisclosurePickOne p) => {
     for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
       if (d.issuer.name.isNotEmpty) d.issuer.name,
@@ -661,9 +636,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       gap,
       AnimatedSwitcher(
         key: ValueKey(("share_required_item", i)),
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 300),
+        duration: YiviMotion.duration(
+          context,
+          const Duration(milliseconds: 300),
+        ),
         child: KeyedSubtree(key: ValueKey((i, empty)), child: child),
       ),
     );
@@ -682,7 +658,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final single = addable.length == 1 && !together ? addable.single : null;
     final several = !together && addable.length > 1;
     // Cards only accepted together: which of the set are in the app already.
-    final inApp = together ? _cardsInApp() : const <String>{};
+    final inApp = together
+        ? ref.watch(cardTypesInAppProvider)
+        : const <String>{};
     final missing = [
       for (final d in addable)
         if (!inApp.contains(d.credentialId)) d,
@@ -776,11 +754,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
     if (!canChange(p)) return tile;
     // Flies into the Change sheet, where the same card is the checked one.
-    return Hero(
-      tag: choiceHeroTag(_sessionId, i, bundle),
-      flightShuttleBuilder: choiceHeroShuttle,
-      // Also back into the overview when the sheet is dragged closed.
-      transitionOnUserGestures: true,
+    return ChoiceHero(
+      sessionId: _sessionId,
+      index: i,
+      bundle: bundle,
       child: tile,
     );
   }
@@ -838,10 +815,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       // required card does.
       return _Spaced(
         12,
-        Hero(
-          tag: choiceHeroTag(_sessionId, i, bundle),
-          flightShuttleBuilder: choiceHeroShuttle,
-          transitionOnUserGestures: true,
+        ChoiceHero(
+          sessionId: _sessionId,
+          index: i,
+          bundle: bundle,
           child: tile,
         ),
       );
@@ -976,11 +953,7 @@ class _OptionalGhost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const pillEnd = 16.0;
-    final gap = (
-      width: EmptyCardSpot.pillWidth(context, label) + 8,
-      fromEnd: pillEnd - 4,
-    );
+    final gap = EmptyCardSpot.dashGapFor(context, label);
     return Semantics(
       button: true,
       label: "$label: ${bundle.credentials.map((c) => c.name).join(" + ")}",
@@ -996,17 +969,10 @@ class _OptionalGhost extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 SharedCardTile(bundle: bundle, ghost: true, dashGap: gap),
-                PositionedDirectional(
-                  top: -SmallPill.height / 2,
-                  end: pillEnd,
-                  child: IgnorePointer(
-                    child: SmallPill(
-                      key: const Key("share_also_share"),
-                      label: label,
-                      icon: Icons.add_rounded,
-                      onPressed: onAdd,
-                    ),
-                  ),
+                EdgeAddPill(
+                  pillKey: const Key("share_also_share"),
+                  label: label,
+                  onPressed: onAdd,
                 ),
               ],
             ),
@@ -1053,17 +1019,15 @@ class _Footnote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
-        child: Text(
-          text,
-          key: const Key("share_footnote"),
-          textAlign: TextAlign.center,
-          style: palette
-              .body(13.5)
-              .copyWith(height: 19 / 13.5, color: palette.secondaryText),
-        ),
+    return CentredMaxWidth(
+      maxWidth: 320,
+      child: Text(
+        text,
+        key: const Key("share_footnote"),
+        textAlign: TextAlign.center,
+        style: palette
+            .body(13.5)
+            .copyWith(height: 19 / 13.5, color: palette.secondaryText),
       ),
     );
   }
@@ -1172,50 +1136,40 @@ class _LandscapePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final bottom = FloatingBarPlacement.buttonBottom(context);
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        key: const Key("share_panel"),
-        padding: EdgeInsets.fromLTRB(16, top, 0, bottom),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: (constraints.maxHeight - top - bottom).clamp(
-              0,
-              double.infinity,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FillScrollView(
+      scrollKey: const Key("share_panel"),
+      padding: EdgeInsets.fromLTRB(16, top, 0, bottom),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (label != null) ...[
-                    const SizedBox(height: 24),
-                    _SectionLabel.room(label!),
-                    const SizedBox(height: 12),
-                  ],
-                  card,
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      lead,
-                      key: const Key("share_lead"),
-                      style: palette
-                          .body(13.5)
-                          .copyWith(
-                            height: 19 / 13.5,
-                            color: palette.secondaryText,
-                          ),
-                    ),
-                  ),
-                ],
+              if (label != null) ...[
+                const SizedBox(height: 24),
+                _SectionLabel.room(label!),
+                const SizedBox(height: 12),
+              ],
+              card,
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  lead,
+                  key: const Key("share_lead"),
+                  style: palette
+                      .body(13.5)
+                      .copyWith(
+                        height: 19 / 13.5,
+                        color: palette.secondaryText,
+                      ),
+                ),
               ),
-              Padding(padding: const EdgeInsets.only(top: 16), child: action),
             ],
           ),
-        ),
+          Padding(padding: const EdgeInsets.only(top: 16), child: action),
+        ],
       ),
     );
   }

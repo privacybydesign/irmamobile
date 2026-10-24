@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "corner_brackets.dart";
 
 const _grid = 200.0;
 
@@ -33,25 +34,12 @@ class _FaceFramePainter extends CustomPainter {
     canvas.scale(size.width / _grid);
 
     // The four corners of the camera frame.
-    const r = Radius.circular(16);
     canvas.drawPath(
-      Path()
-        ..moveTo(20, 56)
-        ..lineTo(20, 36)
-        ..arcToPoint(const Offset(36, 20), radius: r)
-        ..lineTo(56, 20)
-        ..moveTo(144, 20)
-        ..lineTo(164, 20)
-        ..arcToPoint(const Offset(180, 36), radius: r)
-        ..lineTo(180, 56)
-        ..moveTo(180, 144)
-        ..lineTo(180, 164)
-        ..arcToPoint(const Offset(164, 180), radius: r)
-        ..lineTo(144, 180)
-        ..moveTo(56, 180)
-        ..lineTo(36, 180)
-        ..arcToPoint(const Offset(20, 164), radius: r)
-        ..lineTo(20, 144),
+      cornerBrackets(
+        const Rect.fromLTRB(20, 20, 180, 180),
+        arm: 36,
+        radius: 16,
+      ),
       Paint()
         ..color = link
         ..style = PaintingStyle.stroke

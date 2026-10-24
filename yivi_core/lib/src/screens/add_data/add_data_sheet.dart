@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../models/schemaless/session_state.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
@@ -20,10 +19,8 @@ import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/sheet_action_row.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../session/widgets/issue_flow.dart";
-import "../session/widgets/issue_sheet_progress.dart";
 
 /// Opens Add data: a sheet over the Data tab with every type of card the
 /// user can add, and the whole of adding one inside it ([AddDataSheet]).
@@ -119,7 +116,7 @@ class AddDataSheet extends ConsumerStatefulWidget {
 }
 
 class _AddDataSheetState extends ConsumerState<AddDataSheet>
-    with IssueFlow<AddDataSheet> {
+    with IssueFlow<AddDataSheet>, StandaloneIssueFlow<AddDataSheet> {
   /// The name of the card just added with "Add more", noted on the list.
   String? _justAdded;
 
@@ -142,41 +139,8 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     issueStartWith(widget.addNew);
   }
 
-  // ---------- the flow, without a request ----------
-
   @override
-  int? get underlyingSessionId => null;
-
-  @override
-  SessionState? get issueRequest => null;
-
-  @override
-  IssueSheetSubject issueSubject(CredentialDescriptor d) =>
-      IssueSheetSubject.card(d);
-
-  @override
-  String issueStopText() => context.tr("data.add.stop_text");
-
-  Map<String, String> _params(List<schemaless.Credential> cards) => {
-    "name": cards.firstOrNull?.name ?? "",
-    "count": "${cards.length}",
-  };
-
-  @override
-  String issueSuccessText(List<schemaless.Credential> cards) => context.tr(
-    cards.length > 1
-        ? "issuance.success_feedback.added_many"
-        : "issuance.success_feedback.added_one",
-    _params(cards),
-  );
-
-  @override
-  SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
-      SheetAction(
-        key: const Key("sheet_done"),
-        label: context.tr("ui.done"),
-        onTap: _done,
-      );
+  void issueDone() => _done();
 
   @override
   IssueSuccessLink issueSuccessLink(List<schemaless.Credential> cards) => (
@@ -203,10 +167,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     if (!widget.flyToDataTab) {
       // Opened over another page: the card is in the app, nothing flies.
     } else if (useHomePanes(context)) {
-      final wallet = ref
-          .read(schemalessCredentialOrderControllerProvider)
-          .value;
-      final first = wallet?.firstOrNull;
+      final first = ref.read(walletCardsProvider).firstOrNull;
       if (first != null &&
           cards.any((c) => c.credentialId == first.credentialId)) {
         ref.read(selectedCardProvider.notifier).select(first.hash);
@@ -261,19 +222,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   @override
   Widget build(BuildContext context) {
     issueListen();
-    return GlassSheetConfirmDismiss(
-      ask: issueStarted,
-      confirm: issueConfirmStop,
-      child: GlassSheetPages(
-        onBack: issueBack,
-        pages: [
-          // Opened on one card: its details are the first page.
-          if (!issueDirect || issueAdding == null)
-            KeyedSubtree(key: const ValueKey("list"), child: _list),
-          ...issueFlowPages(),
-        ],
-      ),
-    );
+    return issueSheet(rootKey: "list", root: () => _list, onBack: issueBack);
   }
 }
 
@@ -297,12 +246,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final storeItems = ref.watch(groupedCredentialStoreProvider);
-    final owned = {
-      for (final c
-          in ref.watch(schemalessCredentialOrderControllerProvider).value ??
-              const <schemaless.Credential>[])
-        c.credentialId,
-    };
+    final owned = ref.watch(cardTypesInAppProvider);
 
     // Treat the device as NFC-capable while the check is loading or if it
     // fails: greying out a credential the user can actually obtain is worse
