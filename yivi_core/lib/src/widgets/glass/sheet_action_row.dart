@@ -324,11 +324,16 @@ class SheetAction {
   /// For tests to find it, wherever it shows.
   final Key? key;
 
+  /// As a lone other choice at the bottom ([SheetActionSlot.secondary]): an
+  /// outlined button the full width, not text ("Enter manually").
+  final bool outlined;
+
   const SheetAction({
     required this.label,
     this.onTap,
     this.busy = false,
     this.key,
+    this.outlined = false,
   });
 
   /// Whether it is ready to be tapped.
@@ -340,6 +345,7 @@ class SheetAction {
       other.label == label &&
       other.busy == busy &&
       other.enabled == enabled &&
+      other.outlined == outlined &&
       other.key == key;
 }
 

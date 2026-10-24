@@ -11,6 +11,7 @@ import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
 import "glass_surface.dart";
+import "pill_buttons.dart";
 import "scroll_edge.dart";
 import "sheet_action_row.dart";
 
@@ -2090,6 +2091,7 @@ extension on _GlassSheetPageState {
             // The latest callback (the slot takes a new one without a
             // rebuild).
             onTap: () => now()?.onTap?.call(),
+            outlined: a.outlined,
           );
     return [
       Expanded(
@@ -2109,18 +2111,30 @@ extension on _GlassSheetPageState {
           final primary = latest(_slot.action, () => _slot.action);
           final secondary = latest(_slot.secondary, () => _slot.secondary);
           final empty = primary == null && secondary == null;
-          final row = SheetActionRow(
-            primaryKey: primary?.key,
-            // A screen without buttons: the bar keeps its room, empty.
-            primaryLabel: empty ? " " : primary?.label,
-            onPrimary: primary?.onTap,
-            primaryLeading: primary?.busy ?? false
-                ? const SheetBusySpinner()
-                : null,
-            secondaryKey: secondary?.key,
-            secondaryLabel: secondary?.label,
-            onSecondary: secondary?.onTap,
-          );
+          // A lone other choice that asks for it ("Enter manually"): an
+          // outlined button the full width.
+          final Widget row = primary == null && (secondary?.outlined ?? false)
+              ? SizedBox(
+                  height: SheetActionRow.height,
+                  child: PillButton(
+                    key: secondary!.key,
+                    label: secondary.label,
+                    onPressed: secondary.onTap,
+                    size: PillSize.regular,
+                  ),
+                )
+              : SheetActionRow(
+                  primaryKey: primary?.key,
+                  // A screen without buttons: the bar keeps its room, empty.
+                  primaryLabel: empty ? " " : primary?.label,
+                  onPrimary: primary?.onTap,
+                  primaryLeading: primary?.busy ?? false
+                      ? const SheetBusySpinner()
+                      : null,
+                  secondaryKey: secondary?.key,
+                  secondaryLabel: secondary?.label,
+                  onSecondary: secondary?.onTap,
+                );
           return SheetBottomBar(
             child: Visibility(
               visible: !empty,
