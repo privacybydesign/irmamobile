@@ -183,7 +183,11 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
         pages: [
           KeyedSubtree(
             key: const ValueKey("scanner"),
-            child: ScannerScreen(onScanned: _onScanned),
+            // Slides out as the PIN comes in, so the sheet shows behind the
+            // PIN pad (it stayed put, dark, under it until the end).
+            child: GlassSheetPageMotion(
+              child: ScannerScreen(onScanned: _onScanned),
+            ),
           ),
           if (_scanned != null)
             KeyedSubtree(

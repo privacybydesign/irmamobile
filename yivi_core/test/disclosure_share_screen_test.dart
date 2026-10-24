@@ -1250,9 +1250,7 @@ void main() {
       expect(tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).edge, isFalse);
     });
 
-    testWidgets("the outline goes to a card when the finger lets go", (
-      tester,
-    ) async {
+    testWidgets("the outline stays on the card in use", (tester) async {
       await _pump(
         tester,
         session: _session([
@@ -1277,28 +1275,23 @@ void main() {
       expect(outlineIn(owned), findsOne);
       expect(outlineIn(add), findsNothing);
 
-      // Held down: nothing changes yet.
-      var gesture = await tester.startGesture(tester.getCenter(add));
+      // Held down on a card to add: nothing changes.
+      final gesture = await tester.startGesture(tester.getCenter(add));
       await tester.pump(const Duration(milliseconds: 150));
       await tester.pump();
       expect(outlineIn(owned), findsOne);
       expect(outlineIn(add), findsNothing);
 
-      // Moved off to scroll: still on the card in use.
-      await gesture.moveBy(const Offset(0, -60));
-      await tester.pump();
+      // Let go: its details open; back from them, the outline is still on
+      // the card in use.
       await gesture.up();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_go_button")), findsOneWidget);
+      expect(outlineIn(add), findsNothing);
+      await tester.tap(find.bySemanticsLabel("Go back").last);
       await tester.pumpAndSettle();
       expect(outlineIn(owned), findsOne);
       expect(outlineIn(add), findsNothing);
-
-      // Let go on it: the empty card has it, the one in use does not.
-      gesture = await tester.startGesture(tester.getCenter(add));
-      await tester.pump(const Duration(milliseconds: 150));
-      await gesture.up();
-      await tester.pump();
-      expect(outlineIn(add), findsOne);
-      expect(outlineIn(owned), findsNothing);
     });
 
     testWidgets("cards of one type: which one, told apart by value", (
