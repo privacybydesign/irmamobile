@@ -65,7 +65,9 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v4.1.0
+      # Trying vcmrtd PR #218 (per-byte progress while reading data groups),
+      # branch dobby/216-data-group-byte-progress; back to a tag once merged.
+      ref: 20d6c3391afb6e07b81201ae6f824d0aa851b5fb
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   # Temporary forks because their original repos are not compatible with new android api's.

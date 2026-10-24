@@ -328,14 +328,25 @@ void main() {
       expect(find.text("Don't move"), findsOneWidget);
       expect(find.text("Your passport is being read."), findsOneWidget);
       expect(find.byType(NfcProgressRing), findsOneWidget);
-      expect(find.text("30%"), findsOneWidget);
+      expect(find.text(_percent(DocumentReaderAuthenticating())), findsOne);
       expect(cancelButton(), findsOneWidget);
 
-      reader.emit(
-        DocumentReaderReadingDataGroup(dataGroup: "DG2", progress: 0.4),
+      // Within a data group the ring follows the bytes read.
+      final reading = DocumentReaderReadingDataGroup(
+        dataGroup: "DG2",
+        progress: 0.4,
       );
+      reader.emit(reading);
       await tester.pumpAndSettle();
-      expect(find.text("60%"), findsOneWidget);
+      expect(find.text(_percent(reading)), findsOneWidget);
+      final further = DocumentReaderReadingDataGroup(
+        dataGroup: "DG2",
+        progress: 0.8,
+      );
+      reader.emit(further);
+      await tester.pumpAndSettle();
+      expect(find.text(_percent(further)), findsOneWidget);
+      expect(_percent(further), isNot(_percent(reading)));
     }, variant: _androidOnly);
 
     testWidgets("the ring announces its value to assistive technology", (
@@ -348,7 +359,10 @@ void main() {
 
       expect(
         tester.getSemantics(find.byType(NfcProgressRing)),
-        matchesSemantics(label: "Reading passport", value: "80%"),
+        matchesSemantics(
+          label: "Reading passport",
+          value: _percent(DocumentReaderReadingSOD()),
+        ),
       );
     }, variant: _androidOnly);
   });
@@ -518,13 +532,16 @@ void main() {
         message(DocumentReaderConnecting()),
         "Place your phone on your passport",
       );
-      expect(message(DocumentReaderAuthenticating()), "Don't move · 30%");
+      final authenticating = DocumentReaderAuthenticating();
       expect(
-        message(
-          DocumentReaderReadingDataGroup(dataGroup: "DG2", progress: 0.4),
-        ),
-        "Don't move · 60%",
+        message(authenticating),
+        "Don't move · ${_percent(authenticating)}",
       );
+      final reading = DocumentReaderReadingDataGroup(
+        dataGroup: "DG2",
+        progress: 0.4,
+      );
+      expect(message(reading), "Don't move · ${_percent(reading)}");
       expect(message(DocumentReaderSuccess()), "Your passport has been read");
     }, variant: _iosOnly);
   });
@@ -546,3 +563,7 @@ void main() {
     expect(cancelButton(), findsOneWidget);
   }, variant: _androidOnly);
 }
+
+/// The percentage the screen shows for [state], as vcmrtd weighs it.
+String _percent(DocumentReaderState state) =>
+    "${(progressForState(state) * 100).round()}%";
