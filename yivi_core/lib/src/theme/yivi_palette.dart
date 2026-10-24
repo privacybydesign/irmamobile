@@ -9,7 +9,13 @@ import "../../package_name.dart";
 class YiviPalette {
   final Brightness brightness;
 
-  /// Page background behind lists and floating glass controls.
+  /// Page background behind lists and floating glass controls. In the dark
+  /// variant black. Under a [YiviPaletteScope] of a sheet: the sheet.
+  ///
+  /// In the dark variant every layer is lighter than the one it lies on:
+  /// [background] < [surface] = [sheet] < [raised], [surface] < [tint],
+  /// [raised] < [raisedTint]. A sheet's content gets the raised levels
+  /// through [YiviPaletteScope] (see [onSheet]).
   final Color background;
 
   /// Soft fill for chips, icon squares and grouped cells.
@@ -18,8 +24,20 @@ class YiviPalette {
   /// Cards, rows and section groups.
   final Color surface;
 
-  /// Background of sheets.
+  /// Background of sheets and of the detail pane next to a list.
   final Color sheet;
+
+  /// Cards, rows and fields on a sheet: in the dark variant one step above
+  /// [sheet]. Read it as [surface] under a sheet's [YiviPaletteScope].
+  final Color raised;
+
+  /// [tint] on a [raised] card.
+  final Color raisedTint;
+
+  /// Whether this is the palette for a sheet's content (dark variant only):
+  /// [background] is the sheet, [surface] and [tint] are the raised levels,
+  /// and glass that doesn't blur is a solid [surface].
+  final bool onSheet;
 
   /// Body text.
   final Color text;
@@ -65,7 +83,8 @@ class YiviPalette {
 
   /// Highlight behind the selected tab in the glass tab bar and sidebar: a
   /// white lens in the light variant; in the dark variant a lens darker than
-  /// the bar, so the selected red stands out against it.
+  /// the bar, so the selected red stands out against it. The one exception
+  /// to "lighter on top": a lighter lens takes the red label below 3:1.
   final Color lens;
 
   /// Icon and label of the selected tab: the brand red, in the dark variant
@@ -97,6 +116,9 @@ class YiviPalette {
     required this.tint,
     required this.surface,
     required this.sheet,
+    required this.raised,
+    required this.raisedTint,
+    this.onSheet = false,
     required this.text,
     required this.heading,
     required this.secondaryText,
@@ -132,6 +154,8 @@ class YiviPalette {
     tint: Color(0xFFEAF3F9),
     surface: Color(0xFFFFFFFF),
     sheet: Color(0xFFFAFAFA),
+    raised: Color(0xFFFFFFFF),
+    raisedTint: Color(0xFFEAF3F9),
     text: Color(0xFF000000),
     heading: Color(0xFF484747),
     // #757375 (neutralDark) is 4.18:1 on the background; this passes AA.
@@ -164,10 +188,12 @@ class YiviPalette {
 
   static const dark = YiviPalette._(
     brightness: Brightness.dark,
-    background: Color(0xFF0E1116),
+    background: Color(0xFF000000),
     tint: Color(0xFF1B2530),
     surface: Color(0xFF1A1E25),
-    sheet: Color(0xFF13161B),
+    sheet: Color(0xFF1A1E25),
+    raised: Color(0xFF252A32),
+    raisedTint: Color(0xFF2C3744),
     text: Color(0xFFF2F2F4),
     heading: Color(0xFFD9D6D4),
     secondaryText: Color(0xFFA3A0A2),
@@ -189,12 +215,51 @@ class YiviPalette {
     danger: Color(0xFFFF7A7A),
     lens: Color(0x8C000000),
     selectedTab: Color(0xFFFF2D55),
-    glassFill: Color(0x8C242830),
+    glassFill: Color(0xCC2A2F37),
     glassBorder: Color(0x24FFFFFF),
     glassHighlight: Color(0x29FFFFFF),
     glassShadow: Color(0x73000000),
-    glassStrongFill: Color(0xE01E2229),
+    glassStrongFill: Color(0xE02E333C),
     dangerFill: Color(0xFFC42B2B),
+  );
+
+  /// [dark] for a sheet's content; see [onSheet].
+  static final darkOnSheet = YiviPalette._(
+    brightness: Brightness.dark,
+    background: dark.sheet,
+    tint: dark.raisedTint,
+    surface: dark.raised,
+    sheet: dark.sheet,
+    raised: dark.raised,
+    raisedTint: dark.raisedTint,
+    onSheet: true,
+    text: dark.text,
+    heading: dark.heading,
+    secondaryText: dark.secondaryText,
+    faint: dark.faint,
+    divider: dark.divider,
+    outline: dark.outline,
+    handle: dark.handle,
+    link: dark.link,
+    infoSurface: dark.infoSurface,
+    noteText: dark.noteText,
+    successSurface: dark.successSurface,
+    successText: dark.successText,
+    successTint: dark.successTint,
+    successOutline: dark.successOutline,
+    warningSurface: dark.warningSurface,
+    warningText: dark.warningText,
+    errorSurface: dark.errorSurface,
+    errorText: dark.errorText,
+    danger: dark.danger,
+    lens: dark.lens,
+    selectedTab: dark.selectedTab,
+    glassFill: dark.glassFill,
+    glassBorder: dark.glassBorder,
+    glassHighlight: dark.glassHighlight,
+    glassShadow: dark.glassShadow,
+    glassStrongFill: dark.glassStrongFill,
+    dangerFill: dark.dangerFill,
   );
 
   bool get isDark => brightness == Brightness.dark;
@@ -205,8 +270,15 @@ class YiviPalette {
     isDark ? "non-free/logo_no_margin_dark.svg" : "non-free/logo_no_margin.svg",
   );
 
-  static YiviPalette of(BuildContext context) =>
-      forBrightness(Theme.of(context).brightness);
+  /// The palette for [context]: its brightness, and the raised levels on a
+  /// sheet ([YiviPaletteScope]).
+  static YiviPalette of(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    if (brightness == Brightness.dark && YiviPaletteScope.onSheetOf(context)) {
+      return darkOnSheet;
+    }
+    return forBrightness(brightness);
+  }
 
   static YiviPalette forBrightness(Brightness brightness) =>
       brightness == Brightness.dark ? dark : light;
@@ -231,4 +303,18 @@ class YiviPalette {
         fontWeight: weight,
         color: text,
       );
+}
+
+/// Marks a sheet's content (or the detail pane next to a list): below it,
+/// [YiviPalette.of] gives the raised levels, so a card there is lighter than
+/// the sheet it lies on. Only the dark variant changes; the light one
+/// already has white cards on a lighter-grey sheet.
+class YiviPaletteScope extends InheritedWidget {
+  const YiviPaletteScope.onSheet({super.key, required super.child});
+
+  static bool onSheetOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<YiviPaletteScope>() != null;
+
+  @override
+  bool updateShouldNotify(YiviPaletteScope oldWidget) => false;
 }

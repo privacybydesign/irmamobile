@@ -291,7 +291,11 @@ class SmallPill extends StatelessWidget {
       SmallPillTone.tint => (palette.tint, palette.link),
       SmallPillTone.primary => (palette.primary, Colors.white),
       SmallPillTone.warning => (palette.warningSurface, palette.warningText),
-      SmallPillTone.surface => (palette.surface, palette.link),
+      // In dark a step above the card it lies on, not the card's colour.
+      SmallPillTone.surface => (
+        palette.isDark ? palette.tint : palette.surface,
+        palette.link,
+      ),
       SmallPillTone.onDanger => (Colors.white, palette.dangerFill),
     };
     final pill = Material(

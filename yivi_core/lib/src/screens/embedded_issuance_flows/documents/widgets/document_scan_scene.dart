@@ -183,7 +183,7 @@ class _Phone extends StatelessWidget {
             key: const Key("document_scan_screen"),
             // The camera's picture of the table; in dark mode the app's own
             // dark background around it.
-            color: dark ? const Color(0xFF0E1116) : const Color(0xFFDDE3E9),
+            color: dark ? YiviPalette.dark.background : const Color(0xFFDDE3E9),
             child: screen,
           ),
         ),

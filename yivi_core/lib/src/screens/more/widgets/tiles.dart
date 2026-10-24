@@ -240,9 +240,12 @@ class Tile extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final (Color squareFill, Color iconColor, Color labelColor) = danger
         ? (palette.errorSurface, palette.danger, palette.danger)
-        // On the tinted row the icon square is white.
+        // On the tinted row the icon square is white; in dark one step
+        // lighter than the row.
         : (
-            selected ? palette.surface : palette.tint,
+            selected
+                ? (palette.isDark ? palette.raisedTint : palette.surface)
+                : palette.tint,
             palette.heading,
             palette.text,
           );

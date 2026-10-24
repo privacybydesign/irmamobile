@@ -173,7 +173,8 @@ class _WebsitePicture extends StatelessWidget {
         children: [
           Container(
             height: 28,
-            color: palette.background,
+            // One step lighter than the card (the page colour in light).
+            color: palette.tint,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               spacing: 5,

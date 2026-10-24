@@ -63,18 +63,21 @@ class TwoPane extends StatelessWidget {
                   insets: padding.copyWith(left: 0),
                   child: MediaQuery(
                     data: inPane,
-                    child: AnimatedSwitcher(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 220),
-                      child:
-                          detail ??
-                          // Centred in what is in sight: clear of a side
-                          // panel on the right (an unfolded phone).
-                          Padding(
-                            padding: EdgeInsets.only(right: padding.right),
-                            child: placeholder ?? const SizedBox.shrink(),
-                          ),
+                    // Cards in the pane one level above it, as on a sheet.
+                    child: YiviPaletteScope.onSheet(
+                      child: AnimatedSwitcher(
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : const Duration(milliseconds: 220),
+                        child:
+                            detail ??
+                            // Centred in what is in sight: clear of a side
+                            // panel on the right (an unfolded phone).
+                            Padding(
+                              padding: EdgeInsets.only(right: padding.right),
+                              child: placeholder ?? const SizedBox.shrink(),
+                            ),
+                      ),
                     ),
                   ),
                 ),

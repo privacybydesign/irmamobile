@@ -226,7 +226,8 @@ class SharedCardTile extends ConsumerWidget {
             key: const Key("shared_card_note"),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: ShapeDecoration(
-              color: palette.background,
+              // One step lighter than the card (the page colour in light).
+              color: palette.tint,
               shape: const RoundedRectangleBorder(
                 borderRadius: YiviCorners.cardRadius,
               ),

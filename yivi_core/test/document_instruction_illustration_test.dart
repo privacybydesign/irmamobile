@@ -5,6 +5,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_instruction_illustration.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_scan_scene.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 
 void main() {
   Future<void> pump(
@@ -100,7 +101,7 @@ void main() {
       tester
           .widget<ColoredBox>(find.byKey(const Key("document_scan_screen")))
           .color,
-      const Color(0xFF0E1116),
+      YiviPalette.dark.background,
     );
   });
 }

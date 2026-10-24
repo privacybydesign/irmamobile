@@ -108,6 +108,25 @@ void main() {
         }
       });
 
+      test("text on a card on a sheet", () {
+        expect(
+          contrast(palette.text, palette.raised),
+          greaterThanOrEqualTo(aa),
+        );
+        expect(
+          contrast(palette.secondaryText, palette.raised),
+          greaterThanOrEqualTo(aa),
+        );
+        expect(
+          contrast(palette.link, palette.raised),
+          greaterThanOrEqualTo(aa),
+        );
+        expect(
+          contrast(palette.link, palette.raisedTint),
+          greaterThanOrEqualTo(large),
+        );
+      });
+
       test("field labels, errors and the danger button", () {
         expect(
           contrast(palette.heading, palette.background),
@@ -124,4 +143,40 @@ void main() {
       });
     });
   }
+
+  // Dark mode: every layer is lighter than the one it lies on.
+  group("dark ladder", () {
+    const p = YiviPalette.dark;
+    final onSheet = YiviPalette.darkOnSheet;
+    double l(Color c) => c.computeLuminance();
+    void lighter(Color top, Color under) =>
+        expect(l(over(top, under)), greaterThan(l(under)));
+
+    test("pages are black", () {
+      expect(p.background, const Color(0xFF000000));
+      expect(IrmaThemeData.dark().backgroundPrimary, p.background);
+    });
+
+    test("cards on the page, chips on cards", () {
+      lighter(p.surface, p.background);
+      lighter(p.tint, p.surface);
+    });
+
+    test("sheets on the page, cards and chips on sheets", () {
+      lighter(p.sheet, p.background);
+      lighter(onSheet.surface, p.sheet);
+      lighter(onSheet.tint, onSheet.surface);
+      expect(onSheet.background, p.sheet);
+    });
+
+    test("floating glass above the cards that scroll under it", () {
+      lighter(p.glassFill, p.background);
+      expect(l(over(p.glassFill, p.background)), greaterThan(l(p.surface)));
+      lighter(p.glassFill, p.surface);
+    });
+
+    test("dialogs above a sheet", () {
+      lighter(p.glassStrongFill, p.sheet);
+    });
+  });
 }

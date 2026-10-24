@@ -96,9 +96,9 @@ class IrmaThemeData {
 
   IrmaThemeData._(this.brightness)
     : tertiary = _pick(brightness, 0xFFCFE4EF, 0xFF2C3B48),
-      backgroundPrimary = _pick(brightness, 0xFFFFFFFF, 0xFF0E1116),
-      backgroundSecondary = _pick(brightness, 0xFFFAFAFA, 0xFF13161B),
-      backgroundTertiary = _pick(brightness, 0xFFEAF3F9, 0xFF0E1116),
+      backgroundPrimary = _pick(brightness, 0xFFFFFFFF, 0xFF000000),
+      backgroundSecondary = _pick(brightness, 0xFFFAFAFA, 0xFF000000),
+      backgroundTertiary = _pick(brightness, 0xFFEAF3F9, 0xFF000000),
       surfaceSecondary = _pick(brightness, 0xFFEAF3F9, 0xFF1B2530),
       surfaceTertiary = _pick(brightness, 0xFFF0DEDE, 0xFF3A1A1C),
       dark = _pick(brightness, 0xFF000000, 0xFFF2F2F4),

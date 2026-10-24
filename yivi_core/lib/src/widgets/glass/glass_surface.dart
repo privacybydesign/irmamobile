@@ -112,11 +112,13 @@ class GlassSurface extends StatelessWidget {
     final opaque = GlassOpaque.of(context);
     final a = opacity.clamp(0.0, 1.0);
     Color fade(Color c) => a == 1 ? c : c.withValues(alpha: c.a * a);
+    // On a dark sheet glass doesn't blur and would only darken or barely
+    // lift the flat sheet: a solid fill one level above it instead.
     final glassFill =
         fill ??
         (dark
             ? (solid ? const Color(0xFF282C32) : darkFill)
-            : (solid ? palette.surface : palette.glassFill));
+            : (solid || palette.onSheet ? palette.surface : palette.glassFill));
     // Dark glass lies over a dark picture, not over the page.
     final under = dark ? Colors.black : palette.background;
     final edge = dark ? darkRim : palette.glassBorder;

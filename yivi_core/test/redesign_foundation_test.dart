@@ -64,7 +64,7 @@ void main() {
       );
 
       expect(seen.isDark, isTrue);
-      expect(seen.backgroundPrimary, const Color(0xFF0E1116));
+      expect(seen.backgroundPrimary, const Color(0xFF000000));
       // Text on a red fill stays white in both variants.
       expect(seen.onPrimary, Colors.white);
     });
