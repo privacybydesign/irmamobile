@@ -73,8 +73,10 @@ void main() {
       final add = tester.getRect(find.byKey(const Key("bottom_bar_primary")));
       expect(receive.left, greaterThan(card.right));
       expect(add.left, greaterThan(card.right));
-      // The buttons follow the content instead of sitting at the bottom.
-      expect(add.bottom, lessThan(_tablet.height - 100));
+      // The way on at the foot of the right column, under what you receive;
+      // no Cancel under it (the close button declines).
+      expect(add.top, greaterThan(receive.bottom));
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
     });
 
     testWidgets("phone: one column, the buttons in the bottom bar", (

@@ -330,7 +330,7 @@ Future<void> testLinkWhileLockedShowsCard(
   expect(find.byType(LockScannerSheet), findsNothing);
 
   await unlock(tester);
-  final decline = find.byKey(const Key("bottom_bar_secondary"));
+  final decline = find.byKey(const Key("session_close"));
   await tester.waitFor(decline.hitTestable());
   await tester.tapAndSettle(decline);
   await tester.waitFor(find.byType(DataTab).hitTestable());

@@ -95,6 +95,9 @@ enum ActivityRole {
 class ActivityParty {
   final String name;
   final schemaless.LogoImage? logo;
+
+  /// The logo as a file, when irmago has one on disk instead.
+  final String? logoPath;
   final bool verified;
 
   /// The host of the party's website, when the log has one.
@@ -103,6 +106,7 @@ class ActivityParty {
   const ActivityParty({
     required this.name,
     this.logo,
+    this.logoPath,
     this.verified = false,
     this.host,
   });
@@ -110,6 +114,7 @@ class ActivityParty {
   factory ActivityParty.of(schemaless.TrustedParty party) => ActivityParty(
     name: party.name.replaceBreakingHyphens(),
     logo: party.image,
+    logoPath: party.imagePath,
     verified: party.verified,
     host: _host(party.url),
   );

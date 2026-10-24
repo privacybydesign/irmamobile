@@ -6,7 +6,6 @@ import "../../../models/log_entry.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/base64_image.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
@@ -15,7 +14,7 @@ import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/party_initial.dart";
+import "../../../widgets/party_avatar.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../data/wallet/wallet_detail_scaffold.dart";
@@ -59,7 +58,7 @@ String activityAgo(BuildContext context, DateTime time) {
   return FlutterI18n.plural(context, "activity.ago.years", days ~/ 365);
 }
 
-/// The other party's logo on a rounded tile, or its first letter.
+/// The other party's logo, round as on the share screen ([PartyAvatar]).
 class ActivityPartyLogo extends StatelessWidget {
   final ActivityParty party;
   final double size;
@@ -67,43 +66,35 @@ class ActivityPartyLogo extends StatelessWidget {
   /// Its size as the badge on a row's pile.
   static const double pileSize = 30;
 
-  /// Round instead of a rounded square, e.g. as the badge on a row's pile.
-  final bool circle;
-
-  /// A ring around the logo, drawn inside [size], that sets it apart from
-  /// what is under it.
+  /// A 2 pt ring around the logo, drawn inside [size], that sets it apart
+  /// from the cards under it, e.g. as the badge on a row's pile.
   final Color? ring;
 
   const ActivityPartyLogo({
     super.key,
     required this.party,
     required this.size,
-    this.circle = false,
     this.ring,
   });
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final logo = party.logo;
-    final side = ring == null
-        ? BorderSide.none
-        : BorderSide(color: ring!, width: 2);
-    final ShapeBorder shape = circle
-        ? CircleBorder(side: side)
-        : RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(size * 0.3)),
-            side: side,
-          );
+    final ring = this.ring;
+    final avatar = PartyAvatar(
+      name: party.name,
+      image: party.logo,
+      imagePath: party.logoPath,
+      size: ring == null ? size : size - 4,
+    );
+    if (ring == null) return avatar;
     return Container(
       width: size,
       height: size,
-      alignment: Alignment.center,
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        color: logo == null ? partyInitialFill(party.name) : palette.surface,
-        shape: shape,
-        shadows: const [
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: ring,
+        shape: BoxShape.circle,
+        boxShadow: const [
           BoxShadow(
             color: Color(0x2E000000),
             blurRadius: 4,
@@ -111,12 +102,7 @@ class ActivityPartyLogo extends StatelessWidget {
           ),
         ],
       ),
-      child: logo != null
-          ? SizedBox.square(
-              dimension: size * 0.66,
-              child: Base64Image(base64: logo.base64, mimeType: logo.mimeType),
-            )
-          : PartyInitial(name: party.name, size: size),
+      child: avatar,
     );
   }
 }

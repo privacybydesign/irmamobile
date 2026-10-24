@@ -72,7 +72,11 @@ class SessionScaffold extends StatelessWidget {
         edge: scrollEdge && !cornerClose,
         leading: null,
         actions: [
-          if (onDismiss != null) IrmaCloseButton.filled(onTap: onDismiss),
+          if (onDismiss != null)
+            IrmaCloseButton.filled(
+              key: const Key("session_close"),
+              onTap: onDismiss,
+            ),
         ],
       ),
     );

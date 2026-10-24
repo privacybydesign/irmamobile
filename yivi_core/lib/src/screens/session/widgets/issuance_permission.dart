@@ -177,7 +177,8 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     );
   }
 
-  /// "Cancel" as text and the way on beside it, at the bottom of the panel.
+  /// The way on, at the bottom of the panel. No Cancel: the close button
+  /// at the top declines.
   Widget _landscapeActions() {
     if (widget.onGivePermission == null) {
       return PillButton(
@@ -186,28 +187,13 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         onPressed: () => widget.onDismiss?.call(),
       );
     }
-    return Row(
-      spacing: 10,
-      children: [
-        PillButton(
-          key: const Key("bottom_bar_secondary"),
-          label: context.tr("issuance.cancel"),
-          style: PillStyle.text,
-          size: PillSize.regular,
-          expand: false,
-          onPressed: () => widget.onDismiss?.call(),
-        ),
-        Expanded(
-          child: FancyPillButton(
-            key: const Key("bottom_bar_primary"),
-            label: _cards.length > 1
-                ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
-                : context.tr("issuance.add"),
-            size: PillSize.regular,
-            onPressed: () => widget.onGivePermission?.call(),
-          ),
-        ),
-      ],
+    return FancyPillButton(
+      key: const Key("bottom_bar_primary"),
+      label: _cards.length > 1
+          ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
+          : context.tr("issuance.add"),
+      size: PillSize.regular,
+      onPressed: () => widget.onGivePermission?.call(),
     );
   }
 
@@ -223,8 +209,6 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
           : context.tr("issuance.add"),
       onPrimaryPressed: () => widget.onGivePermission?.call(),
-      secondaryButtonLabel: context.tr("issuance.cancel"),
-      onSecondaryPressed: () => widget.onDismiss?.call(),
     );
   }
 }

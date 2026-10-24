@@ -250,7 +250,7 @@ Future<void> testDeclineAtPermissionScreen(
 
   await tester.pumpUntilFound(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
+  await tester.tapAndSettle(find.byKey(const Key("session_close")));
 
   await tester.waitFor(find.byType(DataTab));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));

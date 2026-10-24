@@ -401,7 +401,7 @@ Future<void> issueCredentials(
           inSheet
               ? const Key("sheet_issue_add")
               : declineOffer
-              ? const Key("bottom_bar_secondary")
+              ? const Key("session_close")
               : const Key("bottom_bar_primary"),
         );
   expect(buttonFinder, findsOneWidget);

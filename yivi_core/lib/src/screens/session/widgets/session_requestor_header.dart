@@ -6,13 +6,11 @@ import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/base64_image.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
-import "../../../widgets/irma_avatar.dart";
-import "../../../widgets/party_initial.dart";
+import "../../../widgets/party_avatar.dart";
 
 /// The colours and words of a [RequestorTrust] tier, in one place: the badge
 /// on the logo, the pill under the name, and the trust sheet.
@@ -173,35 +171,13 @@ class RequestorLogo extends StatelessWidget {
 
 /// [requestor]'s logo, or its initial on a coloured disc when it has none
 /// (not the pale grey placeholder: this is the subject of the screen).
-Widget requestorAvatar(TrustedParty requestor, {double size = 46}) {
-  final image = requestor.image;
-  if (image == null && requestor.imagePath == null) {
-    return Semantics(
-      label: requestor.name,
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: partyInitialFill(requestor.name),
-          shape: BoxShape.circle,
-        ),
-        child: ExcludeSemantics(
-          child: PartyInitial(name: requestor.name, size: size),
-        ),
-      ),
+Widget requestorAvatar(TrustedParty requestor, {double size = 46}) =>
+    PartyAvatar(
+      name: requestor.name,
+      image: requestor.image,
+      imagePath: requestor.imagePath,
+      size: size,
     );
-  }
-  return IrmaAvatar(
-    size: size,
-    logoImage: image == null
-        ? null
-        : Base64Image(base64: image.base64, mimeType: image.mimeType),
-    logoPath: image == null ? requestor.imagePath : null,
-    logoSemanticsLabel: requestor.name,
-    initials: requestor.name.isEmpty ? "?" : requestor.name.characters.first,
-  );
-}
 
 /// Who is asking, at the top of the share screen and the pairing screen:
 /// the party as the subject of the page. A centred card with a 64 pt logo,

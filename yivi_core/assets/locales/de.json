@@ -465,7 +465,6 @@
     "title": "Daten hinzufügen",
     "description": "Möchten Sie diese Daten zu Ihrer Yivi-App hinzufügen?",
     "add": "Daten hinzufügen",
-    "cancel": "Abbrechen",
     "success_feedback": {
       "header": "Erfolg",
       "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt",

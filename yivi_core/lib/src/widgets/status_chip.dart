@@ -4,7 +4,7 @@ import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
 
 /// A short fact as a pill, the one chip of the app: "by Yivi", "3 cards",
-/// "Valid until 31-08-2027", "New", "Expired", a count. 24 high and as
+/// "Valid until 31-08-2027", "New", "Expired", a count. 28 high and as
 /// wide as its one line (a label too long for the room ends in "…"), with
 /// an optional [icon] in front.
 ///
@@ -12,7 +12,7 @@ import "glass/glass_dialog.dart";
 /// a soft fill with the text in the matching strong colour (info blue, the
 /// green of success, the orange of a warning, the red of danger).
 class StatusChip extends StatelessWidget {
-  static const height = 24.0;
+  static const height = 28.0;
 
   final String label;
   final DialogTone tone;
@@ -43,8 +43,8 @@ class StatusChip extends StatelessWidget {
       height: height,
       constraints: const BoxConstraints(minWidth: height),
       padding: EdgeInsetsDirectional.only(
-        start: icon == null ? 10 : 8,
-        end: 10,
+        start: icon == null ? 12 : 8,
+        end: 12,
       ),
       decoration: ShapeDecoration(
         color: fill,

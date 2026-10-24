@@ -267,7 +267,6 @@ class ActivityCardStack extends StatelessWidget {
                 child: ActivityPartyLogo(
                   party: entry.party,
                   size: ActivityPartyLogo.pileSize,
-                  circle: true,
                   ring: palette.surface,
                 ),
               ),

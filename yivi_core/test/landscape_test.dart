@@ -10,7 +10,6 @@ import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.da
 import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
@@ -93,13 +92,8 @@ void main() {
       expect(find.byType(IrmaBottomBarBase), findsNothing);
       final add = find.byKey(const Key("bottom_bar_primary"));
       expect(find.descendant(of: panel, matching: add), findsOneWidget);
-      // Cancel is the text button, without a fill.
-      expect(
-        tester
-            .widget<PillButton>(find.byKey(const Key("bottom_bar_secondary")))
-            .style,
-        PillStyle.text,
-      );
+      // No Cancel: the close button declines.
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
       // The card in the middle of the room above the buttons.
       final room = tester.getRect(panel).top + 16;
       final above = tester.getRect(add).top - 16;

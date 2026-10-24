@@ -350,9 +350,9 @@ Future<void> testDismissOnIssuancePermissionScreen(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // No tx code: lands directly on IssuancePermission. Tap "Cancel".
+  // No tx code: lands directly on IssuancePermission. Close it.
   await tester.waitFor(find.byType(IssuancePermission));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
+  await tester.tapAndSettle(find.byKey(const Key("session_close")));
 
   // Should be back at home
   await tester.waitFor(find.byType(DataTab));
