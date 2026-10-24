@@ -1744,6 +1744,41 @@ void main() {
       });
     }
 
+    testWidgets("tablet upright: a card added for a spot fades in over it", (
+      tester,
+    ) async {
+      final sessions = StreamController<SessionState>();
+      addTearDown(sessions.close);
+      final idcard = _descriptor("idcard", "ID card");
+      SessionState withCard({required bool owned}) => _session([
+        DisclosurePickOne(
+          optional: false,
+          ownedOptions: [
+            if (owned) _bundle(_instance("idcard", "ID card", "Jansen")),
+          ],
+          obtainableOptions: [idcard],
+        ),
+      ]);
+      await _pump(
+        tester,
+        size: const Size(1032, 1376),
+        sessions: sessions.stream,
+      );
+      sessions.add(withCard(owned: false));
+      await tester.pumpAndSettle();
+      final spot = find.byKey(const Key("share_spot_0"));
+      expect(spot, findsOneWidget);
+
+      sessions.add(withCard(owned: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+      // Half way: the spot fades out under the card that fades in.
+      expect(spot, findsOneWidget);
+      expect(find.byType(FadeTransition), findsWidgets);
+      await tester.pumpAndSettle();
+      expect(spot, findsNothing);
+    });
+
     testWidgets("choosing does not ask: the choice list just closes", (
       tester,
     ) async {

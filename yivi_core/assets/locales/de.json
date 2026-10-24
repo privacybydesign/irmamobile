@@ -524,7 +524,9 @@
       "email_hint": "Geben Sie Ihre E-Mail-Adresse ein...",
       "next_button": "E-Mail senden",
       "back_button": "Abbrechen",
-      "label": "E-Mail-Adresse"
+      "label": "E-Mail-Adresse",
+      "required": "Geben Sie Ihre E-Mail-Adresse ein",
+      "invalid": "Geben Sie eine gültige E-Mail-Adresse ein"
     },
     "verify_code": {
       "title": "E-Mail-Adresse verifizieren",

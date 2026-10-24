@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/email_issuance_provider.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
 
 bool isValidEmail(String value) {
@@ -113,8 +114,12 @@ class EmailAddressEntryState extends ConsumerState<EmailAddressEntry> {
         },
         validator: (v) {
           final value = (v ?? "").trim();
-          if (value.isEmpty) return "Enter your email";
-          if (!isValidEmail(value)) return "Enter a valid email";
+          if (value.isEmpty) {
+            return context.tr("email_issuance.enter_email.required");
+          }
+          if (!isValidEmail(value)) {
+            return context.tr("email_issuance.enter_email.invalid");
+          }
           return null;
         },
       ),

@@ -521,7 +521,9 @@
       "email_hint": "Enter your email address...",
       "next_button": "Send email",
       "back_button": "Cancel",
-      "label": "Email address"
+      "label": "Email address",
+      "required": "Enter your email address",
+      "invalid": "Enter a valid email address"
     },
     "verify_code": {
       "title": "Verify email address",

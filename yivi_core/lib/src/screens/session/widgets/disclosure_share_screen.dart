@@ -646,21 +646,25 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     required bool first,
   }) {
     final k = selectionOf(p, selections[i]);
+    final empty = k < 0;
     // Right under the section's label the spot's room above its dashed edge
     // (for the pill) is the gap; under a card it is 12 more, as between
     // cards, so the pill never touches the card above.
-    if (k < 0) return _Spaced(first ? 0 : 12, _emptySpot(i, p));
-    final tile = _filledTile(i, p, k);
-    if (!useSessionColumns(context)) return _Spaced(12, tile);
+    final gap = empty && first ? 0.0 : 12.0;
+    final child = empty ? _emptySpot(i, p) : _filledTile(i, p, k);
+    if (!useSessionColumns(context)) return _Spaced(gap, child);
     // On a tablet the Change sheet is a dialog and nothing flies: the card
-    // that was added fades into its spot.
+    // that was added fades into its spot. The switcher holds the spot as
+    // well, so it is already there when the card comes; its key keeps it
+    // when the gap above it comes or goes.
     return _Spaced(
-      12,
+      gap,
       AnimatedSwitcher(
+        key: ValueKey(("share_required_item", i)),
         duration: MediaQuery.disableAnimationsOf(context)
             ? Duration.zero
             : const Duration(milliseconds: 300),
-        child: KeyedSubtree(key: ValueKey((i, k < 0)), child: tile),
+        child: KeyedSubtree(key: ValueKey((i, empty)), child: child),
       ),
     );
   }

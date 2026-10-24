@@ -57,6 +57,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_listenToScroll);
     //Delay to make build context available
     Future.delayed(Duration.zero).then((_) async {
       _loadInitialLogs();
@@ -90,6 +91,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _historyRepo.dispose();
     _repoStateSubscription.cancel();
     _search.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -283,7 +285,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   @override
   Widget build(BuildContext context) {
-    _scrollController.addListener(_listenToScroll);
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final top = padding.top + FloatingBarPlacement.topGap(context);

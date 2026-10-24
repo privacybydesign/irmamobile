@@ -205,15 +205,21 @@ class SessionColumns extends StatelessWidget {
       ],
     );
 
+    // The bars are part of the padding: the content is centred between
+    // them and only scrolls when it does not fit.
+    final padding = BarInsets.of(
+      context,
+      const EdgeInsets.fromLTRB(32, 24, 32, 32),
+    );
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
-        padding: BarInsets.of(
-          context,
-          const EdgeInsets.fromLTRB(32, 24, 32, 32),
-        ),
+        padding: padding,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minHeight: (constraints.maxHeight - 56).clamp(0.0, double.infinity),
+            minHeight: (constraints.maxHeight - padding.vertical).clamp(
+              0.0,
+              double.infinity,
+            ),
           ),
           child: Center(
             child: ConstrainedBox(
@@ -274,15 +280,21 @@ class SessionCentred extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The bars are part of the padding: the content is centred between
+    // them and only scrolls when it does not fit.
+    final padding = BarInsets.of(
+      context,
+      const EdgeInsets.fromLTRB(32, 24, 32, 32),
+    );
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
-        padding: BarInsets.of(
-          context,
-          const EdgeInsets.fromLTRB(32, 24, 32, 32),
-        ),
+        padding: padding,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minHeight: (constraints.maxHeight - 56).clamp(0.0, double.infinity),
+            minHeight: (constraints.maxHeight - padding.vertical).clamp(
+              0.0,
+              double.infinity,
+            ),
           ),
           child: Center(
             child: ConstrainedBox(
