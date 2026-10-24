@@ -191,7 +191,7 @@ class YiviPalette {
     background: Color(0xFF000000),
     tint: Color(0xFF1B2530),
     surface: Color(0xFF1A1E25),
-    sheet: Color(0xFF1A1E25),
+    sheet: Color(0xFF111419),
     raised: Color(0xFF252A32),
     raisedTint: Color(0xFF2C3744),
     text: Color(0xFFF2F2F4),
