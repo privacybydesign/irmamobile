@@ -38,7 +38,7 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
   );
 
   final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushDrivingLicenceManualEntryScreen();
+  homeContext.pushDocumentManualEntry(.drivingLicence);
   await tester.pumpAndSettle();
 
   await tester.enterText(
@@ -73,7 +73,7 @@ Future<void> navigateToIdCardNfcReadingScreen(
   );
 
   final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushIdCardManualEntryScreen();
+  homeContext.pushDocumentManualEntry(.identityCard);
   await tester.pumpAndSettle();
 
   await tester.enterText(
@@ -118,7 +118,7 @@ Future<void> navigateToPassportNfcReadingScreen(
   );
 
   final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushPassportManualEntryScreen();
+  homeContext.pushDocumentManualEntry(.passport);
   await tester.pumpAndSettle();
 
   await tester.enterText(

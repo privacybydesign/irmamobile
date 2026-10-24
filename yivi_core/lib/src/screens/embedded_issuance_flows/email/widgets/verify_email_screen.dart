@@ -7,14 +7,12 @@ import "../../../../../routing.dart";
 import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
-import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
-import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
@@ -33,8 +31,6 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     with RouteAware {
   final _focusNode = FocusNode();
-  final _scrollController = ScrollController();
-  final _codeFieldPositionKey = GlobalKey();
   final _textController = TextEditingController();
 
   var _codeComplete = false;
@@ -46,7 +42,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.addListener(_handleFocusChange);
       _applyLink();
     });
   }
@@ -62,7 +57,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   void dispose() {
     super.dispose();
     routeObserver.unsubscribe(this);
-    _scrollController.dispose();
     _focusNode.dispose();
   }
 
@@ -72,34 +66,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     final route = ModalRoute.of(context);
     if (route is PageRoute) {
       routeObserver.subscribe(this, route);
-    }
-  }
-
-  void _handleFocusChange() {
-    if (_focusNode.hasFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final codeFieldContext = _codeFieldPositionKey.currentContext;
-        if (codeFieldContext == null) {
-          return;
-        }
-
-        Scrollable.ensureVisible(
-          codeFieldContext,
-          alignment: 0.2,
-          duration: Duration(milliseconds: 300),
-        );
-      });
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_scrollController.hasClients) {
-          return;
-        }
-        _scrollController.animateTo(
-          0,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      });
     }
   }
 
@@ -168,7 +134,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
       );
     }
 
-    final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is EmailIssuanceInvalidCodeError;
 
     final palette = YiviPalette.of(context);
@@ -180,104 +145,74 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           _goBack();
         }
       },
-      child: GestureDetector(
-        onTap: () {
-          _focusNode.unfocus();
-        },
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          extendBody: true,
-          backgroundColor: palette.background,
-          appBar: IrmaAppBar(
-            titleTranslationKey: titleKey,
-            leading: YiviBackButton(onTap: _goBack),
+      child: ContactScrollPage(
+        appBar: IrmaAppBar(
+          titleTranslationKey: titleKey,
+          leading: YiviBackButton(onTap: _goBack),
+        ),
+        focusNode: _focusNode,
+        fieldAlignment: 0.2,
+        before: [
+          ContactIntro(
+            icon: Icons.mail_rounded,
+            tone: DialogTone.warning,
+            headerKey: _linking
+                ? "email_linking.verify_code.header"
+                : "email_issuance.verify_code.header",
+            bodyKey: _linking
+                ? "email_linking.verify_code.body"
+                : "email_issuance.verify_code.body",
+            bodyParams: {"email": state.email},
           ),
-          body: KeyboardAnimationListener(
-            onKeyboardSettled: (context, inset, visible) {
-              _handleFocusChange();
-            },
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: SafeArea(
-                child: Padding(
-                  padding: .all(theme.defaultSpacing),
-                  child: Column(
-                    crossAxisAlignment: .stretch,
-                    children: [
-                      SizedBox(height: theme.defaultSpacing),
-                      ContactIntro(
-                        icon: Icons.mail_rounded,
-                        tone: DialogTone.warning,
-                        headerKey: _linking
-                            ? "email_linking.verify_code.header"
-                            : "email_issuance.verify_code.header",
-                        bodyKey: _linking
-                            ? "email_linking.verify_code.body"
-                            : "email_issuance.verify_code.body",
-                        bodyParams: {"email": state.email},
-                      ),
-                      Container(
-                        key: _codeFieldPositionKey,
-                        child: ContactCodeField(
-                          fieldKey: const Key(
-                            "email_verification_code_input_field",
-                          ),
-                          controller: _textController,
-                          focusNode: _focusNode,
-                          length: emailCodeLength,
-                          invalid: codeInvalid,
-                          onChanged: _linking ? _codeChanged : null,
-                          onCompleted: _linking ? null : _handleCode,
-                        ),
-                      ),
-                      if (codeInvalid)
-                        const ContactCodeError(
-                          "email_issuance.verify_code.invalid_code_error",
-                        ),
-                      if (_codeFromLink)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Semantics(
-                            liveRegion: true,
-                            child: TranslatedText(
-                              "email_linking.verify_code.filled_from_link",
-                              key: const Key("code_filled_from_link"),
-                              textAlign: .center,
-                              style: palette
-                                  .body(14)
-                                  .copyWith(color: palette.secondaryText),
-                            ),
-                          ),
-                        ),
-                      if (!_linking)
-                        ContactTextLink(
-                          labelKey:
-                              "email_issuance.verify_code.no_email_received",
-                          onTap: () => showResendSmsDialog(state.email),
-                        ),
-                      SizedBox(height: 100),
-                    ],
-                  ),
+        ],
+        field: ContactCodeField(
+          fieldKey: const Key("email_verification_code_input_field"),
+          controller: _textController,
+          focusNode: _focusNode,
+          length: emailCodeLength,
+          invalid: codeInvalid,
+          onChanged: _linking ? _codeChanged : null,
+          onCompleted: _linking ? null : _handleCode,
+        ),
+        after: [
+          if (codeInvalid)
+            const ContactCodeError(
+              "email_issuance.verify_code.invalid_code_error",
+            ),
+          if (_codeFromLink)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Semantics(
+                liveRegion: true,
+                child: TranslatedText(
+                  "email_linking.verify_code.filled_from_link",
+                  key: const Key("code_filled_from_link"),
+                  textAlign: .center,
+                  style: palette
+                      .body(14)
+                      .copyWith(color: palette.secondaryText),
                 ),
               ),
             ),
-          ),
-          bottomNavigationBar: _linking
-              ? IrmaBottomBar(
-                  primaryButtonLabel: "email_linking.verify_code.next_button",
-                  onPrimaryPressed: _codeComplete
-                      ? () => _handleCode(_textController.text)
-                      : null,
-                  secondaryButtonLabel:
-                      "email_linking.verify_code.resend_button",
-                  onSecondaryPressed: () => showResendSmsDialog(state.email),
-                )
-              : IrmaBottomBar(
-                  secondaryButtonLabel:
-                      "email_issuance.verify_code.back_button",
-                  onSecondaryPressed: context.pop,
-                ),
-        ),
+          if (!_linking)
+            ContactTextLink(
+              labelKey: "email_issuance.verify_code.no_email_received",
+              onTap: () => showResendSmsDialog(state.email),
+            ),
+        ],
+        bottomBar: _linking
+            ? IrmaBottomBar(
+                primaryButtonLabel: "email_linking.verify_code.next_button",
+                onPrimaryPressed: _codeComplete
+                    ? () => _handleCode(_textController.text)
+                    : null,
+                secondaryButtonLabel: "email_linking.verify_code.resend_button",
+                onSecondaryPressed: () => showResendSmsDialog(state.email),
+              )
+            : IrmaBottomBar(
+                secondaryButtonLabel: "email_issuance.verify_code.back_button",
+                onSecondaryPressed: context.pop,
+              ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/app_toast.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../models/technical_details.dart";
@@ -26,18 +27,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
     final palette = YiviPalette.of(context);
     String t(String key) => FlutterI18n.translate(context, key);
     List<Widget> group(TechGroup g) => [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(6, 18, 6, 8),
-        child: Semantics(
-          header: true,
-          child: Text(
-            g.title.toUpperCase(),
-            style: palette
-                .body(12.5, weight: FontWeight.w700)
-                .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
-          ),
-        ),
-      ),
+      CapsLabel(g.title, padding: const EdgeInsets.fromLTRB(6, 18, 6, 8)),
       DecoratedBox(
         decoration: YiviShadows.surfaceCard(palette),
         child: Padding(

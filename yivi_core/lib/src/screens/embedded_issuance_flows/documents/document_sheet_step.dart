@@ -14,16 +14,6 @@ import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
 
-/// Which document issues [credentialId] (`pbdf.pbdf.passport` and its
-/// staging twin, and so on), if any.
-DocumentType? documentTypeOf(String credentialId) =>
-    switch (credentialId.split(".").last) {
-      "passport" => .passport,
-      "idcard" => .identityCard,
-      "drivinglicence" => .drivingLicence,
-      _ => null,
-    };
-
 /// The screens of adding a document, and the step of the sheet's progress
 /// each one is. The face check, when the issuer asks for one, is a step of
 /// its own after the chip.

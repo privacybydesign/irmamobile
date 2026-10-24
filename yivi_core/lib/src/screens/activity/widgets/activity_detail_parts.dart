@@ -6,6 +6,7 @@ import "../../../models/log_entry.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/base64_image.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
@@ -391,21 +392,10 @@ class ActivitySectionLabel extends StatelessWidget {
   const ActivitySectionLabel({super.key, required this.role});
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 24, 10, 10),
-      child: Semantics(
-        header: true,
-        child: Text(
-          FlutterI18n.translate(context, role.titleKey).toUpperCase(),
-          style: palette
-              .body(12.5, weight: FontWeight.w700)
-              .copyWith(color: palette.secondaryText, letterSpacing: 0.6),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CapsLabel(
+    FlutterI18n.translate(context, role.titleKey),
+    padding: const EdgeInsets.fromLTRB(10, 24, 10, 10),
+  );
 }
 
 /// One card of a log entry, as a share screen tile: small card art, its

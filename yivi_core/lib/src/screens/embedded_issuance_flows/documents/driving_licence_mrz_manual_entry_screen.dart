@@ -1,11 +1,6 @@
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
-import "../../../theme/yivi_palette.dart";
-import "../../../widgets/document_flow_footer.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
-import "document_step_in_sheet.dart";
 import "widgets/driving_licence_mrz_field.dart";
 import "widgets/manual_entry_layout.dart";
 
@@ -76,76 +71,18 @@ class _DrivingLicencetMrzManualEntryScreenState
     }
   }
 
-  /// The buttons in a sheet: its close button is the way out.
-  List<Widget> get _sheetButtons => [
-    DocumentFlowButton(
-      key: DocumentFlowButton.primaryKey,
-      labelKey: "ui.continue",
-      onPressed: _canContinue ? _onContinuePressed : null,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        backgroundColor: DocumentStepInSheet.of(context)
-            ? Colors.transparent
-            : palette.background,
-        // In a sheet its bar has the title, back and close.
-        appBar: DocumentStepInSheet.of(context)
-            ? null
-            : IrmaAppBar(titleTranslationKey: "driving_licence.scan.title"),
-        body: SizedBox(
-          height: .infinity,
-          child: documentScroll(
-            context,
-            Form(
-              key: _manualEntryFormKey,
-              onChanged: _recomputeCanContinue,
-              child: SafeArea(
-                // Sideways the sheet's columns keep clear of the bottom.
-                bottom: !documentStepSplit(context),
-                child: Padding(
-                  padding: documentStepSplit(context)
-                      ? EdgeInsets.zero
-                      : const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                  child: ManualEntryLayout(
-                    actions: documentStepSplit(context)
-                        ? DocumentFlowFooter.sheetActions(
-                            context,
-                            _sheetButtons,
-                          )
-                        : null,
-                    titleKey: "driving_licence.manual.title",
-                    explanationKey: "driving_licence.manual.explanation",
-                    tipKey: "document_flow.manual.tip_driving_licence",
-                    fields: [
-                      DrivingLicenceMrzInputField(controller: _documentNrCtrl),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        // In a sheet, the sheet's own buttons; its close button is the way out.
-        bottomNavigationBar: documentStepSplit(context)
-            ? null
-            : DocumentStepInSheet.of(context)
-            ? DocumentFlowFooter(buttons: _sheetButtons)
-            : IrmaBottomBar(
-                primaryButtonLabel: "ui.continue",
-                onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-                secondaryButtonLabel: "ui.cancel",
-                onSecondaryPressed: widget.onCancel,
-              ),
-      ),
+    return ManualEntryScaffold(
+      appBarTitleKey: "driving_licence.scan.title",
+      formKey: _manualEntryFormKey,
+      onChanged: _recomputeCanContinue,
+      titleKey: "driving_licence.manual.title",
+      explanationKey: "driving_licence.manual.explanation",
+      tipKey: "document_flow.manual.tip_driving_licence",
+      onContinue: _canContinue ? _onContinuePressed : null,
+      onCancel: widget.onCancel,
+      fields: [DrivingLicenceMrzInputField(controller: _documentNrCtrl)],
     );
   }
 }

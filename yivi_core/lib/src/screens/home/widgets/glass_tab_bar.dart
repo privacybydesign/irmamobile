@@ -161,35 +161,7 @@ class _TabButton extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final color = selected ? palette.selectedTab : palette.heading;
 
-    Widget iconWidget = Icon(icon, size: 26, color: color);
-    if (showDot) {
-      iconWidget = BlocBuilder<NotificationsBloc, NotificationsState>(
-        builder: (context, state) {
-          final unread =
-              state is NotificationsLoaded && state.hasUnreadNotifications;
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(icon, size: 26, color: color),
-              if (unread)
-                Positioned(
-                  top: 1,
-                  right: 1,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(
-                      color: palette.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: palette.surface, width: 1.5),
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-      );
-    }
+    final iconWidget = TabIcon(icon: icon, color: color, showDot: showDot);
 
     return Semantics(
       button: true,
@@ -335,4 +307,51 @@ class _QrButtonEdgePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_QrButtonEdgePainter old) => false;
+}
+
+/// A tab's icon, 26 pt; with [showDot] (the bell) a small primary dot at its
+/// top right while there are unread notifications.
+class TabIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final bool showDot;
+
+  const TabIcon({
+    super.key,
+    required this.icon,
+    required this.color,
+    required this.showDot,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!showDot) return Icon(icon, size: 26, color: color);
+    final palette = YiviPalette.of(context);
+    return BlocBuilder<NotificationsBloc, NotificationsState>(
+      builder: (context, state) {
+        final unread =
+            state is NotificationsLoaded && state.hasUnreadNotifications;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(icon, size: 26, color: color),
+            if (unread)
+              Positioned(
+                top: 1,
+                right: 1,
+                child: Container(
+                  width: 9,
+                  height: 9,
+                  decoration: BoxDecoration(
+                    color: palette.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: palette.surface, width: 1.5),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
 }

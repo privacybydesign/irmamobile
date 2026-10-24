@@ -5,14 +5,11 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
-import "../../../../theme/theme.dart";
-import "../../../../theme/yivi_palette.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
-import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -28,15 +25,12 @@ class VerifyPhoneScreen extends ConsumerStatefulWidget {
 class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
     with RouteAware {
   final _focusNode = FocusNode();
-  final _scrollController = ScrollController();
-  final _codeFieldPositionKey = GlobalKey();
   final _textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
     });
   }
@@ -51,7 +45,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
   @override
   void dispose() {
     super.dispose();
-    _scrollController.dispose();
     routeObserver.unsubscribe(this);
     _focusNode.dispose();
   }
@@ -62,34 +55,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
     final route = ModalRoute.of(context);
     if (route is PageRoute) {
       routeObserver.subscribe(this, route);
-    }
-  }
-
-  void _handleFocusChange() {
-    if (_focusNode.hasFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final codeFieldContext = _codeFieldPositionKey.currentContext;
-        if (codeFieldContext == null) {
-          return;
-        }
-
-        Scrollable.ensureVisible(
-          codeFieldContext,
-          alignment: 0.2,
-          duration: Duration(milliseconds: 300),
-        );
-      });
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_scrollController.hasClients) {
-          return;
-        }
-        _scrollController.animateTo(
-          0,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      });
     }
   }
 
@@ -118,10 +83,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
       );
     }
 
-    final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is SmsIssuanceInvalidCodeError;
-
-    final palette = YiviPalette.of(context);
 
     final smsRetriever = ref.watch(smsRetrieverProvider);
 
@@ -132,71 +94,44 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
           _goBack();
         }
       },
-      child: GestureDetector(
-        onTap: () {
-          _focusNode.unfocus();
-        },
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          extendBody: true,
-          backgroundColor: palette.background,
-          appBar: IrmaAppBar(
-            titleTranslationKey: "sms_issuance.verify_code.title",
-            leading: YiviBackButton(onTap: _goBack),
+      child: ContactScrollPage(
+        appBar: IrmaAppBar(
+          titleTranslationKey: "sms_issuance.verify_code.title",
+          leading: YiviBackButton(onTap: _goBack),
+        ),
+        focusNode: _focusNode,
+        fieldAlignment: 0.2,
+        before: [
+          ContactIntro(
+            icon: Icons.smartphone_rounded,
+            tone: DialogTone.success,
+            headerKey: "sms_issuance.verify_code.header",
+            bodyKey: "sms_issuance.verify_code.body",
+            bodyParams: {"phone": state.phoneNumber},
           ),
-          body: KeyboardAnimationListener(
-            onKeyboardSettled: (context, inset, visible) {
-              _handleFocusChange();
-            },
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: SafeArea(
-                child: Padding(
-                  padding: .all(theme.defaultSpacing),
-                  child: Column(
-                    crossAxisAlignment: .stretch,
-                    children: [
-                      SizedBox(height: theme.defaultSpacing),
-                      ContactIntro(
-                        icon: Icons.smartphone_rounded,
-                        tone: DialogTone.success,
-                        headerKey: "sms_issuance.verify_code.header",
-                        bodyKey: "sms_issuance.verify_code.body",
-                        bodyParams: {"phone": state.phoneNumber},
-                      ),
-                      Container(
-                        key: _codeFieldPositionKey,
-                        child: ContactCodeField(
-                          fieldKey: const Key(
-                            "sms_verification_code_input_field",
-                          ),
-                          controller: _textController,
-                          focusNode: _focusNode,
-                          smsRetriever: smsRetriever,
-                          length: 6,
-                          invalid: codeInvalid,
-                          onCompleted: _handleCode,
-                        ),
-                      ),
-                      if (codeInvalid)
-                        const ContactCodeError(
-                          "sms_issuance.verify_code.invalid_code_error",
-                        ),
-                      ContactTextLink(
-                        labelKey: "sms_issuance.verify_code.no_sms_received",
-                        onTap: () => showResendSmsDialog(state.phoneNumber),
-                      ),
-                      SizedBox(height: 100),
-                    ],
-                  ),
-                ),
-              ),
+        ],
+        field: ContactCodeField(
+          fieldKey: const Key("sms_verification_code_input_field"),
+          controller: _textController,
+          focusNode: _focusNode,
+          smsRetriever: smsRetriever,
+          length: 6,
+          invalid: codeInvalid,
+          onCompleted: _handleCode,
+        ),
+        after: [
+          if (codeInvalid)
+            const ContactCodeError(
+              "sms_issuance.verify_code.invalid_code_error",
             ),
+          ContactTextLink(
+            labelKey: "sms_issuance.verify_code.no_sms_received",
+            onTap: () => showResendSmsDialog(state.phoneNumber),
           ),
-          bottomNavigationBar: IrmaBottomBar(
-            secondaryButtonLabel: "sms_issuance.verify_code.back_button",
-            onSecondaryPressed: context.pop,
-          ),
+        ],
+        bottomBar: IrmaBottomBar(
+          secondaryButtonLabel: "sms_issuance.verify_code.back_button",
+          onSecondaryPressed: context.pop,
         ),
       ),
     );

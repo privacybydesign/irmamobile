@@ -9,6 +9,14 @@ import "../models/translated_value.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 
+/// The path segment of each document in the document routes
+/// (`/mrz/reader/id_card`, `/nfc/passport`, …).
+const documentPaths = {
+  DocumentType.passport: "passport",
+  DocumentType.identityCard: "id_card",
+  DocumentType.drivingLicence: "driving_licence",
+};
+
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
     push("/error", extra: message);
@@ -189,83 +197,23 @@ extension RoutingHelpers on BuildContext {
     DocumentType documentType, {
     required OcrProcessor? ocrProcessor,
   }) {
-    final hasCamera = ocrProcessor != null;
-    switch (documentType) {
-      case .passport:
-        hasCamera
-            ? pushPassportMrzReaderScreen()
-            : pushPassportManualEntryScreen();
-      case .identityCard:
-        hasCamera ? pushIdCardMrzReaderScreen() : pushIdCardManualEntryScreen();
-      case .drivingLicence:
-        hasCamera
-            ? pushDrivingLicenceMrzReaderScreen()
-            : pushDrivingLicenceManualEntryScreen();
-    }
+    final screen = ocrProcessor != null ? "reader" : "manual_entry";
+    push("/mrz/$screen/${documentPaths[documentType]}");
   }
 
-  void pushPassportMrzReaderScreen() {
-    final uri = Uri(path: "/mrz/reader/passport");
-    push(uri.toString());
+  void pushDocumentManualEntry(DocumentType documentType) {
+    push("/mrz/manual_entry/${documentPaths[documentType]}");
   }
 
-  void pushIdCardMrzReaderScreen() {
-    final uri = Uri(path: "/mrz/reader/id_card");
-    push(uri.toString());
-  }
-
-  void pushDrivingLicenceMrzReaderScreen() {
-    final uri = Uri(path: "/mrz/reader/driving_licence");
-    push(uri.toString());
-  }
-
-  void pushPassportManualEntryScreen() {
-    final uri = Uri(path: "/mrz/manual_entry/passport");
-    push(uri.toString());
-  }
-
-  void pushIdCardManualEntryScreen() {
-    final uri = Uri(path: "/mrz/manual_entry/id_card");
-    push(uri.toString());
-  }
-
-  void pushDrivingLicenceManualEntryScreen() {
-    final uri = Uri(path: "/mrz/manual_entry/driving_licence");
-    push(uri.toString());
-  }
-
-  void pushPassportNfcReadingScreen(PassportNfcReadingRouteParams params) {
-    final uri = Uri(
-      path: "/nfc/passport",
-      queryParameters: params.toQueryParams(),
-    ).toString();
-
-    final current = GoRouter.of(this).state.uri.toString();
-
-    if (current != uri) {
-      push(uri);
-    }
-  }
-
-  void pushIdCardNfcReadingScreen(PassportNfcReadingRouteParams params) {
-    final uri = Uri(
-      path: "/nfc/id_card",
-      queryParameters: params.toQueryParams(),
-    ).toString();
-
-    final current = GoRouter.of(this).state.uri.toString();
-
-    if (current != uri) {
-      push(uri);
-    }
-  }
-
-  void pushDrivingLicenceNfcReadingScreen(
-    DrivingLicenceNfcReadingRouteParams params,
+  /// The chip reading of [documentType] with [queryParameters] (what the MRZ
+  /// says), unless it is already the current page.
+  void _pushNfcReadingScreen(
+    DocumentType documentType,
+    Map<String, String> queryParameters,
   ) {
     final uri = Uri(
-      path: "/nfc/driving_licence",
-      queryParameters: params.toQueryParams(),
+      path: "/nfc/${documentPaths[documentType]}",
+      queryParameters: queryParameters,
     ).toString();
 
     final current = GoRouter.of(this).state.uri.toString();
@@ -280,32 +228,35 @@ extension RoutingHelpers on BuildContext {
     final countryCode = mrz.countryCode.isEmpty ? null : mrz.countryCode;
     switch (mrz) {
       case ScannedPassportMrz():
-        pushPassportNfcReadingScreen(
+        _pushNfcReadingScreen(
+          .passport,
           PassportNfcReadingRouteParams(
             documentNumber: mrz.documentNumber,
             dateOfBirth: mrz.dateOfBirth,
             dateOfExpiry: mrz.dateOfExpiry,
             countryCode: countryCode,
-          ),
+          ).toQueryParams(),
         );
       case ScannedIdCardMrz():
-        pushIdCardNfcReadingScreen(
+        _pushNfcReadingScreen(
+          .identityCard,
           PassportNfcReadingRouteParams(
             documentNumber: mrz.documentNumber,
             dateOfBirth: mrz.dateOfBirth,
             dateOfExpiry: mrz.dateOfExpiry,
             countryCode: countryCode,
-          ),
+          ).toQueryParams(),
         );
       case ScannedDrivingLicenceMrz():
-        pushDrivingLicenceNfcReadingScreen(
+        _pushNfcReadingScreen(
+          .drivingLicence,
           DrivingLicenceNfcReadingRouteParams(
             documentNumber: mrz.documentNumber,
             version: mrz.version,
             randomData: mrz.randomData,
             configuration: mrz.configuration,
             countryCode: mrz.countryCode,
-          ),
+          ).toQueryParams(),
         );
     }
   }

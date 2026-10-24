@@ -10,6 +10,7 @@ import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/applifecycle_changed_event.dart";
 import "../models/authentication_events.dart";
@@ -631,10 +632,6 @@ class IrmaRepository {
     }
   }
 
-  /// Dismisses every in-flight session (started, not yet terminal). Unlike
-  /// [dismissAllActiveSessions] this also covers a session that has not yet
-  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
-  /// that [hasInFlightSession] hides biometric for.
   /// Previews asked of irmago, by pointer URL.
   final _previews = <String, BehaviorSubject<SessionPreview>>{};
 
@@ -655,6 +652,10 @@ class IrmaRepository {
   /// The ids of the sessions started and not yet ended.
   Set<int> get inFlightSessionIds => _sessionRepository.inFlightSessionIds;
 
+  /// Dismisses every in-flight session (started, not yet terminal). Unlike
+  /// [dismissAllActiveSessions] this also covers a session that has not yet
+  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
+  /// that [hasInFlightSession] hides biometric for.
   void dismissAllInFlightSessions() {
     for (final sessionId in _sessionRepository.inFlightSessionIds) {
       bridgedDispatch(
@@ -802,102 +803,33 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel("irma.app/iiab");
 
-  // Passport issuance is a special case where we use the scanner built into the app as the issuer
-  void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      context.pushDocumentInstructionScreen(.passport);
-    }
+  /// The base of [url] (scheme, host and port): the issuer that Yivi's own
+  /// flows talk to.
+  static String _issuerBase(String url) {
+    final uri = Uri.parse(url);
+    return Uri(
+      scheme: uri.scheme,
+      host: uri.host,
+      port: uri.hasPort ? uri.port : null,
+    ).toString();
   }
 
-  void _startIdCardIssuance(BuildContext context, String url, WidgetRef ref) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      context.pushDocumentInstructionScreen(.identityCard);
-    }
-  }
-
-  void _startDrivingLicenceIssuance(
+  /// Opens Yivi's own flow for [credentialId] (see [_hasEmbeddedFlow]),
+  /// pointed at the issuer of [url].
+  void _openEmbeddedFlow(
     BuildContext context,
+    String credentialId,
     String url,
     WidgetRef ref,
   ) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      context.pushDocumentInstructionScreen(.drivingLicence);
-    }
-  }
-
-  void _startMobileNumberIssuance(
-    BuildContext context,
-    String url,
-    WidgetRef ref,
-  ) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(smsIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      context.pushSmsIssuanceScreen();
-    }
-  }
-
-  void _startEmailIssuance(
-    BuildContext context,
-    String url,
-    WidgetRef ref, {
-    EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
-  }) {
-    if (url.isNotEmpty) {
-      final uri = Uri.parse(url);
-
-      final baseUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.hasPort ? uri.port : null,
-      );
-
-      // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(emailIssuerUrlProvider.notifier).set(baseUri.toString());
-
-      context.pushEmailIssuanceScreen(purpose: purpose);
+    if (!prepareEmbeddedFlow(credentialId, url, ref)) return;
+    switch (embeddedFlowOf(credentialId)!) {
+      case EmbeddedFlow.email:
+        context.pushEmailIssuanceScreen();
+      case EmbeddedFlow.phone:
+        context.pushSmsIssuanceScreen();
+      case EmbeddedFlow.document:
+        context.pushDocumentInstructionScreen(documentTypeOf(credentialId)!);
     }
   }
 
@@ -918,43 +850,35 @@ class IrmaRepository {
     }
     if (!context.mounted) return;
 
-    _startEmailIssuance(
-      context,
-      issueUrl,
-      ref,
-      purpose: EmailIssuancePurpose.linkKeyshare,
-    );
+    ref.read(emailIssuerUrlProvider.notifier).set(_issuerBase(issueUrl));
+    context.pushEmailIssuanceScreen(purpose: EmailIssuancePurpose.linkKeyshare);
   }
 
-  Map<String, void Function(BuildContext, String, WidgetRef)>
-  get _embeddedFlows => {
+  static const _embeddedFlowIds = {
     //----------- production
-    "pbdf.pbdf.passport": _startPassportIssuance,
-    "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
-    "pbdf.pbdf.idcard": _startIdCardIssuance,
-    "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
-    "pbdf.sidn-pbdf.email": _startEmailIssuance,
+    "pbdf.pbdf.passport",
+    "pbdf.pbdf.drivinglicence",
+    "pbdf.pbdf.idcard",
+    "pbdf.sidn-pbdf.mobilenumber",
+    "pbdf.sidn-pbdf.email",
     //----------- staging
-    "pbdf-staging.pbdf.passport": _startPassportIssuance,
-    "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
-    "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
-    "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
-    "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
+    "pbdf-staging.pbdf.passport",
+    "pbdf-staging.pbdf.drivinglicence",
+    "pbdf-staging.pbdf.idcard",
+    "pbdf-staging.sidn-pbdf.mobilenumber",
+    "pbdf-staging.sidn-pbdf.email",
   };
 
-  /// Whether obtaining [credentialId] (given an issue URL) sends the user to
-  /// the issuer's website: no embedded in-app flow handles it and it does not
-  /// open a native app through a universal link.
   /// Whether Yivi issues [credentialId] itself, in its own screens (e-mail,
   /// phone number, documents), instead of on the issuer's website.
-  bool hasEmbeddedFlow(String credentialId) =>
-      _embeddedFlows.containsKey(credentialId);
+  bool _hasEmbeddedFlow(String credentialId) =>
+      _embeddedFlowIds.contains(credentialId);
 
   /// Which of Yivi's own flows issues [credentialId], if any.
   EmbeddedFlow? embeddedFlowOf(String credentialId) {
     final type = credentialId.split(".").skip(1).join(".");
     return switch (type) {
-      _ when !hasEmbeddedFlow(credentialId) => null,
+      _ when !_hasEmbeddedFlow(credentialId) => null,
       "sidn-pbdf.email" => EmbeddedFlow.email,
       "sidn-pbdf.mobilenumber" => EmbeddedFlow.phone,
       _ => EmbeddedFlow.document,
@@ -972,12 +896,7 @@ class IrmaRepository {
     final flow = embeddedFlowOf(credentialId);
     final url = issueURL ?? "";
     if (flow == null || url.isEmpty) return false;
-    final uri = Uri.parse(url);
-    final base = Uri(
-      scheme: uri.scheme,
-      host: uri.host,
-      port: uri.hasPort ? uri.port : null,
-    ).toString();
+    final base = _issuerBase(url);
     switch (flow) {
       case EmbeddedFlow.email:
         ref.read(emailIssuerUrlProvider.notifier).set(base);
@@ -989,12 +908,31 @@ class IrmaRepository {
     return true;
   }
 
+  /// Whether obtaining [credentialId] (given an issue URL) sends the user to
+  /// the issuer's website: no embedded in-app flow handles it and it does not
+  /// open a native app through a universal link.
   bool issuesViaWebsite(String credentialId) {
-    if (_embeddedFlows.containsKey(credentialId)) return false;
-    final cred =
-        _irmaConfigurationSubject.valueOrNull?.credentialTypes[credentialId];
-    return !(cred?.isULIssueUrl ?? false);
+    if (_hasEmbeddedFlow(credentialId)) return false;
+    return !_issuesViaUniversalLink(credentialId);
   }
+
+  /// Whether the issue URL of [credentialId] is a universal link, which the
+  /// OS hands to a registered native app (UZI register, Belastingdienst).
+  // TODO: surface `isULIssueUrl` on the schemaless credential models
+  // (CredentialDescriptor / Credential) so we can drop the legacy
+  // `_irmaConfigurationSubject` lookup here. Today there's no other
+  // place that information lives on the wallet side. Affected
+  // credentials (none overlap with the embedded flows):
+  //   pbdf.minvws-cibg.pilot-2, pbdf.bzkpilot.personalData/.address,
+  //   plus several irma-demo demo creds (digidproef.*, uzipoc-cibg.*).
+  // Schemaless credentials that aren't in legacy irmaConfiguration are
+  // treated as non-universal-link.
+  bool _issuesViaUniversalLink(String credentialId) =>
+      _irmaConfigurationSubject
+          .valueOrNull
+          ?.credentialTypes[credentialId]
+          ?.isULIssueUrl ??
+      false;
 
   /// Unified entry point for "user tapped Get / Reobtain inside the app
   /// and we need to take them to the issuer to obtain a credential".
@@ -1030,25 +968,13 @@ class IrmaRepository {
       );
     }
 
-    final flow = _embeddedFlows[credentialId];
-    if (flow != null) {
-      return flow(context, url, ref);
+    if (_hasEmbeddedFlow(credentialId)) {
+      return _openEmbeddedFlow(context, credentialId, url, ref);
     }
 
     markInAppLaunched([credentialId]);
 
-    // TODO: surface `isULIssueUrl` on the schemaless credential models
-    // (CredentialDescriptor / Credential) so we can drop the legacy
-    // `_irmaConfigurationSubject` lookup here. Today there's no other
-    // place that information lives on the wallet side. Affected
-    // credentials (none overlap with the embedded flows above):
-    //   pbdf.minvws-cibg.pilot-2, pbdf.bzkpilot.personalData/.address,
-    //   plus several irma-demo demo creds (digidproef.*, uzipoc-cibg.*).
-    // Schemaless credentials that aren't in legacy irmaConfiguration are
-    // treated as non-universal-link.
-    final cred =
-        _irmaConfigurationSubject.valueOrNull?.credentialTypes[credentialId];
-    if (cred?.isULIssueUrl ?? false) {
+    if (_issuesViaUniversalLink(credentialId)) {
       return openURLExternally(url, suppressQrScanner: true);
     }
 
@@ -1205,3 +1131,13 @@ Future<SessionPointer> createTestSession(
 
 /// Yivi's own flows for the credentials it issues itself.
 enum EmbeddedFlow { email, phone, document }
+
+/// Which document issues [credentialId] (`pbdf.pbdf.passport` and its
+/// staging twin, and so on), if any.
+DocumentType? documentTypeOf(String credentialId) =>
+    switch (credentialId.split(".").last) {
+      "passport" => .passport,
+      "idcard" => .identityCard,
+      "drivinglicence" => .drivingLicence,
+      _ => null,
+    };

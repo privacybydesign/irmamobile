@@ -9,14 +9,12 @@ import "../../models/schemaless/session_state.dart";
 import "../../models/session.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../providers/preferences_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/sheet_action_row.dart";
-import "../pin/pin_screen.dart" show pinStateLine;
+import "../pin/pin_screen.dart" show UnlockPinEntry;
 import "../pin/providers/pin_unlock_provider.dart";
 import "../pin/widgets/waiting_request_announcement.dart";
-import "../pin/yivi_pin_screen.dart";
 import "../reset_pin/reset_pin_screen.dart";
 import "../session/widgets/issue_flow.dart";
 import "../session/widgets/issue_sheet_progress.dart";
@@ -221,73 +219,24 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
       if (next.pinInvalid && mounted) setState(() => _resetNonce++);
     });
     final state = ref.watch(pinUnlockProvider);
-    final waiting = ref.watch(waitingRequestProvider).value;
-    final maxPinSize = (ref.watch(longPinProvider).value ?? false)
-        ? longPinSize
-        : shortPinSize;
-    final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
-    final blocked = blockedFor.inSeconds > 0;
     final busy = state.authenticateInProgress || state.authenticated;
-    final enabled = !blocked && !busy;
-    String t(String key) => FlutterI18n.translate(context, key);
-    // A wrong PIN or a block, said in the line under the title.
-    final line = pinStateLine(context, state, blockedFor);
-
-    void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
 
     return GlassSheetPage(
       key: const Key("lock_scanner_unlock"),
-      title: t("waiting_request.unlock_title"),
+      title: FlutterI18n.translate(context, "waiting_request.unlock_title"),
       onBack: busy ? null : widget.onBack,
       scrolls: false,
       childClearsBottom: true,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (!busy)
-            KeyedSubtree(
-              key: ValueKey(_resetNonce),
-              child: YiviPinScreen(
-                header: waiting == null
-                    ? null
-                    : WaitingRequestAnnouncement(request: waiting),
-                showMark: false,
-                instruction: waiting != null
-                    ? t(waitingLineKey(waiting))
-                    : blocked
-                    ? t("pin.blocked_title")
-                    : t("pin.subtitle"),
-                instructionStyle: waiting == null
-                    ? PinInstructionStyle.heading
-                    : PinInstructionStyle.line,
-                upperGap: waiting == null ? 40 : 48,
-                // In the middle of the room between the bar and the keypad.
-                centreUpper: true,
-                detail: line?.text,
-                detailKind: line == null
-                    ? PinDetailKind.info
-                    : PinDetailKind.error,
-                detailClock: blocked,
-                pinError: line != null && !blocked,
-                maxPinSize: maxPinSize,
-                submitLabel: "pin.unlock",
-                enabled: enabled,
-                onSubmit: enabled ? submit : (_) {},
-                onForgotPin: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => ResetPinScreen()),
-                ),
-                listener: (context, pinState) {
-                  if (maxPinSize == shortPinSize &&
-                      pinState.pin.length == maxPinSize &&
-                      enabled) {
-                    submit(pinState.toString());
-                  }
-                },
-              ),
-            ),
-          if (busy) const CircularProgressIndicator(),
-        ],
+      child: UnlockPinEntry(
+        waiting: ref.watch(waitingRequestProvider).value,
+        busy: busy,
+        resetNonce: _resetNonce,
+        showMark: false,
+        centreUpper: true,
+        onForgotPin: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute<void>(builder: (_) => ResetPinScreen())),
       ),
     );
   }

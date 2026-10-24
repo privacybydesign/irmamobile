@@ -194,13 +194,8 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // Hide pin screen once authenticated.
     if (state.authenticated) return Container();
 
-    final maxPinSize = (ref.watch(longPinProvider).value ?? false)
-        ? longPinSize
-        : shortPinSize;
-
     final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
     final blocked = blockedFor.inSeconds > 0;
-    final enabled = !blocked && !state.authenticateInProgress;
 
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;
@@ -261,19 +256,9 @@ class _PinScreenState extends ConsumerState<PinScreen>
       });
     }
 
-    final line = pinStateLine(context, state, blockedFor);
     // A request waits behind the lock: who it is from and what they want
     // take the logo's place, and the heading says what the PIN is for.
     final waiting = hasSession ? ref.watch(waitingRequestProvider).value : null;
-    var subtitle = blocked
-        ? FlutterI18n.translate(context, "pin.blocked_title")
-        : FlutterI18n.translate(context, "pin.subtitle");
-    final detail = line?.text;
-    if (waiting != null) {
-      subtitle = FlutterI18n.translate(context, waitingLineKey(waiting));
-    }
-
-    void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
 
     return YiviPinScaffold(
       appBar: IrmaAppBar(
@@ -298,52 +283,114 @@ class _PinScreenState extends ConsumerState<PinScreen>
               ]
             : const [],
       ),
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Hide the keypad/dots while the PIN is being verified — only the
-          // spinner shows. Comes back (with a fresh buffer) if the PIN was wrong.
-          if (!state.authenticateInProgress)
-            KeyedSubtree(
-              key: ValueKey(_resetNonce),
-              child: YiviPinScreen(
-                instruction: subtitle,
-                header: waiting == null
-                    ? null
-                    : WaitingRequestAnnouncement(request: waiting),
-                // Under the announcement (the heading) a quiet line, the
-                // block well clear of the keypad.
-                instructionStyle: waiting == null
-                    ? PinInstructionStyle.heading
-                    : PinInstructionStyle.line,
-                upperGap: waiting == null ? 40 : 48,
-                detail: detail,
-                detailKind: line == null
-                    ? PinDetailKind.info
-                    : PinDetailKind.error,
-                detailClock: blocked,
-                pinError: line != null && !blocked,
-                maxPinSize: maxPinSize,
-                submitLabel: "pin.unlock",
-                onSubmit: enabled ? submit : (_) {},
-                enabled: enabled,
-                onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
-                onBiometricUnlock: showBiometric ? _biometricUnlock : null,
-                biometricGlyph: showBiometric
-                    ? _biometricGlyph(context, biometricType)
-                    : null,
-                listener: (context, pinState) {
-                  if (maxPinSize == shortPinSize &&
-                      pinState.pin.length == maxPinSize &&
-                      enabled) {
-                    submit(pinState.toString());
-                  }
-                },
-              ),
-            ),
-          if (state.authenticateInProgress) const CircularProgressIndicator(),
-        ],
+      // Only the spinner while the PIN is being verified.
+      body: UnlockPinEntry(
+        waiting: waiting,
+        busy: state.authenticateInProgress,
+        resetNonce: _resetNonce,
+        onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
+        onBiometricUnlock: showBiometric ? _biometricUnlock : null,
+        biometricGlyph: showBiometric
+            ? _biometricGlyph(context, biometricType)
+            : null,
       ),
+    );
+  }
+}
+
+/// The PIN pad of the app's unlock ([pinUnlockProvider]), on the lock
+/// screen and in the lock screen's scanner sheet: the waiting request (if
+/// any) over it, the tries left or the block under the title, and a short
+/// PIN sent as soon as it is complete. While [busy] only a spinner shows;
+/// the pad comes back with an empty buffer when [resetNonce] changes (after
+/// a wrong PIN).
+class UnlockPinEntry extends ConsumerWidget {
+  final WaitingRequest? waiting;
+  final bool busy;
+  final int resetNonce;
+  final bool showMark;
+
+  /// In the middle of the room between the bar and the keypad.
+  final bool centreUpper;
+  final VoidCallback onForgotPin;
+  final VoidCallback? onBiometricUnlock;
+  final Widget? biometricGlyph;
+
+  const UnlockPinEntry({
+    super.key,
+    required this.waiting,
+    required this.busy,
+    required this.resetNonce,
+    this.showMark = true,
+    this.centreUpper = false,
+    required this.onForgotPin,
+    this.onBiometricUnlock,
+    this.biometricGlyph,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(pinUnlockProvider);
+    final maxPinSize = (ref.watch(longPinProvider).value ?? false)
+        ? longPinSize
+        : shortPinSize;
+    final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
+    final blocked = blockedFor.inSeconds > 0;
+    final enabled = !blocked && !busy;
+    String t(String key) => FlutterI18n.translate(context, key);
+    // A wrong PIN or a block, said in the line under the title.
+    final line = pinStateLine(context, state, blockedFor);
+    final waiting = this.waiting;
+
+    void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        if (!busy)
+          KeyedSubtree(
+            key: ValueKey(resetNonce),
+            child: YiviPinScreen(
+              instruction: waiting != null
+                  ? t(waitingLineKey(waiting))
+                  : blocked
+                  ? t("pin.blocked_title")
+                  : t("pin.subtitle"),
+              header: waiting == null
+                  ? null
+                  : WaitingRequestAnnouncement(request: waiting),
+              showMark: showMark,
+              // Under the announcement (the heading) a quiet line, the
+              // block well clear of the keypad.
+              instructionStyle: waiting == null
+                  ? PinInstructionStyle.heading
+                  : PinInstructionStyle.line,
+              upperGap: waiting == null ? 40 : 48,
+              centreUpper: centreUpper,
+              detail: line?.text,
+              detailKind: line == null
+                  ? PinDetailKind.info
+                  : PinDetailKind.error,
+              detailClock: blocked,
+              pinError: line != null && !blocked,
+              maxPinSize: maxPinSize,
+              submitLabel: "pin.unlock",
+              onSubmit: enabled ? submit : (_) {},
+              enabled: enabled,
+              onForgotPin: onForgotPin,
+              onBiometricUnlock: onBiometricUnlock,
+              biometricGlyph: biometricGlyph,
+              listener: (context, pinState) {
+                if (maxPinSize == shortPinSize &&
+                    pinState.pin.length == maxPinSize &&
+                    enabled) {
+                  submit(pinState.toString());
+                }
+              },
+            ),
+          ),
+        if (busy) const CircularProgressIndicator(),
+      ],
     );
   }
 }

@@ -91,7 +91,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
     routes: [
       _adaptive(
         mode: PresentationMode.sheet,
-        phone: PhoneTransition.push,
         path: "/error",
         builder: (context, state) => ErrorScreen(
           details: state.extra as String,
@@ -116,14 +115,12 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       _adaptive(
         mode: PresentationMode.full,
-        phone: PhoneTransition.push,
         path: "/reset_pin",
         builder: (context, state) => ResetPinScreen(),
       ),
       // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
       _adaptive(
         mode: PresentationMode.sheet,
-        phone: PhoneTransition.push,
         path: "/change_pin",
         builder: (context, state) => ChangePinScreen(),
       ),
@@ -131,13 +128,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       // window is wider than high), so it gets the whole window.
       _adaptive(
         mode: PresentationMode.window,
-        phone: PhoneTransition.push,
         path: "/enrollment",
         builder: (context, state) => EnrollmentScreen(),
       ),
       _adaptive(
         mode: PresentationMode.sheet,
-        phone: PhoneTransition.push,
         path: "/back_to_website",
         builder: (context, state) => const BackToWebsiteScreen(),
       ),
@@ -157,22 +152,22 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             path: "credential",
             // Moves the data tab's items out of the way while the card
             // flies (see WalletTransition).
-            pageBuilder: (context, state) => WalletDetailPage(
-              key: state.pageKey,
-              name: "/home/credential",
-              // Turned sideways, the card moves into the tab's detail pane.
-              child: cardHandoff(
-                context,
-                state.uri.queryParameters["hash"] ?? "",
-                CredentialDetailScreen(
-                  hash: state.uri.queryParameters["hash"] ?? "",
+            pageBuilder: (context, state) {
+              final hash = state.uri.queryParameters["hash"] ?? "";
+              return WalletDetailPage(
+                key: state.pageKey,
+                name: "/home/credential",
+                // Turned sideways, the card moves into the tab's detail pane.
+                child: cardHandoff(
+                  context,
+                  hash,
+                  CredentialDetailScreen(hash: hash),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           _adaptive(
             mode: PresentationMode.sheet,
-            phone: PhoneTransition.push,
             path: "credentials_details",
             builder: (context, state) {
               final args = CredentialsDetailsRouteParams.fromQueryParams(
@@ -188,19 +183,20 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             // The cards of the row fly into the details while the activity
             // list moves away (see WalletTransition). On tablets the details
             // show in the pane instead.
-            pageBuilder: (context, state) => WalletDetailPage(
-              key: state.pageKey,
-              name: "/home/activity_details",
-              child: activityHandoff(
-                context,
-                state.extra as LogInfo,
-                ActivityDetailsScreen(
-                  args: ActivityDetailsScreenArgs(
-                    logEntry: state.extra as LogInfo,
+            pageBuilder: (context, state) {
+              final log = state.extra as LogInfo;
+              return WalletDetailPage(
+                key: state.pageKey,
+                name: "/home/activity_details",
+                child: activityHandoff(
+                  context,
+                  log,
+                  ActivityDetailsScreen(
+                    args: ActivityDetailsScreenArgs(logEntry: log),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           _adaptive(
             mode: PresentationMode.sheet,
@@ -210,13 +206,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           ),
           _adaptive(
             mode: PresentationMode.sheet,
-            phone: PhoneTransition.push,
             path: "debug",
             builder: (context, state) => const DebugScreen(),
             routes: [
               _adaptive(
                 mode: PresentationMode.sheet,
-                phone: PhoneTransition.push,
                 path: "feature_flags",
                 builder: (context, state) => const FeatureFlagsScreen(),
               ),
@@ -224,7 +218,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           ),
           _adaptive(
             mode: PresentationMode.sheet,
-            phone: PhoneTransition.push,
             path: "settings",
             builder: (context, state) => morePageHandoff(
               context,
@@ -234,7 +227,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             routes: [
               _adaptive(
                 mode: PresentationMode.sheet,
-                phone: PhoneTransition.push,
                 path: "change_language",
                 builder: (context, state) => ChangeLanguageScreen(),
               ),
@@ -262,7 +254,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       _adaptive(
         mode: PresentationMode.sheet,
-        phone: PhoneTransition.push,
         path: "/unknown_session",
         builder: (context, state) {
           final args = SessionRouteParams.fromQueryParams(
@@ -296,7 +287,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       _adaptive(
         mode: PresentationMode.full,
-        phone: PhoneTransition.push,
         path: "/rooted_warning",
         builder: (context, state) {
           return RootedWarningScreen(
@@ -311,7 +301,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       _adaptive(
         mode: PresentationMode.full,
-        phone: PhoneTransition.push,
         path: "/name_changed",
         builder: (context, state) {
           return NameChangedScreen(
@@ -322,7 +311,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       _adaptive(
         mode: PresentationMode.full,
-        phone: PhoneTransition.push,
         path: "/update_required",
         builder: (context, state) => RequiredUpdateScreen(),
       ),
@@ -368,7 +356,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             path: "/manual_entry",
             builder: (context, state) => Container(),
             routes: [
-              for (final (path, type) in _documentPaths)
+              for (final MapEntry(key: type, value: path)
+                  in documentPaths.entries)
                 _adaptive(
                   mode: PresentationMode.sheet,
                   phone: PhoneTransition.rise,
@@ -385,7 +374,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             path: "/reader",
             builder: (context, state) => Container(),
             routes: [
-              for (final (path, type) in _documentPaths)
+              for (final MapEntry(key: type, value: path)
+                  in documentPaths.entries)
                 _adaptive(
                   mode: PresentationMode.sheet,
                   phone: PhoneTransition.rise,
@@ -393,12 +383,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   builder: (context, state) => DocumentFlowSteps.reader(
                     type,
                     onRead: context.pushNfcReadingScreenFor,
-                    onManual: () => switch (type) {
-                      .passport => context.pushPassportManualEntryScreen(),
-                      .identityCard => context.pushIdCardManualEntryScreen(),
-                      .drivingLicence =>
-                        context.pushDrivingLicenceManualEntryScreen(),
-                    },
+                    onManual: () => context.pushDocumentManualEntry(type),
                     onCancel: context.pop,
                   ),
                 ),
@@ -430,7 +415,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          for (final (path, type) in _documentPaths)
+          for (final MapEntry(key: type, value: path) in documentPaths.entries)
             if (type != .drivingLicence)
               _adaptive(
                 mode: PresentationMode.sheet,
@@ -481,12 +466,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
 }
 
 /// The route path of each document's MRZ and NFC screens.
-const _documentPaths = [
-  ("passport", DocumentType.passport),
-  ("id_card", DocumentType.identityCard),
-  ("driving_licence", DocumentType.drivingLicence),
-];
-
 class RouteNotFoundScreen extends StatelessWidget {
   const RouteNotFoundScreen();
 
@@ -561,22 +540,6 @@ class RedirectionTriggers {
       showDeviceRootedWarning = false,
       showNameChangedMessage = false,
       versionInformation = null;
-
-  RedirectionTriggers copyWith({
-    bool? showDeviceRootedWarning,
-    bool? showNameChangedMessage,
-    VersionInformation? versionInformation,
-    EnrollmentStatus? enrollmentStatus,
-  }) {
-    return RedirectionTriggers(
-      showDeviceRootedWarning:
-          showDeviceRootedWarning ?? this.showDeviceRootedWarning,
-      showNameChangedMessage:
-          showNameChangedMessage ?? this.showNameChangedMessage,
-      versionInformation: versionInformation ?? this.versionInformation,
-      enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
-    );
-  }
 
   @override
   bool operator ==(Object other) {

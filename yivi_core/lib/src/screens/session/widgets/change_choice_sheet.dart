@@ -11,6 +11,7 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/dutch_another.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
@@ -549,21 +550,8 @@ class _Label extends StatelessWidget {
   const _Label(this.text);
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Semantics(
-        header: true,
-        child: Text(
-          text.toUpperCase(),
-          style: palette
-              .body(12.5, weight: FontWeight.w700)
-              .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      CapsLabel(text, padding: const EdgeInsets.symmetric(horizontal: 6));
 }
 
 /// The text under a sheet's title, at the top of its scrolling content.

@@ -3,13 +3,157 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/keyboard_animation_listener.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/translated_text.dart";
+
+/// A full-screen e-mail or phone step: [before], the [field] and [after] in
+/// a column that scrolls, the field kept in view while it has focus (at
+/// [fieldAlignment], see [Scrollable.ensureVisible]) and the page scrolled
+/// back to the top when it loses it. A tap outside the field closes the
+/// keyboard.
+///
+/// With a [keyboardButton] the [bottomBar] gives way to that button while
+/// the keyboard is up, right above it.
+class ContactScrollPage extends StatefulWidget {
+  final PreferredSizeWidget appBar;
+  final FocusNode focusNode;
+  final double fieldAlignment;
+  final List<Widget> before;
+  final Widget field;
+  final List<Widget> after;
+  final Widget bottomBar;
+  final Widget? keyboardButton;
+
+  const ContactScrollPage({
+    super.key,
+    required this.appBar,
+    required this.focusNode,
+    required this.fieldAlignment,
+    required this.before,
+    required this.field,
+    this.after = const [],
+    required this.bottomBar,
+    this.keyboardButton,
+  });
+
+  @override
+  State<ContactScrollPage> createState() => _ContactScrollPageState();
+}
+
+class _ContactScrollPageState extends State<ContactScrollPage> {
+  final _scrollController = ScrollController();
+  final _fieldPositionKey = GlobalKey();
+
+  // Keeps the scrollable's state when the scaffold's key changes with the
+  // keyboard (see [ContactScrollPage.keyboardButton]).
+  final _scrollableKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_handleFocusChange);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (widget.focusNode.hasFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final fieldContext = _fieldPositionKey.currentContext;
+        if (fieldContext == null) {
+          return;
+        }
+
+        Scrollable.ensureVisible(
+          fieldContext,
+          alignment: widget.fieldAlignment,
+          duration: const Duration(milliseconds: 300),
+        );
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) {
+          return;
+        }
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final media = MediaQuery.of(context);
+    final keyboardButton = widget.keyboardButton;
+    final keyboardUp = keyboardButton != null && media.viewInsets.bottom > 0;
+
+    return GestureDetector(
+      onTap: () {
+        widget.focusNode.unfocus();
+      },
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        key: keyboardButton == null ? null : Key("$keyboardUp"),
+        backgroundColor: YiviPalette.of(context).background,
+        appBar: widget.appBar,
+        body: KeyboardAnimationListener(
+          key: _scrollableKey,
+          onKeyboardSettled: (context, inset, visible) {
+            _handleFocusChange();
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: SafeArea(
+              child: Padding(
+                padding: .all(theme.defaultSpacing),
+                child: Column(
+                  crossAxisAlignment: .stretch,
+                  children: [
+                    SizedBox(height: theme.defaultSpacing),
+                    ...widget.before,
+                    Container(key: _fieldPositionKey, child: widget.field),
+                    ...widget.after,
+                    const SizedBox(height: 100),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        floatingActionButtonAnimator: .noAnimation,
+        floatingActionButton: keyboardUp
+            ? Padding(
+                padding: .only(
+                  left: theme.defaultSpacing + media.padding.left,
+                  right: theme.defaultSpacing + media.padding.right,
+                ),
+                child: keyboardButton,
+              )
+            : null,
+        floatingActionButtonLocation: .centerFloat,
+        resizeToAvoidBottomInset: true,
+        bottomNavigationBar: keyboardUp ? null : widget.bottomBar,
+      ),
+    );
+  }
+}
 
 /// The top of the e-mail and phone screens: a rounded tile with an envelope
 /// or a phone, the heading and the explanation, centred.
@@ -48,7 +192,9 @@ class ContactIntro extends StatelessWidget {
               decoration: ShapeDecoration(
                 color: fill,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(YiviCorners.iconTile),
+                  ),
                 ),
               ),
               child: Icon(icon, size: 44, color: ink),
@@ -92,12 +238,7 @@ class ContactFieldLabel extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Padding(
       // Sideways it starts the right column, level with the explanation.
-      padding: EdgeInsets.fromLTRB(
-        4,
-        useSheetColumns(context) ? 2 : 28,
-        4,
-        8,
-      ),
+      padding: EdgeInsets.fromLTRB(4, useSheetColumns(context) ? 2 : 28, 4, 8),
       child: TranslatedText(
         labelKey,
         textAlign: textAlign,

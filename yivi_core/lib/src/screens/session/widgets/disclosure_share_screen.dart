@@ -13,6 +13,7 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
@@ -958,7 +959,6 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     if (!shown) {
       return ExcludeSemantics(
         child: Visibility(
@@ -970,18 +970,7 @@ class _SectionLabel extends StatelessWidget {
         ),
       );
     }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title.toUpperCase(),
-          style: palette
-              .body(12.5, weight: FontWeight.w700)
-              .copyWith(letterSpacing: 0.6, color: palette.secondaryText),
-        ),
-      ),
-    );
+    return CapsLabel(title, padding: const EdgeInsets.symmetric(horizontal: 6));
   }
 }
 

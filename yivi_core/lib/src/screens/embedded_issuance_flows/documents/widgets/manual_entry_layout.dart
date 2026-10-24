@@ -2,10 +2,113 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_shadows.dart";
+import "../../../../widgets/document_flow_footer.dart";
 import "../../../../widgets/glass/sheet_action_row.dart";
+import "../../../../widgets/irma_app_bar.dart";
+import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_instruction_screen.dart";
 import "../document_step_in_sheet.dart";
+
+/// A manual entry board: its [ManualEntryLayout] in a [Form] with
+/// Continue (enabled with [onContinue]) and Cancel, full-screen or as a
+/// step in a sheet (whose close button is then the way out). A tap outside
+/// the fields closes the keyboard.
+class ManualEntryScaffold extends StatelessWidget {
+  final String appBarTitleKey;
+  final GlobalKey<FormState> formKey;
+  final VoidCallback onChanged;
+  final String titleKey;
+  final String explanationKey;
+  final String tipKey;
+  final List<Widget> fields;
+  final VoidCallback? onContinue;
+  final VoidCallback onCancel;
+
+  const ManualEntryScaffold({
+    super.key,
+    required this.appBarTitleKey,
+    required this.formKey,
+    required this.onChanged,
+    required this.titleKey,
+    required this.explanationKey,
+    required this.tipKey,
+    required this.fields,
+    required this.onContinue,
+    required this.onCancel,
+  });
+
+  /// The buttons in a sheet: its close button is the way out.
+  List<Widget> get _sheetButtons => [
+    DocumentFlowButton(
+      key: DocumentFlowButton.primaryKey,
+      labelKey: "ui.continue",
+      onPressed: onContinue,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        backgroundColor: DocumentStepInSheet.of(context)
+            ? Colors.transparent
+            : palette.background,
+        // In a sheet its bar has the title, back and close.
+        appBar: DocumentStepInSheet.of(context)
+            ? null
+            : IrmaAppBar(titleTranslationKey: appBarTitleKey),
+        body: SizedBox(
+          height: .infinity,
+          child: documentScroll(
+            context,
+            Form(
+              key: formKey,
+              onChanged: onChanged,
+              child: SafeArea(
+                // Sideways the sheet's columns keep clear of the bottom.
+                bottom: !documentStepSplit(context),
+                child: Padding(
+                  padding: documentStepSplit(context)
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: ManualEntryLayout(
+                    actions: documentStepSplit(context)
+                        ? DocumentFlowFooter.sheetActions(
+                            context,
+                            _sheetButtons,
+                          )
+                        : null,
+                    titleKey: titleKey,
+                    explanationKey: explanationKey,
+                    tipKey: tipKey,
+                    fields: fields,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // In a sheet, the sheet's own buttons; its close button is the way out.
+        bottomNavigationBar: documentStepSplit(context)
+            ? null
+            : DocumentStepInSheet.of(context)
+            ? DocumentFlowFooter(buttons: _sheetButtons)
+            : IrmaBottomBar(
+                primaryButtonLabel: "ui.continue",
+                onPrimaryPressed: onContinue,
+                secondaryButtonLabel: "ui.cancel",
+                onSecondaryPressed: onCancel,
+              ),
+      ),
+    );
+  }
+}
 
 /// The body of the manual entry boards: a heading, the explanation, the
 /// fields on one white card and a tip about where to find the details.

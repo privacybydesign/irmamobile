@@ -7,6 +7,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../models/technical_details.dart";
@@ -272,21 +273,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 for (final f in facts) _FactRow(fact: f, style: style),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(6, 22, 6, 8),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  doLabel.toUpperCase(),
-                  style: palette
-                      .body(12.5, weight: FontWeight.w700)
-                      .copyWith(
-                        letterSpacing: 0.6,
-                        color: palette.secondaryText,
-                      ),
-                ),
-              ),
-            ),
+            CapsLabel(doLabel, padding: const EdgeInsets.fromLTRB(6, 22, 6, 8)),
             _Group(children: [for (final d in dos) _DoRow(item: d)]),
             // For the curious, last and out of the way.
             if (onTechnicalDetails case final open?) ...[

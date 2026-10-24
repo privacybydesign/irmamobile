@@ -1,10 +1,8 @@
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_surface.dart";
-import "../../notifications/bloc/notifications_bloc.dart";
 import "glass_tab_bar.dart";
 import "irma_nav_bar.dart";
 
@@ -86,36 +84,8 @@ class _RailButton extends StatelessWidget {
     final color = selected ? palette.selectedTab : palette.heading;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
-    Widget iconWidget = Icon(icon, size: 26, color: color);
-    if (showDot) {
-      // The same unread dot as on the tab bar's bell.
-      iconWidget = BlocBuilder<NotificationsBloc, NotificationsState>(
-        builder: (context, state) {
-          final unread =
-              state is NotificationsLoaded && state.hasUnreadNotifications;
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(icon, size: 26, color: color),
-              if (unread)
-                Positioned(
-                  top: 1,
-                  right: 1,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(
-                      color: palette.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: palette.surface, width: 1.5),
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-      );
-    }
+    // The same unread dot as on the tab bar's bell.
+    final iconWidget = TabIcon(icon: icon, color: color, showDot: showDot);
 
     return Semantics(
       button: true,

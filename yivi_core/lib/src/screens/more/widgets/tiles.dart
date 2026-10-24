@@ -8,8 +8,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_dialog.dart";
+import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
 
 class ContactLinkTile extends StatelessWidget {
@@ -27,39 +26,7 @@ class ContactLinkTile extends StatelessWidget {
     return Tile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
-      onTap: () async {
-        final String address = FlutterI18n.translate(context, "help.contact");
-        final String subject = Uri.encodeComponent(
-          FlutterI18n.translate(context, "help.mail_subject"),
-        );
-        final mail = "mailto:$address?subject=$subject";
-        try {
-          await IrmaRepositoryProvider.of(context).openURLExternally(mail);
-        } catch (_) {
-          if (context.mounted) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return IrmaDialog(
-                  title: FlutterI18n.translate(
-                    context,
-                    "help.mail_error_title",
-                  ),
-                  content: FlutterI18n.translate(context, "help.mail_error"),
-                  child: FancyPillButton(
-                    label: FlutterI18n.translate(
-                      context,
-                      "help.mail_error_button",
-                    ),
-                    size: PillSize.regular,
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                );
-              },
-            );
-          }
-        }
-      },
+      onTap: () => openSupportMail(context),
     );
   }
 }

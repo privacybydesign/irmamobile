@@ -7,6 +7,7 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/navigation.dart";
 import "../../util/tablet.dart";
+import "../../widgets/caps_label.dart";
 import "../../widgets/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
 import "../home/widgets/irma_qr_scan_button.dart";
@@ -98,12 +99,7 @@ class EmptyDataPane extends StatelessWidget {
                     context,
                     "data_tab.start.get_started",
                   ).toUpperCase(),
-                  style: palette
-                      .body(12.5, weight: FontWeight.w700)
-                      .copyWith(
-                        letterSpacing: 0.6,
-                        color: palette.secondaryText,
-                      ),
+                  style: CapsLabel.style(palette),
                 ),
               ),
               const EmptyDataOptions(rail: true),

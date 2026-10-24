@@ -6,6 +6,7 @@ import "../../models/schemaless/credential_store.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/nfc_credentials.dart";
+import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/sheet_action_row.dart";
@@ -254,21 +255,8 @@ class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.text);
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 20, 10, 8),
-      child: Semantics(
-        header: true,
-        child: Text(
-          text.toUpperCase(),
-          style: palette
-              .body(12.5, weight: FontWeight.w700)
-              .copyWith(color: palette.secondaryText, letterSpacing: 0.6),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      CapsLabel(text, padding: const EdgeInsets.fromLTRB(10, 20, 10, 8));
 }
 
 /// The attribute names in two columns, each with a check. Past [shown]

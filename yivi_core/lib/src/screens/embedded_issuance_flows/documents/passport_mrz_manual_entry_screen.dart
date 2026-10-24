@@ -1,11 +1,6 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_palette.dart";
-import "../../../widgets/document_flow_footer.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
-import "document_step_in_sheet.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
 import "widgets/manual_entry_layout.dart";
@@ -112,7 +107,7 @@ class _PassportMrzManualEntryScreenState
   }
 
   DateTime _parseDate(String input) {
-    // assuming format dd-MM-yyyy
+    // The fields take yyyy-MM-dd (see DateInputField).
     final parts = input.split("-");
     if (parts.length != 3) {
       throw FormatException("Invalid date format: $input");
@@ -123,126 +118,66 @@ class _PassportMrzManualEntryScreenState
     return DateTime(year, month, day);
   }
 
-  /// The buttons in a sheet: its close button is the way out.
-  List<Widget> get _sheetButtons => [
-    DocumentFlowButton(
-      key: DocumentFlowButton.primaryKey,
-      labelKey: "ui.continue",
-      onPressed: _canContinue ? _onContinuePressed : null,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        backgroundColor: DocumentStepInSheet.of(context)
-            ? Colors.transparent
-            : palette.background,
-        // In a sheet its bar has the title, back and close.
-        appBar: DocumentStepInSheet.of(context)
-            ? null
-            : IrmaAppBar(
-                titleTranslationKey: widget.translationKeys.appBarTitle,
-              ),
-        body: SizedBox(
-          height: .infinity,
-          child: documentScroll(
+    return ManualEntryScaffold(
+      appBarTitleKey: widget.translationKeys.appBarTitle,
+      formKey: _manualEntryFormKey,
+      onChanged: _recomputeCanContinue,
+      titleKey: widget.translationKeys.title,
+      explanationKey: widget.translationKeys.explanation,
+      tipKey: widget.translationKeys.tip,
+      onContinue: _canContinue ? _onContinuePressed : null,
+      onCancel: widget.onCancel,
+      fields: [
+        DocumentNrInputField(
+          controller: _documentNrCtrl,
+          labelText: FlutterI18n.translate(
             context,
-            Form(
-              key: _manualEntryFormKey,
-              onChanged: () {
-                _recomputeCanContinue();
-              },
-              child: SafeArea(
-                // Sideways the sheet's columns keep clear of the bottom.
-                bottom: !documentStepSplit(context),
-                child: Padding(
-                  padding: documentStepSplit(context)
-                      ? EdgeInsets.zero
-                      : const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                  child: ManualEntryLayout(
-                    actions: documentStepSplit(context)
-                        ? DocumentFlowFooter.sheetActions(
-                            context,
-                            _sheetButtons,
-                          )
-                        : null,
-                    titleKey: widget.translationKeys.title,
-                    explanationKey: widget.translationKeys.explanation,
-                    tipKey: widget.translationKeys.tip,
-                    fields: [
-                      DocumentNrInputField(
-                        controller: _documentNrCtrl,
-                        labelText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.documentNumber,
-                        ),
-                        requiredText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.documentNumberRequired,
-                        ),
-                        invalidText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.documentNumberInvalid,
-                        ),
-                      ),
-                      DateInputField(
-                        controller: _dateOfBirthCtrl,
-                        fieldKey: const Key("passport_dob_field"),
-                        labelText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfBirth,
-                        ),
-                        requiredText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfBirthRequired,
-                        ),
-                        dateInvalidText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateInvalid,
-                        ),
-                      ),
-                      DateInputField(
-                        controller: _expiryDateCtrl,
-                        fieldKey: const Key("passport_expiry_date_field"),
-                        dateInvalidText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateInvalid,
-                        ),
-                        labelText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfExpiry,
-                        ),
-                        requiredText: FlutterI18n.translate(
-                          context,
-                          widget.translationKeys.dateOfExpiryRequired,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            widget.translationKeys.documentNumber,
+          ),
+          requiredText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.documentNumberRequired,
+          ),
+          invalidText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.documentNumberInvalid,
           ),
         ),
-        // In a sheet, the sheet's own buttons; its close button is the way out.
-        bottomNavigationBar: documentStepSplit(context)
-            ? null
-            : DocumentStepInSheet.of(context)
-            ? DocumentFlowFooter(buttons: _sheetButtons)
-            : IrmaBottomBar(
-                primaryButtonLabel: "ui.continue",
-                onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-                secondaryButtonLabel: "ui.cancel",
-                onSecondaryPressed: widget.onCancel,
-              ),
-      ),
+        DateInputField(
+          controller: _dateOfBirthCtrl,
+          fieldKey: const Key("passport_dob_field"),
+          labelText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.dateOfBirth,
+          ),
+          requiredText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.dateOfBirthRequired,
+          ),
+          dateInvalidText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.dateInvalid,
+          ),
+        ),
+        DateInputField(
+          controller: _expiryDateCtrl,
+          fieldKey: const Key("passport_expiry_date_field"),
+          dateInvalidText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.dateInvalid,
+          ),
+          labelText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.dateOfExpiry,
+          ),
+          requiredText: FlutterI18n.translate(
+            context,
+            widget.translationKeys.dateOfExpiryRequired,
+          ),
+        ),
+      ],
     );
   }
 }
