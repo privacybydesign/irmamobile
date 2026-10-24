@@ -292,9 +292,7 @@ class IssuanceOffer {
             ? t(context, "issuance.from_issuers", {
                 "count": "${issuers.length}",
               })
-            : t(context, "credential.issued_by", {
-                "issuer": issuers.firstOrNull ?? "",
-              }),
+            : issuers.firstOrNull ?? "",
       ),
       if (many)
         InfoChip(

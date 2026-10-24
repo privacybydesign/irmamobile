@@ -315,9 +315,9 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
-  /// The card a finger is on: it has the outline of the chosen card until
-  /// the finger lifts (a tap picks it) or moves off to scroll (the outline
-  /// goes back). `owned:{hash}` or `add:{credentialId}`.
+  /// The card tapped: it has the outline of the chosen card from the moment
+  /// the finger lifts (not while it is only down on it, or scrolls).
+  /// `owned:{hash}` or `add:{credentialId}`.
   String? _pressed;
 
   void _press(String? key) {
@@ -386,9 +386,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                 subtitle: d.issuer.name,
                 rows: emptySpotRows(context, d),
                 selected: _pressed == "add:${d.credentialId}",
-                onTapDown: () => _press("add:${d.credentialId}"),
-                onTapCancel: () => _press(null),
-                onTap: () => issueOpen(d),
+                onTap: () {
+                  _press("add:${d.credentialId}");
+                  issueOpen(d);
+                },
               ),
           ],
         ],
@@ -434,7 +435,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final language = FlutterI18n.currentLocale(context)?.languageCode;
     final landscape = useSheetColumns(context);
 
-    // The outline: on the card a finger is on, else on the one in use.
+    // The outline: on the card tapped, else on the one in use.
     bool outlined(String key, {String? current}) =>
         _pressed != null ? _pressed == key : key == current;
     final current = selected >= 0 && selected < owned.length
@@ -471,10 +472,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                       "owned:${b.credentials.first.hash}",
                       current: current,
                     ),
-                    onTapDown: () =>
-                        _press("owned:${b.credentials.first.hash}"),
-                    onTapCancel: () => _press(null),
-                    onTap: () => _pick(pickOne, b),
+                    onTap: () {
+                      _press("owned:${b.credentials.first.hash}");
+                      _pick(pickOne, b);
+                    },
                   ),
                 ),
             ]),
@@ -496,9 +497,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                   subtitle: d.issuer.name,
                   rows: emptySpotRows(context, d),
                   selected: outlined("add:${d.credentialId}"),
-                  onTapDown: () => _press("add:${d.credentialId}"),
-                  onTapCancel: () => _press(null),
-                  onTap: () => issueOpen(d),
+                  onTap: () {
+                    _press("add:${d.credentialId}");
+                    issueOpen(d);
+                  },
                 ),
             ]),
           ],
@@ -584,16 +586,12 @@ class _OwnedCard extends StatelessWidget {
   final DisclosureBundle bundle;
   final bool selected;
   final VoidCallback onTap;
-  final VoidCallback onTapDown;
-  final VoidCallback onTapCancel;
 
   const _OwnedCard({
     super.key,
     required this.bundle,
     required this.selected,
     required this.onTap,
-    required this.onTapDown,
-    required this.onTapCancel,
   });
 
   @override
@@ -609,8 +607,6 @@ class _OwnedCard extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          onTapDown: (_) => onTapDown(),
-          onTapCancel: onTapCancel,
           child: CardTileOutline(
             shown: outlined,
             child: SharedCardTile(bundle: bundle),

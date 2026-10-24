@@ -395,7 +395,7 @@ void main() {
     });
   });
 
-  testWidgets("a document needs NFC: said in its subtitle, no pill", (
+  testWidgets("a document: its issuer as its subtitle, no word of NFC", (
     tester,
   ) async {
     await _pump(tester);
@@ -403,7 +403,7 @@ void main() {
       tester
           .widget<Text>(find.byKey(const Key("pbdf.pbdf.passport_subtitle")))
           .data,
-      startsWith("Needs NFC · "),
+      "Issuer",
     );
     expect(
       tester

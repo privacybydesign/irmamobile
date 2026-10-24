@@ -141,7 +141,6 @@
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",
-    "issued_by": "via {issuer}",
     "sharable": "Deelbaar",
     "sharable_count": "Nog {count} keer",
     "sharable_unlimited": "Onbeperkt",
@@ -212,8 +211,7 @@
         "you_get": "Je krijgt",
         "good_to_know": "Goed om te weten",
         "show_all": "Toon alle {count}",
-        "steps_peek": "{count} stappen · {first}",
-        "issuer_nfc": "{issuer} · heeft NFC nodig"
+        "steps_peek": "{count} stappen · {first}"
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",
@@ -227,7 +225,6 @@
       "done": "Klaar",
       "added_more": "{name} toegevoegd. Nog iets anders toevoegen?",
       "in_your_app": "In je app",
-      "needs_nfc": "Heeft NFC nodig",
       "website": {
         "heading": "Ga verder op de website",
         "body": "{issuer} vraagt je om op de website te bevestigen wie je bent. Daarna kom je vanzelf hier terug.",

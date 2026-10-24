@@ -32,6 +32,10 @@ class SessionScaffold extends StatelessWidget {
   /// [IrmaAppBar.edgeActions]).
   final bool cornerClose;
 
+  /// The scroll edge band under the bar once content scrolls under it; off
+  /// for the share page, where only the buttons float over the content.
+  final bool scrollEdge;
+
   const SessionScaffold({
     super.key,
     this.onDismiss,
@@ -43,6 +47,7 @@ class SessionScaffold extends StatelessWidget {
     this.barTitleVisibility,
     this.startBar,
     this.cornerClose = false,
+    this.scrollEdge = true,
   });
 
   @override
@@ -64,7 +69,7 @@ class SessionScaffold extends StatelessWidget {
         titleVisibility: barTitleVisibility,
         startBar: startBar,
         edgeActions: cornerClose,
-        edge: !cornerClose,
+        edge: scrollEdge && !cornerClose,
         leading: null,
         actions: [
           if (onDismiss != null) IrmaCloseButton.filled(onTap: onDismiss),

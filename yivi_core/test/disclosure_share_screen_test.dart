@@ -1234,7 +1234,25 @@ void main() {
       expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
     });
 
-    testWidgets("the outline goes to the card a finger is on", (tester) async {
+    testWidgets("the share page's bar has no scroll edge band", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(_instance("passport", "Passport", "Jansen")),
+            ],
+            obtainableOptions: const [],
+          ),
+        ]),
+      );
+      expect(tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).edge, isFalse);
+    });
+
+    testWidgets("the outline goes to a card when the finger lets go", (
+      tester,
+    ) async {
       await _pump(
         tester,
         session: _session([
@@ -1259,20 +1277,28 @@ void main() {
       expect(outlineIn(owned), findsOne);
       expect(outlineIn(add), findsNothing);
 
-      // Pressed: the empty card has it, the one in use does not.
-      final gesture = await tester.startGesture(tester.getCenter(add));
+      // Held down: nothing changes yet.
+      var gesture = await tester.startGesture(tester.getCenter(add));
       await tester.pump(const Duration(milliseconds: 150));
       await tester.pump();
-      expect(outlineIn(add), findsOne);
-      expect(outlineIn(owned), findsNothing);
+      expect(outlineIn(owned), findsOne);
+      expect(outlineIn(add), findsNothing);
 
-      // Moved off to scroll: back on the card in use.
+      // Moved off to scroll: still on the card in use.
       await gesture.moveBy(const Offset(0, -60));
       await tester.pump();
       await gesture.up();
       await tester.pumpAndSettle();
       expect(outlineIn(owned), findsOne);
       expect(outlineIn(add), findsNothing);
+
+      // Let go on it: the empty card has it, the one in use does not.
+      gesture = await tester.startGesture(tester.getCenter(add));
+      await tester.pump(const Duration(milliseconds: 150));
+      await gesture.up();
+      await tester.pump();
+      expect(outlineIn(add), findsOne);
+      expect(outlineIn(owned), findsNothing);
     });
 
     testWidgets("cards of one type: which one, told apart by value", (

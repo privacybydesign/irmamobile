@@ -259,11 +259,7 @@ class _CompactHeader extends StatelessWidget {
                 ),
               ),
               Text(
-                FlutterI18n.translate(
-                  context,
-                  "credential.issued_by",
-                  translationParams: {"issuer": credential.issuer.name},
-                ),
+                credential.issuer.name,
                 style: palette.body(14).copyWith(color: palette.secondaryText),
               ),
             ],
@@ -349,11 +345,7 @@ class _Details extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  FlutterI18n.translate(
-                    context,
-                    "credential.issued_by",
-                    translationParams: {"issuer": credential.issuer.name},
-                  ),
+                  credential.issuer.name,
                   style: palette
                       .body(14)
                       .copyWith(color: palette.secondaryText),

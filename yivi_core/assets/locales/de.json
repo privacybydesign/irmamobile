@@ -141,7 +141,6 @@
     "expires_on": "Läuft ab am {date}",
     "expired_on": "Abgelaufen am {date}",
     "date_at_time": "{date} um {time}",
-    "issued_by": "von {issuer}",
     "sharable": "Teilbar",
     "sharable_count": "Noch {count} Mal",
     "sharable_unlimited": "Unbegrenzt",
@@ -212,8 +211,7 @@
         "you_get": "Du bekommst",
         "good_to_know": "Gut zu wissen",
         "show_all": "Alle {count} anzeigen",
-        "steps_peek": "{count} Schritte · {first}",
-        "issuer_nfc": "{issuer} · braucht NFC"
+        "steps_peek": "{count} Schritte · {first}"
       },
       "nfc_unsupported": {
         "title": "NFC nicht unterstützt",
@@ -227,7 +225,6 @@
       "done": "Fertig",
       "added_more": "{name} hinzugefügt. Noch etwas anderes hinzufügen?",
       "in_your_app": "In deiner App",
-      "needs_nfc": "Braucht NFC",
       "website": {
         "heading": "Weiter auf der Website",
         "body": "{issuer} bittet Sie, auf der Website zu bestätigen, wer Sie sind. Danach kommen Sie von selbst hierher zurück.",

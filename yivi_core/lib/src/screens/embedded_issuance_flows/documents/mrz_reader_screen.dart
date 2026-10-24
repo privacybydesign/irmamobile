@@ -336,8 +336,8 @@ class _SheetCamera extends StatelessWidget {
       borderRadius: YiviCorners.cardRadius,
       child: ColoredBox(color: cameraDark, child: body),
     );
-    // The camera moves on by itself: no way on, only "Enter manually". Upright
-    // in a sheet it is the outlined button in the page's bottom bar, which
+    // The camera moves on by itself: no way on, only "Enter manually", the
+    // other choice. Upright in a sheet it is in the page's bottom bar, which
     // stays put; with the way on in the sheet's bar, a link.
     if (SheetSlotAction.atBottom(context)) {
       return SheetSlotAction(
@@ -346,7 +346,6 @@ class _SheetCamera extends StatelessWidget {
           key: const Key("bottom_bar_primary"),
           label: FlutterI18n.translate(context, manualLabel),
           onTap: onManual,
-          outlined: true,
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),

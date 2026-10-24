@@ -375,6 +375,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         onDismiss: widget.onDismiss,
         wide: true,
         scrollsUnderBars: true,
+        // No band under the bar: only its buttons float over the content.
+        scrollEdge: false,
         cornerClose: true,
         body: _TrustWash(
           on: trust.risky,
@@ -440,6 +442,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         onDismiss: widget.onDismiss,
         wide: true,
         scrollsUnderBars: true,
+        // No band under the bar: only its buttons float over the content.
+        scrollEdge: false,
         body: _TrustWash(
           on: trust.risky,
           child: SessionColumns(
@@ -468,6 +472,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       appBarTitle: "share.bar.$kind",
       onDismiss: widget.onDismiss,
       scrollsUnderBars: true,
+      // No band under the bar: only its buttons float over the content.
+      scrollEdge: false,
       bottomNavigationBar: bar,
       startBar: _CompactBarSlot(
         shown: _scrolledPast,

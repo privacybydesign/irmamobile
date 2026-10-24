@@ -78,6 +78,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
         child: Text(
           t("data.add.website.heading", params),
           key: const Key("sheet_website_heading"),
+          textAlign: TextAlign.center,
           style: palette
               .display(sideways ? 18 : 21, weight: FontWeight.w700)
               .copyWith(height: (sideways ? 24 : 28) / (sideways ? 18 : 21)),
@@ -85,6 +86,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       ),
       Text(
         t("data.add.website.body", params),
+        textAlign: TextAlign.center,
         style: palette
             .body(15)
             .copyWith(height: 22 / 15, color: palette.heading),

@@ -189,9 +189,11 @@ void main() {
     );
   });
 
-  testWidgets("a document needs NFC: said under the issuer", (tester) async {
+  testWidgets("a document: only its issuer under it, no word of NFC", (
+    tester,
+  ) async {
     await pump(tester, _type("pbdf.pbdf.passport", "Passport", ["Photo"]));
-    expect(find.textContaining("· needs NFC"), findsOneWidget);
+    expect(find.textContaining("NFC"), findsNothing);
   });
 
   testWidgets("during a request the note names who gets what", (tester) async {

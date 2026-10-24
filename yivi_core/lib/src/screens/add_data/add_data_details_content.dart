@@ -62,7 +62,7 @@ class AddDataDetailsContent extends StatelessWidget {
     ].where((n) => n.isNotEmpty).toList();
 
     final name = <Widget>[
-      // What it is, and who gives it (and whether it needs NFC).
+      // What it is, and who gives it.
       Text(
         credential.name,
         key: const Key("add_data_details_name"),
@@ -71,11 +71,7 @@ class AddDataDetailsContent extends StatelessWidget {
             .copyWith(height: 21 / 15, color: palette.text),
       ),
       Text(
-        credentialRequiresNfc(credential.credentialId)
-            ? t("data.add.details.issuer_nfc", {
-                "issuer": credential.issuer.name,
-              })
-            : credential.issuer.name,
+        credential.issuer.name,
         key: const Key("add_data_details_issuer"),
         style: palette
             .body(13)
@@ -99,12 +95,8 @@ class AddDataDetailsContent extends StatelessWidget {
     }
     final rest = <Widget>[
       Padding(
-        padding: EdgeInsets.fromLTRB(
-          4,
-          part == AddDataDetailsPart.rest ? 0 : 14,
-          4,
-          0,
-        ),
+        // Starts where the card does.
+        padding: EdgeInsets.only(top: part == AddDataDetailsPart.rest ? 0 : 14),
         child: Text(
           intro.isNotEmpty
               ? intro
@@ -167,7 +159,7 @@ class AddDataDetailsContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 12),
+              padding: const EdgeInsets.only(top: 24, bottom: 12),
               child: CredentialTypeThumbnail(
                 descriptor: credential,
                 width: 250,
@@ -185,6 +177,8 @@ class AddDataDetailsContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Room above the card, under the bar.
+        const SizedBox(height: 16),
         Row(
           spacing: 14,
           children: [

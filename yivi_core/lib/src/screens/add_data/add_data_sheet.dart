@@ -505,12 +505,8 @@ class AddDataRow extends StatelessWidget {
     final palette = YiviPalette.of(context);
     String t(String key) => FlutterI18n.translate(context, key);
     final credential = item.credential;
-    final needsNfc = credentialRequiresNfc(credential.credentialId);
     final subtitle = nfcBlocked
         ? t("data.add.nfc_unsupported.hint")
-        : needsNfc
-        // First, so a long issuer can't cut it off.
-        ? "${t("data.add.needs_nfc")} · ${credential.issuer.name}"
         : credential.issuer.name;
 
     return Semantics(
