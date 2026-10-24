@@ -4,6 +4,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/email_issuance_provider.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -48,10 +49,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     if (email != null) {
       ref
           .read(emailIssuanceProvider.notifier)
-          .sendEmail(
-            email: email,
-            language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-          );
+          .sendEmail(email: email, language: context.lang);
     }
   }
 
@@ -71,11 +69,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         onTryAgain: () {
           ref
               .read(emailIssuanceProvider.notifier)
-              .sendEmail(
-                email: state.email,
-                language:
-                    FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-              );
+              .sendEmail(email: state.email, language: context.lang);
         },
       );
     }

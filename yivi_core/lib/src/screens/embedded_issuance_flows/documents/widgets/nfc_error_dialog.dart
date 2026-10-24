@@ -1,10 +1,10 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../sentry/sentry.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/translated_text.dart";
@@ -24,10 +24,9 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    String t(String key) => FlutterI18n.translate(context, key);
     final palette = YiviPalette.of(context);
     return GlassDialog(
-      title: t("error.details_title"),
+      title: context.tr("error.details_title"),
       body: Column(
         crossAxisAlignment: .stretch,
         children: [
@@ -90,7 +89,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
       ),
       actions: [
         FancyPillButton(
-          label: t("error.button_send_to_irma"),
+          label: context.tr("error.button_send_to_irma"),
           size: PillSize.regular,
           // Can't share logs when sensitive data is enabled, so the user
           // understands they'll never send sensitive data to our Sentry logs.
@@ -108,7 +107,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                 },
         ),
         PillButton(
-          label: t("error.button_ok"),
+          label: context.tr("error.button_ok"),
           style: PillStyle.text,
           size: PillSize.regular,
           onPressed: () => context.pop(),

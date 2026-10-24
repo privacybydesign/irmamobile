@@ -5,6 +5,7 @@ import "../../models/log_entry.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../util/adaptive_layout.dart";
+import "../../widgets/compact_bar.dart";
 import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_detail_scaffold.dart";
 import "activity_entry.dart";
@@ -55,14 +56,11 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
     );
   }
 
-  /// Measured from the header itself, not a fixed offset: it grows when a
-  /// long name or the date and time pills wrap.
+  /// The header grows when a long name or the date and time pills wrap.
   void _checkHeader() {
-    final box = _headerKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize || !mounted) return;
-    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
-    final barBottom = MediaQuery.paddingOf(context).top + 60;
-    _scrolledPast.value = bottom < barBottom;
+    if (!mounted) return;
+    final under = headerUnderBar(context, _headerKey);
+    if (under != null) _scrolledPast.value = under;
   }
 
   @override
@@ -106,24 +104,9 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
     return WalletDetailScaffold(
       openKey: entry.key,
       closeKey: const Key("activity_detail_done"),
-      barBuilder: (context, opacity) => ValueListenableBuilder<bool>(
-        valueListenable: _scrolledPast,
-        builder: (context, shown, _) => TweenAnimationBuilder<double>(
-          tween: Tween(end: shown ? 1 : 0),
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOut,
-          builder: (context, t, _) => t == 0
-              ? const SizedBox.shrink()
-              : IgnorePointer(
-                  child: Transform.translate(
-                    offset: Offset(0, (1 - t) * -8),
-                    child: ActivityCompactBar(
-                      entry: entry,
-                      opacity: opacity * t,
-                    ),
-                  ),
-                ),
-        ),
+      barBuilder: (context, opacity) => CompactBarDropIn(
+        shown: _scrolledPast,
+        bar: (t) => ActivityCompactBar(entry: entry, opacity: opacity * t),
       ),
       builder: (context, physics, animation) => ListView(
         controller: _scroll,

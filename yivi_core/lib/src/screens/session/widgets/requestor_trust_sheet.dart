@@ -1,15 +1,17 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/icon_square.dart";
 import "../models/technical_details.dart";
 import "session_requestor_header.dart";
 import "technical_details_sheet.dart";
@@ -108,8 +110,6 @@ class RequestorTrustSheet extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final style = RequestorTrustStyle.of(context, requestor);
     final name = requestor.name;
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     void open(String url) => IrmaRepositoryProvider.of(context).openURL(url);
     final sideways = useSheetColumns(context);
 
@@ -124,77 +124,80 @@ class RequestorTrustSheet extends StatelessWidget {
 
     final (String head, String body, List<_Fact> facts) = switch (style.trust) {
       RequestorTrust.yivi => (
-        t("share.trust.sheet.yivi.head"),
-        t("share.trust.sheet.yivi.body", params),
+        context.tr("share.trust.sheet.yivi.head"),
+        context.tr("share.trust.sheet.yivi.body", params),
         [
-          _Fact.yes(t("share.trust.sheet.yivi.fact_checked")),
-          _Fact.yes(t("share.trust.sheet.yivi.fact_verified")),
-          _Fact.yes(t("share.trust.sheet.yivi.fact_listed")),
+          _Fact.yes(context.tr("share.trust.sheet.yivi.fact_checked")),
+          _Fact.yes(context.tr("share.trust.sheet.yivi.fact_verified")),
+          _Fact.yes(context.tr("share.trust.sheet.yivi.fact_listed")),
         ],
       ),
       RequestorTrust.elsewhere => (
-        t("share.trust.sheet.elsewhere.head_$elsewhereKey", params),
-        t("share.trust.sheet.elsewhere.body_$elsewhereKey", params),
+        context.tr("share.trust.sheet.elsewhere.head_$elsewhereKey", params),
+        context.tr("share.trust.sheet.elsewhere.body_$elsewhereKey", params),
         [
           _Fact.yes(
-            t("share.trust.sheet.elsewhere.fact_checked_$elsewhereKey", params),
+            context.tr(
+              "share.trust.sheet.elsewhere.fact_checked_$elsewhereKey",
+              params,
+            ),
           ),
-          _Fact.yes(t("share.trust.sheet.elsewhere.fact_name")),
-          _Fact.info(t("share.trust.sheet.elsewhere.fact_not_yivi")),
+          _Fact.yes(context.tr("share.trust.sheet.elsewhere.fact_name")),
+          _Fact.info(context.tr("share.trust.sheet.elsewhere.fact_not_yivi")),
         ],
       ),
       _ => (
-        t("share.trust.sheet.unknown.head"),
-        t("share.trust.sheet.unknown.body", params),
+        context.tr("share.trust.sheet.unknown.head"),
+        context.tr("share.trust.sheet.unknown.body", params),
         [
-          _Fact.no(t("share.trust.sheet.unknown.fact_unchecked")),
-          _Fact.no(t("share.trust.sheet.unknown.fact_self")),
-          _Fact.no(t("share.trust.sheet.unknown.fact_responsibility")),
+          _Fact.no(context.tr("share.trust.sheet.unknown.fact_unchecked")),
+          _Fact.no(context.tr("share.trust.sheet.unknown.fact_self")),
+          _Fact.no(context.tr("share.trust.sheet.unknown.fact_responsibility")),
         ],
       ),
     };
 
     final decide = _Do(
       icon: Icons.shield_outlined,
-      title: t("share.trust.sheet.do.decide"),
-      subtitle: t("share.trust.sheet.do.decide_text"),
+      title: context.tr("share.trust.sheet.do.decide"),
+      subtitle: context.tr("share.trust.sheet.do.decide_text"),
     );
     final (String doLabel, List<_Do> dos) = switch (style.trust) {
       RequestorTrust.yivi => (
-        t("share.trust.sheet.do.good_to_know"),
+        context.tr("share.trust.sheet.do.good_to_know"),
         [
           decide,
           _Do(
             key: const Key("trust_sheet_portal"),
             icon: Icons.open_in_new_rounded,
-            title: t("share.trust.sheet.do.portal"),
-            subtitle: t("share.trust.sheet.do.portal_text"),
+            title: context.tr("share.trust.sheet.do.portal"),
+            subtitle: context.tr("share.trust.sheet.do.portal_text"),
             onTap: () => open(_portalOrganisations),
           ),
         ],
       ),
       RequestorTrust.elsewhere => (
-        t("share.trust.sheet.do.good_to_know"),
+        context.tr("share.trust.sheet.do.good_to_know"),
         [
           decide,
           if (source == ElsewhereSource.euTrustedList)
             _Do(
               key: const Key("trust_sheet_eu_list"),
               icon: Icons.open_in_new_rounded,
-              title: t("share.trust.sheet.do.eu_list"),
-              subtitle: t("share.trust.sheet.do.eu_list_text"),
+              title: context.tr("share.trust.sheet.do.eu_list"),
+              subtitle: context.tr("share.trust.sheet.do.eu_list_text"),
               onTap: () => open(_euTrustedList),
             ),
         ],
       ),
       _ => (
-        t("share.trust.sheet.do.unsure"),
+        context.tr("share.trust.sheet.do.unsure"),
         [
           _Do(
             key: const Key("trust_sheet_dont_share"),
             icon: Icons.shield_outlined,
-            title: t("share.trust.sheet.do.dont_share"),
-            subtitle: t("share.trust.sheet.do.dont_share_text"),
+            title: context.tr("share.trust.sheet.do.dont_share"),
+            subtitle: context.tr("share.trust.sheet.do.dont_share_text"),
             onTap: onDontShare == null
                 ? null
                 : () {
@@ -204,14 +207,14 @@ class RequestorTrustSheet extends StatelessWidget {
           ),
           _Do(
             icon: Icons.call_outlined,
-            title: t("share.trust.sheet.do.contact", params),
-            subtitle: t("share.trust.sheet.do.contact_text"),
+            title: context.tr("share.trust.sheet.do.contact", params),
+            subtitle: context.tr("share.trust.sheet.do.contact_text"),
           ),
           _Do(
             key: const Key("trust_sheet_register"),
             icon: Icons.open_in_new_rounded,
-            title: t("share.trust.sheet.do.register"),
-            subtitle: t("share.trust.sheet.do.register_text"),
+            title: context.tr("share.trust.sheet.do.register"),
+            subtitle: context.tr("share.trust.sheet.do.register_text"),
             onTap: () => open(_portal),
           ),
         ],
@@ -221,7 +224,7 @@ class RequestorTrustSheet extends StatelessWidget {
     return Semantics(
       // The bar has no title: the verdict is the heading. Screen readers
       // still hear what the sheet is.
-      label: t("share.trust.sheet.name"),
+      label: context.tr("share.trust.sheet.name"),
       namesRoute: true,
       scopesRoute: true,
       explicitChildNodes: true,
@@ -230,11 +233,8 @@ class RequestorTrustSheet extends StatelessWidget {
         // No bar once scrolled either: only the close button floats.
         edge: false,
         // Held sideways the columns scroll each on their own.
-        padding: sideways
-            ? EdgeInsets.zero
-            : const EdgeInsets.fromLTRB(16, 4, 16, 24),
-        scrolls: !sideways,
-        childClearsBottom: sideways,
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        split: sideways,
         child: _columns(
           context,
           [
@@ -284,8 +284,8 @@ class RequestorTrustSheet extends StatelessWidget {
                     item: _Do(
                       key: const Key("trust_sheet_technical_details"),
                       icon: Icons.code_rounded,
-                      title: t("share.tech.link"),
-                      subtitle: t("share.tech.link_text"),
+                      title: context.tr("share.tech.link"),
+                      subtitle: context.tr("share.tech.link_text"),
                       onTap: open,
                     ),
                   ),
@@ -361,19 +361,28 @@ class _Group extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
       decoration: YiviShadows.surfaceCard(palette),
-      child: Column(
-        children: [
-          for (final (i, child) in children.indexed) ...[
-            if (i > 0)
-              Divider(
-                height: 1,
-                thickness: 1,
-                indent: 66,
-                color: palette.divider,
-              ),
-            child,
+      // A row's press highlight paints here, over the white card and within
+      // its corners.
+      child: Material(
+        type: MaterialType.transparency,
+        shape: const RoundedRectangleBorder(
+          borderRadius: YiviCorners.cardRadius,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            for (final (i, child) in children.indexed) ...[
+              if (i > 0)
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  indent: 66,
+                  color: palette.divider,
+                ),
+              child,
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -411,17 +420,7 @@ class _FactRow extends StatelessWidget {
         spacing: 14,
         children: [
           ExcludeSemantics(
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: ShapeDecoration(
-                color: tile,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-              ),
-              child: Icon(icon, size: 20, color: ink),
-            ),
+            child: IconSquare(icon: icon, fill: tile, ink: ink),
           ),
           Expanded(
             child: Text(
@@ -452,16 +451,10 @@ class _DoRow extends StatelessWidget {
         spacing: 14,
         children: [
           ExcludeSemantics(
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: ShapeDecoration(
-                color: palette.tint,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-              ),
-              child: Icon(item.icon, size: 20, color: palette.link),
+            child: IconSquare(
+              icon: item.icon,
+              fill: palette.tint,
+              ink: palette.link,
             ),
           ),
           Expanded(

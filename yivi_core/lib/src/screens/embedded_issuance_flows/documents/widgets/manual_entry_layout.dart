@@ -1,11 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
-import "../../../../theme/yivi_shadows.dart";
 import "../../../../widgets/document_flow_footer.dart";
 import "../../../../widgets/glass/sheet_action_row.dart";
-import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/surface_card.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_instruction_screen.dart";
 import "../document_step_in_sheet.dart";
@@ -49,20 +48,11 @@ class ManualEntryScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        backgroundColor: DocumentStepInSheet.of(context)
-            ? Colors.transparent
-            : palette.background,
-        // In a sheet its bar has the title, back and close.
-        appBar: DocumentStepInSheet.of(context)
-            ? null
-            : IrmaAppBar(titleTranslationKey: appBarTitleKey),
+      // In a sheet its bar has the title, back and close.
+      child: DocumentStepScaffold(
+        titleKey: appBarTitleKey,
         body: SizedBox(
           height: .infinity,
           child: documentScroll(
@@ -95,7 +85,7 @@ class ManualEntryScaffold extends StatelessWidget {
           ),
         ),
         // In a sheet, the sheet's own buttons; its close button is the way out.
-        bottomNavigationBar: documentStepSplit(context)
+        bottomBar: documentStepSplit(context)
             ? null
             : DocumentStepInSheet.of(context)
             ? DocumentFlowFooter(buttons: _sheetButtons)
@@ -155,10 +145,9 @@ class ManualEntryLayout extends StatelessWidget {
             style: palette.body(16).copyWith(height: 24 / 16),
           ),
         ),
-        Container(
+        SurfaceCard(
           margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(16),
-          decoration: YiviShadows.surfaceCard(palette),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
@@ -179,9 +168,8 @@ class ManualEntryLayout extends StatelessWidget {
   /// first across, the other two (the dates) side by side.
   Widget _split(BuildContext context, YiviPalette palette) {
     final keyboard = SheetSplit.keyboardUp(context);
-    final card = Container(
+    final card = SurfaceCard(
       padding: const EdgeInsets.all(12),
-      decoration: YiviShadows.surfaceCard(palette),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,

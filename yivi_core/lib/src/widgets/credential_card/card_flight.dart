@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
+import "../corner_badge.dart";
 import "card_art/credential_card_art.dart";
 
 /// Where a flying card lands, in [overlay]'s coordinates; null while it is
@@ -277,14 +278,12 @@ class _CheckBadge extends StatelessWidget {
   const _CheckBadge({required this.border});
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 56,
-    height: 56,
-    decoration: BoxDecoration(
-      color: YiviPalette.successMark,
-      shape: BoxShape.circle,
-      border: Border.all(color: border, width: 4),
-    ),
-    child: const Icon(Icons.check, color: Colors.white, size: 30),
+  Widget build(BuildContext context) => CornerBadge(
+    icon: Icons.check,
+    fill: YiviPalette.successMark,
+    size: 56,
+    iconSize: 30,
+    ring: border,
+    ringWidth: 4,
   );
 }

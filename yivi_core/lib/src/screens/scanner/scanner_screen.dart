@@ -11,6 +11,7 @@ import "../../util/test_detection.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/icon_square.dart";
 import "util/camera_access.dart";
 import "widgets/qr_scanner.dart";
 
@@ -203,20 +204,13 @@ class _NoCamera extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tile = Container(
-      width: 88,
-      height: 88,
-      decoration: const ShapeDecoration(
-        color: Color(0x14FFFFFF),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
-        ),
-      ),
-      child: const Icon(
-        Icons.no_photography_outlined,
-        size: 40,
-        color: Colors.white,
-      ),
+    final tile = const IconSquare(
+      icon: Icons.no_photography_outlined,
+      fill: Color(0x14FFFFFF),
+      ink: Colors.white,
+      size: 88,
+      iconSize: 40,
+      radius: YiviCorners.iconTile,
     );
     final align = side ? CrossAxisAlignment.start : CrossAxisAlignment.center;
     final textAlign = side ? TextAlign.start : TextAlign.center;

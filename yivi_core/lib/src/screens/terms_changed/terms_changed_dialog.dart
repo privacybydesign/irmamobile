@@ -5,6 +5,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/translated_text.dart";
@@ -76,8 +77,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
   Widget build(BuildContext context) {
     final prefs = ref.watch(preferencesProvider);
 
-    final isDutch =
-        (FlutterI18n.currentLocale(context)?.languageCode ?? "en") == "nl";
+    final isDutch = (context.lang) == "nl";
     final termsUrl = isDutch
         ? prefs.mostRecentTermsUrlNl
         : prefs.mostRecentTermsUrlEn;

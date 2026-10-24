@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "requestor_trust_sheet.dart";
 import "session_requestor_header.dart";
@@ -69,23 +70,14 @@ class PairingRequired extends StatelessWidget {
                 )
               else
                 ExcludeSemantics(
-                  child: Container(
-                    width: 96,
-                    height: 96,
-                    decoration: ShapeDecoration(
-                      color: palette.surface,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(YiviCorners.iconTile),
-                        ),
-                      ),
-                      shadows: [shadow],
-                    ),
-                    child: Icon(
-                      Icons.verified_user_rounded,
-                      size: 48,
-                      color: palette.link,
-                    ),
+                  child: IconSquare(
+                    icon: Icons.verified_user_rounded,
+                    fill: palette.surface,
+                    ink: palette.link,
+                    size: 96,
+                    iconSize: 48,
+                    radius: YiviCorners.iconTile,
+                    shadows: [shadow],
                   ),
                 ),
               const SizedBox(height: 24),

@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../activity_entry.dart";
 
@@ -123,14 +124,11 @@ class _Tag extends StatelessWidget {
                 children: [
                   if (kind != null)
                     ExcludeSemantics(
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          color: kind.badge,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(kind.icon, size: 11, color: Colors.white),
+                      child: CornerBadge(
+                        icon: kind.icon,
+                        fill: kind.badge,
+                        size: 18,
+                        iconSize: 11,
                       ),
                     ),
                   Text(

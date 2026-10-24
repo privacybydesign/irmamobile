@@ -5,6 +5,7 @@ import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/icon_square.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_markdown.dart";
 import "../../widgets/link.dart";
@@ -200,17 +201,13 @@ class _AskAQuestion extends StatelessWidget {
                 spacing: 12,
                 children: [
                   ExcludeSemantics(
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: palette.warningSurface,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(
-                        Icons.mail_outline_rounded,
-                        color: palette.warningText,
-                      ),
+                    child: IconSquare(
+                      icon: Icons.mail_outline_rounded,
+                      fill: palette.warningSurface,
+                      ink: palette.warningText,
+                      size: 44,
+                      iconSize: null,
+                      radius: 14,
                     ),
                   ),
                   Expanded(

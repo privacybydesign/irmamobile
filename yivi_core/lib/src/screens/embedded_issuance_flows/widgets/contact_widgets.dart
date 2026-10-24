@@ -10,6 +10,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/keyboard_animation_listener.dart";
@@ -189,18 +190,13 @@ class ContactIntro extends StatelessWidget {
       children: [
         Center(
           child: ExcludeSemantics(
-            child: Container(
-              width: 88,
-              height: 88,
-              decoration: ShapeDecoration(
-                color: fill,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(YiviCorners.iconTile),
-                  ),
-                ),
-              ),
-              child: Icon(icon, size: 44, color: ink),
+            child: IconSquare(
+              icon: icon,
+              fill: fill,
+              ink: ink,
+              size: 88,
+              iconSize: 44,
+              radius: YiviCorners.iconTile,
             ),
           ),
         ),

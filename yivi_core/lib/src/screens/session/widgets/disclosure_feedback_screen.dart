@@ -6,6 +6,7 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -96,21 +97,19 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
   Widget _buildShared(BuildContext context) {
     final palette = YiviPalette.of(context);
     final lang = FlutterI18n.currentLocale(context)?.languageCode;
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     final requestor = {"requestor": widget.otherParty};
     final shared = widget.shared;
 
     final title = shared.isEmpty
-        ? t("share.done.title_none")
+        ? context.tr("share.done.title_none")
         : widget.isSignatureSession
-        ? t("share.done.title_signature")
-        : t("share.done.title", requestor);
+        ? context.tr("share.done.title_signature")
+        : context.tr("share.done.title", requestor);
     final text = shared.isEmpty
-        ? t("share.done.text_none", requestor)
+        ? context.tr("share.done.text_none", requestor)
         : widget.onOtherDevice
-        ? t("share.done.text_second_device", requestor)
-        : t("share.done.text", requestor);
+        ? context.tr("share.done.text_second_device", requestor)
+        : context.tr("share.done.text", requestor);
     final lastUse = shared.firstWhereOrNull(isLastUse);
 
     final heading = <Widget>[
@@ -151,7 +150,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
             ),
           ),
           child: Text(
-            t("share.done.last_use", {
+            context.tr("share.done.last_use", {
               "name": inSentence(lastUse.name, language: lang),
             }),
             style: palette

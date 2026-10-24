@@ -7,6 +7,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -128,23 +129,17 @@ class _BrowserHandOff extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final logo = requestor.image;
 
-    Widget tile(Widget child) => Container(
-      width: 100,
-      height: 100,
-      alignment: Alignment.center,
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(YiviCorners.iconTile)),
+    Widget tile(Widget child) => IconSquare(
+      fill: palette.surface,
+      size: 100,
+      radius: YiviCorners.iconTile,
+      shadows: [
+        BoxShadow(
+          color: palette.glassShadow,
+          blurRadius: 6,
+          offset: const Offset(0, 1),
         ),
-        shadows: [
-          BoxShadow(
-            color: palette.glassShadow,
-            blurRadius: 6,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
+      ],
       child: child,
     );
 

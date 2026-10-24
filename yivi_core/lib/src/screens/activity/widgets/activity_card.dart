@@ -10,6 +10,7 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/glass/glass_surface.dart";
@@ -294,7 +295,7 @@ class ActivityCardStack extends StatelessWidget {
 /// When an entry happened, for its row: the time today, "Yesterday", or
 /// else the day and month ("11 Oct").
 String formatActivityTimestamp(BuildContext context, DateTime time) {
-  final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+  final lang = context.lang;
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final entryDay = DateTime(time.year, time.month, time.day);

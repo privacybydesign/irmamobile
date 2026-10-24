@@ -6,6 +6,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/translated_text.dart";
 import "../widgets/enrollment_page.dart";
 import "welcome_card_fan.dart";
@@ -145,14 +146,13 @@ class _ValueRow extends StatelessWidget {
           spacing: 12,
           children: [
             ExcludeSemantics(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: palette.tint,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, size: 22, color: palette.link),
+              child: IconSquare(
+                icon: icon,
+                fill: palette.tint,
+                ink: palette.link,
+                size: 40,
+                iconSize: 22,
+                radius: 10,
               ),
             ),
             Expanded(

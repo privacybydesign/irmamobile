@@ -1,14 +1,15 @@
 import "dart:math" as math;
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/card_pile.dart";
+import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../data/wallet/issuance_flight.dart";
@@ -89,8 +90,6 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
     if (cards.isNotEmpty &&
         !useSessionColumns(context) &&
         useSheetColumns(context)) {
-      String t(String key) =>
-          FlutterI18n.translate(context, key, translationParams: params);
       final palette = YiviPalette.of(context);
       return PopScope(
         canPop: false,
@@ -102,11 +101,11 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
           cornerClose: true,
           body: IssuanceLandscape(
             key: const Key("issuance_success_landscape"),
-            title: t("issuance.success_feedback.header"),
+            title: context.tr("issuance.success_feedback.header", params),
             note: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
-                t(text),
+                context.tr(text, params),
                 style: palette.body(16).copyWith(height: 24 / 16),
               ),
             ),
@@ -123,10 +122,11 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
             ).receives(context, headingKey: "data.add.in_your_app"),
             actions: FancyPillButton(
               key: const Key("ok_button"),
-              label: t(
+              label: context.tr(
                 back == null
                     ? "action_feedback.ok"
                     : "issuance.success_feedback.back_to",
+                params,
               ),
               size: PillSize.regular,
               onPressed: _done,
@@ -205,22 +205,16 @@ class _CheckBadge extends StatelessWidget {
   const _CheckBadge({this.size = 56});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: const Key("received_check"),
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: YiviPalette.successMark,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          width: 4,
-        ),
-      ),
-      child: Icon(Icons.check, color: Colors.white, size: size * 0.54),
-    );
-  }
+  Widget build(BuildContext context) => CornerBadge(
+    key: const Key("received_check"),
+    icon: Icons.check,
+    fill: YiviPalette.successMark,
+    size: size,
+    iconSize: size * 0.54,
+    // In the page colour, as on the card that flies on (CardFlight).
+    ring: YiviPalette.of(context).background,
+    ringWidth: 4,
+  );
 }
 
 /// The received card, settling into place with a green check badge.

@@ -1,13 +1,12 @@
 import "dart:math" as math;
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
@@ -17,6 +16,7 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
+import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "issuance_permission.dart";
 
@@ -70,10 +70,8 @@ class DocumentIssuancePermission extends StatelessWidget {
   /// A phone held sideways: the document's card at the left with the
   /// buttons under it; the question and its data at the right.
   Widget _landscape(BuildContext context) {
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     return IssuanceLandscape(
-      title: t("issuance.description"),
+      title: context.tr("issuance.description"),
       overview: [
         for (final credential in issuedCredentials)
           Center(child: CredentialCardArt(credential: credential, width: 220)),
@@ -81,7 +79,7 @@ class DocumentIssuancePermission extends StatelessWidget {
           InfoChipRow(
             chips: [
               InfoChip(
-                label: t("issuance.returned_from", {"issuer": issuer}),
+                label: context.tr("issuance.returned_from", {"issuer": issuer}),
                 tinted: true,
               ),
             ],
@@ -99,7 +97,7 @@ class DocumentIssuancePermission extends StatelessWidget {
               children: [
                 PillButton(
                   key: DocumentFlowButton.secondaryKey,
-                  label: t("document_flow.cancel"),
+                  label: context.tr("document_flow.cancel"),
                   style: PillStyle.text,
                   size: PillSize.regular,
                   expand: false,
@@ -108,7 +106,7 @@ class DocumentIssuancePermission extends StatelessWidget {
                 Expanded(
                   child: FancyPillButton(
                     key: DocumentFlowButton.primaryKey,
-                    label: t("issuance.add"),
+                    label: context.tr("issuance.add"),
                     size: PillSize.regular,
                     onPressed: onGivePermission,
                   ),
@@ -117,7 +115,7 @@ class DocumentIssuancePermission extends StatelessWidget {
             )
           : PillButton(
               key: DocumentFlowButton.primaryKey,
-              label: t("session.navigation_bar.back"),
+              label: context.tr("session.navigation_bar.back"),
               size: PillSize.regular,
               onPressed: onDismiss,
             ),
@@ -220,8 +218,7 @@ class _DocumentData extends StatelessWidget {
       issueUrl: credential.issueUrl,
     );
 
-    return DecoratedBox(
-      decoration: YiviShadows.surfaceCard(palette),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: .stretch,
         children: [
@@ -255,7 +252,7 @@ class _Validity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+    final lang = context.lang;
 
     Color tone(ExpireState state) => switch (state) {
       ExpireState.notExpired => palette.text,
@@ -284,8 +281,6 @@ class _Validity extends StatelessWidget {
       ),
     );
 
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     final expiry = status.expiryDate?.dateTime;
 
     return IntrinsicHeight(
@@ -294,9 +289,9 @@ class _Validity extends StatelessWidget {
         children: [
           Expanded(
             child: cell(
-              t("credential.valid_until"),
+              context.tr("credential.valid_until"),
               expiry == null
-                  ? t("credential.indefinite_validity")
+                  ? context.tr("credential.indefinite_validity")
                   : printableDate(expiry, lang),
               tone(status.timeExpireState),
             ),
@@ -304,10 +299,10 @@ class _Validity extends StatelessWidget {
           VerticalDivider(width: 1, thickness: 1, color: palette.divider),
           Expanded(
             child: cell(
-              t("credential.sharable"),
+              context.tr("credential.sharable"),
               status.instanceCount == null
-                  ? t("credential.sharable_unlimited")
-                  : t("credential.sharable_count", {
+                  ? context.tr("credential.sharable_unlimited")
+                  : context.tr("credential.sharable_count", {
                       "count": "${status.instanceCount}",
                     }),
               tone(status.instanceExpireState),

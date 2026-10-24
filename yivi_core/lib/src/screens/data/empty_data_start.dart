@@ -9,6 +9,7 @@ import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../util/tablet.dart";
 import "../../widgets/caps_label.dart";
+import "../../widgets/icon_square.dart";
 import "../../widgets/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
 import "../home/widgets/irma_qr_scan_button.dart";
@@ -205,14 +206,13 @@ class _Option extends StatelessWidget {
               spacing: 14,
               children: [
                 ExcludeSemantics(
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: tileColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(icon, size: 24, color: iconColor),
+                  child: IconSquare(
+                    icon: icon,
+                    fill: tileColor,
+                    ink: iconColor,
+                    size: 44,
+                    iconSize: 24,
+                    radius: 10,
                   ),
                 ),
                 Expanded(

@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../package_name.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../util/date_formatter.dart";
+import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
 import "../../base64_image.dart";
 import "builtin_card_templates.dart";
@@ -24,10 +25,8 @@ String instanceHintText(BuildContext context, InstanceHint hint) {
   };
 }
 
-String _date(BuildContext context, DateTime date) => printableDate(
-  date,
-  FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-);
+String _date(BuildContext context, DateTime date) =>
+    printableDate(date, context.lang);
 
 /// The picture of a credential as a card, at any width (the height follows
 /// the ID-1 card ratio). It is decorative: screen readers get the same

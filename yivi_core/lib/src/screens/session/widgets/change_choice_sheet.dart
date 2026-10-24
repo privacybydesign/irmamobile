@@ -11,6 +11,7 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/dutch_another.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
@@ -130,8 +131,9 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       IssueSheetSubject.request(_requestor ?? d.issuer);
 
   @override
-  String issueStopText() =>
-      _t("share.sheet.stop_text", {"requestor": _requestor?.name ?? ""});
+  String issueStopText() => context.tr("share.sheet.stop_text", {
+    "requestor": _requestor?.name ?? "",
+  });
 
   @override
   void beforeIssueAdd(CredentialDescriptor d) {
@@ -155,7 +157,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     if (next != null) {
       return SheetAction(
         key: const Key("sheet_together_next"),
-        label: _t("share.sheet.together_add_next", {
+        label: context.tr("share.sheet.together_add_next", {
           "next": _inSentence(next.name),
         }),
         onTap: () => setState(() {
@@ -166,7 +168,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     }
     return SheetAction(
       key: const Key("sheet_back_to_request"),
-      label: _t("issuance.success_feedback.back_to", _successParams(cards)),
+      label: context.tr(
+        "issuance.success_feedback.back_to",
+        _successParams(cards),
+      ),
       onTap: _finish,
     );
   }
@@ -177,7 +182,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       ? null
       : (
           key: const Key("sheet_together_later"),
-          label: _t("share.sheet.later"),
+          label: context.tr("share.sheet.later"),
           onTap: _finish,
         );
 
@@ -185,12 +190,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   String issueSuccessText(List<schemaless.Credential> cards) {
     final next = _nextOfSet(cards);
     if (next != null) {
-      return _t("share.sheet.together_added", {
+      return context.tr("share.sheet.together_added", {
         ..._successParams(cards),
         "next": _inSentence(next.name),
       });
     }
-    return _t(
+    return context.tr(
       cards.length > 1
           ? "issuance.success_feedback.added_many_back"
           : "issuance.success_feedback.added_one_back",
@@ -236,9 +241,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
 
   SessionUserChoicesNotifier get _choices =>
       ref.read(sessionUserChoicesProvider(widget.sessionId).notifier);
-
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
 
   String _inSentence(String name) => inSentence(
     name,
@@ -344,21 +346,21 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         c.credentialId,
     };
     return GlassSheetPage(
-      title: _t("share.sheet.together_title"),
+      title: context.tr("share.sheet.together_title"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         key: const Key("sheet_together"),
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Intro(
-            _t("share.sheet.together_intro", {
+            context.tr("share.sheet.together_intro", {
               "requestor": _requestor?.name ?? "",
             }),
           ),
           for (final (n, d) in set.indexed) ...[
             SizedBox(height: n == 0 ? 18 : 24),
             _Label(
-              _t("share.sheet.together_step", {
+              context.tr("share.sheet.together_step", {
                 "n": "${n + 1}",
                 "total": "${set.length}",
               }),
@@ -373,7 +375,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                   owned: true,
                 ),
                 title: d.name,
-                subtitle: _t("data.add.in_your_app"),
+                subtitle: context.tr("data.add.in_your_app"),
                 trailing: Icon(
                   Icons.check_circle_rounded,
                   size: 22,
@@ -441,20 +443,20 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
 
     return GlassSheetPage(
       title: pickOne.optional
-          ? _t("share.sheet.add_optional")
-          : _t("share.sheet.pick_card"),
+          ? context.tr("share.sheet.add_optional")
+          : context.tr("share.sheet.pick_card"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Intro(
             owned.isEmpty
-                ? _t("share.sheet.subtitle_one_add")
-                : _t("share.sheet.subtitle_one"),
+                ? context.tr("share.sheet.subtitle_one_add")
+                : context.tr("share.sheet.subtitle_one"),
           ),
           if (owned.isNotEmpty) ...[
             const SizedBox(height: 18),
-            _Label(_t("share.sheet.already_in_app")),
+            _Label(context.tr("share.sheet.already_in_app")),
             ..._inRows(landscape, gap: 12, [
               for (final b in owned)
                 Hero(
@@ -481,15 +483,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             // Clearly apart from the cards in the app; the first empty card
             // keeps room above its edge for its pill.
             SizedBox(height: owned.isEmpty ? 18 : 44),
-            _Label(_t("share.not_in_app_yet")),
+            _Label(context.tr("share.not_in_app_yet")),
             ..._inRows(landscape, gap: 12, first: 0, [
               for (final d in addable)
                 EmptyCardSpot(
                   key: Key("sheet_add_${d.credentialId}"),
                   title: ownedIds.contains(d.credentialId)
-                      ? _t(anotherNameKey(d.name, languageCode: language), {
-                          "name": _inSentence(d.name),
-                        })
+                      ? context.tr(
+                          anotherNameKey(d.name, languageCode: language),
+                          {"name": _inSentence(d.name)},
+                        )
                       : d.name,
                   subtitle: d.issuer.name,
                   rows: emptySpotRows(context, d),

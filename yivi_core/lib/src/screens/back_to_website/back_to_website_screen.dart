@@ -2,8 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_shadows.dart";
 import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/surface_card.dart";
 import "../../widgets/translated_text.dart";
 import "../enrollment/widgets/enrollment_page.dart";
 
@@ -26,17 +26,14 @@ class BackToWebsiteScreen extends StatelessWidget {
       children: [
         EnrollmentTitle("back_to_website.title", textAlign: align),
         const SizedBox(height: 16),
-        DecoratedBox(
-          decoration: YiviShadows.surfaceCard(palette),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Column(
-              children: [
-                const _Step(number: 1, textKey: "back_to_website.step_1"),
-                Divider(height: 1, color: palette.divider),
-                const _Step(number: 2, textKey: "back_to_website.step_2"),
-              ],
-            ),
+        SurfaceCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Column(
+            children: [
+              const _Step(number: 1, textKey: "back_to_website.step_1"),
+              Divider(height: 1, color: palette.divider),
+              const _Step(number: 2, textKey: "back_to_website.step_2"),
+            ],
           ),
         ),
         const SizedBox(height: 12),
@@ -133,11 +130,10 @@ class _BrowserSketch extends StatelessWidget {
         width: 220 * scale,
         height: 226 * scale,
         child: FittedBox(
-          child: Container(
+          child: SurfaceCard(
             width: 220,
             height: 226,
             padding: const EdgeInsets.all(12),
-            decoration: YiviShadows.surfaceCard(palette),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

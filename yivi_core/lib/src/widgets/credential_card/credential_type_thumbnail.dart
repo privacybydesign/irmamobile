@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
+import "../corner_badge.dart";
 import "card_art/credential_card_art.dart";
 
 /// The card of [descriptor] as an example, drawn from the type alone: no
@@ -65,19 +66,14 @@ class CredentialTypeThumbnail extends StatelessWidget {
                 key: Key("${descriptor.credentialId}_owned_check"),
                 right: -check * 0.3,
                 top: -check * 0.3,
-                child: Container(
-                  width: check,
-                  height: check,
-                  decoration: BoxDecoration(
-                    color: palette.successText,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: palette.surface, width: 2),
-                  ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    size: check * 0.6,
-                    color: palette.surface,
-                  ),
+                child: CornerBadge(
+                  icon: Icons.check_rounded,
+                  fill: palette.successText,
+                  size: check,
+                  iconSize: check * 0.6,
+                  ink: palette.surface,
+                  ring: palette.surface,
+                  ringWidth: 2,
                 ),
               ),
           ],

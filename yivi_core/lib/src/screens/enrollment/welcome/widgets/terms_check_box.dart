@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/translated_text.dart";
 
 /// Rewrites `[text](url)` to `text`. The accept label is markdown so it can
@@ -34,8 +35,7 @@ class TermsCheckBox extends ConsumerWidget {
 
     final preferences = ref.watch(preferencesProvider);
 
-    final termsUrl =
-        (FlutterI18n.currentLocale(context)?.languageCode ?? "en") == "nl"
+    final termsUrl = (context.lang) == "nl"
         ? preferences.mostRecentTermsUrlNl
         : preferences.mostRecentTermsUrlEn;
 

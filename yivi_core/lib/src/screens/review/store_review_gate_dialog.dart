@@ -1,11 +1,11 @@
 import "dart:async";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
 import "../../providers/store_review_provider.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "store_review_feedback_dialog.dart";
@@ -61,20 +61,19 @@ class _StoreReviewGateDialogState
 
   @override
   Widget build(BuildContext context) {
-    String t(String key) => FlutterI18n.translate(context, key);
     return GlassDialog(
-      title: t("review.gate.title"),
-      message: t("review.gate.body"),
+      title: context.tr("review.gate.title"),
+      message: context.tr("review.gate.body"),
       actions: [
         FancyPillButton(
           key: const Key("review_gate_positive"),
-          label: t("review.gate.positive"),
+          label: context.tr("review.gate.positive"),
           onPressed: _busy ? null : _positive,
           size: PillSize.regular,
         ),
         PillButton(
           key: const Key("review_gate_negative"),
-          label: t("review.gate.negative"),
+          label: context.tr("review.gate.negative"),
           style: PillStyle.text,
           size: PillSize.regular,
           onPressed: _busy ? null : _negative,

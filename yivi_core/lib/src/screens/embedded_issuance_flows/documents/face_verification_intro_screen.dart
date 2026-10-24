@@ -1,11 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
 import "widgets/face_frame_illustration.dart";
@@ -59,30 +58,20 @@ class FaceVerificationIntroScreen extends StatelessWidget {
         onPressed: onStart,
       ),
     ];
-    final tipsGroup = DecoratedBox(
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-        ),
-        shadows: YiviShadows.card,
-      ),
-      child: Padding(
-        padding: const .symmetric(horizontal: 16, vertical: 4),
-        child: Column(
-          children: [
-            for (final (i, tip) in tips.indexed)
-              _DocumentFlowTip(tip, divider: i > 0),
-          ],
-        ),
+    final tipsGroup = SurfaceCard(
+      padding: const .symmetric(horizontal: 16, vertical: 4),
+      child: Column(
+        children: [
+          for (final (i, tip) in tips.indexed)
+            _DocumentFlowTip(tip, divider: i > 0),
+        ],
       ),
     );
     // In a sheet held sideways, as on every step of the document flows: the
     // explanation, the tips and Start at the left, the face at the right.
     if (documentStepSplit(context)) {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SheetSplit(
+      return DocumentStepScaffold.split(
+        SheetSplit(
           endFills: true,
           start: [
             Padding(
@@ -99,19 +88,10 @@ class FaceVerificationIntroScreen extends StatelessWidget {
         ),
       );
     }
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: DocumentStepInSheet.of(context)
-          ? Colors.transparent
-          : palette.background,
-      // In a sheet its bar has the title and back ("not now").
-      appBar: DocumentStepInSheet.of(context)
-          ? null
-          : IrmaAppBar(
-              titleTranslationKey: "face_verification.title",
-              leading: YiviBackButton(onTap: onCancel),
-            ),
+    // In a sheet its bar has the title and back ("not now").
+    return DocumentStepScaffold(
+      titleKey: "face_verification.title",
+      leading: YiviBackButton(onTap: onCancel),
       body: SingleChildScrollView(
         padding: const .fromLTRB(16, 16, 16, 32),
         // Inside the scroll view, so the content starts below the bars and
@@ -120,17 +100,10 @@ class FaceVerificationIntroScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: .stretch,
             children: [
-              Container(
+              const SurfaceCard(
                 height: 230,
                 alignment: Alignment.center,
-                decoration: ShapeDecoration(
-                  color: palette.surface,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: YiviCorners.cardRadius,
-                  ),
-                  shadows: YiviShadows.card,
-                ),
-                child: const FaceFrameIllustration(),
+                child: FaceFrameIllustration(),
               ),
               Padding(
                 padding: const .fromLTRB(4, 20, 4, 0),
@@ -145,7 +118,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: DocumentFlowFooter(buttons: buttons),
+      bottomBar: DocumentFlowFooter(buttons: buttons),
     );
   }
 }

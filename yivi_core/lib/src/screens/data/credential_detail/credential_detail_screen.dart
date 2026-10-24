@@ -8,11 +8,10 @@ import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
+import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -20,6 +19,7 @@ import "../../../widgets/credential_card/delete_credential_confirmation_dialog.d
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
 import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
@@ -293,7 +293,7 @@ class _Details extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+    final lang = context.lang;
     final status = CredentialCardStatus(
       expiryDateUnix: credential.expiryDate,
       revoked: credential.revoked,
@@ -444,7 +444,8 @@ class _Details extends ConsumerWidget {
           ),
         ],
         heading("wallet.detail.details"),
-        _Group(
+        SurfaceCard(
+          clipBehavior: Clip.antiAlias,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: YiviCredentialCardAttributeList(
             credential.attributes,
@@ -454,7 +455,8 @@ class _Details extends ConsumerWidget {
         ),
         if (sharable != null) ...[
           heading("credential.sharable"),
-          _Group(
+          SurfaceCard(
+            clipBehavior: Clip.antiAlias,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,7 +484,8 @@ class _Details extends ConsumerWidget {
           ),
         ],
         heading("wallet.detail.activity"),
-        _Group(
+        SurfaceCard(
+          clipBehavior: Clip.antiAlias,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
@@ -660,25 +663,6 @@ String _sourceLabel(BuildContext context, schemaless.Credential c) {
       ? "credential_card.source.issuer_colours"
       : "credential_card.source.yivi";
   return FlutterI18n.translate(context, key);
-}
-
-class _Group extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-
-  const _Group({required this.child, this.padding = EdgeInsets.zero});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: YiviShadows.surfaceCard(palette),
-      child: ClipRRect(
-        borderRadius: YiviCorners.cardRadius,
-        child: Padding(padding: padding, child: child),
-      ),
-    );
-  }
 }
 
 class _Chip extends StatelessWidget {

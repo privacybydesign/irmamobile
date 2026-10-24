@@ -1,6 +1,5 @@
 import "dart:async";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -11,8 +10,10 @@ import "../../../providers/email_linking_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../embedded_issuance_flows/email/widgets/email_address_entry.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
@@ -76,10 +77,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   /// The address is issued; only linking it in MijnYivi is left to retry.
   var _issued = false;
 
-  String _t(String key) => FlutterI18n.translate(context, key);
-
-  String get _language =>
-      FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+  String get _language => context.lang;
 
   @override
   void initState() {
@@ -240,18 +238,13 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         ? null
         : Center(
             child: ExcludeSemantics(
-              child: Container(
-                width: tileSize,
-                height: tileSize,
-                decoration: ShapeDecoration(
-                  color: fill,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(YiviCorners.iconTile),
-                    ),
-                  ),
-                ),
-                child: Icon(Icons.mail_rounded, size: 46, color: ink),
+              child: IconSquare(
+                icon: Icons.mail_rounded,
+                fill: fill,
+                ink: ink,
+                size: tileSize,
+                iconSize: 46,
+                radius: YiviCorners.iconTile,
               ),
             ),
           );
@@ -263,7 +256,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     );
     final sendButton = FancyPillButton(
       key: const Key("enrollment_email_send"),
-      label: _t("contact_sheet.send_code"),
+      label: context.tr("contact_sheet.send_code"),
       size: pillSize,
       leading: sending ? spinner : null,
       onPressed: _valid && !sending ? _send : null,
@@ -283,25 +276,25 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           )
         else
           _field(),
-        if (hasError) FieldError(_t("contact_sheet.not_sent_email")),
+        if (hasError) FieldError(context.tr("contact_sheet.not_sent_email")),
         if (!inlineSend) ...[const SizedBox(height: 16), sendButton],
       ];
     } else {
       final String? codeError = switch (_check) {
-        _Check.failed => _t("enrollment.email_step.not_linked"),
-        _ when error is EmailIssuanceInvalidCodeError => _t(
+        _Check.failed => context.tr("enrollment.email_step.not_linked"),
+        _ when error is EmailIssuanceInvalidCodeError => context.tr(
           "contact_sheet.wrong_code",
         ),
-        _ when hasError => _t("contact_sheet.not_checked"),
+        _ when hasError => context.tr("contact_sheet.not_checked"),
         _ => null,
       };
       stage = [
         const SizedBox(height: 4),
         ContactSentTo(
-          label: _t("contact_sheet.sent_to_email"),
+          label: context.tr("contact_sheet.sent_to_email"),
           target: flow.email,
           email: true,
-          changeLabel: _t("contact_sheet.change"),
+          changeLabel: context.tr("contact_sheet.change"),
           onChange: busy ? () {} : _change,
         ),
         ContactCodeField(
@@ -335,7 +328,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
             child: Semantics(
               liveRegion: true,
               child: Text(
-                _t("email_linking.done.title"),
+                context.tr("email_linking.done.title"),
                 textAlign: TextAlign.center,
                 style: palette
                     .body(15, weight: FontWeight.w700)
@@ -350,7 +343,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
               const SizedBox(height: 8),
               PillButton(
                 key: const Key("enrollment_email_try_again"),
-                label: _t("enrollment.email_step.try_again"),
+                label: context.tr("enrollment.email_step.try_again"),
                 style: PillStyle.outlined,
                 size: pillSize,
                 onPressed: _tryAgain,
@@ -362,12 +355,12 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
             align: TextAlign.center,
           ),
           _Check.idle => ContactResendRow(
-            hint: _t(
+            hint: context.tr(
               _sentAgain
                   ? "contact_sheet.sent_again"
                   : "contact_sheet.hint_email",
             ),
-            label: _t("contact_sheet.send_again"),
+            label: context.tr("contact_sheet.send_again"),
             onTap: () => _sendAgain(flow.email),
           ),
         },
@@ -408,7 +401,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           ? null
           : EnrollmentBarTextButton(
               key: const Key("enrollment_email_skip"),
-              label: _t("enrollment.email_step.skip"),
+              label: context.tr("enrollment.email_step.skip"),
               onPressed: () {
                 FocusManager.instance.primaryFocus?.unfocus();
                 widget.onDone();

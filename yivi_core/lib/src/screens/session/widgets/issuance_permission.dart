@@ -5,9 +5,9 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
+import "../../../util/i18n.dart";
 import "../../../util/nfc_credentials.dart";
 import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
@@ -20,6 +20,7 @@ import "../../../widgets/info_chips.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/large_title_scroll_view.dart";
+import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "document_issuance_permission.dart";
 import "session_columns.dart";
@@ -73,9 +74,6 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     super.dispose();
   }
 
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
-
   @override
   Widget build(BuildContext context) {
     final isDocument =
@@ -92,8 +90,8 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 
     final many = _cards.length > 1;
     final title = many
-        ? _t("issuance.question_many", {"count": "${_cards.length}"})
-        : _t("issuance.description");
+        ? context.tr("issuance.question_many", {"count": "${_cards.length}"})
+        : context.tr("issuance.description");
     final offer = _offer;
 
     // A phone held sideways: the card or pile at the left with its chips,
@@ -182,7 +180,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
   Widget _landscapeActions() {
     if (widget.onGivePermission == null) {
       return PillButton(
-        label: _t("session.navigation_bar.back"),
+        label: context.tr("session.navigation_bar.back"),
         size: PillSize.regular,
         onPressed: () => widget.onDismiss?.call(),
       );
@@ -192,7 +190,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       children: [
         PillButton(
           key: const Key("bottom_bar_secondary"),
-          label: _t("issuance.cancel"),
+          label: context.tr("issuance.cancel"),
           style: PillStyle.text,
           size: PillSize.regular,
           expand: false,
@@ -202,8 +200,8 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           child: FancyPillButton(
             key: const Key("bottom_bar_primary"),
             label: _cards.length > 1
-                ? _t("issuance.add_many", {"count": "${_cards.length}"})
-                : _t("issuance.add"),
+                ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
+                : context.tr("issuance.add"),
             size: PillSize.regular,
             onPressed: () => widget.onGivePermission?.call(),
           ),
@@ -215,16 +213,16 @@ class _IssuancePermissionState extends State<IssuancePermission> {
   Widget _bar() {
     if (widget.onGivePermission == null) {
       return IrmaBottomBar(
-        primaryButtonLabel: _t("session.navigation_bar.back"),
+        primaryButtonLabel: context.tr("session.navigation_bar.back"),
         onPrimaryPressed: () => widget.onDismiss?.call(),
       );
     }
     return IrmaBottomBar(
       primaryButtonLabel: _cards.length > 1
-          ? _t("issuance.add_many", {"count": "${_cards.length}"})
-          : _t("issuance.add"),
+          ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
+          : context.tr("issuance.add"),
       onPrimaryPressed: () => widget.onGivePermission?.call(),
-      secondaryButtonLabel: _t("issuance.cancel"),
+      secondaryButtonLabel: context.tr("issuance.cancel"),
       onSecondaryPressed: () => widget.onDismiss?.call(),
     );
   }
@@ -380,7 +378,7 @@ class IssuanceOffer {
   String? _validUntil(BuildContext context, schemaless.Credential card) {
     final expiry = card.expiryDate ?? 0;
     if (expiry <= 0) return null;
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+    final lang = context.lang;
     return t(context, "wallet.detail.valid_until", {
       "date": printableDate(
         DateTime.fromMillisecondsSinceEpoch(expiry * 1000),
@@ -446,7 +444,7 @@ class IssuanceOffer {
       for (final (i, card) in _cards.indexed)
         Padding(
           padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
-          child: _Group(
+          child: SurfaceCard(
             key: Key("issuance_card_$i"),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
@@ -462,22 +460,6 @@ class IssuanceOffer {
           ),
         ),
     ];
-  }
-}
-
-/// A white rounded group, as in the rest of the session screens.
-class _Group extends StatelessWidget {
-  final Widget child;
-
-  const _Group({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: YiviShadows.surfaceCard(palette),
-      child: child,
-    );
   }
 }
 

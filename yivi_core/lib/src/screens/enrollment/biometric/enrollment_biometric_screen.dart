@@ -12,6 +12,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/icon_square.dart";
 import "../../pin/providers/biometric_provider.dart";
 import "../widgets/enrollment_page.dart";
 
@@ -77,19 +78,11 @@ class _EnrollmentBiometricScreenState
     final glyph = tablet ? 92.0 : 72.0;
     final about = Center(
       child: ExcludeSemantics(
-        child: Container(
-          width: tile,
-          height: tile,
-          decoration: ShapeDecoration(
-            color: palette.surface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(YiviCorners.iconTile),
-              ),
-            ),
-            shadows: YiviShadows.card,
-          ),
-          alignment: Alignment.center,
+        child: IconSquare(
+          fill: palette.surface,
+          size: tile,
+          radius: YiviCorners.iconTile,
+          shadows: YiviShadows.card,
           child: kind == "face_id"
               ? SvgPicture.asset(
                   yiviAsset("ui/face_id.svg"),

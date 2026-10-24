@@ -3,10 +3,11 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/surface_card.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
 /// page of the sheet: what happens there and that you come back by
@@ -67,8 +68,6 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     final params = {"issuer": widget.issuer, "host": widget.host};
     final sideways = useSheetColumns(context);
 
@@ -76,7 +75,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       Semantics(
         header: true,
         child: Text(
-          t("data.add.website.heading", params),
+          context.tr("data.add.website.heading", params),
           key: const Key("sheet_website_heading"),
           textAlign: TextAlign.center,
           style: palette
@@ -85,7 +84,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
         ),
       ),
       Text(
-        t("data.add.website.body", params),
+        context.tr("data.add.website.body", params),
         textAlign: TextAlign.center,
         style: palette
             .body(15)
@@ -95,7 +94,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
     final note = widget.opened
         ? _Note(
             key: const Key("sheet_opened_note"),
-            text: t("share.sheet.opened_note", {"host": widget.host}),
+            text: context.tr("share.sheet.opened_note", {"host": widget.host}),
           )
         : null;
     final picture = _WebsitePicture(host: widget.host, issuer: widget.issuer);
@@ -108,18 +107,15 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       action: SheetAction(
         key: const Key("sheet_open_website"),
         label: widget.opened
-            ? t("share.sheet.open_again")
-            : t("data.add.website.open"),
+            ? context.tr("share.sheet.open_again")
+            : context.tr("data.add.website.open"),
         busy: _opening,
         onTap: _open,
       ),
       pinned: widget.pinned,
       subtitle: widget.subtitle,
-      padding: sideways
-          ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(horizontal: 16),
-      scrolls: !sideways,
-      childClearsBottom: sideways,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      split: sideways,
       child: sideways
           // A phone held sideways: the words at the left, the browser at
           // the right.
@@ -228,9 +224,8 @@ class _WebsitePicture extends StatelessWidget {
         ],
       ),
     );
-    return Container(
+    return SurfaceCard(
       padding: const EdgeInsets.all(18),
-      decoration: YiviShadows.surfaceCard(palette),
       child: Column(
         spacing: 12,
         children: [

@@ -10,6 +10,7 @@ import "../../models/session.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/waiting_request_provider.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/sheet_action_row.dart";
 import "../pin/pin_screen.dart" show UnlockPinEntry;
@@ -55,9 +56,6 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
     return scanned is SessionPointer && scanned.irmaqr == "issuing";
   }
 
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
-
   @override
   void dispose() {
     lockScannerSheetHolds.value = false;
@@ -77,10 +75,10 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
       IssueSheetSubject.card(d);
 
   @override
-  String issueStopText() => _t("data.add.stop_text");
+  String issueStopText() => context.tr("data.add.stop_text");
 
   @override
-  String issueSuccessText(List<schemaless.Credential> cards) => _t(
+  String issueSuccessText(List<schemaless.Credential> cards) => context.tr(
     cards.length > 1
         ? "issuance.success_feedback.added_many"
         : "issuance.success_feedback.added_one",
@@ -91,7 +89,7 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
   SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
       SheetAction(
         key: const Key("sheet_done"),
-        label: _t("ui.done"),
+        label: context.tr("ui.done"),
         onTap: _close,
       );
 

@@ -11,9 +11,10 @@ import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
+import "../../../widgets/compact_bar.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
@@ -25,6 +26,7 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/signature_message.dart";
+import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/technical_details.dart";
 import "change_choice_sheet.dart";
@@ -115,18 +117,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// Whether the bottom of the requestor card is under the bar.
   void _checkHeader() {
     if (!mounted) return;
-    final box = _headerKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize || !box.attached) {
-      _scrolledPast.value = _scrolled > 0;
-      return;
-    }
-    final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
-    final barBottom = MediaQuery.paddingOf(context).top + 60;
-    _scrolledPast.value = bottom < barBottom;
+    _scrolledPast.value = headerUnderBar(context, _headerKey) ?? _scrolled > 0;
   }
-
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
 
   /// "Change choice", "Add" on a spot, and the fix of a card that cannot be
   /// shared: the choice sheet for pick-one [i]. With [addNew] it opens on
@@ -160,7 +152,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         : offered.isNotEmpty
         ? "share_receive"
         : "share";
-    final t = _t;
+    final t = context.tr;
     final columns = useSessionColumns(context);
     final landscape = !columns && useSheetColumns(context);
     // The header can change size (rotation, text size): check again after
@@ -201,7 +193,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           });
 
     final message = isSignature && session.messageToSign != null
-        ? _Surface(
+        ? SurfaceCard(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 8,
@@ -594,7 +587,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// after the first as they read inside the list.
   String _spotName(DisclosurePickOne p) => spotName(
     p,
-    _t("share.or"),
+    context.tr("share.or"),
     together: spotTogether(
       p,
       widget.session.disclosurePlan?.issueDuringDisclosure,
@@ -632,13 +625,13 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     if (items.isEmpty) return null;
     final list = orList([
       for (final (kind, name) in items)
-        _t("share.also_${kind.name}", {"name": _inSentence(name)}),
-    ], _t("share.or"));
+        context.tr("share.also_${kind.name}", {"name": _inSentence(name)}),
+    ], context.tr("share.or"));
     return _ChoiceStrip(
-      text: _t("share.also", {"list": list}),
+      text: context.tr("share.also", {"list": list}),
       button: SmallPill(
         key: Key("share_change_$i"),
-        label: _t("share.change_choice"),
+        label: context.tr("share.change_choice"),
         tone: SmallPillTone.surface,
         onPressed: () => _openChoice(i),
       ),
@@ -676,7 +669,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// straight to adding it; with more, to the choice in the sheet, and the
   /// spot shows the types as small cards.
   Widget _emptySpot(int i, DisclosurePickOne p, {Key? key}) {
-    final t = _t;
+    final t = context.tr;
     final addable = addableOptions(p);
     final plan = widget.session.disclosurePlan?.issueDuringDisclosure;
     final mismatch = spotMismatch(p, plan);
@@ -773,7 +766,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       landingKey: _landingKey(i),
       isNew: isNew,
       problemStrip: true,
-      fixLabel: fix == null ? null : _t("share.renew"),
+      fixLabel: fix == null ? null : context.tr("share.renew"),
       onFix: fix == null ? null : () => _openChoice(i, addNew: fix),
       footer: _choiceStrip(i, p, k) ?? _togetherStrip(bundle),
     );
@@ -800,7 +793,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         ),
         Expanded(
           child: Text(
-            _t("share.together", {"requestor": widget.session.requestor.name}),
+            context.tr("share.together", {
+              "requestor": widget.session.requestor.name,
+            }),
             style: palette
                 .body(13.5)
                 .copyWith(height: 19 / 13.5, color: palette.heading),
@@ -830,7 +825,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         landingKey: _landingKey(i),
         trailing: SmallPill(
           key: Key("share_remove_$i"),
-          label: _t("share.dont_share"),
+          label: context.tr("share.dont_share"),
           onPressed: () => notifier.removeOptional(i),
         ),
         footer: _choiceStrip(i, p, k),
@@ -857,7 +852,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       _OptionalGhost(
         key: Key("share_add_optional_$i"),
         bundle: owned.first,
-        label: _t("share.also_share"),
+        label: context.tr("share.also_share"),
         onAdd: () => notifier.addOptional(i),
       ),
     );
@@ -895,24 +890,12 @@ class _CompactBarSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: shown,
-      builder: (context, on, _) => TweenAnimationBuilder<double>(
-        tween: Tween(end: on ? 1 : 0),
-        duration: const Duration(milliseconds: 240),
-        curve: Curves.easeOut,
-        builder: (context, t, _) => t == 0
-            ? const SizedBox.shrink()
-            : IgnorePointer(
-                child: Transform.translate(
-                  offset: Offset(0, (1 - t) * -8),
-                  child: RequestorCompactBar(
-                    requestor: requestor,
-                    subtitle: subtitle,
-                    opacity: t,
-                  ),
-                ),
-              ),
+    return CompactBarDropIn(
+      shown: shown,
+      bar: (t) => RequestorCompactBar(
+        requestor: requestor,
+        subtitle: subtitle,
+        opacity: t,
       ),
     );
   }
@@ -1030,24 +1013,6 @@ class _OptionalGhost extends StatelessWidget {
   }
 }
 
-class _Surface extends StatelessWidget {
-  final Widget child;
-
-  const _Surface({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: YiviShadows.surfaceCard(palette),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-        child: child,
-      ),
-    );
-  }
-}
-
 /// A card the requestor gives in return (an issuance with disclosure).
 class _OfferedCard extends StatelessWidget {
   final schemaless.Credential card;
@@ -1056,7 +1021,8 @@ class _OfferedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _Surface(
+    return SurfaceCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: LayoutBuilder(
         builder: (context, constraints) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

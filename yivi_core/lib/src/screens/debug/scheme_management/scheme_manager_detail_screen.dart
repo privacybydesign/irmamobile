@@ -11,6 +11,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/active_indicator.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -109,7 +110,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   }
 
   Future<void> _onActivateScheme(BuildContext context) async {
-    final language = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+    final language = context.lang;
 
     final pin = await _requestPin(
       context,

@@ -1843,6 +1843,12 @@ class GlassSheetPage extends StatefulWidget {
   /// (screens with their own bottom bar), so the page adds no room for it.
   final bool childClearsBottom;
 
+  // `split` (constructor only): [child] lays itself out in the sheet's two
+  // columns (a `SheetSplit`, on a phone held sideways). The page then adds
+  // no padding, does not scroll (each column scrolls on its own) and leaves
+  // the bottom to the columns, whatever [padding], [scrolls] and
+  // [childClearsBottom] say for upright.
+
   /// Whether the bar gets the hard scroll edge once content scrolls under
   /// it. Without it, only the buttons float over the content (a page whose
   /// bar has no title).
@@ -1867,13 +1873,20 @@ class GlassSheetPage extends StatefulWidget {
     this.closeAtStart = false,
     this.pinned,
     this.subtitle,
-    this.padding = EdgeInsets.zero,
-    this.scrolls = true,
-    this.childClearsBottom = false,
+    EdgeInsets padding = EdgeInsets.zero,
+    bool scrolls = true,
+    bool childClearsBottom = false,
+    bool split = false,
     this.edge = true,
     this.slotBottom = false,
-  }) : assert((child == null) != (slivers == null), "child or slivers"),
-       assert(scrolls || child != null, "a page that fills itself has a child");
+  }) : padding = split ? EdgeInsets.zero : padding,
+       scrolls = scrolls && !split,
+       childClearsBottom = childClearsBottom || split,
+       assert((child == null) != (slivers == null), "child or slivers"),
+       assert(
+         (scrolls && !split) || child != null,
+         "a page that fills itself has a child",
+       );
 
   @override
   State<GlassSheetPage> createState() => _GlassSheetPageState();

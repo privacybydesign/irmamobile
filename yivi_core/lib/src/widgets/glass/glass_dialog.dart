@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/i18n.dart";
 import "glass_surface.dart";
 import "pill_buttons.dart";
 
@@ -214,11 +215,10 @@ Future<bool> showConfirmDialog(
     await showDialog<bool>(
       context: context,
       builder: (context) {
-        String t(String key) => FlutterI18n.translate(context, key);
         void close(bool confirmed) => Navigator.of(context).pop(confirmed);
         return GlassDialog(
           icon: icon,
-          title: t(titleKey),
+          title: context.tr(titleKey),
           message: FlutterI18n.translate(
             context,
             messageKey,
@@ -228,20 +228,20 @@ Future<bool> showConfirmDialog(
             if (destructive)
               PillButton(
                 key: const Key("dialog_confirm_button"),
-                label: t(confirmKey),
+                label: context.tr(confirmKey),
                 onPressed: () => close(true),
                 style: PillStyle.dangerFilled,
               )
             else
               FancyPillButton(
                 key: const Key("dialog_confirm_button"),
-                label: t(confirmKey),
+                label: context.tr(confirmKey),
                 onPressed: () => close(true),
                 size: PillSize.regular,
               ),
             PillButton(
               key: const Key("dialog_cancel_button"),
-              label: t(cancelKey),
+              label: context.tr(cancelKey),
               onPressed: () => close(false),
               style: PillStyle.text,
               size: PillSize.regular,

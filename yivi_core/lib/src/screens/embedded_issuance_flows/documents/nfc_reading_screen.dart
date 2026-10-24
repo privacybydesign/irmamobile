@@ -581,17 +581,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// the canvas.
   Widget _buildPreparing(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: DocumentStepInSheet.of(context)
-          ? Colors.transparent
-          : palette.background,
-      // In a sheet its bar has the title.
-      appBar: DocumentStepInSheet.of(context)
-          ? null
-          : IrmaAppBar(
-              titleTranslationKey: "face_verification.preparing_title",
-            ),
+    // In a sheet its bar has the title.
+    return DocumentStepScaffold(
+      titleKey: "face_verification.preparing_title",
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -850,9 +842,8 @@ class _NfcScaffold extends StatelessWidget {
     // the illustration on a card at the right.
     final footer = bottomNavigationBar;
     if (documentStepSplit(context)) {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SheetSplit(
+      return DocumentStepScaffold.split(
+        SheetSplit(
           endFills: true,
           start: [instruction],
           end: SheetPictureCard(
@@ -864,17 +855,8 @@ class _NfcScaffold extends StatelessWidget {
         ),
       );
     }
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      // The redesign's page background (backgroundTertiary is the same
-      // colour); in a sheet its glass, under the sheet's own bar.
-      backgroundColor: DocumentStepInSheet.of(context)
-          ? Colors.transparent
-          : theme.backgroundTertiary,
-      appBar: DocumentStepInSheet.of(context)
-          ? null
-          : IrmaAppBar(titleTranslationKey: titleTranslationKey),
+    return DocumentStepScaffold(
+      titleKey: titleTranslationKey,
       body: SafeArea(
         child: Center(
           child: OrientationBuilder(
@@ -903,7 +885,7 @@ class _NfcScaffold extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: bottomNavigationBar,
+      bottomBar: bottomNavigationBar,
     );
   }
 }

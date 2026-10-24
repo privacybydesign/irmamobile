@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -9,6 +8,7 @@ import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/handle_pointer.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
@@ -251,9 +251,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
     ref
         .read(emailIssuanceProvider.notifier)
-        .sendEmail(
-          email: email,
-          language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-        );
+        .sendEmail(email: email, language: context.lang);
   }
 }

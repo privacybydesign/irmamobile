@@ -16,6 +16,7 @@ import "../../providers/preferences_provider.dart";
 import "../../providers/startup_url_resolved_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../theme/theme.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_close_button.dart";
@@ -271,16 +272,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
         // to the normal unlock screen.
         // PopScope here if hardware-back parity is ever requested.
         actions: hasSession
-            ? [
-                Padding(
-                  padding: EdgeInsets.only(
-                    right: IrmaTheme.of(context).defaultSpacing,
-                  ),
-                  child: IrmaCloseButton(
-                    onTap: () => _confirmCancelPending(context),
-                  ),
-                ),
-              ]
+            ? [IrmaCloseButton(onTap: () => _confirmCancelPending(context))]
             : const [],
       ),
       // Only the spinner while the PIN is being verified.
@@ -337,7 +329,6 @@ class UnlockPinEntry extends ConsumerWidget {
     final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
     final blocked = blockedFor.inSeconds > 0;
     final enabled = !blocked && !busy;
-    String t(String key) => FlutterI18n.translate(context, key);
     // A wrong PIN or a block, said in the line under the title.
     final line = pinStateLine(context, state, blockedFor);
     final waiting = this.waiting;
@@ -352,10 +343,10 @@ class UnlockPinEntry extends ConsumerWidget {
             key: ValueKey(resetNonce),
             child: YiviPinScreen(
               instruction: waiting != null
-                  ? t(waitingLineKey(waiting))
+                  ? context.tr(waitingLineKey(waiting))
                   : blocked
-                  ? t("pin.blocked_title")
-                  : t("pin.subtitle"),
+                  ? context.tr("pin.blocked_title")
+                  : context.tr("pin.subtitle"),
               header: waiting == null
                   ? null
                   : WaitingRequestAnnouncement(request: waiting),

@@ -8,6 +8,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
 
@@ -258,16 +259,11 @@ class Tile extends StatelessWidget {
           spacing: 16,
           children: [
             if (iconData != null)
-              Container(
-                width: 36,
-                height: 36,
-                decoration: ShapeDecoration(
-                  color: squareFill,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                ),
-                child: Icon(iconData, size: 22, color: iconColor),
+              IconSquare(
+                icon: iconData,
+                fill: squareFill,
+                ink: iconColor,
+                iconSize: 22,
               ),
             Expanded(
               child: Column(

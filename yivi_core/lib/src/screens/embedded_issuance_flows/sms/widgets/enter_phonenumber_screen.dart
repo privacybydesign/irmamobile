@@ -4,6 +4,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -46,10 +47,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     if (phone != null) {
       ref
           .read(smsIssuanceProvider.notifier)
-          .sendSms(
-            phoneNumber: phone,
-            language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-          );
+          .sendSms(phoneNumber: phone, language: context.lang);
     }
   }
 
@@ -65,11 +63,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         onTryAgain: () {
           ref
               .read(smsIssuanceProvider.notifier)
-              .sendSms(
-                phoneNumber: state.phoneNumber,
-                language:
-                    FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-              );
+              .sendSms(phoneNumber: state.phoneNumber, language: context.lang);
         },
       );
     }

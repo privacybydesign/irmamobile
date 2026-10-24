@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../sentry/sentry.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/pill_text_field.dart";
@@ -51,16 +51,15 @@ class _StoreReviewFeedbackDialogState
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key) => FlutterI18n.translate(context, key);
 
     if (_sent) {
       return GlassDialog(
-        title: t("review.feedback.title"),
-        message: t("review.feedback.thanks"),
+        title: context.tr("review.feedback.title"),
+        message: context.tr("review.feedback.thanks"),
         actions: [
           FancyPillButton(
             key: const Key("review_feedback_done"),
-            label: t("review.feedback.close"),
+            label: context.tr("review.feedback.close"),
             onPressed: () => Navigator.of(context).pop(),
             size: PillSize.regular,
           ),
@@ -69,15 +68,15 @@ class _StoreReviewFeedbackDialogState
     }
 
     return GlassDialog(
-      title: t("review.feedback.title"),
-      message: t("review.feedback.body"),
+      title: context.tr("review.feedback.title"),
+      message: context.tr("review.feedback.body"),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           PillTextField(
             fieldKey: const Key("review_feedback_input"),
             controller: _controller,
-            hint: t("review.feedback.hint"),
+            hint: context.tr("review.feedback.hint"),
             minLines: 3,
             maxLines: 6,
             autofocus: true,
@@ -86,7 +85,7 @@ class _StoreReviewFeedbackDialogState
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
             child: Text(
-              t("review.feedback.privacy"),
+              context.tr("review.feedback.privacy"),
               style: palette
                   .body(13)
                   .copyWith(height: 18 / 13, color: palette.secondaryText),
@@ -97,13 +96,13 @@ class _StoreReviewFeedbackDialogState
       actions: [
         FancyPillButton(
           key: const Key("review_feedback_send"),
-          label: t("review.feedback.send"),
+          label: context.tr("review.feedback.send"),
           onPressed: _send,
           size: PillSize.regular,
         ),
         PillButton(
           key: const Key("review_feedback_cancel"),
-          label: t("review.feedback.cancel"),
+          label: context.tr("review.feedback.cancel"),
           style: PillStyle.text,
           size: PillSize.regular,
           onPressed: () => Navigator.of(context).pop(),

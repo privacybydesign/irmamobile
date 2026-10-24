@@ -106,9 +106,8 @@ class NfcStageScaffold extends StatelessWidget {
     if (documentStepSplit(context)) {
       final palette = YiviPalette.of(context);
       final bar = _ActionBar(actions: actions);
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SheetSplit(
+      return DocumentStepScaffold.split(
+        SheetSplit(
           endFills: true,
           start: [
             Semantics(
@@ -146,16 +145,10 @@ class NfcStageScaffold extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: DocumentStepInSheet.of(context)
-          ? Colors.transparent
-          : YiviPalette.of(context).background,
-      // In a sheet its bar has the title, back and close.
-      appBar: DocumentStepInSheet.of(context)
-          ? null
-          : IrmaAppBar(titleTranslationKey: appBarTitleKey, leading: leading),
+    // In a sheet its bar has the title, back and close.
+    return DocumentStepScaffold(
+      titleKey: appBarTitleKey,
+      leading: leading,
       body: SafeArea(
         child: isLandscape
             ? Row(
@@ -181,7 +174,7 @@ class NfcStageScaffold extends StatelessWidget {
                 ],
               ),
       ),
-      bottomNavigationBar: _ActionBar(actions: actions),
+      bottomBar: _ActionBar(actions: actions),
     );
   }
 }

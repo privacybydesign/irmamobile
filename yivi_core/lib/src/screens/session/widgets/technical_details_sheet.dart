@@ -1,14 +1,14 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/surface_card.dart";
 import "../models/technical_details.dart";
 
 /// The technical details of a request, for the curious: a subpage of the
@@ -25,28 +25,24 @@ class TechnicalDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key) => FlutterI18n.translate(context, key);
     List<Widget> group(TechGroup g) => [
       CapsLabel(g.title, padding: const EdgeInsets.fromLTRB(6, 18, 6, 8)),
-      DecoratedBox(
-        decoration: YiviShadows.surfaceCard(palette),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (i, r) in g.rows.indexed) ...[
-                if (i > 0)
-                  Divider(height: 1, thickness: 1, color: palette.divider),
-                _Row(row: r),
-              ],
+      SurfaceCard(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, r) in g.rows.indexed) ...[
+              if (i > 0)
+                Divider(height: 1, thickness: 1, color: palette.divider),
+              _Row(row: r),
             ],
-          ),
+          ],
         ),
       ),
     ];
     return GlassSheetPage(
-      title: t("share.tech.title"),
+      title: context.tr("share.tech.title"),
       onBack: onBack,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Column(
@@ -55,7 +51,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Text(
-              t("share.tech.intro"),
+              context.tr("share.tech.intro"),
               style: palette
                   .body(14)
                   .copyWith(height: 20 / 14, color: palette.secondaryText),
@@ -85,7 +81,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
           Center(
             child: PillButton(
               key: const Key("technical_details_copy"),
-              label: t("share.tech.copy"),
+              label: context.tr("share.tech.copy"),
               style: PillStyle.outlined,
               expand: false,
               size: PillSize.regular,
@@ -98,7 +94,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
                 Clipboard.setData(
                   ClipboardData(text: technicalDetailsText(groups)),
                 );
-                showAppToast(context, t("share.tech.copied"));
+                showAppToast(context, context.tr("share.tech.copied"));
               },
             ),
           ),

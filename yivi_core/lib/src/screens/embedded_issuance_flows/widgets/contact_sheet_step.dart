@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,14 +6,16 @@ import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/handle_pointer.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/surface_card.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
@@ -113,13 +114,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   /// The `contact_sheet.<part>_email` or `_phone` text.
   String _k(String part) =>
-      _t("contact_sheet.${part}_${_email ? "email" : "phone"}");
+      context.tr("contact_sheet.${part}_${_email ? "email" : "phone"}");
 
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
-
-  String get _language =>
-      FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+  String get _language => context.lang;
 
   @override
   void initState() {
@@ -305,8 +302,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         ? null
         : code
         ? _wrongCode(error)
-              ? _t("contact_sheet.wrong_code")
-              : _t("contact_sheet.not_checked")
+              ? context.tr("contact_sheet.wrong_code")
+              : context.tr("contact_sheet.not_checked")
         : _k("not_sent");
 
     final Widget body;
@@ -317,14 +314,14 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
           (_email ? emailCodeLength : smsCodeLength);
       action = SheetAction(
         key: const Key("contact_sheet_verify"),
-        label: _t("contact_sheet.check_code"),
+        label: context.tr("contact_sheet.check_code"),
         busy: _verifying,
         onTap: complete ? () => _verify(_codeController.text) : null,
       );
       final sideways = useSheetColumns(context);
       final resend = ContactResendRow(
-        hint: _sentAgain ? _t("contact_sheet.sent_again") : _k("hint"),
-        label: _t("contact_sheet.send_again"),
+        hint: _sentAgain ? context.tr("contact_sheet.sent_again") : _k("hint"),
+        label: context.tr("contact_sheet.send_again"),
         onTap: () => _sendAgain(state.target),
       );
       body = _split(
@@ -334,7 +331,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             label: _k("sent_to"),
             target: state.target,
             email: _email,
-            changeLabel: _t("contact_sheet.change"),
+            changeLabel: context.tr("contact_sheet.change"),
             onChange: _change,
           ),
           // Held sideways the hint and "Send again" go under where the code
@@ -374,7 +371,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     } else {
       action = SheetAction(
         key: const Key("contact_sheet_send"),
-        label: _t("contact_sheet.send_code"),
+        label: context.tr("contact_sheet.send_code"),
         busy: sending,
         onTap: _valid ? _submitTarget : null,
       );
@@ -423,18 +420,15 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     return GlassSheetPage(
       // Left by dragging its header down: no close button.
       closable: false,
-      title: _t(
+      title: context.tr(
         _email
             ? "email_issuance.enter_email.title"
             : "sms_issuance.enter_phone.title",
       ),
       onBack: _back,
-      padding: landscape
-          ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      split: landscape,
       action: action,
-      scrolls: !landscape,
-      childClearsBottom: landscape,
       // Two steps of their own: the address, then the code.
       pinned: IssueSheetProgress(
         subject: widget.subject,
@@ -473,28 +467,17 @@ class ContactSentTo extends StatelessWidget {
       palette,
       email ? DialogTone.warning : DialogTone.success,
     );
-    return Container(
+    return SurfaceCard(
       key: const Key("contact_sheet_sent_to"),
       padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
-      decoration: YiviShadows.surfaceCard(palette),
       child: Row(
         spacing: 12,
         children: [
           ExcludeSemantics(
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: ShapeDecoration(
-                color: fill,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-              ),
-              child: Icon(
-                email ? Icons.mail_rounded : Icons.smartphone_rounded,
-                size: 20,
-                color: ink,
-              ),
+            child: IconSquare(
+              icon: email ? Icons.mail_rounded : Icons.smartphone_rounded,
+              fill: fill,
+              ink: ink,
             ),
           ),
           Expanded(

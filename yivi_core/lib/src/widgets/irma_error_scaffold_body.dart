@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
+import "../util/i18n.dart";
 import "glass/glass_dialog.dart";
 import "glass/pill_buttons.dart";
 import "status_body.dart";
@@ -38,15 +39,14 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String t(String key) => FlutterI18n.translate(context, key);
     final expired = type == ErrorType.expired;
 
     return StatusBody(
       icon: expired ? Icons.schedule_rounded : Icons.warning_rounded,
       tone: expired ? DialogTone.warning : DialogTone.danger,
-      title: t(_titleKeys[type]!),
-      message: t(_messageKeys[type]!),
-      note: reportable ? t("error.report") : null,
+      title: context.tr(_titleKeys[type]!),
+      message: context.tr(_messageKeys[type]!),
+      note: reportable ? context.tr("error.report") : null,
       footer: details == null ? null : ErrorDetails(details: details!),
     );
   }

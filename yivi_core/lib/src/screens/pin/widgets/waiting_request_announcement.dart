@@ -1,10 +1,11 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/session_preview.dart";
 import "../../../providers/waiting_request_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
+import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../session/widgets/session_requestor_header.dart";
 
@@ -69,8 +70,6 @@ class _Parts {
   });
 
   factory _Parts.of(BuildContext context, WaitingRequest request) {
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     final preview = request.preview;
     final kind = switch (preview.kind) {
       SessionPreviewKind.disclosure => "disclosure",
@@ -88,7 +87,7 @@ class _Parts {
     // The link in a confirmation email: what it adds.
     if (preview.email != null) {
       return _Parts(
-        sentence: t("waiting_request.sentence.email"),
+        sentence: context.tr("waiting_request.sentence.email"),
         party: null,
         icon: Icons.mail_outline_rounded,
         badge: _Badge.add,
@@ -105,8 +104,11 @@ class _Parts {
       final params = {"name": requestor.name};
       return _Parts(
         sentence: request.inFlight
-            ? t("waiting_request.sentence.in_flight", params)
-            : t("waiting_request.sentence.${kind ?? "disclosure"}", params),
+            ? context.tr("waiting_request.sentence.in_flight", params)
+            : context.tr(
+                "waiting_request.sentence.${kind ?? "disclosure"}",
+                params,
+              ),
         party: requestor,
         icon: null,
         badge: badge,
@@ -117,7 +119,7 @@ class _Parts {
     // host, which isn't who asks; a redirect gives nothing): only what kind
     // of request waits.
     return _Parts(
-      sentence: t("waiting_request.generic.${kind ?? "unknown"}"),
+      sentence: context.tr("waiting_request.generic.${kind ?? "unknown"}"),
       party: null,
       icon: switch (badge) {
         _Badge.share => Icons.arrow_upward_rounded,
@@ -174,28 +176,23 @@ class _Avatar extends StatelessWidget {
             Positioned(
               right: 0,
               bottom: 0,
-              child: Container(
+              child: CornerBadge(
                 key: ValueKey(("waiting_request_badge", badge.name)),
-                width: badgeSize,
-                height: badgeSize,
-                decoration: BoxDecoration(
-                  color: switch (badge) {
-                    _Badge.share => palette.link,
-                    _Badge.add => palette.successText,
-                    _Badge.sign => palette.heading,
-                  },
-                  shape: BoxShape.circle,
-                  border: Border.all(color: palette.surface, width: 2.5),
-                ),
-                child: Icon(
-                  switch (badge) {
-                    _Badge.share => Icons.arrow_upward_rounded,
-                    _Badge.add => Icons.add_rounded,
-                    _Badge.sign => Icons.edit_rounded,
-                  },
-                  size: badgeSize * 0.56,
-                  color: palette.surface,
-                ),
+                icon: switch (badge) {
+                  _Badge.share => Icons.arrow_upward_rounded,
+                  _Badge.add => Icons.add_rounded,
+                  _Badge.sign => Icons.edit_rounded,
+                },
+                fill: switch (badge) {
+                  _Badge.share => palette.link,
+                  _Badge.add => palette.successText,
+                  _Badge.sign => palette.heading,
+                },
+                size: badgeSize,
+                iconSize: badgeSize * 0.56,
+                ink: palette.surface,
+                ring: palette.surface,
+                ringWidth: 2.5,
               ),
             ),
           ],

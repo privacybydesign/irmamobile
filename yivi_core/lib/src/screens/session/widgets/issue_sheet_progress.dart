@@ -5,6 +5,7 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "session_requestor_header.dart";
 
@@ -145,8 +146,6 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     final step = widget.step;
     final params = {"step": "$step", "total": "${widget.total}"};
     final ink = palette.successText;
@@ -159,7 +158,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
       key: ValueKey(("issue_sheet_progress", step, widget.total)),
       // Read out when the step changes.
       liveRegion: true,
-      label: t("share.step_count", params),
+      label: context.tr("share.step_count", params),
       excludeSemantics: true,
       child: Container(
         key: const Key("issue_sheet_progress_line"),
@@ -197,7 +196,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
                 ExcludeSemantics(child: requestorAvatar(requestor, size: 20)),
                 Flexible(
                   child: Text(
-                    t("share.sheet.for_requestor", {
+                    context.tr("share.sheet.for_requestor", {
                       "requestor": requestor.name,
                     }),
                     maxLines: 1,

@@ -5,13 +5,16 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/log_entry.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/caps_label.dart";
+import "../../../widgets/compact_bar.dart";
+import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/glass_surface.dart";
+import "../../../widgets/surface_card.dart";
 import "../../data/wallet/wallet_detail_scaffold.dart";
 import "../activity_entry.dart";
 import "../activity_flight.dart";
@@ -24,8 +27,7 @@ Color activityKindInk(YiviPalette palette, ActivityKind kind) => switch (kind) {
   ActivityKind.deleted => palette.danger,
 };
 
-String _lang(BuildContext context) =>
-    FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+String _lang(BuildContext context) => context.lang;
 
 /// "Sun 11 Oct", the date on the pass header and the compact bar.
 String activityShortDate(BuildContext context, DateTime time) =>
@@ -153,15 +155,13 @@ class ActivityPartyCard extends StatelessWidget {
                   Positioned(
                     right: -6,
                     bottom: -6,
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: kind.badge,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: palette.background, width: 3),
-                      ),
-                      child: Icon(kind.icon, size: 15, color: Colors.white),
+                    child: CornerBadge(
+                      icon: kind.icon,
+                      fill: kind.badge,
+                      size: 32,
+                      iconSize: 15,
+                      ring: palette.background,
+                      ringWidth: 3,
                     ),
                   ),
                 ],
@@ -328,57 +328,25 @@ class ActivityCompactBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final time = entry.localTime;
-    return GlassSurface(
+    return GlassCompactBar(
       opacity: opacity,
-      padding: const EdgeInsets.fromLTRB(6, 0, 16, 0),
-      child: SizedBox(
-        height: 44,
-        child: Row(
-          spacing: 8,
-          children: [
-            ActivityPartyLogo(party: entry.party, size: 32),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.party.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette.display(14).copyWith(color: palette.text),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: FlutterI18n.translate(
-                            context,
-                            entry.kind.labelKey,
-                          ),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: activityKindInk(palette, entry.kind),
-                          ),
-                        ),
-                        TextSpan(
-                          text:
-                              " · ${activityShortDate(context, time)}"
-                              " · ${activityTime(context, time)}",
-                        ),
-                      ],
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .body(12)
-                        .copyWith(color: palette.secondaryText),
-                  ),
-                ],
-              ),
+      leading: ActivityPartyLogo(party: entry.party, size: 32),
+      title: entry.party.name,
+      subtitle: TextSpan(
+        children: [
+          TextSpan(
+            text: FlutterI18n.translate(context, entry.kind.labelKey),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: activityKindInk(palette, entry.kind),
             ),
-          ],
-        ),
+          ),
+          TextSpan(
+            text:
+                " · ${activityShortDate(context, time)}"
+                " · ${activityTime(context, time)}",
+          ),
+        ],
       ),
     );
   }
@@ -471,55 +439,52 @@ class ActivitySignedMessage extends StatelessWidget {
             ),
           ),
         ),
-        DecoratedBox(
-          decoration: YiviShadows.surfaceCard(palette),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.format_quote_rounded,
-                  size: 32,
-                  color: palette.outline,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  entry.message ?? "",
-                  style: palette
-                      .body(16)
-                      .copyWith(height: 25 / 16, color: palette.text),
-                ),
-                const SizedBox(height: 16),
-                Divider(height: 1, color: palette.divider),
-                const SizedBox(height: 12),
-                Row(
-                  spacing: 6,
-                  children: [
-                    Icon(
-                      Icons.edit_rounded,
-                      size: 14,
-                      color: palette.secondaryText,
-                    ),
-                    Expanded(
-                      child: Text(
-                        FlutterI18n.translate(
-                          context,
-                          "activity.signed_by_you",
-                          translationParams: {
-                            "date": activityShortDate(context, time),
-                            "time": activityTime(context, time),
-                          },
-                        ),
-                        style: palette
-                            .body(12)
-                            .copyWith(color: palette.secondaryText),
+        SurfaceCard(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.format_quote_rounded,
+                size: 32,
+                color: palette.outline,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                entry.message ?? "",
+                style: palette
+                    .body(16)
+                    .copyWith(height: 25 / 16, color: palette.text),
+              ),
+              const SizedBox(height: 16),
+              Divider(height: 1, color: palette.divider),
+              const SizedBox(height: 12),
+              Row(
+                spacing: 6,
+                children: [
+                  Icon(
+                    Icons.edit_rounded,
+                    size: 14,
+                    color: palette.secondaryText,
+                  ),
+                  Expanded(
+                    child: Text(
+                      FlutterI18n.translate(
+                        context,
+                        "activity.signed_by_you",
+                        translationParams: {
+                          "date": activityShortDate(context, time),
+                          "time": activityTime(context, time),
+                        },
                       ),
+                      style: palette
+                          .body(12)
+                          .copyWith(color: palette.secondaryText),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],

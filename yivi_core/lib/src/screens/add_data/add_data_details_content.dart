@@ -5,7 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
-import "../../util/nfc_credentials.dart";
+import "../../util/i18n.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_group.dart";
@@ -45,8 +45,6 @@ class AddDataDetailsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     final faq = this.faq;
     // The store escapes line breaks; in the markdown answers each one starts
     // a paragraph.
@@ -100,7 +98,9 @@ class AddDataDetailsContent extends StatelessWidget {
         child: Text(
           intro.isNotEmpty
               ? intro
-              : t("data.add.details.obtain", {"credential": credential.name}),
+              : context.tr("data.add.details.obtain", {
+                  "credential": credential.name,
+                }),
           style: palette
               .body(15)
               .copyWith(height: 22 / 15, color: palette.heading),
@@ -111,7 +111,7 @@ class AddDataDetailsContent extends StatelessWidget {
       if (attributeNames.isNotEmpty ||
           content.isNotEmpty ||
           forRequestor != null) ...[
-        _SectionLabel(t("data.add.details.you_get")),
+        _SectionLabel(context.tr("data.add.details.you_get")),
         GlassGroup(
           key: const Key("add_data_you_get"),
           children: [
@@ -128,13 +128,13 @@ class AddDataDetailsContent extends StatelessWidget {
         ),
       ],
       if (purpose.isNotEmpty || howTo.isNotEmpty) ...[
-        _SectionLabel(t("data.add.details.good_to_know")),
+        _SectionLabel(context.tr("data.add.details.good_to_know")),
         GlassGroup(
           children: [
             if (purpose.isNotEmpty)
               _Fold(
                 key: const Key("add_data_purpose"),
-                question: t("data.add.details.purpose_question"),
+                question: context.tr("data.add.details.purpose_question"),
                 peek: purpose.replaceAll("\n\n", " "),
                 child: _Markdown(purpose),
               ),

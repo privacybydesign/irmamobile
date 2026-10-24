@@ -4,11 +4,10 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
-import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
@@ -40,12 +39,11 @@ class DocumentInstructionScreen extends StatelessWidget {
     final inSheet = DocumentStepInSheet.of(context);
 
     // The picture on a white card.
-    final picture = Container(
+    final picture = SurfaceCard(
       key: const Key("document_instruction_picture"),
       width: _pictureSize.width,
       height: _pictureSize.height,
       clipBehavior: Clip.antiAlias,
-      decoration: YiviShadows.surfaceCard(palette),
       alignment: Alignment.center,
       child: Semantics(
         image: true,
@@ -101,9 +99,8 @@ class DocumentInstructionScreen extends StatelessWidget {
     // In a sheet held sideways, as on every step of the document flows: the
     // words and Start at the left, the picture at the right.
     if (documentStepSplit(context)) {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SheetSplit(
+      return DocumentStepScaffold.split(
+        SheetSplit(
           endFills: true,
           start: [
             // The title at the top of the column.
@@ -123,13 +120,8 @@ class DocumentInstructionScreen extends StatelessWidget {
     // right.
     final landscape = useSheetColumns(context);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: inSheet ? Colors.transparent : palette.background,
-      appBar: inSheet
-          ? null
-          : IrmaAppBar(titleTranslationKey: documentType.scanTitleKey),
+    return DocumentStepScaffold(
+      titleKey: documentType.scanTitleKey,
       body: SingleChildScrollView(
         // 24 below the floating app bar and from the sides, as on the board.
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
@@ -159,7 +151,7 @@ class DocumentInstructionScreen extends StatelessWidget {
                 ),
         ),
       ),
-      bottomNavigationBar: DocumentFlowFooter(buttons: buttons),
+      bottomBar: DocumentFlowFooter(buttons: buttons),
     );
   }
 }

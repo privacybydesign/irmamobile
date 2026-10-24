@@ -17,6 +17,7 @@ import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -219,9 +220,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Adding has started: closing asks first.
   bool get issueStarted => issueAdding != null && issueAdded == null;
 
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
-
   String _inSentence(String name) => inSentence(
     name,
     language: FlutterI18n.currentLocale(context)?.languageCode,
@@ -416,18 +414,20 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           context: context,
           builder: (dialogContext) => GlassDialog(
             cardKey: const Key("sheet_stop_dialog"),
-            title: _t("share.sheet.stop_title", {"name": _inSentence(d.name)}),
+            title: context.tr("share.sheet.stop_title", {
+              "name": _inSentence(d.name),
+            }),
             message: issueStopText(),
             actions: [
               PillButton(
                 key: const Key("sheet_stop_confirm"),
-                label: _t("share.sheet.stop_confirm"),
+                label: context.tr("share.sheet.stop_confirm"),
                 style: PillStyle.dangerFilled,
                 onPressed: () => Navigator.of(dialogContext).pop(true),
               ),
               PillButton(
                 key: const Key("sheet_stop_keep"),
-                label: _t("share.sheet.keep_going"),
+                label: context.tr("share.sheet.keep_going"),
                 style: PillStyle.text,
                 onPressed: () => Navigator.of(dialogContext).pop(false),
               ),
@@ -764,14 +764,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     // One way on: dragging the sheet down and back are the way out.
     final action = SheetAction(
       key: const Key("sheet_go_button"),
-      label: _t("data.add.details.get_button"),
+      label: context.tr("data.add.details.get_button"),
       onTap: () => _add(d),
     );
     // Where "Add" goes: at the foot of what the card is.
     final hostNote = external
         ? _HostNote(
             key: const Key("sheet_external_note"),
-            text: _t("data.add.details.external_note", {"host": host}),
+            text: context.tr("data.add.details.external_note", {"host": host}),
           )
         : null;
     Widget part(AddDataDetailsPart part, {double cardWidth = 220}) =>
@@ -804,11 +804,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // says where in adding it you are).
       title: d.name,
       onBack: _direct ? null : issueLeave,
-      padding: split != null
-          ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(horizontal: 16),
-      scrolls: split == null,
-      childClearsBottom: split != null,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      split: split != null,
       action: action,
       pinned: IssueSheetProgress(subject: subject, step: 1, total: total),
       subtitle: IssueSheetRequestorLine(subject: subject),
@@ -855,8 +852,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final action = SheetAction(
       key: const Key("sheet_issue_add"),
       label: cards.length > 1
-          ? _t("issuance.add_many", {"count": "${cards.length}"})
-          : _t("issuance.add"),
+          ? context.tr("issuance.add_many", {"count": "${cards.length}"})
+          : context.tr("issuance.add"),
       // Under way once tapped, until "Success" comes in.
       busy: awaiting,
       onTap: offer == null || nestedId == null ? null : () => _grant(nestedId),
@@ -868,13 +865,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       return GlassSheetPage(
         // Left by dragging its header down: no close button.
         closable: false,
-        title: _t("issuance.title"),
+        title: context.tr("issuance.title"),
         onBack: issueBack,
         action: action,
         pinned: _progress(subject, total),
         subtitle: _requestorLine(subject),
-        scrolls: false,
-        childClearsBottom: true,
+        split: true,
         child: SheetSplit(
           key: content == null ? null : const Key("sheet_issuance"),
           start: content == null
@@ -899,7 +895,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     return GlassSheetPage(
       // Left by dragging its header down: no close button.
       closable: false,
-      title: _t("issuance.title"),
+      title: context.tr("issuance.title"),
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -953,8 +949,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         header: true,
         child: Text(
           count > 1
-              ? _t("issuance.question_many", {"count": "$count"})
-              : _t("issuance.description"),
+              ? context.tr("issuance.question_many", {"count": "$count"})
+              : context.tr("issuance.description"),
           style: landscape
               ? palette
                     .display(17, weight: FontWeight.w700)
@@ -1009,7 +1005,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         return GlassSheetPage(
           // Left by dragging its header down: no close button.
           closable: false,
-          title: _t("issuance.title"),
+          title: context.tr("issuance.title"),
           onBack: () => _dismissNested(sessionId),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 80),
@@ -1031,7 +1027,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final url = state.authorizationRequestUrl!;
     return IssueWebsiteStep(
       key: const Key("sheet_openid4vci_authcode"),
-      title: _t("issuance.authorization_code.pending.title"),
+      title: context.tr("issuance.authorization_code.pending.title"),
       host: hostOf(url) ?? state.requestor.name,
       issuer: state.requestor.name,
       opened: _vciOpened.contains(sessionId),
@@ -1069,12 +1065,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     // left; what is now in the app at the right.
     if (useSheetColumns(context)) {
       return GlassSheetPage(
-        title: _t("issuance.success_feedback.header"),
+        title: context.tr("issuance.success_feedback.header"),
         action: action,
         closable: false,
         subtitle: _requestorLine(subject),
-        scrolls: false,
-        childClearsBottom: true,
+        split: true,
         child: SheetSplit(
           start: [
             if (cards.isNotEmpty)
@@ -1084,7 +1079,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                 child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
               ),
             Text(
-              _t("issuance.success_feedback.added_header"),
+              context.tr("issuance.success_feedback.added_header"),
               style: palette
                   .display(24, weight: FontWeight.w700)
                   .copyWith(color: palette.heading),
@@ -1111,7 +1106,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       );
     }
     return GlassSheetPage(
-      title: _t("issuance.success_feedback.header"),
+      title: context.tr("issuance.success_feedback.header"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
       closable: false,
@@ -1125,7 +1120,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
             ),
           Text(
-            _t("issuance.success_feedback.added_header"),
+            context.tr("issuance.success_feedback.added_header"),
             textAlign: TextAlign.center,
             style: palette
                 .display(26, weight: FontWeight.w700)

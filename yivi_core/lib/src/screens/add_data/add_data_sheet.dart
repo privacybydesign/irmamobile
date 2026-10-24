@@ -13,6 +13,7 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/i18n.dart";
 import "../../util/nfc_credentials.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -154,7 +155,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
       IssueSheetSubject.card(d);
 
   @override
-  String issueStopText() => _t("data.add.stop_text");
+  String issueStopText() => context.tr("data.add.stop_text");
 
   Map<String, String> _params(List<schemaless.Credential> cards) => {
     "name": cards.firstOrNull?.name ?? "",
@@ -162,7 +163,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   };
 
   @override
-  String issueSuccessText(List<schemaless.Credential> cards) => _t(
+  String issueSuccessText(List<schemaless.Credential> cards) => context.tr(
     cards.length > 1
         ? "issuance.success_feedback.added_many"
         : "issuance.success_feedback.added_one",
@@ -173,19 +174,16 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
       SheetAction(
         key: const Key("sheet_done"),
-        label: _t("ui.done"),
+        label: context.tr("ui.done"),
         onTap: _done,
       );
 
   @override
   IssueSuccessLink issueSuccessLink(List<schemaless.Credential> cards) => (
     key: const Key("sheet_add_more"),
-    label: _t("data.add.add_more"),
+    label: context.tr("data.add.add_more"),
     onTap: _addMore,
   );
-
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
 
   /// "Add more": the card is in the app already; back to the list, which
   /// says so.
@@ -295,9 +293,6 @@ class _AddDataListPage extends ConsumerStatefulWidget {
 }
 
 class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
-  String _t(String key, [Map<String, String>? params]) =>
-      FlutterI18n.translate(context, key, translationParams: params);
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -316,8 +311,8 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     final nfcAvailable = ref.watch(nfcAvailableProvider).value ?? true;
 
     String title(CredentialStoreCategory group) => switch (group.source) {
-      CredentialStoreSource.staging => _t("data.add.staging"),
-      CredentialStoreSource.demo => _t("data.add.demo"),
+      CredentialStoreSource.staging => context.tr("data.add.staging"),
+      CredentialStoreSource.demo => context.tr("data.add.demo"),
       _ => group.category,
     };
 
@@ -412,7 +407,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
 
     final justAdded = widget.justAdded;
     return GlassSheetPage(
-      title: _t("data.add.title"),
+      title: context.tr("data.add.title"),
       // The close button at the top left: on the pages after this one the
       // top right is for the way on, and they close by a drag down.
       closeAtStart: true,
@@ -446,7 +441,9 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                       ),
                       Expanded(
                         child: Text(
-                          _t("data.add.added_more", {"name": justAdded}),
+                          context.tr("data.add.added_more", {
+                            "name": justAdded,
+                          }),
                           style: palette
                               .body(14, weight: FontWeight.w600)
                               .copyWith(color: palette.successText),
@@ -503,10 +500,9 @@ class AddDataRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key) => FlutterI18n.translate(context, key);
     final credential = item.credential;
     final subtitle = nfcBlocked
-        ? t("data.add.nfc_unsupported.hint")
+        ? context.tr("data.add.nfc_unsupported.hint")
         : credential.issuer.name;
 
     return Semantics(
@@ -515,7 +511,7 @@ class AddDataRow extends StatelessWidget {
       label: [
         credential.name,
         subtitle,
-        if (owned && !nfcBlocked) t("data.add.in_your_app"),
+        if (owned && !nfcBlocked) context.tr("data.add.in_your_app"),
       ].join(", "),
       onTap: onTap,
       child: Opacity(

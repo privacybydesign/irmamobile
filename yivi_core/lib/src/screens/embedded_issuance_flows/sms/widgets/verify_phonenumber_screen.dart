@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -6,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../util/handle_pointer.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
@@ -168,9 +168,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
 
     ref
         .read(smsIssuanceProvider.notifier)
-        .sendSms(
-          phoneNumber: phoneNumber,
-          language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-        );
+        .sendSms(phoneNumber: phoneNumber, language: context.lang);
   }
 }

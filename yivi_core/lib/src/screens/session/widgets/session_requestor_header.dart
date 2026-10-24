@@ -5,7 +5,10 @@ import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
+import "../../../widgets/compact_bar.dart";
+import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/irma_avatar.dart";
 
@@ -33,15 +36,13 @@ class RequestorTrustStyle {
   factory RequestorTrustStyle.of(BuildContext context, TrustedParty party) {
     final palette = YiviPalette.of(context);
     final trust = requestorTrustOf(party);
-    String t(String key, [Map<String, String>? params]) =>
-        FlutterI18n.translate(context, key, translationParams: params);
     return switch (trust) {
       RequestorTrust.yivi => RequestorTrustStyle._(
         trust: trust,
         badge: palette.successText,
         pillFill: palette.successSurface,
         pillInk: palette.successText,
-        label: t("share.trust.pill.yivi"),
+        label: context.tr("share.trust.pill.yivi"),
       ),
       RequestorTrust.elsewhere => RequestorTrustStyle._(
         trust: trust,
@@ -49,11 +50,13 @@ class RequestorTrustStyle {
         pillFill: palette.infoSurface,
         pillInk: palette.noteText,
         label: switch (elsewhereSourceOf(party)) {
-          ElsewhereSource.euTrustedList => t("share.trust.pill.eu"),
-          ElsewhereSource.namedAnchor => t("share.trust.pill.anchor", {
+          ElsewhereSource.euTrustedList => context.tr("share.trust.pill.eu"),
+          ElsewhereSource.namedAnchor => context.tr("share.trust.pill.anchor", {
             "anchor": party.trustAnchor!,
           }),
-          ElsewhereSource.unspecified => t("share.trust.pill.confirmed"),
+          ElsewhereSource.unspecified => context.tr(
+            "share.trust.pill.confirmed",
+          ),
         },
       ),
       RequestorTrust.unknown => RequestorTrustStyle._(
@@ -61,7 +64,7 @@ class RequestorTrustStyle {
         badge: palette.dangerFill,
         pillFill: palette.errorSurface,
         pillInk: palette.errorText,
-        label: t("share.trust.pill.unknown"),
+        label: context.tr("share.trust.pill.unknown"),
       ),
       RequestorTrust.unevaluated => RequestorTrustStyle._(
         trust: trust,
@@ -88,21 +91,15 @@ class RequestorTrustBadge extends StatelessWidget {
     final fill = style.badge;
     if (fill == null) return const SizedBox.shrink();
     return ExcludeSemantics(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: fill,
-          shape: BoxShape.circle,
-          border: Border.all(color: palette.surface, width: size / 10),
-        ),
-        child: Icon(
-          style.trust.vouched
-              ? Icons.check_rounded
-              : Icons.priority_high_rounded,
-          size: size * 0.55,
-          color: Colors.white,
-        ),
+      child: CornerBadge(
+        icon: style.trust.vouched
+            ? Icons.check_rounded
+            : Icons.priority_high_rounded,
+        fill: fill,
+        size: size,
+        iconSize: size * 0.55,
+        ring: palette.surface,
+        ringWidth: size / 10,
       ),
     );
   }
@@ -445,62 +442,32 @@ class RequestorCompactBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final style = RequestorTrustStyle.of(context, requestor);
-    return GlassSurface(
+    return GlassCompactBar(
       key: const Key("requestor_compact_bar"),
       opacity: opacity,
-      padding: const EdgeInsets.fromLTRB(6, 0, 16, 0),
-      child: SizedBox(
-        height: 44,
-        child: Row(
-          spacing: 8,
-          children: [
-            ExcludeSemantics(
-              child: SizedBox.square(
-                dimension: 32,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    requestorAvatar(requestor, size: 32),
-                    Positioned(
-                      right: -3,
-                      bottom: -3,
-                      child: RequestorTrustBadge(
-                        key: const Key("requestor_compact_badge"),
-                        style: style,
-                        size: 15,
-                      ),
-                    ),
-                  ],
+      leading: ExcludeSemantics(
+        child: SizedBox.square(
+          dimension: 32,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              requestorAvatar(requestor, size: 32),
+              Positioned(
+                right: -3,
+                bottom: -3,
+                child: RequestorTrustBadge(
+                  key: const Key("requestor_compact_badge"),
+                  style: style,
+                  size: 15,
                 ),
               ),
-            ),
-            Flexible(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    requestor.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette.display(14).copyWith(color: palette.text),
-                  ),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .body(12)
-                        .copyWith(color: palette.secondaryText),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+      title: requestor.name,
+      subtitle: TextSpan(text: subtitle),
     );
   }
 }
