@@ -240,7 +240,9 @@ class EmptyCardSpot extends StatelessWidget {
           onTap: onTap,
           onTapDown: onTapDown == null ? null : (_) => onTapDown!(),
           onTapCancel: onTapCancel,
-          child: canAdd ? PressScale(scale: 0.98, child: spot) : spot,
+          child: canAdd
+              ? PressScale(scale: PressScale.card, child: spot)
+              : spot,
         ),
       ),
     );

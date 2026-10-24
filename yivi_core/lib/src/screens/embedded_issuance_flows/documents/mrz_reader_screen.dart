@@ -1,12 +1,10 @@
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:permission_handler/permission_handler.dart";
 
-import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
@@ -131,62 +129,19 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
             ),
           ),
           body: body,
-          floatingActionButton: _ManualEntryButton(
+          floatingActionButton: FancyRoundButton(
+            key: const Key("bottom_bar_primary"),
+            icon: Icons.edit,
+            size: 72,
+            iconSize: 42,
             label: FlutterI18n.translate(
               context,
               widget.translationKeys.manualEntryButton,
             ),
-            key: const Key("bottom_bar_primary"),
-            onTap: widget.onManualAdd,
+            onPressed: widget.onManualAdd,
           ),
         );
       },
-    );
-  }
-}
-
-class _ManualEntryButton extends StatelessWidget {
-  const _ManualEntryButton({
-    super.key,
-    required this.onTap,
-    required this.label,
-  });
-
-  final Function() onTap;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 72,
-      width: 72,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: SvgPicture.asset(yiviAsset("ui/round-btn-bg.svg")),
-          ),
-          Positioned.fill(
-            child: ClipOval(
-              child: Material(
-                type: .transparency,
-                child: Semantics(
-                  button: true,
-                  label: label,
-                  child: InkWell(
-                    highlightColor: Colors.transparent,
-                    onTap: onTap,
-                    child: const Icon(
-                      Icons.edit,
-                      color: Colors.white,
-                      size: 42,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

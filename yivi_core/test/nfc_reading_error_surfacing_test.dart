@@ -13,11 +13,11 @@ import "package:yivi_core/src/models/mrz.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_step_in_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_step_in_sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";

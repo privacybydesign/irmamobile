@@ -16,8 +16,10 @@ import "../../theme/yivi_shadows.dart";
 import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/link.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
@@ -754,41 +756,14 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   }
 
   /// The round arrow that submits a PIN that doesn't submit itself.
-  Widget _buildSubmitArrow(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final on = _canSubmit;
-    return Semantics(
-      button: true,
-      enabled: on,
-      label: FlutterI18n.translate(context, widget.submitLabel),
-      excludeSemantics: true,
-      child: GestureDetector(
-        key: const Key("pin_next"),
-        onTap: on ? _submit.haptic : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: on
-                ? const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFFE83A58), Color(0xFFC21E3E)],
-                  )
-                : null,
-            color: on ? null : palette.faint.withValues(alpha: 0.45),
-          ),
-          child: const Icon(
-            Icons.arrow_forward_rounded,
-            color: Colors.white,
-            size: 22,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildSubmitArrow(BuildContext context) => FancyRoundButton(
+    key: const Key("pin_next"),
+    icon: Icons.arrow_forward_rounded,
+    size: 40,
+    iconSize: 22,
+    label: FlutterI18n.translate(context, widget.submitLabel),
+    onPressed: _canSubmit ? _submit.haptic : null,
+  );
 
   Widget _buildPinDots({Color? ring}) {
     return _PinIndicator(

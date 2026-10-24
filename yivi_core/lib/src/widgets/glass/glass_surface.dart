@@ -331,7 +331,7 @@ class GlassIconButton extends StatelessWidget {
       child: IgnorePointer(
         ignoring: a == 0,
         child: _PressScale(
-          scale: 1.08,
+          scale: PressScale.glass,
           child: GlassSurface(
             shape: const CircleBorder(),
             dark: dark,
@@ -392,13 +392,32 @@ class _PressScaleState extends State<_PressScale> {
   }
 }
 
-/// Exposes [_PressScale] for buttons outside this file.
+/// How a button answers a press, for buttons outside this file: glass grows
+/// ([glass]), a button gives way ([button]), a card a little less ([card]).
 class PressScale extends StatelessWidget {
+  /// Glass buttons, glass pills and tags, as on iOS.
+  static const glass = 1.08;
+
+  /// Pills, links, plain icons, tabs.
+  static const button = 0.97;
+
+  /// Cards and card-sized spots.
+  static const card = 0.98;
+
   final Widget child;
   final double scale;
 
-  const PressScale({super.key, required this.child, this.scale = 0.97});
+  /// A disabled button does not move.
+  final bool enabled;
+
+  const PressScale({
+    super.key,
+    required this.child,
+    this.scale = button,
+    this.enabled = true,
+  });
 
   @override
-  Widget build(BuildContext context) => _PressScale(scale: scale, child: child);
+  Widget build(BuildContext context) =>
+      enabled ? _PressScale(scale: scale, child: child) : child;
 }

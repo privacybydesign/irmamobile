@@ -22,6 +22,7 @@ import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/document_flow_footer.dart";
+import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -89,9 +90,7 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
 
 /// How long the done stage stays up after a successful read. Tests that do
 /// not look at it set it to zero.
-final nfcDoneHoldProvider = Provider<Duration>(
-  (ref) => NfcDoneCheck.holdDuration,
-);
+final nfcDoneHoldProvider = Provider<Duration>((ref) => DoneCheck.holdDuration);
 
 /// What the screen shows while reading. Only states without an error or a
 /// cancel have one; those keep their own layout.
@@ -514,7 +513,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         [if (!inSheet) cancelAction],
       ),
       _NfcStage.done => (
-        const NfcDoneCheck(),
+        const DoneCheck(),
         ("$keys.done_title", "$keys.done_body$device"),
         <NfcStageAction>[],
       ),

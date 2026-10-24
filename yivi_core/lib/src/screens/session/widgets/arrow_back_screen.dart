@@ -5,6 +5,7 @@ import "package:native_device_orientation/native_device_orientation.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../util/navigation.dart";
+import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/translated_text.dart";
@@ -116,13 +117,14 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // A green tick, or a cross when it did not work out.
-                      ToneDisc(
-                        icon: success
-                            ? Icons.check_rounded
-                            : Icons.close_rounded,
-                        tone: success ? DialogTone.success : DialogTone.danger,
-                        size: 120,
-                      ),
+                      if (success)
+                        const DoneCheck(size: 120)
+                      else
+                        const ToneDisc(
+                          icon: Icons.close_rounded,
+                          tone: DialogTone.danger,
+                          size: 120,
+                        ),
                       const SizedBox(height: 32),
                       RotatedBox(
                         quarterTurns: quarterTurns,

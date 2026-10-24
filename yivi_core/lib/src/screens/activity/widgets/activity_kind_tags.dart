@@ -112,7 +112,7 @@ class _Tag extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: PressScale(
-          scale: 1.06,
+          scale: PressScale.glass,
           child: GlassSurface(
             fill: selected ? palette.heading : null,
             padding: EdgeInsets.fromLTRB(kind == null ? 14 : 9, 0, 14, 0),

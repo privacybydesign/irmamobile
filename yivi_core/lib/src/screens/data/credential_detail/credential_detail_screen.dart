@@ -670,15 +670,7 @@ class _ActivityRow extends StatelessWidget {
       child: Row(
         spacing: 16,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: palette.tint,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.history, size: 20, color: palette.link),
-          ),
+          const ToneDisc(icon: Icons.history, tone: DialogTone.info, size: 40),
           // The date under what happened, as in the design.
           Expanded(
             child: Column(

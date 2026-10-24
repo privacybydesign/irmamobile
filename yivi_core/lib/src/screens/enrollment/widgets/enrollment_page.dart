@@ -344,7 +344,7 @@ class EnrollmentBarTextButton extends StatelessWidget {
       label: label,
       excludeSemantics: true,
       child: PressScale(
-        scale: 1.04,
+        scale: PressScale.glass,
         child: GlassSurface(
           shape: const StadiumBorder(),
           child: Material(

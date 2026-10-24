@@ -15,6 +15,7 @@ import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/party_initial.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../data/wallet/wallet_detail_scaffold.dart";
@@ -100,7 +101,7 @@ class ActivityPartyLogo extends StatelessWidget {
       alignment: Alignment.center,
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
-        color: logo == null ? palette.tint : palette.surface,
+        color: logo == null ? partyInitialFill(party.name) : palette.surface,
         shape: shape,
         shadows: const [
           BoxShadow(
@@ -115,12 +116,7 @@ class ActivityPartyLogo extends StatelessWidget {
               dimension: size * 0.66,
               child: Base64Image(base64: logo.base64, mimeType: logo.mimeType),
             )
-          : Text(
-              party.name.isEmpty ? "?" : party.name.characters.first,
-              style: palette
-                  .display(size * 0.43, weight: FontWeight.w700)
-                  .copyWith(color: palette.link, height: 1),
-            ),
+          : PartyInitial(name: party.name, size: size),
     );
   }
 }

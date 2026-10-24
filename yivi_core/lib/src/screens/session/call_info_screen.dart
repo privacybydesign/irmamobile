@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -39,20 +40,11 @@ class CallInfoScreen extends StatelessWidget {
     // Tablets: one centred column, the button right under the text.
     final tablet = useSessionColumns(context);
     final parts = <Widget>[
-      ExcludeSemantics(
-        child: Container(
-          width: 84,
-          height: 84,
-          decoration: BoxDecoration(
-            color: palette.successTint,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.phone_outlined,
-            size: 40,
-            color: palette.successText,
-          ),
-        ),
+      const ToneDisc(
+        icon: Icons.phone_outlined,
+        tone: DialogTone.success,
+        size: 84,
+        iconSize: 40,
       ),
       Semantics(
         header: true,

@@ -9,8 +9,10 @@ import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/irma_avatar.dart";
+import "../../../widgets/party_initial.dart";
 
 /// The colours and words of a [RequestorTrust] tier, in one place: the badge
 /// on the logo, the pill under the name, and the trust sheet.
@@ -169,43 +171,23 @@ class RequestorLogo extends StatelessWidget {
   }
 }
 
-/// The fills of a requestor without a logo, picked by its name: deep
-/// enough that a white initial reads well, in both light and dark mode.
-const _initialFills = [
-  Color(0xFF2F5D8A),
-  Color(0xFF7A1F2E),
-  Color(0xFF3D6B4F),
-  Color(0xFF6B4E8A),
-  Color(0xFF8A5A2F),
-];
-
 /// [requestor]'s logo, or its initial on a coloured disc when it has none
 /// (not the pale grey placeholder: this is the subject of the screen).
 Widget requestorAvatar(TrustedParty requestor, {double size = 46}) {
   final image = requestor.image;
   if (image == null && requestor.imagePath == null) {
-    final name = requestor.name.trim();
-    final fill =
-        _initialFills[name.codeUnits.fold(0, (a, c) => a + c) %
-            _initialFills.length];
     return Semantics(
       label: requestor.name,
       child: Container(
         width: size,
         height: size,
         alignment: Alignment.center,
-        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          color: partyInitialFill(requestor.name),
+          shape: BoxShape.circle,
+        ),
         child: ExcludeSemantics(
-          child: Text(
-            name.isEmpty ? "?" : name.characters.first.toUpperCase(),
-            style: TextStyle(
-              fontFamily: "Alexandria",
-              fontWeight: FontWeight.w700,
-              fontSize: size * 0.44,
-              height: 1,
-              color: Colors.white,
-            ),
-          ),
+          child: PartyInitial(name: requestor.name, size: size),
         ),
       ),
     );
@@ -281,19 +263,12 @@ class RequestorCard extends StatelessWidget {
                 ),
               ),
               if (tap != null)
-                Container(
+                ToneDisc(
                   key: const Key("session_requestor_info"),
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: risky ? palette.errorSurface : palette.tint,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: risky ? palette.errorText : palette.link,
-                  ),
+                  icon: Icons.info_outline_rounded,
+                  tone: risky ? DialogTone.danger : DialogTone.info,
+                  size: 32,
+                  iconSize: 18,
                 ),
             ],
           );
@@ -413,7 +388,7 @@ class RequestorCard extends StatelessWidget {
       ),
       excludeSemantics: true,
       child: PressScale(
-        scale: 0.98,
+        scale: PressScale.card,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: tap,

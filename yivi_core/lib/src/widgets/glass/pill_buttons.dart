@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -64,6 +66,7 @@ class FancyPillButton extends StatelessWidget {
       label: label,
       excludeSemantics: true,
       child: PressScale(
+        enabled: enabled,
         // Greyed out under a veil of the page's colour rather than see-
         // through: an opaque button covers the one it replaces while sheet
         // pages change, instead of showing its label through its own.
@@ -140,6 +143,136 @@ class FancyPillButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The primary action as a round button: [FancyPillButton]'s faceted red
+/// (`ui/round-btn-bg.svg`) and light top edge, with a white [icon], and
+/// greyed out under the same veil when [onPressed] is null. The QR button,
+/// the PIN's submit arrow, the manual entry of the document camera.
+class FancyRoundButton extends StatelessWidget {
+  final IconData icon;
+  final double size;
+
+  /// Null: about half of [size].
+  final double? iconSize;
+  final VoidCallback? onPressed;
+  final String label;
+
+  /// Under the button, e.g. to stand off the cards scrolling behind it.
+  final List<BoxShadow>? shadows;
+
+  /// How far it shrinks (or grows) under the finger.
+  final double pressScale;
+
+  const FancyRoundButton({
+    super.key,
+    required this.icon,
+    required this.size,
+    required this.onPressed,
+    required this.label,
+    this.iconSize,
+    this.shadows,
+    this.pressScale = PressScale.button,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final enabled = onPressed != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: true,
+      child: PressScale(
+        scale: pressScale,
+        enabled: enabled,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            shape: const CircleBorder(),
+            shadows: shadows,
+          ),
+          position: DecorationPosition.background,
+          child: DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: ShapeDecoration(
+              shape: const CircleBorder(),
+              color: enabled ? null : palette.background.withValues(alpha: 0.5),
+            ),
+            child: ClipOval(
+              child: SizedBox.square(
+                dimension: size,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    SvgPicture.asset(
+                      yiviAsset("ui/round-btn-bg.svg"),
+                      fit: BoxFit.cover,
+                    ),
+                    const IgnorePointer(
+                      child: CustomPaint(painter: _RoundEdgePainter()),
+                    ),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: InkWell(
+                        highlightColor: Colors.transparent,
+                        customBorder: const CircleBorder(),
+                        onTap: onPressed,
+                        child: Icon(
+                          icon,
+                          color: Colors.white,
+                          size: iconSize ?? size * 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The faint rim of [FancyRoundButton] and the light edge along its top,
+/// which fades out towards the sides: the light edge of the red pills.
+class _RoundEdgePainter extends CustomPainter {
+  const _RoundEdgePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = (Offset.zero & size).deflate(0.5);
+    canvas.drawOval(
+      rect,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = Colors.white.withValues(alpha: 0.12),
+    );
+    canvas.drawArc(
+      rect,
+      math.pi * 1.15,
+      math.pi * 0.7,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..shader = SweepGradient(
+          startAngle: math.pi * 1.15,
+          endAngle: math.pi * 1.85,
+          colors: [
+            Colors.white.withValues(alpha: 0),
+            Colors.white.withValues(alpha: 0.28),
+            Colors.white.withValues(alpha: 0),
+          ],
+        ).createShader(rect),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RoundEdgePainter old) => false;
 }
 
 enum PillStyle { outlined, text, neutral, danger, dangerFilled }
@@ -235,6 +368,7 @@ class PillButton extends StatelessWidget {
     return Opacity(
       opacity: onPressed == null ? 0.5 : 1,
       child: PressScale(
+        enabled: onPressed != null,
         child: Material(
           color: fill,
           shape: StadiumBorder(side: side),
@@ -335,7 +469,11 @@ class SmallPill extends StatelessWidget {
         ),
       ),
     );
-    return Semantics(button: true, enabled: onPressed != null, child: pill);
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      child: PressScale(enabled: onPressed != null, child: pill),
+    );
   }
 }
 
@@ -367,27 +505,30 @@ class TextLink extends StatelessWidget {
       enabled: onPressed != null,
       child: Opacity(
         opacity: onPressed == null ? 0.5 : 1,
-        child: InkWell(
-          highlightColor: Colors.transparent,
-          onTap: onPressed,
-          customBorder: const StadiumBorder(),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Center(
-                widthFactor: 1,
-                heightFactor: 1,
-                child: Text(
-                  label,
-                  textAlign: textAlign,
-                  style: palette
-                      .body(15, weight: FontWeight.w600)
-                      .copyWith(
-                        color: fg,
-                        decoration: TextDecoration.none,
-                        decorationColor: fg,
-                      ),
+        child: PressScale(
+          enabled: onPressed != null,
+          child: InkWell(
+            highlightColor: Colors.transparent,
+            onTap: onPressed,
+            customBorder: const StadiumBorder(),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Center(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: Text(
+                    label,
+                    textAlign: textAlign,
+                    style: palette
+                        .body(15, weight: FontWeight.w600)
+                        .copyWith(
+                          color: fg,
+                          decoration: TextDecoration.none,
+                          decorationColor: fg,
+                        ),
+                  ),
                 ),
               ),
             ),
@@ -429,22 +570,25 @@ class PlainIconButton extends StatelessWidget {
       enabled: onPressed != null,
       label: semanticsLabel,
       excludeSemantics: true,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          highlightColor: Colors.transparent,
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
-          child: SizedBox.square(
-            dimension: 44,
-            child: Icon(
-              icon,
-              size: iconSize,
-              color:
-                  color ??
-                  (danger ? palette.danger : palette.heading).withValues(
-                    alpha: onPressed == null ? 0.4 : 1,
-                  ),
+      child: PressScale(
+        enabled: onPressed != null,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            highlightColor: Colors.transparent,
+            onTap: onPressed,
+            customBorder: const CircleBorder(),
+            child: SizedBox.square(
+              dimension: 44,
+              child: Icon(
+                icon,
+                size: iconSize,
+                color:
+                    color ??
+                    (danger ? palette.danger : palette.heading).withValues(
+                      alpha: onPressed == null ? 0.4 : 1,
+                    ),
+              ),
             ),
           ),
         ),

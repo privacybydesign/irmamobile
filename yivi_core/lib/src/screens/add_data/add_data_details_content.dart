@@ -9,6 +9,7 @@ import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/sheet_action_row.dart";
 import "../../widgets/irma_markdown.dart";
@@ -287,14 +288,11 @@ class _ChecklistState extends State<_Checklist> {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 1),
-          child: Container(
-            width: 18,
-            height: 18,
-            decoration: BoxDecoration(
-              color: palette.tint,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.check_rounded, size: 13, color: palette.link),
+          child: const ToneDisc(
+            icon: Icons.check_rounded,
+            tone: DialogTone.info,
+            size: 18,
+            iconSize: 13,
           ),
         ),
         Expanded(

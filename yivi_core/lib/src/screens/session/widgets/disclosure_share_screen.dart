@@ -964,7 +964,7 @@ class _OptionalGhost extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: onAdd,
           child: PressScale(
-            scale: 0.98,
+            scale: PressScale.card,
             child: Stack(
               clipBehavior: Clip.none,
               children: [

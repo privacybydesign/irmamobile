@@ -43,12 +43,12 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart"
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
+import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/lock_gate.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";

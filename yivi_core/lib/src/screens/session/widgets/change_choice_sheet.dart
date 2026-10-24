@@ -598,7 +598,7 @@ class _OwnedCard extends StatelessWidget {
       button: true,
       onTap: onTap,
       child: PressScale(
-        scale: 0.98,
+        scale: PressScale.card,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,

@@ -141,7 +141,6 @@ Widget _pin({
   bool toggle = false,
 }) {
   final scaffoldKey = _keys[keyId]!;
-  final isLong = maxPinSize == longPinSize;
   return YiviPinScaffold(
     key: scaffoldKey,
     appBar: IrmaAppBar(titleString: ""),
@@ -151,20 +150,12 @@ Widget _pin({
       maxPinSize: maxPinSize,
       onSubmit: (_) {},
       checkSecurePin: checkSecurePin,
-      displayPinLength: checkSecurePin,
       onForgotPin: forgot ? () {} : null,
       onBiometricUnlock: biometric ? () {} : null,
       biometricGlyph: biometric
           ? (biometricGlyph ?? const Icon(Icons.fingerprint, size: 28))
           : null,
       onTogglePinSize: toggle ? () {} : null,
-      // Mirrors YiviChoosePinScaffold: keep the slot reserved (invisible) while
-      // typing a short PIN, then reveal "Next" once it's long enough / insecure.
-      submitButtonVisibilityListener: checkSecurePin
-          ? (context, state) => (!isLong && state.pin.length < shortPinSize)
-                ? defaultSubmitButtonVisibility(context, maxPinSize)
-                : WidgetVisibility.visible
-          : null,
     ),
   );
 }

@@ -1,15 +1,12 @@
-import "dart:math" as math;
-
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../package_name.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_surface.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../notifications/bloc/notifications_bloc.dart";
 import "irma_nav_bar.dart";
 import "irma_qr_scan_button.dart";
@@ -164,26 +161,29 @@ class _TabButton extends StatelessWidget {
       selected: selected,
       label: label,
       excludeSemantics: true,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          highlightColor: Colors.transparent,
-          customBorder: const StadiumBorder(),
-          onTap: onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 2,
-            children: [
-              iconWidget,
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: palette
-                    .body(10, weight: FontWeight.w600)
-                    .copyWith(color: color, height: 14 / 10),
-              ),
-            ],
+      // Gives way under the finger, as the rail's tabs do.
+      child: PressScale(
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            highlightColor: Colors.transparent,
+            customBorder: const StadiumBorder(),
+            onTap: onTap,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 2,
+              children: [
+                iconWidget,
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: palette
+                      .body(10, weight: FontWeight.w600)
+                      .copyWith(color: color, height: 14 / 10),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -203,106 +203,30 @@ class GlassQrButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
+    return FancyRoundButton(
+      icon: Icons.qr_code_scanner_rounded,
+      size: size,
+      iconSize: size * 0.47,
       label: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
-      excludeSemantics: true,
-      child: PressScale(
-        scale: 1.08,
-        // The same dark shadow as the glass tab bar next to it, so it
-        // stands off the cards scrolling behind it.
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: const CircleBorder(),
-            shadows: [
-              BoxShadow(
-                color: palette.glassShadow,
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-              BoxShadow(
-                color: palette.glassShadow.withValues(alpha: 0.06),
-                blurRadius: 2,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: ClipOval(
-            child: SizedBox.square(
-              dimension: size,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  SvgPicture.asset(
-                    yiviAsset("ui/round-btn-bg.svg"),
-                    fit: BoxFit.cover,
-                  ),
-                  // No white wash over the red (it looked hazy): a faint rim
-                  // and a thin light edge along the top, as on the red pills.
-                  const IgnorePointer(
-                    child: CustomPaint(painter: _QrButtonEdgePainter()),
-                  ),
-                  Material(
-                    type: MaterialType.transparency,
-                    child: InkWell(
-                      highlightColor: Colors.transparent,
-                      customBorder: const CircleBorder(),
-                      onTap: () => openQrCodeScanner(context),
-                      child: Icon(
-                        Icons.qr_code_scanner_rounded,
-                        color: Colors.white,
-                        size: size * 0.47,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+      onPressed: () => openQrCodeScanner(context),
+      // Grows like the glass buttons next to it.
+      pressScale: PressScale.glass,
+      // The same dark shadow as the glass tab bar next to it, so it
+      // stands off the cards scrolling behind it.
+      shadows: [
+        BoxShadow(
+          color: palette.glassShadow,
+          blurRadius: 24,
+          offset: const Offset(0, 8),
         ),
-      ),
+        BoxShadow(
+          color: palette.glassShadow.withValues(alpha: 0.06),
+          blurRadius: 2,
+          offset: const Offset(0, 1),
+        ),
+      ],
     );
   }
-}
-
-/// The faint rim of [GlassQrButton] and the light edge along its top, which
-/// fades out towards the sides.
-class _QrButtonEdgePainter extends CustomPainter {
-  const _QrButtonEdgePainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = (Offset.zero & size).deflate(0.5);
-    canvas.drawOval(
-      rect,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = Colors.white.withValues(alpha: 0.12),
-    );
-    // The upper arc, brightest at the top: the light edge of the red pills.
-    canvas.drawArc(
-      rect,
-      math.pi * 1.15,
-      math.pi * 0.7,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..shader = SweepGradient(
-          startAngle: math.pi * 1.15,
-          endAngle: math.pi * 1.85,
-          colors: [
-            Colors.white.withValues(alpha: 0),
-            Colors.white.withValues(alpha: 0.28),
-            Colors.white.withValues(alpha: 0),
-          ],
-        ).createShader(rect),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_QrButtonEdgePainter old) => false;
 }
 
 /// A tab's icon, 26 pt; with [showDot] (the bell) a small primary dot at its

@@ -8,6 +8,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/action_feedback.dart";
+import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
@@ -113,7 +114,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     final lastUse = shared.firstWhereOrNull(isLastUse);
 
     final heading = <Widget>[
-      const Center(child: _DoneCheck()),
+      const Center(child: DoneCheck(key: Key("share_done_check"), size: 84)),
       const SizedBox(height: 12),
       Semantics(
         header: true,
@@ -189,7 +190,9 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
                     .copyWith(height: 22 / 15, color: palette.heading),
               ),
             ),
-            overview: const [Center(child: _DoneCheck())],
+            overview: const [
+              Center(child: DoneCheck(key: Key("share_done_check"), size: 84)),
+            ],
             receives: [
               for (final (n, d) in details.indexed) ...[
                 if (n > 0) const SizedBox(height: 12),
@@ -262,28 +265,5 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     if (state == AppLifecycleState.resumed) {
       widget.onDismiss(context);
     }
-  }
-}
-
-/// A green check in a ring.
-class _DoneCheck extends StatelessWidget {
-  const _DoneCheck();
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return ExcludeSemantics(
-      child: Container(
-        key: const Key("share_done_check"),
-        width: 84,
-        height: 84,
-        decoration: BoxDecoration(
-          color: palette.successTint,
-          shape: BoxShape.circle,
-          border: Border.all(color: palette.successOutline, width: 3),
-        ),
-        child: Icon(Icons.check_rounded, size: 44, color: palette.successText),
-      ),
-    );
   }
 }

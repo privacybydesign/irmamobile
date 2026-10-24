@@ -233,7 +233,7 @@ class _FlightOverlayState extends State<_FlightOverlay>
                     child: Transform.scale(
                       scale: (rect.width / widget.from.width).clamp(0.3, 1.0),
                       alignment: Alignment.topRight,
-                      child: _CheckBadge(border: palette.background),
+                      child: const ReceivedCheck(),
                     ),
                   ),
                 ),
@@ -269,19 +269,20 @@ class _FlightOverlayState extends State<_FlightOverlay>
   }
 }
 
-/// The green check on the received card.
-class _CheckBadge extends StatelessWidget {
-  final Color border;
+/// The green check on a received card or pile, ringed in the page colour,
+/// on the success screen and on the card that flies on from there.
+class ReceivedCheck extends StatelessWidget {
+  final double size;
 
-  const _CheckBadge({required this.border});
+  const ReceivedCheck({super.key, this.size = 56});
 
   @override
   Widget build(BuildContext context) => CornerBadge(
     icon: Icons.check,
     fill: YiviPalette.successMark,
-    size: 56,
-    iconSize: 30,
-    ring: border,
+    size: size,
+    iconSize: size * 0.54,
+    ring: YiviPalette.of(context).background,
     ringWidth: 4,
   );
 }

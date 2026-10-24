@@ -209,7 +209,7 @@ class TorchButton extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: torch.toggle,
             child: PressScale(
-              scale: 0.94,
+              scale: PressScale.glass,
               child: labelBeside
                   ? Row(
                       mainAxisSize: MainAxisSize.min,

@@ -66,7 +66,7 @@ class ActivityCard extends ConsumerWidget {
         button: true,
         excludeSemantics: true,
         child: PressScale(
-          scale: 0.98,
+          scale: PressScale.card,
           child: Material(
             color: palette.surface,
             shape: RoundedRectangleBorder(

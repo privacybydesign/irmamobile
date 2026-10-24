@@ -18,6 +18,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/nfc_settings.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "package:yivi_core/src/widgets/done_check.dart";
 
 import "support/pump_translated.dart";
 
@@ -378,10 +379,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
 
-      expect(find.byType(NfcDoneCheck), findsOneWidget);
+      expect(find.byType(DoneCheck), findsOneWidget);
       expect(issuer.issuances, 0);
 
-      await tester.pump(NfcDoneCheck.holdDuration);
+      await tester.pump(DoneCheck.holdDuration);
       await tester.pump();
 
       expect(issuer.issuances, 1);
@@ -397,7 +398,7 @@ void main() {
 
       expect(find.text("Your passport has been read"), findsOneWidget);
       expect(find.text("You can pick up your phone again."), findsOneWidget);
-      expect(find.byType(NfcDoneCheck), findsOneWidget);
+      expect(find.byType(DoneCheck), findsOneWidget);
       expect(find.byType(NfcProgressRing), findsNothing);
       expect(cancelButton().hitTestable(), findsNothing);
     }, variant: _androidOnly);

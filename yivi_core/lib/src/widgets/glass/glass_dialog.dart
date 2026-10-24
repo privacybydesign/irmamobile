@@ -20,11 +20,19 @@ class ToneDisc extends StatelessWidget {
   final DialogTone tone;
   final double size;
 
+  /// Null: half of [size].
+  final double? iconSize;
+
+  /// What the icon says, when the text next to it does not ("yes", "no").
+  final String? semanticLabel;
+
   const ToneDisc({
     super.key,
     required this.icon,
     this.tone = DialogTone.neutral,
     this.size = 56,
+    this.iconSize,
+    this.semanticLabel,
   });
 
   /// Fill and icon colour of [tone].
@@ -40,15 +48,17 @@ class ToneDisc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (fill, ink) = colors(YiviPalette.of(context), tone);
-    return ExcludeSemantics(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-        alignment: Alignment.center,
-        child: Icon(icon, size: size / 2, color: ink),
-      ),
+    final disc = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: Icon(icon, size: iconSize ?? size / 2, color: ink),
     );
+    final label = semanticLabel;
+    return label == null
+        ? ExcludeSemantics(child: disc)
+        : Semantics(label: label, excludeSemantics: true, child: disc);
   }
 }
 

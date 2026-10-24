@@ -11,9 +11,6 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final (fill, ink) = followsRule
-        ? (palette.successSurface, palette.successText)
-        : (palette.errorSurface, palette.danger);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -21,20 +18,14 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12,
         children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-            child: Icon(
-              followsRule ? Icons.check_rounded : Icons.close_rounded,
-              size: 16,
-              color: ink,
-              semanticLabel: FlutterI18n.translate(
-                context,
-                followsRule
-                    ? "credential.boolean_yes"
-                    : "credential.boolean_no",
-              ),
+          ToneDisc(
+            icon: followsRule ? Icons.check_rounded : Icons.close_rounded,
+            tone: followsRule ? DialogTone.success : DialogTone.danger,
+            size: 24,
+            iconSize: 16,
+            semanticLabel: FlutterI18n.translate(
+              context,
+              followsRule ? "credential.boolean_yes" : "credential.boolean_no",
             ),
           ),
           Expanded(

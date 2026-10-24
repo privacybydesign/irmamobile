@@ -365,7 +365,7 @@ class _CountryButton extends StatelessWidget {
       label: label,
       onTap: onTap,
       child: PressScale(
-        scale: 0.96,
+        scale: PressScale.button,
         child: GestureDetector(
           key: const Key("phone_country_button"),
           behavior: HitTestBehavior.opaque,

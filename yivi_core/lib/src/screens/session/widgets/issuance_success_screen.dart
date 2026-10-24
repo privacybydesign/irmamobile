@@ -9,8 +9,8 @@ import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/action_feedback.dart";
 import "../../../widgets/card_pile.dart";
-import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../data/wallet/issuance_flight.dart";
 import "issuance_permission.dart";
@@ -198,25 +198,6 @@ class _Arrive extends StatelessWidget {
   }
 }
 
-/// The green check on the received card or pile.
-class _CheckBadge extends StatelessWidget {
-  final double size;
-
-  const _CheckBadge({this.size = 56});
-
-  @override
-  Widget build(BuildContext context) => CornerBadge(
-    key: const Key("received_check"),
-    icon: Icons.check,
-    fill: YiviPalette.successMark,
-    size: size,
-    iconSize: size * 0.54,
-    // In the page colour, as on the card that flies on (CardFlight).
-    ring: YiviPalette.of(context).background,
-    ringWidth: 4,
-  );
-}
-
 /// The received card, settling into place with a green check badge.
 class _ReceivedCard extends StatelessWidget {
   final schemaless.Credential credential;
@@ -246,7 +227,7 @@ class _ReceivedCard extends StatelessWidget {
                     const Positioned(
                       right: -12,
                       top: -16,
-                      child: _CheckBadge(),
+                      child: ReceivedCheck(key: Key("received_check")),
                     ),
                   ],
                 ),
@@ -297,7 +278,10 @@ class _ReceivedPile extends StatelessWidget {
                   Positioned(
                     left: frontLeft + pile.cardWidth + 12 - check,
                     top: CardPile.margin + front * CardPile.step - 16,
-                    child: const _CheckBadge(size: check),
+                    child: const ReceivedCheck(
+                      key: Key("received_check"),
+                      size: check,
+                    ),
                   ),
                 ],
               ),

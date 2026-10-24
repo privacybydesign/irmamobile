@@ -25,6 +25,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
+import "package:yivi_core/src/widgets/done_check.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 
@@ -340,7 +341,7 @@ void main() {
       await _pump(
         tester,
         stage(
-          picture: const NfcDoneCheck(),
+          picture: const DoneCheck(),
           title: "document_flow.nfc.done_title",
           body: "document_flow.nfc.done_body",
           actions: const [],
@@ -352,7 +353,7 @@ void main() {
       expect(find.text("Je paspoort is gelezen"), findsOneWidget);
       expect(find.text("Je kunt je telefoon weer oppakken."), findsOneWidget);
       expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
-      expect(tester.getSize(find.byType(NfcDoneCheck)), const Size(180, 180));
+      expect(tester.getSize(find.byType(DoneCheck)), const Size(180, 180));
       // The empty footer keeps the room of one text pill (16 + 56 + 8), so
       // the page does not jump when the stage changes.
       expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 80);
@@ -408,7 +409,7 @@ void main() {
       for (final picture in [
         const NfcPhoneOnPassport(),
         const NfcProgressRing(progress: 0.5, label: "x"),
-        const NfcDoneCheck(),
+        const DoneCheck(),
         const NfcOffIllustration(),
       ]) {
         await _pump(
@@ -513,7 +514,7 @@ void main() {
         "motion", (tester) async {
       Future<void> pumpCheck() => _pump(
         tester,
-        const Scaffold(body: Center(child: NfcDoneCheck())),
+        const Scaffold(body: Center(child: DoneCheck())),
         ticker: .running,
       );
 
