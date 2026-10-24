@@ -143,24 +143,35 @@ const builtinCardSvgs = <String, String>{
 <text x="62" y="28" font-family="§Cormorant Garamond" font-size="12.5" font-weight="700" letter-spacing="0.6" fill="#D9B861">{{yivi.name}}</text>
 <text x="62" y="50" font-family="§Cormorant Garamond" font-size="21" font-weight="700" fill="#F6F0DC">{{qualification}}</text>''',
   "driving": r'''
-<defs><linearGradient id="r6drv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B53A66"/><stop offset="1" stop-color="#912449"/></linearGradient></defs>
-<rect width="358" height="226" fill="url(#r6drv)"/>
-<g fill="#FFFFFF" fill-opacity="0.6"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g><text x="318" y="36" text-anchor="middle" font-family="§Source Sans 3" font-size="10" font-weight="800" fill="#FFFFFF" fill-opacity="0.8">NL</text>
-<g transform="translate(264 178) scale(0.8)"><path d="M0 64 C20 40 50 34 96 22" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="22" stroke-linecap="round"/><path d="M0 64 C20 40 50 34 96 22" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="1.6" stroke-dasharray="6 6"/><g transform="translate(26 -2)" fill="#FFFFFF"><path d="M6 26 h48 v-10 l-8 -12 h-30 l-8 12 z" fill-opacity="0.9"/><circle cx="16" cy="28" r="6" fill="#912449" stroke="#FFFFFF" stroke-width="2"/><circle cx="44" cy="28" r="6" fill="#912449" stroke="#FFFFFF" stroke-width="2"/><path d="M18 6 h22 l5 8 h-32 z" fill="#B53A66"/></g></g>
-<rect x="20" y="80" width="64" height="82" rx="8" fill="#F9E1EA"/><g fill="#E4B3C5"><circle cx="52" cy="110" r="13"/><path d="M31 162 C31 141 42 133 52 133 C62 133 73 141 73 162 Z"/></g><defs><clipPath id="driving-photo"><rect x="20" y="80" width="64" height="82" rx="8"/></clipPath></defs><image href="{{photo}}" x="20" y="80" width="64" height="82" preserveAspectRatio="xMidYMid slice" clip-path="url(#driving-photo)"/><rect x="20" y="80" width="64" height="82" rx="8" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="1.5"/>
-<text x="100" y="92" font-family="§Source Sans 3" font-size="10.5" font-weight="600" fill="#F8D1DF">{{label.documentNumber}}</text>
-<text x="100" y="110.0" font-family="§Source Sans 3" font-size="14.5" font-weight="700" fill="#FFF4F8">{{documentNumber}}</text>
-<text x="210" y="92" font-family="§Source Sans 3" font-size="10.5" font-weight="600" fill="#F8D1DF">{{label.dateOfExpiry}}</text>
-<text x="210" y="110.0" font-family="§Source Sans 3" font-size="14.5" font-weight="700" fill="#FFF4F8">{{dateOfExpiry}}</text>
-<text x="100" y="132" font-family="§Source Sans 3" font-size="10.5" font-weight="600" fill="#F8D1DF">{{label.dateOfBirth}}</text>
-<text x="100" y="150.0" font-family="§Source Sans 3" font-size="14.5" font-weight="700" fill="#FFF4F8">{{dateOfBirth}}</text>
-<text x="210" y="132" font-family="§Source Sans 3" font-size="10.5" font-weight="600" fill="#F8D1DF">{{label.placeOfBirth}}</text>
-<text x="210" y="150.0" font-family="§Source Sans 3" font-size="14.5" font-weight="700" fill="#FFF4F8">{{placeOfBirth}}</text>
-<text x="20" y="214" font-family="§Source Sans 3" font-size="10" font-weight="600" fill="#F8D1DF">{{yivi.issuer}}</text>
-<rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
-<g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14v-4l-2-5H7l-2 5z M3 12h18 M7.5 19v-3 M16.5 19v-3 M7.5 13.5h.01 M16.5 13.5h.01"/></g>
-<text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#FAD9E5" letter-spacing="0.3">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text>''',
+<defs><linearGradient id="dl7b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9DBE4"/><stop offset="1" stop-color="#F6E5D7"/></linearGradient><radialGradient id="dl7g" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E7F1C9" stop-opacity="0.7"/><stop offset="1" stop-color="#E7F1C9" stop-opacity="0"/></radialGradient><linearGradient id="dl7h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD3E0"/><stop offset="0.5" stop-color="#FFF1C2"/><stop offset="1" stop-color="#D8F0FF"/></linearGradient></defs>
+<rect width="358" height="226" fill="url(#dl7b)"/>
+<ellipse cx="300" cy="196" rx="130" ry="70" fill="url(#dl7g)"/>
+<text x="96" y="112" font-family="§Source Sans 3" font-size="12" font-weight="800" letter-spacing="1.5" fill="#B5577A" fill-opacity="0.06">RIJBEWIJS · PERMIS DE CONDUIRE · DRIVING LICENCE · FÜHRERSCHEIN · PATENTE DI GUIDA</text>
+<text x="40" y="140" font-family="§Source Sans 3" font-size="12" font-weight="800" letter-spacing="1.5" fill="#B5577A" fill-opacity="0.06">RIJBEWIJS · PERMIS DE CONDUIRE · DRIVING LICENCE · FÜHRERSCHEIN · PATENTE DI GUIDA</text>
+<text x="96" y="168" font-family="§Source Sans 3" font-size="12" font-weight="800" letter-spacing="1.5" fill="#B5577A" fill-opacity="0.06">RIJBEWIJS · PERMIS DE CONDUIRE · DRIVING LICENCE · FÜHRERSCHEIN · PATENTE DI GUIDA</text>
+<text x="40" y="196" font-family="§Source Sans 3" font-size="12" font-weight="800" letter-spacing="1.5" fill="#B5577A" fill-opacity="0.06">RIJBEWIJS · PERMIS DE CONDUIRE · DRIVING LICENCE · FÜHRERSCHEIN · PATENTE DI GUIDA</text>
+<circle cx="318" cy="32" r="15" fill="url(#dl7h)"/>
+<circle cx="318" cy="32" r="15" fill="none" stroke="#FFFFFF" stroke-opacity="0.9"/>
+<circle cx="318" cy="32" r="9" fill="none" stroke="#9A3A60" stroke-opacity="0.3" stroke-dasharray="1.5 2"/>
+<g opacity="1.0"><rect x="20" y="72" width="66" height="86" rx="3" fill="#F2D2DC"/><g fill="#DDA7BA"><circle cx="53.0" cy="103.0" r="13.9"/><path d="M29.9 158 C29.9 136.5 41.1 126.2 53.0 126.2 C64.9 126.2 76.1 136.5 76.1 158 Z"/></g><defs><clipPath id="driving-photo"><rect x="20" y="72" width="66" height="86" rx="3"/></clipPath></defs><image href="{{photo}}" x="20" y="72" width="66" height="86" preserveAspectRatio="xMidYMid slice" clip-path="url(#driving-photo)"/><rect x="20" y="72" width="66" height="86" rx="3" fill="none" stroke="#3D0F24" stroke-opacity="0.35" stroke-width="1"/></g>
+<text x="100" y="86" font-family="§Source Sans 3" font-size="9.5" font-weight="700" fill="#9A3A60">1.</text>
+<text x="120" y="86" font-family="§Source Sans 3" font-size="12.5" font-weight="600" fill="#3D0F24"><tspan>{{lastName}}</tspan></text>
+<text x="100" y="103" font-family="§Source Sans 3" font-size="9.5" font-weight="700" fill="#9A3A60">2.</text>
+<text x="120" y="103" font-family="§Source Sans 3" font-size="12.5" font-weight="600" fill="#3D0F24"><tspan>{{firstName}}</tspan></text>
+<text x="100" y="120" font-family="§Source Sans 3" font-size="9.5" font-weight="700" fill="#9A3A60">3.</text>
+<text x="120" y="120" font-family="§Source Sans 3" font-size="12.5" font-weight="600" fill="#3D0F24"><tspan>{{dateOfBirth}}</tspan> <tspan>{{placeOfBirth}}</tspan></text>
+<text x="100" y="137" font-family="§Source Sans 3" font-size="9.5" font-weight="700" fill="#9A3A60">4b.</text>
+<text x="120" y="137" font-family="§Source Sans 3" font-size="12.5" font-weight="600" fill="#3D0F24"><tspan>{{dateOfExpiry}}</tspan></text>
+<text x="100" y="154" font-family="§Source Sans 3" font-size="9.5" font-weight="700" fill="#9A3A60">4c.</text>
+<text x="120" y="154" font-family="§Source Sans 3" font-size="12.5" font-weight="600" fill="#3D0F24"><tspan>{{issuingAuthority}}</tspan></text>
+<text x="100" y="171" font-family="§Source Sans 3" font-size="9.5" font-weight="700" fill="#9A3A60">5.</text>
+<text x="120" y="171" font-family="§Source Sans 3" font-size="12.5" font-weight="600" fill="#3D0F24"><tspan>{{documentNumber}}</tspan></text>
+<text x="20" y="212" font-family="§Source Sans 3" font-size="10" font-weight="600" fill="#9A3A60">{{yivi.issuer}}</text>
+<rect x="18.5" y="16.5" width="31" height="31" rx="6" fill="#22409A"/>
+<g fill="#F7D046" fill-opacity="1.0"><polygon points="34.00,19.80 34.42,20.92 35.62,20.97 34.68,21.72 35.00,22.88 34.00,22.21 33.00,22.88 33.32,21.72 32.38,20.97 33.58,20.92"/><polygon points="39.25,21.21 39.67,22.33 40.87,22.38 39.93,23.13 40.25,24.28 39.25,23.62 38.25,24.28 38.57,23.13 37.63,22.38 38.83,22.33"/><polygon points="43.09,25.05 43.51,26.17 44.71,26.22 43.77,26.97 44.09,28.13 43.09,27.46 42.09,28.13 42.41,26.97 41.48,26.22 42.67,26.17"/><polygon points="44.50,30.30 44.92,31.42 46.12,31.47 45.18,32.22 45.50,33.38 44.50,32.71 43.50,33.38 43.82,32.22 42.88,31.47 44.08,31.42"/><polygon points="43.09,35.55 43.51,36.67 44.71,36.72 43.77,37.47 44.09,38.63 43.09,37.96 42.09,38.63 42.41,37.47 41.48,36.72 42.67,36.67"/><polygon points="39.25,39.39 39.67,40.52 40.87,40.57 39.93,41.31 40.25,42.47 39.25,41.81 38.25,42.47 38.57,41.31 37.63,40.57 38.83,40.52"/><polygon points="34.00,40.80 34.42,41.92 35.62,41.97 34.68,42.72 35.00,43.88 34.00,43.21 33.00,43.88 33.32,42.72 32.38,41.97 33.58,41.92"/><polygon points="28.75,39.39 29.17,40.52 30.37,40.57 29.43,41.31 29.75,42.47 28.75,41.81 27.75,42.47 28.07,41.31 27.13,40.57 28.33,40.52"/><polygon points="24.91,35.55 25.33,36.67 26.52,36.72 25.59,37.47 25.91,38.63 24.91,37.96 23.91,38.63 24.23,37.47 23.29,36.72 24.49,36.67"/><polygon points="23.50,30.30 23.92,31.42 25.12,31.47 24.18,32.22 24.50,33.38 23.50,32.71 22.50,33.38 22.82,32.22 21.88,31.47 23.08,31.42"/><polygon points="24.91,25.05 25.33,26.17 26.52,26.22 25.59,26.97 25.91,28.13 24.91,27.46 23.91,28.13 24.23,26.97 23.29,26.22 24.49,26.17"/><polygon points="28.75,21.21 29.17,22.33 30.37,22.38 29.43,23.13 29.75,24.28 28.75,23.62 27.75,24.28 28.07,23.13 27.13,22.38 28.33,22.33"/></g>
+<text x="34" y="34.8" text-anchor="middle" font-family="§Source Sans 3" font-size="9" font-weight="800" fill="#FFFFFF">{{issuingMemberState}}</text>
+<text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" letter-spacing="0.6" fill="#9A3A60">{{yivi.name}}</text>
+<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#3D0F24"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text>''',
   "email": r'''
 <defs><linearGradient id="r5em4b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D88A12"/><stop offset="1" stop-color="#A9620A"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#r5em4b)"/>
@@ -508,27 +519,32 @@ const builtinCardSvgs = <String, String>{
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#E6C98A" font-family="§Archivo">{{yivi.name}}</text>
 <text x="62" y="48" font-family="§Archivo" font-size="18" font-weight="700" fill="#FFFFFF">{{fullname}}</text>''',
   "idcard": r'''
-<defs>
-<linearGradient id="id5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4766B2"/><stop offset="1" stop-color="#2A4282"/></linearGradient>
-<linearGradient id="id5h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9C6E6"/><stop offset="0.35" stop-color="#C6E3FF"/><stop offset="0.7" stop-color="#CFF7E0"/><stop offset="1" stop-color="#FFF2B8"/></linearGradient>
-</defs>
-<rect width="358" height="226" fill="url(#id5b)"/>
-<g transform="translate(268 128)" fill="none" stroke="#D4DEFF" stroke-opacity="0.11" stroke-width="0.9"><ellipse rx="74" ry="22"/><ellipse rx="74" ry="22" transform="rotate(20)"/><ellipse rx="74" ry="22" transform="rotate(40)"/><ellipse rx="74" ry="22" transform="rotate(60)"/><ellipse rx="74" ry="22" transform="rotate(80)"/><ellipse rx="74" ry="22" transform="rotate(100)"/><ellipse rx="74" ry="22" transform="rotate(120)"/><ellipse rx="74" ry="22" transform="rotate(140)"/><ellipse rx="74" ry="22" transform="rotate(160)"/></g>
-<g fill="none" stroke="#D4DEFF" stroke-opacity="0.16" stroke-width="0.8"><path d="M196 14 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0"/><path d="M196 22 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0"/><path d="M196 30 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0"/><path d="M196 38 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0"/><path d="M196 46 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0"/></g>
-<circle cx="318" cy="32" r="15" fill="url(#id5h)" fill-opacity="0.7"/>
-<circle cx="318" cy="32" r="15" fill="none" stroke="#FFFFFF" stroke-opacity="0.6"/>
-<circle cx="318" cy="32" r="9" fill="none" stroke="#2A4282" stroke-opacity="0.25" stroke-dasharray="1.5 2"/>
-<rect x="20" y="78" width="64" height="82" rx="8" fill="#DCE5FA"/>
-<g fill="#B3C3EA"><circle cx="52" cy="108" r="13"/><path d="M31 160 C31 139 42 131 52 131 C62 131 73 139 73 160 Z"/></g>
-<defs><clipPath id="idcard-photo"><rect x="20" y="78" width="64" height="82" rx="8"/></clipPath></defs><image href="{{photo}}" x="20" y="78" width="64" height="82" preserveAspectRatio="xMidYMid slice" clip-path="url(#idcard-photo)"/><rect x="20" y="78" width="64" height="82" rx="8" fill="none" stroke="#DCE5FA" stroke-opacity="0.9" stroke-width="1.5"/>
-<g font-family="§IBM Plex Sans Condensed" font-size="10" fill="#C3D3F7"><text x="100" y="90">{{label.documentNumber}}</text><text x="232" y="90">{{label.nationality}}</text><text x="100" y="130">{{label.dateOfBirth}}</text><text x="232" y="130">{{label.dateOfExpiry}}</text></g>
-<g font-family="§IBM Plex Sans Condensed" font-size="15" font-weight="600" fill="#FFFFFF"><text x="100" y="108">{{documentNumber}}</text><text x="232" y="108">{{nationality}}</text><text x="100" y="148">{{dateOfBirth}}</text><text x="232" y="148">{{dateOfExpiry}}</text></g>
-<rect x="0" y="172" width="358" height="54" fill="#0B1A3D" fill-opacity="0.32"/>
-<g font-family="§IBM Plex Mono" font-size="10.5" font-weight="500" letter-spacing="1.2" fill="#DCE5FA" fill-opacity="0.9"><text x="20" y="194">I&lt;NLD<tspan>{{documentNumber}}</tspan>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text><text x="20" y="212"><tspan>{{lastName}}</tspan>&lt;&lt;<tspan>{{firstName}}</tspan>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text></g>
-<rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.3"/>
-<g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5z M8 9.8a1.9 1.9 0 1 1 0 3.8a1.9 1.9 0 1 1 0-3.8z M4.8 16c.6-1.4 1.8-2.1 3.2-2.1s2.6.7 3.2 2.1 M13.5 10h5 M13.5 13h3.5"/></g>
-<text x="62" y="28" font-family="§IBM Plex Sans Condensed" font-size="11" font-weight="700" letter-spacing="0.8" fill="#DCE5FA">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§IBM Plex Sans Condensed" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text>''',
+<defs><linearGradient id="id7b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF2FB"/><stop offset="1" stop-color="#E2DEF3"/></linearGradient><linearGradient id="id7h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9C6E6"/><stop offset="0.35" stop-color="#C6E3FF"/><stop offset="0.7" stop-color="#CFF7E0"/><stop offset="1" stop-color="#FFF2B8"/></linearGradient></defs>
+<rect width="358" height="226" fill="url(#id7b)"/>
+<g transform="translate(276 142)" fill="none" stroke="#5468B0" stroke-opacity="0.12" stroke-width="0.8"><ellipse rx="78" ry="24" transform="rotate(0)"/><ellipse rx="78" ry="24" transform="rotate(20)"/><ellipse rx="78" ry="24" transform="rotate(40)"/><ellipse rx="78" ry="24" transform="rotate(60)"/><ellipse rx="78" ry="24" transform="rotate(80)"/><ellipse rx="78" ry="24" transform="rotate(100)"/><ellipse rx="78" ry="24" transform="rotate(120)"/><ellipse rx="78" ry="24" transform="rotate(140)"/><ellipse rx="78" ry="24" transform="rotate(160)"/></g>
+<g fill="none" stroke="#5468B0" stroke-opacity="0.14" stroke-width="0.8"><path d="M96 196 q3.0 -2.5 6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0"/><path d="M96 203 q3.0 -2.5 6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0"/><path d="M96 210 q3.0 -2.5 6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0 t6.0 0"/></g>
+<circle cx="318" cy="32" r="15" fill="url(#id7h)" fill-opacity="0.85"/>
+<circle cx="318" cy="32" r="15" fill="none" stroke="#FFFFFF" stroke-opacity="0.9"/>
+<circle cx="318" cy="32" r="9" fill="none" stroke="#5468B0" stroke-opacity="0.35" stroke-dasharray="1.5 2"/>
+<g opacity="1.0"><rect x="20" y="74" width="70" height="90" rx="4" fill="#D3DCF1"/><g fill="#AAB9E0"><circle cx="55.0" cy="106.4" r="14.7"/><path d="M30.5 164 C30.5 141.5 42.4 130.7 55.0 130.7 C67.6 130.7 79.5 141.5 79.5 164 Z"/></g><defs><clipPath id="idcard-photo"><rect x="20" y="74" width="70" height="90" rx="4"/></clipPath></defs><image href="{{photo}}" x="20" y="74" width="70" height="90" preserveAspectRatio="xMidYMid slice" clip-path="url(#idcard-photo)"/><rect x="20" y="74" width="70" height="90" rx="4" fill="none" stroke="#16234F" stroke-opacity="0.35" stroke-width="1"/></g>
+<text x="106" y="88" font-family="§IBM Plex Sans Condensed" font-size="9.5" fill="#4A5788" letter-spacing="0.3">{{label.documentNumber}}</text>
+<text x="106" y="103.5" font-family="§IBM Plex Sans Condensed" font-size="14" font-weight="600" fill="#16234F">{{documentNumber}}</text>
+<text x="232" y="88" font-family="§IBM Plex Sans Condensed" font-size="9.5" fill="#4A5788" letter-spacing="0.3">{{label.gender}}</text>
+<text x="232" y="103.5" font-family="§IBM Plex Sans Condensed" font-size="14" font-weight="600" fill="#16234F">{{gender}}</text>
+<text x="106" y="124" font-family="§IBM Plex Sans Condensed" font-size="9.5" fill="#4A5788" letter-spacing="0.3">{{label.dateOfBirth}}</text>
+<text x="106" y="139.5" font-family="§IBM Plex Sans Condensed" font-size="14" font-weight="600" fill="#16234F">{{dateOfBirth}}</text>
+<text x="232" y="124" font-family="§IBM Plex Sans Condensed" font-size="9.5" fill="#4A5788" letter-spacing="0.3">{{label.nationality}}</text>
+<text x="232" y="139.5" font-family="§IBM Plex Sans Condensed" font-size="14" font-weight="600" fill="#16234F">{{nationality}}</text>
+<text x="106" y="160" font-family="§IBM Plex Sans Condensed" font-size="9.5" fill="#4A5788" letter-spacing="0.3">{{label.dateOfExpiry}}</text>
+<text x="106" y="175.5" font-family="§IBM Plex Sans Condensed" font-size="14" font-weight="600" fill="#16234F">{{dateOfExpiry}}</text>
+<g opacity="0.45"><rect x="302" y="128" width="34" height="44" rx="3" fill="#C4CFEC"/><g fill="#93A5D6"><circle cx="319.0" cy="143.8" r="7.1"/><path d="M307.1 172 C307.1 161.0 312.9 155.7 319.0 155.7 C325.1 155.7 330.9 161.0 330.9 172 Z"/></g><defs><clipPath id="idcard-photo2"><rect x="302" y="128" width="34" height="44" rx="3"/></clipPath></defs><image href="{{photo}}" x="302" y="128" width="34" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#idcard-photo2)"/></g>
+<text x="20" y="212" font-family="§IBM Plex Sans Condensed" font-size="10" fill="#4A5788">{{yivi.issuer}}</text>
+<text x="232" y="160" font-family="§IBM Plex Sans Condensed" font-size="9.5" fill="#4A5788" letter-spacing="0.3">{{label.country}}</text>
+<text x="232" y="175.5" font-family="§IBM Plex Sans Condensed" font-size="14" font-weight="600" fill="#16234F">{{country}}</text>
+<rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#22409A" fill-opacity="0.08" stroke="#22409A" stroke-opacity="0.35"/>
+<g transform="translate(22 20)" fill="none" stroke="#16234F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5z M8 9.8a1.9 1.9 0 1 1 0 3.8a1.9 1.9 0 1 1 0-3.8z M4.8 16c.6-1.4 1.8-2.1 3.2-2.1s2.6.7 3.2 2.1 M13.5 10h5 M13.5 13h3.5"/></g>
+<text x="62" y="28" font-family="§IBM Plex Sans Condensed" font-size="10.5" font-weight="700" letter-spacing="0.8" fill="#4A5788">{{yivi.name}}</text>
+<text x="62" y="49" font-family="§IBM Plex Sans Condensed" font-size="19" font-weight="700" fill="#16234F"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text>''',
   "idin": r'''
 <defs><linearGradient id="in5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#11596B"/><stop offset="1" stop-color="#0A3643"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#in5b)"/>
