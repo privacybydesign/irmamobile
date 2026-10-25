@@ -7,6 +7,7 @@ import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
+import "../../util/reveal_whole.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -93,10 +94,19 @@ class AddDataDetailsContent extends StatelessWidget {
         ],
       );
     }
+    // Upright, the card and the intro start where the section labels' text
+    // does ("You get").
+    final upright = part == AddDataDetailsPart.all && !useSheetColumns(context);
+    final inset = upright ? _SectionLabel.inset : 0.0;
     final rest = <Widget>[
       Padding(
         // Starts where the card does.
-        padding: EdgeInsets.only(top: part == AddDataDetailsPart.rest ? 0 : 14),
+        padding: EdgeInsets.fromLTRB(
+          inset,
+          part == AddDataDetailsPart.rest ? 0 : 14,
+          inset,
+          0,
+        ),
         child: Text(
           intro.isNotEmpty
               ? intro
@@ -181,17 +191,20 @@ class AddDataDetailsContent extends StatelessWidget {
       children: [
         // Room above the card, under the bar.
         const SizedBox(height: 16),
-        Row(
-          spacing: 14,
-          children: [
-            CredentialTypeThumbnail(descriptor: credential, width: 88),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: name,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: inset),
+          child: Row(
+            spacing: 14,
+            children: [
+              CredentialTypeThumbnail(descriptor: credential, width: 88),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: name,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         ...rest,
       ],
@@ -250,9 +263,12 @@ class _SectionLabel extends StatelessWidget {
 
   const _SectionLabel(this.text);
 
+  /// Where its text starts, from the edge of the groups.
+  static const double inset = 10;
+
   @override
   Widget build(BuildContext context) =>
-      CapsLabel(text, padding: const EdgeInsets.fromLTRB(10, 20, 10, 8));
+      CapsLabel(text, padding: const EdgeInsets.fromLTRB(inset, 20, inset, 8));
 }
 
 /// The attribute names in two columns, each with a check. Past [shown]
@@ -419,6 +435,15 @@ class _Fold extends StatefulWidget {
 class _FoldState extends State<_Fold> {
   bool _open = false;
 
+  /// Opened: once it has grown, the whole answer in view (the sheet's
+  /// content starts under its bar, so nothing is covered at the top).
+  Future<void> _toggle(Duration grow) async {
+    setState(() => _open = !_open);
+    if (!_open) return;
+    await Future<void>.delayed(grow);
+    if (mounted) revealWhole(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -433,7 +458,7 @@ class _FoldState extends State<_Fold> {
           button: true,
           expanded: _open,
           child: InkWell(
-            onTap: () => setState(() => _open = !_open),
+            onTap: () => _toggle(duration),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 56),
               child: Padding(

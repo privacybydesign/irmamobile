@@ -844,6 +844,7 @@
   "notifications": {
     "title": "Notificaties",
     "empty": "Geen notificaties",
+    "empty_text": "Hier zie je het als gegevens in je app bijna verlopen, verlopen zijn of door de uitgever zijn ingetrokken. Dan kun je ze op tijd vernieuwen.",
     "credential_status": {
       "revoked": {
         "title": "Gegevens ingetrokken",

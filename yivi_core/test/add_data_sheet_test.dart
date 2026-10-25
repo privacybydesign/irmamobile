@@ -762,10 +762,8 @@ void main() {
       );
     });
 
-    testWidgets("the list has its close button at the top right on a phone "
-        "held upright; the details none, only the way on at the top right", (
-      tester,
-    ) async {
+    testWidgets("on a phone held upright the close button is at the top "
+        "right on the list and on every page of adding", (tester) async {
       await _pump(tester);
       final close = tester.getRect(find.byType(IrmaCloseButton));
       final title = tester.getRect(
@@ -776,10 +774,16 @@ void main() {
         find.byKey(const Key("pbdf.gemeente.personalData_tile")),
       );
       await tester.pumpAndSettle();
-      // Back at the left; no close button on the details (the list under
-      // them keeps its own, hidden).
-      expect(find.byType(IrmaCloseButton).hitTestable(), findsNothing);
+      // Back at the left, the close button still at the right.
       expect(find.bySemanticsLabel("Go back"), findsWidgets);
+      final onDetails = find.byType(IrmaCloseButton).hitTestable();
+      expect(onDetails, findsOneWidget);
+      expect(
+        tester.getRect(onDetails).left,
+        greaterThan(
+          tester.getRect(find.byKey(const Key("glass_sheet_title")).last).right,
+        ),
+      );
     });
 
     testWidgets("closing asks once adding has started, not before", (
@@ -793,8 +797,14 @@ void main() {
       await tester.tap(find.byKey(const Key("sheet_go_button")));
       await tester.pumpAndSettle();
 
-      // No close button on the step: a drag down on its header closes.
-      expect(find.byType(IrmaCloseButton), findsNothing);
+      // The close button stays at the top right, and asks; so does a drag
+      // down on the header.
+      await tester.tap(find.byType(IrmaCloseButton).hitTestable());
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_stop_dialog")), findsOneWidget);
+      await tester.tap(find.byKey(const Key("sheet_stop_keep")));
+      await tester.pumpAndSettle();
+      expect(_sheet, findsOneWidget);
       final g = await tester.startGesture(
         tester.getCenter(find.byKey(const Key("glass_sheet_title")).last),
       );

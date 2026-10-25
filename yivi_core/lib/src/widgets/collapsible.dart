@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "../util/reveal_whole.dart";
 import "configurable_expansion_tile.dart";
 import "irma_card.dart";
 
@@ -36,41 +37,19 @@ class _CollapsibleState extends State<Collapsible> {
 
   bool _isExpanded = false;
 
+  /// Once it has opened, the whole item in view: its question stays clear
+  /// of the bar the page scrolls under, and as much of the answer shows as
+  /// fits.
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
-    if (widget.parentScrollController == null) return;
-    if (!mounted) return;
-
-    RenderObject? scrollableRenderObject;
-    context.visitAncestorElements((element) {
-      final scrollableWidget = element.widget;
-      if (scrollableWidget is Scrollable &&
-          scrollableWidget.controller == widget.parentScrollController) {
-        scrollableRenderObject = element.renderObject;
-        return false;
-      }
-      return true;
-    });
-    if (scrollableRenderObject == null) return;
-
-    final collapsable = context.findRenderObject();
-    if (collapsable == null || collapsable is! RenderBox) return;
-
-    var desiredScrollPosition = collapsable
-        .localToGlobal(
-          Offset(0, widget.parentScrollController!.offset),
-          ancestor: scrollableRenderObject,
-        )
-        .dy;
-    if (desiredScrollPosition >
-        widget.parentScrollController!.position.maxScrollExtent) {
-      desiredScrollPosition =
-          widget.parentScrollController!.position.maxScrollExtent;
-    }
-    widget.parentScrollController!.animateTo(
-      desiredScrollPosition,
+    if (widget.parentScrollController == null || !mounted) return;
+    final scrollable = Scrollable.maybeOf(context, axis: Axis.vertical);
+    if (scrollable == null) return;
+    revealWhole(
+      context,
+      // The bar covers the top of a page that scrolls under it.
+      topInset: MediaQuery.paddingOf(scrollable.context).top,
       duration: const Duration(milliseconds: 500),
-      curve: Curves.ease,
     );
   }
 

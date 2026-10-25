@@ -456,13 +456,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }) => GlassSheetConfirmDismiss(
     ask: issueStarted,
     confirm: issueConfirmStop,
-    child: GlassSheetPages(
-      onBack: onBack,
-      pages: [
-        if (!issueDirect || issueAdding == null)
-          KeyedSubtree(key: ValueKey(rootKey), child: root()),
-        ...issueFlowPages(),
-      ],
+    // On a phone held upright the close button stays at the top right on
+    // every page of adding.
+    child: SheetKeepsClose(
+      child: GlassSheetPages(
+        onBack: onBack,
+        pages: [
+          if (!issueDirect || issueAdding == null)
+            KeyedSubtree(key: ValueKey(rootKey), child: root()),
+          ...issueFlowPages(),
+        ],
+      ),
     ),
   );
 

@@ -841,6 +841,7 @@
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications",
+    "empty_text": "This is where you see when data in your app is about to expire, has expired, or was revoked by its issuer, so you can renew it in time.",
     "credential_status": {
       "revoked": {
         "title": "Data revoked",

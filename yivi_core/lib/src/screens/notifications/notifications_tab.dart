@@ -11,7 +11,6 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
-import "../../widgets/empty_list_message.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/irma_dismissible.dart";
 import "../../widgets/loading_indicator.dart";
@@ -23,6 +22,7 @@ import "bloc/notifications_bloc.dart";
 import "models/actions/credential_detail_navigation_action.dart";
 import "models/credential_status_notification.dart";
 import "models/notification.dart";
+import "widgets/no_notifications.dart";
 import "widgets/notification_card.dart";
 
 class NotificationsTab extends ConsumerStatefulWidget {
@@ -198,10 +198,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                               ),
                             ),
                             if (notifications.isEmpty)
-                              const EmptyListMessage(
-                                "notifications.empty",
-                                top: 48,
-                              )
+                              const NoNotifications()
                             else ...[
                               for (final notification in notifications)
                                 Padding(

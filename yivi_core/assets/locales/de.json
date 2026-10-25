@@ -844,6 +844,7 @@
   "notifications": {
     "title": "Mitteilungen",
     "empty": "Keine Mitteilungen",
+    "empty_text": "Hier siehst du, wenn Daten in deiner App bald ablaufen, abgelaufen sind oder vom Aussteller widerrufen wurden. So kannst du sie rechtzeitig erneuern.",
     "credential_status": {
       "revoked": {
         "title": "Daten widerrufen",

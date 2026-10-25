@@ -1059,9 +1059,9 @@ void main() {
       );
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
-      // The close button is the way out, at the left where back is on the
-      // pages after it. On the details nothing has started: it closes
-      // without asking.
+      // The close button is the way out, at the top right on a phone held
+      // upright. On the details nothing has started: it closes without
+      // asking.
       final close = find.descendant(
         of: find.byKey(const Key("disclosure_choice_sheet")),
         matching: find.byType(IrmaCloseButton),
@@ -1069,7 +1069,7 @@ void main() {
       expect(close, findsOneWidget);
       expect(
         tester.getCenter(close).dx,
-        lessThan(
+        greaterThan(
           tester.getCenter(find.byKey(const Key("glass_sheet_title")).last).dx,
         ),
       );

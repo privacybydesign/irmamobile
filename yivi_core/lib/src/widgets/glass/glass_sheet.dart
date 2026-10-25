@@ -829,6 +829,23 @@ class GlassSheetFloating extends InheritedWidget {
 bool sheetActionInBar(BuildContext context) =>
     GlassSheetFloating.of(context) || useSheetColumns(context);
 
+/// Every page under it has the close button at the right of the bar on a
+/// phone held upright, also the pages that are otherwise left by back or a
+/// drag down (adding a card: there the way on is at the bottom, so the
+/// right of the bar is free). Held sideways and on a tablet the pages keep
+/// their own buttons, as the way on is in the bar there.
+class SheetKeepsClose extends InheritedWidget {
+  const SheetKeepsClose({super.key, required super.child});
+
+  /// Whether the pages at [context] show the close button at the right.
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SheetKeepsClose>() != null &&
+      !sheetActionInBar(context);
+
+  @override
+  bool updateShouldNotify(SheetKeepsClose oldWidget) => false;
+}
+
 /// The top of a sheet, as the navigation bar of a native iOS sheet: the
 /// title in the middle, the ways out at the sides, and in the bar the way
 /// on ([action]) where [sheetActionInBar] puts it there.
@@ -980,7 +997,10 @@ class GlassSheetHeader extends StatelessWidget {
     );
     // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
     void close() => Navigator.of(context).maybePop();
-    final closeStart = !floating && closable && closeAtStart && onBack == null;
+    final keepsClose = SheetKeepsClose.of(context);
+    final closable = this.closable || keepsClose;
+    final closeStart =
+        !floating && closable && closeAtStart && onBack == null && !keepsClose;
     final Widget? start = closeStart
         ? shown(IrmaCloseButton(onTap: close))
         : floating

@@ -384,7 +384,15 @@ class _CardList extends ConsumerWidget {
             box(
               PushAway(
                 direction: PushAwayDirection.up,
-                child: _Header(count: visible.length, view: view),
+                // The count starts where the cards do: the stack sits
+                // further in than the rest on a phone held upright.
+                child: _Header(
+                  count: visible.length,
+                  view: view,
+                  start: view == WalletView.stack && !panes
+                      ? stackSide - side
+                      : 0,
+                ),
               ),
             ),
             for (final pc in problematic)
@@ -476,7 +484,10 @@ class _Header extends ConsumerWidget {
   final int count;
   final WalletView view;
 
-  const _Header({required this.count, required this.view});
+  /// How far in the count starts: where the cards do.
+  final double start;
+
+  const _Header({required this.count, required this.view, this.start = 0});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -491,7 +502,7 @@ class _Header extends ConsumerWidget {
     // Nearer the cards than the search row above it: the switch is about
     // how they are shown.
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 6),
+      padding: EdgeInsetsDirectional.only(start: start, top: 12, bottom: 6),
       child: Row(
         children: [
           Expanded(
