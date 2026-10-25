@@ -13,20 +13,27 @@ import "two_pane.dart";
 ///
 /// [atTop]: under the status bar instead, for a screen whose bottom is full
 /// (the PIN screen, with its keypad and link).
+///
+/// [action]: a link at its end, such as "Undo"; the toast then stays longer.
 void showAppToast(
   BuildContext context,
   String message, {
   Key? key,
   bool overTabBar = false,
   bool atTop = false,
+  ToastAction? action,
 }) => appToastFor(context, overTabBar: overTabBar, atTop: atTop)(
   message,
   key: key,
+  action: action,
 );
+
+/// A link at the end of a toast: its [label], and what a tap does.
+typedef ToastAction = ({String label, VoidCallback onTap});
 
 /// Looks up what a toast needs from [context] now, for showing one later when
 /// [context] may be gone (e.g. after the screen closed itself).
-void Function(String message, {Key? key}) appToastFor(
+void Function(String message, {Key? key, ToastAction? action}) appToastFor(
   BuildContext context, {
   bool overTabBar = false,
   bool atTop = false,
@@ -48,10 +55,10 @@ void Function(String message, {Key? key}) appToastFor(
       : overTabBar
       ? bottomBarSpace(context)
       : 16.0;
-  return (message, {key}) => messenger?.showSnackBar(
+  return (message, {key, action}) => messenger?.showSnackBar(
     SnackBar(
       key: key,
-      duration: const Duration(milliseconds: 2600),
+      duration: Duration(milliseconds: action == null ? 2600 : 5000),
       behavior: SnackBarBehavior.floating,
       elevation: 0,
       backgroundColor: Colors.transparent,
@@ -87,12 +94,11 @@ void Function(String message, {Key? key}) appToastFor(
                   horizontal: 20,
                   vertical: 12,
                 ),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: palette
-                      .body(14, weight: FontWeight.w600)
-                      .copyWith(height: 20 / 14),
+                child: _Message(
+                  message: message,
+                  action: action,
+                  messenger: messenger,
+                  palette: palette,
                 ),
               ),
             ),
@@ -105,3 +111,52 @@ void Function(String message, {Key? key}) appToastFor(
 
 /// A one-line toast: 20 pt of text and 12 above and below it.
 const _toastHeight = 44.0;
+
+/// The toast's text, and its [action] after it when it has one.
+class _Message extends StatelessWidget {
+  final String message;
+  final ToastAction? action;
+  final ScaffoldMessengerState? messenger;
+  final YiviPalette palette;
+
+  const _Message({
+    required this.message,
+    required this.action,
+    required this.messenger,
+    required this.palette,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final style = palette
+        .body(14, weight: FontWeight.w600)
+        .copyWith(height: 20 / 14);
+    final text = Text(message, textAlign: TextAlign.center, style: style);
+    final action = this.action;
+    if (action == null) return text;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 16,
+      children: [
+        Flexible(child: text),
+        Semantics(
+          button: true,
+          child: GestureDetector(
+            key: const Key("toast_action"),
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              messenger?.hideCurrentSnackBar();
+              action.onTap();
+            },
+            child: PressScale(
+              child: Text(
+                action.label,
+                style: style.copyWith(color: palette.link),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1420,7 +1420,7 @@ List<schemaless.Credential> walletCards(WidgetTester tester) =>
 
 /// Switches the data tab to [view] (stack is the default on phones). In the
 /// stack view the cards overlap, so tapping one in the middle hits the next
-/// one; the list view (the only one that can be reordered) avoids that.
+/// one; the list view avoids that.
 Future<void> showWalletView(WidgetTester tester, WalletView view) async {
   final button = find.byKey(Key("wallet_view_${view.name}"));
   await tester.waitFor(button);

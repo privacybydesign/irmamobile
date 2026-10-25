@@ -16,7 +16,7 @@ void main() {
   // The data tab lists one card per credential instance and stores their
   // order as instance hashes (preference.card_order). Every credential type
   // below is issued once, so the order is compared as credential type ids.
-  // Only the List view can be reordered (long press, then drag).
+  // Every view can be reordered (long press, then drag); this uses the List.
   group("card-reordering", () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());

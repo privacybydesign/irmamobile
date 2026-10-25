@@ -1186,8 +1186,19 @@
       "list": "List",
       "grid": "Grid"
     },
-    "count_one": "1 card",
-    "count_many": "{count} cards",
+    "arrange": {
+      "button": "Arrange",
+      "name": "By name",
+      "newest": "Newest first",
+      "issuer": "By issuer",
+      "hint": "Or hold a card and drag it to another place.",
+      "done_name": "Arranged by name",
+      "done_newest": "Newest cards on top",
+      "done_issuer": "Arranged by issuer",
+      "undo": "Undo",
+      "move_up": "Move earlier",
+      "move_down": "Move later"
+    },
     "no_results": {
       "title": "No data found",
       "body": "Try another search."

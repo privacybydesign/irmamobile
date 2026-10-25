@@ -1189,8 +1189,19 @@
       "list": "Liste",
       "grid": "Raster"
     },
-    "count_one": "1 Karte",
-    "count_many": "{count} Karten",
+    "arrange": {
+      "button": "Ordnen",
+      "name": "Nach Name",
+      "newest": "Neueste zuerst",
+      "issuer": "Nach Aussteller",
+      "hint": "Oder halte eine Karte gedrückt und ziehe sie an eine andere Stelle.",
+      "done_name": "Nach Name geordnet",
+      "done_newest": "Neueste Karten oben",
+      "done_issuer": "Nach Aussteller geordnet",
+      "undo": "Rückgängig",
+      "move_up": "Nach vorne",
+      "move_down": "Nach hinten"
+    },
     "no_results": {
       "title": "Keine Daten gefunden",
       "body": "Versuche eine andere Suche."

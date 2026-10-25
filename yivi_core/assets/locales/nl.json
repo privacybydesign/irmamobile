@@ -1189,8 +1189,19 @@
       "list": "Lijst",
       "grid": "Raster"
     },
-    "count_one": "1 kaart",
-    "count_many": "{count} kaarten",
+    "arrange": {
+      "button": "Ordenen",
+      "name": "Op naam",
+      "newest": "Nieuwste eerst",
+      "issuer": "Op uitgever",
+      "hint": "Of houd een kaart vast en sleep hem naar een andere plek.",
+      "done_name": "Geordend op naam",
+      "done_newest": "Nieuwste kaarten bovenaan",
+      "done_issuer": "Geordend op uitgever",
+      "undo": "Ongedaan maken",
+      "move_up": "Naar voren",
+      "move_down": "Naar achteren"
+    },
     "no_results": {
       "title": "Geen gegevens gevonden",
       "body": "Probeer een andere zoekopdracht."

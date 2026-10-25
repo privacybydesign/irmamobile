@@ -170,6 +170,24 @@ class SchemalessCredentialOrderController
     ]);
   }
 
+  /// Tidies the cards up [by] a sort, once: what comes out is simply the
+  /// user's order, to drag on from. Returns the order before, for [restore].
+  List<String> arrange(CardArrangement by) {
+    final before = [for (final c in state.requireValue) c.hash];
+    _applyOrder(arrangeCards(state.requireValue, by));
+    return before;
+  }
+
+  /// Puts the cards back in [hashes]' order (an undo of [arrange]). Cards
+  /// that came since stay on top.
+  void restore(List<String> hashes) {
+    final rank = {for (final (i, h) in hashes.indexed) h: i};
+    _applyOrder(
+      [...state.requireValue]
+        ..sort((a, b) => (rank[a.hash] ?? -1).compareTo(rank[b.hash] ?? -1)),
+    );
+  }
+
   void _applyOrder(List<schemaless.Credential> current) {
     state = AsyncData(current);
     // The shown cards take over the slots they had; missing ones keep theirs.
@@ -236,6 +254,32 @@ List<String> migrateTypeOrder(
     ...stored,
   ];
   return (visible: [for (final hash in order) ?byHash[hash]], order: order);
+}
+
+/// The ways to tidy the cards up (see
+/// [SchemalessCredentialOrderController.arrange]).
+enum CardArrangement { name, newest, issuer }
+
+/// [cards] tidied up [by] a sort. Ties keep the order they had.
+List<schemaless.Credential> arrangeCards(
+  List<schemaless.Credential> cards,
+  CardArrangement by,
+) {
+  int text(String a, String b) => a.toLowerCase().compareTo(b.toLowerCase());
+  final place = {for (final (i, c) in cards.indexed) c.hash: i};
+  return [...cards]..sort((a, b) {
+    final byWay = switch (by) {
+      CardArrangement.name => text(a.name, b.name),
+      CardArrangement.newest => (b.issuanceDate ?? 0).compareTo(
+        a.issuanceDate ?? 0,
+      ),
+      CardArrangement.issuer => switch (text(a.issuer.name, b.issuer.name)) {
+        0 => text(a.name, b.name),
+        final c => c,
+      },
+    };
+    return byWay != 0 ? byWay : place[a.hash]!.compareTo(place[b.hash]!);
+  });
 }
 
 /// The user's cards in their order; none while they load.

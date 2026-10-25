@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:collection/collection.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -21,11 +22,14 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_shadows.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../util/i18n.dart";
 import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
+import "../../widgets/app_toast.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
+import "../../widgets/glass/glass_menu.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -36,6 +40,7 @@ import "../add_data/add_data_sheet.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_start.dart";
 import "wallet/card_hero.dart";
+import "wallet/drag_to_arrange.dart";
 import "wallet/issuance_flight.dart";
 import "wallet/wallet_transition.dart";
 import "widgets/email_link_banner.dart";
@@ -338,9 +343,10 @@ class _CardList extends ConsumerWidget {
     final visible = query.trim().isEmpty
         ? cards
         : _search(cards, hintTexts, query);
-    // Reordering only makes sense for the full list, in List view.
-    final reorderable =
-        view == WalletView.list && visible.length == cards.length;
+    // Dragging cards to another place only makes sense with all of them
+    // shown, and not while a received card flies in.
+    final arrangeable =
+        visible.length == cards.length && IssuanceFlight.state.value == null;
     final bottom =
         MediaQuery.paddingOf(context).bottom + bottomBarSpace(context);
 
@@ -386,10 +392,10 @@ class _CardList extends ConsumerWidget {
             box(
               PushAway(
                 direction: PushAwayDirection.up,
-                // The count starts where the cards do: the stack sits
+                // The arrange button starts where the cards do: the stack sits
                 // further in than the rest on a phone held upright.
                 child: _Header(
-                  count: visible.length,
+                  arrangeable: cards.length > 1,
                   view: view,
                   start: view == WalletView.stack && !panes
                       ? stackSide - side
@@ -420,18 +426,22 @@ class _CardList extends ConsumerWidget {
                       cards: visible,
                       hintTexts: hintTexts,
                       width: stackWidth,
+                      arrangeable: arrangeable,
                       openHash: panes ? _openInPane(ref, cards) : null,
                     ),
                   ),
                   WalletView.list => _ListView(
                     cards: visible,
                     hintTexts: hintTexts,
-                    reorderable: reorderable,
+                    arrangeable: arrangeable,
                   ),
-                  WalletView.grid => _GridView(
-                    cards: visible,
-                    hintTexts: hintTexts,
-                    width: contentWidth,
+                  WalletView.grid => SliverToBoxAdapter(
+                    child: _GridView(
+                      cards: visible,
+                      hintTexts: hintTexts,
+                      width: contentWidth,
+                      arrangeable: arrangeable,
+                    ),
                   ),
                 },
               ),
@@ -483,34 +493,31 @@ void openCard(BuildContext cardContext, schemaless.Credential credential) {
 }
 
 class _Header extends ConsumerWidget {
-  final int count;
+  /// Whether there is anything to arrange: more than one card.
+  final bool arrangeable;
   final WalletView view;
 
-  /// How far in the count starts: where the cards do.
+  /// How far in the arrange button starts: where the cards do.
   final double start;
 
-  const _Header({required this.count, required this.view, this.start = 0});
+  const _Header({
+    required this.arrangeable,
+    required this.view,
+    this.start = 0,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final palette = YiviPalette.of(context);
-    final countText = count == 1
-        ? FlutterI18n.translate(context, "wallet.count_one")
-        : FlutterI18n.translate(
-            context,
-            "wallet.count_many",
-            translationParams: {"count": "$count"},
-          );
-    // Nearer the cards than the search row above it: the switch is about
-    // how they are shown.
+    // Nearer the cards than the search row above it: both are about how
+    // the cards are shown, their order and their view.
     return Padding(
       padding: EdgeInsetsDirectional.only(start: start, top: 12, bottom: 6),
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              countText,
-              style: palette.body(14).copyWith(color: palette.heading),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: arrangeable ? const _ArrangeButton() : null,
             ),
           ),
           ViewSwitcher(
@@ -520,6 +527,88 @@ class _Header extends ConsumerWidget {
             onChanged: (v) => ref.read(walletViewProvider.notifier).set(v),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// "Arrange": a menu that tidies the cards up once, by name, newest first or
+/// by issuer. There is one order, the user's: what comes out is simply
+/// that, to drag on from. A toast says what happened and can undo it.
+class _ArrangeButton extends ConsumerWidget {
+  const _ArrangeButton();
+
+  static const _icons = {
+    CardArrangement.name: Icons.sort_by_alpha_rounded,
+    CardArrangement.newest: Icons.schedule_rounded,
+    CardArrangement.issuer: Icons.account_balance_outlined,
+  };
+
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
+    final by = await showGlassMenu<CardArrangement>(
+      context,
+      items: [
+        for (final way in CardArrangement.values)
+          GlassMenuItem(
+            key: Key("wallet_arrange_${way.name}"),
+            value: way,
+            label: context.tr("wallet.arrange.${way.name}"),
+            icon: _icons[way]!,
+          ),
+      ],
+      footnote: context.tr("wallet.arrange.hint"),
+    );
+    if (by == null || !context.mounted) return;
+    final order = ref.read(
+      schemalessCredentialOrderControllerProvider.notifier,
+    );
+    final before = order.arrange(by);
+    HapticFeedback.mediumImpact();
+    showAppToast(
+      context,
+      context.tr("wallet.arrange.done_${by.name}"),
+      key: const Key("wallet_arrange_toast"),
+      overTabBar: true,
+      action: (
+        label: context.tr("wallet.arrange.undo"),
+        onTap: () => order.restore(before),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = YiviPalette.of(context);
+    final style = palette.display(14).copyWith(color: palette.heading);
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        key: const Key("wallet_arrange"),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _open(context, ref),
+        child: PressScale(
+          child: ConstrainedBox(
+            // A finger's room, though the text is small.
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                Icon(Icons.swap_vert_rounded, size: 18, color: style.color),
+                const SizedBox(width: 2),
+                Flexible(
+                  child: Text(
+                    context.tr("wallet.arrange.button"),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style,
+                  ),
+                ),
+                Icon(Icons.expand_more_rounded, size: 18, color: style.color),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -722,8 +811,8 @@ class _Segment extends StatelessWidget {
 }
 
 /// The cards overlap, each showing a strip of [_stripHeight]; the last one is
-/// shown in full.
-class _StackView extends StatelessWidget {
+/// shown in full. Hold a card to drag it to another place.
+class _StackView extends ConsumerWidget {
   static const double _stripHeight = 64;
 
   /// How far the card open in the detail pane slides out of the stack.
@@ -735,6 +824,7 @@ class _StackView extends StatelessWidget {
   final List<schemaless.Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
+  final bool arrangeable;
 
   /// The card open in the detail pane, if there is one.
   final String? openHash;
@@ -743,70 +833,81 @@ class _StackView extends StatelessWidget {
     required this.cards,
     required this.hintTexts,
     required this.width,
+    required this.arrangeable,
     this.openHash,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cardHeight = width / CredentialCardArt.aspectRatio;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    // When a flight starts the cards close the gap at once, under the
-    // curtain; they slide only to make room for the new card.
-    final flight = IssuanceFlight.state.value;
-    final slide = flight != null && !flight.inserted
-        ? Duration.zero
-        : const Duration(milliseconds: 400);
-    return SizedBox(
-      height: (cards.length - 1) * _stripHeight + cardHeight,
-      child: Stack(
-        children: [
-          for (final (i, c) in cards.indexed)
-            // Animated, so the cards slide down when a received card joins
-            // the top.
-            AnimatedPositioned(
-              key: ValueKey(c.hash),
-              duration: slide,
-              curve: IssuanceFlight.curve,
-              top: i * _stripHeight,
-              left: 0,
-              right: 0,
-              child: PushAway(
-                hash: c.hash,
-                child: WalletStackSlot(
-                  hash: c.hash,
-                  index: i,
-                  child: _flightSlot(
-                    first: i == 0,
-                    hash: c.hash,
-                    child: _Nudge(
-                      key: Key("stack_nudge_${c.hash}"),
-                      open: c.hash == openHash,
-                      width: width,
-                      reduceMotion: reduceMotion,
-                      child: _CardButton(
-                        credential: c,
-                        hintText: hintTexts[c.hash],
-                        pressDepth: 6,
-                        // Under the next card only its strip shows.
-                        revealHeight: i == cards.length - 1
-                            ? null
-                            : _stripHeight,
-                        child: CardHero(
-                          credential: c,
-                          width: width,
-                          hintText: hintTexts[c.hash],
-                          edge: true,
-                        ),
-                      ),
-                    ),
+    final onMove = ref
+        .read(schemalessCredentialOrderControllerProvider.notifier)
+        .reorder;
+    return DragToArrange(
+      keys: [for (final c in cards) c.hash],
+      size: Size(width, (cards.length - 1) * _stripHeight + cardHeight),
+      slotWidth: width,
+      slot: (i) => Offset(0, i * _stripHeight),
+      indexAt: (at) => (at.dy / _stripHeight).round(),
+      enabled: arrangeable,
+      // The cards slide down when a received card joins the top.
+      slide: _slideForFlight(),
+      curve: IssuanceFlight.curve,
+      onMove: onMove,
+      builder: (context, i) {
+        final c = cards[i];
+        return PushAway(
+          hash: c.hash,
+          child: WalletStackSlot(
+            hash: c.hash,
+            index: i,
+            child: _flightSlot(
+              first: i == 0,
+              hash: c.hash,
+              child: _Nudge(
+                key: Key("stack_nudge_${c.hash}"),
+                open: c.hash == openHash,
+                width: width,
+                reduceMotion: reduceMotion,
+                child: _CardButton(
+                  credential: c,
+                  hintText: hintTexts[c.hash],
+                  pressDepth: 6,
+                  moves: arrangeable
+                      ? moveActions(
+                          context,
+                          index: i,
+                          count: cards.length,
+                          onMove: onMove,
+                        )
+                      : null,
+                  // Under the next card only its strip shows.
+                  revealHeight: i == cards.length - 1 ? null : _stripHeight,
+                  child: CardHero(
+                    credential: c,
+                    width: width,
+                    hintText: hintTexts[c.hash],
+                    edge: true,
                   ),
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
+}
+
+/// How fast cards slide to their places by themselves: when a flight
+/// starts the cards close the gap at once, under the curtain; they slide
+/// only to make room for the new card.
+Duration _slideForFlight() {
+  final flight = IssuanceFlight.state.value;
+  return flight != null && !flight.inserted
+      ? Duration.zero
+      : const Duration(milliseconds: 400);
 }
 
 /// The card open in the detail pane slides [_StackView.nudge] to the right,
@@ -872,12 +973,12 @@ String? _openInPane(WidgetRef ref, List<schemaless.Credential> cards) =>
 class _ListView extends ConsumerWidget {
   final List<schemaless.Credential> cards;
   final Map<String, String> hintTexts;
-  final bool reorderable;
+  final bool arrangeable;
 
   const _ListView({
     required this.cards,
     required this.hintTexts,
-    required this.reorderable,
+    required this.arrangeable,
   });
 
   @override
@@ -890,8 +991,14 @@ class _ListView extends ConsumerWidget {
       onReorderStart: (_) => HapticFeedback.mediumImpact(),
       onReorderEnd: (_) => HapticFeedback.mediumImpact(),
       onReorderItem: controller.reorder,
-      proxyDecorator: (child, index, animation) =>
-          Material(type: MaterialType.transparency, child: child),
+      // Lifted as a card in the stack or grid is.
+      proxyDecorator: (child, index, animation) => ScaleTransition(
+        scale: Tween(
+          begin: 1.0,
+          end: DragToArrange.lift,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+        child: Material(type: MaterialType.transparency, child: child),
+      ),
       itemBuilder: (context, i) {
         final c = cards[i];
         final row = Padding(
@@ -905,13 +1012,21 @@ class _ListView extends ConsumerWidget {
                 credential: c,
                 hintText: hintTexts[c.hash],
                 flightTarget: i == 0,
+                moves: arrangeable
+                    ? moveActions(
+                        context,
+                        index: i,
+                        count: cards.length,
+                        onMove: controller.reorder,
+                      )
+                    : null,
               ),
             ),
           ),
         );
         return KeyedSubtree(
           key: ValueKey(c.hash),
-          child: reorderable
+          child: arrangeable
               ? ReorderableDelayedDragStartListener(index: i, child: row)
               : row,
         );
@@ -936,10 +1051,14 @@ class _ListRow extends StatelessWidget {
   /// The thumbnail is where a received card lands.
   final bool flightTarget;
 
+  /// The screen reader's ways to move it ([moveActions]).
+  final Map<CustomSemanticsAction, VoidCallback>? moves;
+
   const _ListRow({
     required this.credential,
     this.hintText,
     this.flightTarget = false,
+    this.moves,
   });
 
   @override
@@ -950,6 +1069,7 @@ class _ListRow extends StatelessWidget {
       credential: credential,
       hintText: hintText,
       pressDepth: 4,
+      moves: moves,
       child: Material(
         color: palette.surface,
         shape: RoundedRectangleBorder(
@@ -1008,36 +1128,54 @@ class _ListRow extends StatelessWidget {
   }
 }
 
-class _GridView extends StatelessWidget {
+/// Two cards a row, each with its name and hint under it. Hold a card to
+/// drag it to another place.
+class _GridView extends ConsumerWidget {
+  static const double gap = 16;
+
   final List<schemaless.Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
+  final bool arrangeable;
 
   const _GridView({
     required this.cards,
     required this.hintTexts,
     required this.width,
+    required this.arrangeable,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    const gap = 16.0;
     final cardWidth = (width - gap) / 2;
     final textScale = MediaQuery.textScalerOf(context).scale(1);
     final captionHeight = 8 + 40 * textScale;
-    return SliverGrid(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: gap,
-        mainAxisSpacing: gap,
-        mainAxisExtent:
-            cardWidth / CredentialCardArt.aspectRatio + captionHeight,
-      ),
-      delegate: SliverChildBuilderDelegate(childCount: cards.length, (
-        context,
-        i,
-      ) {
+    final cellHeight =
+        cardWidth / CredentialCardArt.aspectRatio + captionHeight;
+    final rows = (cards.length + 1) ~/ 2;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final onMove = ref
+        .read(schemalessCredentialOrderControllerProvider.notifier)
+        .reorder;
+    // The column of a place, the first one on the reading side.
+    double x(int column) => (rtl ? 1 - column : column) * (cardWidth + gap);
+    return DragToArrange(
+      keys: [for (final c in cards) c.hash],
+      size: Size(width, rows * cellHeight + max(0, rows - 1) * gap),
+      slotWidth: cardWidth,
+      slotHeight: cellHeight,
+      slot: (i) => Offset(x(i % 2), (i ~/ 2) * (cellHeight + gap)),
+      indexAt: (at) {
+        final row = (at.dy / (cellHeight + gap)).round();
+        final column = (at.dx / (cardWidth + gap)).round().clamp(0, 1);
+        return row * 2 + (rtl ? 1 - column : column);
+      },
+      enabled: arrangeable,
+      slide: _slideForFlight(),
+      curve: IssuanceFlight.curve,
+      onMove: onMove,
+      builder: (context, i) {
         final c = cards[i];
         return PushAway(
           hash: c.hash,
@@ -1048,6 +1186,14 @@ class _GridView extends StatelessWidget {
               credential: c,
               hintText: hintTexts[c.hash],
               pressDepth: 4,
+              moves: arrangeable
+                  ? moveActions(
+                      context,
+                      index: i,
+                      count: cards.length,
+                      onMove: onMove,
+                    )
+                  : null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1100,7 +1246,7 @@ class _GridView extends StatelessWidget {
             ),
           ),
         );
-      }),
+      },
     );
   }
 }
@@ -1122,12 +1268,16 @@ class _CardButton extends StatefulWidget {
   /// view when it opens in the detail pane ([_revealCard]).
   final double? revealHeight;
 
+  /// The screen reader's ways to move it to another place ([moveActions]).
+  final Map<CustomSemanticsAction, VoidCallback>? moves;
+
   const _CardButton({
     required this.credential,
     required this.child,
     this.hintText,
     required this.pressDepth,
     this.revealHeight,
+    this.moves,
   });
 
   @override
@@ -1181,6 +1331,7 @@ class _CardButtonState extends State<_CardButton> {
     return Semantics(
       button: true,
       label: label,
+      customSemanticsActions: widget.moves,
       excludeSemantics: true,
       child: GestureDetector(
         key: Key("${credential.credentialId}_tile"),
