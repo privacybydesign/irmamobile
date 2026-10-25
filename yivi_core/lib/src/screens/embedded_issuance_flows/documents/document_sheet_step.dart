@@ -302,9 +302,12 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
         removeTop: true,
         child: DocumentStepInSheet(
           preparing: _preparing,
-          // System back steps back in the flow first.
+          // System back steps back in the flow first; closing the sheet
+          // leaves the screens as they are while it goes.
           child: NavigatorPopHandler(
-            onPopWithResult: (_) => _back(),
+            onPopWithResult: (_) {
+              if (!glassSheetClosing(context)) _back();
+            },
             // A container of its own: its routes block the semantics of
             // what was painted before them, which would otherwise include the
             // sheet's bar (title, back, close) for screen readers.

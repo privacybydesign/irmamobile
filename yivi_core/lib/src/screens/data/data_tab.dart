@@ -16,7 +16,9 @@ import "../../providers/schemaless_credentials_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_shadows.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/instance_hint.dart";
@@ -538,27 +540,84 @@ class ViewSwitcher extends StatelessWidget {
     this.compact = false,
   });
 
+  static const _icons = {
+    WalletView.stack: Icons.view_agenda_outlined,
+    WalletView.list: Icons.view_list_rounded,
+    WalletView.grid: Icons.grid_view_rounded,
+  };
+
+  /// A segment's width: padding, the icon, and its name when not [compact].
+  double _widthOf(BuildContext context, String label) {
+    if (compact) return _Segment.minWidth;
+    final palette = YiviPalette.of(context);
+    final text = TextPainter(
+      text: TextSpan(text: label, style: palette.display(12)),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    return max(
+      _Segment.minWidth,
+      (2 * _Segment.padding + _Segment.icon + _Segment.gap + text.width)
+          .ceilToDouble(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    const icons = {
-      WalletView.stack: Icons.view_agenda_outlined,
-      WalletView.list: Icons.view_list_rounded,
-      WalletView.grid: Icons.grid_view_rounded,
+    final labels = {
+      for (final v in WalletView.values)
+        v: FlutterI18n.translate(context, "wallet.view.${v.name}"),
     };
-    final segments = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final v in WalletView.values)
-          _Segment(
-            key: Key("wallet_view_${v.name}"),
-            label: FlutterI18n.translate(context, "wallet.view.${v.name}"),
-            icon: icons[v]!,
-            selected: v == view,
-            compact: compact,
-            onTap: () => onChanged(v),
+    final widths = [
+      for (final v in WalletView.values) _widthOf(context, labels[v]!),
+    ];
+    final index = WalletView.values.indexOf(view);
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final before = widths.take(index).fold(0.0, (a, w) => a + w);
+    final total = widths.fold(0.0, (a, w) => a + w);
+    // As the tab bar: one choice marker that slides to the picked view.
+    final segments = SizedBox(
+      width: total,
+      height: _Segment.height,
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: YiviMotion.duration(
+              context,
+              const Duration(milliseconds: 360),
+            ),
+            curve: YiviMotion.overshoot,
+            left: rtl ? total - before - widths[index] : before,
+            top: 0,
+            bottom: 0,
+            width: widths[index],
+            child: DecoratedBox(
+              key: const Key("wallet_view_marker"),
+              decoration: ShapeDecoration(
+                shape: const StadiumBorder(),
+                color: palette.isDark ? palette.lens : palette.heading,
+                shadows: palette.isDark ? YiviShadows.lens : null,
+              ),
+            ),
           ),
-      ],
+          Row(
+            children: [
+              for (final (i, v) in WalletView.values.indexed)
+                _Segment(
+                  key: Key("wallet_view_${v.name}"),
+                  label: labels[v]!,
+                  icon: _icons[v]!,
+                  width: widths[i],
+                  selected: v == view,
+                  compact: compact,
+                  onTap: () => onChanged(v),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
     return Semantics(
       container: true,
@@ -578,9 +637,18 @@ class ViewSwitcher extends StatelessWidget {
   }
 }
 
+/// One choice of [ViewSwitcher]: its icon and name over the sliding
+/// marker, in the marker's ink while it is the choice.
 class _Segment extends StatelessWidget {
+  static const double height = 36;
+  static const double minWidth = 44;
+  static const double padding = 12;
+  static const double icon = 16;
+  static const double gap = 6;
+
   final String label;
-  final IconData icon;
+  final IconData iconData;
+  final double width;
   final bool selected;
   final bool compact;
   final VoidCallback onTap;
@@ -588,11 +656,12 @@ class _Segment extends StatelessWidget {
   const _Segment({
     super.key,
     required this.label,
-    required this.icon,
+    required IconData icon,
+    required this.width,
     required this.selected,
     required this.compact,
     required this.onTap,
-  });
+  }) : iconData = icon;
 
   @override
   Widget build(BuildContext context) {
@@ -606,26 +675,31 @@ class _Segment extends StatelessWidget {
       selected: selected,
       label: label,
       excludeSemantics: true,
-      child: Material(
-        color: selected
-            ? (dark ? palette.lens : palette.heading)
-            : Colors.transparent,
-        shape: const StadiumBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          highlightColor: Colors.transparent,
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 36, minWidth: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 6,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: PressScale(
+          child: SizedBox(
+            width: width,
+            height: height,
+            // The ink follows the marker: it changes as the marker comes.
+            child: TweenAnimationBuilder<Color?>(
+              tween: ColorTween(end: fg),
+              duration: YiviMotion.duration(
+                context,
+                const Duration(milliseconds: 200),
+              ),
+              builder: (context, color, _) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: gap,
                 children: [
-                  Icon(icon, size: 16, color: fg),
+                  Icon(iconData, size: icon, color: color),
                   if (!compact)
-                    Text(label, style: palette.display(12).copyWith(color: fg)),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      style: palette.display(12).copyWith(color: color),
+                    ),
                 ],
               ),
             ),

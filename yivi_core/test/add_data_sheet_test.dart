@@ -250,6 +250,7 @@ Future<void> _pumpFor(
 }
 
 void main() {
+  _closingInADocument();
   group("the list", () {
     testWidgets("is a sheet: its title and the groups, no search", (
       tester,
@@ -1141,4 +1142,50 @@ class _FakeEmailApi implements EmailIssuerApi {
     protocol: Protocol.irma,
     continueOnSecondDevice: true,
   );
+}
+
+/// Closing the sheet in the middle of adding a document: the screen it is
+/// on stays while the sheet asks and goes, as with the sheet's own pages
+/// (the document's back handler only steps back on the system back).
+void _closingInADocument() {
+  testWidgets("closing during a document stays on its screen", (tester) async {
+    await _pump(
+      tester,
+      store: [
+        CredentialStoreCategory(
+          category: "Documents",
+          items: [
+            _item(
+              "pbdf.pbdf.passport",
+              "Document",
+              issueURL: "https://document-issuer.example/issue",
+            ),
+          ],
+        ),
+      ],
+    );
+    await tester.tap(find.byKey(const Key("pbdf.pbdf.passport_tile")));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("sheet_go_button")));
+    await _pumpFor(tester);
+    await tester.tap(
+      find.descendant(
+        of: _sheet,
+        matching: find.byKey(const Key("bottom_bar_primary")),
+      ),
+    );
+    await _pumpFor(tester);
+    final instruction = find.byType(DocumentInstructionScreen);
+    expect(instruction, findsNothing);
+
+    await tester.tap(find.byType(IrmaCloseButton).hitTestable());
+    await _pumpFor(tester);
+    expect(find.byKey(const Key("sheet_stop_dialog")), findsOneWidget);
+    expect(instruction, findsNothing);
+    await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
+    while (_sheet.evaluate().isNotEmpty) {
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(instruction, findsNothing);
+    }
+  });
 }

@@ -226,7 +226,7 @@ class _FormSheetDragState extends State<_FormSheetDrag>
         d.velocity.pixelsPerSecond.dy,
       );
       _back();
-      if (close) Navigator.of(context).maybePop();
+      if (close) closeGlassSheet(context);
     },
     onVerticalDragCancel: _back,
     child: AnimatedBuilder(
@@ -241,6 +241,27 @@ class _FormSheetDragState extends State<_FormSheetDrag>
 /// The route of a sheet: it slides up from the bottom over a dim barrier,
 /// closes on a tap outside it, a drag down or a pull of its list, and is a
 /// [PageRoute], so heroes fly into it (a modal bottom sheet is not).
+/// Closes the sheet [context] is in: at once, or, while something in it does
+/// not let it go ([GlassSheetConfirmDismiss]), by asking that first. A
+/// close, not a step back: a [NavigatorPopHandler] in the sheet (a flow
+/// with screens of its own, that steps back on the system back) sees
+/// [glassSheetClosing] and leaves its screens as they are.
+void closeGlassSheet(BuildContext context) {
+  final route = ModalRoute.of(context);
+  if (route is _GlassSheetRoute) {
+    route._close();
+  } else {
+    Navigator.of(context).maybePop();
+  }
+}
+
+/// Whether the pop that a [PopScope] or [NavigatorPopHandler] at [context]
+/// is told about is the sheet being closed, rather than the system back.
+bool glassSheetClosing(BuildContext context) {
+  final route = ModalRoute.of(context);
+  return route is _GlassSheetRoute && route._closeAsked;
+}
+
 class _GlassSheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 
@@ -273,6 +294,28 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   /// and the system back do (the issuance pages have no close button: the
   /// header is how they are left).
   bool get _held => popDisposition == RoutePopDisposition.doNotPop;
+
+  /// The pop scopes in the sheet are being told about a close (see
+  /// [glassSheetClosing]).
+  bool _closeAsked = false;
+
+  /// Closes the sheet, or asks the scope that holds it first.
+  void _close() {
+    if (popDisposition == RoutePopDisposition.doNotPop) {
+      _askToClose();
+    } else {
+      navigator?.pop();
+    }
+  }
+
+  void _askToClose() {
+    _closeAsked = true;
+    try {
+      onPopInvokedWithResult(false, null);
+    } finally {
+      _closeAsked = false;
+    }
+  }
 
   /// A drag on the sheet's header is moving it.
   bool _dragging = false;
@@ -318,7 +361,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
       // Asks once the sheet is back and the gesture has ended: while a
       // gesture is open the navigator ignores touches, so a dialog could not
       // be tapped.
-      if (vetoed) onPopInvokedWithResult(false, null);
+      if (vetoed) _askToClose();
     }
 
     controller!.addStatusListener(done);
@@ -594,7 +637,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
               : GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   excludeFromSemantics: true,
-                  onTap: () => navigator?.maybePop(),
+                  onTap: _close,
                   child: ColoredBox(
                     color: Color.alphaBlend(
                       barrier,
@@ -996,7 +1039,7 @@ class GlassSheetHeader extends StatelessWidget {
       child: child,
     );
     // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
-    void close() => Navigator.of(context).maybePop();
+    void close() => closeGlassSheet(context);
     final keepsClose = SheetKeepsClose.of(context);
     final closable = this.closable || keepsClose;
     final closeStart =
@@ -1139,9 +1182,7 @@ class GlassSheetHeader extends StatelessWidget {
                 maintainAnimation: true,
                 maintainState: true,
                 // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
-                child: IrmaCloseButton(
-                  onTap: () => Navigator.of(context).maybePop(),
-                ),
+                child: IrmaCloseButton(onTap: () => closeGlassSheet(context)),
               ),
           ],
         ),
