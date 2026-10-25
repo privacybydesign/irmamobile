@@ -16,6 +16,15 @@ final selectedCardProvider = NotifierProvider<PaneSelection<String>, String?>(
   PaneSelection<String>.new,
 );
 
+/// The field a search found the card [hash] by (its claim path key): the
+/// card opens on it. Kept for a card that opens in the detail pane, or moves
+/// there when the phone is turned; another card ignores it.
+final foundCardFieldProvider =
+    NotifierProvider<
+      PaneSelection<({String hash, String claimKey})>,
+      ({String hash, String claimKey})?
+    >(PaneSelection<({String hash, String claimKey})>.new);
+
 /// The log entry open in the activity tab's detail pane.
 final selectedActivityProvider =
     NotifierProvider<PaneSelection<LogInfo>, LogInfo?>(

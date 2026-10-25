@@ -103,6 +103,10 @@ class YiviPalette {
   /// Fill of the button that confirms a destructive action.
   final Color dangerFill;
 
+  /// Behind the part of a text that matches a search, with [text] on it.
+  /// Dark variant: a deep amber, so light text stays above 4.5:1 on it.
+  final Color searchMark;
+
   /// Brand red, the same in both variants.
   final Color primary = const Color(0xFFBA3354);
 
@@ -146,6 +150,7 @@ class YiviPalette {
     required this.glassShadow,
     required this.glassStrongFill,
     required this.dangerFill,
+    required this.searchMark,
   });
 
   static const light = YiviPalette._(
@@ -184,6 +189,7 @@ class YiviPalette {
     glassShadow: Color(0x1A000000),
     glassStrongFill: Color(0xD1FFFFFF),
     dangerFill: Color(0xFFBD1919),
+    searchMark: Color(0xFFFFE88F),
   );
 
   static const dark = YiviPalette._(
@@ -223,6 +229,7 @@ class YiviPalette {
     glassShadow: Color(0x73000000),
     glassStrongFill: Color(0xE02E333C),
     dangerFill: Color(0xFFC42B2B),
+    searchMark: Color(0xFF6B5300),
   );
 
   /// [dark] for a sheet's content; see [onSheet].
@@ -262,6 +269,7 @@ class YiviPalette {
     glassShadow: dark.glassShadow,
     glassStrongFill: dark.glassStrongFill,
     dangerFill: dark.dangerFill,
+    searchMark: dark.searchMark,
   );
 
   bool get isDark => brightness == Brightness.dark;

@@ -8,6 +8,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/credential_field_search.dart";
 import "../../providers/credentials_search.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
@@ -26,6 +27,8 @@ import "../../util/i18n.dart";
 import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
+import "../../widgets/credential_card/attribute_groups/attribute_group.dart";
+import "../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
@@ -34,6 +37,7 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/search_scroll_edge.dart";
+import "../../widgets/search_mark.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../add_data/add_data_sheet.dart";
@@ -139,6 +143,10 @@ class _DataTabState extends ConsumerState<DataTab> {
           : CredentialDetailPane(
               key: ValueKey(hash),
               hash: hash,
+              found: switch (ref.watch(foundCardFieldProvider)) {
+                (hash: final h, :final claimKey) when h == hash => claimKey,
+                _ => null,
+              },
               onSwitch: selection.select,
               onDeleted: () => selection.select(null),
             ),
@@ -340,13 +348,21 @@ class _CardList extends ConsumerWidget {
         c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
     };
 
-    final visible = query.trim().isEmpty
-        ? cards
-        : _search(cards, hintTexts, query);
+    // While searching the results are always list rows, whatever view was
+    // picked: only a row has room to say why a card matched. The view
+    // itself is kept for when the search is cleared.
+    final searching = query.trim().isNotEmpty;
+    final results = searching
+        ? _search(context, cards, hintTexts, query)
+        : const <CardSearchResult>[];
+    final byHash = {for (final c in cards) c.hash: c};
+    final visible = searching
+        ? [for (final r in results) byHash[r.hash]!]
+        : cards;
+    final shownView = searching ? WalletView.list : view;
     // Dragging cards to another place only makes sense with all of them
     // shown, and not while a received card flies in.
-    final arrangeable =
-        visible.length == cards.length && IssuanceFlight.state.value == null;
+    final arrangeable = !searching && IssuanceFlight.state.value == null;
     final bottom =
         MediaQuery.paddingOf(context).bottom + bottomBarSpace(context);
 
@@ -389,20 +405,21 @@ class _CardList extends ConsumerWidget {
                   ),
                 ),
               ),
-            box(
-              PushAway(
-                direction: PushAwayDirection.up,
-                // Above the stack on a phone held upright, which sits further
-                // in, the arrange button lines up with the search icon.
-                child: _Header(
-                  arrangeable: cards.length > 1,
-                  view: view,
-                  start: view == WalletView.stack && !panes
-                      ? GlassSearchField.iconInset
-                      : 0,
+            if (!searching)
+              box(
+                PushAway(
+                  direction: PushAwayDirection.up,
+                  // Above the stack on a phone held upright, which sits further
+                  // in, the arrange button lines up with the search icon.
+                  child: _Header(
+                    arrangeable: cards.length > 1,
+                    view: view,
+                    start: view == WalletView.stack && !panes
+                        ? GlassSearchField.iconInset
+                        : 0,
+                  ),
                 ),
               ),
-            ),
             for (final pc in problematic)
               box(
                 PushAway(
@@ -417,10 +434,10 @@ class _CardList extends ConsumerWidget {
               box(_NoResults(palette: palette))
             else
               SliverPadding(
-                padding: view == WalletView.stack
+                padding: shownView == WalletView.stack
                     ? stackPadding
                     : EdgeInsets.symmetric(horizontal: side),
-                sliver: switch (view) {
+                sliver: switch (shownView) {
                   WalletView.stack => SliverToBoxAdapter(
                     child: _StackView(
                       cards: visible,
@@ -436,6 +453,8 @@ class _CardList extends ConsumerWidget {
                       hintTexts: hintTexts,
                       width: contentWidth,
                       arrangeable: arrangeable,
+                      query: query,
+                      results: {for (final r in results) r.hash: r},
                     ),
                   ),
                   WalletView.grid => SliverToBoxAdapter(
@@ -455,7 +474,9 @@ class _CardList extends ConsumerWidget {
     );
   }
 
-  static List<schemaless.Credential> _search(
+  /// The cards [query] finds, best first, each with the fields it matched.
+  static List<CardSearchResult> _search(
+    BuildContext context,
     List<schemaless.Credential> cards,
     Map<String, String> hintTexts,
     String query,
@@ -471,28 +492,59 @@ class _CardList extends ConsumerWidget {
           ),
         )
         .toList();
-    final byHash = {for (final c in cards) c.hash: c};
-    return searchCredentials(
-      entries,
-      query,
-    ).map((e) => byHash[e.hash]!).toList();
+    return rankCards(
+      order: [for (final c in cards) c.hash],
+      byName: [for (final e in searchCredentials(entries, query)) e.hash],
+      fields: {for (final c in cards) c.hash: _searchFields(context, c)},
+      query: query,
+    );
   }
+
+  /// The fields of [credential] the search looks in: every attribute with a
+  /// value, by its label and its value as the card shows it. Yes/no values
+  /// and images are found by their label only.
+  static List<SearchField> _searchFields(
+    BuildContext context,
+    schemaless.Credential credential,
+  ) => [
+    for (final a in credential.attributes)
+      if (a.value case final value? when value.hasConcreteValue)
+        SearchField(
+          claimKey: claimPathKey(a.claimPath),
+          label: a.effectiveDisplayName,
+          value: switch (value.type) {
+            schemaless.AttributeType.string ||
+            schemaless.AttributeType.integer => formatAttributeValue(
+              context,
+              value,
+            ),
+            _ => null,
+          },
+        ),
+  ];
 }
 
 /// Opens the detail view of [credential], starting the Wallet-style
 /// transition from [cardContext] (the tapped card).
-void openCard(BuildContext cardContext, schemaless.Credential credential) {
+/// [found]: the field (a claim path key) a search found it by; it opens on
+/// that field.
+void openCard(
+  BuildContext cardContext,
+  schemaless.Credential credential, {
+  String? found,
+}) {
+  final container = ProviderScope.containerOf(cardContext, listen: false);
+  container
+      .read(foundCardFieldProvider.notifier)
+      .select(found == null ? null : (hash: credential.hash, claimKey: found));
   if (useHomePanes(cardContext)) {
     // The tablet and landscape layouts show the card in the detail pane
     // next to the list.
-    ProviderScope.containerOf(
-      cardContext,
-      listen: false,
-    ).read(selectedCardProvider.notifier).select(credential.hash);
+    container.read(selectedCardProvider.notifier).select(credential.hash);
     return;
   }
   WalletTransition.begin(cardContext, credential.hash);
-  cardContext.pushCredentialDetailScreen(credential.hash);
+  cardContext.pushCredentialDetailScreen(credential.hash, found: found);
 }
 
 class _Header extends ConsumerWidget {
@@ -986,18 +1038,25 @@ class _ListView extends ConsumerWidget {
   final double width;
   final bool arrangeable;
 
+  /// While searching: the query, and why each card matched (by hash).
+  final String query;
+  final Map<String, CardSearchResult> results;
+
   const _ListView({
     required this.cards,
     required this.hintTexts,
     required this.width,
     required this.arrangeable,
+    this.query = "",
+    this.results = const {},
   });
 
   /// The height of every row: its picture, or its three lines of text when
   /// they are taller (large text), and its padding. One height for all, so
   /// the rows have fixed places to be dragged between; a row without a hint
-  /// has its text in the middle.
-  static double rowHeight(BuildContext context) {
+  /// has its text in the middle. With [matchLine] there is room for the
+  /// line that says why a search found the card.
+  static double rowHeight(BuildContext context, {bool matchLine = false}) {
     final palette = YiviPalette.of(context);
     final scaler = MediaQuery.textScalerOf(context);
     double line(TextStyle style) => (TextPainter(
@@ -1009,7 +1068,8 @@ class _ListView extends ConsumerWidget {
     final text =
         line(palette.display(16)) +
         line(palette.body(14)) +
-        line(palette.body(12));
+        line(palette.body(12)) +
+        (matchLine ? line(palette.body(13)) : 0);
     return 2 * _ListRow.padding +
         max(
           _ListRow.picture / CredentialCardArt.aspectRatio,
@@ -1022,7 +1082,10 @@ class _ListView extends ConsumerWidget {
     final onMove = ref
         .read(schemalessCredentialOrderControllerProvider.notifier)
         .reorder;
-    final row = rowHeight(context);
+    final row = rowHeight(
+      context,
+      matchLine: results.values.any(_ListRow.hasMatchLine),
+    );
     return DragToArrange(
       keys: [for (final c in cards) c.hash],
       size: Size(width, cards.length * (row + gap) - gap),
@@ -1044,7 +1107,10 @@ class _ListView extends ConsumerWidget {
             child: _ListRow(
               credential: c,
               hintText: hintTexts[c.hash],
-              flightTarget: i == 0,
+              // Nothing lands in a search result.
+              flightTarget: i == 0 && results.isEmpty,
+              query: query,
+              result: results[c.hash],
               moves: arrangeable
                   ? moveActions(
                       context,
@@ -1084,20 +1150,60 @@ class _ListRow extends StatelessWidget {
   /// The screen reader's ways to move it ([moveActions]).
   final Map<CustomSemanticsAction, VoidCallback>? moves;
 
+  /// While searching: the query, and why the card matched.
+  final String query;
+  final CardSearchResult? result;
+
   const _ListRow({
     required this.credential,
     this.hintText,
     this.flightTarget = false,
     this.moves,
+    this.query = "",
+    this.result,
   });
+
+  /// Whether the row says why the search found it: only when its name,
+  /// hint and issuer don't already show it.
+  static bool hasMatchLine(CardSearchResult r) =>
+      !r.byName && r.hits.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final selected = _isOpenInPane(context, credential);
+    final result = this.result;
+    final folded = foldQuery(query);
+    // Name, hint and issuer are marked where the name search found them
+    // (not for a near miss: nothing there to mark).
+    SearchMatch? mark(String text) =>
+        result != null && result.byName ? findAnywhere(text, folded) : null;
+    // Plain text unless something in it is marked.
+    Widget line(String text, TextStyle style) {
+      final m = mark(text);
+      return m == null
+          ? Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: style,
+            )
+          : Text.rich(
+              searchMarkSpan(text, m, palette),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: style,
+            );
+    }
+
+    final match = result != null && hasMatchLine(result)
+        ? _MatchLine(result: result)
+        : null;
     return _CardButton(
       credential: credential,
       hintText: hintText,
+      matchText: match?.plainText(context),
+      found: result?.hits.firstOrNull?.field.claimKey,
       pressDepth: 4,
       moves: moves,
       child: Material(
@@ -1129,25 +1235,17 @@ class _ListRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    line(
                       credential.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.display(16).copyWith(color: palette.text),
+                      palette.display(16).copyWith(color: palette.text),
                     ),
                     if ((hintText ?? "").isNotEmpty)
-                      Text(
-                        hintText!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette.body(14),
-                      ),
-                    Text(
+                      line(hintText!, palette.body(14)),
+                    line(
                       credential.issuer.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.body(12).copyWith(color: palette.heading),
+                      palette.body(12).copyWith(color: palette.heading),
                     ),
+                    ?match,
                   ],
                 ),
               ),
@@ -1302,10 +1400,18 @@ class _CardButton extends StatefulWidget {
   /// The screen reader's ways to move it to another place ([moveActions]).
   final Map<CustomSemanticsAction, VoidCallback>? moves;
 
+  /// Why a search found it, read after the rest ([_MatchLine]).
+  final String? matchText;
+
+  /// The field a search found it by (a claim path key): the card opens on it.
+  final String? found;
+
   const _CardButton({
     required this.credential,
     required this.child,
     this.hintText,
+    this.matchText,
+    this.found,
     required this.pressDepth,
     this.revealHeight,
     this.moves,
@@ -1356,6 +1462,7 @@ class _CardButtonState extends State<_CardButton> {
       credential.name,
       if ((widget.hintText ?? "").isNotEmpty) widget.hintText,
       credential.issuer.name,
+      if ((widget.matchText ?? "").isNotEmpty) widget.matchText,
     ].join(", ");
     final depth = widget.pressDepth;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
@@ -1372,7 +1479,7 @@ class _CardButtonState extends State<_CardButton> {
         onTapDown: (_) => _press(true),
         onTapUp: (_) => _press(false),
         onTapCancel: () => _press(false),
-        onTap: () => openCard(context, credential),
+        onTap: () => openCard(context, credential, found: widget.found),
         child: TweenAnimationBuilder<double>(
           tween: Tween(end: _pressed && !reduceMotion ? depth : 0),
           duration: Duration(milliseconds: _pressed ? 90 : 260),
@@ -1382,6 +1489,76 @@ class _CardButtonState extends State<_CardButton> {
               Transform.translate(offset: Offset(0, dy), child: child),
         ),
       ),
+    );
+  }
+}
+
+/// Under a search result that was found through one of its fields, which
+/// field: "Woonplaats: Utrecht" for a value, "Bevat BSN" for a label (never
+/// its value: a result shows no more than was typed), and how many more.
+class _MatchLine extends StatelessWidget {
+  final CardSearchResult result;
+
+  const _MatchLine({required this.result});
+
+  FieldHit get _hit => result.hits.first;
+
+  String _more(BuildContext context) => result.hits.length > 1
+      ? " · ${FlutterI18n.translate(context, "wallet.search.more", translationParams: {"count": "${result.hits.length - 1}"})}"
+      : "";
+
+  /// What a screen reader says.
+  String plainText(BuildContext context) {
+    final f = _hit.field;
+    final what = _hit.kind == FieldHitKind.label
+        ? FlutterI18n.translate(
+            context,
+            "wallet.search.contains",
+            translationParams: {"label": f.label},
+          )
+        : "${f.label}: ${f.value}";
+    return what + _more(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final f = _hit.field;
+    final InlineSpan what;
+    if (_hit.kind == FieldHitKind.label) {
+      // The label goes where {label} is in the sentence, marked.
+      const slot = "\u0000";
+      final parts = FlutterI18n.translate(
+        context,
+        "wallet.search.contains",
+        translationParams: {"label": slot},
+      ).split(slot);
+      what = TextSpan(
+        children: [
+          TextSpan(text: parts.first),
+          searchMarkSpan(f.label, _hit.match, palette),
+          if (parts.length > 1) TextSpan(text: parts[1]),
+        ],
+      );
+    } else {
+      what = TextSpan(
+        children: [
+          TextSpan(text: "${f.label}: "),
+          searchMarkSpan(f.value ?? "", _hit.match, palette),
+        ],
+      );
+    }
+    return Text.rich(
+      key: const Key("search_match_line"),
+      TextSpan(
+        children: [
+          what,
+          TextSpan(text: _more(context)),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: palette.body(13).copyWith(color: palette.heading),
     );
   }
 }

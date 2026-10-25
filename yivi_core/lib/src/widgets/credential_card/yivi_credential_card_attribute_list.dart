@@ -6,8 +6,10 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/credential_field_search.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
+import "../search_mark.dart";
 import "../status_chip.dart";
 import "../translated_text.dart";
 import "attribute_groups/attribute_group.dart";
@@ -48,6 +50,12 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // Claim paths whose value is exactly what is asked for: shown in the
   // success colour.
   final Set<String> matched;
+  // The field a search found the card by (a claim path key): its row is lit,
+  // with the searched text ([foundQuery]) marked, and carries [foundKey] so
+  // the screen can bring it into view.
+  final String? found;
+  final String foundQuery;
+  final GlobalKey? foundKey;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -60,6 +68,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.layout = CredentialCardLayout.standard,
     this.mismatched = const {},
     this.matched = const {},
+    this.found,
+    this.foundQuery = "",
+    this.foundKey,
   });
 
   @override
@@ -101,6 +112,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       compareTo: compareTo,
       mismatched: mismatched,
       matched: matched,
+      found: found == null
+          ? null
+          : (claimKey: found!, key: foundKey, query: foundQuery),
     );
     _insertGroups(tree.children, groups, attributes);
     // Comparing against another credential needs every attribute on its own row.
@@ -152,12 +166,15 @@ class _RowNode extends _Node {
   final bool hasCompareTo;
   final bool mismatch;
   final bool match;
+  // Set on the row a search found the card by.
+  final _Found? found;
   _RowNode({
     required this.attribute,
     required this.hasCompareTo,
     this.compareToValue,
     this.mismatch = false,
     this.match = false,
+    this.found,
   });
 }
 
@@ -223,11 +240,14 @@ class _PrimCollector {
   });
 }
 
+typedef _Found = ({String claimKey, GlobalKey? key, String query});
+
 _GroupNode _buildTree(
   List<schemaless.Attribute> attrs, {
   List<schemaless.Attribute>? compareTo,
   Set<String> mismatched = const {},
   Set<String> matched = const {},
+  _Found? found,
 }) {
   final headers = <String, schemaless.Attribute>{};
   for (final e in attrs) {
@@ -375,6 +395,7 @@ _GroupNode _buildTree(
         compareToValue: lookupCompare(p),
         mismatch: mismatched.contains(_pathKey(p)),
         match: matched.contains(_pathKey(p)),
+        found: found?.claimKey == _pathKey(p) ? found : null,
       ),
     );
   }
@@ -603,19 +624,33 @@ class _LeafContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final attribute = node.attribute;
+    final found = node.found;
+    final label = attribute.effectiveDisplayName;
 
-    return Column(
+    final column = Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(
-          attribute.effectiveDisplayName,
-          style: attributeLabelStyle(context, layout: layout),
-        ),
+        if (found == null)
+          Text(label, style: attributeLabelStyle(context, layout: layout))
+        else
+          Text.rich(
+            searchMarkSpan(
+              label,
+              findWordPrefix(
+                label,
+                foldQuery(found.query),
+                ignoreHyphens: true,
+              ),
+              YiviPalette.of(context),
+            ),
+            style: attributeLabelStyle(context, layout: layout),
+          ),
         _buildValue(context, theme),
       ],
     );
+    return found == null ? column : _FoundRow(key: found.key, child: column);
   }
 
   Color _valueColor(
@@ -635,13 +670,23 @@ class _LeafContent extends StatelessWidget {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
     if (_isImage(node.attribute)) return _tappableImage(context, theme);
-    return Text(
-      formatAttributeValue(context, val),
-      style: attributeValueStyle(
-        context,
-        _valueColor(context, val, theme),
-        layout: layout,
+    final text = formatAttributeValue(context, val);
+    final style = attributeValueStyle(
+      context,
+      _valueColor(context, val, theme),
+      layout: layout,
+    );
+    final found = node.found;
+    // Plain text unless a search found this row: readers of the list (and
+    // tests) look for its values as plain Text.
+    if (found == null) return Text(text, style: style);
+    return Text.rich(
+      searchMarkSpan(
+        text,
+        findWordPrefix(text, foldQuery(found.query)),
+        YiviPalette.of(context),
       ),
+      style: style,
     );
   }
 
@@ -655,6 +700,40 @@ class _LeafContent extends StatelessWidget {
         bytes: bytes,
         title: attribute.effectiveDisplayName,
       ),
+    );
+  }
+}
+
+/// The row a search found the card by: lit in a soft amber that reaches a
+/// little past the text on both sides, so the text itself stays in line with
+/// the other rows.
+class _FoundRow extends StatelessWidget {
+  static const double _bleed = 8;
+
+  final Widget child;
+
+  const _FoundRow({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          left: -_bleed,
+          right: -_bleed,
+          top: 0,
+          bottom: 0,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.searchMark.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: child),
+      ],
     );
   }
 }

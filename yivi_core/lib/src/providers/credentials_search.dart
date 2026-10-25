@@ -130,6 +130,10 @@ int _damerauLevenshtein(String a, String b) {
   return d[m][n];
 }
 
+/// The ASCII form of one lowercased character [code], as
+/// [normaliseForSearch] folds it (`é` → `e`, `ß` → `ss`).
+String foldCharacter(int code) => _folded[code] ?? String.fromCharCode(code);
+
 bool _hasDiacritic(String s) {
   for (final code in s.codeUnits) {
     if (_folded.containsKey(code)) return true;

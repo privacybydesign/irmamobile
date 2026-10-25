@@ -1266,7 +1266,12 @@
     },
     "no_results": {
       "title": "No data found",
-      "body": "Try another search."
+      "body": "Search for a card, who issued it, or a detail such as your town or BSN."
+    },
+    "search": {
+      "contains": "Contains {label}",
+      "more": "{count} more",
+      "found": "Found: {label}"
     },
     "detail": {
       "back_to_cards": "Back to all cards",

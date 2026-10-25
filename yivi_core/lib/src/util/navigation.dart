@@ -139,8 +139,13 @@ extension RoutingHelpers on BuildContext {
 
   /// Opens the full-screen detail view of one card (credential instance).
   /// Call [WalletTransition.begin] first when it opens from a card on screen.
-  void pushCredentialDetailScreen(String hash) {
-    final uri = Uri(path: "/home/credential", queryParameters: {"hash": hash});
+  /// [found]: the field (a claim path key) a search found the card by; the
+  /// card opens on it.
+  void pushCredentialDetailScreen(String hash, {String? found}) {
+    final uri = Uri(
+      path: "/home/credential",
+      queryParameters: {"hash": hash, "found": ?found},
+    );
     push(uri.toString());
   }
 

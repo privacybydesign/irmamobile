@@ -1269,7 +1269,12 @@
     },
     "no_results": {
       "title": "Geen gegevens gevonden",
-      "body": "Probeer een andere zoekopdracht."
+      "body": "Zoek op een kaart, wie hem uitgaf, of een gegeven zoals je woonplaats of BSN."
+    },
+    "search": {
+      "contains": "Bevat {label}",
+      "more": "nog {count}",
+      "found": "Gevonden: {label}"
     },
     "detail": {
       "back_to_cards": "Terug naar alle kaarten",

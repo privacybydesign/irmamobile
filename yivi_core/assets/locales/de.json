@@ -1269,7 +1269,12 @@
     },
     "no_results": {
       "title": "Keine Daten gefunden",
-      "body": "Versuche eine andere Suche."
+      "body": "Suche nach einer Karte, wer sie ausgestellt hat, oder einer Angabe wie deinem Wohnort oder deiner BSN."
+    },
+    "search": {
+      "contains": "Enthält {label}",
+      "more": "{count} weitere",
+      "found": "Gefunden: {label}"
     },
     "detail": {
       "back_to_cards": "Zurück zu allen Karten",

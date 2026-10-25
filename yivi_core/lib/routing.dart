@@ -161,7 +161,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 child: cardHandoff(
                   context,
                   hash,
-                  CredentialDetailScreen(hash: hash),
+                  CredentialDetailScreen(
+                    hash: hash,
+                    found: state.uri.queryParameters["found"],
+                  ),
                 ),
               );
             },

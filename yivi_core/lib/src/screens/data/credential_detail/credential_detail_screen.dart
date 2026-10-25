@@ -7,6 +7,7 @@ import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../providers/search_query_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
@@ -14,6 +15,7 @@ import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/centred_max_width.dart";
+import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
@@ -38,7 +40,11 @@ const _maxWidth = 460.0;
 class CredentialDetailScreen extends ConsumerStatefulWidget {
   final String hash;
 
-  const CredentialDetailScreen({required this.hash});
+  /// The field (a claim path key) a search found the card by: it is lit and
+  /// brought into view.
+  final String? found;
+
+  const CredentialDetailScreen({required this.hash, this.found});
 
   @override
   ConsumerState<CredentialDetailScreen> createState() =>
@@ -103,6 +109,9 @@ class _CredentialDetailScreenState
                     maxWidth: _maxWidth,
                     child: _Details(
                       credential: credential,
+                      // Only on the card the search found, not on a sibling
+                      // picked after.
+                      found: _hash == widget.hash ? widget.found : null,
                       siblings: cards
                           .where(
                             (c) => c.credentialId == credential.credentialId,
@@ -141,11 +150,15 @@ class CredentialDetailPane extends ConsumerWidget {
   /// Called when the card was deleted.
   final VoidCallback onDeleted;
 
+  /// See [CredentialDetailScreen.found].
+  final String? found;
+
   const CredentialDetailPane({
     super.key,
     required this.hash,
     required this.onSwitch,
     required this.onDeleted,
+    this.found,
   });
 
   @override
@@ -161,6 +174,7 @@ class CredentialDetailPane extends ConsumerWidget {
     final compact = usePhoneLandscape(context);
     final details = _Details(
       credential: credential,
+      found: found,
       showTitle: !compact,
       siblings: cards
           .where((c) => c.credentialId == credential.credentialId)
@@ -257,8 +271,12 @@ class _Details extends ConsumerWidget {
   /// compact header above them shows those).
   final bool showTitle;
 
+  /// See [CredentialDetailScreen.found].
+  final String? found;
+
   const _Details({
     required this.credential,
+    this.found,
     this.showTitle = true,
     required this.siblings,
     required this.hintTexts,
@@ -284,6 +302,9 @@ class _Details extends ConsumerWidget {
         : DateTime.fromMillisecondsSinceEpoch(credential.issuanceDate! * 1000);
     final canReobtain = (credential.issueUrl ?? "").isNotEmpty;
     final canDelete = credential.credentialInstanceIds.isNotEmpty;
+    final foundLabel = credential.attributes
+        .firstWhereOrNull((a) => claimPathKey(a.claimPath) == found)
+        ?.effectiveDisplayName;
     final sharable =
         credential.credentialInstanceIds.keys.any(
           (f) => f != CredentialFormat.idemix,
@@ -334,6 +355,17 @@ class _Details extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
+            if (foundLabel != null)
+              StatusChip(
+                key: const Key("credential_detail_found"),
+                label: FlutterI18n.translate(
+                  context,
+                  "wallet.search.found",
+                  translationParams: {"label": foundLabel},
+                ),
+                tone: DialogTone.info,
+                icon: Icons.search_rounded,
+              ),
             _validityChip(context, status, lang),
             StatusChip(label: source),
           ],
@@ -417,10 +449,16 @@ class _Details extends ConsumerWidget {
         SurfaceCard(
           clipBehavior: Clip.antiAlias,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: YiviCredentialCardAttributeList(
-            credential.attributes,
-            credentialId: credential.credentialId,
-            showDividers: true,
+          child: _FoundField(
+            found: foundLabel == null ? null : found,
+            builder: (key) => YiviCredentialCardAttributeList(
+              credential.attributes,
+              credentialId: credential.credentialId,
+              showDividers: true,
+              found: foundLabel == null ? null : found,
+              foundQuery: ref.watch(dataSearchQueryProvider),
+              foundKey: key,
+            ),
           ),
         ),
         if (sharable != null) ...[
@@ -594,6 +632,66 @@ String _sourceLabel(BuildContext context, schemaless.Credential c) {
       ? "credential_card.source.issuer_colours"
       : "credential_card.source.yivi";
   return FlutterI18n.translate(context, key);
+}
+
+/// Brings the field a search found the card by into view: once the card
+/// has flown open, or right away in the detail pane. A field an attribute
+/// group shows has no row of its own, so nothing scrolls then.
+class _FoundField extends StatefulWidget {
+  final String? found;
+  final Widget Function(GlobalKey key) builder;
+
+  const _FoundField({required this.found, required this.builder});
+
+  @override
+  State<_FoundField> createState() => _FoundFieldState();
+}
+
+class _FoundFieldState extends State<_FoundField> {
+  final _key = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _revealAfterOpening();
+  }
+
+  @override
+  void didUpdateWidget(_FoundField old) {
+    super.didUpdateWidget(old);
+    if (old.found != widget.found) _revealAfterOpening();
+  }
+
+  void _revealAfterOpening() {
+    if (widget.found == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final opening = ModalRoute.of(context)?.animation;
+      if (opening == null || opening.isCompleted) return _reveal();
+      void done(AnimationStatus status) {
+        if (!status.isCompleted) return;
+        opening.removeStatusListener(done);
+        if (mounted) _reveal();
+      }
+
+      opening.addStatusListener(done);
+    });
+  }
+
+  void _reveal() {
+    final row = _key.currentContext;
+    if (row == null) return;
+    final still = MediaQuery.disableAnimationsOf(context);
+    Scrollable.ensureVisible(
+      row,
+      alignment: 0.3,
+      duration: still ? Duration.zero : const Duration(milliseconds: 420),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(_key);
 }
 
 class _AboutRow extends StatelessWidget {
