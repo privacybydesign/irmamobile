@@ -179,8 +179,8 @@ class ActivityEntry {
   /// row and of the tiles in the details.
   List<ActivityEntryCard> get cards => [for (final s in sections) ...s.cards];
 
-  /// Identifies the entry across reloads of the log (a [LogInfo] has no id).
-  String get key => "${log.type.name}-${log.time.microsecondsSinceEpoch}";
+  /// Identifies the entry across reloads of the log.
+  String get key => logKey(log);
 
   factory ActivityEntry.fromLog(
     LogInfo log, {
@@ -286,3 +286,9 @@ class ActivityEntry {
         expiryDate: credential.expiryDate,
       );
 }
+
+/// Identifies [log] across reloads of the log: its id, or for an entry
+/// without one, its type and time.
+String logKey(LogInfo log) => log.id.isNotEmpty
+    ? log.id
+    : "${log.type.name}-${log.time.microsecondsSinceEpoch}";

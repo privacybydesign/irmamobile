@@ -37,7 +37,11 @@ class IrmaClientBridge extends IrmaBridge {
     SessionStateEvent: (j) => SessionStateEvent.fromJson(j),
     SessionPreviewEvent: (j) => SessionPreviewEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
-    LogsEvent: (j) => LogsEvent.fromJson(j),
+    LogPageEvent: (j) => LogPageEvent.fromJson(j),
+    LogEntryEvent: (j) => LogEntryEvent.fromJson(j),
+    CredentialActivityResultEvent: (j) =>
+        CredentialActivityResultEvent.fromJson(j),
+    PartiesEvent: (j) => PartiesEvent.fromJson(j),
 
     HandleURLEvent: (j) => HandleURLEvent.fromJson(j),
 

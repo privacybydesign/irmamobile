@@ -34,9 +34,26 @@ class IrmaMockBridge extends IrmaBridge {
       addEvent(AppReadyAckEvent());
     } else if (event is EnrollEvent) {
       // For example respond with IrmaRepository.get().dispatch(EnrollmentSuccessEvent(...))
-    } else if (event is SetLocaleEvent || event is LoadLogsEvent) {
+    } else if (event is SetLocaleEvent) {
       // Locale is resolved in the Go client; the mock has no localized data to
-      // re-resolve, so accept these events as no-ops.
+      // re-resolve, so accept this event as a no-op.
+    } else if (event is LogRequest) {
+      // The mock has no activity: answer every question with nothing.
+      addEvent(switch (event) {
+        QueryLogsEvent() => LogPageEvent(
+          requestId: event.requestId,
+          page: const LogPage(entries: []),
+        ),
+        CredentialActivityEvent() => CredentialActivityResultEvent(
+          requestId: event.requestId,
+          activity: const {},
+        ),
+        ListPartiesEvent() => PartiesEvent(
+          requestId: event.requestId,
+          parties: const [],
+        ),
+        _ => LogEntryEvent(requestId: event.requestId),
+      });
     } else if (event is SessionEvent) {
       _sessionEventsSubject.add(event);
     } else {

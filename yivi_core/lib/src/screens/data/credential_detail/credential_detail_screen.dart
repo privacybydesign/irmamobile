@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../providers/activity_providers.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
@@ -23,29 +24,29 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
+import "../../activity/activity_entry.dart";
 import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
 import "../wallet/wallet_detail_scaffold.dart";
 
-/// One entry in a card's activity section.
-class CardActivityItem {
-  final String title;
-  final DateTime date;
-
-  const CardActivityItem({required this.title, required this.date});
-}
-
-/// The log entries that involve one card (by hash).
-///
-/// The history log cannot be filtered per credential yet, so this returns
-/// nothing for now; the detail view already shows the section and its rows.
 /// The widest the card and its details are: any wider, on a tablet or a
 /// phone held sideways, and they would stretch.
 const _maxWidth = 460.0;
 
-final cardActivityProvider = Provider.family<List<CardActivityItem>, String>(
-  (ref, hash) => const [],
-);
+/// What a log entry did with the card with [hash], as the title of its row:
+/// what happened, and with whom.
+String _activityTitle(BuildContext context, LogInfo log, String hash) {
+  final party = ActivityEntry.fromLog(log).party.name;
+  final issued =
+      log.issuanceLog?.credentials.any((c) => c.hash == hash) ?? false;
+  final key = switch (log.type) {
+    LogType.issuance when issued => "activity.received_from",
+    LogType.issuance || LogType.disclosure => "activity.shared_with",
+    LogType.signature => "activity.signed_for",
+    LogType.removal => "activity.deleted_from",
+  };
+  return "${FlutterI18n.translate(context, key)} $party".trim();
+}
 
 /// Full-screen detail of one card (credential instance). Opens with the
 /// Wallet-style transition: the card flies here as a [CardHero] while the data
@@ -294,7 +295,16 @@ class _Details extends ConsumerWidget {
     );
     final format = _formatLabel(credential);
     final source = _sourceLabel(context, credential);
-    final activity = ref.watch(cardActivityProvider(credential.hash));
+    final activity =
+        ref.watch(cardActivityProvider(credential.hash)).value ??
+        const <LogInfo>[];
+    // The entry that issued the card says when it was added; older cards
+    // whose issuance is not in the log fall back on their issuance date.
+    final issuanceLogged = activity.any(
+      (log) =>
+          log.issuanceLog?.credentials.any((c) => c.hash == credential.hash) ??
+          false,
+    );
     final issued = credential.issuanceDate == null
         ? null
         : DateTime.fromMillisecondsSinceEpoch(credential.issuanceDate! * 1000);
@@ -475,12 +485,15 @@ class _Details extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              for (final item in activity)
+              for (final (i, log) in activity.indexed)
                 _ActivityRow(
-                  title: item.title,
-                  date: printableDate(item.date, lang),
+                  title: _activityTitle(context, log, credential.hash),
+                  date: printableDate(log.time.toLocal(), lang),
+                  last:
+                      i == activity.length - 1 &&
+                      (issuanceLogged || issued == null),
                 ),
-              if (issued != null)
+              if (issued != null && !issuanceLogged)
                 _ActivityRow(
                   title: FlutterI18n.translate(
                     context,

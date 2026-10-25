@@ -198,25 +198,44 @@ func (ah *eventHandler) updateSchemes() error {
 	return nil
 }
 
-func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
-	var logEntries []clientmodels.LogInfo
-	var err error
+// The log questions always answer, with the error in the answer when there
+// is one, so the app is never left waiting on a request id.
 
-	// When before is not sent, load the newest logs
-	if action.Before == nil {
-		logEntries, err = yiviClient.LoadNewestLogs(action.Max)
-	} else {
-		logEntries, err = yiviClient.LoadLogsBefore(*action.Before, action.Max)
+func errorText(err error) string {
+	if err == nil {
+		return ""
 	}
-	if err != nil {
-		return err
+	return err.Error()
+}
+
+func (ah *eventHandler) queryLogs(event *queryLogsEvent) error {
+	page, err := yiviClient.QueryLogs(event.Query)
+	if page.Entries == nil {
+		page.Entries = []clientmodels.LogInfo{}
 	}
+	dispatchEvent(&logPageEvent{RequestId: event.RequestId, Page: page, Error: errorText(err)})
+	return err
+}
 
-	dispatchEvent(&logsEvent{
-		LogEntries: logEntries,
-	})
+func (ah *eventHandler) getLog(event *getLogEvent) error {
+	entry, err := yiviClient.GetLog(event.Id)
+	dispatchEvent(&logEntryEvent{RequestId: event.RequestId, Entry: entry, Error: errorText(err)})
+	return err
+}
 
-	return nil
+func (ah *eventHandler) credentialActivity(event *credentialActivityEvent) error {
+	activity, err := yiviClient.CredentialActivity(event.Hashes)
+	dispatchEvent(&credentialActivityResultEvent{RequestId: event.RequestId, Activity: activity, Error: errorText(err)})
+	return err
+}
+
+func (ah *eventHandler) listParties(event *listPartiesEvent) error {
+	parties, err := yiviClient.ListParties(event.Filter, event.Limit)
+	if parties == nil {
+		parties = []clientmodels.PartySummary{}
+	}
+	dispatchEvent(&partiesEvent{RequestId: event.RequestId, Parties: parties, Error: errorText(err)})
+	return err
 }
 
 func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
@@ -227,8 +246,7 @@ func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 // setLocale changes the effective app language in irmago and re-dispatches the
 // credentials so already-delivered data is re-resolved to the new language.
 // The background logo backfill (started by SetLocale) may push a further
-// refresh once logos land. The paged activity-log cache is reset by the app,
-// which follows this event with a LoadLogsEvent.
+// refresh once logos land. The app asks for the activity log again itself.
 func (ah *eventHandler) setLocale(event *setLocaleEvent) error {
 	yiviClient.SetLocale(event.Locale)
 	dispatchCredentialsEvent()

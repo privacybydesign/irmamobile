@@ -103,10 +103,25 @@ func DispatchFromNative(eventName, payloadString string) {
 				reportError(errors.New(err), false)
 			}
 		}()
-	case "LoadLogsEvent":
-		event := &loadLogsEvent{}
+	case "QueryLogsEvent":
+		event := &queryLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			err = bridgeEventHandler.loadLogs(event)
+			err = bridgeEventHandler.queryLogs(event)
+		}
+	case "GetLogEvent":
+		event := &getLogEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.getLog(event)
+		}
+	case "CredentialActivityEvent":
+		event := &credentialActivityEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.credentialActivity(event)
+		}
+	case "ListPartiesEvent":
+		event := &listPartiesEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.listParties(event)
 		}
 	case "ClientPreferencesEvent":
 		event := &clientPreferencesEvent{}

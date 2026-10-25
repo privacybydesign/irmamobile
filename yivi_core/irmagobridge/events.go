@@ -3,7 +3,6 @@ package irmagobridge
 import (
 	"encoding/json"
 	"github.com/privacybydesign/irmago/client"
-	"time"
 
 	"github.com/privacybydesign/irmago/client/clientsettings"
 	"github.com/privacybydesign/irmago/common/clientmodels"
@@ -52,9 +51,29 @@ type deleteCredentialEvent struct {
 	HashByFormat map[clientmodels.CredentialFormat]string `json:"hash_by_format"`
 }
 
-type loadLogsEvent struct {
-	Before *time.Time `json:"before"`
-	Max    int        `json:"max"`
+// The activity log is asked for with request/response pairs: each request
+// carries a request id, which its answer echoes, so the app can have several
+// questions out at once (the Activity tab and a card's details).
+
+type queryLogsEvent struct {
+	RequestId string                `json:"request_id"`
+	Query     clientmodels.LogQuery `json:"query"`
+}
+
+type getLogEvent struct {
+	RequestId string `json:"request_id"`
+	Id        string `json:"id"`
+}
+
+type credentialActivityEvent struct {
+	RequestId string   `json:"request_id"`
+	Hashes    []string `json:"hashes"`
+}
+
+type listPartiesEvent struct {
+	RequestId string                 `json:"request_id"`
+	Filter    clientmodels.LogFilter `json:"filter"`
+	Limit     int                    `json:"limit"`
 }
 
 type clientPreferencesEvent struct {
@@ -166,8 +185,32 @@ type sessionStateEvent struct {
 	SessionState clientmodels.SessionState `json:"session_state"`
 }
 
-type logsEvent struct {
-	LogEntries []clientmodels.LogInfo `json:"log_entries"`
+// logPageEvent answers a queryLogsEvent.
+type logPageEvent struct {
+	RequestId string               `json:"request_id"`
+	Page      clientmodels.LogPage `json:"page"`
+	Error     string               `json:"error,omitempty"`
+}
+
+// logEntryEvent answers a getLogEvent; Entry is nil when there is none.
+type logEntryEvent struct {
+	RequestId string                `json:"request_id"`
+	Entry     *clientmodels.LogInfo `json:"entry"`
+	Error     string                `json:"error,omitempty"`
+}
+
+// credentialActivityResultEvent answers a credentialActivityEvent.
+type credentialActivityResultEvent struct {
+	RequestId string                                     `json:"request_id"`
+	Activity  map[string]clientmodels.CredentialActivity `json:"activity"`
+	Error     string                                     `json:"error,omitempty"`
+}
+
+// partiesEvent answers a listPartiesEvent.
+type partiesEvent struct {
+	RequestId string                      `json:"request_id"`
+	Parties   []clientmodels.PartySummary `json:"parties"`
+	Error     string                      `json:"error,omitempty"`
 }
 
 // //

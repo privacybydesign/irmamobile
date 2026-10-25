@@ -100,11 +100,11 @@ class IrmaRepository {
     // Push the effective app language to the Go client: the initial value
     // rides on AppReadyEvent (so text and logos resolve correctly from the
     // first pull), then a SetLocaleEvent on every change. Each change also
-    // resets the paged activity-log cache (LoadLogsEvent with no `before`).
+    // has the activity log asked for again, in the new language.
     bridgedDispatch(AppReadyEvent(locale: _appLanguage.current));
     _localeSubscription = _appLanguage.changes.listen((locale) {
       bridgedDispatch(SetLocaleEvent(locale: locale));
-      bridgedDispatch(LoadLogsEvent(max: 10));
+      _logsChangedSubject.add(null);
     });
   }
 
@@ -196,11 +196,27 @@ class IrmaRepository {
       _issueWizardActiveSubject.close(),
       _sessionRepository.close(),
       _fatalErrorSubject.close(),
+      _logsChangedSubject.close(),
       for (final preview in _previews.values) preview.close(),
     ]);
+    for (final request in _logRequests.values) {
+      request.completeError(StateError("the repository closed"));
+    }
+    _logRequests.clear();
   }
 
   Future<void> _eventListener(Event event) async {
+    if (event is LogAnswer) {
+      _logRequests.remove(event.requestId)?.complete(event);
+      return;
+    }
+    // What the activity log shows changes with a finished session, with the
+    // credentials (an issuance or a removal) and with the language.
+    if ((event is SessionStateEvent &&
+            event.sessionState.status == SessionStatus.success) ||
+        event is schemaless.SchemalessCredentialsEvent) {
+      if (!_logsChangedSubject.isClosed) _logsChangedSubject.add(null);
+    }
     if (event is SessionPreviewEvent) {
       final preview = _previews[event.key];
       if (preview != null && !preview.isClosed) preview.add(event.preview);
@@ -672,6 +688,55 @@ class IrmaRepository {
       dismissSession(sessionId);
     }
   }
+
+  final _logsChangedSubject = PublishSubject<void>();
+
+  /// Fires when the activity log may have changed: after a session, a change
+  /// of credentials or of language. Whoever shows the log asks again.
+  Stream<void> get logsChanged => _logsChangedSubject.stream;
+
+  /// The log questions irmago has not answered yet, by request id.
+  final _logRequests = <String, Completer<LogAnswer>>{};
+  var _logRequestCount = 0;
+
+  /// Asks irmago a question about the activity log and waits for the answer
+  /// with the same request id. irmago always answers, with the error in the
+  /// answer when it has one; closing the repository fails what is left.
+  Future<A> _askLog<A extends LogAnswer>(
+    LogRequest Function(String requestId) request,
+  ) async {
+    if (_closed) throw StateError("the repository is closed");
+    final id = "log-${_logRequestCount++}";
+    final answer = Completer<LogAnswer>();
+    _logRequests[id] = answer;
+    _bridge.dispatch(request(id));
+    final result = await answer.future as A;
+    if (result.error != null) throw Exception(result.error);
+    return result;
+  }
+
+  /// A page of the activity log, newest first.
+  Future<LogPage> queryLogs(LogQuery query) async =>
+      (await _askLog<LogPageEvent>((id) => QueryLogsEvent(id, query))).page;
+
+  /// One log entry by its id; null when there is none.
+  Future<LogInfo?> getLog(String id) async =>
+      (await _askLog<LogEntryEvent>((rid) => GetLogEvent(rid, id))).entry;
+
+  /// The activity of the cards with these hashes, by hash.
+  Future<Map<String, CredentialActivity>> credentialActivity(
+    List<String> hashes,
+  ) async => (await _askLog<CredentialActivityResultEvent>(
+    (id) => CredentialActivityEvent(id, hashes),
+  )).activity;
+
+  /// The parties of the entries matching [filter], the most recent first.
+  Future<List<PartySummary>> listParties(
+    LogFilter filter, {
+    int limit = 0,
+  }) async => (await _askLog<PartiesEvent>(
+    (id) => ListPartiesEvent(id, filter, limit: limit),
+  )).parties;
 
   /// Previews asked of irmago, by pointer URL.
   final _previews = <String, BehaviorSubject<SessionPreview>>{};

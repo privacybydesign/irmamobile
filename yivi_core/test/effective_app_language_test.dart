@@ -6,7 +6,6 @@ import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
-import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/native_events.dart";
 import "package:yivi_core/src/util/language.dart";
 
@@ -43,6 +42,8 @@ void main() {
   group("IrmaRepository locale push", () {
     TestWidgetsFlutterBinding.ensureInitialized();
 
+    late IrmaRepository repo;
+
     Future<(IrmaPreferences, _RecordingBridge)> setup() async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await IrmaPreferences.fromInstance(
@@ -50,7 +51,7 @@ void main() {
         mostRecentTermsUrlEn: "",
       );
       final bridge = _RecordingBridge();
-      final repo = IrmaRepository(client: bridge, preferences: prefs);
+      repo = IrmaRepository(client: bridge, preferences: prefs);
       addTearDown(repo.close);
       // Let the initial (skipped) effective-language emission flush before the
       // test drives a change.
@@ -78,6 +79,9 @@ void main() {
             .locale;
         final target = initial == "nl" ? "de" : "nl";
 
+        var logsChanged = 0;
+        final sub = repo.logsChanged.listen((_) => logsChanged++);
+        addTearDown(sub.cancel);
         bridge.dispatched.clear();
         await prefs.setPreferredLanguageCode(target);
         await pumpEventQueue();
@@ -87,8 +91,8 @@ void main() {
             .toList();
         expect(setLocale, hasLength(1));
         expect(setLocale.single.locale, target);
-        // The paged activity-log cache is reset alongside the locale switch.
-        expect(bridge.dispatched.whereType<LoadLogsEvent>(), hasLength(1));
+        // The activity log is asked for again, in the new language.
+        expect(logsChanged, 1);
       },
     );
 

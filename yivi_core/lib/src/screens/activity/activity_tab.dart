@@ -7,9 +7,8 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
-import "../../models/schemaless/session_state.dart";
+import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
-import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../theme/yivi_palette.dart";
@@ -26,7 +25,6 @@ import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_transition.dart";
 import "activity_detail_screen.dart";
 import "activity_entry.dart";
-import "history_repository.dart";
 import "widgets/activity_card.dart";
 import "widgets/activity_kind_tags.dart";
 
@@ -36,17 +34,20 @@ class ActivityTab extends ConsumerStatefulWidget {
 }
 
 class _ActivityTabState extends ConsumerState<ActivityTab> {
-  late final HistoryRepository _historyRepo;
   final _scrollController = ScrollController();
-  late StreamSubscription _repoStateSubscription;
 
   /// Outlives this State, like the Data tab's search.
   late String _query = ref.read(activitySearchQueryProvider);
   late final _search = TextEditingController(text: _query);
 
+  /// Waits for a pause in typing before irmago is asked.
+  Timer? _searchDelay;
+
   void _onQuery(String q) {
     setState(() => _query = q);
     ref.read(activitySearchQueryProvider.notifier).set(q);
+    _searchDelay?.cancel();
+    _searchDelay = Timer(const Duration(milliseconds: 250), _applyFilter);
   }
 
   /// The picked tag; null shows everything.
@@ -59,65 +60,65 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   void initState() {
     super.initState();
     _scrollController.addListener(_listenToScroll);
-    //Delay to make build context available
-    Future.delayed(Duration.zero).then((_) async {
-      _loadInitialLogs();
-      if (!mounted) {
-        return;
-      }
-      _repoStateSubscription = IrmaRepositoryProvider.of(context)
-          .getEvents()
-          .listen((event) {
-            if (event is SessionStateEvent &&
-                event.sessionState.status == SessionStatus.success) {
-              _loadInitialLogs();
-            }
-          });
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // only init _historyRepo once...
-    try {
-      _historyRepo;
-    } catch (_) {
-      _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
-    }
+    // A search kept from before needs the translations of the tags.
+    if (_query.isNotEmpty) afterFrame(_applyFilter);
   }
 
   @override
   void dispose() {
-    _historyRepo.dispose();
-    _repoStateSubscription.cancel();
+    _searchDelay?.cancel();
     _search.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _loadInitialLogs() {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(LoadLogsEvent(max: 10));
+  /// Asks irmago for the entries of the picked tag that match the search.
+  /// irmago searches names, values and signed messages; the tags' own labels
+  /// are in the app's language, so those are matched here.
+  void _applyFilter() {
+    if (!mounted) return;
+    final query = normaliseForSearch(_query);
+    final textOrTypes = query.isEmpty
+        ? const <LogType>[]
+        : [
+            for (final type in LogType.values)
+              if (normaliseForSearch(
+                [
+                  FlutterI18n.translate(
+                    context,
+                    ActivityKind.of(type).labelKey,
+                  ),
+                  FlutterI18n.translate(
+                    context,
+                    ActivityKind.of(type).subtitleKey,
+                  ),
+                ].join(" "),
+              ).contains(query))
+                type,
+          ];
+    ref
+        .read(activityLogProvider.notifier)
+        .setFilter(
+          ActivityLogFilter(
+            types: [
+              for (final type in LogType.values)
+                if (_filter != null && ActivityKind.of(type) == _filter) type,
+            ],
+            text: _query,
+            textOrTypes: textOrTypes,
+          ),
+        );
   }
 
-  Future<void> _loadMoreLogs() async {
-    final historyState = await _historyRepo.getHistoryState().first;
-    if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
-      IrmaRepositoryProvider.of(context).bridgedDispatch(
-        LoadLogsEvent(
-          before:
-              historyState.oldestLoaded ?? historyState.logEntries.last.time,
-          max: 10,
-        ),
-      );
-    }
-  }
+  void _loadMoreLogs() => ref.read(activityLogProvider.notifier).loadMore();
 
   void _addPostFrameCallback() {
     // After list is initially rendered, there might not be enough logs to trigger the scroll controller.
     // In that case, load more logs to fully fill the screen.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!_scrollController.position.haveDimensions) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          !_scrollController.hasClients ||
+          !_scrollController.position.haveDimensions) {
         return;
       }
       if (_scrollController.position.maxScrollExtent -
@@ -143,6 +144,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     clip: clip,
     onSelected: (kind) {
       setState(() => _filter = kind);
+      _applyFilter();
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(0);
       }
@@ -154,27 +156,17 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   double _headerHeight(bool withTags) =>
       60 + (withTags ? ActivityKindTags.height + 8 : 0);
 
-  bool _matches(LogInfo log, String query) {
-    final kind = ActivityKind.of(log.type);
-    if (_filter != null && kind != _filter) return false;
-    if (query.isEmpty) return true;
-    final entry = ActivityEntry.fromLog(log);
-    final text = normaliseForSearch(
-      [
-        entry.party.name,
-        FlutterI18n.translate(context, kind.subtitleKey),
-        FlutterI18n.translate(context, kind.labelKey),
-        for (final c in entry.cards) c.credential.name,
-      ].join(" "),
-    );
-    return text.contains(query);
-  }
+  /// Whether there is any activity to filter: the tags show then.
+  bool _hasActivity(ActivityLogState state) =>
+      state.entries.isNotEmpty ||
+      _filter != null ||
+      _query.isNotEmpty ||
+      (state.counts?.byType.values.any((n) => n > 0) ?? false);
 
-  Widget _buildLogEntries(
-    BuildContext context,
-    List<LogInfo> logEntries,
-    bool moreLogsAvailable,
-  ) {
+  Widget _buildLogEntries(BuildContext context, ActivityLogState state) {
+    final logEntries = state.entries;
+    final moreLogsAvailable = state.moreAvailable;
+    final hasActivity = _hasActivity(state);
     _addPostFrameCallback();
     // The detail pane shows the newest entry until one is picked; it was
     // built before the entries came in, so build it again.
@@ -187,8 +179,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
 
-    final query = normaliseForSearch(_query);
-    final shown = logEntries.where((e) => _matches(e, query)).toList();
+    final searching = _query.trim().isNotEmpty;
+    final shown = logEntries;
     final tagsInList = usePhoneLandscape(context);
     // The entry in the detail pane: the picked one, or the newest.
     final open = useHomePanes(context)
@@ -215,26 +207,19 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         16,
         padding.top +
             FloatingBarPlacement.topGap(context) +
-            _headerHeight(logEntries.isNotEmpty && !tagsInList),
+            _headerHeight(hasActivity && !tagsInList),
         16,
         padding.bottom + bottomBarSpace(context),
       ),
       children: [
         // In the list column they stay inside it, clear of the pane.
-        if (tagsInList && logEntries.isNotEmpty) _tags(clip: true),
-        if (logEntries.isEmpty)
-          const EmptyListMessage("activity.empty_placeholder")
-        else if (shown.isEmpty && query.isEmpty && _filter != null)
-          // Keeps loading older pages while there is more (see
-          // _addPostFrameCallback), so this shows only once the log ended.
-          moreLogsAvailable
-              ? const Padding(
-                  padding: EdgeInsets.only(top: 32),
-                  child: Center(child: EndOfListIndicator(isLoading: true)),
-                )
-              : EmptyListMessage("activity.filter_empty.${_filter!.name}")
-        else if (shown.isEmpty)
+        if (tagsInList && hasActivity) _tags(clip: true),
+        if (shown.isEmpty && searching)
           const EmptyListMessage("activity.no_results")
+        else if (shown.isEmpty && _filter != null)
+          EmptyListMessage("activity.filter_empty.${_filter!.name}")
+        else if (shown.isEmpty)
+          const EmptyListMessage("activity.empty_placeholder")
         else ...[
           for (final group in groups) ...[
             PushAway(
@@ -278,43 +263,31 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final top = padding.top + FloatingBarPlacement.topGap(context);
-    final list = StreamBuilder<HistoryState>(
-      stream: _historyRepo.getHistoryState(),
-      builder: (context, snapshot) {
-        final historyState = snapshot.data;
-        final withTags = historyState?.logEntries.isNotEmpty ?? false;
-        // Held sideways the tags scroll with the list, under the search
-        // field, instead of floating with it.
-        final tagsInList = usePhoneLandscape(context);
-        // The entries scroll under the search field and the tags; the edge
-        // goes away with them when an entry opens.
-        return SearchScrollEdge(
-          height: top + _headerHeight(withTags) - 4,
-          top: top,
-          row: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              GlassSearchField(
-                fieldKey: const Key("activity_search_field"),
-                hintKey: "activity.search_placeholder",
-                controller: _search,
-                onChanged: _onQuery,
-              ),
-              if (withTags && !tagsInList) ...[
-                const SizedBox(height: 8),
-                _tags(),
-              ],
-            ],
+    final state = ref.watch(activityLogProvider);
+    final withTags = _hasActivity(state);
+    // Held sideways the tags scroll with the list, under the search field,
+    // instead of floating with it.
+    final tagsInList = usePhoneLandscape(context);
+    // The entries scroll under the search field and the tags; the edge goes
+    // away with them when an entry opens.
+    final list = SearchScrollEdge(
+      height: top + _headerHeight(withTags) - 4,
+      top: top,
+      row: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GlassSearchField(
+            fieldKey: const Key("activity_search_field"),
+            hintKey: "activity.search_placeholder",
+            controller: _search,
+            onChanged: _onQuery,
           ),
-          child: historyState == null
-              ? Center(child: LoadingIndicator())
-              : _buildLogEntries(
-                  context,
-                  historyState.logEntries,
-                  historyState.moreLogsAvailable,
-                ),
-        );
-      },
+          if (withTags && !tagsInList) ...[const SizedBox(height: 8), _tags()],
+        ],
+      ),
+      child: !state.loaded
+          ? Center(child: LoadingIndicator())
+          : _buildLogEntries(context, state),
     );
 
     return Scaffold(
@@ -332,7 +305,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       list: list,
       detail: entry == null
           ? null
-          : ActivityDetailPane(key: ValueKey(entry.time), logEntry: entry),
+          : ActivityDetailPane(
+              key: ValueKey(ActivityEntry.fromLog(entry).key),
+              logEntry: entry,
+            ),
     );
   }
 }

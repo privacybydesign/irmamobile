@@ -58,6 +58,45 @@ List<LogInfo> _log(int count) {
   ];
 }
 
+/// Answers [query] over [log] as irmago would: filtered on type and text,
+/// newest first, a page at a time.
+LogPage _answer(List<LogInfo> log, LogQuery query) {
+  final f = query.filter;
+  bool textMatches(LogInfo e) {
+    // Every word must occur, as irmago matches.
+    final text = f.text?.toLowerCase();
+    if (text == null) return true;
+    if (f.textOrTypes?.contains(e.type) ?? false) return true;
+    final haystack = [
+      e.requestor?.name,
+      ...?e.disclosureLog?.credentials.map((c) => c.name),
+      ...?e.signedMessageLog?.credentials.map((c) => c.name),
+    ].whereType<String>().join(" ").toLowerCase();
+    return text.split(" ").every(haystack.contains);
+  }
+
+  final matching = [
+    for (final e in log)
+      if ((f.types?.contains(e.type) ?? true) && textMatches(e)) e,
+  ];
+  final start = query.cursor == null ? 0 : int.parse(query.cursor!);
+  final limit = query.limit ?? 20;
+  final end = (start + limit).clamp(0, matching.length);
+  return LogPage(
+    entries: matching.sublist(start, end),
+    nextCursor: end < matching.length ? "$end" : null,
+    counts: query.withCounts == true
+        ? LogCounts(
+            total: matching.length,
+            byType: {
+              for (final t in LogType.values)
+                t: log.where((e) => e.type == t && textMatches(e)).length,
+            },
+          )
+        : null,
+  );
+}
+
 void main() {
   late IrmaRepository repo;
   late RecordingBridge bridge;
@@ -66,13 +105,10 @@ void main() {
   setUp(() async {
     bridge = RecordingBridge()
       ..respond = (event) {
-        if (event is! LoadLogsEvent) return null;
-        final before = event.before;
-        return LogsEvent(
-          logEntries: log
-              .where((e) => before == null || e.time.isBefore(before))
-              .take(event.max)
-              .toList(),
+        if (event is! QueryLogsEvent) return null;
+        return LogPageEvent(
+          requestId: event.requestId,
+          page: _answer(log, event.query),
         );
       };
     repo = IrmaRepository(
@@ -81,6 +117,12 @@ void main() {
     );
   });
   tearDown(() => repo.close());
+
+  /// The questions the tab asked irmago.
+  List<LogQuery> queries() => bridge.dispatched
+      .whereType<QueryLogsEvent>()
+      .map((e) => e.query)
+      .toList();
 
   Future<void> pump(WidgetTester tester) async {
     tester.view.devicePixelRatio = 1;
@@ -115,29 +157,32 @@ void main() {
     expect(find.text("Shop 0"), findsOneWidget);
   });
 
-  testWidgets("a tag keeps loading older pages until it finds entries", (
-    tester,
-  ) async {
+  testWidgets("a tag asks irmago for its type only", (tester) async {
     await pump(tester);
     expect(find.text("Gemeente"), findsNothing);
 
     await tester.ensureVisible(find.byKey(const Key("activity_tag_signed")));
     await tester.pump();
     await tester.tap(find.byKey(const Key("activity_tag_signed")));
-    await _settle(tester, rounds: 40);
+    await _settle(tester);
     expect(find.text("Gemeente"), findsOneWidget);
     expect(find.text("Shop 0"), findsNothing);
+    expect(queries().last.filter.types, [LogType.signature]);
+  });
 
-    // Each page starts before the oldest entry loaded so far.
-    final befores = bridge.dispatched
-        .whereType<LoadLogsEvent>()
-        .map((e) => e.before)
-        .whereType<DateTime>()
-        .toList();
-    expect(befores, isNotEmpty);
-    for (var i = 1; i < befores.length; i++) {
-      expect(befores[i].isBefore(befores[i - 1]), isTrue);
+  testWidgets("scrolling down loads the next page after the last", (
+    tester,
+  ) async {
+    await pump(tester);
+    expect(queries().last.cursor, isNull);
+
+    // The next page comes in from the bridge between drags.
+    for (var i = 0; i < 20 && find.text("Gemeente").evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await _settle(tester, rounds: 3);
     }
+    expect(find.text("Gemeente"), findsOneWidget);
+    expect(queries().map((q) => q.cursor), contains("20"));
   });
 
   testWidgets("search and tag together", (tester) async {
@@ -149,17 +194,19 @@ void main() {
         of: find.byKey(const Key("activity_search_field")),
         matching: find.byType(EditableText),
       ),
-      "Shop 7",
+      "Shop 17",
     );
     await _settle(tester);
     expect(find.byType(ActivityCard), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(ActivityCard),
-        matching: find.text("Shop 7"),
+        matching: find.text("Shop 17"),
       ),
       findsOneWidget,
     );
+    expect(queries().last.filter.text, "Shop 17");
+    expect(queries().last.filter.types, [LogType.disclosure]);
   });
 }
 

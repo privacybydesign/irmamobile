@@ -295,7 +295,7 @@ String formatActivityTimestamp(BuildContext context, DateTime time) {
 
 /// Whether [a] and [b] are the same entry of the log (the list makes new
 /// objects when it reloads).
-bool sameLog(LogInfo a, LogInfo b) => a.time == b.time && a.type == b.type;
+bool sameLog(LogInfo a, LogInfo b) => logKey(a) == logKey(b);
 
 /// Opens the details of [logEntry]: in the detail pane in the tablet layout,
 /// else on a screen of its own.

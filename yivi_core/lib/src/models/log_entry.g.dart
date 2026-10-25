@@ -6,19 +6,8 @@ part of 'log_entry.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-LogsEvent _$LogsEventFromJson(Map<String, dynamic> json) => LogsEvent(
-  logEntries: (json['log_entries'] as List<dynamic>)
-      .map((e) => LogInfo.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
-
-Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) =>
-    <String, dynamic>{
-      'before': instance.before?.toIso8601String(),
-      'max': instance.max,
-    };
-
 LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
+  id: json['id'] as String? ?? "",
   type: $enumDecode(_$LogTypeEnumMap, json['type']),
   time: DateTime.parse(json['time'] as String),
   issuanceLog: json['issuance_log'] == null
@@ -107,6 +96,12 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
       image: json['image'] == null
           ? null
           : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+      hash: json['hash'] as String? ?? "",
+      hashConfidence: $enumDecodeNullable(
+        _$HashConfidenceEnumMap,
+        json['hash_confidence'],
+        unknownValue: JsonKey.nullForUndefinedEnumValue,
+      ),
     );
 
 const _$CredentialFormatEnumMap = {
@@ -114,3 +109,128 @@ const _$CredentialFormatEnumMap = {
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
   CredentialFormat.msoMdoc: 'mso_mdoc',
 };
+
+const _$HashConfidenceEnumMap = {
+  HashConfidence.exact: 'exact',
+  HashConfidence.inferred: 'inferred',
+};
+
+Map<String, dynamic> _$LogFilterToJson(LogFilter instance) => <String, dynamic>{
+  'types': ?instance.types?.map((e) => _$LogTypeEnumMap[e]!).toList(),
+  'protocols': ?_protocols(instance.protocols),
+  'formats': ?instance.formats
+      ?.map((e) => _$CredentialFormatEnumMap[e]!)
+      .toList(),
+  'credential_hash': ?instance.credentialHash,
+  'credential_id': ?instance.credentialId,
+  'claim_path': ?instance.claimPath,
+  'roles': ?instance.roles?.map((e) => _$LogRoleEnumMap[e]!).toList(),
+  'party_key': ?instance.partyKey,
+  'text': ?instance.text,
+  'text_or_types': ?instance.textOrTypes
+      ?.map((e) => _$LogTypeEnumMap[e]!)
+      .toList(),
+  'from': ?_utc(instance.from),
+  'to': ?_utc(instance.to),
+  'include_hidden': ?instance.includeHidden,
+};
+
+const _$LogRoleEnumMap = {
+  LogRole.issued: 'issued',
+  LogRole.disclosed: 'disclosed',
+  LogRole.removed: 'removed',
+};
+
+Map<String, dynamic> _$LogQueryToJson(LogQuery instance) => <String, dynamic>{
+  'filter': _filterToJson(instance.filter),
+  'cursor': ?instance.cursor,
+  'limit': ?instance.limit,
+  'with_counts': ?instance.withCounts,
+};
+
+LogPage _$LogPageFromJson(Map<String, dynamic> json) => LogPage(
+  entries:
+      (json['entries'] as List<dynamic>?)
+          ?.map((e) => LogInfo.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
+  nextCursor: json['next_cursor'] as String?,
+  counts: json['counts'] == null
+      ? null
+      : LogCounts.fromJson(json['counts'] as Map<String, dynamic>),
+);
+
+LogCounts _$LogCountsFromJson(Map<String, dynamic> json) => LogCounts(
+  total: (json['total'] as num).toInt(),
+  byType:
+      (json['by_type'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry($enumDecode(_$LogTypeEnumMap, k), (e as num).toInt()),
+      ) ??
+      {},
+);
+
+CredentialActivity _$CredentialActivityFromJson(Map<String, dynamic> json) =>
+    CredentialActivity(
+      hash: json['hash'] as String,
+      lastUsed: json['last_used'] == null
+          ? null
+          : DateTime.parse(json['last_used'] as String),
+      lastReceived: json['last_received'] == null
+          ? null
+          : DateTime.parse(json['last_received'] as String),
+      shareCount: (json['share_count'] as num?)?.toInt() ?? 0,
+      inferredShareCount: (json['inferred_share_count'] as num?)?.toInt() ?? 0,
+      eventCount: (json['event_count'] as num?)?.toInt() ?? 0,
+    );
+
+PartySummary _$PartySummaryFromJson(Map<String, dynamic> json) => PartySummary(
+  key: json['key'] as String,
+  party: TrustedParty.fromJson(json['party'] as Map<String, dynamic>),
+  lastTime: DateTime.parse(json['last_time'] as String),
+  count: (json['count'] as num).toInt(),
+  byType:
+      (json['by_type'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry($enumDecode(_$LogTypeEnumMap, k), (e as num).toInt()),
+      ) ??
+      {},
+);
+
+LogPageEvent _$LogPageEventFromJson(Map<String, dynamic> json) => LogPageEvent(
+  requestId: json['request_id'] as String,
+  page: LogPage.fromJson(json['page'] as Map<String, dynamic>),
+  error: json['error'] as String?,
+);
+
+LogEntryEvent _$LogEntryEventFromJson(Map<String, dynamic> json) =>
+    LogEntryEvent(
+      requestId: json['request_id'] as String,
+      entry: json['entry'] == null
+          ? null
+          : LogInfo.fromJson(json['entry'] as Map<String, dynamic>),
+      error: json['error'] as String?,
+    );
+
+CredentialActivityResultEvent _$CredentialActivityResultEventFromJson(
+  Map<String, dynamic> json,
+) => CredentialActivityResultEvent(
+  requestId: json['request_id'] as String,
+  activity:
+      (json['activity'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, CredentialActivity.fromJson(e as Map<String, dynamic>)),
+      ) ??
+      {},
+  error: json['error'] as String?,
+);
+
+PartiesEvent _$PartiesEventFromJson(Map<String, dynamic> json) => PartiesEvent(
+  requestId: json['request_id'] as String,
+  parties:
+      (json['parties'] as List<dynamic>?)
+          ?.map((e) => PartySummary.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
+  error: json['error'] as String?,
+);
