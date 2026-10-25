@@ -1277,7 +1277,14 @@
       "together_step": "Card {n} of {total}",
       "together_added": "{name} is in your app. {requestor} also needs {next}: add it now.",
       "together_add_next": "Add {next}",
-      "later": "Later"
+      "later": "Later",
+      "optional_title": "Optional data",
+      "optional_intro": "{requestor} also asks for {what}. You don't have to share it.",
+      "share_nothing": "Share nothing",
+      "share_nothing_sub": "{requestor} won't get {what}",
+      "n_fields": "{n} fields:",
+      "show_values": "Show what you share",
+      "show_less": "Show less"
     },
     "done": {
       "title": "Shared with {requestor}",
@@ -1449,7 +1456,16 @@
     "lead_side": "{requestor} only gets what is next to this, and only when you press the share button. Everything else stays on your phone.",
     "lead_side_sign": "{requestor} only gets what is next to this, and only when you press the sign button. Everything else stays on your phone.",
     "lead_side_receive": "You only share what is next to this and get a card in return, only when you press the share button. Everything else stays on your phone.",
-    "add_both": "Add both"
+    "add_both": "Add both",
+    "and": " and ",
+    "optional": {
+      "what_fields": "your {list}",
+      "what_cards": "data from your {list}",
+      "row_title": "Add optional data",
+      "row_sub": "{what} · you can leave this out",
+      "row_pick": "Choose",
+      "also": "You can also choose something else, or not share this"
+    }
   },
   "contact_sheet": {
     "intro_email": "We email you a code to check that this address is yours.",

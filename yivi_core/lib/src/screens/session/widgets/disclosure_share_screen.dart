@@ -257,7 +257,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ],
       if (optional.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.optional"))),
-        for (final (n, (i, p)) in optional.indexed)
+        for (final (n, (i, p)) in [
+          ...optional.where((o) => selectionOf(o.$2, selections[o.$1]) >= 0),
+          ...optional.where((o) => selectionOf(o.$2, selections[o.$1]) < 0),
+        ].indexed)
           _optionalItem(i, p, selections, first: n == 0),
       ],
       if (offered.isNotEmpty) ...[
@@ -786,56 +789,56 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
   }
 
-  /// Optional data. Not shared: its card faded in a dashed edge with "Share
-  /// too" on it, which includes it at once. Shared: the card with "Don't
-  /// share". Not in the app: an empty spot whose Add opens the sheet.
+  /// Optional data. Not shared: a row, "Add optional data", that opens
+  /// the sheet with "Share nothing", the cards in the app and the ones to
+  /// add. Shared: the card with all it shares and a strip with "Change
+  /// choice", which opens that sheet again.
   _Spaced _optionalItem(
     int i,
     DisclosurePickOne p,
     Map<int, int> selections, {
     required bool first,
   }) {
-    final notifier = ref.read(sessionUserChoicesProvider(_sessionId).notifier);
     final owned = p.ownedOptions ?? const <DisclosureBundle>[];
     final k = selectionOf(p, selections[i]);
-    if (k >= 0) {
-      final bundle = owned[k];
-      final tile = SharedCardTile(
-        key: Key("share_slot_$i"),
-        bundle: bundle,
-        landingKey: _landingKey(i),
-        trailing: SmallPill(
-          key: Key("share_remove_$i"),
-          label: context.tr("share.dont_share"),
-          onPressed: () => notifier.removeOptional(i),
-        ),
-        footer: _choiceStrip(i, p, k),
-      );
-      // A card picked for it in the sheet flies into its place, as a
-      // required card does.
+    if (k < 0) {
+      final what = optionalWhatText(context, p);
       return _Spaced(
         12,
-        ChoiceHero(
-          sessionId: _sessionId,
-          index: i,
-          bundle: bundle,
-          child: tile,
+        _OptionalRow(
+          key: Key("share_add_optional_$i"),
+          landingKey: useSessionColumns(context) ? null : _landingKey(i),
+          title: context.tr("share.optional.row_title"),
+          subtitle: context.tr("share.optional.row_sub", {
+            "what": what.isEmpty
+                ? what
+                : what[0].toUpperCase() + what.substring(1),
+          }),
+          pick: context.tr("share.optional.row_pick"),
+          onTap: () => _openChoice(i),
         ),
       );
     }
-    // As a required spot: 12 more under a card, for the pill.
-    final gap = first ? 0.0 : 12.0;
-    if (owned.isEmpty) {
-      return _Spaced(gap, _emptySpot(i, p, key: Key("share_add_optional_$i")));
-    }
-    return _Spaced(
-      gap,
-      _OptionalGhost(
-        key: Key("share_add_optional_$i"),
-        bundle: owned.first,
-        label: context.tr("share.also_share"),
-        onAdd: () => notifier.addOptional(i),
+    final bundle = owned[k];
+    final tile = SharedCardTile(
+      key: Key("share_slot_$i"),
+      bundle: bundle,
+      landingKey: _landingKey(i),
+      footer: _ChoiceStrip(
+        text: context.tr("share.optional.also"),
+        button: SmallPill(
+          key: Key("share_change_$i"),
+          label: context.tr("share.change_choice"),
+          tone: SmallPillTone.surface,
+          onPressed: () => _openChoice(i),
+        ),
       ),
+    );
+    // A card picked for it in the sheet flies into its place, as a
+    // required card does.
+    return _Spaced(
+      12,
+      ChoiceHero(sessionId: _sessionId, index: i, bundle: bundle, child: tile),
     );
   }
 
@@ -936,43 +939,74 @@ class _ChoiceStrip extends StatelessWidget {
   }
 }
 
-/// Optional data that is not shared: the card it would be, at half
-/// strength in a dashed edge, with "Share too" on that edge. A tap anywhere
-/// includes it.
-class _OptionalGhost extends StatelessWidget {
-  final DisclosureBundle bundle;
-  final String label;
-  final VoidCallback onAdd;
+/// Optional data that is not shared: one row, "Add optional data", with
+/// what is asked under it and "Choose" at the end. The whole row opens the
+/// sheet; the pill only says so. A card added in the sheet lands on its
+/// plus.
+class _OptionalRow extends StatelessWidget {
+  final GlobalKey? landingKey;
+  final String title;
+  final String subtitle;
+  final String pick;
+  final VoidCallback onTap;
 
-  const _OptionalGhost({
+  const _OptionalRow({
     super.key,
-    required this.bundle,
-    required this.label,
-    required this.onAdd,
+    this.landingKey,
+    required this.title,
+    required this.subtitle,
+    required this.pick,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final gap = EmptyCardSpot.dashGapFor(context, label);
+    final palette = YiviPalette.of(context);
     return Semantics(
       button: true,
-      label: "$label: ${bundle.credentials.map((c) => c.name).join(" + ")}",
+      label: "$title, $subtitle",
       excludeSemantics: true,
-      child: Padding(
-        padding: const EdgeInsets.only(top: EmptyCardSpot.edgeRoom),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onAdd,
-          child: PressScale(
-            scale: PressScale.card,
-            child: Stack(
-              clipBehavior: Clip.none,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: PressScale(
+          scale: PressScale.card,
+          child: SurfaceCard(
+            padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+            child: Row(
+              spacing: 12,
               children: [
-                SharedCardTile(bundle: bundle, ghost: true, dashGap: gap),
-                EdgeAddPill(
-                  pillKey: const Key("share_also_share"),
-                  label: label,
-                  onPressed: onAdd,
+                Container(
+                  key: landingKey,
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: palette.tint,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.add_rounded, size: 22, color: palette.link),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: palette
+                            .display(15)
+                            .copyWith(color: palette.text),
+                      ),
+                      Text(
+                        subtitle,
+                        style: palette
+                            .body(12.5)
+                            .copyWith(color: palette.secondaryText),
+                      ),
+                    ],
+                  ),
+                ),
+                IgnorePointer(
+                  child: SmallPill(label: pick, onPressed: onTap),
                 ),
               ],
             ),

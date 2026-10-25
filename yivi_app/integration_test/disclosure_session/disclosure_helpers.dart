@@ -8,7 +8,6 @@ import "package:yivi_core/src/screens/session/models/disclosure_view_model.dart"
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/empty_card_spot.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
@@ -298,37 +297,43 @@ Future<void> changeChoice(WidgetTester tester, int i) async {
   expect(findChoiceSheet(), findsOneWidget);
 }
 
-/// Optional item [i] that is not shared yet. With a card in the app it is
-/// that card, faded, with "Share too": a tap shares it, no sheet. Without
-/// one it is an empty spot: a tap opens the Change sheet to add one.
+/// Shares optional item [i]: its row ("Add optional data") opens its sheet,
+/// and with a card in the app the first one is picked, which closes the
+/// sheet. Without one the sheet stays open, to add one.
 Future<void> addOptional(WidgetTester tester, int i) async {
-  final row = find.byKey(Key("share_add_optional_$i"), skipOffstage: false);
-  await _scrollToCentre(tester, row);
-  final viaSheet = find
-      .descendant(of: row, matching: find.byType(EmptyCardSpot))
-      .evaluate()
-      .isNotEmpty;
-  await tester.tapAndSettle(row);
-  if (viaSheet) {
-    expect(findChoiceSheet(), findsOneWidget);
-  } else {
-    expect(findShareSlot(i), findsOneWidget);
-  }
+  await openOptionalSheet(tester, i);
+  if (findSheetOwnedRows().evaluate().isEmpty) return;
+  await tester.tapAndSettle(findSheetOwnedRows().first);
+  expect(findShareSlot(i), findsOneWidget);
 }
 
-/// Opens the Change sheet of optional item [i]: when it has a card in the
-/// app, shares that first ("Share too") and then taps "Change choice";
-/// otherwise taps Add on its empty spot.
+/// Opens the sheet of optional item [i]: its row when it is not shared,
+/// "Change choice" on its card when it is. The sheet starts with "Share
+/// nothing".
 Future<void> openOptionalSheet(WidgetTester tester, int i) async {
-  if (findShareSlot(i).evaluate().isEmpty) await addOptional(tester, i);
-  if (findChoiceSheet().evaluate().isEmpty) await changeChoice(tester, i);
+  if (findShareSlot(i).evaluate().isNotEmpty) {
+    await changeChoice(tester, i);
+  } else {
+    final row = find.byKey(Key("share_add_optional_$i"), skipOffstage: false);
+    await _scrollToCentre(tester, row);
+    await tester.tapAndSettle(row);
+  }
+  expect(findChoiceSheet(), findsOneWidget);
+  expect(findShareNothing(), findsOneWidget);
 }
 
-/// Leaves out optional item [i] again ("Don't share").
+/// "Share nothing" in the sheet of an optional item.
+Finder findShareNothing() => find.descendant(
+  of: findChoiceSheet(),
+  matching: find.byKey(const Key("sheet_share_nothing")),
+);
+
+/// Leaves out optional item [i] again: "Change choice", then "Share
+/// nothing", which closes the sheet.
 Future<void> removeOptional(WidgetTester tester, int i) async {
-  final remove = find.byKey(Key("share_remove_$i"), skipOffstage: false);
-  await _scrollToCentre(tester, remove);
-  await tester.tapAndSettle(remove);
+  await changeChoice(tester, i);
+  await tester.tapAndSettle(findShareNothing());
+  expect(findChoiceSheet(), findsNothing);
 }
 
 /// The "In your app" rows of the open sheet.

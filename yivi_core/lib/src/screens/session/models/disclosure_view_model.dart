@@ -79,6 +79,24 @@ bool canBeAdded(CredentialDescriptor descriptor) =>
 List<CredentialDescriptor> addableOptions(DisclosurePickOne pickOne) =>
     (pickOne.obtainableOptions ?? const []).where(canBeAdded).toList();
 
+/// The options of [pickOne] that can be completed from Yivi, in irmago's
+/// order: what is missing of each (all of it can be added) and what of it
+/// is in the app already. One type each from an irmago that does not send
+/// [DisclosurePickOne.obtainableBundles].
+List<ObtainableBundle> addableBundles(DisclosurePickOne pickOne) {
+  final bundles = pickOne.obtainableBundles;
+  if (bundles == null) {
+    return [
+      for (final d in addableOptions(pickOne))
+        ObtainableBundle(owned: const [], missing: [d]),
+    ];
+  }
+  return [
+    for (final b in bundles)
+      if (b.missing.isNotEmpty && b.missing.every(canBeAdded)) b,
+  ];
+}
+
 /// The owned option shown for [pickOne] when the user has not picked one:
 /// the first, in irmago's order (#657 puts the best one first). Optional
 /// data starts left out (-1).
@@ -237,6 +255,75 @@ List<(AlsoKind, String)> alsoChoose(DisclosurePickOne pickOne, int selected) {
   }
   return out;
 }
+
+/// What optional [pickOne] asks for, to name it in a sentence ("Webshop
+/// asks for your date of birth too"): the requested fields of its first
+/// option (the first card in the app, else the first one to add), or, with
+/// more than [OptionalWhat.maxFields] of them, the cards they come from.
+OptionalWhat optionalWhat(DisclosurePickOne pickOne) {
+  final owned =
+      (pickOne.ownedOptions ?? const <DisclosureBundle>[]).firstOrNull;
+  final toAdd =
+      (pickOne.obtainableBundles ?? const <ObtainableBundle>[]).firstOrNull;
+  (String, List<String>) ownedCard(SelectableCredentialInstance c) =>
+      (c.name, [for (final a in c.attributes) a.effectiveDisplayName]);
+  (String, List<String>) cardToAdd(CredentialDescriptor d) => (
+    d.name,
+    [
+      for (final a in d.attributes)
+        if (a.requestedValue != null) a.effectiveDisplayName,
+    ],
+  );
+  final List<(String, List<String>)> cards = owned != null
+      ? [for (final c in owned.credentials) ownedCard(c)]
+      : toAdd != null
+      ? [
+          for (final d in toAdd.missing) cardToAdd(d),
+          for (final c in toAdd.owned) ownedCard(c),
+        ]
+      : [
+          for (final d in (pickOne.obtainableOptions ?? const []).take(1))
+            cardToAdd(d),
+        ];
+  final fields = <String>{for (final (_, f) in cards) ...f}.toList();
+  if (fields.isEmpty || fields.length > OptionalWhat.maxFields) {
+    return OptionalWhat(byCard: true, names: [for (final (n, _) in cards) n]);
+  }
+  return OptionalWhat(byCard: false, names: fields);
+}
+
+/// The names [optionalWhat] found: the fields ("date of birth"), or the
+/// cards they come from ([byCard]: "personal data").
+class OptionalWhat {
+  /// More fields than this are named by their cards.
+  static const maxFields = 3;
+
+  final bool byCard;
+  final List<String> names;
+
+  const OptionalWhat({required this.byCard, required this.names});
+
+  @override
+  bool operator ==(Object other) =>
+      other is OptionalWhat &&
+      other.byCard == byCard &&
+      const ListEquality<String>().equals(other.names, names);
+
+  @override
+  int get hashCode => Object.hash(byCard, Object.hashAll(names));
+
+  @override
+  String toString() => "OptionalWhat(byCard: $byCard, names: $names)";
+}
+
+/// From this many fields a card in a sheet shows their names ("10 fields:
+/// first names, surname, …") instead of its values: the sheet is for
+/// choosing, the share screen shows every value.
+const summaryFrom = 5;
+
+/// [items] as one list in a sentence: "a, b and c", with [and] (" and ")
+/// before the last item.
+String andList(List<String> items, String and) => orList(items, and);
 
 /// Whether [pickOne]'s types are only accepted together: the missing-data
 /// steps offer exactly these types as one option, a set of cards.

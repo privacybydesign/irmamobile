@@ -1277,7 +1277,14 @@
       "together_step": "Kaart {n} van {total}",
       "together_added": "{name} staat in je app. {requestor} heeft ook {next} nodig: voeg die nu toe.",
       "together_add_next": "{next} toevoegen",
-      "later": "Later"
+      "later": "Later",
+      "optional_title": "Optionele gegevens",
+      "optional_intro": "{requestor} vraagt ook om {what}. Dat hoef je niet te delen.",
+      "share_nothing": "Niets delen",
+      "share_nothing_sub": "{requestor} krijgt {what} niet",
+      "n_fields": "{n} gegevens:",
+      "show_values": "Toon wat je deelt",
+      "show_less": "Minder tonen"
     },
     "done": {
       "title": "Gedeeld met {requestor}",
@@ -1449,7 +1456,16 @@
     "lead_side": "{requestor} krijgt alleen wat hiernaast staat, en pas als je op de knop om te delen drukt. Al het andere blijft op je telefoon.",
     "lead_side_sign": "{requestor} krijgt alleen wat hiernaast staat, en pas als je op de knop om te ondertekenen drukt. Al het andere blijft op je telefoon.",
     "lead_side_receive": "Je deelt alleen wat hiernaast staat en krijgt een kaartje terug, pas als je op de knop om te delen drukt. Al het andere blijft op je telefoon.",
-    "add_both": "Allebei toevoegen"
+    "add_both": "Allebei toevoegen",
+    "and": " en ",
+    "optional": {
+      "what_fields": "je {list}",
+      "what_cards": "gegevens uit je {list}",
+      "row_title": "Optionele gegevens toevoegen",
+      "row_sub": "{what} · mag je weglaten",
+      "row_pick": "Kiezen",
+      "also": "Je kunt ook iets anders kiezen of dit niet delen"
+    }
   },
   "contact_sheet": {
     "intro_email": "We mailen je een code om te controleren dat dit adres van jou is.",

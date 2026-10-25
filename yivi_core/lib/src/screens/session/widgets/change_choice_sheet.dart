@@ -28,6 +28,21 @@ import "shared_card_tile.dart";
 
 export "issue_flow.dart" show issuerOpenerProvider;
 
+/// What optional [pickOne] asks for, in a sentence: "your date of birth",
+/// "your first names, surname and date of birth", or by its cards, "data
+/// from your personal data" ([optionalWhat]).
+String optionalWhatText(BuildContext context, DisclosurePickOne pickOne) {
+  final language = FlutterI18n.currentLocale(context)?.languageCode;
+  final what = optionalWhat(pickOne);
+  final list = andList([
+    for (final n in what.names) inSentence(n, language: language),
+  ], context.tr("share.and"));
+  return context.tr(
+    what.byCard ? "share.optional.what_cards" : "share.optional.what_fields",
+    {"list": list},
+  );
+}
+
 /// The "Change" sheet of the share screen, for pick-one [index]: the cards
 /// in the app (one tap picks one and closes the sheet) and, clearly apart,
 /// the types that are not in the app yet.
@@ -235,12 +250,17 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// Whether this sheet's spot is a set of cards only accepted together.
   bool get _isTogether {
     final pickOne = _pickOne;
-    return pickOne != null &&
-        spotTogether(
-          pickOne,
-          issueRequest?.disclosurePlan?.issueDuringDisclosure,
-        );
+    return _set != null ||
+        pickOne != null &&
+            spotTogether(
+              pickOne,
+              issueRequest?.disclosurePlan?.issueDuringDisclosure,
+            );
   }
+
+  /// The cards being added one by one for an option of several that only
+  /// go together ("Add both"), picked under "Not in your app yet".
+  List<CredentialDescriptor>? _set;
 
   /// After adding [added], the card of the set still missing, if any.
   CredentialDescriptor? _nextOfSet(List<schemaless.Credential> added) {
@@ -250,10 +270,17 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       ...ref.read(cardTypesInAppProvider),
       for (final c in added) c.credentialId,
     };
-    for (final d in addableOptions(pickOne)) {
+    for (final d in _set ?? addableOptions(pickOne)) {
       if (!inApp.contains(d.credentialId)) return d;
     }
     return null;
+  }
+
+  /// Adds what is missing of an option: one card, or, of a set, the first
+  /// and then the next ([_nextOfSet]).
+  void _add(List<CredentialDescriptor> missing) {
+    _set = missing.length > 1 ? missing : null;
+    issueOpen(missing.first);
   }
 
   SessionUserChoicesNotifier get _choices =>
@@ -263,6 +290,15 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     name,
     language: FlutterI18n.currentLocale(context)?.languageCode,
   );
+
+  /// "Share nothing": the optional data is left out.
+  void _pickNothing() {
+    _press(_nothing);
+    _choices.removeOptional(widget.index);
+    Navigator.of(context).pop();
+  }
+
+  static const _nothing = "nothing";
 
   void _pick(DisclosurePickOne pickOne, DisclosureBundle bundle) {
     if (pickOne.optional) _choices.addOptional(widget.index);
@@ -325,7 +361,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// The card in the app tapped: it has the outline of the chosen card
   /// from the moment the finger lifts, as the sheet closes with it. A card
   /// to add never gets it: the outline stays on the card in use.
-  /// `owned:{hash}`.
+  /// `owned:{hash}`, or `nothing` for "Share nothing".
   String? _pressed;
 
   void _press(String? key) {
@@ -414,13 +450,13 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         for (final c in b.credentials) c.credentialId,
     };
     // Another of a kind you already have comes first.
+    bool another(ObtainableBundle b) =>
+        b.owned.isEmpty &&
+        b.missing.length == 1 &&
+        ownedIds.contains(b.missing.single.credentialId);
     final addable = [
-      ...addableOptions(
-        pickOne,
-      ).where((d) => ownedIds.contains(d.credentialId)),
-      ...addableOptions(
-        pickOne,
-      ).where((d) => !ownedIds.contains(d.credentialId)),
+      ...addableBundles(pickOne).where(another),
+      ...addableBundles(pickOne).where((b) => !another(b)),
     ];
     final selections = selectionsFrom(
       [pickOne],
@@ -439,23 +475,46 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         _pressed != null ? _pressed == key : key == current;
     final current = selected >= 0 && selected < owned.length
         ? "owned:${owned[selected].credentials.first.hash}"
+        : pickOne.optional
+        ? _nothing
         : null;
+    final requestor = _requestor?.name ?? "";
+    final what = pickOne.optional ? optionalWhatText(context, pickOne) : "";
 
     return GlassSheetPage(
       title: pickOne.optional
-          ? context.tr("share.sheet.add_optional")
+          ? context.tr("share.sheet.optional_title")
           : context.tr("share.sheet.pick_card"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Intro(
-            owned.isEmpty
+            pickOne.optional
+                ? context.tr("share.sheet.optional_intro", {
+                    "requestor": requestor,
+                    "what": what,
+                  })
+                : owned.isEmpty
                 ? context.tr("share.sheet.subtitle_one_add")
                 : context.tr("share.sheet.subtitle_one"),
           ),
-          if (owned.isNotEmpty) ...[
+          // Optional data: leaving it out is the first choice, the whole
+          // width also held sideways.
+          if (pickOne.optional) ...[
             const SizedBox(height: 18),
+            _ShareNothingCard(
+              key: const Key("sheet_share_nothing"),
+              subtitle: context.tr("share.sheet.share_nothing_sub", {
+                "requestor": requestor,
+                "what": what,
+              }),
+              selected: outlined(_nothing, current: current),
+              onTap: _pickNothing,
+            ),
+          ],
+          if (owned.isNotEmpty) ...[
+            SizedBox(height: pickOne.optional ? 32 : 18),
             _Label(context.tr("share.sheet.already_in_app")),
             ..._inRows(landscape, gap: 12, [
               for (final b in owned)
@@ -481,26 +540,74 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           if (addable.isNotEmpty) ...[
             // Clearly apart from the cards in the app; the first empty card
             // keeps room above its edge for its pill.
-            SizedBox(height: owned.isEmpty ? 18 : 44),
+            SizedBox(height: owned.isEmpty && !pickOne.optional ? 18 : 44),
             _Label(context.tr("share.not_in_app_yet")),
             ..._inRows(landscape, gap: 12, first: 0, [
-              for (final d in addable)
-                EmptyCardSpot(
-                  key: Key("sheet_add_${d.credentialId}"),
-                  title: ownedIds.contains(d.credentialId)
-                      ? context.tr(
-                          anotherNameKey(d.name, languageCode: language),
-                          {"name": _inSentence(d.name)},
-                        )
-                      : d.name,
-                  subtitle: d.issuer.name,
-                  rows: emptySpotRows(context, d),
-                  onTap: () => issueOpen(d),
-                ),
+              for (final b in addable)
+                if (b.owned.isEmpty && b.missing.length == 1)
+                  EmptyCardSpot(
+                    key: Key("sheet_add_${b.missing.single.credentialId}"),
+                    title: another(b)
+                        ? context.tr(
+                            anotherNameKey(
+                              b.missing.single.name,
+                              languageCode: language,
+                            ),
+                            {"name": _inSentence(b.missing.single.name)},
+                          )
+                        : b.missing.single.name,
+                    subtitle: b.missing.single.issuer.name,
+                    rows: emptySpotRows(context, b.missing.single),
+                    summarize: true,
+                    onTap: () => _add(b.missing),
+                  )
+                else
+                  _setSpot(b, requestor),
             ]),
           ],
         ],
       ),
+    );
+  }
+
+  /// An option of several cards that only go together, not all in the app:
+  /// one empty spot, "Passport + Address", that says what is there already
+  /// and what is still to add, with the fields of each. Its pill adds the
+  /// missing card, or both one by one.
+  Widget _setSpot(ObtainableBundle b, String requestor) {
+    final t = context.tr;
+    final missingNames = [for (final d in b.missing) d.name];
+    final ownedNames = [for (final c in b.owned) c.name];
+    return EmptyCardSpot(
+      key: Key(
+        "sheet_add_${[for (final d in b.missing) d.credentialId].join("+")}",
+      ),
+      title: [...missingNames, ...ownedNames].join(" + "),
+      subtitle: b.owned.isEmpty
+          ? t("share.spot.together_both", {"requestor": requestor})
+          : t("share.spot.together_one_left", {
+              "name": andList(ownedNames, t("share.and")),
+              "other": andList([
+                for (final n in missingNames) _inSentence(n),
+              ], t("share.and")),
+              "requestor": requestor,
+            }),
+      rows: [
+        for (final d in b.missing) ...emptySpotRows(context, d),
+        for (final c in b.owned)
+          for (final a in c.attributes)
+            (a.effectiveDisplayName, t("data.add.in_your_app")),
+      ],
+      summarize: true,
+      together: true,
+      kinds: b.missing.length > 1 ? b.missing : null,
+      // What a tap adds: both, or the one card the set still misses.
+      addLabel: b.missing.length > 1
+          ? t("share.add_both")
+          : t("share.sheet.together_add_next", {
+              "next": _inSentence(b.missing.single.name),
+            }),
+      onTap: () => _add(b.missing),
     );
   }
 
@@ -572,6 +679,63 @@ class _Intro extends StatelessWidget {
   }
 }
 
+/// "Share nothing", the first choice for optional data: a card the size of
+/// the others with a grey tile where the card art goes. It has the outline
+/// while the data is left out; a tap leaves it out and closes the sheet.
+class _ShareNothingCard extends StatelessWidget {
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ShareNothingCard({
+    super.key,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      button: true,
+      onTap: onTap,
+      child: PressScale(
+        scale: PressScale.card,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: CardTileOutline(
+            shown: selected,
+            child: CardTile(
+              art: Container(
+                width: CardTile.miniWidth,
+                height: CardTile.miniHeight,
+                decoration: ShapeDecoration(
+                  color: palette.secondaryText.withValues(alpha: 0.1),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(9)),
+                  ),
+                ),
+                child: Icon(
+                  Icons.block_rounded,
+                  size: 20,
+                  color: palette.secondaryText,
+                ),
+              ),
+              title: context.tr("share.sheet.share_nothing"),
+              subtitle: subtitle,
+              subtitleMaxLines: 2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// A card in the app, drawn as on the share screen with every value it
 /// would share: tap to use it. The chosen one (or the one a finger is on)
 /// has the outline of the current card on the credential's page, drawn
@@ -604,7 +768,7 @@ class _OwnedCard extends StatelessWidget {
           onTap: onTap,
           child: CardTileOutline(
             shown: outlined,
-            child: SharedCardTile(bundle: bundle),
+            child: SharedCardTile(bundle: bundle, summarize: true),
           ),
         ),
       ),

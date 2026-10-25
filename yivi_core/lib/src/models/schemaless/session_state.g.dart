@@ -119,6 +119,29 @@ DisclosurePickOne _$DisclosurePickOneFromJson(Map<String, dynamic> json) =>
       obtainableOptions: (json['obtainable_options'] as List<dynamic>?)
           ?.map((e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>))
           .toList(),
+      obtainableBundles: (json['obtainable_bundles'] as List<dynamic>?)
+          ?.map((e) => ObtainableBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+ObtainableBundle _$ObtainableBundleFromJson(Map<String, dynamic> json) =>
+    ObtainableBundle(
+      owned:
+          (json['owned'] as List<dynamic>?)
+              ?.map(
+                (e) => SelectableCredentialInstance.fromJson(
+                  e as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [],
+      missing:
+          (json['missing'] as List<dynamic>?)
+              ?.map(
+                (e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
     );
 
 DisclosureBundle _$DisclosureBundleFromJson(Map<String, dynamic> json) =>

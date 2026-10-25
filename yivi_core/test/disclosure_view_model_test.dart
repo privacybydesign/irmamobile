@@ -571,6 +571,151 @@ void main() {
     expect(inSentence("Email-Adresse", language: "de"), "Email-Adresse");
   });
 
+  group("what optional data asks for", () {
+    Attribute field(String name, {bool requested = true}) => Attribute(
+      claimPath: [name],
+      displayName: name,
+      requestedValue: requested
+          ? AttributeValue(type: AttributeType.string)
+          : null,
+    );
+    SelectableCredentialInstance card(String id, List<String> fields) =>
+        SelectableCredentialInstance(
+          credentialId: id,
+          hash: "h-$id",
+          name: id,
+          issuer: _party("Gemeente"),
+          format: CredentialFormat.idemix,
+          attributes: [for (final f in fields) field(f)],
+          revoked: false,
+          revocationSupported: false,
+        );
+
+    test("the fields of the first card in the app", () {
+      expect(
+        optionalWhat(
+          _pickOne(
+            optional: true,
+            owned: [
+              _bundle([
+                card("Personal data", ["Date of birth"]),
+              ]),
+              _bundle([
+                card("Passport", ["Born", "Name"]),
+              ]),
+            ],
+          ),
+        ),
+        const OptionalWhat(byCard: false, names: ["Date of birth"]),
+      );
+    });
+
+    test("nothing in the app: the requested fields of the first to add", () {
+      expect(
+        optionalWhat(
+          _pickOne(
+            optional: true,
+            obtainable: [
+              _descriptor(
+                "Mobile number",
+                attributes: [
+                  field("Mobile number"),
+                  field("Country", requested: false),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const OptionalWhat(byCard: false, names: ["Mobile number"]),
+      );
+    });
+
+    test("a set: the fields of both cards, once each", () {
+      expect(
+        optionalWhat(
+          _pickOne(
+            optional: true,
+            owned: [
+              _bundle([
+                card("Personal data", ["Name"]),
+                card("Address", ["Street", "Name"]),
+              ]),
+            ],
+          ),
+        ),
+        const OptionalWhat(byCard: false, names: ["Name", "Street"]),
+      );
+    });
+
+    test("more than three fields: named by the cards", () {
+      expect(
+        optionalWhat(
+          _pickOne(
+            optional: true,
+            owned: [
+              _bundle([
+                card("Personal data", ["First names", "Surname"]),
+                card("Address", ["Street", "Postcode"]),
+              ]),
+            ],
+          ),
+        ),
+        const OptionalWhat(byCard: true, names: ["Personal data", "Address"]),
+      );
+    });
+
+    test("nothing in the app, a set to complete: the fields of its cards", () {
+      expect(
+        optionalWhat(
+          DisclosurePickOne(
+            optional: true,
+            ownedOptions: const [],
+            obtainableBundles: [
+              ObtainableBundle(
+                owned: [
+                  card("Address", ["Street"]),
+                ],
+                missing: [
+                  _descriptor("Passport", attributes: [field("Name")]),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const OptionalWhat(byCard: false, names: ["Name", "Street"]),
+      );
+    });
+
+    test("what can be completed: the sets irmago sends, or one type each", () {
+      final passport = _descriptor("Passport");
+      final address = card("Address", ["Street"]);
+      final noUrl = _descriptor("mdoc", url: null);
+      final sets = addableBundles(
+        DisclosurePickOne(
+          optional: true,
+          obtainableOptions: [passport, noUrl],
+          obtainableBundles: [
+            ObtainableBundle(owned: [address], missing: [passport]),
+            ObtainableBundle(owned: const [], missing: [noUrl]),
+          ],
+        ),
+      );
+      expect(sets, hasLength(1));
+      expect(sets.single.owned.single.credentialId, "Address");
+
+      final types = addableBundles(
+        _pickOne(optional: true, obtainable: [passport, noUrl]),
+      );
+      expect([for (final b in types) b.missing.single], [passport]);
+      expect(types.single.owned, isEmpty);
+    });
+
+    test("a list in a sentence", () {
+      expect(andList(["a"], " and "), "a");
+      expect(andList(["a", "b", "c"], " and "), "a, b and c");
+    });
+  });
+
   group("the share screen's words", () {
     test("a list: commas, and or before the last", () {
       expect(orList(["passport"], " or "), "passport");

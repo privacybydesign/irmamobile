@@ -13,6 +13,7 @@ import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/dashed_outline_painter.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../models/disclosure_view_model.dart";
 import "shared_card_tile.dart";
 
 /// The rows of an [EmptyCardSpot] for [card]: each field the request asks
@@ -91,6 +92,10 @@ class EmptyCardSpot extends StatelessWidget {
   /// The pill's label; "Add" by default ("Add both" for a set).
   final String? addLabel;
 
+  /// In a sheet: with [summaryFrom] [rows] or more, their labels in one
+  /// line ("10 fields: first names, …") instead of a row each.
+  final bool summarize;
+
   /// Room above the dashed edge for the half of the pill that sticks out.
   static const double edgeRoom = 12;
 
@@ -109,6 +114,7 @@ class EmptyCardSpot extends StatelessWidget {
     this.kinds,
     this.together = false,
     this.addLabel,
+    this.summarize = false,
   });
 
   /// The gap a dashed top edge leaves for an [EdgeAddPill] with [label].
@@ -175,7 +181,9 @@ class EmptyCardSpot extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       body: [
-        if (rows.isNotEmpty)
+        if (summarize && rows.length >= summaryFrom)
+          AttributeSummary(names: [for (final (label, _) in rows) label])
+        else if (rows.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

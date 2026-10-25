@@ -53,22 +53,23 @@ Future<void> filledOptionalDisjunctionTest(
   expect(cardsFinder, findsOneWidget);
   expect(findShareSlot(1), findsNothing);
 
-  // Share it ("Share too") and open its sheet ("Change choice"): it has
-  // the mobile number in the app (by its value, as every option is a
-  // mobile number), and both kinds can be added.
+  // Its row opens its sheet: "Share nothing" first and chosen, the mobile
+  // number in the app (by its value, as every option is a mobile number),
+  // and both kinds can be added.
   await openOptionalSheet(tester, 1);
   expect(
     find.descendant(
       of: findChoiceSheet(),
-      matching: find.text("Add optional data"),
+      matching: find.text("Optional data"),
     ),
     findsOneWidget,
   );
+  expect(sheetRowSelected(tester, findShareNothing()), isTrue);
   expectSheet(
     tester,
     owned: ["0612345678"],
-    // Shared with "Share too": the card in the app is the selected one.
-    selected: "0612345678",
+    // Not shared yet: no card in the app is the chosen one.
+    selected: "",
     addable: [
       "irma-demo.pbdf.mobilenumber",
       "irma-demo.sidn-pbdf.mobilenumber",

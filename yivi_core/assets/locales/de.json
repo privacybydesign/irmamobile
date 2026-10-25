@@ -1277,7 +1277,14 @@
       "together_step": "Karte {n} von {total}",
       "together_added": "{name} ist in Ihrer App. {requestor} braucht auch {next}: Fügen Sie es jetzt hinzu.",
       "together_add_next": "{next} hinzufügen",
-      "later": "Später"
+      "later": "Später",
+      "optional_title": "Optionale Daten",
+      "optional_intro": "{requestor} fragt auch nach {what}. Das musst du nicht teilen.",
+      "share_nothing": "Nichts teilen",
+      "share_nothing_sub": "{requestor} bekommt {what} nicht",
+      "n_fields": "{n} Angaben:",
+      "show_values": "Zeigen, was du teilst",
+      "show_less": "Weniger zeigen"
     },
     "done": {
       "title": "Geteilt mit {requestor}",
@@ -1449,7 +1456,16 @@
     "lead_side": "{requestor} bekommt nur, was daneben steht, und erst, wenn du auf die Schaltfläche zum Teilen tippst. Alles andere bleibt auf deinem Telefon.",
     "lead_side_sign": "{requestor} bekommt nur, was daneben steht, und erst, wenn du auf die Schaltfläche zum Unterschreiben tippst. Alles andere bleibt auf deinem Telefon.",
     "lead_side_receive": "Du teilst nur, was daneben steht, und bekommst eine Karte zurück, erst wenn du auf die Schaltfläche zum Teilen tippst. Alles andere bleibt auf deinem Telefon.",
-    "add_both": "Beide hinzufügen"
+    "add_both": "Beide hinzufügen",
+    "and": " und ",
+    "optional": {
+      "what_fields": "{list}",
+      "what_cards": "Daten aus {list}",
+      "row_title": "Optionale Daten hinzufügen",
+      "row_sub": "{what} · kannst du weglassen",
+      "row_pick": "Wählen",
+      "also": "Du kannst auch etwas anderes wählen oder das nicht teilen"
+    }
   },
   "contact_sheet": {
     "intro_email": "Wir schicken dir einen Code per E-Mail, um zu prüfen, dass diese Adresse dir gehört.",

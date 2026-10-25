@@ -5,7 +5,7 @@ go 1.27
 require (
 	github.com/go-errors/errors v1.5.1
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v1.4.3-0.20261021113807-92ca0612d76f
+	github.com/privacybydesign/irmago v1.4.3-0.20261025115254-8a57e1d99a83
 	github.com/sirupsen/logrus v1.9.4
 	golang.org/x/mobile v0.0.0-20260816165457-f98cc9b3c733
 )

@@ -691,12 +691,11 @@ Future<void> testOptionallyDiscloseExtraCredential(
     attributes: [("Mobile phone number", "0612345678")],
   );
 
-  // The optional e-mail address is its card, faded, with "Share too"; once
-  // shared, "Change choice" opens its sheet, with both e-mail addresses in
-  // the app and another one to add.
+  // The optional e-mail address is a row that opens its sheet, with "Share
+  // nothing", both e-mail addresses in the app and another one to add.
   final optional = _optionalItemIndex();
   await openOptionalSheet(tester, optional);
-  expect(find.text("Add optional data"), findsOneWidget);
+  expect(find.text("Optional data"), findsOneWidget);
   _expectOwnedRows(tester, ["one@example.com", "two@example.com"]);
   expect(findSheetAddRow(_emailId), findsOneWidget);
 
@@ -1133,11 +1132,7 @@ Future<void> testOneMissingOnePresent(
   // number an empty spot that Share waits for.
   await waitForRequest(tester);
   expect(findShareSlot(0), findsOneWidget);
-  expectEmptySpot(
-    1,
-    "Demo Mobile phone number",
-    hint: _sidn,
-  );
+  expectEmptySpot(1, "Demo Mobile phone number", hint: _sidn);
   expectShareWaitsFor(tester, "Demo Mobile phone number");
 
   // The test issues the card the way the issuer's website would: it lands

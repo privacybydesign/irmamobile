@@ -10,8 +10,8 @@ import "package:yivi_core/src/screens/notifications/widgets/notification_card.da
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";

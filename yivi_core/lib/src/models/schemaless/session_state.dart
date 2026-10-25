@@ -159,14 +159,37 @@ class DisclosurePickOne {
   final List<DisclosureBundle>? ownedOptions;
   final List<CredentialDescriptor>? obtainableOptions;
 
+  /// Per option that cannot be shared yet: what of it is in the app and
+  /// which types are missing, so cards that only go together stay together.
+  /// Null from an irmago without it, and for OpenID4VP requests.
+  final List<ObtainableBundle>? obtainableBundles;
+
   DisclosurePickOne({
     required this.optional,
     this.ownedOptions,
     this.obtainableOptions,
+    this.obtainableBundles,
   });
 
   factory DisclosurePickOne.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePickOneFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class ObtainableBundle {
+  /// The cards of the option in the app, each with this option's fields.
+  /// Go sends an empty list as null.
+  @JsonKey(defaultValue: <SelectableCredentialInstance>[])
+  final List<SelectableCredentialInstance> owned;
+
+  /// The types still to add.
+  @JsonKey(defaultValue: <CredentialDescriptor>[])
+  final List<CredentialDescriptor> missing;
+
+  ObtainableBundle({required this.owned, required this.missing});
+
+  factory ObtainableBundle.fromJson(Map<String, dynamic> json) =>
+      _$ObtainableBundleFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

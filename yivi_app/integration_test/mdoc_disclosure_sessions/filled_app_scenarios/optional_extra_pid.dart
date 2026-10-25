@@ -63,12 +63,11 @@ Future<void> optionalExtraPidTest(
     attributes: [(avLabel(18), booleanYes)],
   );
 
-  // The optional PID is its card, faded, with "Share too". There is
-  // nothing else to choose (an mdoc has no issue URL), so no "Change
-  // choice": a tap shares it.
+  // The optional PID is a row that opens its sheet; picking the PID there
+  // shares it. Once shared, "Change choice" opens the sheet again.
   final optional = optionalItemIndex(tester);
   await addOptional(tester, optional);
-  expect(find.byKey(Key("share_change_$optional")), findsNothing);
+  expect(find.byKey(Key("share_change_$optional")), findsOneWidget);
   expect(cardsFinder, findsNWidgets(2));
   final pidSlot = findShareSlot(optional);
   await tester.scrollUntilVisible(pidSlot, 100);
