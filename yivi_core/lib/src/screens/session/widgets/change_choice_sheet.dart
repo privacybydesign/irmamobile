@@ -102,13 +102,14 @@ class ChoiceHero extends StatelessWidget {
     child: child,
   );
 
-  /// A card flying between the share screen and the sheet: the destination
-  /// card without its "Change" pill or selection outline, which appear once
-  /// it has landed, on a transparent material so its text and ink have one.
+  /// A card flying between the share screen and the sheet: the card as it
+  /// is in the sheet, both ways, without its selection outline, on a
+  /// transparent material so its text and ink have one. Back on the share
+  /// screen its own card (with "Change choice" and every value) takes over
+  /// only once it has landed.
   ///
   /// The flight's box goes from the size of one card to the other; the card
-  /// keeps its own height in it, so two that differ a little (an
-  /// optional card has its leave-out button) do not overflow on the way.
+  /// keeps its own height in it, so it does not grow or shrink on the way.
   static Widget _shuttle(
     BuildContext flightContext,
     Animation<double> animation,
@@ -121,7 +122,15 @@ class ChoiceHero extends StatelessWidget {
       alignment: Alignment.topCenter,
       minHeight: 0,
       maxHeight: double.infinity,
-      child: SharedCardTileInFlight(child: (toContext.widget as Hero).child),
+      child: SharedCardTileInFlight(
+        // The sheet is pushed over the share screen: its card is the
+        // destination on the way in and the source on the way back.
+        child:
+            ((direction == HeroFlightDirection.push ? toContext : fromContext)
+                        .widget
+                    as Hero)
+                .child,
+      ),
     ),
   );
 }

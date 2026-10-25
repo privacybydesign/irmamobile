@@ -501,24 +501,30 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     required String rootKey,
     required Widget Function() root,
     required VoidCallback onBack,
-  }) => GlassSheetConfirmDismiss(
-    ask: issueStarted,
-    confirm: issueConfirmStop,
-    // On a phone held upright the close button stays at the top right on
-    // every page of adding.
-    child: SheetKeepsClose(
-      child: GlassSheetPages(
-        onBack: onBack,
-        pages: _closing && _shownPages != null
-            ? _shownPages!
-            : _shownPages = [
-                if (!issueDirect || issueAdding == null)
-                  KeyedSubtree(key: ValueKey(rootKey), child: root()),
-                ...issueFlowPages(),
-              ],
+  }) {
+    // Popped, however (its close button, a drag, a tap outside, Done): the
+    // sheet keeps its pages while it goes.
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isActive && !_closing) _startClosing();
+    return GlassSheetConfirmDismiss(
+      ask: issueStarted,
+      confirm: issueConfirmStop,
+      // On a phone held upright the close button stays at the top right on
+      // every page of adding.
+      child: SheetKeepsClose(
+        child: GlassSheetPages(
+          onBack: onBack,
+          pages: _closing && _shownPages != null
+              ? _shownPages!
+              : _shownPages = [
+                  if (!issueDirect || issueAdding == null)
+                    KeyedSubtree(key: ValueKey(rootKey), child: root()),
+                  ...issueFlowPages(),
+                ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   void issueBack() {
     final nested = _nestedId;
