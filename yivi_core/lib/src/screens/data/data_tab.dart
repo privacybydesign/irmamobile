@@ -577,22 +577,33 @@ class ViewSwitcher extends StatelessWidget {
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final before = widths.take(index).fold(0.0, (a, w) => a + w);
     final total = widths.fold(0.0, (a, w) => a + w);
+    final start = rtl ? total - before - widths[index] : before;
     // As the tab bar: one choice marker that slides to the picked view.
+    // Its edges overshoot each on their own but stop at the ends of the
+    // switch, so at an end it squashes a little instead of being cut off.
     final segments = SizedBox(
       width: total,
       height: _Segment.height,
       child: Stack(
         children: [
-          AnimatedPositioned(
+          TweenAnimationBuilder<Offset>(
             duration: YiviMotion.duration(
               context,
               const Duration(milliseconds: 360),
             ),
             curve: YiviMotion.overshoot,
-            left: rtl ? total - before - widths[index] : before,
-            top: 0,
-            bottom: 0,
-            width: widths[index],
+            tween: Tween(end: Offset(start, start + widths[index])),
+            builder: (context, edges, child) {
+              final left = edges.dx.clamp(0.0, total);
+              final right = edges.dy.clamp(left, total);
+              return Positioned(
+                left: left,
+                top: 0,
+                bottom: 0,
+                width: right - left,
+                child: child!,
+              );
+            },
             child: DecoratedBox(
               key: const Key("wallet_view_marker"),
               decoration: ShapeDecoration(
