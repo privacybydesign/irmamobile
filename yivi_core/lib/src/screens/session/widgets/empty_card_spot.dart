@@ -96,7 +96,9 @@ class EmptyCardSpot extends StatelessWidget {
   /// line ("10 fields: first names, …") instead of a row each.
   final bool summarize;
 
-  /// Room above the dashed edge for the half of the pill that sticks out.
+  /// Room above the dashed edge for the half of the pill that sticks out,
+  /// as much as the gap between cards, so a spot lines up with a card. It
+  /// is part of the spot's tap area.
   static const double edgeRoom = 12;
 
   const EmptyCardSpot({
@@ -241,13 +243,15 @@ class EmptyCardSpot extends StatelessWidget {
     );
     return Semantics(
       button: canAdd,
-      child: Padding(
-        padding: EdgeInsets.only(top: canAdd ? edgeRoom : 0),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          onTapDown: onTapDown == null ? null : (_) => onTapDown!(),
-          onTapCancel: onTapCancel,
+      // The room above the edge is part of the tap area: the pill's top
+      // half is in it.
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        onTapDown: onTapDown == null ? null : (_) => onTapDown!(),
+        onTapCancel: onTapCancel,
+        child: Padding(
+          padding: EdgeInsets.only(top: canAdd ? edgeRoom : 0),
           child: canAdd
               ? PressScale(scale: PressScale.card, child: spot)
               : spot,

@@ -762,14 +762,16 @@ void main() {
       );
     });
 
-    testWidgets("the list has its close button at the top left; the "
-        "details none, only the way on at the top right", (tester) async {
+    testWidgets("the list has its close button at the top right on a phone "
+        "held upright; the details none, only the way on at the top right", (
+      tester,
+    ) async {
       await _pump(tester);
       final close = tester.getRect(find.byType(IrmaCloseButton));
       final title = tester.getRect(
         find.byKey(const Key("glass_sheet_title")).last,
       );
-      expect(close.right, lessThan(title.left));
+      expect(close.left, greaterThan(title.right));
       await tester.tap(
         find.byKey(const Key("pbdf.gemeente.personalData_tile")),
       );

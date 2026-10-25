@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../models/schemaless/schemaless_events.dart" show LogoImage;
+import "../theme/yivi_palette.dart";
 import "base64_image.dart";
 import "irma_avatar.dart";
 
@@ -46,7 +47,9 @@ class PartyInitial extends StatelessWidget {
 }
 
 /// A party's logo as a circle: the share screen's requestor, the other
-/// party in Activity. Without a logo its initial on [partyInitialFill].
+/// party in Activity. Without a logo its initial on [partyInitialFill]. A
+/// logo has a thin ring, so a logo on white still reads as a circle on a
+/// white card.
 class PartyAvatar extends StatelessWidget {
   final String name;
   final LogoImage? image;
@@ -81,14 +84,26 @@ class PartyAvatar extends StatelessWidget {
         ),
       );
     }
-    return IrmaAvatar(
-      size: size,
-      logoImage: image == null
-          ? null
-          : Base64Image(base64: image.base64, mimeType: image.mimeType),
-      logoPath: image == null ? imagePath : null,
-      logoSemanticsLabel: name,
-      initials: name.isEmpty ? "?" : name.characters.first,
+    final palette = YiviPalette.of(context);
+    return DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: ShapeDecoration(
+        shape: CircleBorder(
+          side: BorderSide(
+            color: palette.text.withValues(alpha: 0.12),
+            width: (size / 60).clamp(0.75, 1.5),
+          ),
+        ),
+      ),
+      child: IrmaAvatar(
+        size: size,
+        logoImage: image == null
+            ? null
+            : Base64Image(base64: image.base64, mimeType: image.mimeType),
+        logoPath: image == null ? imagePath : null,
+        logoSemanticsLabel: name,
+        initials: name.isEmpty ? "?" : name.characters.first,
+      ),
     );
   }
 }

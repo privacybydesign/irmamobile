@@ -214,8 +214,19 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     super.dispose();
   }
 
-  /// Adding has started: closing asks first.
-  bool get issueStarted => issueAdding != null && issueAdded == null;
+  /// Adding has started: closing asks first. Not on the details page, where
+  /// nothing has happened yet.
+  bool get issueStarted =>
+      issueAdding != null && issueAdded == null && !_onDetails;
+
+  /// The details of the type being added are the page on top: no step
+  /// after them is open and no issuance is running.
+  bool get _onDetails =>
+      !_website &&
+      _contact == null &&
+      _document == null &&
+      _nestedId == null &&
+      !_pin;
 
   String _inSentence(String name) => inSentence(
     name,

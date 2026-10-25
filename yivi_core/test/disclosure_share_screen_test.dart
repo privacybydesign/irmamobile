@@ -1005,6 +1005,25 @@ void main() {
       );
     });
 
+    testWidgets("the Add pill on the spot's edge opens it too", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [_descriptor("idcard", "ID card")],
+          ),
+        ]),
+      );
+      // The pill's top half sticks out above the dashed edge.
+      final pill = find.byKey(const Key("empty_spot_add"));
+      final rect = tester.getRect(pill);
+      await tester.tapAt(rect.topCenter + const Offset(0, 6));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+    });
+
     testWidgets("one way to get it: the spot opens its details at once", (
       tester,
     ) async {
@@ -1041,7 +1060,8 @@ void main() {
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
 
       // The close button is the way out, at the left where back is on the
-      // pages after it (it asks, as a drag down on the header does).
+      // pages after it. On the details nothing has started: it closes
+      // without asking.
       final close = find.descendant(
         of: find.byKey(const Key("disclosure_choice_sheet")),
         matching: find.byType(IrmaCloseButton),
@@ -1055,8 +1075,7 @@ void main() {
       );
       await tester.tap(close);
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
-      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_stop_dialog")), findsNothing);
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
 

@@ -352,9 +352,10 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     final justAdded = widget.justAdded;
     return GlassSheetPage(
       title: context.tr("data.add.title"),
-      // The close button at the top left: on the pages after this one the
-      // top right is for the way on, and they close by a drag down.
-      closeAtStart: true,
+      // The close button at the top right on a phone held upright, as in
+      // other sheets; on a tablet and a phone held sideways at the top left,
+      // where the pages after this one keep the top right for the way on.
+      closeAtStart: useFormSheet(context) || usePhoneLandscape(context),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       slivers: [
         if (justAdded != null)

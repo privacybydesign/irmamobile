@@ -231,7 +231,7 @@ class CardTileMiniCards extends StatelessWidget {
   }
 }
 
-/// The outline of the chosen card: a 2 pt line in the primary colour, 3 pt
+/// The outline of the chosen card: a 2 pt line in the link colour, 3 pt
 /// outside [child] (a [CardTile]), as on the credential's page. Drawn
 /// outside the card, so the card keeps its size.
 class CardTileOutline extends StatelessWidget {
@@ -265,7 +265,7 @@ class CardTileOutline extends StatelessWidget {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(YiviCorners.card + _ring + _gap),
                   ),
-                  side: BorderSide(color: palette.primary, width: _ring),
+                  side: BorderSide(color: palette.link, width: _ring),
                 ),
               ),
             ),

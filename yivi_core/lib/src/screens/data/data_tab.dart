@@ -488,8 +488,10 @@ class _Header extends ConsumerWidget {
             "wallet.count_many",
             translationParams: {"count": "$count"},
           );
+    // Nearer the cards than the search row above it: the switch is about
+    // how they are shown.
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(top: 12, bottom: 6),
       child: Row(
         children: [
           Expanded(
