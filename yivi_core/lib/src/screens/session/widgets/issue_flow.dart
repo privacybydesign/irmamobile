@@ -205,13 +205,55 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   @override
   void dispose() {
-    _hosts.unregister(this);
     final nested = _nestedId;
-    // A nested id means the repository was read (the website was opened).
-    if (nested != null && issueAdded == null) {
-      _repoRead?.dismissSession(nested);
+    final repo = _repoRead;
+    final added = issueAdded != null;
+    if (_closing) {
+      // Closed while adding: end what it left running once the sheet has
+      // gone (providers can't change while the tree is being torn down).
+      final hosts = _hosts;
+      final opened = _opened;
+      final contact = _contact != null;
+      final container = _container;
+      Future.microtask(() {
+        hosts.unregister(this);
+        if (added) return;
+        if (nested != null) repo?.dismissSession(nested);
+        if (opened) repo?.clearInAppLaunches();
+        if (contact && container != null) {
+          container
+            ..invalidate(emailIssuanceProvider)
+            ..invalidate(smsIssuanceProvider);
+        }
+      });
+    } else {
+      _hosts.unregister(this);
+      // A nested id means the repository was read (the website was opened).
+      if (nested != null && !added) repo?.dismissSession(nested);
     }
     super.dispose();
+  }
+
+  /// The sheet is closing: it keeps the pages it had ([_shownPages]) until it
+  /// has gone, instead of going back to an earlier one on the way out.
+  bool _closing = false;
+  List<Widget>? _shownPages;
+  ProviderContainer? _container;
+
+  /// Closes the sheet on the page it is on; what is left running ends once
+  /// it has gone (see [dispose]).
+  void issueClose() {
+    _startClosing();
+    Navigator.of(context).pop();
+  }
+
+  /// What [dispose] needs to end the adding, read now: ref and the context
+  /// are unsafe there.
+  void _startClosing() {
+    _closing = true;
+    if (!mounted) return;
+    _container = ProviderScope.containerOf(context, listen: false);
+    if (_nestedId != null || _opened) _repo;
   }
 
   /// Adding has started: closing asks first. Not on the details page, where
@@ -262,12 +304,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// the details are the sheet's first page ([issueDirect]), the sheet
   /// closes instead.
   void issueLeave() {
-    _stopAdding();
     if (_direct) {
       // Asked already where it had to be (or nothing was started yet).
-      Navigator.of(context).pop();
+      issueClose();
       return;
     }
+    _stopAdding();
     setState(() => issueAdding = null);
   }
 
@@ -399,7 +441,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Back from the website page to the details. Once the website was
   /// opened, adding has started: it asks first, and ends the wait.
   Future<void> _leaveWebsite() async {
-    if (_opened && !await issueConfirmStop()) return;
+    if (_opened && !await issueConfirmStop(closing: false)) return;
     if (!mounted) return;
     if (_opened) {
       _repo.clearInAppLaunches();
@@ -411,8 +453,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     });
   }
 
-  /// "Stop adding {name}?" before a started adding is left.
-  Future<bool> issueConfirmStop() async {
+  /// "Stop adding {name}?" before a started adding is left. When the sheet
+  /// is [closing] it stays on its page while it goes, and the adding ends
+  /// once it has gone.
+  Future<bool> issueConfirmStop({bool closing = true}) async {
     final d = issueAdding;
     if (d == null || !issueStarted) return true;
     final stop =
@@ -441,7 +485,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           ),
         ) ??
         false;
-    if (stop) _stopAdding();
+    if (stop && closing) {
+      _startClosing();
+    } else if (stop) {
+      _stopAdding();
+    }
     return stop;
   }
 
@@ -461,11 +509,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     child: SheetKeepsClose(
       child: GlassSheetPages(
         onBack: onBack,
-        pages: [
-          if (!issueDirect || issueAdding == null)
-            KeyedSubtree(key: ValueKey(rootKey), child: root()),
-          ...issueFlowPages(),
-        ],
+        pages: _closing && _shownPages != null
+            ? _shownPages!
+            : _shownPages = [
+                if (!issueDirect || issueAdding == null)
+                  KeyedSubtree(key: ValueKey(rootKey), child: root()),
+                ...issueFlowPages(),
+              ],
       ),
     ),
   );

@@ -37,9 +37,8 @@ class _CollapsibleState extends State<Collapsible> {
 
   bool _isExpanded = false;
 
-  /// Once it has opened, the whole item in view: its question stays clear
-  /// of the bar the page scrolls under, and as much of the answer shows as
-  /// fits.
+  /// Once it has opened, its question right under the bar the page
+  /// scrolls under (as far as the page scrolls), the answer below it.
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
     if (widget.parentScrollController == null || !mounted) return;
@@ -49,6 +48,7 @@ class _CollapsibleState extends State<Collapsible> {
       context,
       // The bar covers the top of a page that scrolls under it.
       topInset: MediaQuery.paddingOf(scrollable.context).top,
+      atTop: true,
       duration: const Duration(milliseconds: 500),
     );
   }
@@ -66,7 +66,7 @@ class _CollapsibleState extends State<Collapsible> {
         Directionality.of(context),
       );
     }
-    _jumpToCollapsable();
+    if (_isExpanded) _jumpToCollapsable();
   }
 
   @override

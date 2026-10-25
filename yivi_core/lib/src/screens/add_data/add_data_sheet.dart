@@ -180,8 +180,8 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
         curtain: false,
       );
     }
-    issueReset();
-    Navigator.of(context).pop();
+    // On "Success" while the sheet goes.
+    issueClose();
   }
 
   // ---------- the list ----------

@@ -334,8 +334,8 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             CardFlight.rectOf(landing, overlay),
       );
     }
-    issueReset();
-    Navigator.of(context).pop();
+    // On "Success" while the sheet goes.
+    issueClose();
   }
 
   @override

@@ -176,7 +176,7 @@ class SharedCardTile extends ConsumerWidget {
                 ),
             ],
           )
-        : footer;
+        : _landed(context, footer);
 
     return CardTile(
       key: const Key("shared_card_tile"),
@@ -260,6 +260,20 @@ class SharedCardTile extends ConsumerWidget {
       ],
     );
   }
+
+  /// [footer] ("Change choice", "These go together"), hidden while the card
+  /// flies: it shows once the card is back in its place. It keeps its room,
+  /// so the card has its size on the way.
+  Widget? _landed(BuildContext context, Widget? footer) =>
+      footer == null || !SharedCardTileInFlight.of(context)
+      ? footer
+      : Visibility(
+          visible: false,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: footer,
+        );
 
   /// [list], the values of [card], or with [summarize] and many fields the
   /// names of those fields.

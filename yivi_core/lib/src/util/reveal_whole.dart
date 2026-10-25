@@ -5,10 +5,12 @@ import "package:material_ui/material_ui.dart";
 /// [context] is in view as a whole (an answer that was opened): down until
 /// its bottom shows, but never so far that its top goes under the bar, and
 /// up when its top is under it. [topInset] is how much of the top of the
-/// scroll view a bar covers.
+/// scroll view a bar covers. With [atTop] it scrolls as far as it can
+/// until its top is right under the bar.
 void revealWhole(
   BuildContext context, {
   double topInset = 0,
+  bool atTop = false,
   Duration duration = const Duration(milliseconds: 300),
 }) {
   final box = context.findRenderObject();
@@ -22,8 +24,12 @@ void revealWhole(
   final topAtBar = viewport.getOffsetToReveal(box, 0).offset - topInset;
   final bottomAtEnd = viewport.getOffsetToReveal(box, 1).offset;
   var target = current;
-  if (bottomAtEnd > target) target = bottomAtEnd;
-  if (target > topAtBar) target = topAtBar;
+  if (atTop) {
+    target = topAtBar;
+  } else {
+    if (bottomAtEnd > target) target = bottomAtEnd;
+    if (target > topAtBar) target = topAtBar;
+  }
   target = target.clamp(position.minScrollExtent, position.maxScrollExtent);
   if ((target - current).abs() < 1) return;
 
