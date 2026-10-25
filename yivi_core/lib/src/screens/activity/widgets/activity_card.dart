@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
@@ -17,6 +18,7 @@ import "../../../widgets/glass/glass_surface.dart";
 import "../../data/wallet/wallet_transition.dart";
 import "../activity_entry.dart";
 import "../activity_flight.dart";
+import "../activity_query.dart";
 import "activity_detail_parts.dart";
 
 /// One log entry as a row of the Activity tab: a small stack of its cards
@@ -31,10 +33,15 @@ class ActivityCard extends ConsumerWidget {
   /// Whether the detail pane shows this entry: the row gets a red border.
   final bool selected;
 
+  /// The card the list is filtered on: the row then says which of its
+  /// fields went along instead of naming the cards.
+  final ActivityCardRef? focusCard;
+
   const ActivityCard({
     super.key,
     required this.logEntry,
     this.selected = false,
+    this.focusCard,
   });
 
   @override
@@ -46,7 +53,22 @@ class ActivityCard extends ConsumerWidget {
     final time = entry.localTime;
     final timestamp = formatActivityTimestamp(context, time);
     final titles = [for (final c in entry.cards) c.credential.name];
-    final cardsText = titles.length > 2
+    final focus = focusCard;
+    final focused = focus == null
+        ? null
+        : entry.cards.firstWhereOrNull(
+            (c) =>
+                c.credential.credentialId == focus.credentialId &&
+                (focus.hash == null ||
+                    c.credential.hash.isEmpty ||
+                    c.credential.hash == focus.hash),
+          );
+    final shared = focused == null
+        ? ""
+        : describeShared(focused.credential.attributes);
+    final cardsText = shared.isNotEmpty
+        ? shared
+        : titles.length > 2
         ? "${titles.take(2).join(", ")} +${titles.length - 2}"
         : titles.join(", ");
 

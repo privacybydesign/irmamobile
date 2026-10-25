@@ -10,6 +10,9 @@ import "glass_surface.dart";
 class GlassSearchField extends StatefulWidget {
   final String hintKey;
   final ValueChanged<String> onChanged;
+
+  /// The search key on the keyboard (Activity: search for the typed words).
+  final ValueChanged<String>? onSubmitted;
   final Key? fieldKey;
 
   /// Shared with another field for the same search (Add data's field in the
@@ -22,6 +25,7 @@ class GlassSearchField extends StatefulWidget {
     super.key,
     required this.hintKey,
     required this.onChanged,
+    this.onSubmitted,
     this.fieldKey,
     this.controller,
     this.focusNode,
@@ -89,6 +93,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                   controller: _controller,
                   focusNode: widget.focusNode,
                   onChanged: widget.onChanged,
+                  onSubmitted: widget.onSubmitted,
                   textInputAction: TextInputAction.search,
                   style: palette.body(16),
                   cursorColor: palette.primary,

@@ -266,6 +266,13 @@ class ActivityEntry {
   static schemaless.Credential _art(
     LogCredential credential,
     List<schemaless.Credential> wallet,
+  ) => artFor(credential, wallet);
+
+  /// What to draw a logged card as: the card in the wallet of the same type,
+  /// else one made from what the log kept.
+  static schemaless.Credential artFor(
+    LogCredential credential,
+    List<schemaless.Credential> wallet,
   ) =>
       wallet.firstWhereOrNull(
         (c) => c.credentialId == credential.credentialId,

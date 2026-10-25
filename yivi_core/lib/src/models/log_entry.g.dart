@@ -123,7 +123,7 @@ Map<String, dynamic> _$LogFilterToJson(LogFilter instance) => <String, dynamic>{
       .toList(),
   'credential_hash': ?instance.credentialHash,
   'credential_id': ?instance.credentialId,
-  'claim_path': ?instance.claimPath,
+  'claim_paths': ?instance.claimPaths,
   'roles': ?instance.roles?.map((e) => _$LogRoleEnumMap[e]!).toList(),
   'party_key': ?instance.partyKey,
   'text': ?instance.text,
@@ -224,6 +224,17 @@ CredentialActivityResultEvent _$CredentialActivityResultEventFromJson(
       {},
   error: json['error'] as String?,
 );
+
+LogCountsEvent _$LogCountsEventFromJson(Map<String, dynamic> json) =>
+    LogCountsEvent(
+      requestId: json['request_id'] as String,
+      counts:
+          (json['counts'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList() ??
+          [],
+      error: json['error'] as String?,
+    );
 
 PartiesEvent _$PartiesEventFromJson(Map<String, dynamic> json) => PartiesEvent(
   requestId: json['request_id'] as String,

@@ -1,53 +1,20 @@
 import "dart:async";
 
+import "package:collection/collection.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/log_entry.dart";
+import "../screens/activity/activity_entry.dart";
+import "../screens/activity/activity_query.dart";
 import "irma_repository_provider.dart";
+import "schemaless_credentials_list_provider.dart";
 
 /// How many entries the Activity tab asks for at a time.
 const activityPageSize = 20;
 
-/// What the Activity tab shows: entries of these [types] (all when empty)
-/// whose text matches [text], or whose type is in [textOrTypes] (the types
-/// whose label matched [text] in the app's language).
-class ActivityLogFilter {
-  final List<LogType> types;
-  final String text;
-  final List<LogType> textOrTypes;
-
-  const ActivityLogFilter({
-    this.types = const [],
-    this.text = "",
-    this.textOrTypes = const [],
-  });
-
-  LogFilter toLogFilter() => LogFilter(
-    types: types.isEmpty ? null : types,
-    text: text.trim().isEmpty ? null : text,
-    textOrTypes: text.trim().isEmpty || textOrTypes.isEmpty
-        ? null
-        : textOrTypes,
-  );
-
-  @override
-  bool operator ==(Object other) =>
-      other is ActivityLogFilter &&
-      _same(types, other.types) &&
-      text == other.text &&
-      _same(textOrTypes, other.textOrTypes);
-
-  @override
-  int get hashCode =>
-      Object.hash(Object.hashAll(types), text, Object.hashAll(textOrTypes));
-}
-
-bool _same(List<LogType> a, List<LogType> b) =>
-    a.length == b.length && a.indexed.every((e) => b[e.$1] == e.$2);
-
 /// The entries of the Activity tab loaded so far, newest first.
 class ActivityLogState {
-  final ActivityLogFilter filter;
+  final ActivityQuery filter;
   final List<LogInfo> entries;
 
   /// Continues with the next page; null once the last one came in.
@@ -59,11 +26,12 @@ class ActivityLogState {
   /// Whether the first page for [filter] came in.
   final bool loaded;
 
-  /// The counts per type of the first page's query.
+  /// The counts of the first page's query: [LogCounts.total] is how many
+  /// entries match in all.
   final LogCounts? counts;
 
   const ActivityLogState({
-    this.filter = const ActivityLogFilter(),
+    this.filter = ActivityQuery.empty,
     this.entries = const [],
     this.nextCursor,
     this.loading = false,
@@ -91,7 +59,7 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
   }
 
   /// Shows the entries matching [filter], from the newest.
-  void setFilter(ActivityLogFilter filter) {
+  void setFilter(ActivityQuery filter) {
     if (filter == state.filter) return;
     state = ActivityLogState(filter: filter, loading: true);
     refresh();
@@ -185,12 +153,34 @@ final activityLogProvider =
     );
 
 /// How many of a card's entries its details show.
-const cardActivityLimit = 10;
+const cardActivityLimit = 5;
 
-/// The newest entries about one card ([Credential.hash]), asked again when
-/// the log changes.
+/// The activity of one card, for its details.
+class CardActivity {
+  /// The newest entries about the card, at most [cardActivityLimit].
+  final List<LogInfo> entries;
+
+  /// How many entries there are about the card in all.
+  final int total;
+
+  /// How often the card was shared, with how many parties, and when last.
+  final int shares;
+  final int parties;
+  final DateTime? lastShared;
+
+  const CardActivity({
+    required this.entries,
+    required this.total,
+    required this.shares,
+    required this.parties,
+    this.lastShared,
+  });
+}
+
+/// The activity of one card ([Credential.hash]), asked again when the log
+/// changes.
 final cardActivityProvider = FutureProvider.autoDispose
-    .family<List<LogInfo>, String>((ref, hash) async {
+    .family<CardActivity, String>((ref, hash) async {
       final repo = ref.watch(irmaRepositoryProvider);
       final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
       ref.onDispose(sub.cancel);
@@ -198,7 +188,53 @@ final cardActivityProvider = FutureProvider.autoDispose
         LogQuery(
           filter: LogFilter(credentialHash: hash),
           limit: cardActivityLimit,
+          withCounts: true,
         ),
       );
-      return page.entries;
+      final sharedWith = await repo.listParties(
+        LogFilter(credentialHash: hash, types: const [LogType.disclosure]),
+      );
+      return CardActivity(
+        entries: page.entries,
+        total: page.counts?.total ?? page.entries.length,
+        shares: sharedWith.fold(0, (n, p) => n + p.count),
+        parties: sharedWith.length,
+        lastShared: sharedWith.map((p) => p.lastTime).maxOrNull,
+      );
+    });
+
+/// Everyone in the activity log, the most recent first, asked again when the
+/// log changes.
+final activityPartiesProvider = FutureProvider.autoDispose<List<PartySummary>>((
+  ref,
+) async {
+  final repo = ref.watch(irmaRepositoryProvider);
+  final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return repo.listParties(const LogFilter(includeHidden: false));
+});
+
+/// The card types the log knows that are no longer in the wallet: what was
+/// deleted, to still filter on. One per type, drawn as the log kept it.
+final removedCardTypesProvider =
+    FutureProvider.autoDispose<List<ActivityCardRef>>((ref) async {
+      final repo = ref.watch(irmaRepositoryProvider);
+      final wallet = ref.watch(walletCardsProvider);
+      final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
+      ref.onDispose(sub.cancel);
+      final page = await repo.queryLogs(
+        const LogQuery(filter: LogFilter(types: [LogType.removal]), limit: 200),
+      );
+      final held = {for (final c in wallet) c.credentialId};
+      final seen = <String>{};
+      return [
+        for (final log in page.entries)
+          for (final c
+              in log.removalLog?.credentials ?? const <LogCredential>[])
+            if (!held.contains(c.credentialId) && seen.add(c.credentialId))
+              ActivityCardRef(
+                credentialId: c.credentialId,
+                art: ActivityEntry.artFor(c, wallet),
+              ),
+      ];
     });

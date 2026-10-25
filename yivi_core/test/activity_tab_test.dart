@@ -31,6 +31,7 @@ List<LogInfo> _log(int count) {
   return [
     for (var i = 0; i < count; i++)
       LogInfo(
+        id: "d$i",
         type: LogType.disclosure,
         time: start.subtract(Duration(hours: i)),
         issuanceLog: null,
@@ -43,6 +44,7 @@ List<LogInfo> _log(int count) {
         removalLog: null,
       ),
     LogInfo(
+      id: "s",
       type: LogType.signature,
       time: start.subtract(Duration(hours: count)),
       issuanceLog: null,
@@ -58,26 +60,29 @@ List<LogInfo> _log(int count) {
   ];
 }
 
-/// Answers [query] over [log] as irmago would: filtered on type and text,
-/// newest first, a page at a time.
-LogPage _answer(List<LogInfo> log, LogQuery query) {
-  final f = query.filter;
-  bool textMatches(LogInfo e) {
-    // Every word must occur, as irmago matches.
-    final text = f.text?.toLowerCase();
-    if (text == null) return true;
-    if (f.textOrTypes?.contains(e.type) ?? false) return true;
+/// Whether [e] matches [f], as irmago would answer for these fields.
+bool _matches(LogInfo e, LogFilter f) {
+  if (f.types != null && !f.types!.contains(e.type)) return false;
+  if (f.partyKey != null && e.requestor?.id != f.partyKey) return false;
+  final text = f.text?.toLowerCase();
+  if (text != null) {
     final haystack = [
       e.requestor?.name,
       ...?e.disclosureLog?.credentials.map((c) => c.name),
       ...?e.signedMessageLog?.credentials.map((c) => c.name),
+      e.signedMessageLog?.message,
     ].whereType<String>().join(" ").toLowerCase();
-    return text.split(" ").every(haystack.contains);
+    if (!text.split(" ").every(haystack.contains)) return false;
   }
+  return true;
+}
 
+/// Answers [query] over [log] as irmago would: filtered, newest first, a
+/// page at a time.
+LogPage _answer(List<LogInfo> log, LogQuery query) {
   final matching = [
     for (final e in log)
-      if ((f.types?.contains(e.type) ?? true) && textMatches(e)) e,
+      if (_matches(e, query.filter)) e,
   ];
   final start = query.cursor == null ? 0 : int.parse(query.cursor!);
   final limit = query.limit ?? 20;
@@ -86,16 +91,21 @@ LogPage _answer(List<LogInfo> log, LogQuery query) {
     entries: matching.sublist(start, end),
     nextCursor: end < matching.length ? "$end" : null,
     counts: query.withCounts == true
-        ? LogCounts(
-            total: matching.length,
-            byType: {
-              for (final t in LogType.values)
-                t: log.where((e) => e.type == t && textMatches(e)).length,
-            },
-          )
+        ? LogCounts(total: matching.length, byType: const {})
         : null,
   );
 }
+
+List<PartySummary> _parties(List<LogInfo> log) => [
+  for (final e in log)
+    PartySummary(
+      key: e.requestor!.id,
+      party: e.requestor!,
+      lastTime: e.time,
+      count: 1,
+      byType: {e.type: 1},
+    ),
+];
 
 void main() {
   late IrmaRepository repo;
@@ -104,12 +114,23 @@ void main() {
 
   setUp(() async {
     bridge = RecordingBridge()
-      ..respond = (event) {
-        if (event is! QueryLogsEvent) return null;
-        return LogPageEvent(
+      ..respond = (event) => switch (event) {
+        QueryLogsEvent() => LogPageEvent(
           requestId: event.requestId,
           page: _answer(log, event.query),
-        );
+        ),
+        ListPartiesEvent() => PartiesEvent(
+          requestId: event.requestId,
+          parties: _parties(log),
+        ),
+        CountLogsEvent() => LogCountsEvent(
+          requestId: event.requestId,
+          counts: [
+            for (final f in event.filters)
+              log.where((e) => _matches(e, f)).length,
+          ],
+        ),
+        _ => null,
       };
     repo = IrmaRepository(
       client: bridge,
@@ -118,10 +139,11 @@ void main() {
   });
   tearDown(() => repo.close());
 
-  /// The questions the tab asked irmago.
+  /// The questions the tab asked irmago for the list.
   List<LogQuery> queries() => bridge.dispatched
       .whereType<QueryLogsEvent>()
       .map((e) => e.query)
+      .where((q) => q.filter.types?.contains(LogType.removal) != true)
       .toList();
 
   Future<void> pump(WidgetTester tester) async {
@@ -137,38 +159,120 @@ void main() {
     await _settle(tester);
   }
 
-  testWidgets("tags filter by kind; All shows everything again", (
-    tester,
-  ) async {
+  final field = find.descendant(
+    of: find.byKey(const Key("activity_search_field")),
+    matching: find.byType(EditableText),
+  );
+
+  testWidgets("no tags until something is asked", (tester) async {
     await pump(tester);
     expect(find.text("Shop 0"), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key("activity_tag_shared")));
-    await _settle(tester);
-    expect(find.text("Shop 0"), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key("activity_tag_received")));
-    await _settle(tester, rounds: 40);
-    expect(find.byType(ActivityCard), findsNothing);
-    expect(find.text("Nothing received yet"), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key("activity_tag_all")));
-    await _settle(tester);
-    expect(find.text("Shop 0"), findsOneWidget);
+    expect(find.byKey(const Key("activity_chips")), findsNothing);
+    expect(find.byKey(const Key("activity_filter_button")), findsOneWidget);
   });
 
-  testWidgets("a tag asks irmago for its type only", (tester) async {
-    await pump(tester);
-    expect(find.text("Gemeente"), findsNothing);
+  testWidgets(
+    "the empty field suggests what happened; a pick is a chip with a cross",
+    (tester) async {
+      await pump(tester);
+      await tester.tap(field);
+      await _settle(tester);
+      expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
+      expect(find.byKey(const Key("activity_search_cancel")), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key("activity_tag_signed")));
-    await tester.pump();
-    await tester.tap(find.byKey(const Key("activity_tag_signed")));
+      await tester.tap(
+        find.byKey(const Key("activity_suggestion_kind:signed")),
+      );
+      await _settle(tester);
+      expect(queries().last.filter.types, [LogType.signature]);
+      expect(find.byKey(const Key("activity_chip_kinds")), findsOneWidget);
+      expect(find.text("Gemeente"), findsOneWidget);
+      expect(find.text("Shop 0"), findsNothing);
+
+      await tester.tap(find.byKey(const Key("activity_chip_kinds")));
+      await _settle(tester);
+      expect(queries().last.filter.types, isNull);
+      expect(find.byKey(const Key("activity_chips")), findsNothing);
+      expect(find.text("Shop 0"), findsOneWidget);
+    },
+  );
+
+  testWidgets("typing suggests the parties that match", (tester) async {
+    await pump(tester);
+    await tester.tap(field);
+    await tester.enterText(field, "shop 17");
     await _settle(tester);
+    await tester.tap(
+      find.byKey(const Key("activity_suggestion_party:Shop 17")),
+    );
+    await _settle(tester);
+    expect(queries().last.filter.partyKey, "Shop 17");
+    expect(find.byType(ActivityCard), findsOneWidget);
+    expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
+  });
+
+  testWidgets("the search key searches the typed words", (tester) async {
+    await pump(tester);
+    await tester.tap(field);
+    await tester.enterText(field, "agree");
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await _settle(tester);
+    expect(queries().last.filter.text, "agree");
+    expect(find.byKey(const Key("activity_chip_text")), findsOneWidget);
     expect(find.text("Gemeente"), findsOneWidget);
-    expect(find.text("Shop 0"), findsNothing);
-    expect(queries().last.filter.types, [LogType.signature]);
+    expect(find.byKey(const Key("activity_result_count")), findsOneWidget);
   });
+
+  testWidgets("Cancel leaves the question as it was", (tester) async {
+    await pump(tester);
+    await tester.tap(field);
+    await tester.enterText(field, "gem");
+    await _settle(tester);
+    await tester.tap(find.byKey(const Key("activity_search_cancel")));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_suggestions")), findsNothing);
+    expect(find.text("Shop 0"), findsOneWidget);
+  });
+
+  testWidgets(
+    "the filter sheet counts as you pick and fades what no longer fits",
+    (tester) async {
+      await pump(tester);
+      await tester.tap(find.byKey(const Key("activity_filter_button")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      expect(find.textContaining("26 results"), findsWidgets);
+
+      // Gemeente is the oldest party: under "Show all".
+      await tester.ensureVisible(
+        find.byKey(const Key("activity_filter_all_parties")),
+      );
+      await tester.tap(find.byKey(const Key("activity_filter_all_parties")));
+      await _settle(tester);
+      await tester.ensureVisible(
+        find.byKey(const Key("activity_filter_party_Gemeente")),
+      );
+      await tester.tap(find.byKey(const Key("activity_filter_party_Gemeente")));
+      await _settle(tester);
+      expect(find.text("Show 1 result"), findsOneWidget);
+      // Nothing was shared with Gemeente, only signed: Shared fades.
+      final shared = tester.widget<Opacity>(
+        find
+            .descendant(
+              of: find.byKey(const Key("activity_filter_kind_shared")),
+              matching: find.byType(Opacity),
+            )
+            .first,
+      );
+      expect(shared.opacity, lessThan(1));
+
+      await tester.tap(find.byKey(const Key("activity_filter_apply")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      expect(queries().last.filter.partyKey, "Gemeente");
+      expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
+    },
+  );
 
   testWidgets("scrolling down loads the next page after the last", (
     tester,
@@ -178,35 +282,11 @@ void main() {
 
     // The next page comes in from the bridge between drags.
     for (var i = 0; i < 20 && find.text("Gemeente").evaluate().isEmpty; i++) {
-      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.drag(find.byType(ListView).first, const Offset(0, -600));
       await _settle(tester, rounds: 3);
     }
     expect(find.text("Gemeente"), findsOneWidget);
     expect(queries().map((q) => q.cursor), contains("20"));
-  });
-
-  testWidgets("search and tag together", (tester) async {
-    await pump(tester);
-    await tester.tap(find.byKey(const Key("activity_tag_shared")));
-    await _settle(tester);
-    await tester.enterText(
-      find.descendant(
-        of: find.byKey(const Key("activity_search_field")),
-        matching: find.byType(EditableText),
-      ),
-      "Shop 17",
-    );
-    await _settle(tester);
-    expect(find.byType(ActivityCard), findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byType(ActivityCard),
-        matching: find.text("Shop 17"),
-      ),
-      findsOneWidget,
-    );
-    expect(queries().last.filter.text, "Shop 17");
-    expect(queries().last.filter.types, [LogType.disclosure]);
   });
 }
 

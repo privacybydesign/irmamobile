@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../providers/activity_providers.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
@@ -24,29 +23,14 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
-import "../../activity/activity_entry.dart";
 import "../../add_data/add_data_sheet.dart";
 import "../wallet/card_hero.dart";
 import "../wallet/wallet_detail_scaffold.dart";
+import "card_activity_section.dart";
 
 /// The widest the card and its details are: any wider, on a tablet or a
 /// phone held sideways, and they would stretch.
 const _maxWidth = 460.0;
-
-/// What a log entry did with the card with [hash], as the title of its row:
-/// what happened, and with whom.
-String _activityTitle(BuildContext context, LogInfo log, String hash) {
-  final party = ActivityEntry.fromLog(log).party.name;
-  final issued =
-      log.issuanceLog?.credentials.any((c) => c.hash == hash) ?? false;
-  final key = switch (log.type) {
-    LogType.issuance when issued => "activity.received_from",
-    LogType.issuance || LogType.disclosure => "activity.shared_with",
-    LogType.signature => "activity.signed_for",
-    LogType.removal => "activity.deleted_from",
-  };
-  return "${FlutterI18n.translate(context, key)} $party".trim();
-}
 
 /// Full-screen detail of one card (credential instance). Opens with the
 /// Wallet-style transition: the card flies here as a [CardHero] while the data
@@ -295,16 +279,6 @@ class _Details extends ConsumerWidget {
     );
     final format = _formatLabel(credential);
     final source = _sourceLabel(context, credential);
-    final activity =
-        ref.watch(cardActivityProvider(credential.hash)).value ??
-        const <LogInfo>[];
-    // The entry that issued the card says when it was added; older cards
-    // whose issuance is not in the log fall back on their issuance date.
-    final issuanceLogged = activity.any(
-      (log) =>
-          log.issuanceLog?.credentials.any((c) => c.hash == credential.hash) ??
-          false,
-    );
     final issued = credential.issuanceDate == null
         ? null
         : DateTime.fromMillisecondsSinceEpoch(credential.issuanceDate! * 1000);
@@ -480,44 +454,7 @@ class _Details extends ConsumerWidget {
           ),
         ],
         heading("wallet.detail.activity"),
-        SurfaceCard(
-          clipBehavior: Clip.antiAlias,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              for (final (i, log) in activity.indexed)
-                _ActivityRow(
-                  title: _activityTitle(context, log, credential.hash),
-                  date: printableDate(log.time.toLocal(), lang),
-                  last:
-                      i == activity.length - 1 &&
-                      (issuanceLogged || issued == null),
-                ),
-              if (issued != null && !issuanceLogged)
-                _ActivityRow(
-                  title: FlutterI18n.translate(
-                    context,
-                    "wallet.detail.added_to_yivi",
-                  ),
-                  date: printableDate(issued, lang),
-                  last: true,
-                ),
-              if (activity.isEmpty && issued == null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    FlutterI18n.translate(
-                      context,
-                      "wallet.detail.activity_empty",
-                    ),
-                    style: palette
-                        .body(13)
-                        .copyWith(color: palette.secondaryText),
-                  ),
-                ),
-            ],
-          ),
-        ),
+        CardActivitySection(credential: credential),
         const SizedBox(height: 24),
         _AboutRow(
           label: FlutterI18n.translate(context, "wallet.detail.issued_by"),
@@ -657,57 +594,6 @@ String _sourceLabel(BuildContext context, schemaless.Credential c) {
       ? "credential_card.source.issuer_colours"
       : "credential_card.source.yivi";
   return FlutterI18n.translate(context, key);
-}
-
-class _ActivityRow extends StatelessWidget {
-  final String title;
-  final String date;
-  final bool last;
-
-  const _ActivityRow({
-    required this.title,
-    required this.date,
-    this.last = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        border: last
-            ? null
-            : Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Row(
-        spacing: 16,
-        children: [
-          const ToneDisc(icon: Icons.history, tone: DialogTone.info, size: 40),
-          // The date under what happened, as in the design.
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: palette
-                      .body(14, weight: FontWeight.w600)
-                      .copyWith(height: 20 / 14),
-                ),
-                Text(
-                  date,
-                  style: palette
-                      .body(12)
-                      .copyWith(color: palette.secondaryText),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _AboutRow extends StatelessWidget {

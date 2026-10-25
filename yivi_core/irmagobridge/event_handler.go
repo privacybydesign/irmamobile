@@ -229,6 +229,23 @@ func (ah *eventHandler) credentialActivity(event *credentialActivityEvent) error
 	return err
 }
 
+func (ah *eventHandler) countLogs(event *countLogsEvent) error {
+	counts := make([]int, len(event.Filters))
+	var err error
+	for i, f := range event.Filters {
+		var page clientmodels.LogPage
+		page, err = yiviClient.QueryLogs(clientmodels.LogQuery{Filter: f, Limit: 1, WithCounts: true})
+		if err != nil {
+			break
+		}
+		if page.Counts != nil {
+			counts[i] = page.Counts.Total
+		}
+	}
+	dispatchEvent(&logCountsEvent{RequestId: event.RequestId, Counts: counts, Error: errorText(err)})
+	return err
+}
+
 func (ah *eventHandler) listParties(event *listPartiesEvent) error {
 	parties, err := yiviClient.ListParties(event.Filter, event.Limit)
 	if parties == nil {

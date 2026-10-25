@@ -118,6 +118,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.credentialActivity(event)
 		}
+	case "CountLogsEvent":
+		event := &countLogsEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.countLogs(event)
+		}
 	case "ListPartiesEvent":
 		event := &listPartiesEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {

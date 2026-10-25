@@ -225,7 +225,7 @@ class LogFilter {
     this.formats,
     this.credentialHash,
     this.credentialId,
-    this.claimPath,
+    this.claimPaths,
     this.roles,
     this.partyKey,
     this.text,
@@ -248,9 +248,11 @@ class LogFilter {
   /// Entries about a credential type, deleted cards included.
   final String? credentialId;
 
-  /// Entries that included this attribute; with [credentialHash] or
-  /// [credentialId].
-  final List<Object>? claimPath;
+  /// Entries that included any of these attributes; with [credentialHash] or
+  /// [credentialId]. A path matches the attribute it names and everything
+  /// under it (["address"] is every address field), and positions in a list
+  /// do not matter (["degrees", null, "name"] is the name of any degree).
+  final List<List<Object?>>? claimPaths;
 
   final List<LogRole>? roles;
 
@@ -451,6 +453,19 @@ class CredentialActivityEvent extends LogRequest {
   Map<String, dynamic> toJson() => {"request_id": requestId, "hashes": hashes};
 }
 
+/// How many entries each of [filters] matches, in order.
+class CountLogsEvent extends LogRequest {
+  CountLogsEvent(super.requestId, this.filters);
+
+  final List<LogFilter> filters;
+
+  @override
+  Map<String, dynamic> toJson() => {
+    "request_id": requestId,
+    "filters": [for (final f in filters) f.toJson()],
+  };
+}
+
 class ListPartiesEvent extends LogRequest {
   ListPartiesEvent(super.requestId, this.filter, {this.limit = 0});
 
@@ -519,6 +534,23 @@ class CredentialActivityResultEvent extends LogAnswer {
 
   factory CredentialActivityResultEvent.fromJson(Map<String, dynamic> json) =>
       _$CredentialActivityResultEventFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+class LogCountsEvent extends LogAnswer {
+  LogCountsEvent({required this.requestId, required this.counts, this.error});
+
+  @override
+  final String requestId;
+
+  @JsonKey(defaultValue: [])
+  final List<int> counts;
+
+  @override
+  final String? error;
+
+  factory LogCountsEvent.fromJson(Map<String, dynamic> json) =>
+      _$LogCountsEventFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)

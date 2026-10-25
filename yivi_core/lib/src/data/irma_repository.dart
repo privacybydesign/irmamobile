@@ -730,6 +730,14 @@ class IrmaRepository {
     (id) => CredentialActivityEvent(id, hashes),
   )).activity;
 
+  /// How many entries each of [filters] matches, in order.
+  Future<List<int>> countLogs(List<LogFilter> filters) async =>
+      filters.isEmpty
+      ? const []
+      : (await _askLog<LogCountsEvent>(
+          (id) => CountLogsEvent(id, filters),
+        )).counts;
+
   /// The parties of the entries matching [filter], the most recent first.
   Future<List<PartySummary>> listParties(
     LogFilter filter, {

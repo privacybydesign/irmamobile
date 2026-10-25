@@ -48,6 +48,10 @@ class IrmaMockBridge extends IrmaBridge {
           requestId: event.requestId,
           activity: const {},
         ),
+        CountLogsEvent() => LogCountsEvent(
+          requestId: event.requestId,
+          counts: [for (final _ in event.filters) 0],
+        ),
         ListPartiesEvent() => PartiesEvent(
           requestId: event.requestId,
           parties: const [],

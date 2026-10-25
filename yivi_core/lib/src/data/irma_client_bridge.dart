@@ -42,6 +42,7 @@ class IrmaClientBridge extends IrmaBridge {
     CredentialActivityResultEvent: (j) =>
         CredentialActivityResultEvent.fromJson(j),
     PartiesEvent: (j) => PartiesEvent.fromJson(j),
+    LogCountsEvent: (j) => LogCountsEvent.fromJson(j),
 
     HandleURLEvent: (j) => HandleURLEvent.fromJson(j),
 

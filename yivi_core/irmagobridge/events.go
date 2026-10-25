@@ -70,6 +70,13 @@ type credentialActivityEvent struct {
 	Hashes    []string `json:"hashes"`
 }
 
+// countLogsEvent asks how many entries each filter matches: the app fades
+// the options of its filter sheet that would match nothing.
+type countLogsEvent struct {
+	RequestId string                   `json:"request_id"`
+	Filters   []clientmodels.LogFilter `json:"filters"`
+}
+
 type listPartiesEvent struct {
 	RequestId string                 `json:"request_id"`
 	Filter    clientmodels.LogFilter `json:"filter"`
@@ -204,6 +211,13 @@ type credentialActivityResultEvent struct {
 	RequestId string                                     `json:"request_id"`
 	Activity  map[string]clientmodels.CredentialActivity `json:"activity"`
 	Error     string                                     `json:"error,omitempty"`
+}
+
+// logCountsEvent answers a countLogsEvent, one count per filter, in order.
+type logCountsEvent struct {
+	RequestId string `json:"request_id"`
+	Counts    []int  `json:"counts"`
+	Error     string `json:"error,omitempty"`
 }
 
 // partiesEvent answers a listPartiesEvent.
