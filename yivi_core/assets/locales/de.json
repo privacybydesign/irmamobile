@@ -1368,10 +1368,7 @@
       "optional_title": "Optionale Daten",
       "optional_intro": "{requestor} fragt auch nach {what}. Das musst du nicht teilen.",
       "share_nothing": "Nichts teilen",
-      "share_nothing_sub": "{requestor} bekommt {what} nicht",
-      "n_fields": "{n} Angaben:",
-      "show_values": "Zeigen, was du teilst",
-      "show_less": "Weniger zeigen"
+      "share_nothing_sub": "{requestor} bekommt {what} nicht"
     },
     "done": {
       "title": "Geteilt mit {requestor}",

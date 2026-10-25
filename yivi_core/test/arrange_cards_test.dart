@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -181,6 +182,37 @@ void main() {
         tester.getTopLeft(tile(_delta)).dy,
         tester.getTopLeft(tile(_alpha)).dy + 2 * 64,
       );
+    });
+
+    testWidgets("list: a row ticks at every place it passes", (tester) async {
+      await pump(tester);
+      await tester.tap(find.byKey(const Key("wallet_view_list")));
+      await tester.pumpAndSettle();
+      final ticks = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == "HapticFeedback.vibrate") {
+            ticks.add(call.arguments as String);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      final from = tester.getCenter(tile(_delta));
+      final to = tester.getCenter(tile(_charlie));
+      await drag(tester, from, to - from + const Offset(0, 4));
+      expect(order(tester), ["alpha", "Charlie", "Delta", "Bravo"]);
+      expect(
+        ticks.where((t) => t == "HapticFeedbackType.selectionClick").length,
+        2,
+      );
+      expect(tester.getCenter(tile(_delta)), to);
     });
 
     testWidgets("grid: a card dragged to the other corner goes last", (

@@ -478,8 +478,7 @@ void main() {
       ]);
     });
 
-    testWidgets("many fields: their names in the sheet, every value on the "
-        "page", (tester) async {
+    testWidgets("many fields: every value in the sheet", (tester) async {
       final fields = [
         for (final (n, label) in [
           "First names",
@@ -520,25 +519,6 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
-      expect(
-        find.textContaining(
-          "surname, date of birth, place of birth, nationality and BSN",
-          findRichText: true,
-        ),
-        findsOneWidget,
-      );
-      expect(find.text("v1"), findsNothing);
-
-      // Shows the values in place, and does not pick the card.
-      await tester.tap(find.byKey(const Key("attribute_summary_toggle")));
-      await tester.pumpAndSettle();
-      expect(find.text("v1"), findsOneWidget);
-      expect(find.text("Show less"), findsOneWidget);
-      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key("sheet_owned_hash-personal")));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key("attribute_summary")), findsNothing);
       for (var n = 0; n < fields.length; n++) {
         expect(find.text("v$n"), findsOneWidget);
       }

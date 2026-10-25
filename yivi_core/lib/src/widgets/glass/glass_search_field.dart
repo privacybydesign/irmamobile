@@ -8,6 +8,9 @@ import "glass_surface.dart";
 /// tabs. You can type in it straight away; a clear button appears once there
 /// is text. A tap anywhere outside it puts the keyboard away.
 class GlassSearchField extends StatefulWidget {
+  /// How far in from the field's start its search icon is.
+  static const double iconInset = 16;
+
   final String hintKey;
   final ValueChanged<String> onChanged;
 
@@ -84,7 +87,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
           height: widget.height,
           child: Row(
             children: [
-              const SizedBox(width: 16),
+              const SizedBox(width: GlassSearchField.iconInset),
               Icon(Icons.search, size: 22, color: palette.heading),
               const SizedBox(width: 8),
               Expanded(

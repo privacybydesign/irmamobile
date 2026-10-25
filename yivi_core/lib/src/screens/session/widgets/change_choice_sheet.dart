@@ -567,7 +567,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                         : b.missing.single.name,
                     subtitle: b.missing.single.issuer.name,
                     rows: emptySpotRows(context, b.missing.single),
-                    summarize: true,
                     onTap: () => _add(b.missing),
                   )
                 else
@@ -607,7 +606,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           for (final a in c.attributes)
             (a.effectiveDisplayName, t("data.add.in_your_app")),
       ],
-      summarize: true,
       together: true,
       kinds: b.missing.length > 1 ? b.missing : null,
       // What a tap adds: both, or the one card the set still misses.
@@ -777,7 +775,7 @@ class _OwnedCard extends StatelessWidget {
           onTap: onTap,
           child: CardTileOutline(
             shown: outlined,
-            child: SharedCardTile(bundle: bundle, summarize: true),
+            child: SharedCardTile(bundle: bundle),
           ),
         ),
       ),

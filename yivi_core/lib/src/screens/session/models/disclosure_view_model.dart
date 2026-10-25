@@ -316,11 +316,6 @@ class OptionalWhat {
   String toString() => "OptionalWhat(byCard: $byCard, names: $names)";
 }
 
-/// From this many fields a card in a sheet shows their names ("10 fields:
-/// first names, surname, …") instead of its values: the sheet is for
-/// choosing, the share screen shows every value.
-const summaryFrom = 5;
-
 /// [items] as one list in a sentence: "a, b and c", with [and] (" and ")
 /// before the last item.
 String andList(List<String> items, String and) => orList(items, and);

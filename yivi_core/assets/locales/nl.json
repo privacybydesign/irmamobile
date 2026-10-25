@@ -1368,10 +1368,7 @@
       "optional_title": "Optionele gegevens",
       "optional_intro": "{requestor} vraagt ook om {what}. Dat hoef je niet te delen.",
       "share_nothing": "Niets delen",
-      "share_nothing_sub": "{requestor} krijgt {what} niet",
-      "n_fields": "{n} gegevens:",
-      "show_values": "Toon wat je deelt",
-      "show_less": "Minder tonen"
+      "share_nothing_sub": "{requestor} krijgt {what} niet"
     },
     "done": {
       "title": "Gedeeld met {requestor}",

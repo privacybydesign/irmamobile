@@ -392,13 +392,13 @@ class _CardList extends ConsumerWidget {
             box(
               PushAway(
                 direction: PushAwayDirection.up,
-                // The arrange button starts where the cards do: the stack sits
-                // further in than the rest on a phone held upright.
+                // Above the stack on a phone held upright, which sits further
+                // in, the arrange button lines up with the search icon.
                 child: _Header(
                   arrangeable: cards.length > 1,
                   view: view,
                   start: view == WalletView.stack && !panes
-                      ? stackSide - side
+                      ? GlassSearchField.iconInset
                       : 0,
                 ),
               ),
@@ -430,10 +430,13 @@ class _CardList extends ConsumerWidget {
                       openHash: panes ? _openInPane(ref, cards) : null,
                     ),
                   ),
-                  WalletView.list => _ListView(
-                    cards: visible,
-                    hintTexts: hintTexts,
-                    arrangeable: arrangeable,
+                  WalletView.list => SliverToBoxAdapter(
+                    child: _ListView(
+                      cards: visible,
+                      hintTexts: hintTexts,
+                      width: contentWidth,
+                      arrangeable: arrangeable,
+                    ),
                   ),
                   WalletView.grid => SliverToBoxAdapter(
                     child: _GridView(
@@ -590,22 +593,25 @@ class _ArrangeButton extends ConsumerWidget {
           child: ConstrainedBox(
             // A finger's room, though the text is small.
             constraints: const BoxConstraints(minHeight: 44),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 2,
-              children: [
-                Icon(Icons.swap_vert_rounded, size: 18, color: style.color),
-                const SizedBox(width: 2),
-                Flexible(
-                  child: Text(
+            // Smaller rather than cut off when the view switch leaves
+            // little room (large text, a narrow phone).
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 2,
+                children: [
+                  Icon(Icons.swap_vert_rounded, size: 18, color: style.color),
+                  const SizedBox(width: 2),
+                  Text(
                     context.tr("wallet.arrange.button"),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     style: style,
                   ),
-                ),
-                Icon(Icons.expand_more_rounded, size: 18, color: style.color),
-              ],
+                  Icon(Icons.expand_more_rounded, size: 18, color: style.color),
+                ],
+              ),
             ),
           ),
         ),
@@ -970,65 +976,85 @@ String? _paneCardHash(String? selected, List<schemaless.Credential> cards) =>
 String? _openInPane(WidgetRef ref, List<schemaless.Credential> cards) =>
     _paneCardHash(ref.watch(selectedCardProvider), cards);
 
+/// A row a card: its picture, name, hint and issuer. Hold a row to drag it
+/// to another place.
 class _ListView extends ConsumerWidget {
+  static const double gap = 8;
+
   final List<schemaless.Credential> cards;
   final Map<String, String> hintTexts;
+  final double width;
   final bool arrangeable;
 
   const _ListView({
     required this.cards,
     required this.hintTexts,
+    required this.width,
     required this.arrangeable,
   });
 
+  /// The height of every row: its picture, or its three lines of text when
+  /// they are taller (large text), and its padding. One height for all, so
+  /// the rows have fixed places to be dragged between; a row without a hint
+  /// has its text in the middle.
+  static double rowHeight(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final scaler = MediaQuery.textScalerOf(context);
+    double line(TextStyle style) => (TextPainter(
+      text: TextSpan(text: "Ag", style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout()).height;
+    final text =
+        line(palette.display(16)) +
+        line(palette.body(14)) +
+        line(palette.body(12));
+    return 2 * _ListRow.padding +
+        max(
+          _ListRow.picture / CredentialCardArt.aspectRatio,
+          text,
+        ).ceilToDouble();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(
-      schemalessCredentialOrderControllerProvider.notifier,
-    );
-    return SliverReorderableList(
-      itemCount: cards.length,
-      onReorderStart: (_) => HapticFeedback.mediumImpact(),
-      onReorderEnd: (_) => HapticFeedback.mediumImpact(),
-      onReorderItem: controller.reorder,
-      // Lifted as a card in the stack or grid is.
-      proxyDecorator: (child, index, animation) => ScaleTransition(
-        scale: Tween(
-          begin: 1.0,
-          end: DragToArrange.lift,
-        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-        child: Material(type: MaterialType.transparency, child: child),
-      ),
-      itemBuilder: (context, i) {
+    final onMove = ref
+        .read(schemalessCredentialOrderControllerProvider.notifier)
+        .reorder;
+    final row = rowHeight(context);
+    return DragToArrange(
+      keys: [for (final c in cards) c.hash],
+      size: Size(width, cards.length * (row + gap) - gap),
+      slotWidth: width,
+      slotHeight: row,
+      slot: (i) => Offset(0, i * (row + gap)),
+      indexAt: (at) => (at.dy / (row + gap)).round(),
+      enabled: arrangeable,
+      slide: _slideForFlight(),
+      curve: IssuanceFlight.curve,
+      onMove: onMove,
+      builder: (context, i) {
         final c = cards[i];
-        final row = Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: PushAway(
+        return PushAway(
+          hash: c.hash,
+          fadeWhenOpening: true,
+          child: IssuanceFlightHidden(
             hash: c.hash,
-            fadeWhenOpening: true,
-            child: IssuanceFlightHidden(
-              hash: c.hash,
-              child: _ListRow(
-                credential: c,
-                hintText: hintTexts[c.hash],
-                flightTarget: i == 0,
-                moves: arrangeable
-                    ? moveActions(
-                        context,
-                        index: i,
-                        count: cards.length,
-                        onMove: controller.reorder,
-                      )
-                    : null,
-              ),
+            child: _ListRow(
+              credential: c,
+              hintText: hintTexts[c.hash],
+              flightTarget: i == 0,
+              moves: arrangeable
+                  ? moveActions(
+                      context,
+                      index: i,
+                      count: cards.length,
+                      onMove: onMove,
+                    )
+                  : null,
             ),
           ),
-        );
-        return KeyedSubtree(
-          key: ValueKey(c.hash),
-          child: arrangeable
-              ? ReorderableDelayedDragStartListener(index: i, child: row)
-              : row,
         );
       },
     );
@@ -1045,6 +1071,10 @@ bool _isOpenInPane(BuildContext context, schemaless.Credential credential) {
 }
 
 class _ListRow extends StatelessWidget {
+  /// The width of its card picture, and the room around it.
+  static const double picture = 88;
+  static const double padding = 8;
+
   final schemaless.Credential credential;
   final String? hintText;
 
@@ -1082,7 +1112,7 @@ class _ListRow extends StatelessWidget {
         elevation: 0,
         shadowColor: Colors.transparent,
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(padding),
           child: Row(
             spacing: 16,
             children: [
@@ -1090,12 +1120,13 @@ class _ListRow extends StatelessWidget {
                 first: flightTarget,
                 child: CardHero(
                   credential: credential,
-                  width: 88,
+                  width: picture,
                   hintText: hintText,
                 ),
               ),
               Expanded(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(

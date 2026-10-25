@@ -50,11 +50,10 @@ void main() {
 
       final gesture = await tester.startGesture(firstCenter, kind: .touch);
 
-      // long press (ReorderableDelayedDragStartListener)
+      // long press: the card lifts
       await tester.pump(const Duration(milliseconds: 600));
-      // Drag down just past the second card's midpoint, in small increments so
-      // the SliverReorderableList can track the drag across intermediate
-      // frames. A single large moveBy doesn't commit the reorder.
+      // Drag down just past the second card's place, in small increments so
+      // the drag is followed across intermediate frames.
       const dragSteps = 10;
       for (var i = 0; i < dragSteps; i++) {
         await gesture.moveBy(Offset(0, (dragDistance + 10) / dragSteps));

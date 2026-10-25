@@ -8,13 +8,11 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/status_chip.dart";
 import "../models/disclosure_view_model.dart";
@@ -71,10 +69,6 @@ class SharedCardTile extends ConsumerWidget {
   final bool ghost;
   final ({double width, double fromEnd})? dashGap;
 
-  /// In a sheet: a card with [summaryFrom] fields or more shows their names
-  /// instead of its values, with a button to show them.
-  final bool summarize;
-
   const SharedCardTile({
     super.key,
     required this.bundle,
@@ -88,7 +82,6 @@ class SharedCardTile extends ConsumerWidget {
     this.isNew = false,
     this.ghost = false,
     this.dashGap,
-    this.summarize = false,
   }) : assert((fixLabel == null) == (onFix == null));
 
   /// The art, marked as a landing spot. Not the copy in a hero flight: the
@@ -208,25 +201,21 @@ class SharedCardTile extends ConsumerWidget {
       body: [
         for (final c in cards)
           if (c.attributes.isNotEmpty)
-            _summarized(
-              context,
-              c,
-              Opacity(
-                opacity: problem != null ? 0.55 : 1,
-                child: YiviCredentialCardAttributeList(
-                  c.attributes,
-                  credentialId: c.credentialId,
-                  disclosure: true,
-                  showDividers: true,
-                  // What the requestor asked for exactly, in green.
-                  matched: {
-                    for (final a in c.attributes)
-                      if (a.requestedValue case final wanted?
-                          when wanted.hasConcreteValue &&
-                              sameValue(a.value, wanted))
-                        claimPathKey(a.claimPath),
-                  },
-                ),
+            Opacity(
+              opacity: problem != null ? 0.55 : 1,
+              child: YiviCredentialCardAttributeList(
+                c.attributes,
+                credentialId: c.credentialId,
+                disclosure: true,
+                showDividers: true,
+                // What the requestor asked for exactly, in green.
+                matched: {
+                  for (final a in c.attributes)
+                    if (a.requestedValue case final wanted?
+                        when wanted.hasConcreteValue &&
+                            sameValue(a.value, wanted))
+                      claimPathKey(a.claimPath),
+                },
               ),
             ),
         if (note != null && !strip)
@@ -258,21 +247,6 @@ class SharedCardTile extends ConsumerWidget {
             ),
           ),
       ],
-    );
-  }
-
-  /// [list], the values of [card], or with [summarize] and many fields the
-  /// names of those fields.
-  Widget _summarized(
-    BuildContext context,
-    SelectableCredentialInstance card,
-    Widget list,
-  ) {
-    if (!summarize || card.attributes.length < summaryFrom) return list;
-    return AttributeSummary(
-      key: ValueKey(("summary", card.hash)),
-      names: [for (final a in card.attributes) a.effectiveDisplayName],
-      values: list,
     );
   }
 
@@ -310,85 +284,3 @@ schemaless.Credential _cardFor(
       issuanceDate: instance.issuanceDate,
       expiryDate: instance.expiryDate,
     );
-
-/// The fields of a card by name, "10 fields: first names, surname, … and
-/// over 18", for a card in a sheet with many of them. With [values], a
-/// button shows those in place ("Show what you share") and hides them again.
-class AttributeSummary extends StatefulWidget {
-  final List<String> names;
-  final Widget? values;
-
-  const AttributeSummary({super.key, required this.names, this.values});
-
-  @override
-  State<AttributeSummary> createState() => _AttributeSummaryState();
-}
-
-class _AttributeSummaryState extends State<AttributeSummary> {
-  bool _open = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final language = FlutterI18n.currentLocale(context)?.languageCode;
-    final values = widget.values;
-    final names = andList([
-      for (final (n, name) in widget.names.indexed)
-        n == 0 ? name : inSentence(name, language: language),
-    ], context.tr("share.and"));
-    final style = palette
-        .body(14)
-        .copyWith(height: 20 / 14, color: palette.heading);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (_open && values != null)
-          values
-        else
-          Text.rich(
-            key: const Key("attribute_summary"),
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: context.tr("share.sheet.n_fields", {
-                    "n": "${widget.names.length}",
-                  }),
-                  style: style.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: palette.text,
-                  ),
-                ),
-                TextSpan(text: " $names"),
-              ],
-            ),
-            style: style,
-          ),
-        if (values != null)
-          // Its own tap: it never picks the card it sits on.
-          Semantics(
-            button: true,
-            child: GestureDetector(
-              key: const Key("attribute_summary_toggle"),
-              behavior: HitTestBehavior.opaque,
-              onTap: () => setState(() => _open = !_open),
-              child: PressScale(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 6, bottom: 2),
-                  child: Text(
-                    context.tr(
-                      _open
-                          ? "share.sheet.show_less"
-                          : "share.sheet.show_values",
-                    ),
-                    style: palette
-                        .body(13.5, weight: FontWeight.w600)
-                        .copyWith(color: palette.link),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}

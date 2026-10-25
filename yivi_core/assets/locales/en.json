@@ -1368,10 +1368,7 @@
       "optional_title": "Optional data",
       "optional_intro": "{requestor} also asks for {what}. You don't have to share it.",
       "share_nothing": "Share nothing",
-      "share_nothing_sub": "{requestor} won't get {what}",
-      "n_fields": "{n} fields:",
-      "show_values": "Show what you share",
-      "show_less": "Show less"
+      "share_nothing_sub": "{requestor} won't get {what}"
     },
     "done": {
       "title": "Shared with {requestor}",
