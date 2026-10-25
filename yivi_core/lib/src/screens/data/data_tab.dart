@@ -533,30 +533,34 @@ class ViewSwitcher extends StatelessWidget {
       WalletView.list: Icons.view_list_rounded,
       WalletView.grid: Icons.grid_view_rounded,
     };
+    final segments = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final v in WalletView.values)
+          _Segment(
+            key: Key("wallet_view_${v.name}"),
+            label: FlutterI18n.translate(context, "wallet.view.${v.name}"),
+            icon: icons[v]!,
+            selected: v == view,
+            compact: compact,
+            onTap: () => onChanged(v),
+          ),
+      ],
+    );
     return Semantics(
       container: true,
       label: FlutterI18n.translate(context, "wallet.view.label"),
-      child: Container(
-        padding: const EdgeInsets.all(3),
-        decoration: ShapeDecoration(
-          shape: StadiumBorder(side: BorderSide(color: palette.outline)),
-          color: palette.surface,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final v in WalletView.values)
-              _Segment(
-                key: Key("wallet_view_${v.name}"),
-                label: FlutterI18n.translate(context, "wallet.view.${v.name}"),
-                icon: icons[v]!,
-                selected: v == view,
-                compact: compact,
-                onTap: () => onChanged(v),
+      // Dark: glass with a lens on the choice, as the tab bar.
+      child: palette.isDark
+          ? GlassSurface(padding: const EdgeInsets.all(3), child: segments)
+          : Container(
+              padding: const EdgeInsets.all(3),
+              decoration: ShapeDecoration(
+                shape: StadiumBorder(side: BorderSide(color: palette.outline)),
+                color: palette.surface,
               ),
-          ],
-        ),
-      ),
+              child: segments,
+            ),
     );
   }
 }
@@ -580,14 +584,19 @@ class _Segment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final fg = selected ? palette.surface : palette.heading;
+    final dark = palette.isDark;
+    final fg = selected
+        ? (dark ? palette.selectedTab : palette.surface)
+        : palette.heading;
     return Semantics(
       button: true,
       selected: selected,
       label: label,
       excludeSemantics: true,
       child: Material(
-        color: selected ? palette.heading : Colors.transparent,
+        color: selected
+            ? (dark ? palette.lens : palette.heading)
+            : Colors.transparent,
         shape: const StadiumBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(

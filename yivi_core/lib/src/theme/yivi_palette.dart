@@ -215,7 +215,9 @@ class YiviPalette {
     danger: Color(0xFFFF7A7A),
     lens: Color(0x8C000000),
     selectedTab: Color(0xFFFF2D55),
-    glassFill: Color(0xCC2A2F37),
+    // See-through, so what passes under it shows, blurred; over black it
+    // comes out a little darker than the raised surface.
+    glassFill: Color(0x8C3A404B),
     glassBorder: Color(0x24FFFFFF),
     glassHighlight: Color(0x29FFFFFF),
     glassShadow: Color(0x73000000),

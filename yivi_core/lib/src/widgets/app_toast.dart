@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "centred_max_width.dart";
+import "glass/glass_surface.dart";
 import "two_pane.dart";
 
 /// Shows [message] as a glass pill for 2.6 seconds, like "You have been
@@ -61,7 +62,12 @@ void Function(String message, {Key? key}) appToastFor(
         child: DecoratedBox(
           decoration: ShapeDecoration(
             color: palette.glassStrongFill,
-            shape: StadiumBorder(side: BorderSide(color: palette.glassBorder)),
+            // Dark: lit from above like the glass, no rim.
+            shape: StadiumBorder(
+              side: palette.isDark
+                  ? BorderSide.none
+                  : BorderSide(color: palette.glassBorder),
+            ),
             shadows: [
               BoxShadow(
                 color: palette.glassShadow,
@@ -70,14 +76,25 @@ void Function(String message, {Key? key}) appToastFor(
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: palette
-                  .body(14, weight: FontWeight.w600)
-                  .copyWith(height: 20 / 14),
+          child: ClipPath(
+            clipper: const ShapeBorderClipper(shape: StadiumBorder()),
+            child: CustomPaint(
+              foregroundPainter: palette.isDark
+                  ? GlassLitEdge(shape: const StadiumBorder())
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: palette
+                      .body(14, weight: FontWeight.w600)
+                      .copyWith(height: 20 / 14),
+                ),
+              ),
             ),
           ),
         ),
