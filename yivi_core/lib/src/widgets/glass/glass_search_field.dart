@@ -6,7 +6,8 @@ import "glass_surface.dart";
 
 /// The pill-shaped glass search field at the top of the Data and Activity
 /// tabs. You can type in it straight away; a clear button appears once there
-/// is text. A tap anywhere outside it puts the keyboard away.
+/// is text. A tap anywhere on the pill focuses it, not only on the line of
+/// text; a tap anywhere outside it puts the keyboard away.
 class GlassSearchField extends StatefulWidget {
   final String hintKey;
   final ValueChanged<String> onChanged;
@@ -40,6 +41,8 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
   TextEditingController? _own;
   TextEditingController get _controller =>
       widget.controller ?? (_own ??= TextEditingController());
+  FocusNode? _ownFocus;
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
 
   @override
   void initState() {
@@ -65,7 +68,20 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
   void dispose() {
     _controller.removeListener(_changed);
     _own?.dispose();
+    _ownFocus?.dispose();
     super.dispose();
+  }
+
+  /// The text itself is only a line high in the pill: a tap beside it (on
+  /// the magnifier, above or below the text, at the far end) focuses the
+  /// field too, with the caret after what is there.
+  void _focusField() {
+    if (_focus.hasFocus) return;
+    final text = _controller.value;
+    if (!text.selection.isValid) {
+      _controller.selection = TextSelection.collapsed(offset: text.text.length);
+    }
+    _focus.requestFocus();
   }
 
   void _clear() {
@@ -80,68 +96,72 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     // The clear button is part of the field: tapping it keeps the keyboard.
     return TextFieldTapRegion(
       child: GlassSurface(
-        child: SizedBox(
-          height: widget.height,
-          child: Row(
-            children: [
-              const SizedBox(width: 16),
-              Icon(Icons.search, size: 22, color: palette.heading),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  key: widget.fieldKey,
-                  controller: _controller,
-                  focusNode: widget.focusNode,
-                  onChanged: widget.onChanged,
-                  onSubmitted: widget.onSubmitted,
-                  textInputAction: TextInputAction.search,
-                  style: palette.body(16),
-                  cursorColor: palette.primary,
-                  decoration: InputDecoration(
-                    isCollapsed: true,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    hintText: hint,
-                    hintStyle: palette
-                        .body(16)
-                        .copyWith(color: palette.secondaryText),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _focusField,
+          child: SizedBox(
+            height: widget.height,
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                Icon(Icons.search, size: 22, color: palette.heading),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    key: widget.fieldKey,
+                    controller: _controller,
+                    focusNode: _focus,
+                    onChanged: widget.onChanged,
+                    onSubmitted: widget.onSubmitted,
+                    textInputAction: TextInputAction.search,
+                    style: palette.body(16),
+                    cursorColor: palette.primary,
+                    decoration: InputDecoration(
+                      isCollapsed: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      hintText: hint,
+                      hintStyle: palette
+                          .body(16)
+                          .copyWith(color: palette.secondaryText),
+                    ),
                   ),
                 ),
-              ),
-              if (_controller.text.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Semantics(
-                    button: true,
-                    label: FlutterI18n.translate(
-                      context,
-                      "wallet.clear_search",
-                    ),
-                    excludeSemantics: true,
-                    child: InkResponse(
-                      highlightColor: Colors.transparent,
-                      onTap: _clear,
-                      radius: 22,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: palette.heading.withValues(alpha: 0.14),
-                        ),
-                        child: Icon(
-                          Icons.close,
-                          size: 16,
-                          color: palette.heading,
+                if (_controller.text.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Semantics(
+                      button: true,
+                      label: FlutterI18n.translate(
+                        context,
+                        "wallet.clear_search",
+                      ),
+                      excludeSemantics: true,
+                      child: InkResponse(
+                        highlightColor: Colors.transparent,
+                        onTap: _clear,
+                        radius: 22,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: palette.heading.withValues(alpha: 0.14),
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: palette.heading,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-              else
-                const SizedBox(width: 16),
-            ],
+                  )
+                else
+                  const SizedBox(width: 16),
+              ],
+            ),
           ),
         ),
       ),
