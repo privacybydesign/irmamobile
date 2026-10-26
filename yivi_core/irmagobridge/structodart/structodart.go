@@ -13,21 +13,21 @@ import (
 )
 
 func main() {
-	structs := []interface{}{
+	structs := []any{
 		irmaclient.DisclosureCandidate{},
 		requestVerificationPermissionSessionEvent{},
 		requestIssuancePermissionSessionEvent{},
 	}
 
-	for i := 0; i < len(structs); i++ {
+	for i := range structs {
 		fmt.Println(structToDart(structs[i]))
 	}
 
 }
 
-func structToDart(x interface{}) string {
+func structToDart(x any) string {
 	t := reflect.TypeOf(x)
-	for t.Kind() == reflect.Ptr || t.Kind() == reflect.Interface {
+	for t.Kind() == reflect.Pointer || t.Kind() == reflect.Interface {
 		// dereference pointers or interfaces
 		t = t.Elem()
 	}
@@ -59,8 +59,8 @@ func members(t reflect.Type) string {
 
 		name := field.Name
 		if tag := field.Tag.Get("json"); tag != "" {
-			if index := strings.Index(tag, ","); index != -1 {
-				name = tag[:index]
+			if before, _, ok := strings.Cut(tag, ","); ok {
+				name = before
 			} else {
 				name = tag
 			}
@@ -105,9 +105,9 @@ func typename(typ reflect.Type) string {
 	switch typ.Kind() {
 	case reflect.Struct:
 		return typ.Name()
-	case reflect.Ptr:
+	case reflect.Pointer:
 		switch typ {
-		case reflect.TypeOf((*big.Int)(nil)):
+		case reflect.TypeFor[*big.Int]():
 			return "BigInt"
 		}
 		return typename(typ.Elem()) // discard pointer, just use its type
