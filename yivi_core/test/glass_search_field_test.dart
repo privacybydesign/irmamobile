@@ -69,6 +69,23 @@ void main() {
     expect(node.hasFocus, isTrue);
   });
 
+  testWidgets("clearing after the keyboard went gives it back", (tester) async {
+    await pump(tester);
+    await tester.enterText(field, "mail");
+    await tester.pump();
+    // The search key puts the keyboard away; the text stays.
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    expect(focused(tester), isFalse);
+
+    await tester.tap(
+      find.descendant(of: pill, matching: find.byIcon(Icons.close)),
+    );
+    await tester.pump();
+    expect(find.text("mail"), findsNothing);
+    expect(focused(tester), isTrue);
+  });
+
   testWidgets("typing still works after a tap on the edge", (tester) async {
     await pump(tester);
     await tester.tapAt(tester.getRect(pill).topLeft + const Offset(26, 4));

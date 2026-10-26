@@ -237,15 +237,19 @@ class _DragToArrangeState extends State<DragToArrange> {
         child: card,
       );
     }
+    // Only the place moves: a new size (rows that make room for a search's
+    // match line) is there at once, never squeezing a row on the way.
     return AnimatedPositioned(
       key: ValueKey(key),
       duration: reduceMotion && key != _dragged ? Duration.zero : duration,
       curve: curve,
       left: at.dx,
       top: at.dy,
-      width: widget.slotWidth,
-      height: widget.slotHeight,
-      child: card,
+      child: SizedBox(
+        width: widget.slotWidth,
+        height: widget.slotHeight,
+        child: card,
+      ),
     );
   }
 

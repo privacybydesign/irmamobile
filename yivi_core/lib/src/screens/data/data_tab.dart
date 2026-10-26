@@ -7,6 +7,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../routing.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/credential_field_search.dart";
 import "../../providers/credentials_search.dart";
@@ -57,7 +58,7 @@ class DataTab extends ConsumerStatefulWidget {
   ConsumerState<DataTab> createState() => _DataTabState();
 }
 
-class _DataTabState extends ConsumerState<DataTab> {
+class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   /// The search outlives this State ([dataSearchQueryProvider]): the tab is
   /// built anew when a card opened from the results closes.
   late String _query = ref.read(dataSearchQueryProvider);
@@ -73,10 +74,62 @@ class _DataTabState extends ConsumerState<DataTab> {
       if (!_focus.hasFocus) return;
       ref.read(dataSearchActiveProvider.notifier).set(true);
     });
+    // Built anew while a card opened from the search was open.
+    _refocus();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context) case final PageRoute<dynamic> route) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  /// Back from a card opened while typing in the search: the keyboard comes
+  /// back, to type on.
+  @override
+  void didPopNext() => _refocus();
+
+  /// Gives the field the keyboard back when it had it as a card opened,
+  /// once this page is on top again: the tab is also built anew while the
+  /// card is still open, and then it waits for [didPopNext].
+  void _refocus() => afterFrame(() {
+    if (!mounted || ModalRoute.of(context)?.isCurrent == false) return;
+    if (!ref.read(dataSearchRefocusProvider)) return;
+    ref.read(dataSearchRefocusProvider.notifier).set(false);
+    _whenCardGone(_showKeyboard);
+  });
+
+  /// Runs [then] once the card above this page has finished going, looked
+  /// at frame by frame: the route's animation does not report it.
+  void _whenCardGone(VoidCallback then, {int frames = 120}) {
+    final going = ModalRoute.of(context)?.secondaryAnimation;
+    if (going == null || going.isDismissed || frames == 0) return then();
+    afterFrame(() {
+      if (mounted) _whenCardGone(then, frames: frames - 1);
+    });
+    WidgetsBinding.instance.scheduleFrame();
+  }
+
+  /// As the card goes, the page gives the field its focus back by itself,
+  /// but without the keyboard, and asking a field that has the focus does
+  /// not bring it up then (seen on iOS): the field lets go and is asked
+  /// afresh, as a tap on it would.
+  void _showKeyboard() {
+    void ask() => _focus.context
+        ?.findAncestorStateOfType<EditableTextState>()
+        ?.requestKeyboard();
+    if (!_focus.hasFocus) return ask();
+    _focus.unfocus();
+    afterFrame(() {
+      if (mounted) ask();
+    });
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _search.dispose();
     _focus.dispose();
     super.dispose();
@@ -578,6 +631,14 @@ void openCard(
     container.read(selectedCardProvider.notifier).select(credential.hash);
     return;
   }
+  // Opened while typing in the search (the keyboard is still on its way
+  // down): it comes back with the search when the card closes.
+  container
+      .read(dataSearchRefocusProvider.notifier)
+      .set(
+        container.read(dataSearchActiveProvider) &&
+            View.of(cardContext).viewInsets.bottom > 0,
+      );
   WalletTransition.begin(cardContext, credential.hash);
   cardContext.pushCredentialDetailScreen(credential.hash, found: found);
 }

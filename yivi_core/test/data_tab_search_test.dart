@@ -2,7 +2,9 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
+import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
@@ -189,6 +191,88 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("data_search_cancel")), findsNothing);
       expect(find.byKey(const Key("wallet_arrange")), findsOneWidget);
+    });
+
+    testWidgets("a card opened while typing gives the keyboard back on "
+        "return; opened after the keyboard went, not", (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 1200);
+      addTearDown(tester.view.reset);
+      await pumpRoutes(
+        tester,
+        repo: repo,
+        initialLocation: "/home",
+        observers: [routeObserver],
+        overrides: [
+          schemalessCredentialsProvider.overrideWith(
+            (ref) => Stream.value((credentials: _wallet, problematic: [])),
+          ),
+          schemalessCredentialOrderControllerProvider.overrideWith(
+            () => _FixedOrder(_wallet),
+          ),
+        ],
+        routes: [
+          GoRoute(
+            path: "/home",
+            builder: (_, _) => Scaffold(
+              // As the home screen: the keyboard does not squeeze the tab.
+              resizeToAvoidBottomInset: false,
+              body: BlocProvider<HomeTabState>(
+                create: (_) => HomeTabState(),
+                child: DataTab(),
+              ),
+            ),
+            routes: [
+              GoRoute(
+                path: "credential",
+                builder: (context, _) => Scaffold(
+                  body: TextButton(
+                    key: const Key("test_card_back"),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Back"),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+      await settle(tester);
+      await tester.pumpAndSettle();
+      bool focused() => tester
+          .widget<EditableText>(
+            find.descendant(
+              of: find.byKey(const Key("search_field")),
+              matching: find.byType(EditableText),
+            ),
+          )
+          .focusNode
+          .hasFocus;
+
+      Future<void> openAndReturn() async {
+        await tester.tap(tile(_address));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key("test_card_back")), findsOneWidget);
+        tester.view.resetViewInsets();
+        await tester.tap(find.byKey(const Key("test_card_back")));
+        await tester.pumpAndSettle();
+      }
+
+      // Typing, the keyboard up: back from the card, it is up again.
+      // In by a tap, then typing: the rows make room for the match line.
+      await tester.tap(find.byKey(const Key("search_field")));
+      await tester.pump();
+      await search(tester, "utrecht");
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pump();
+      await openAndReturn();
+      expect(focused(), isTrue);
+
+      // The keyboard put away first: it stays away.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await openAndReturn();
+      expect(focused(), isFalse);
     });
 
     testWidgets("a card found by a field says which, with how many more", (

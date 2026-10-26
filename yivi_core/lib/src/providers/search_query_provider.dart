@@ -19,6 +19,13 @@ final dataSearchActiveProvider =
       () => helpers.ValueNotifier(false),
     );
 
+/// Whether the keyboard was up in the Data search when a card opened from
+/// its results: the field gets it back when the card closes.
+final dataSearchRefocusProvider =
+    NotifierProvider<helpers.ValueNotifier<bool>, bool>(
+      () => helpers.ValueNotifier(false),
+    );
+
 /// The search of the Activity tab.
 final activitySearchQueryProvider =
     NotifierProvider<helpers.ValueNotifier<String>, String>(

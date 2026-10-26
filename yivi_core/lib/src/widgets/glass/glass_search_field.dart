@@ -6,7 +6,7 @@ import "glass_surface.dart";
 
 /// The pill-shaped glass search field at the top of the Data and Activity
 /// tabs. You can type in it straight away; a clear button appears once there
-/// is text. A tap anywhere on the pill focuses it, not only on the line of
+/// is text, and clearing puts the cursor back in the field. A tap anywhere on the pill focuses it, not only on the line of
 /// text; a tap anywhere outside it puts the keyboard away.
 class GlassSearchField extends StatefulWidget {
   final String hintKey;
@@ -84,9 +84,12 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     _focus.requestFocus();
   }
 
+  /// Clears the field and gives it the keyboard, also when it had gone
+  /// (after the search key): a cleared search is one to type in again.
   void _clear() {
     _controller.clear();
     widget.onChanged("");
+    _focus.requestFocus();
   }
 
   @override

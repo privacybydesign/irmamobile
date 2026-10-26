@@ -107,9 +107,14 @@ Future<GoRouter> pumpRoutes(
   required List<RouteBase> routes,
   required String initialLocation,
   List<Override> overrides = const [],
+  List<NavigatorObserver> observers = const [],
   Locale locale = const Locale("en", "US"),
 }) async {
-  final router = GoRouter(initialLocation: initialLocation, routes: routes);
+  final router = GoRouter(
+    initialLocation: initialLocation,
+    routes: routes,
+    observers: observers,
+  );
   await pumpTranslated(
     tester,
     _app(
