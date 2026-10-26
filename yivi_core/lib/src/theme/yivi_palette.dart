@@ -274,6 +274,11 @@ class YiviPalette {
 
   bool get isDark => brightness == Brightness.dark;
 
+  /// Text and icons on a [link] fill (a filter chip, a count badge): white
+  /// on the dark blue (8.4:1); on the light blue of dark mode, where white
+  /// is only 2:1, a deep navy (8.1:1).
+  Color get onLink => isDark ? const Color(0xFF0E2238) : Colors.white;
+
   /// The Yivi logo (without margins) for this variant: the dark one has the
   /// colours of the dark iOS app icon.
   String get logoAsset => yiviAsset(

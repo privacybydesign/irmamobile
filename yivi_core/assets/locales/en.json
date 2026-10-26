@@ -1247,6 +1247,7 @@
   "wallet": {
     "search_placeholder": "Search your data",
     "clear_search": "Clear search",
+    "search_cancel": "Cancel",
     "add_data": "Add data",
     "view": {
       "label": "View",

@@ -1250,6 +1250,7 @@
   "wallet": {
     "search_placeholder": "Zoek in je gegevens",
     "clear_search": "Zoekopdracht wissen",
+    "search_cancel": "Annuleer",
     "add_data": "Gegevens toevoegen",
     "view": {
       "label": "Weergave",

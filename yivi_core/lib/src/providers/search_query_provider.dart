@@ -12,6 +12,13 @@ final dataSearchQueryProvider =
       () => helpers.ValueNotifier(""),
     );
 
+/// Whether the Data tab is searching: from a tap in its field until Cancel,
+/// also with nothing typed yet.
+final dataSearchActiveProvider =
+    NotifierProvider<helpers.ValueNotifier<bool>, bool>(
+      () => helpers.ValueNotifier(false),
+    );
+
 /// The search of the Activity tab.
 final activitySearchQueryProvider =
     NotifierProvider<helpers.ValueNotifier<String>, String>(

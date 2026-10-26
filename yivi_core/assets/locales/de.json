@@ -1250,6 +1250,7 @@
   "wallet": {
     "search_placeholder": "Deine Daten durchsuchen",
     "clear_search": "Suche löschen",
+    "search_cancel": "Abbrechen",
     "add_data": "Daten hinzufügen",
     "view": {
       "label": "Ansicht",

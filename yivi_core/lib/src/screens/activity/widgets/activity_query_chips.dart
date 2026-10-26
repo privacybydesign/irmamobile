@@ -59,20 +59,20 @@ class ActivityFacetChip extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: palette.display(13).copyWith(color: Colors.white),
+                    style: palette.display(13).copyWith(color: palette.onLink),
                   ),
                 ),
                 Container(
                   width: 26,
                   height: 26,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.22),
+                    color: palette.onLink.withValues(alpha: 0.18),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.close_rounded,
                     size: 15,
-                    color: Colors.white,
+                    color: palette.onLink,
                   ),
                 ),
               ],

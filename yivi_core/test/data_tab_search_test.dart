@@ -129,7 +129,7 @@ void main() {
     String matchText(WidgetTester tester, Credential c) =>
         tester.widget<Text>(matchLine(c)).textSpan!.toPlainText();
 
-    testWidgets("in the stack, results are list rows; clearing brings the "
+    testWidgets("in the stack, results are list rows; Cancel brings the "
         "stack back", (tester) async {
       await pump(tester);
       await tester.tap(find.byKey(const Key("wallet_view_stack")));
@@ -146,12 +146,49 @@ void main() {
         tester.getSize(tile(_address)).width,
       );
 
+      // Cleared, it is still the search: every card, as a row.
       await search(tester, "");
+      expect(find.byKey(const Key("wallet_arrange")), findsNothing);
+      expect(shown(tester), hasLength(_wallet.length));
+
+      await tester.tap(find.byKey(const Key("data_search_cancel")));
+      await tester.pumpAndSettle();
       expect(find.byKey(const Key("wallet_arrange")), findsOneWidget);
+      expect(find.byKey(const Key("data_tab_add_data")), findsOneWidget);
       final container = ProviderScope.containerOf(
         tester.element(find.byType(DataTab)),
       );
       expect(container.read(walletViewProvider), WalletView.stack);
+    });
+
+    testWidgets("a tap in the field switches to the search at once, with "
+        "Cancel in place of Add", (tester) async {
+      await pump(tester);
+      await tester.tap(find.byKey(const Key("wallet_view_stack")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("data_search_cancel")), findsNothing);
+
+      await tester.tap(find.byKey(const Key("search_field")));
+      await tester.pumpAndSettle();
+      // Nothing typed yet: every card, as list rows, nothing to arrange.
+      expect(find.byKey(const Key("data_search_cancel")), findsOneWidget);
+      expect(find.byKey(const Key("data_tab_add_data")), findsNothing);
+      expect(find.byKey(const Key("wallet_arrange")), findsNothing);
+      expect(shown(tester), hasLength(_wallet.length));
+      expect(
+        tester.getSize(tile(_student)).width,
+        tester.getSize(tile(_address)).width,
+      );
+
+      // Putting the keyboard away keeps the search; Cancel ends it.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("data_search_cancel")), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key("data_search_cancel")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("data_search_cancel")), findsNothing);
+      expect(find.byKey(const Key("wallet_arrange")), findsOneWidget);
     });
 
     testWidgets("a card found by a field says which, with how many more", (

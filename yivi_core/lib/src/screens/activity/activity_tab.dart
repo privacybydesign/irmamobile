@@ -678,7 +678,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                       .body(11.5)
                       .copyWith(
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: palette.onLink,
                       ),
                 ),
               ),

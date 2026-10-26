@@ -62,10 +62,23 @@ class _DataTabState extends ConsumerState<DataTab> {
   /// built anew when a card opened from the results closes.
   late String _query = ref.read(dataSearchQueryProvider);
   late final _search = TextEditingController(text: _query);
+  final _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // As in Activity: a tap in the field switches to the search right away,
+    // before anything is typed; Cancel ends it, losing focus does not.
+    _focus.addListener(() {
+      if (!_focus.hasFocus) return;
+      ref.read(dataSearchActiveProvider.notifier).set(true);
+    });
+  }
 
   @override
   void dispose() {
     _search.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -74,12 +87,21 @@ class _DataTabState extends ConsumerState<DataTab> {
     ref.read(dataSearchQueryProvider.notifier).set(q);
   }
 
+  void _stopSearching() {
+    _search.clear();
+    _focus.unfocus();
+    _onQuery("");
+    ref.read(dataSearchActiveProvider.notifier).set(false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final top = padding.top + FloatingBarPlacement.topGap(context);
     final topInset = top + _topBarHeight + 8;
+    final searching =
+        ref.watch(dataSearchActiveProvider) || _query.trim().isNotEmpty;
 
     // A card that opens in the detail pane (tapped, or picked among the
     // cards of its type in the pane) comes into view in the list: to the
@@ -102,19 +124,29 @@ class _DataTabState extends ConsumerState<DataTab> {
               fieldKey: const Key("search_field"),
               hintKey: "wallet.search_placeholder",
               controller: _search,
+              focusNode: _focus,
               onChanged: _onQuery,
             ),
           ),
-          GlassIconButton(
-            key: const Key("data_tab_add_data"),
-            size: 48,
-            semanticsLabel: FlutterI18n.translate(context, "wallet.add_data"),
-            icon: Icon(Icons.add, size: 26, color: palette.text),
-            onTap: () => showAddDataSheet(context),
-          ),
+          if (searching)
+            TextButton(
+              key: const Key("data_search_cancel"),
+              onPressed: _stopSearching,
+              child: Text(
+                FlutterI18n.translate(context, "wallet.search_cancel"),
+              ),
+            )
+          else
+            GlassIconButton(
+              key: const Key("data_tab_add_data"),
+              size: 48,
+              semanticsLabel: FlutterI18n.translate(context, "wallet.add_data"),
+              icon: Icon(Icons.add, size: 26, color: palette.text),
+              onTap: () => showAddDataSheet(context),
+            ),
         ],
       ),
-      child: _Content(query: _query, topInset: topInset),
+      child: _Content(query: _query, searching: searching, topInset: topInset),
     );
 
     return Scaffold(
@@ -251,9 +283,14 @@ void _scrollTowards(BuildContext context, String hash, {required double top}) {
 
 class _Content extends ConsumerWidget {
   final String query;
+  final bool searching;
   final double topInset;
 
-  const _Content({required this.query, required this.topInset});
+  const _Content({
+    required this.query,
+    required this.searching,
+    required this.topInset,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -304,6 +341,7 @@ class _Content extends ConsumerWidget {
                 cards: cards,
                 problematic: snap.problematic,
                 query: query,
+                searching: searching,
                 topInset: topInset,
               ),
       _ => const Center(child: CircularProgressIndicator()),
@@ -316,12 +354,17 @@ class _CardList extends ConsumerWidget {
   final List<schemaless.Credential> cards;
   final List<schemaless.ProblematicCredential> problematic;
   final String query;
+
+  /// From a tap in the search field until Cancel: the cards are list rows,
+  /// all of them until something is typed.
+  final bool searching;
   final double topInset;
 
   const _CardList({
     required this.cards,
     required this.problematic,
     required this.query,
+    required this.searching,
     required this.topInset,
   });
 
@@ -350,15 +393,14 @@ class _CardList extends ConsumerWidget {
 
     // While searching the results are always list rows, whatever view was
     // picked: only a row has room to say why a card matched. The view
-    // itself is kept for when the search is cleared.
-    final searching = query.trim().isNotEmpty;
-    final results = searching
+    // itself is kept for when the search ends. Before anything is typed
+    // every card shows, as a row.
+    final typed = query.trim().isNotEmpty;
+    final results = typed
         ? _search(context, cards, hintTexts, query)
         : const <CardSearchResult>[];
     final byHash = {for (final c in cards) c.hash: c};
-    final visible = searching
-        ? [for (final r in results) byHash[r.hash]!]
-        : cards;
+    final visible = typed ? [for (final r in results) byHash[r.hash]!] : cards;
     final shownView = searching ? WalletView.list : view;
     // Dragging cards to another place only makes sense with all of them
     // shown, and not while a received card flies in.
@@ -395,7 +437,7 @@ class _CardList extends ConsumerWidget {
           key: const Key("wallet_scroll"),
           slivers: [
             SliverToBoxAdapter(child: SizedBox(height: topInset)),
-            if (ref.watch(emailBannerVisibleProvider))
+            if (!searching && ref.watch(emailBannerVisibleProvider))
               box(
                 const PushAway(
                   direction: PushAwayDirection.up,
