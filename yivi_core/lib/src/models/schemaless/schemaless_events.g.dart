@@ -46,6 +46,7 @@ Map<String, dynamic> _$ProblematicCredentialToJson(
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
   CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
