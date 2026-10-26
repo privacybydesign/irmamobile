@@ -22,7 +22,6 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_shadows.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
@@ -846,7 +845,6 @@ class ViewSwitcher extends StatelessWidget {
               decoration: ShapeDecoration(
                 shape: const StadiumBorder(),
                 color: palette.isDark ? palette.lens : palette.heading,
-                shadows: palette.isDark ? YiviShadows.lens : null,
               ),
             ),
           ),
@@ -870,17 +868,19 @@ class ViewSwitcher extends StatelessWidget {
     return Semantics(
       container: true,
       label: FlutterI18n.translate(context, "wallet.view.label"),
-      // Dark: glass with a lens on the choice, as the tab bar.
-      child: palette.isDark
-          ? GlassSurface(padding: const EdgeInsets.all(3), child: segments)
-          : Container(
-              padding: const EdgeInsets.all(3),
-              decoration: ShapeDecoration(
-                shape: StadiumBorder(side: BorderSide(color: palette.outline)),
-                color: palette.surface,
-              ),
-              child: segments,
-            ),
+      // Flat, as the cards under it: it is on the page, not floating.
+      child: Container(
+        padding: const EdgeInsets.all(3),
+        decoration: ShapeDecoration(
+          shape: StadiumBorder(
+            side: MediaQuery.highContrastOf(context)
+                ? YiviEdges.block(context)
+                : BorderSide(color: palette.outline),
+          ),
+          color: palette.surface,
+        ),
+        child: segments,
+      ),
     );
   }
 }
