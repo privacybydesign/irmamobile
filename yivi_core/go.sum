@@ -218,6 +218,8 @@ github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750 h1:3RuYOQTlAr
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750/go.mod h1:QZI8hX8Ff2GfZ7UJuxyWw3nAGgt2s5+U4hxY6rmwQvs=
 github.com/privacybydesign/irmago v1.4.3-0.20261025172547-c8dbc06d288c h1:WUmq9SqD+AOFWYqX8L7CUNq7V5gozXcndEx568jwxMs=
 github.com/privacybydesign/irmago v1.4.3-0.20261025172547-c8dbc06d288c/go.mod h1:o/EUTMP9GAbKdO+jAJgk6zXwoucHFVU5CNn3I4UZ5mg=
+github.com/privacybydesign/irmago v1.4.3-0.20261026055701-c6ab3290fb88 h1:oY/tDyN03lwFzzp0PmM9/Nk3xXTWnx2Ta5A5C/M1LeU=
+github.com/privacybydesign/irmago v1.4.3-0.20261026055701-c6ab3290fb88/go.mod h1:o/EUTMP9GAbKdO+jAJgk6zXwoucHFVU5CNn3I4UZ5mg=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
