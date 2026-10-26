@@ -152,7 +152,7 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     /// Implements the DebugLog method of the IrmaMobileBridge interface.
     /// - Parameter message: Message to be logged
     public func debugLog(_ message: String?) {
-        channel.invokeMethod("GoLog", arguments: message)
+        onMain { self.channel.invokeMethod("GoLog", arguments: message) }
 #if DEBUG
         if message != nil {
             NSLog("[IrmaMobileBridgePlugin] \(message!)")
@@ -166,7 +166,20 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     ///   - payload: payload that contains the arguments for the requested method
     public func dispatch(fromGo name: String?, payload: String?) {
         let eventName = name ?? "UnknownEvent"
-        channel.invokeMethod(eventName, arguments: payload)
+        onMain { self.channel.invokeMethod(eventName, arguments: payload) }
+    }
+
+    /// Runs [work] on the main thread, where Flutter's channels must be used.
+    /// Go answers some events from a goroutine of its own (the activity log
+    /// questions, sessions), so this hops there, as Android does with
+    /// runOnUiThread; on the main thread already, it runs right away, so the
+    /// order of what is sent stays the same.
+    private func onMain(_ work: @escaping () -> Void) {
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.async(execute: work)
+        }
     }
 }
 

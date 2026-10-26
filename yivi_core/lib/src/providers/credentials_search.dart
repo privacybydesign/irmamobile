@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:collection/collection.dart";
 
 /// A single candidate the search algorithm scores against.
@@ -65,7 +67,8 @@ double scoreSearchEntry(SearchEntry entry, String query) {
 /// `Je Gemeente`). Joined-contains is deliberately not done — too permissive.
 ///
 /// Fuzzy fallback is Damerau-Levenshtein distance: up to 2 edits is treated
-/// as a match (1 → 0.9, 2 → 0.7), beyond that no fuzzy contribution.
+/// as a match (1 → 0.9, 2 → 0.7), fewer for short words ([_typosAllowed]),
+/// beyond that no fuzzy contribution.
 double maxTokenScore(String query, String target) {
   if (target.replaceAll(" ", "").startsWith(query)) return 1;
 
@@ -84,14 +87,24 @@ double maxTokenScore(String query, String target) {
 }
 
 double _fuzzyScore(String query, String token) {
-  // Cheap early-out: if lengths differ by more than 2 the distance is too.
-  if ((query.length - token.length).abs() > 2) return 0;
+  final allowed = _typosAllowed(min(query.length, token.length));
+  // Cheap early-out: if lengths differ by more than that, the distance is too.
+  if ((query.length - token.length).abs() > allowed) return 0;
   final dist = _damerauLevenshtein(query, token);
-  if (dist > 2) return 0;
+  if (dist > allowed) return 0;
   // dist 0 → 1.0, 1 → 0.9, 2 → 0.7. Issuer-only 1-edit (weighted 0.27)
   // still passes the 0.25 floor; issuer-only 2-edit (0.21) doesn't.
   return [1.0, 0.9, 0.7][dist];
 }
+
+/// How many typos a word of [length] letters may have and still match: two
+/// edits turn almost any short word into another ("foto" into "root"), so
+/// none up to 2 letters, one up to 4, and two from 5.
+int _typosAllowed(int length) => length <= 2
+    ? 0
+    : length <= 4
+    ? 1
+    : 2;
 
 /// Damerau-Levenshtein distance between [a] and [b] — number of single-char
 /// insertions, deletions, substitutions, or adjacent-character transpositions

@@ -8,8 +8,18 @@ import (
 	"github.com/privacybydesign/irmago/irma"
 )
 
-// DispatchFromNative receives events from the Android / iOS native side
+// nativeEvents handles the events from the app in order, off the thread the
+// app calls in on (see eventQueue).
+var nativeEvents = newEventQueue(func(e nativeEvent) { handleNativeEvent(e.name, e.payload) })
+
+// DispatchFromNative receives events from the Android / iOS native side. It
+// returns at once: the event is handled after the ones before it, on the
+// queue's goroutine.
 func DispatchFromNative(eventName, payloadString string) {
+	nativeEvents.add(nativeEvent{name: eventName, payload: payloadString})
+}
+
+func handleNativeEvent(eventName, payloadString string) {
 	defer recoverFromPanic(fmt.Sprintf("Handling %s panicked", eventName))
 
 	payloadBytes := []byte(payloadString)

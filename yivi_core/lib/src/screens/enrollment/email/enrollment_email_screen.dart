@@ -17,6 +17,7 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/resend_countdown.dart";
 import "../../embedded_issuance_flows/email/widgets/email_address_entry.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
@@ -350,14 +351,21 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
             codeError,
             align: TextAlign.center,
           ),
-          _Check.idle => ContactResendRow(
-            hint: context.tr(
-              _sentAgain
-                  ? "contact_sheet.sent_again"
-                  : "contact_sheet.hint_email",
+          _Check.idle => ResendCountdown(
+            until: ref
+                .read(emailIssuanceProvider.notifier)
+                .resendAt(flow.email),
+            builder: (context, left) => ContactResendRow(
+              hint: context.tr(
+                _sentAgain
+                    ? "contact_sheet.sent_again"
+                    : "contact_sheet.hint_email",
+              ),
+              label: left == null
+                  ? context.tr("contact_sheet.send_again")
+                  : context.tr("contact_sheet.send_again_in", {"time": left}),
+              onTap: left == null ? () => _sendAgain(flow.email) : null,
             ),
-            label: context.tr("contact_sheet.send_again"),
-            onTap: () => _sendAgain(flow.email),
           ),
         },
       ];

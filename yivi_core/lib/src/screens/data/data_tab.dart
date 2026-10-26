@@ -409,15 +409,8 @@ class _CardList extends ConsumerWidget {
               box(
                 PushAway(
                   direction: PushAwayDirection.up,
-                  // Above the stack on a phone held upright, which sits further
-                  // in, the arrange button lines up with the search icon.
-                  child: _Header(
-                    arrangeable: cards.length > 1,
-                    view: view,
-                    start: view == WalletView.stack && !panes
-                        ? GlassSearchField.iconInset
-                        : 0,
-                  ),
+                  // In line with the search field above it, in every view.
+                  child: _Header(arrangeable: cards.length > 1, view: view),
                 ),
               ),
             for (final pc in problematic)
@@ -552,21 +545,14 @@ class _Header extends ConsumerWidget {
   final bool arrangeable;
   final WalletView view;
 
-  /// How far in the arrange button starts: where the cards do.
-  final double start;
-
-  const _Header({
-    required this.arrangeable,
-    required this.view,
-    this.start = 0,
-  });
+  const _Header({required this.arrangeable, required this.view});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Nearer the cards than the search row above it: both are about how
     // the cards are shown, their order and their view.
     return Padding(
-      padding: EdgeInsetsDirectional.only(start: start, top: 12, bottom: 6),
+      padding: const EdgeInsets.only(top: 12, bottom: 6),
       child: Row(
         children: [
           Expanded(

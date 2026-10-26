@@ -4,6 +4,7 @@ import "package:cupertino_ui/cupertino_ui.dart";
 
 import "../models/error_event.dart";
 import "../models/event.dart";
+import "../models/log_entry.dart";
 import "../sentry/sentry.dart";
 
 abstract class IrmaBridge {
@@ -20,6 +21,10 @@ abstract class IrmaBridge {
       _eventSubject.add(event);
     } else if (event is ErrorEvent) {
       reportError(event.exception, event.stack);
+    } else if (event is LogAnswer) {
+      // irmago answers questions about the log on a goroutine of its own:
+      // one can arrive after the app stopped listening (it closed). Nobody
+      // waits for it any more.
     } else {
       reportError("Unhandled bridge event: ${event.runtimeType}", null);
     }

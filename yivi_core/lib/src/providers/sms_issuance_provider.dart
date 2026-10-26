@@ -8,6 +8,7 @@ import "package:pinput/pinput.dart";
 import "../models/session.dart";
 import "../util/altcha_solver.dart";
 import "./provider_helpers.dart" as helpers;
+import "resend_wait.dart";
 
 /// The number of digits in the code the SMS issuer sends.
 const smsCodeLength = 6;
@@ -192,6 +193,13 @@ class SmsIssuanceState {
 class SmsIssuer extends Notifier<SmsIssuanceState> {
   SmsIssuer();
 
+  /// When each number last got a code: here, not in the state, which a
+  /// send replaces.
+  late final _wait = ResendWait(ref.read(resendClockProvider));
+
+  /// When [phoneNumber] can get a code again; null when it can now.
+  DateTime? resendAt(String phoneNumber) => _wait.resendAt(phoneNumber);
+
   @override
   SmsIssuanceState build() {
     return SmsIssuanceState(
@@ -206,6 +214,8 @@ class SmsIssuer extends Notifier<SmsIssuanceState> {
     required String phoneNumber,
     required String language,
   }) async {
+    // The same number again within the minute: nothing is sent.
+    if (!_wait.trySend(phoneNumber)) return;
     state = SmsIssuanceState(
       stage: .waiting,
       enteredCode: "",
@@ -219,6 +229,7 @@ class SmsIssuer extends Notifier<SmsIssuanceState> {
           state = state.copyWith(stage: .enteringVerificationCode);
         })
         .catchError((e) {
+          _wait.failed(phoneNumber);
           final err = switch (e) {
             SmsIssuanceError() => e,
             _ => SmsIssuanceGeneralError(message: e.toString()),

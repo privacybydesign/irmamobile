@@ -14,6 +14,9 @@ class IrmaBottomBar extends StatelessWidget {
   /// The primary is a red pill, for an action that deletes data.
   final bool primaryDanger;
   final String? secondaryButtonLabel;
+
+  /// The values for the placeholders in [secondaryButtonLabel].
+  final Map<String, String>? secondaryButtonParams;
   final VoidCallback? onSecondaryPressed;
   final IrmaBottomBarAlignment alignment;
 
@@ -23,6 +26,7 @@ class IrmaBottomBar extends StatelessWidget {
     this.onPrimaryPressed,
     this.primaryDanger = false,
     this.secondaryButtonLabel,
+    this.secondaryButtonParams,
     this.onSecondaryPressed,
     this.alignment = IrmaBottomBarAlignment.automatic,
   });
@@ -55,7 +59,11 @@ class IrmaBottomBar extends StatelessWidget {
       child: PillButton(
         key: const Key("bottom_bar_secondary"),
         onPressed: onSecondaryPressed,
-        label: FlutterI18n.translate(context, secondaryButtonLabel!),
+        label: FlutterI18n.translate(
+          context,
+          secondaryButtonLabel!,
+          translationParams: secondaryButtonParams,
+        ),
         style: PillStyle.text,
         size: PillSize.large,
       ),

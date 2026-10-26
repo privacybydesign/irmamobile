@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-errors/errors"
@@ -78,17 +79,34 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	bridge = givenBridge
 
-	if yiviClient != nil || clientErr != nil {
-		// If this function was run previously, either client or clientErr (or both) will be non-nil.
-		// In the first case, nothing to do. In the second case, retrying won't help. Either way, we
-		// just return - also ensuring that clientLoaded is not closed a second time, which would panic.
+	startMu.Lock()
+	defer startMu.Unlock()
+	if starting {
+		// Started before: the client is there, is being opened, or could not be (clientErr), and
+		// retrying won't help. Either way, we just return - also ensuring that clientLoaded is not
+		// closed a second time, which would panic.
 		return
 	}
+	starting = true
 
-	defer func() {
-		close(clientLoaded) // make all future reads return immediately
+	// Opening the client reads the disk and the schemes, which takes a while: off the thread the
+	// app calls in on, which is also the thread its UI runs on. The events from the app wait for
+	// clientLoaded.
+	go func() {
+		defer close(clientLoaded) // make all future reads return immediately
+		defer recoverFromEarlyPanic("Starting of bridge panicked")
+		startClient(appDataPath, assetsPath, signer, aesKeyCopy, locale)
 	}()
+}
 
+// starting is set once Start was called, until Stop.
+var (
+	startMu  sync.Mutex
+	starting bool
+)
+
+// startClient opens the client (yiviClient), or sets clientErr.
+func startClient(appDataPath string, assetsPath string, signer Signer, aesKeyCopy [32]byte, locale string) {
 	// Older Android versions don't have the most recent cacerts in storage. Because web browsers either ship their own
 	// cacerts or rely on expired cacerts (the trust anchor approach), websites keep working on these devices.
 	// To make sure the IRMA app keeps working too, we ship it with some cacerts that are known to be missing.
@@ -198,6 +216,14 @@ func dispatchEvent(event any) {
 func Stop() {
 	defer recoverFromEarlyPanic("Closing of bridge panicked")
 
+	startMu.Lock()
+	defer startMu.Unlock()
+	if !starting {
+		return
+	}
+	// A client still being opened is closed once it is there.
+	<-clientLoaded
+
 	if yiviClient != nil {
 		if err := yiviClient.Close(); err != nil {
 			clientErr = errors.WrapPrefix(err, "Cannot close client", 0)
@@ -208,6 +234,7 @@ func Stop() {
 	yiviClient = nil
 	clientErr = nil
 	clientLoaded = make(chan struct{})
+	starting = false
 }
 
 func reportError(err *errors.Error, fatal bool) {

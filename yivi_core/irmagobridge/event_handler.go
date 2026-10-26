@@ -209,50 +209,73 @@ func errorText(err error) string {
 }
 
 func (ah *eventHandler) queryLogs(event *queryLogsEvent) error {
-	page, err := yiviClient.QueryLogs(event.Query)
-	if page.Entries == nil {
-		page.Entries = []clientmodels.LogInfo{}
-	}
-	dispatchEvent(&logPageEvent{RequestId: event.RequestId, Page: page, Error: errorText(err)})
-	return err
+	answerLog("Answering QueryLogsEvent panicked", func() {
+		page, err := yiviClient.QueryLogs(event.Query)
+		if page.Entries == nil {
+			page.Entries = []clientmodels.LogInfo{}
+		}
+		dispatchEvent(&logPageEvent{RequestId: event.RequestId, Page: page, Error: errorText(err)})
+	})
+	return nil
 }
 
 func (ah *eventHandler) getLog(event *getLogEvent) error {
-	entry, err := yiviClient.GetLog(event.Id)
-	dispatchEvent(&logEntryEvent{RequestId: event.RequestId, Entry: entry, Error: errorText(err)})
-	return err
+	answerLog("Answering GetLogEvent panicked", func() {
+		entry, err := yiviClient.GetLog(event.Id)
+		dispatchEvent(&logEntryEvent{RequestId: event.RequestId, Entry: entry, Error: errorText(err)})
+	})
+	return nil
 }
 
 func (ah *eventHandler) credentialActivity(event *credentialActivityEvent) error {
-	activity, err := yiviClient.CredentialActivity(event.Hashes)
-	dispatchEvent(&credentialActivityResultEvent{RequestId: event.RequestId, Activity: activity, Error: errorText(err)})
-	return err
+	answerLog("Answering CredentialActivityEvent panicked", func() {
+		activity, err := yiviClient.CredentialActivity(event.Hashes)
+		dispatchEvent(&credentialActivityResultEvent{RequestId: event.RequestId, Activity: activity, Error: errorText(err)})
+	})
+	return nil
 }
 
 func (ah *eventHandler) countLogs(event *countLogsEvent) error {
-	counts := make([]int, len(event.Filters))
-	var err error
-	for i, f := range event.Filters {
-		var page clientmodels.LogPage
-		page, err = yiviClient.QueryLogs(clientmodels.LogQuery{Filter: f, Limit: 1, WithCounts: true})
-		if err != nil {
-			break
+	answerLog("Answering CountLogsEvent panicked", func() {
+		counts := make([]int, len(event.Filters))
+		var err error
+		for i, f := range event.Filters {
+			var page clientmodels.LogPage
+			page, err = yiviClient.QueryLogs(clientmodels.LogQuery{Filter: f, Limit: 1, WithCounts: true})
+			if err != nil {
+				break
+			}
+			if page.Counts != nil {
+				counts[i] = page.Counts.Total
+			}
 		}
-		if page.Counts != nil {
-			counts[i] = page.Counts.Total
-		}
-	}
-	dispatchEvent(&logCountsEvent{RequestId: event.RequestId, Counts: counts, Error: errorText(err)})
-	return err
+		dispatchEvent(&logCountsEvent{RequestId: event.RequestId, Counts: counts, Error: errorText(err)})
+	})
+	return nil
 }
 
 func (ah *eventHandler) listParties(event *listPartiesEvent) error {
-	parties, err := yiviClient.ListParties(event.Filter, event.Limit)
-	if parties == nil {
-		parties = []clientmodels.PartySummary{}
-	}
-	dispatchEvent(&partiesEvent{RequestId: event.RequestId, Parties: parties, Error: errorText(err)})
-	return err
+	answerLog("Answering ListPartiesEvent panicked", func() {
+		parties, err := yiviClient.ListParties(event.Filter, event.Limit)
+		if parties == nil {
+			parties = []clientmodels.PartySummary{}
+		}
+		dispatchEvent(&partiesEvent{RequestId: event.RequestId, Parties: parties, Error: errorText(err)})
+	})
+	return nil
+}
+
+// answerLog answers a question about the log on a goroutine of its own. The
+// app asks them on its main thread, which on iOS is also the thread its UI
+// runs on: a question that reads the whole log (the filter sheet counts one
+// per option) would freeze the app until it is answered. They only read,
+// and each answer carries its request id, so they may run side by side.
+// An error is in the answer, so there is nothing to return.
+func answerLog(panicMessage string, answer func()) {
+	go func() {
+		defer recoverFromPanic(panicMessage)
+		answer()
+	}()
 }
 
 func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {

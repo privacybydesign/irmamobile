@@ -16,6 +16,7 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/resend_countdown.dart";
 import "../../../widgets/surface_card.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
@@ -317,10 +318,19 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         onTap: complete ? () => _verify(_codeController.text) : null,
       );
       final sideways = useSheetColumns(context);
-      final resend = ContactResendRow(
-        hint: _sentAgain ? context.tr("contact_sheet.sent_again") : _k("hint"),
-        label: context.tr("contact_sheet.send_again"),
-        onTap: () => _sendAgain(state.target),
+      final resend = ResendCountdown(
+        until: _email
+            ? ref.read(emailIssuanceProvider.notifier).resendAt(state.target)
+            : ref.read(smsIssuanceProvider.notifier).resendAt(state.target),
+        builder: (context, left) => ContactResendRow(
+          hint: _sentAgain
+              ? context.tr("contact_sheet.sent_again")
+              : _k("hint"),
+          label: left == null
+              ? context.tr("contact_sheet.send_again")
+              : context.tr("contact_sheet.send_again_in", {"time": left}),
+          onTap: left == null ? () => _sendAgain(state.target) : null,
+        ),
       );
       body = _split(
         key: const Key("contact_sheet_code"),
@@ -538,7 +548,10 @@ class ContactSentTo extends StatelessWidget {
 class ContactResendRow extends StatelessWidget {
   final String hint;
   final String label;
-  final VoidCallback onTap;
+
+  /// Null while a code cannot be sent again yet ("Send again in 0:42"):
+  /// dimmed, without an action.
+  final VoidCallback? onTap;
 
   const ContactResendRow({
     required this.hint,

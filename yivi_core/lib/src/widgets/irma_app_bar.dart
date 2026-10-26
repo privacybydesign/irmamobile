@@ -98,6 +98,11 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// corner beside the content).
   final bool edge;
 
+  /// For a bar whose header only appears once you scroll (a small title,
+  /// the requestor's pill): the edge comes and goes with it
+  /// ([HeaderEdgeBand]) instead of with the first scroll.
+  final ValueListenable<bool>? edgeShown;
+
   IrmaAppBar({
     this.titleTranslationKey,
     this.titleString,
@@ -108,6 +113,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.startBar,
     this.edgeActions = false,
     this.edge = true,
+    this.edgeShown,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -222,7 +228,12 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Stack(
       key: const Key("irma_app_bar"),
       children: [
-        if (edge) const Positioned.fill(child: _AppBarEdge()),
+        if (edge)
+          Positioned.fill(
+            child: edgeShown == null
+                ? const _AppBarEdge()
+                : HeaderEdgeBand(shown: edgeShown!),
+          ),
         content,
       ],
     );

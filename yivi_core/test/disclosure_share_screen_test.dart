@@ -1398,7 +1398,9 @@ void main() {
       expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
     });
 
-    testWidgets("the share page's bar has no scroll edge band", (tester) async {
+    testWidgets("the share page's band waits for the requestor's pill", (
+      tester,
+    ) async {
       await _pump(
         tester,
         session: _session([
@@ -1411,7 +1413,9 @@ void main() {
           ),
         ]),
       );
-      expect(tester.widget<IrmaAppBar>(find.byType(IrmaAppBar)).edge, isFalse);
+      final appBar = tester.widget<IrmaAppBar>(find.byType(IrmaAppBar));
+      expect(appBar.edgeShown, isNotNull);
+      expect(find.byKey(const Key("scroll_edge_band")), findsNothing);
     });
 
     testWidgets("the outline stays on the card in use", (tester) async {
@@ -2594,13 +2598,25 @@ void main() {
         ], requestor: party()),
       );
       final bar = find.byKey(const Key("requestor_compact_bar"));
+      final band = find.byKey(const Key("scroll_edge_band"));
       expect(bar, findsNothing);
+      expect(band, findsNothing);
+      // A little: under the bar, but the card is still there.
       await tester.drag(
         find.byKey(const Key("share_scroll_view")),
-        const Offset(0, -500),
+        const Offset(0, -20),
       );
       await tester.pumpAndSettle();
+      expect(bar, findsNothing);
+      expect(band, findsNothing);
+      await tester.drag(
+        find.byKey(const Key("share_scroll_view")),
+        const Offset(0, -480),
+      );
+      await tester.pumpAndSettle();
+      // The band comes with the bar.
       expect(bar, findsOneWidget);
+      expect(band, findsOneWidget);
       // Nobody vouches: a red ! on its logo.
       expect(
         find.descendant(of: bar, matching: find.byType(RequestorTrustBadge)),
@@ -2613,6 +2629,14 @@ void main() {
         ),
         findsOneWidget,
       );
+      // Back at the top: both go.
+      await tester.drag(
+        find.byKey(const Key("share_scroll_view")),
+        const Offset(0, 800),
+      );
+      await tester.pumpAndSettle();
+      expect(bar, findsNothing);
+      expect(band, findsNothing);
     });
 
     testWidgets("technical details: not on the page, but the last row of "

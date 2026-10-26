@@ -39,6 +39,7 @@ class LargeTitleScrollView extends StatefulWidget {
 class _LargeTitleScrollViewState extends State<LargeTitleScrollView> {
   final _controller = ScrollController();
   final _titleKey = GlobalKey();
+  double? _titleHeight;
 
   @override
   void initState() {
@@ -56,7 +57,11 @@ class _LargeTitleScrollViewState extends State<LargeTitleScrollView> {
   /// of [LargeTitleScrollView.padding]), so it has passed under the bar
   /// once the scroll offset reaches its own height.
   void _update() {
-    final height = _titleKey.currentContext?.size?.height;
+    // Kept from the last time it was laid out: scrolled far down, the list
+    // no longer builds the title, and coming back to the top the small
+    // title would stay in the bar.
+    final height = _titleKey.currentContext?.size?.height ?? _titleHeight;
+    _titleHeight = height;
     if (height == null || !_controller.hasClients) return;
     final passed = _controller.offset >= height;
     if (widget.barTitleVisible.value != passed) {

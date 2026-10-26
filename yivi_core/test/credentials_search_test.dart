@@ -106,6 +106,14 @@ void main() {
       expect(_hashes(results), ["paspoort"]);
     });
 
+    test("a short word may have one typo, not two", () {
+      // "foto" ↔ "root" is two edits (f→r, "to"↔"ot"): no match. One edit
+      // still is.
+      expect(searchCredentials([_entry("demo root")], "foto"), isEmpty);
+      expect(_hashes(searchCredentials([_entry("foto")], "fota")), ["foto"]);
+      expect(searchCredentials([_entry("ab")], "ac"), isEmpty);
+    });
+
     test("three typos are rejected (hard 2-edit cap)", () {
       // "xxxpoort" is 3 substitutions from "paspoort" — over the cap.
       final results = searchCredentials([_entry("paspoort")], "xxxpoort");

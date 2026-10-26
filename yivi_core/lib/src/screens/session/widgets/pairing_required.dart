@@ -28,7 +28,9 @@ class PairingRequired extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final who = requestor;
+    // A requestor without a name is not known: the shield, not an empty
+    // card that says it is unchecked.
+    final who = (requestor?.name.trim().isNotEmpty ?? false) ? requestor : null;
     final instruction = who == null
         ? FlutterI18n.translate(context, "session.pairing.instruction")
         : FlutterI18n.translate(

@@ -28,6 +28,19 @@ class CardHero extends StatelessWidget {
     return Hero(
       tag: WalletTransition.heroTag(credential.hash),
       createRectTween: WalletTransition.rectTween,
+      // Its place is empty only while the card is open (or flying): Flutter
+      // keeps the place of a hero that flew away empty until a flight back
+      // lands there. Closed while the Data tab is not shown ("See all"
+      // switches to Activity first), no flight comes back, and the place
+      // would stay empty, a gap in the stack.
+      placeholderBuilder: (context, size, child) =>
+          ValueListenableBuilder<String?>(
+            valueListenable: WalletTransition.openKey,
+            builder: (context, open, child) => open == credential.hash
+                ? SizedBox.fromSize(size: size)
+                : child!,
+            child: child,
+          ),
       // Flies under the card below its place in the stack, not over it.
       flightShuttleBuilder: (_, animation, _, fromContext, toContext) {
         // The edge belongs to the card in the stack: it fades out on the

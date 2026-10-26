@@ -150,6 +150,8 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       appBarTitle: "issuance.title",
       scrollsUnderBars: true,
       barTitleVisibility: _barTitleVisible,
+      // The band comes with the small title, not before.
+      edgeShown: _barTitleVisible,
       bottomNavigationBar: _bar(),
       onDismiss: widget.onDismiss,
       body: LayoutBuilder(

@@ -126,6 +126,8 @@
         "many": "Meer mag",
         "one": "Eén",
         "card": "Kaartje",
+        "any_card": "Elk kaartje",
+        "pick_card": "Kies uit {count}",
         "fields": "Gegevens uit {card}",
         "party": "Met wie",
         "when": "Wanneer",
@@ -639,6 +641,7 @@
       "body": "We hebben een e-mail gestuurd naar {email}. Tik op deze telefoon op de link in de e-mail, of vul de code hier in.",
       "next_button": "Code controleren",
       "resend_button": "E-mail opnieuw sturen",
+      "resend_button_in": "E-mail opnieuw sturen over {time}",
       "filled_from_link": "Code ingevuld vanuit de link"
     },
     "done": {
@@ -1535,7 +1538,6 @@
     "also": "Je kunt ook {list} kiezen",
     "also_other": "je andere {name}",
     "also_your": "je {name}",
-    "also_a": "een {name}",
     "change_choice": "Wijzig keuze",
     "renew": "Vernieuwen",
     "new_chip": "Nieuw",
@@ -1568,6 +1570,7 @@
     "hint_email": "Niet ontvangen? Kijk ook in je spam.",
     "hint_phone": "Het kan een minuutje duren.",
     "send_again": "Opnieuw sturen",
+    "send_again_in": "Opnieuw sturen over {time}",
     "sent_again": "We hebben een nieuwe code gestuurd.",
     "check_code": "Code controleren",
     "wrong_code": "Die code klopt niet. Controleer hem, of vraag een nieuwe aan.",

@@ -204,17 +204,15 @@ enum AlsoKind {
   /// Another card of the type that is selected now: "your other …".
   other,
 
-  /// A type the user has exactly one card of: "your …".
+  /// Any other type, one in the app or one to add: "your …".
   your,
-
-  /// A type the user has none or several of: "a …".
-  a,
 }
 
 /// The other choices for [pickOne] next to the selected owned option
-/// [selected], for "You can also choose your other email address or a
-/// mobile number": the name of each and how to say it, without repeats, in
-/// the order of the cards in the app and then the types that can be added.
+/// [selected], for "You can also choose your other email address or your
+/// mobile number": the name of each and how to say it, without repeats (a
+/// type both in the app and to add is named once), in the order of the
+/// cards in the app and then the types that can be added.
 List<(AlsoKind, String)> alsoChoose(DisclosurePickOne pickOne, int selected) {
   final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
   String idOf(DisclosureBundle b) =>
@@ -224,34 +222,18 @@ List<(AlsoKind, String)> alsoChoose(DisclosurePickOne pickOne, int selected) {
   final current = selected >= 0 && selected < owned.length
       ? idOf(owned[selected])
       : null;
-  int ownedOf(String id) => owned.where((b) => idOf(b) == id).length;
 
   final out = <(AlsoKind, String)>[];
-  void add(AlsoKind kind, String name) {
-    if (!out.contains((kind, name))) out.add((kind, name));
+  void add(String id, String name) {
+    final item = (id == current ? AlsoKind.other : AlsoKind.your, name);
+    if (!out.contains(item)) out.add(item);
   }
 
   for (final (k, b) in owned.indexed) {
-    if (k == selected) continue;
-    final id = idOf(b);
-    add(
-      id == current
-          ? AlsoKind.other
-          : ownedOf(id) == 1
-          ? AlsoKind.your
-          : AlsoKind.a,
-      nameOf(b),
-    );
+    if (k != selected) add(idOf(b), nameOf(b));
   }
   for (final d in addableOptions(pickOne)) {
-    add(
-      d.credentialId == current
-          ? AlsoKind.other
-          : ownedOf(d.credentialId) == 1
-          ? AlsoKind.your
-          : AlsoKind.a,
-      d.name,
-    );
+    add(d.credentialId, d.name);
   }
   return out;
 }

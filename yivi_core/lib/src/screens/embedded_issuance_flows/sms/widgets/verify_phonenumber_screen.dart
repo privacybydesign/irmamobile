@@ -9,6 +9,7 @@ import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/resend_countdown.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -123,9 +124,20 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
             const ContactCodeError(
               "sms_issuance.verify_code.invalid_code_error",
             ),
-          ContactTextLink(
-            labelKey: "sms_issuance.verify_code.no_sms_received",
-            onTap: () => showResendSmsDialog(state.phoneNumber),
+          // The dialog to send it again only after the minute.
+          ResendCountdown(
+            until: ref
+                .read(smsIssuanceProvider.notifier)
+                .resendAt(state.phoneNumber),
+            builder: (context, left) => ContactTextLink(
+              labelKey: "sms_issuance.verify_code.no_sms_received",
+              label: left == null
+                  ? null
+                  : context.tr("contact_sheet.send_again_in", {"time": left}),
+              onTap: left == null
+                  ? () => showResendSmsDialog(state.phoneNumber)
+                  : null,
+            ),
           ),
         ],
         bottomBar: IrmaBottomBar(

@@ -5,6 +5,7 @@ import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 
@@ -146,14 +147,20 @@ void main() {
       .where((q) => q.filter.types?.contains(LogType.removal) != true)
       .toList();
 
-  Future<void> pump(WidgetTester tester) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    List<Credential> cards = const [],
+  }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
     await pumpHome(
       tester,
       repo: repo,
-      overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        irmaRepositoryProvider.overrideWithValue(repo),
+        walletCardsProvider.overrideWithValue(cards),
+      ],
       home: ActivityTab(),
     );
     await _settle(tester);
@@ -273,6 +280,54 @@ void main() {
       expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
     },
   );
+
+  testWidgets("the filter sheet is up at once; its cards have their own page", (
+    tester,
+  ) async {
+    final passport = testCredential(
+      type: "pbdf.pbdf.passport",
+      hash: "passport",
+      name: "Passport",
+    );
+    await pump(tester, cards: [passport]);
+    await tester.tap(find.byKey(const Key("activity_filter_button")));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
+    // Up straight away, with a spinner until it has opened.
+    expect(find.byKey(const Key("activity_filter_main")), findsOneWidget);
+    expect(find.byKey(const Key("activity_filter_loading")), findsOneWidget);
+    expect(
+      find.byKey(const Key("activity_filter_card_passport")),
+      findsNothing,
+    );
+
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_filter_loading")), findsNothing);
+    // One row for the card, not a row per card.
+    expect(find.text("Any card"), findsOneWidget);
+    expect(
+      find.byKey(const Key("activity_filter_card_passport")),
+      findsNothing,
+    );
+
+    await tester.ensureVisible(find.byKey(const Key("activity_filter_card")));
+    await tester.tap(find.byKey(const Key("activity_filter_card")));
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_filter_cards")), findsOneWidget);
+    await tester.tap(find.byKey(const Key("activity_filter_card_passport")));
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_filter_cards")), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("activity_filter_card")),
+        matching: find.text("Passport"),
+      ),
+      findsOneWidget,
+    );
+  });
 
   testWidgets("scrolling down loads the next page after the last", (
     tester,

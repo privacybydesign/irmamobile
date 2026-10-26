@@ -462,8 +462,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       appBarTitle: "share.bar.$kind",
       onDismiss: widget.onDismiss,
       scrollsUnderBars: true,
-      // No band under the bar: only its buttons float over the content.
+      // The band comes with the requestor's pill: before it only the
+      // buttons float over the content.
       scrollEdge: false,
+      edgeShown: _scrolledPast,
       bottomNavigationBar: bar,
       startBar: _CompactBarSlot(
         shown: _scrolledPast,
@@ -594,7 +596,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       if (d.issuer.name.isNotEmpty) d.issuer.name,
   }.join(", ");
 
-  /// "You can also choose your other email address or a mobile number",
+  /// "You can also choose your other email address or your mobile number",
   /// with "Change choice": the strip at the foot of a card with other
   /// choices. Null when there are none.
   Widget? _choiceStrip(int i, DisclosurePickOne p, int selected) {

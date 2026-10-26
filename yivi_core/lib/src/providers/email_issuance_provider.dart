@@ -7,6 +7,7 @@ import "package:http/http.dart" as http;
 import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
 import "local_backends_provider.dart";
+import "resend_wait.dart";
 
 final emailIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://email-issuer.staging.yivi.app"),
@@ -166,6 +167,12 @@ class EmailIssuanceState {
 }
 
 class EmailIssuer extends Notifier<EmailIssuanceState> {
+  /// When each address last got a code: here, not in the state, which a
+  /// send replaces.
+  late final _wait = ResendWait(ref.read(resendClockProvider));
+
+  /// When [email] can get a code again; null when it can now.
+  DateTime? resendAt(String email) => _wait.resendAt(email);
   @override
   EmailIssuanceState build() {
     return EmailIssuanceState(
@@ -181,6 +188,8 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
     required String email,
     required String language,
   }) async {
+    // The same address again within the minute: nothing is sent.
+    if (!_wait.trySend(email)) return;
     state = EmailIssuanceState(
       stage: .waiting,
       enteredCode: "",
@@ -195,6 +204,7 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
           state = state.copyWith(stage: .enteringVerificationCode);
         })
         .catchError((e) {
+          _wait.failed(email);
           final err = switch (e) {
             EmailIssuanceError() => e,
             _ => EmailIssuanceGeneralError(message: e.toString()),

@@ -736,7 +736,7 @@ void main() {
       );
     });
 
-    test("you can also choose: your other, your, or a", () {
+    test("you can also choose: your other or your, never a", () {
       // Two email addresses and one mobile number in the app, the first
       // email address selected; another email address and a BSN can be
       // added.
@@ -751,12 +751,13 @@ void main() {
       expect(alsoChoose(pickOne, 0), [
         (AlsoKind.other, "email"),
         (AlsoKind.your, "mobile"),
-        (AlsoKind.a, "bsn"),
+        (AlsoKind.your, "bsn"),
       ]);
-      // The mobile number selected: you have two email addresses, so "an".
+      // The mobile number selected: the two email addresses (and the one to
+      // add) are named once.
       expect(alsoChoose(pickOne, 2), [
-        (AlsoKind.a, "email"),
-        (AlsoKind.a, "bsn"),
+        (AlsoKind.your, "email"),
+        (AlsoKind.your, "bsn"),
       ]);
     });
 

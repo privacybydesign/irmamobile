@@ -2,6 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/resend_wait.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -53,14 +54,32 @@ void main() {
       expect(button.onPressed, isNull);
     });
 
-    testWidgets("can send the code again", (tester) async {
+    testWidgets("can send the code again, after a minute", (tester) async {
       final api = FakeEmailIssuerApi();
-      await _goToVerifyCodeScreen(tester, irmaBinding, api: api);
+      var now = DateTime.now();
+      await _goToVerifyCodeScreen(
+        tester,
+        irmaBinding,
+        api: api,
+        clock: () => now,
+      );
 
       expect(api.numEmailsSent, 1);
 
-      // "Send again" next to the hint: no question first.
-      await tester.tap(find.byKey(const Key("contact_sheet_send_again")));
+      // Within the minute it counts down and does nothing.
+      final again = find.byKey(const Key("contact_sheet_send_again"));
+      await tester.ensureVisible(again);
+      // The code field's cursor blinks: no settling.
+      await _pumpFor(tester);
+      expect(find.text("Send again in 1:00"), findsOneWidget);
+      await tester.tap(again, warnIfMissed: false);
+      await tester.pump();
+      expect(api.numEmailsSent, 1);
+
+      // A minute later: "Send again" next to the hint, no question first.
+      now = now.add(const Duration(minutes: 1));
+      await tester.pumpUntilFound(find.text("Send again"));
+      await tester.tap(again);
       await tester.pumpUntilFound(find.text("We sent a new code."));
       expect(api.numEmailsSent, 2);
     });
@@ -148,6 +167,7 @@ Future<void> _goToEnterEmailScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   FakeEmailIssuerApi? api,
+  DateTime Function()? clock,
 }) async {
   await openAddCredentialDetailsScreen(
     tester,
@@ -155,6 +175,7 @@ Future<void> _goToEnterEmailScreen(
     fullCredentialId: "pbdf-staging.sidn-pbdf.email",
     overrides: [
       emailIssuerApiProvider.overrideWithValue(api ?? FakeEmailIssuerApi()),
+      if (clock != null) resendClockProvider.overrideWithValue(clock),
     ],
   );
 
@@ -166,8 +187,9 @@ Future<void> _goToVerifyCodeScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   FakeEmailIssuerApi? api,
+  DateTime Function()? clock,
 }) async {
-  await _goToEnterEmailScreen(tester, binding, api: api);
+  await _goToEnterEmailScreen(tester, binding, api: api, clock: clock);
   await _enterEmail(tester);
   await tester.tap(find.byKey(const Key("contact_sheet_send")));
   await tester.pumpUntilFound(find.byKey(const Key("contact_sheet_code")));

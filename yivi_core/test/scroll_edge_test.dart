@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
+import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -220,5 +221,94 @@ void main() {
     await tester.drag(find.text("row 5"), const Offset(0, -80));
     await tester.pumpAndSettle();
     expect(tester.getRect(_band), const Rect.fromLTWH(0, 0, 400, 47));
+  });
+
+  group("a band that comes with the header", () {
+    testWidgets("HeaderEdgeBand: none until shown, gone again after", (
+      tester,
+    ) async {
+      final shown = ValueNotifier(false);
+      await tester.pumpWidget(
+        _app(Scaffold(body: HeaderEdgeBand(shown: shown))),
+      );
+      await tester.pumpAndSettle();
+      expect(_band, findsNothing);
+      shown.value = true;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 120));
+      // Fading in with the header.
+      final half = tester.widget<DecoratedBox>(_band).decoration;
+      expect((half as BoxDecoration).color!.a, inExclusiveRange(0, 0.7));
+      await tester.pumpAndSettle();
+      expect(_band, findsOneWidget);
+      shown.value = false;
+      await tester.pumpAndSettle();
+      expect(_band, findsNothing);
+    });
+
+    testWidgets("IrmaAppBar with edgeShown: not on the first scroll", (
+      tester,
+    ) async {
+      final shown = ValueNotifier(false);
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: IrmaAppBar(titleString: "Title", edgeShown: shown),
+            body: ListView(
+              padding: const EdgeInsets.only(top: 100),
+              children: [for (var i = 0; i < 40; i++) Text("row $i")],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.drag(find.text("row 5"), const Offset(0, -80));
+      await tester.pumpAndSettle();
+      // Scrolled under the bar, but the header is not there yet.
+      expect(_band, findsNothing);
+      shown.value = true;
+      await tester.pumpAndSettle();
+      expect(_band, findsOneWidget);
+      shown.value = false;
+      await tester.pumpAndSettle();
+      expect(_band, findsNothing);
+    });
+
+    testWidgets("TitleScrollEdge: the band with the small title", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            body: TitleScrollEdge(
+              title: "More",
+              largeTitleBottom: 120,
+              child: ListView(
+                children: [
+                  const SizedBox(height: 120, child: Text("More")),
+                  for (var i = 0; i < 40; i++)
+                    SizedBox(height: 48, child: Text("row $i")),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final scroll = find.byType(Scrollable);
+      // A little: under the bar, but the large title still shows.
+      await tester.drag(scroll, const Offset(0, -40));
+      await tester.pumpAndSettle();
+      expect(_band, findsNothing);
+      // Past the large title: the small title and the band.
+      await tester.drag(scroll, const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(_band, findsOneWidget);
+      // Back up: both go.
+      await tester.drag(scroll, const Offset(0, 400));
+      await tester.pumpAndSettle();
+      expect(_band, findsNothing);
+    });
   });
 }

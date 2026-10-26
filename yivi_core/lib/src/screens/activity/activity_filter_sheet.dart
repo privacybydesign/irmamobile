@@ -44,6 +44,16 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   late ActivityQuery _q = widget.initial;
   bool _allParties = false;
 
+  /// The cards to pick from are on a page of their own: a wallet can have
+  /// many.
+  bool _pickingCard = false;
+
+  /// Whether the sheet is all the way up. Until then, and until the lists
+  /// the options come from are in, it shows a spinner: drawing every option
+  /// (card pictures) while it slides up held it back.
+  bool _opened = false;
+  Animation<double>? _opening;
+
   /// How many entries match the question, and each option tried in it.
   int? _total;
   final _counts = <String, int>{};
@@ -53,6 +63,32 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _recount());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final opening = ModalRoute.of(context)?.animation;
+    if (opening == _opening) return;
+    _opening?.removeStatusListener(_onOpening);
+    _opening = opening;
+    if (opening == null || opening.isCompleted) {
+      _opened = true;
+    } else {
+      opening.addStatusListener(_onOpening);
+    }
+  }
+
+  void _onOpening(AnimationStatus status) {
+    if (status != AnimationStatus.completed || _opened) return;
+    _opening?.removeStatusListener(_onOpening);
+    if (mounted) setState(() => _opened = true);
+  }
+
+  @override
+  void dispose() {
+    _opening?.removeStatusListener(_onOpening);
+    super.dispose();
   }
 
   void _set(ActivityQuery q) {
@@ -124,7 +160,22 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
 
     final palette = YiviPalette.of(context);
     final total = _total;
+    final ready =
+        _opened &&
+        ref.watch(activityPartiesProvider).hasValue &&
+        ref.watch(removedCardTypesProvider).hasValue;
+    return GlassSheetPages(
+      onBack: () => setState(() => _pickingCard = false),
+      pages: [
+        _main(palette, total, ready),
+        if (_pickingCard) _cardPage(palette),
+      ],
+    );
+  }
+
+  Widget _main(YiviPalette palette, int? total, bool ready) {
     return GlassSheetPage(
+      key: const Key("activity_filter_main"),
       title: _t("sheet.title"),
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       action: SheetAction(
@@ -138,21 +189,27 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             ? () => Navigator.of(context).pop(_q)
             : null,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _readback(palette),
-          _heading(_t("sheet.kinds"), _t("sheet.many")),
-          _kinds(),
-          _heading(_t("sheet.card"), _t("sheet.one")),
-          _cardList(palette),
-          if (_q.card != null) ..._fields(palette),
-          _heading(_t("sheet.party"), _t("sheet.one")),
-          _partyList(palette),
-          _heading(_t("sheet.when"), null),
-          _periods(palette),
-        ],
-      ),
+      child: !ready
+          ? const SizedBox(
+              key: Key("activity_filter_loading"),
+              height: 240,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _readback(palette),
+                _heading(_t("sheet.kinds"), _t("sheet.many")),
+                _kinds(),
+                _heading(_t("sheet.card"), _t("sheet.one")),
+                _cardRow(palette),
+                if (_q.card != null) ..._fields(palette),
+                _heading(_t("sheet.party"), _t("sheet.one")),
+                _partyList(palette),
+                _heading(_t("sheet.when"), null),
+                _periods(palette),
+              ],
+            ),
     );
   }
 
@@ -247,6 +304,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     required bool selected,
     required bool faded,
     required VoidCallback onTap,
+    Widget? trailing,
   }) {
     final palette = YiviPalette.of(context);
     return Opacity(
@@ -278,26 +336,29 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
                               .display(15)
                               .copyWith(color: palette.text),
                         ),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .body(13)
-                              .copyWith(color: palette.secondaryText),
-                        ),
+                        if (subtitle.isNotEmpty)
+                          Text(
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: palette
+                                .body(13)
+                                .copyWith(color: palette.secondaryText),
+                          ),
                       ],
                     ),
                   ),
                   SizedBox(
                     width: 22,
-                    child: selected
-                        ? Icon(
-                            Icons.check_rounded,
-                            size: 22,
-                            color: palette.link,
-                          )
-                        : null,
+                    child:
+                        trailing ??
+                        (selected
+                            ? Icon(
+                                Icons.check_rounded,
+                                size: 22,
+                                color: palette.link,
+                              )
+                            : null),
                   ),
                 ],
               ),
@@ -329,32 +390,106 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           );
   }
 
-  Widget _cardList(YiviPalette palette) => GlassGroup(
-    dividerIndent: 14 + 46 + 12,
-    children: [
-      for (final c in _cards)
-        Builder(
-          builder: (context) {
-            final key = "card:${c.key}";
-            final on = _q.card == c;
-            final fit = _fitText(key, others: !_q.withCard(null).isEmpty);
-            return _pickRow(
-              key: Key("activity_filter_card_${c.key}"),
-              leading: CredentialCardArt(
-                credential: c.art,
-                width: 46,
-                greyedOut: c.removed,
-              ),
-              title: c.name,
-              subtitle: c.removed ? "${_t("sheet.removed")} · $fit" : fit,
-              selected: on,
-              faded: !on && !_fits(key),
-              onTap: () => _set(_q.withCard(on ? null : c)),
-            );
-          },
+  /// The card asked about, or "Any card": one row that opens the cards on a
+  /// page of their own.
+  Widget _cardRow(YiviPalette palette) {
+    final card = _q.card;
+    return GlassGroup(
+      dividerIndent: 14 + 46 + 12,
+      children: [
+        _pickRow(
+          key: const Key("activity_filter_card"),
+          leading: card == null
+              ? _anyCard(palette)
+              : CredentialCardArt(
+                  credential: card.art,
+                  width: 46,
+                  greyedOut: card.removed,
+                ),
+          title: card?.name ?? _t("sheet.any_card"),
+          subtitle: card == null
+              ? _t("sheet.pick_card", {"count": "${_cards.length}"})
+              : _fitText(
+                  "card:${card.key}",
+                  others: !_q.withCard(null).isEmpty,
+                ),
+          selected: false,
+          faded: false,
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            size: 22,
+            color: palette.secondaryText,
+          ),
+          onTap: () => setState(() => _pickingCard = true),
         ),
-    ],
+      ],
+    );
+  }
+
+  /// In the place of a card picture: any card.
+  Widget _anyCard(YiviPalette palette) => Container(
+    width: 46,
+    height: 46 / CredentialCardArt.aspectRatio,
+    decoration: BoxDecoration(
+      color: palette.tint,
+      borderRadius: CredentialCardArt.radiusFor(46),
+    ),
+    child: Icon(Icons.style_outlined, size: 18, color: palette.heading),
   );
+
+  /// Every card, to pick one: the one picked has a check, "Any card" on
+  /// top takes it away. Picking goes back to the filter.
+  Widget _cardPage(YiviPalette palette) {
+    final cards = _cards;
+    void pick(ActivityCardRef? c) => setState(() {
+      _pickingCard = false;
+      _set(_q.withCard(c));
+    });
+    return GlassSheetPage(
+      key: const Key("activity_filter_cards"),
+      title: _t("sheet.card"),
+      onBack: () => setState(() => _pickingCard = false),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+          sliver: SliverGlassGroup(
+            dividerIndent: 14 + 46 + 12,
+            itemCount: cards.length + 1,
+            itemBuilder: (context, i) {
+              if (i == 0) {
+                return _pickRow(
+                  key: const Key("activity_filter_card_any"),
+                  leading: _anyCard(palette),
+                  title: _t("sheet.any_card"),
+                  subtitle: "",
+                  selected: _q.card == null,
+                  faded: false,
+                  onTap: () => pick(null),
+                );
+              }
+              final c = cards[i - 1];
+              final key = "card:${c.key}";
+              final on = _q.card == c;
+              final fit = _fitText(key, others: !_q.withCard(null).isEmpty);
+              return _pickRow(
+                key: Key("activity_filter_card_${c.key}"),
+                leading: CredentialCardArt(
+                  credential: c.art,
+                  width: 46,
+                  greyedOut: c.removed,
+                ),
+                title: c.name,
+                subtitle: c.removed ? "${_t("sheet.removed")} · $fit" : fit,
+                selected: on,
+                faded: !on && !_fits(key),
+                onTap: () => pick(on ? null : c),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
   /// The fields of the picked card: loose fields first, then each group
   /// under its heading with "Alles" first. Picking "Alles" lights up the

@@ -21,6 +21,7 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
+import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -358,5 +359,37 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key("pairing_code_box_3")), findsOneWidget);
+  });
+
+  testWidgets("pairing: a requestor without a name is unknown", (tester) async {
+    await _pump(
+      tester,
+      PairingRequired(
+        pairingCode: "4827",
+        requestor: testParty("", verified: false),
+        onDismiss: () {},
+      ),
+      settle: false,
+    );
+
+    // The shield and the general instruction, not an empty card.
+    expect(find.byType(RequestorCard), findsNothing);
+    expect(find.byIcon(Icons.verified_user_rounded), findsOneWidget);
+    expect(find.textContaining("shows a field for it"), findsNothing);
+    expect(find.byKey(const Key("pairing_code_box_3")), findsOneWidget);
+  });
+
+  testWidgets("pairing: a named requestor has its card", (tester) async {
+    await _pump(
+      tester,
+      PairingRequired(
+        pairingCode: "4827",
+        requestor: testParty("Webshop"),
+        onDismiss: () {},
+      ),
+      settle: false,
+    );
+    expect(find.byType(RequestorCard), findsOneWidget);
+    expect(find.byIcon(Icons.verified_user_rounded), findsNothing);
   });
 }

@@ -106,6 +106,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
         shown: _scrolledPast,
         bar: (t) => ActivityCompactBar(entry: entry, opacity: opacity * t),
       ),
+      edgeShown: _scrolledPast,
       builder: (context, physics, animation) => ListView(
         controller: _scroll,
         // Pulling down at the top dismisses the page.

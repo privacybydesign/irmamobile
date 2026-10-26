@@ -134,6 +134,40 @@ class ScrollEdgeBand extends StatelessWidget {
   }
 }
 
+/// The [ScrollEdgeBand] of a bar whose header only appears once you scroll
+/// (a small title, a requestor or entry pill): it comes and goes with that
+/// header, [shown], and fades as the header drops in ([CompactBarDropIn]).
+/// No band before the header is there.
+class HeaderEdgeBand extends StatelessWidget {
+  final ValueListenable<bool> shown;
+
+  /// As [ScrollEdgeBand.color] and [ScrollEdgeBand.opacity].
+  final Color? color;
+  final double opacity;
+
+  const HeaderEdgeBand({
+    super.key,
+    required this.shown,
+    this.color,
+    this.opacity = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: shown,
+    builder: (context, on, _) => TweenAnimationBuilder<double>(
+      tween: Tween(end: on ? 1 : 0),
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOut,
+      builder: (context, t, _) => ScrollEdgeBand(
+        under: AlwaysStoppedAnimation(t),
+        color: color,
+        opacity: opacity,
+      ),
+    ),
+  );
+}
+
 /// Lays out [bar] above [body] like a column, but paints [body] first, so
 /// that its content keeps painting upwards as it scrolls, under [bar] (which
 /// can then put a [ScrollEdgeBand] behind its content). [body] is clipped

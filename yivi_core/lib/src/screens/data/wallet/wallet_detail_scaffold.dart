@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
@@ -36,12 +37,17 @@ class WalletDetailScaffold extends StatefulWidget {
   /// has scrolled away. Gets the opacity the close button has.
   final Widget Function(BuildContext context, double opacity)? barBuilder;
 
+  /// When [barBuilder]'s pill is shown: the band behind the bar comes and
+  /// goes with it ([HeaderEdgeBand]). Without, there is no band.
+  final ValueListenable<bool>? edgeShown;
+
   const WalletDetailScaffold({
     super.key,
     required this.openKey,
     required this.builder,
     required this.closeKey,
     this.barBuilder,
+    this.edgeShown,
   });
 
   @override
@@ -195,12 +201,21 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
               ),
             ),
           ),
-          // The content scrolls under the bar, with no band behind it: only
-          // the close button (and [barBuilder]) float over the content.
+          // The content scrolls under the bar. Only the close button (and
+          // [barBuilder]) float over it, with a band behind them once the
+          // pill shows ([edgeShown]).
           Positioned.fill(
             child: ScrollEdge(
               height: padding.top + 68,
-              band: (context, under) => const SizedBox.shrink(),
+              band: (context, under) {
+                final shown = widget.edgeShown;
+                if (shown == null) return const SizedBox.shrink();
+                return AnimatedBuilder(
+                  animation: chrome,
+                  builder: (context, _) =>
+                      HeaderEdgeBand(shown: shown, opacity: chromeOpacity()),
+                );
+              },
               bar: [
                 // Inside the safe area: clear of the Dynamic Island or an
                 // unfolded phone's side panel.

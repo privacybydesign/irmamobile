@@ -36,6 +36,11 @@ class SessionScaffold extends StatelessWidget {
   /// for the share page, where only the buttons float over the content.
   final bool scrollEdge;
 
+  /// For a page whose header only appears once you scroll (the requestor's
+  /// pill, a small title): the band comes and goes with it instead
+  /// ([IrmaAppBar.edgeShown]), also where [scrollEdge] is off.
+  final ValueListenable<bool>? edgeShown;
+
   const SessionScaffold({
     super.key,
     this.onDismiss,
@@ -48,6 +53,7 @@ class SessionScaffold extends StatelessWidget {
     this.startBar,
     this.cornerClose = false,
     this.scrollEdge = true,
+    this.edgeShown,
   });
 
   @override
@@ -69,7 +75,8 @@ class SessionScaffold extends StatelessWidget {
         titleVisibility: barTitleVisibility,
         startBar: startBar,
         edgeActions: cornerClose,
-        edge: scrollEdge && !cornerClose,
+        edge: (scrollEdge || edgeShown != null) && !cornerClose,
+        edgeShown: edgeShown,
         leading: null,
         actions: [
           if (onDismiss != null)

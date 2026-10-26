@@ -328,7 +328,8 @@ void main() {
         find.textContaining("We've sent an email to jan@example.com"),
         findsOneWidget,
       );
-      expect(find.text("Send email again"), findsOneWidget);
+      // Sent just now: it can go again in a minute.
+      expect(find.text("Send email again in 1:00"), findsOneWidget);
     });
 
     testWidgets("Check code waits for six characters and does not auto-send", (

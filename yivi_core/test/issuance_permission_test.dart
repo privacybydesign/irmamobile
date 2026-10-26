@@ -184,6 +184,43 @@ void main() {
     expect(added, 1);
   });
 
+  testWidgets("the band under the bar comes with the small title", (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    await _pump(
+      tester,
+      IssuancePermission(
+        issuedCredentials: [
+          for (var n = 0; n < 4; n++)
+            _card(
+              "card$n",
+              attributes: [
+                for (var f = 0; f < 4; f++)
+                  _value("f$f", "Field $f", "value $n.$f"),
+              ],
+            ),
+        ],
+      ),
+    );
+    final band = find.byKey(const Key("scroll_edge_band"));
+    final scroll = find.byKey(const Key("issuance_scroll_view"));
+    expect(band, findsNothing);
+    // Under the bar, but the large title still shows.
+    await tester.drag(scroll, const Offset(0, -12));
+    await tester.pumpAndSettle();
+    expect(band, findsNothing);
+    // Past the large title: the small title, and the band with it.
+    await tester.drag(scroll, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    expect(band, findsOneWidget);
+    await tester.drag(scroll, const Offset(0, 800));
+    await tester.pumpAndSettle();
+    expect(band, findsNothing);
+  });
+
   testWidgets("cards from several issuers say how many", (tester) async {
     await _pump(
       tester,

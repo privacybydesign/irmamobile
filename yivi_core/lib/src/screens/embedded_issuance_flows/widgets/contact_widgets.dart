@@ -350,11 +350,17 @@ class ContactCodeField extends StatelessWidget {
 /// is above it.
 class ContactTextLink extends StatelessWidget {
   final String labelKey;
-  final VoidCallback onTap;
+
+  /// Shown instead of [labelKey]'s text ("Send again in 0:42").
+  final String? label;
+
+  /// Null while it has to wait: dimmed, without an action.
+  final VoidCallback? onTap;
 
   const ContactTextLink({
     super.key,
     required this.labelKey,
+    this.label,
     required this.onTap,
   });
 
@@ -364,7 +370,7 @@ class ContactTextLink extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 20),
         child: TextLink(
-          label: FlutterI18n.translate(context, labelKey),
+          label: label ?? FlutterI18n.translate(context, labelKey),
           onPressed: onTap,
         ),
       ),

@@ -8,7 +8,6 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
-import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -162,6 +161,9 @@ void main() {
   /// shows exactly when the whole header is above the top bar.
   Future<void> expectBarFollowsHeader(WidgetTester tester) async {
     bool barShown() => find.byType(ActivityCompactBar).evaluate().isNotEmpty;
+    // The band behind the bar comes and goes with it.
+    bool bandShown() =>
+        find.byKey(const Key("scroll_edge_band")).evaluate().isNotEmpty;
     double headerBottom() =>
         tester.getRect(find.byType(ActivityPartyCard)).bottom;
     // No safe area in the test: the top bar ends at 60.
@@ -174,6 +176,7 @@ void main() {
       await tester.pumpAndSettle();
       final gone = headerBottom() < barBottom;
       expect(barShown(), gone, reason: "header bottom ${headerBottom()}");
+      expect(bandShown(), gone, reason: "header bottom ${headerBottom()}");
       sawShown |= gone;
     }
     expect(sawShown, isTrue, reason: "never scrolled the header away");
@@ -189,16 +192,22 @@ void main() {
     await expectBarFollowsHeader(tester);
   });
 
-  testWidgets("no band behind the bar once scrolled: the compact title in "
-      "its capsule and the close button float", (tester) async {
+  testWidgets("the band comes with the compact bar: none at the top, "
+      "none on the first scroll", (tester) async {
     await pump(
       tester,
       _log(LogType.signature, message: List.filled(600, "word").join(" ")),
     );
+    final band = find.byKey(const Key("scroll_edge_band"));
+    expect(band, findsNothing);
+    await tester.drag(find.byType(ListView), const Offset(0, -40));
+    await tester.pumpAndSettle();
+    expect(find.byType(ActivityCompactBar), findsNothing);
+    expect(band, findsNothing);
     await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();
     expect(find.byType(ActivityCompactBar), findsOneWidget);
-    expect(find.byType(ScrollEdgeBand), findsNothing);
+    expect(band, findsOneWidget);
   });
 
   testWidgets("with a name on two lines the bar waits for the whole header", (

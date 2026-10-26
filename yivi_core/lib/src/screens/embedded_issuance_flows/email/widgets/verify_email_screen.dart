@@ -12,6 +12,7 @@ import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/resend_countdown.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
@@ -193,20 +194,41 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                 ),
               ),
             ),
+          // The dialog to send it again only after the minute.
           if (!_linking)
-            ContactTextLink(
-              labelKey: "email_issuance.verify_code.no_email_received",
-              onTap: () => showResendSmsDialog(state.email),
+            ResendCountdown(
+              until: ref
+                  .read(emailIssuanceProvider.notifier)
+                  .resendAt(state.email),
+              builder: (context, left) => ContactTextLink(
+                labelKey: "email_issuance.verify_code.no_email_received",
+                label: left == null
+                    ? null
+                    : context.tr("contact_sheet.send_again_in", {"time": left}),
+                onTap: left == null
+                    ? () => showResendSmsDialog(state.email)
+                    : null,
+              ),
             ),
         ],
         bottomBar: _linking
-            ? IrmaBottomBar(
-                primaryButtonLabel: "email_linking.verify_code.next_button",
-                onPrimaryPressed: _codeComplete
-                    ? () => _handleCode(_textController.text)
-                    : null,
-                secondaryButtonLabel: "email_linking.verify_code.resend_button",
-                onSecondaryPressed: () => showResendSmsDialog(state.email),
+            ? ResendCountdown(
+                until: ref
+                    .read(emailIssuanceProvider.notifier)
+                    .resendAt(state.email),
+                builder: (context, left) => IrmaBottomBar(
+                  primaryButtonLabel: "email_linking.verify_code.next_button",
+                  onPrimaryPressed: _codeComplete
+                      ? () => _handleCode(_textController.text)
+                      : null,
+                  secondaryButtonLabel: left == null
+                      ? "email_linking.verify_code.resend_button"
+                      : "email_linking.verify_code.resend_button_in",
+                  secondaryButtonParams: left == null ? null : {"time": left},
+                  onSecondaryPressed: left == null
+                      ? () => showResendSmsDialog(state.email)
+                      : null,
+                ),
               )
             : IrmaBottomBar(
                 secondaryButtonLabel: "email_issuance.verify_code.back_button",

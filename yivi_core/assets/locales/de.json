@@ -126,6 +126,8 @@
         "many": "Mehrere möglich",
         "one": "Eine",
         "card": "Karte",
+        "any_card": "Jede Karte",
+        "pick_card": "Aus {count} wählen",
         "fields": "Daten aus {card}",
         "party": "Mit wem",
         "when": "Wann",
@@ -639,6 +641,7 @@
       "body": "Wir haben eine E-Mail an {email} gesendet. Tippe auf diesem Telefon auf den Link in der E-Mail oder gib den Code hier ein.",
       "next_button": "Code prüfen",
       "resend_button": "E-Mail erneut senden",
+      "resend_button_in": "E-Mail erneut senden in {time}",
       "filled_from_link": "Code aus dem Link eingetragen"
     },
     "done": {
@@ -1535,7 +1538,6 @@
     "also": "Du kannst auch eine andere Karte wählen",
     "also_other": "{name}",
     "also_your": "{name}",
-    "also_a": "{name}",
     "change_choice": "Auswahl ändern",
     "renew": "Erneuern",
     "new_chip": "Neu",
@@ -1568,6 +1570,7 @@
     "hint_email": "Nicht angekommen? Sieh auch im Spam nach.",
     "hint_phone": "Das kann eine Minute dauern.",
     "send_again": "Erneut senden",
+    "send_again_in": "Erneut senden in {time}",
     "sent_again": "Wir haben einen neuen Code gesendet.",
     "check_code": "Code prüfen",
     "wrong_code": "Dieser Code stimmt nicht. Prüfe ihn oder fordere einen neuen an.",

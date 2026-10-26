@@ -126,6 +126,8 @@
         "many": "Pick several",
         "one": "One",
         "card": "Card",
+        "any_card": "Any card",
+        "pick_card": "Choose from {count}",
         "fields": "Data from {card}",
         "party": "With whom",
         "when": "When",
@@ -636,6 +638,7 @@
       "body": "We've sent an email to {email}. On this phone, tap the link in the email, or enter the code here.",
       "next_button": "Check code",
       "resend_button": "Send email again",
+      "resend_button_in": "Send email again in {time}",
       "filled_from_link": "Code filled in from the link"
     },
     "done": {
@@ -1535,7 +1538,6 @@
     "also": "You can also choose {list}",
     "also_other": "your other {name}",
     "also_your": "your {name}",
-    "also_a": "a {name}",
     "change_choice": "Change choice",
     "renew": "Renew",
     "new_chip": "New",
@@ -1568,6 +1570,7 @@
     "hint_email": "Not there? Check your spam.",
     "hint_phone": "It can take a minute.",
     "send_again": "Send again",
+    "send_again_in": "Send again in {time}",
     "sent_again": "We sent a new code.",
     "check_code": "Check code",
     "wrong_code": "That code is not right. Check it, or send a new one.",

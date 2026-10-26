@@ -34,14 +34,20 @@ class TitleScrollEdge extends StatefulWidget {
 }
 
 class _TitleScrollEdgeState extends State<TitleScrollEdge> {
-  bool _titleShown = false;
+  /// The small title is shown; the band comes and goes with it.
+  final _titleShown = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _titleShown.dispose();
+    super.dispose();
+  }
 
   bool _onScroll(ScrollNotification n) {
     if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    final shown =
+    _titleShown.value =
         n.metrics.pixels - n.metrics.minScrollExtent >=
         widget.largeTitleBottom - TitleScrollEdge.barHeight;
-    if (shown != _titleShown) setState(() => _titleShown = shown);
     return false;
   }
 
@@ -56,6 +62,7 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
       onNotification: _onScroll,
       child: ScrollEdge(
         height: top + TitleScrollEdge.barHeight,
+        band: (context, under) => HeaderEdgeBand(shown: _titleShown),
         bar: [
           Positioned(
             left: 56,
@@ -65,11 +72,15 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
             child: IgnorePointer(
               child: ExcludeSemantics(
                 // The large title says the same on the page.
-                child: AnimatedOpacity(
-                  key: const Key("title_scroll_edge_title"),
-                  opacity: _titleShown ? 1 : 0,
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOut,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _titleShown,
+                  builder: (context, shown, child) => AnimatedOpacity(
+                    key: const Key("title_scroll_edge_title"),
+                    opacity: shown ? 1 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    child: child,
+                  ),
                   child: Center(
                     child: Text(
                       widget.title,
