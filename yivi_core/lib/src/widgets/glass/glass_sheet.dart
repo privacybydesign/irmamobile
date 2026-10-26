@@ -704,15 +704,10 @@ class _GlassSheetState extends State<_GlassSheet> {
     final media = MediaQuery.of(context);
     // Opaque and not blurred: the glass fill let only a trace of the blurred
     // page through, and that blur, redone every frame over the whole sheet,
-    // was the costliest thing on screen. In light the fill over the dimmed
-    // page, as it looked, made solid; in dark the sheet level, so the raised
-    // cards in it ([YiviPaletteScope]) are lighter than the sheet.
-    final fill = palette.isDark
-        ? palette.sheet
-        : Color.alphaBlend(
-            palette.glassStrongFill,
-            Color.alphaBlend(_GlassSheetRoute.barrier, palette.background),
-          );
+    // was the costliest thing on screen. The sheet level: in light the page
+    // colour, so its white cards stand out without a shadow; in dark below
+    // the raised cards in it ([YiviPaletteScope]).
+    final fill = palette.sheet;
     return ValueListenableBuilder<int>(
       valueListenable: _rimHiders,
       builder: (context, hiders, child) => GlassSurface(

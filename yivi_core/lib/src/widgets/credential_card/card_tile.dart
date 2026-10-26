@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_shadows.dart";
 import "../dashed_outline_painter.dart";
 import "card_art/credential_card_art.dart";
 
@@ -88,9 +88,8 @@ class CardTile extends StatelessWidget {
               borderRadius: YiviCorners.cardRadius,
               side: outline != null
                   ? BorderSide(color: outline!, width: 1.5)
-                  : BorderSide.none,
+                  : YiviEdges.block(context),
             ),
-            shadows: YiviShadows.card,
           );
     return CustomPaint(
       foregroundPainter: dashed

@@ -1,11 +1,12 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_corners.dart";
+import "../theme/yivi_edges.dart";
 import "../theme/yivi_palette.dart";
-import "../theme/yivi_shadows.dart";
 
-/// A white card around [child]: the surface colour, the card corner and the
-/// card shadow ([YiviShadows.surfaceCard]). With [clipBehavior] the child
-/// is clipped to the corners.
+/// A white card around [child]: the surface colour and the card corner,
+/// flat ([decoration]). With [clipBehavior] the child is clipped to the
+/// corners.
 class SurfaceCard extends StatelessWidget {
   final Widget? child;
   final EdgeInsetsGeometry? padding;
@@ -34,7 +35,17 @@ class SurfaceCard extends StatelessWidget {
     padding: padding,
     alignment: alignment,
     clipBehavior: clipBehavior,
-    decoration: YiviShadows.surfaceCard(YiviPalette.of(context)),
+    decoration: decoration(context),
     child: child,
+  );
+
+  /// The look of a [SurfaceCard], for a box that draws its own: the surface
+  /// colour in the card corner, outlined with Increase Contrast.
+  static ShapeDecoration decoration(BuildContext context) => ShapeDecoration(
+    color: YiviPalette.of(context).surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: YiviCorners.cardRadius,
+      side: YiviEdges.block(context),
+    ),
   );
 }

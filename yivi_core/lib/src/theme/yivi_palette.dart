@@ -15,7 +15,10 @@ class YiviPalette {
   /// In the dark variant every layer is lighter than the one it lies on:
   /// [background] < [surface] = [sheet] < [raised], [surface] < [tint],
   /// [raised] < [raisedTint]. A sheet's content gets the raised levels
-  /// through [YiviPaletteScope] (see [onSheet]).
+  /// through [YiviPaletteScope] (see [onSheet]). In the light variant the
+  /// sheet is the page colour, white cards on both, so nothing needs a
+  /// shadow to stand out; on a sheet [tint] is a step deeper, so a fill
+  /// right on the sheet still shows ([lightOnSheet]).
   final Color background;
 
   /// Soft fill for chips, icon squares and grouped cells.
@@ -158,7 +161,7 @@ class YiviPalette {
     background: Color(0xFFEAF3F9),
     tint: Color(0xFFEAF3F9),
     surface: Color(0xFFFFFFFF),
-    sheet: Color(0xFFFAFAFA),
+    sheet: Color(0xFFEAF3F9),
     raised: Color(0xFFFFFFFF),
     raisedTint: Color(0xFFEAF3F9),
     text: Color(0xFF000000),
@@ -232,6 +235,47 @@ class YiviPalette {
     searchMark: Color(0xFF6B5300),
   );
 
+  /// [light] for a sheet's content: the same, but [tint] a step deeper
+  /// than the sheet (1.12:1, as white on the sheet), so a soft fill right on
+  /// the sheet doesn't vanish into it.
+  static final lightOnSheet = YiviPalette._(
+    brightness: Brightness.light,
+    background: light.sheet,
+    tint: const Color(0xFFD9E7F2),
+    surface: light.surface,
+    sheet: light.sheet,
+    raised: light.raised,
+    raisedTint: const Color(0xFFD9E7F2),
+    text: light.text,
+    heading: light.heading,
+    secondaryText: light.secondaryText,
+    faint: light.faint,
+    divider: light.divider,
+    outline: light.outline,
+    handle: light.handle,
+    link: light.link,
+    infoSurface: light.infoSurface,
+    noteText: light.noteText,
+    successSurface: light.successSurface,
+    successText: light.successText,
+    successTint: light.successTint,
+    successOutline: light.successOutline,
+    warningSurface: light.warningSurface,
+    warningText: light.warningText,
+    errorSurface: light.errorSurface,
+    errorText: light.errorText,
+    danger: light.danger,
+    lens: light.lens,
+    selectedTab: light.selectedTab,
+    glassFill: light.glassFill,
+    glassBorder: light.glassBorder,
+    glassHighlight: light.glassHighlight,
+    glassShadow: light.glassShadow,
+    glassStrongFill: light.glassStrongFill,
+    dangerFill: light.dangerFill,
+    searchMark: light.searchMark,
+  );
+
   /// [dark] for a sheet's content; see [onSheet].
   static final darkOnSheet = YiviPalette._(
     brightness: Brightness.dark,
@@ -289,8 +333,8 @@ class YiviPalette {
   /// sheet ([YiviPaletteScope]).
   static YiviPalette of(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    if (brightness == Brightness.dark && YiviPaletteScope.onSheetOf(context)) {
-      return darkOnSheet;
+    if (YiviPaletteScope.onSheetOf(context)) {
+      return brightness == Brightness.dark ? darkOnSheet : lightOnSheet;
     }
     return forBrightness(brightness);
   }
@@ -322,8 +366,8 @@ class YiviPalette {
 
 /// Marks a sheet's content (or the detail pane next to a list): below it,
 /// [YiviPalette.of] gives the raised levels, so a card there is lighter than
-/// the sheet it lies on. Only the dark variant changes; the light one
-/// already has white cards on a lighter-grey sheet.
+/// the sheet it lies on. In the light variant only [YiviPalette.tint]
+/// changes ([YiviPalette.lightOnSheet]).
 class YiviPaletteScope extends InheritedWidget {
   const YiviPaletteScope.onSheet({super.key, required super.child});
 

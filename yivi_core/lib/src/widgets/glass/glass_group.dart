@@ -1,11 +1,12 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_shadows.dart";
 
 /// A rounded group of rows on a surface, with thin dividers between them,
-/// like the groups in Settings and More. An optional [header] sits above the
+/// like the groups in Settings and More. Flat: its colour sets it off from
+/// the page, an outline too with Increase Contrast ([YiviEdges.block]). An optional [header] sits above the
 /// group, outside it.
 class GlassGroup extends StatelessWidget {
   final List<Widget> children;
@@ -25,35 +26,35 @@ class GlassGroup extends StatelessWidget {
 
   static const radius = YiviCorners.cardRadius;
 
-  static BoxShadow _shadow(YiviPalette palette) =>
-      YiviShadows.cardIn(dark: palette.isDark);
+  static RoundedRectangleBorder _shape(BuildContext context) =>
+      RoundedRectangleBorder(
+        borderRadius: radius,
+        side: YiviEdges.block(context),
+      );
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     // The fill is a Material, so rows that paint ink (ListTile, InkWell)
-    // show their splashes on it; the shadow sits on a box around it.
-    final group = DecoratedBox(
-      decoration: _GroupDecoration(shadow: _shadow(palette)),
-      child: Material(
-        color: palette.surface,
-        shape: const RoundedRectangleBorder(borderRadius: radius),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              children[i],
-              if (i < children.length - 1)
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  indent: dividerIndent,
-                  color: palette.divider,
-                ),
-            ],
+    // show their splashes on it.
+    final group = Material(
+      color: palette.surface,
+      shape: _shape(context),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            children[i],
+            if (i < children.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: dividerIndent,
+                color: palette.divider,
+              ),
           ],
-        ),
+        ],
       ),
     );
     if (header == null) return group;
@@ -74,8 +75,8 @@ class GlassGroup extends StatelessWidget {
 }
 
 /// [GlassGroup] for a long list in a [CustomScrollView]: the same group, but
-/// its rows are built as they scroll into view. The group's fill and shadow
-/// are drawn behind the rows ([DecoratedSliver]); each row is on a
+/// its rows are built as they scroll into view. The group's fill is drawn
+/// behind the rows ([DecoratedSliver]); each row is on a
 /// transparent [Material], so its ink shows on the fill.
 class SliverGlassGroup extends StatelessWidget {
   final String? header;
@@ -108,9 +109,9 @@ class SliverGlassGroup extends StatelessWidget {
             ),
           ),
         DecoratedSliver(
-          decoration: _GroupDecoration(
+          decoration: ShapeDecoration(
             color: palette.surface,
-            shadow: GlassGroup._shadow(palette),
+            shape: GlassGroup._shape(context),
           ),
           sliver: SliverList.separated(
             itemCount: itemCount,
@@ -139,56 +140,5 @@ class SliverGlassGroup extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-/// A group's look: [color] in the group's rounded shape, over a soft
-/// [shadow]. The shadow is a blurred rounded rectangle, which the renderer
-/// draws directly; a shape's shadow is a path, blurred in a layer of its
-/// own, over the whole group, on every frame.
-class _GroupDecoration extends Decoration {
-  final Color? color;
-  final BoxShadow shadow;
-
-  const _GroupDecoration({this.color, required this.shadow});
-
-  static const _shape = RoundedRectangleBorder(borderRadius: GlassGroup.radius);
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) => _GroupPainter(this);
-
-  @override
-  bool operator ==(Object other) =>
-      other is _GroupDecoration &&
-      other.color == color &&
-      other.shadow == shadow;
-
-  @override
-  int get hashCode => Object.hash(color, shadow);
-}
-
-class _GroupPainter extends BoxPainter {
-  final _GroupDecoration decoration;
-
-  _GroupPainter(this.decoration);
-
-  @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final rect = offset & configuration.size!;
-    final shadow = decoration.shadow;
-    canvas.drawRRect(
-      GlassGroup.radius.toRRect(
-        rect.shift(shadow.offset).inflate(shadow.spreadRadius),
-      ),
-      shadow.toPaint(),
-    );
-    final color = decoration.color;
-    if (color != null) {
-      _GroupDecoration._shape.paintInterior(
-        canvas,
-        rect,
-        Paint()..color = color,
-      );
-    }
   }
 }

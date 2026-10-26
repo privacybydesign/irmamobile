@@ -11,8 +11,8 @@ import "package:material_ui/material_ui.dart";
 import "../../data/irma_preferences.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_shadows.dart";
 import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
@@ -881,7 +881,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       decoration: BoxDecoration(
         color: palette.surface,
         shape: BoxShape.circle,
-        boxShadow: YiviShadows.card,
+        border: Border.fromBorderSide(YiviEdges.block(context)),
       ),
       child: Icon(Icons.lock_outline_rounded, size: 28, color: palette.heading),
     );

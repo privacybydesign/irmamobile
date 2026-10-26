@@ -2,8 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
@@ -193,10 +193,10 @@ class _CheckCard extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.surface,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: YiviCorners.cardRadius,
+          side: YiviEdges.block(context),
         ),
-        shadows: [YiviShadows.cardIn(dark: palette.isDark)],
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),

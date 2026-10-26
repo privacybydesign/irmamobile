@@ -4,6 +4,7 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "glass_surface.dart";
 
@@ -468,9 +469,11 @@ class SmallPill extends StatelessWidget {
     };
     final pill = Material(
       color: fill,
-      shape: const StadiumBorder(),
-      elevation: tone == SmallPillTone.surface ? 1 : 0,
-      shadowColor: const Color(0x29000000),
+      shape: StadiumBorder(
+        side: tone == SmallPillTone.surface
+            ? YiviEdges.block(context)
+            : BorderSide.none,
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         highlightColor: Colors.transparent,

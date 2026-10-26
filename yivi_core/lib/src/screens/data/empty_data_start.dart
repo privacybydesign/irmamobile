@@ -4,6 +4,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
@@ -190,11 +191,10 @@ class _Option extends StatelessWidget {
       button: true,
       child: Material(
         color: palette.surface,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: YiviCorners.cardRadius,
+          side: YiviEdges.block(context),
         ),
-        shadowColor: const Color(0x29000000),
-        elevation: 1,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,

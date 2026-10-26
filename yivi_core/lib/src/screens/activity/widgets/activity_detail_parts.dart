@@ -3,8 +3,8 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/compact_bar.dart";
@@ -91,17 +91,7 @@ class ActivityPartyLogo extends StatelessWidget {
       width: size,
       height: size,
       padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: ring,
-        shape: BoxShape.circle,
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x2E000000),
-            blurRadius: 4,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(color: ring, shape: BoxShape.circle),
       child: avatar,
     );
   }
@@ -265,8 +255,7 @@ class _HeaderPill extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
         decoration: ShapeDecoration(
           color: palette.surface,
-          shape: const StadiumBorder(),
-          shadows: YiviShadows.card,
+          shape: StadiumBorder(side: YiviEdges.block(context)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

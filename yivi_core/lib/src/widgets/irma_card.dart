@@ -2,12 +2,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_corners.dart";
-import "../theme/yivi_shadows.dart";
+import "../theme/yivi_edges.dart";
 
 enum IrmaCardStyle { normal, outlined, highlighted, danger }
 
 /// Variant of Material's Card that uses IRMA styling: a rounded group on the
-/// surface colour, as in the glass redesign.
+/// surface colour, flat, as in the glass redesign.
 class IrmaCard extends StatelessWidget {
   final Function()? onTap;
   final Widget? child;
@@ -15,7 +15,6 @@ class IrmaCard extends StatelessWidget {
   final IrmaCardStyle style;
   final EdgeInsetsGeometry? margin;
   final Color? color;
-  final bool hasShadow;
 
   const IrmaCard({
     super.key,
@@ -25,7 +24,6 @@ class IrmaCard extends StatelessWidget {
     this.style = IrmaCardStyle.normal,
     this.margin,
     this.color,
-    this.hasShadow = true,
   });
 
   @override
@@ -38,7 +36,7 @@ class IrmaCard extends StatelessWidget {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
           borderRadius: radius,
-          border: Border.all(width: 0, color: Colors.transparent),
+          border: Border.fromBorderSide(YiviEdges.block(context)),
           color: theme.light,
         );
         break;
@@ -71,12 +69,6 @@ class IrmaCard extends StatelessWidget {
     // Override card color if a color is provided
     if (color != null) {
       boxDecoration = boxDecoration.copyWith(color: color);
-    }
-
-    if (hasShadow) {
-      boxDecoration = boxDecoration.copyWith(
-        boxShadow: [YiviShadows.cardIn(dark: theme.isDark)],
-      );
     }
 
     return Padding(

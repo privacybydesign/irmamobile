@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/credentials_search.dart";
 import "../../../../theme/yivi_corners.dart";
+import "../../../../theme/yivi_edges.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../widgets/glass/glass_group.dart";
@@ -146,8 +147,9 @@ class _CountryPickerState extends State<_CountryPicker> {
             itemCount: list.length,
             itemBuilder: (context, i) => Material(
               color: palette.surface,
-              shape: const RoundedRectangleBorder(
+              shape: RoundedRectangleBorder(
                 borderRadius: YiviCorners.cardRadius,
+                side: YiviEdges.block(context),
               ),
               clipBehavior: Clip.antiAlias,
               child: Center(child: row(list[i])),

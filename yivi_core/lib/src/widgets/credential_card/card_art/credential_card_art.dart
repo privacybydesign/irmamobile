@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../theme/yivi_edges.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
@@ -108,12 +109,15 @@ class CredentialCardArt extends StatelessWidget {
                 decoration: ShapeDecoration(
                   shape: RoundedRectangleBorder(
                     borderRadius: radiusFor(width),
-                    // Light on the dark page, so the card's edge shows.
-                    side: BorderSide(
-                      color: dark
-                          ? const Color(0x1AFFFFFF)
-                          : const Color(0x1A000000),
-                    ),
+                    // Light on the dark page, so the card's edge shows;
+                    // with Increase Contrast the outline of any block.
+                    side: MediaQuery.highContrastOf(context)
+                        ? YiviEdges.block(context)
+                        : BorderSide(
+                            color: dark
+                                ? const Color(0x1AFFFFFF)
+                                : const Color(0x1A000000),
+                          ),
                   ),
                 ),
               ),

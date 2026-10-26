@@ -10,6 +10,7 @@ import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
@@ -410,7 +411,10 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     final palette = YiviPalette.of(context);
     return Material(
       color: palette.surface,
-      shape: const RoundedRectangleBorder(borderRadius: YiviCorners.cardRadius),
+      shape: RoundedRectangleBorder(
+        borderRadius: YiviCorners.cardRadius,
+        side: YiviEdges.block(context),
+      ),
       clipBehavior: Clip.antiAlias,
       child: Center(child: row),
     );

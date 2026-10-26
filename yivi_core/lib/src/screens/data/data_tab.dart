@@ -19,6 +19,7 @@ import "../../providers/schemaless_credentials_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_shadows.dart";
@@ -1299,13 +1300,10 @@ class _ListRow extends StatelessWidget {
         color: palette.surface,
         shape: RoundedRectangleBorder(
           borderRadius: YiviCorners.cardRadius,
-          side: BorderSide(
-            width: 2,
-            color: selected ? palette.primary : Colors.transparent,
-          ),
+          side: selected
+              ? BorderSide(width: 2, color: palette.primary)
+              : YiviEdges.block(context),
         ),
-        elevation: 0,
-        shadowColor: Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.all(padding),
           child: Row(

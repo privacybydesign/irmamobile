@@ -8,6 +8,7 @@ import "../../../models/log_entry.dart";
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
@@ -93,13 +94,10 @@ class ActivityCard extends ConsumerWidget {
             color: palette.surface,
             shape: RoundedRectangleBorder(
               borderRadius: YiviCorners.cardRadius,
-              side: BorderSide(
-                width: 2,
-                color: selected ? palette.primary : Colors.transparent,
-              ),
+              side: selected
+                  ? BorderSide(width: 2, color: palette.primary)
+                  : YiviEdges.block(context),
             ),
-            shadowColor: const Color(0x17000000),
-            elevation: 1,
             clipBehavior: Clip.antiAlias,
             child: Builder(
               builder: (rowContext) => InkWell(

@@ -5,13 +5,13 @@ import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/icon_square.dart";
+import "../../../widgets/surface_card.dart";
 import "../models/technical_details.dart";
 import "session_requestor_header.dart";
 import "technical_details_sheet.dart";
@@ -360,7 +360,7 @@ class _Group extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
-      decoration: YiviShadows.surfaceCard(palette),
+      decoration: SurfaceCard.decoration(context),
       // A row's press highlight paints here, over the white card and within
       // its corners.
       child: Material(

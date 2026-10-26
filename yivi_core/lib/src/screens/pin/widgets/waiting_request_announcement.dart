@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/session_preview.dart";
 import "../../../providers/waiting_request_provider.dart";
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/corner_badge.dart";
@@ -154,13 +155,7 @@ class _Avatar extends StatelessWidget {
             decoration: BoxDecoration(
               color: palette.surface,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: palette.glassShadow,
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              border: Border.fromBorderSide(YiviEdges.block(context)),
             ),
             child: Icon(parts.icon, size: size * 0.46, color: palette.link),
           );

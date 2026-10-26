@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
+import "../theme/yivi_edges.dart";
 import "../theme/yivi_palette.dart";
 import "../util/i18n.dart";
 import "glass/glass_dialog.dart";
@@ -96,13 +97,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
                   decoration: BoxDecoration(
                     color: palette.surface,
                     borderRadius: YiviCorners.cardRadius,
-                    boxShadow: [
-                      BoxShadow(
-                        color: palette.glassShadow,
-                        blurRadius: 6,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+                    border: Border.fromBorderSide(YiviEdges.block(context)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

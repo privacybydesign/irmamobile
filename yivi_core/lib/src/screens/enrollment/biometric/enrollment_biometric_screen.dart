@@ -9,8 +9,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
 import "../../pin/providers/biometric_provider.dart";
@@ -82,7 +82,7 @@ class _EnrollmentBiometricScreenState
           fill: palette.surface,
           size: tile,
           radius: YiviCorners.iconTile,
-          shadows: YiviShadows.card,
+          side: YiviEdges.block(context),
           child: kind == "face_id"
               ? SvgPicture.asset(
                   yiviAsset("ui/face_id.svg"),

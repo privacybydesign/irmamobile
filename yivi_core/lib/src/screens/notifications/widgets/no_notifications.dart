@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/translated_text.dart";
 
@@ -87,24 +87,18 @@ class _Picture extends StatelessWidget {
           Positioned(
             top: 0,
             right: 0,
-            child: DecoratedBox(
+            child: Container(
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
+                color: palette.primary,
                 shape: BoxShape.circle,
-                boxShadow: YiviShadows.card,
+                border: Border.all(color: palette.background, width: 3),
               ),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: palette.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: palette.background, width: 3),
-                ),
-                child: const Icon(
-                  Icons.notifications_rounded,
-                  size: 24,
-                  color: Colors.white,
-                ),
+              child: const Icon(
+                Icons.notifications_rounded,
+                size: 24,
+                color: Colors.white,
               ),
             ),
           ),
@@ -140,7 +134,7 @@ class _Row extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.surface,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: YiviShadows.card,
+        border: Border.fromBorderSide(YiviEdges.block(context)),
       ),
       child: Row(
         spacing: 12,

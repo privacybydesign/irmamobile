@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -38,11 +39,7 @@ class PairingRequired extends StatelessWidget {
             "session.pairing.explanation",
             translationParams: {"requestor": who.name},
           );
-    final shadow = BoxShadow(
-      color: palette.glassShadow,
-      blurRadius: 6,
-      offset: const Offset(0, 1),
-    );
+    final edge = YiviEdges.block(context);
 
     return SessionScaffold(
       appBarTitle: "session.pairing.title",
@@ -79,7 +76,7 @@ class PairingRequired extends StatelessWidget {
                     size: 96,
                     iconSize: 48,
                     radius: YiviCorners.iconTile,
-                    shadows: [shadow],
+                    side: edge,
                   ),
                 ),
               const SizedBox(height: 24),
@@ -123,10 +120,10 @@ class PairingRequired extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: ShapeDecoration(
                           color: palette.surface,
-                          shape: const RoundedRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: YiviCorners.cardRadius,
+                            side: edge,
                           ),
-                          shadows: [shadow],
                         ),
                         child: Text(
                           char,

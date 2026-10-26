@@ -3,6 +3,7 @@ import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
+import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
@@ -30,13 +31,7 @@ class ResetPinScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: palette.surface,
           shape: BoxShape.circle,
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0F000000),
-              blurRadius: 6,
-              offset: Offset(0, 1),
-            ),
-          ],
+          border: Border.fromBorderSide(YiviEdges.block(context)),
         ),
         child: SvgPicture.asset(yiviAsset("reset/forgot_pin_illustration.svg")),
       ),

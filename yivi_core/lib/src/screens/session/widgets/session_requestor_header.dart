@@ -4,13 +4,13 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_shadows.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/party_avatar.dart";
+import "../../../widgets/surface_card.dart";
 
 /// The colours and words of a [RequestorTrust] tier, in one place: the badge
 /// on the logo, the pill under the name, and the trust sheet.
@@ -248,7 +248,7 @@ class RequestorCard extends StatelessWidget {
                 ),
             ],
           );
-    final decoration = YiviShadows.surfaceCard(palette);
+    final decoration = SurfaceCard.decoration(context);
 
     final card = compact
         ? DecoratedBox(
