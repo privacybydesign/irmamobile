@@ -105,9 +105,10 @@ class GlassSurface extends StatelessWidget {
   static const darkFill = Color(0x8C282C32);
   static const darkRim = Color(0x29FFFFFF);
 
-  /// The fill of a round button on a dark sheet: a little above the sheet,
-  /// see-through.
-  static const darkSheetButtonFill = Color(0x733A404B);
+  /// The fill of a round button or key on a dark sheet: white at 10%, a
+  /// little lighter than the sheet and see-through, like the glass on the
+  /// page.
+  static const darkSheetButtonFill = Color(0x1AFFFFFF);
 
   @override
   Widget build(BuildContext context) {
@@ -139,10 +140,9 @@ class GlassSurface extends StatelessWidget {
     final under = dark ? Colors.black : palette.background;
     final edge = dark ? darkRim : palette.glassBorder;
     final sheen = dark ? 0.0 : (solid ? 0.0 : palette.glassHighlight.a * 0.35);
-    // Dark theme glass has no drawn rim, which looked cheap there: it is lit
-    // from above instead, a light edge along the top only and a fill that
-    // darkens downwards. High contrast keeps the rim.
-    final lit = palette.isDark && !dark && !solid;
+    // Dark theme glass is flat: only its see-through fill, no sheen and no
+    // rim, which looked cheap there. High contrast keeps the rim.
+    final flat = palette.isDark && !dark && !solid;
     final padded = Padding(
       padding: padding ?? EdgeInsets.zero,
       child: a == 1 ? child : Opacity(opacity: a, child: child),
@@ -165,14 +165,8 @@ class GlassSurface extends StatelessWidget {
             ),
           ),
           position: DecorationPosition.background,
-          child: lit
-              ? CustomPaint(
-                  painter: GlassLitShade(opacity: a),
-                  foregroundPainter: rim
-                      ? GlassLitEdge(shape: shape, opacity: a)
-                      : null,
-                  child: padded,
-                )
+          child: flat
+              ? padded
               : DecoratedBox(
                   // The soft sheen along the top that makes it read as glass. It
                   // lies on the glass, behind the content: in front of it, it
@@ -255,79 +249,6 @@ class GlassSurface extends StatelessWidget {
       _ => shape,
     };
   }
-}
-
-/// The shading of dark glass lit from above, behind its content. A control
-/// lightens at the top and darkens at the bottom; a large surface (a sheet, a
-/// dialog) only gets a faint sheen along the top, as a gradient over all of
-/// it would show as a dark band.
-class GlassLitShade extends CustomPainter {
-  GlassLitShade({this.opacity = 1});
-
-  final double opacity;
-
-  /// Taller than this is a surface, not a control.
-  static const _controlHeight = 120.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final small = size.height <= _controlHeight;
-    final gradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: small
-          ? [
-              Colors.white.withValues(alpha: 0.05 * opacity),
-              Colors.black.withValues(alpha: 0.2 * opacity),
-            ]
-          : [
-              Colors.white.withValues(alpha: 0.05 * opacity),
-              Colors.white.withValues(alpha: 0),
-            ],
-    );
-    final band = small ? rect : Rect.fromLTWH(0, 0, size.width, 64);
-    canvas.drawRect(rect, Paint()..shader = gradient.createShader(band));
-  }
-
-  @override
-  bool shouldRepaint(GlassLitShade old) => old.opacity != opacity;
-}
-
-/// The light edge of dark glass lit from above: along the top only, fading
-/// out down the sides. Paint it inside the shape's clip, in front of the
-/// content, so content scrolling under it keeps the edge.
-class GlassLitEdge extends CustomPainter {
-  GlassLitEdge({required this.shape, this.opacity = 1, this.strength = 0.22});
-
-  final ShapeBorder shape;
-  final double opacity;
-
-  /// The white's alpha at the very top.
-  final double strength;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    // Half the stroke falls outside the clip: 0.75 pt shows.
-    final fall = min(size.height / 2, 24.0);
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Colors.white.withValues(alpha: strength * opacity),
-          Colors.white.withValues(alpha: 0),
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, fall));
-    canvas.drawPath(shape.getOuterPath(rect), paint);
-  }
-
-  @override
-  bool shouldRepaint(GlassLitEdge old) =>
-      old.shape != shape || old.opacity != opacity || old.strength != strength;
 }
 
 /// Paints [shadows] around [shape], and not under it unless [under]. A

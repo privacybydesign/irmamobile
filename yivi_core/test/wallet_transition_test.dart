@@ -234,7 +234,7 @@ void main() {
     });
   });
 
-  testWidgets("dark glass has only a faint sheen", (tester) async {
+  testWidgets("dark glass is flat: no sheen, no rim", (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(brightness: Brightness.dark),
@@ -245,7 +245,7 @@ void main() {
         ),
       ),
     );
-    final sheen = tester
+    final decorations = tester
         .widgetList<DecoratedBox>(
           find.descendant(
             of: find.byType(GlassSurface),
@@ -253,11 +253,16 @@ void main() {
           ),
         )
         .map((b) => b.decoration)
-        .whereType<ShapeDecoration>()
-        .map((d) => d.gradient)
-        .whereType<LinearGradient>()
-        .single;
-    expect(sheen.colors.first.a, lessThan(0.1));
+        .whereType<ShapeDecoration>();
+    expect(decorations.where((d) => d.gradient != null), isEmpty);
+    expect(
+      decorations.where(
+        (d) =>
+            d.shape is StadiumBorder &&
+            (d.shape as StadiumBorder).side != BorderSide.none,
+      ),
+      isEmpty,
+    );
   });
 
   testWidgets("a flying card slides under the card below its place", (

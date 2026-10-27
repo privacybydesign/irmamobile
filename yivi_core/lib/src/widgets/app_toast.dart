@@ -69,7 +69,7 @@ void Function(String message, {Key? key, ToastAction? action}) appToastFor(
         child: DecoratedBox(
           decoration: ShapeDecoration(
             color: palette.glassStrongFill,
-            // Dark: lit from above like the glass, no rim.
+            // Dark: flat like the glass, no rim.
             shape: StadiumBorder(
               side: palette.isDark
                   ? BorderSide.none
@@ -85,21 +85,13 @@ void Function(String message, {Key? key, ToastAction? action}) appToastFor(
           ),
           child: ClipPath(
             clipper: const ShapeBorderClipper(shape: StadiumBorder()),
-            child: CustomPaint(
-              foregroundPainter: palette.isDark
-                  ? GlassLitEdge(shape: const StadiumBorder())
-                  : null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                child: _Message(
-                  message: message,
-                  action: action,
-                  messenger: messenger,
-                  palette: palette,
-                ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: _Message(
+                message: message,
+                action: action,
+                messenger: messenger,
+                palette: palette,
               ),
             ),
           ),

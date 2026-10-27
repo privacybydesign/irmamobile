@@ -195,21 +195,22 @@ class YiviPalette {
     searchMark: Color(0xFFFFE88F),
   );
 
+  // Neutral greys, like the flat see-through glass on them: no blue cast.
   static const dark = YiviPalette._(
     brightness: Brightness.dark,
     background: Color(0xFF000000),
-    tint: Color(0xFF1B2530),
-    surface: Color(0xFF1A1E25),
-    sheet: Color(0xFF111419),
-    raised: Color(0xFF252A32),
-    raisedTint: Color(0xFF2C3744),
+    tint: Color(0xFF2C2C2E),
+    surface: Color(0xFF1C1C1E),
+    sheet: Color(0xFF141416),
+    raised: Color(0xFF262628),
+    raisedTint: Color(0xFF3A3A3C),
     text: Color(0xFFF2F2F4),
     heading: Color(0xFFD9D6D4),
     secondaryText: Color(0xFFA3A0A2),
     faint: Color(0xFF6F6C6E),
-    divider: Color(0xFF2A2F37),
-    outline: Color(0xFF2C3B48),
-    handle: Color(0xFF4A4E55),
+    divider: Color(0xFF38383A),
+    outline: Color(0xFF3A3A3C),
+    handle: Color(0xFF48484A),
     link: Color(0xFF8DBBF2),
     infoSurface: Color(0xFF1B2A3A),
     noteText: Color(0xFFCFE4FF),
@@ -224,13 +225,13 @@ class YiviPalette {
     danger: Color(0xFFFF7A7A),
     lens: Color(0x8C000000),
     selectedTab: Color(0xFFFF2D55),
-    // See-through, so what passes under it shows, blurred; over black it
-    // comes out a little darker than the raised surface.
-    glassFill: Color(0x8C3A404B),
+    // White at 12%, as light glass is white: see-through, so what passes
+    // under it shows, blurred; over black just above a card on the page.
+    glassFill: Color(0x1FFFFFFF),
     glassBorder: Color(0x24FFFFFF),
     glassHighlight: Color(0x29FFFFFF),
     glassShadow: Color(0x73000000),
-    glassStrongFill: Color(0xE02E333C),
+    glassStrongFill: Color(0xE02C2C2E),
     dangerFill: Color(0xFFC42B2B),
     searchMark: Color(0xFF6B5300),
   );

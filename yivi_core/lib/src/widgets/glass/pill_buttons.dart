@@ -93,15 +93,9 @@ class FancyPillButton extends StatelessWidget {
                 ),
                 Positioned.fill(
                   child: IgnorePointer(
-                    // Dark: lit from above like the glass, not a straight
-                    // line across the top.
+                    // Dark: flat, no line across the top.
                     child: palette.isDark
-                        ? CustomPaint(
-                            painter: GlassLitEdge(
-                              shape: const StadiumBorder(),
-                              strength: 0.35,
-                            ),
-                          )
+                        ? null
                         : DecoratedBox(
                             decoration: BoxDecoration(
                               border: Border(
@@ -320,9 +314,9 @@ class PillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    // Dark theme: a filled pill lit from above like the glass, as a light
-    // outline there looked cheap. High contrast keeps the outline.
-    final lit =
+    // Dark theme: a flat pill in the glass fill, as a light outline there
+    // looked cheap. High contrast keeps the outline.
+    final flat =
         style == PillStyle.outlined &&
         !onDark &&
         palette.isDark &&
@@ -333,13 +327,9 @@ class PillButton extends StatelessWidget {
         Colors.white,
         BorderSide(color: Colors.white.withValues(alpha: 0.7), width: 1.5),
       ),
-      PillStyle.outlined when lit => (
-        // A little above where it lies.
-        Color.lerp(
-          palette.onSheet ? palette.surface : palette.raised,
-          Colors.black,
-          0.15,
-        )!,
+      PillStyle.outlined when flat => (
+        // The glass fill: white at 12% on the page, 10% on a sheet.
+        palette.onSheet ? GlassSurface.darkSheetButtonFill : palette.glassFill,
         palette.text,
         BorderSide.none,
       ),
@@ -407,15 +397,7 @@ class PillButton extends StatelessWidget {
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
             overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-            child: lit
-                ? CustomPaint(
-                    painter: GlassLitShade(),
-                    foregroundPainter: GlassLitEdge(
-                      shape: const StadiumBorder(),
-                    ),
-                    child: content,
-                  )
-                : content,
+            child: content,
           ),
         ),
       ),
