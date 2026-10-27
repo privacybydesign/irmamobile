@@ -8,6 +8,7 @@ updates:
     schedule: { interval: weekly, day: monday }
     groups:
       actions: { patterns: ["*"] }
+      actions-security: { applies-to: security-updates, patterns: ["*"] }
     cooldown: { default-days: 7 }
 
   - package-ecosystem: gomod
@@ -15,4 +16,5 @@ updates:
     schedule: { interval: weekly, day: monday }
     groups:
       go: { patterns: ["*"], update-types: [minor, patch] }
+      go-security: { applies-to: security-updates, patterns: ["*"] }
     cooldown: { default-days: 7 }
