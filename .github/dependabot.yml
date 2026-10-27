@@ -1,0 +1,20 @@
+# Updates are grouped (one PR per ecosystem) and wait 7 days after a release
+# (cooldown) so compromised releases are usually yanked before they reach us.
+# Security updates are not delayed.
+version: 2
+updates:
+  - package-ecosystem: github-actions # also bumps the shared workflows
+    directories: ["/", "/.github/actions/setup-build-environment"]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      actions: { patterns: ["*"] }
+      actions-security: { applies-to: security-updates, patterns: ["*"] }
+    cooldown: { default-days: 7 }
+
+  - package-ecosystem: gomod
+    directory: /yivi_core
+    schedule: { interval: weekly, day: monday }
+    groups:
+      go: { patterns: ["*"], update-types: [minor, patch] }
+      go-security: { applies-to: security-updates, patterns: ["*"] }
+    cooldown: { default-days: 7 }
