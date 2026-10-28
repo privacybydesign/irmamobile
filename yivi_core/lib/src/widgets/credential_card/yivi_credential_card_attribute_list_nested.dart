@@ -16,12 +16,18 @@ class _Ctx {
   final bool showDividers;
   final bool disclosure;
   final CredentialCardLayout layout;
+  final String? matchedTag;
+  final String? mismatchedTag;
+  final String? hideLabel;
 
   const _Ctx({
     required this.foldable,
     required this.showDividers,
     required this.disclosure,
     required this.layout,
+    this.matchedTag,
+    this.mismatchedTag,
+    this.hideLabel,
   });
 }
 

@@ -5,15 +5,18 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/note_box.dart";
 import "../../../widgets/surface_card.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
-/// page of the sheet: what happens there and that you come back by
-/// yourself, a small browser with the website's address, and the way on,
-/// "Open website" ([onOpen]). Once opened ([opened]) a note says the
-/// request waits, and the way on opens it again.
+/// page of the sheet: three numbered steps (your browser opens {host}, you
+/// do there what {issuer} asks, Yivi opens again by itself), a small
+/// browser with the website's address, and the way on, "To {host}"
+/// ([onOpen]). Back with nothing received ([opened]): "Not done on the
+/// website yet?", that the request waits ([requestor]), "Continue on the
+/// website", and "Choose something else" ([onOther]).
 ///
 /// Also the OpenID4VCI step that asks the issuer's login in the browser.
 class IssueWebsiteStep extends StatefulWidget {
@@ -36,6 +39,13 @@ class IssueWebsiteStep extends StatefulWidget {
   /// On a phone held sideways: who the card is for, under the title.
   final Widget? subtitle;
 
+  /// The request that waits meanwhile, if any.
+  final String? requestor;
+
+  /// "Choose something else", once back without the card; null when there
+  /// is nothing else.
+  final VoidCallback? onOther;
+
   const IssueWebsiteStep({
     super.key,
     required this.title,
@@ -46,6 +56,8 @@ class IssueWebsiteStep extends StatefulWidget {
     required this.onBack,
     this.pinned,
     this.subtitle,
+    this.requestor,
+    this.onOther,
   });
 
   @override
@@ -71,11 +83,15 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
     final params = {"issuer": widget.issuer, "host": widget.host};
     final sideways = useSheetColumns(context);
 
+    final opened = widget.opened;
     final words = <Widget>[
       Semantics(
         header: true,
         child: Text(
-          context.tr("data.add.website.heading", params),
+          context.tr(
+            opened ? "data.add.website.not_done" : "data.add.website.heading",
+            params,
+          ),
           key: const Key("sheet_website_heading"),
           textAlign: TextAlign.center,
           style: palette
@@ -83,21 +99,49 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               .copyWith(height: (sideways ? 24 : 28) / (sideways ? 18 : 21)),
         ),
       ),
-      Text(
-        context.tr("data.add.website.body", params),
-        textAlign: TextAlign.center,
-        style: palette
-            .body(15)
-            .copyWith(height: 22 / 15, color: palette.heading),
-      ),
+      if (opened)
+        Text(
+          context.tr("data.add.website.not_done_body", params),
+          textAlign: TextAlign.center,
+          style: palette
+              .body(15)
+              .copyWith(height: 22 / 15, color: palette.heading),
+        )
+      else
+        Column(
+          key: const Key("sheet_website_steps"),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 10,
+          children: [
+            for (final (n, key) in const [
+              "data.add.website.step_open",
+              "data.add.website.step_do",
+              "data.add.website.step_back",
+            ].indexed)
+              _NumberedStep(n: n + 1, text: context.tr(key, params)),
+          ],
+        ),
     ];
-    final note = widget.opened
+    final note = opened && widget.requestor != null
         ? NoteBox(
             key: const Key("sheet_opened_note"),
-            text: context.tr("share.sheet.opened_note", {"host": widget.host}),
+            text: context.tr("data.add.website.waits", {
+              "requestor": widget.requestor!,
+            }),
           )
         : null;
-    final picture = _WebsitePicture(host: widget.host, issuer: widget.issuer);
+    final other = opened && widget.onOther != null
+        ? Center(
+            child: TextLink(
+              key: const Key("sheet_choose_other"),
+              label: context.tr("data.add.website.other"),
+              onPressed: widget.onOther,
+            ),
+          )
+        : null;
+    final picture = opened
+        ? null
+        : _WebsitePicture(host: widget.host, issuer: widget.issuer);
 
     return GlassSheetPage(
       title: widget.title,
@@ -107,8 +151,8 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       action: SheetAction(
         key: const Key("sheet_open_website"),
         label: widget.opened
-            ? context.tr("share.sheet.open_again")
-            : context.tr("data.add.website.open"),
+            ? context.tr("data.add.website.continue")
+            : context.tr("data.add.website.open", params),
         busy: _opening,
         onTap: _open,
       ),
@@ -124,7 +168,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               end: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 12,
-                children: [?note, picture],
+                children: [?note, ?picture, ?other],
               ),
             )
           : Padding(
@@ -132,9 +176,62 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 10,
-                children: [...words, const SizedBox(height: 6), ?note, picture],
+                children: [
+                  ...words,
+                  const SizedBox(height: 6),
+                  ?note,
+                  ?picture,
+                  ?other,
+                ],
               ),
             ),
+    );
+  }
+}
+
+/// One of the numbered steps of going to the website.
+class _NumberedStep extends StatelessWidget {
+  final int n;
+  final String text;
+
+  const _NumberedStep({required this.n, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
+      children: [
+        ExcludeSemantics(
+          child: Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: palette.tint,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              "$n",
+              style: palette
+                  .body(13, weight: FontWeight.w700)
+                  .copyWith(color: palette.link, height: 1),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              text,
+              style: palette
+                  .body(15)
+                  .copyWith(height: 21 / 15, color: palette.heading),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

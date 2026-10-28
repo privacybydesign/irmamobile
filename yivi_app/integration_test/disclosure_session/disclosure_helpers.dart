@@ -31,8 +31,11 @@ Future<void> confirmShareAnyway(WidgetTester tester) async {
   if (confirm.evaluate().isNotEmpty) await tester.tapAndSettle(confirm);
 }
 
-/// Whether the share button can be pressed now.
+/// Whether the share button shares when pressed now. While something is
+/// missing or can't be used it does that next step instead ("Add …",
+/// "Choose what to add"), and this is false.
 bool shareButtonEnabled(WidgetTester tester) {
+  if (find.byKey(const Key("share_next")).evaluate().isNotEmpty) return false;
   final button = find.descendant(
     of: find.byKey(const Key("share_button")),
     matching: find.byWidgetPredicate(
@@ -75,7 +78,7 @@ Future<void> evaluateFeedback(
     expect(title, findsOneWidget);
     final text = tester.widget<Text>(title).data!;
     if (isSignatureSession) {
-      expect(text, "Signed and shared");
+      expect(text, "Signed");
     } else {
       expect(text.startsWith("Shared with") || text == "Done", isTrue);
     }
@@ -179,10 +182,13 @@ String spotTitle(String name) {
   ].join(" or ");
 }
 
-/// The reason above the share button ("Add … first."), if any.
+/// The line above the share button ("One more thing to add, then you can
+/// share"), if any.
 String? shareReason(WidgetTester tester) {
   final reason = find.byKey(const Key("share_reason"));
-  return reason.evaluate().isEmpty ? null : tester.widget<Text>(reason).data;
+  if (reason.evaluate().isEmpty) return null;
+  final text = tester.widget<Text>(reason);
+  return text.data ?? text.textSpan?.toPlainText().replaceAll("\uFFFC", "");
 }
 
 /// Checks that requested item [i] is an empty spot for [title] (the types
@@ -219,15 +225,33 @@ void expectEmptySpotRows(int i, List<String> labels) {
   }
 }
 
-/// Checks that Share waits for [name] (the first empty spot's title):
-/// disabled, with "Add your {name} first. Then you can share." above it.
+/// Checks that Share waits for [name] (the first empty spot's title): the
+/// button does that next step ("Add {name}", or "Choose what to add" for a
+/// choice of kinds), with what is left above it.
 void expectShareWaitsFor(WidgetTester tester, String name) {
   expect(shareButtonEnabled(tester), isFalse, reason: "share button");
   expect(
     shareReason(tester),
-    "Add your ${inSentence(spotTitle(name))} first. Then you can share.",
+    anyOf(
+      "One more thing to add, then you can share",
+      matches(RegExp(r"^\d+ more things to add, then you can share$")),
+      "Your card doesn't count for this request",
+    ),
+  );
+  final label = find.descendant(
+    of: find.byKey(const Key("share_button")),
+    matching: find.byType(Text),
+  );
+  final text = tester.widget<Text>(label.first).data;
+  expect(
+    text,
+    anyOf("Add $name", "Get $name again", "Choose what to add", "Add both"),
   );
 }
+
+/// The card in the app of requested item [i] that does not count for the
+/// request: a value is not what they ask ("Asked: …" beside it).
+Finder findNotCounted(int i) => find.byKey(Key("share_not_counted_$i"));
 
 /// Checks that empty spot [i] cannot be filled from Yivi ("Can't be added
 /// in Yivi. …", not tappable), and that the share button is "Close" with
@@ -268,8 +292,8 @@ Future<void> tapSpot(WidgetTester tester, int i) async {
   expect(findChoiceSheet(), findsOneWidget);
 }
 
-/// Taps "Add" on the details in the open sheet (step 1 of 3), then "Open
-/// website" on the page that says where adding goes (step 2): the issuer's
+/// Taps "Next" on the details in the open sheet (step 1 of 3), then "To
+/// {host}" on the page that says where adding goes (step 2): the issuer's
 /// website opens while the sheet waits (see [startAdding]).
 Future<void> tapAddOnDetails(WidgetTester tester) async {
   final go = find.byKey(const Key("sheet_go_button"));
@@ -369,8 +393,12 @@ void expectSheetAddRow(String credentialId, String name, String issuer) {
     ),
     findsWidgets,
   );
-  // The issuer below it (a card can be named after its issuer: "Demo iDIN").
-  expect(find.descendant(of: row, matching: find.text(issuer)), findsWidgets);
+  // How you get it below it: "{issuer} · via {host}" (a card can be named
+  // after its issuer: "Demo iDIN").
+  expect(
+    find.descendant(of: row, matching: find.textContaining(issuer)),
+    findsWidgets,
+  );
 }
 
 /// The "In your app" rows of the open sheet that show [text] (or, with
@@ -419,6 +447,15 @@ Future<void> pickOwned(WidgetTester tester, String text) async {
 /// selected (and an optional item included); [issueCredentials] does both.
 Future<void> startAdding(WidgetTester tester, String credentialId) async {
   final row = findSheetAddRow(credentialId);
+  // With a usable card in the app the kinds to add are folded away under
+  // "Add another card".
+  final toggle = find.descendant(
+    of: findChoiceSheet(),
+    matching: find.byKey(const Key("sheet_add_toggle")),
+  );
+  if (row.evaluate().isEmpty && toggle.evaluate().isNotEmpty) {
+    await tester.tapAndSettle(toggle);
+  }
   await tester.scrollUntilVisible(
     row,
     100,

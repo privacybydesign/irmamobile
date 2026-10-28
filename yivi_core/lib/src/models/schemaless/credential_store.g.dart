@@ -28,6 +28,7 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  isSingleton: json['is_singleton'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CredentialDescriptorToJson(
@@ -40,6 +41,7 @@ Map<String, dynamic> _$CredentialDescriptorToJson(
   'image': instance.image,
   'attributes': instance.attributes,
   'issue_url': instance.issueURL,
+  'is_singleton': instance.isSingleton,
 };
 
 CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>

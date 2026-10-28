@@ -35,17 +35,18 @@ class SharedCardTileInFlight extends InheritedWidget {
 /// the values that are shared.
 ///
 /// [trailing] sits at the end of the header: a "Change" pill, a remove
-/// button for optional data, or nothing. A card with a [CardProblem] gets a
-/// red outline, its chip and a one-line reason, plus [onFix] ("Add a new
-/// address") when it can be renewed from Yivi.
+/// button for optional data, or nothing. A card with a [CardProblem] gets
+/// its chip, its values greyed, and a calm line that says it can't be used
+/// any more; the fix is the share button's, not the card's. In the Change
+/// sheet [onFix] ("Add a new passport") sits under that line.
 class SharedCardTile extends ConsumerWidget {
   final DisclosureBundle bundle;
   final Widget? trailing;
   final String? fixLabel;
   final VoidCallback? onFix;
 
-  /// Shows the problem or last-use chip and note. Off after sharing, when
-  /// they no longer apply.
+  /// Shows the problem chip and note. Off after sharing, when they no
+  /// longer apply.
   final bool showStatus;
 
   /// Marks the small card art as where a card added in the Change sheet
@@ -56,9 +57,9 @@ class SharedCardTile extends ConsumerWidget {
   /// together. Not shown on a card with a problem in [problemStrip] mode.
   final Widget? footer;
 
-  /// The share screen's way to show a problem: the note in a red strip
-  /// across the bottom, with [fixLabel] as a pill in it. Otherwise (the
-  /// Change sheet) the note and the fix are in the body.
+  /// The share screen's way to show a problem: the note in a strip across
+  /// the bottom, in place of [footer]. Otherwise (the Change sheet) the note
+  /// and the fix are in the body.
   final bool problemStrip;
 
   /// The card was added during this request: a green "New" chip.
@@ -84,6 +85,10 @@ class SharedCardTile extends ConsumerWidget {
     this.dashGap,
   }) : assert((fixLabel == null) == (onFix == null));
 
+  /// The chip label of [problem] ("Revoked", "Expired").
+  static String problemLabel(BuildContext context, CardProblem problem) =>
+      FlutterI18n.translate(context, _problemKey(problem));
+
   /// The art, marked as a landing spot. Not the copy in a hero flight: the
   /// flight builds the tile a second time, and a key can be in the tree once.
   Widget _landing(BuildContext context, Widget art) {
@@ -102,7 +107,6 @@ class SharedCardTile extends ConsumerWidget {
     final wallet = ref.watch(walletCardsProvider);
     final cards = bundle.credentials;
     final problem = showStatus ? problemOfBundle(bundle) : null;
-    final lastUse = showStatus && problem == null && cards.any(isLastUse);
     final name = cards.map((c) => c.name).join(" + ");
     final issuers = cards.map((c) => c.issuer.name).toSet().join(", ");
 
@@ -111,12 +115,6 @@ class SharedCardTile extends ConsumerWidget {
             key: const Key("shared_card_chip"),
             label: FlutterI18n.translate(context, _problemKey(problem)),
             tone: DialogTone.danger,
-          )
-        : lastUse
-        ? StatusChip(
-            key: const Key("shared_card_chip"),
-            label: FlutterI18n.translate(context, "share.problem.last_use"),
-            tone: DialogTone.warning,
           )
         : isNew
         ? StatusChip(
@@ -132,23 +130,20 @@ class SharedCardTile extends ConsumerWidget {
             "share.problem.${_problemName(problem)}_note",
             translationParams: {"issuer": cards.first.issuer.name},
           )
-        : lastUse
-        ? FlutterI18n.translate(context, "share.problem.last_use_note")
         : null;
 
-    // On the share screen a problem is a red strip with its fix in it.
+    // On the share screen a problem is a calm strip that says what is
+    // wrong; the share button does the fix.
     final strip = problemStrip && problem != null;
     final Widget? bottom = strip
         ? CardTileStrip(
             key: const Key("shared_card_problem"),
-            background: palette.errorSurface,
-            line: palette.errorText.withValues(alpha: 0.2),
             children: [
               ExcludeSemantics(
                 child: Icon(
                   Icons.info_outline_rounded,
                   size: 18,
-                  color: palette.errorText,
+                  color: palette.secondaryText,
                 ),
               ),
               Expanded(
@@ -156,20 +151,14 @@ class SharedCardTile extends ConsumerWidget {
                   note!,
                   key: const Key("shared_card_note"),
                   style: palette
-                      .body(13.5, weight: FontWeight.w600)
-                      .copyWith(height: 19 / 13.5, color: palette.errorText),
+                      .body(13.5)
+                      .copyWith(height: 19 / 13.5, color: palette.heading),
                 ),
               ),
-              if (onFix != null)
-                SmallPill(
-                  key: const Key("shared_card_fix"),
-                  label: fixLabel!,
-                  tone: SmallPillTone.onDanger,
-                  onPressed: onFix,
-                ),
             ],
           )
         : footer;
+    final single = cards.length == 1 ? cards.single.name : null;
 
     return CardTile(
       key: const Key("shared_card_tile"),
@@ -177,9 +166,6 @@ class SharedCardTile extends ConsumerWidget {
       dashed: ghost,
       faded: ghost,
       dashGap: dashGap,
-      outline: problem != null
-          ? palette.errorText.withValues(alpha: 0.35)
-          : null,
       art: _landing(
         context,
         CardTileMiniCards(cards: [for (final c in cards) _cardFor(c, wallet)]),
@@ -208,6 +194,8 @@ class SharedCardTile extends ConsumerWidget {
                 credentialId: c.credentialId,
                 disclosure: true,
                 showDividers: true,
+                matchedTag: FlutterI18n.translate(context, "share.match_tag"),
+                hideLabel: single,
                 // What the requestor asked for exactly, in green.
                 matched: {
                   for (final a in c.attributes)
@@ -236,7 +224,7 @@ class SharedCardTile extends ConsumerWidget {
                   .copyWith(height: 19 / 13, color: palette.heading),
             ),
           ),
-        if (onFix != null && !strip)
+        if (onFix != null && !problemStrip)
           Align(
             alignment: Alignment.centerLeft,
             child: SmallPill(
@@ -252,7 +240,6 @@ class SharedCardTile extends ConsumerWidget {
 
   static String _problemName(CardProblem p) => switch (p) {
     CardProblem.revoked => "revoked",
-    CardProblem.usedUp => "used_up",
     CardProblem.expired => "expired",
   };
 
@@ -283,4 +270,5 @@ schemaless.Credential _cardFor(
       issueUrl: instance.issueUrl,
       issuanceDate: instance.issuanceDate,
       expiryDate: instance.expiryDate,
+      isSingleton: instance.isSingleton,
     );

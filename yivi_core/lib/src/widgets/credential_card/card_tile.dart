@@ -237,7 +237,16 @@ class CardTileOutline extends StatelessWidget {
   final Widget child;
   final bool shown;
 
-  const CardTileOutline({super.key, required this.child, required this.shown});
+  /// The ring's colour; the link colour by default (green for a card that
+  /// just landed).
+  final Color? color;
+
+  const CardTileOutline({
+    super.key,
+    required this.child,
+    required this.shown,
+    this.color,
+  });
 
   static const _ring = 2.0;
   static const _gap = 3.0;
@@ -264,7 +273,7 @@ class CardTileOutline extends StatelessWidget {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(YiviCorners.card + _ring + _gap),
                   ),
-                  side: BorderSide(color: palette.link, width: _ring),
+                  side: BorderSide(color: color ?? palette.link, width: _ring),
                 ),
               ),
             ),

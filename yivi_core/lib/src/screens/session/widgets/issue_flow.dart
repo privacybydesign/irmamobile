@@ -117,6 +117,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _direct = d != null;
   }
 
+  /// There is something else to choose than the card being added: the
+  /// website step then offers "Choose something else".
+  bool get issueHasOtherChoices => false;
+
+  /// "Choose something else" on the website step: adding stops (after
+  /// asking, once the website was opened) and the sheet's root page shows.
+  Future<void> issueChooseOther() async {
+    if (_opened && !await issueConfirmStop(closing: false)) return;
+    if (!mounted) return;
+    _stopAdding();
+    setState(() {
+      issueAdding = null;
+      _direct = false;
+    });
+  }
+
   /// The sheet takes the next session that starts, without a type picked
   /// first ([issueTakeSession]): only its issuance pages show.
   bool _standalone = false;
@@ -708,6 +724,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             onBack: _leaveWebsite,
             pinned: IssueSheetProgress(subject: subject, step: 2, total: total),
             subtitle: IssueSheetRequestorLine(subject: subject),
+            requestor: issueRequest?.requestor.name,
+            onOther: issueHasOtherChoices ? issueChooseOther : null,
           ),
         ),
       if (_contact case final kind?) ...[
@@ -848,11 +866,23 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             text: context.tr("data.add.details.external_note", {"host": host}),
           )
         : null;
+    // During a request: that the requestor only gets what they ask, when
+    // the card holds more than that.
+    final asked = d.attributes.where((a) => a.requestedValue != null).length;
+    final holdsMore = asked > 0 && asked < d.attributes.length;
+    final howIntro = switch (_repo.embeddedFlowOf(d.credentialId)) {
+      EmbeddedFlow.email => context.tr("data.add.details.how_email"),
+      EmbeddedFlow.phone => context.tr("data.add.details.how_phone"),
+      EmbeddedFlow.document when documentTypeOf(d.credentialId) != null =>
+        context.tr("data.add.details.how_document"),
+      _ => null,
+    };
     Widget part(AddDataDetailsPart part, {double cardWidth = 220}) =>
         AddDataDetailsContent(
           credential: d,
           faq: faq,
-          forRequestor: issueRequest?.requestor.name,
+          forRequestor: holdsMore ? issueRequest?.requestor.name : null,
+          howIntro: howIntro,
           part: part,
           cardWidth: cardWidth,
         );
@@ -874,9 +904,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // dragging its header down.
       closable: _direct,
       closeAtStart: true,
-      // The card's name: the page is about it (the progress under the bar
-      // says where in adding it you are).
-      title: d.name,
+      // "Add {name}": the page is about adding it (the progress under the
+      // bar says where in adding it you are).
+      title: context.tr("data.add.details.title_add", {"name": d.name}),
       onBack: _direct ? null : issueLeave,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       split: split != null,
@@ -923,15 +953,55 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final offer = current ?? (issueAdded != null ? _lastOffer : null);
     final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
 
-    final action = SheetAction(
-      key: const Key("sheet_issue_add"),
-      label: cards.length > 1
-          ? context.tr("issuance.add_many", {"count": "${cards.length}"})
-          : context.tr("issuance.add"),
-      // Under way once tapped, until "Success" comes in.
-      busy: awaiting,
-      onTap: offer == null || nestedId == null ? null : () => _grant(nestedId),
-    );
+    // Inside a request, a card whose value is not what the request needs
+    // does not count: trying again comes first, adding it anyway second.
+    final request = issueRequest;
+    final mismatched =
+        request != null &&
+        issuanceMismatches(
+          cards,
+          request.disclosurePlan?.issueDuringDisclosure?.steps ?? const [],
+        ).isNotEmpty;
+    final single = cards.any((c) => c.isSingleton);
+    final grant = offer == null || nestedId == null
+        ? null
+        : () => _grant(nestedId);
+    final action = mismatched
+        ? SheetAction(
+            key: const Key("sheet_issue_retry"),
+            label: context.tr(
+              single ? "share.offer.dont_replace" : "share.offer.retry",
+            ),
+            onTap: single ? issueClose : _retry,
+          )
+        : SheetAction(
+            key: const Key("sheet_issue_add"),
+            label: request != null
+                ? (cards.length > 1
+                      ? context.tr("share.offer.add_many", {
+                          "count": "${cards.length}",
+                        })
+                      : context.tr("share.offer.add"))
+                : cards.length > 1
+                ? context.tr("issuance.add_many", {"count": "${cards.length}"})
+                : context.tr("issuance.add"),
+            // Under way once tapped, until "Success" comes in.
+            busy: awaiting,
+            onTap: grant,
+          );
+    final anyway = mismatched
+        ? Center(
+            child: TextLink(
+              key: const Key("sheet_issue_add"),
+              label: context.tr(
+                single
+                    ? "share.offer.replace_anyway"
+                    : "share.offer.add_anyway",
+              ),
+              onPressed: awaiting ? null : grant,
+            ),
+          )
+        : null;
     // A phone held sideways: the card(s) at the left, the question and the
     // values at the right; the way on is in the bar.
     if (useSheetColumns(context)) {
@@ -959,8 +1029,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: 8,
                   children: [
-                    _question(cards.length),
+                    _question(cards),
                     ...content.receives(context),
+                    ?anyway,
                   ],
                 ),
         ),
@@ -990,7 +1061,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 16,
-                children: _offer(offer),
+                children: [..._offer(offer), ?anyway],
               ),
             ),
         ],
@@ -1012,17 +1083,35 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     );
   }
 
-  /// "Do you want to add this to your Yivi app?"; smaller in the right
-  /// column of a phone held sideways.
-  Widget _question(int count) {
+  /// Back to the step before the issuance (the website, the code), to try
+  /// again after a card that does not count came back.
+  void _retry() {
+    issueBack();
+    setState(() => _opened = false);
+  }
+
+  /// "Do you want to add this to your Yivi app?"; inside a request, "{issuer}
+  /// sends you this card". Smaller in the right column of a phone held
+  /// sideways.
+  Widget _question(List<schemaless.Credential> cards) {
     final palette = YiviPalette.of(context);
     final landscape = useSheetColumns(context);
+    final count = cards.length;
+    final issuer = cards.firstOrNull?.issuer.name ?? "";
+    final request = issueRequest;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Semantics(
         header: true,
         child: Text(
-          count > 1
+          request != null
+              ? (count > 1
+                    ? context.tr("share.offer.question_many", {
+                        "issuer": issuer,
+                        "count": "$count",
+                      })
+                    : context.tr("share.offer.question", {"issuer": issuer}))
+              : count > 1
               ? context.tr("issuance.question_many", {"count": "$count"})
               : context.tr("issuance.description"),
           style: landscape
@@ -1040,9 +1129,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   List<Widget> _offer(SessionState offer) {
     final cards = offer.offeredCredentials!;
     final content = _offerContent(offer);
-    final question = _question(cards.length);
+    final question = _question(cards);
+    final requestor = issueRequest?.requestor.name;
+    final palette = YiviPalette.of(context);
     return [
       question,
+      if (requestor != null && cards.length > 1)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            context.tr("share.offer.lead_many", {"requestor": requestor}),
+            key: const Key("sheet_offer_lead"),
+            style: palette
+                .body(15)
+                .copyWith(height: 22 / 15, color: palette.heading),
+          ),
+        ),
       ...content.overview(context, cardWidth: 358),
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -339,6 +339,11 @@ class Credential {
   final bool revocationSupported;
   final String? issueUrl;
 
+  /// The scheme allows only one card of this type in the app: a new one
+  /// replaces the old one. False when irmago does not send it, and for types
+  /// without a scheme entry.
+  final bool isSingleton;
+
   Credential({
     required this.credentialId,
     required this.hash,
@@ -354,6 +359,7 @@ class Credential {
     this.display,
     this.issuanceDate,
     this.expiryDate,
+    this.isSingleton = false,
   });
 
   factory Credential.fromJson(Map<String, dynamic> json) =>

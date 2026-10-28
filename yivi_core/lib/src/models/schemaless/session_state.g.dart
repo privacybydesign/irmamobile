@@ -177,6 +177,7 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
   batchInstanceCountRemaining: (json['batch_instance_count_remaining'] as num?)
       ?.toInt(),
   issueUrl: json['issue_url'] as String?,
+  isSingleton: json['is_singleton'] as bool? ?? false,
 );
 
 const _$CredentialFormatEnumMap = {

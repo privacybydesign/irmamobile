@@ -22,6 +22,7 @@ SelectableCredentialInstance _instance(
   CredentialFormat format = CredentialFormat.idemix,
   String issuer = "Gemeente",
   String? issueUrl,
+  bool isSingleton = false,
 }) => SelectableCredentialInstance(
   credentialId: id,
   hash: hash,
@@ -34,6 +35,7 @@ SelectableCredentialInstance _instance(
   batchInstanceCountRemaining: batch,
   expiryDate: expiry,
   issueUrl: issueUrl,
+  isSingleton: isSingleton,
 );
 
 CredentialDescriptor _descriptor(
@@ -105,17 +107,17 @@ void main() {
       expect(problemOf(_instance("email")), isNull);
     });
 
-    test("revoked wins over used up and expired", () {
+    test("revoked wins over expired", () {
       expect(
         problemOf(_instance("a", revoked: true, batch: 0, expiry: _past)),
         CardProblem.revoked,
       );
     });
 
-    test("no batch copies left is used up", () {
+    test("no batch copies left counts as expired", () {
       expect(
         problemOf(_instance("pid", batch: 0, format: CredentialFormat.msoMdoc)),
-        CardProblem.usedUp,
+        CardProblem.expired,
       );
     });
 
@@ -123,11 +125,9 @@ void main() {
       expect(problemOf(_instance("a", expiry: _past)), CardProblem.expired);
     });
 
-    test("one copy left is the last use, not a problem", () {
+    test("one copy left is no problem, and not warned about", () {
       final card = _instance("age", batch: 1, format: CredentialFormat.sdjwtvc);
       expect(problemOf(card), isNull);
-      expect(isLastUse(card), isTrue);
-      expect(isLastUse(_instance("age", batch: 2)), isFalse);
     });
   });
 
@@ -301,6 +301,22 @@ void main() {
       expect(button.blockedBy, CardProblem.revoked);
     });
 
+    test("renewing a card at its issuer keeps whether it is a singleton", () {
+      final pickOne = _pickOne(
+        owned: [
+          _bundle([
+            _instance(
+              "address",
+              revoked: true,
+              issueUrl: "https://portal.example/address",
+              isSingleton: true,
+            ),
+          ]),
+        ],
+      );
+      expect(fixFor(pickOne, pickOne.ownedOptions!.first)?.isSingleton, isTrue);
+    });
+
     test("a used-up card that cannot be renewed in Yivi closes", () {
       final state = _session([
         _pickOne(
@@ -338,7 +354,7 @@ void main() {
       expect(shareButton(state, const {}).enabled, isTrue);
     });
 
-    test("picking another owned card clears the block", () {
+    test("the usable card is in use; picking the revoked one blocks", () {
       final state = _session([
         _pickOne(
           owned: [
@@ -347,8 +363,8 @@ void main() {
           ],
         ),
       ]);
-      expect(shareButton(state, const {}).enabled, isFalse);
-      expect(shareButton(state, const {0: 1}).enabled, isTrue);
+      expect(shareButton(state, const {}).enabled, isTrue);
+      expect(shareButton(state, const {0: 0}).blockedBy, CardProblem.revoked);
     });
   });
 
@@ -405,33 +421,40 @@ void main() {
       expect(button.cannotAdd, spot);
     });
 
-    test(
-      "a card added with the wrong value: what was added, what is needed",
-      () {
-        final spot = _pickOne(
-          obtainable: [
-            _descriptor(
-              "ideal",
-              attributes: [_string("bic", "", requested: "RABONL2U")],
-            ),
-          ],
-        );
-        final plan = IssueDuringDisclosure(
-          steps: const [],
-          wrongCredentialIssued: _offered("ideal", [
-            _string("bic", "INGBNL2A"),
-          ]),
-        );
-        final mismatch = spotMismatch(spot, plan);
-        expect(mismatch?.offered?.string, "INGBNL2A");
-        expect(mismatch?.required.string, "RABONL2U");
-        // A wrong card of another type is not this spot's.
-        expect(
-          spotMismatch(_pickOne(obtainable: [_descriptor("email")]), plan),
-          isNull,
-        );
-      },
-    );
+    test("a card in the app whose value differs does not count", () {
+      final spot = _pickOne(
+        obtainable: [
+          _descriptor(
+            "ideal",
+            attributes: [_string("bic", "", requested: "RABONL2U")],
+          ),
+        ],
+      );
+      final wallet = [
+        _offered("ideal", [_string("bic", "INGBNL2A")]),
+      ];
+      final mismatch = walletMismatch(spot, wallet);
+      expect(mismatch?.have?.string, "INGBNL2A");
+      expect(mismatch?.asked.string, "RABONL2U");
+      expect(mismatch?.attributeName, "bic");
+      // The same value, or a card of another type: nothing to say.
+      expect(
+        walletMismatch(spot, [
+          _offered("ideal", [_string("bic", "RABONL2U")]),
+        ]),
+        isNull,
+      );
+      expect(
+        walletMismatch(spot, [
+          _offered("email", [_string("bic", "INGBNL2A")]),
+        ]),
+        isNull,
+      );
+      // The button gets that kind again, and says the card doesn't count.
+      final button = shareButton(_session([spot]), const {}, wallet: wallet);
+      expect(button.mismatch, isNotNull);
+      expect(button.next?.kind, NextKind.add);
+    });
 
     test("types only accepted together are one set", () {
       final spot = _pickOne(
@@ -572,142 +595,24 @@ void main() {
   });
 
   group("what optional data asks for", () {
-    Attribute field(String name, {bool requested = true}) => Attribute(
-      claimPath: [name],
-      displayName: name,
-      requestedValue: requested
-          ? AttributeValue(type: AttributeType.string)
-          : null,
-    );
-    SelectableCredentialInstance card(String id, List<String> fields) =>
-        SelectableCredentialInstance(
-          credentialId: id,
-          hash: "h-$id",
-          name: id,
-          issuer: _party("Gemeente"),
-          format: CredentialFormat.idemix,
-          attributes: [for (final f in fields) field(f)],
-          revoked: false,
-          revocationSupported: false,
-        );
-
-    test("the fields of the first card in the app", () {
-      expect(
-        optionalWhat(
-          _pickOne(
-            optional: true,
-            owned: [
-              _bundle([
-                card("Personal data", ["Date of birth"]),
-              ]),
-              _bundle([
-                card("Passport", ["Born", "Name"]),
-              ]),
-            ],
-          ),
-        ),
-        const OptionalWhat(byCard: false, names: ["Date of birth"]),
+    test("the kinds by name: in the app first, then to add, each once", () {
+      final pickOne = _pickOne(
+        optional: true,
+        owned: [
+          _bundle([_instance("Driving licence", hash: "d1")]),
+          _bundle([_instance("Driving licence", hash: "d2")]),
+        ],
+        obtainable: [
+          _descriptor("Passport"),
+          _descriptor("Driving licence"),
+          _descriptor("ID card"),
+        ],
       );
-    });
-
-    test("nothing in the app: the requested fields of the first to add", () {
-      expect(
-        optionalWhat(
-          _pickOne(
-            optional: true,
-            obtainable: [
-              _descriptor(
-                "Mobile number",
-                attributes: [
-                  field("Mobile number"),
-                  field("Country", requested: false),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const OptionalWhat(byCard: false, names: ["Mobile number"]),
-      );
-    });
-
-    test("a set: the fields of both cards, once each", () {
-      expect(
-        optionalWhat(
-          _pickOne(
-            optional: true,
-            owned: [
-              _bundle([
-                card("Personal data", ["Name"]),
-                card("Address", ["Street", "Name"]),
-              ]),
-            ],
-          ),
-        ),
-        const OptionalWhat(byCard: false, names: ["Name", "Street"]),
-      );
-    });
-
-    test("more than three fields: named by the cards", () {
-      expect(
-        optionalWhat(
-          _pickOne(
-            optional: true,
-            owned: [
-              _bundle([
-                card("Personal data", ["First names", "Surname"]),
-                card("Address", ["Street", "Postcode"]),
-              ]),
-            ],
-          ),
-        ),
-        const OptionalWhat(byCard: true, names: ["Personal data", "Address"]),
-      );
-    });
-
-    test("nothing in the app, a set to complete: the fields of its cards", () {
-      expect(
-        optionalWhat(
-          DisclosurePickOne(
-            optional: true,
-            ownedOptions: const [],
-            obtainableBundles: [
-              ObtainableBundle(
-                owned: [
-                  card("Address", ["Street"]),
-                ],
-                missing: [
-                  _descriptor("Passport", attributes: [field("Name")]),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const OptionalWhat(byCard: false, names: ["Name", "Street"]),
-      );
-    });
-
-    test("what can be completed: the sets irmago sends, or one type each", () {
-      final passport = _descriptor("Passport");
-      final address = card("Address", ["Street"]);
-      final noUrl = _descriptor("mdoc", url: null);
-      final sets = addableBundles(
-        DisclosurePickOne(
-          optional: true,
-          obtainableOptions: [passport, noUrl],
-          obtainableBundles: [
-            ObtainableBundle(owned: [address], missing: [passport]),
-            ObtainableBundle(owned: const [], missing: [noUrl]),
-          ],
-        ),
-      );
-      expect(sets, hasLength(1));
-      expect(sets.single.owned.single.credentialId, "Address");
-
-      final types = addableBundles(
-        _pickOne(optional: true, obtainable: [passport, noUrl]),
-      );
-      expect([for (final b in types) b.missing.single], [passport]);
-      expect(types.single.owned, isEmpty);
+      expect(optionalKinds(pickOne), [
+        "Driving licence",
+        "Passport",
+        "ID card",
+      ]);
     });
 
     test("a list in a sentence", () {
@@ -736,57 +641,97 @@ void main() {
       );
     });
 
-    test("you can also choose: your other or your, never a", () {
-      // Two email addresses and one mobile number in the app, the first
-      // email address selected; another email address and a BSN can be
-      // added.
+    test("you can also choose another card, or add one; never names", () {
       final pickOne = _pickOne(
         owned: [
           _bundle([_instance("email", hash: "e1")]),
-          _bundle([_instance("email", hash: "e2")]),
+          _bundle([_instance("email", hash: "e2", revoked: true)]),
+        ],
+        obtainable: [_descriptor("email")],
+      );
+      // Only a revoked card besides it: adding is what is left.
+      expect(alsoChoice(pickOne, 0), AlsoChoice.add);
+      final two = _pickOne(
+        owned: [
+          _bundle([_instance("email", hash: "e1")]),
           _bundle([_instance("mobile", hash: "m1")]),
         ],
-        obtainable: [_descriptor("email"), _descriptor("bsn")],
       );
-      expect(alsoChoose(pickOne, 0), [
-        (AlsoKind.other, "email"),
-        (AlsoKind.your, "mobile"),
-        (AlsoKind.your, "bsn"),
-      ]);
-      // The mobile number selected: the two email addresses (and the one to
-      // add) are named once.
-      expect(alsoChoose(pickOne, 2), [
-        (AlsoKind.your, "email"),
-        (AlsoKind.your, "bsn"),
-      ]);
+      expect(alsoChoice(two, 0), AlsoChoice.choose);
+      expect(
+        alsoChoice(
+          _pickOne(
+            owned: [
+              _bundle([_instance("email")]),
+            ],
+          ),
+          0,
+        ),
+        isNull,
+      );
     });
 
-    test("the footnote only when the button shares something", () {
-      final owned = _pickOne(
+    test("a usable card is chosen over one that can't be used", () {
+      final pickOne = _pickOne(
         owned: [
-          _bundle([_instance("email")]),
+          _bundle([_instance("passport", hash: "p", revoked: true)]),
+          _bundle([_instance("licence", hash: "l")]),
         ],
       );
-      final missing = _pickOne(obtainable: [_descriptor("mobile")]);
-      final optional = _pickOne(
-        optional: true,
-        owned: [
-          _bundle([_instance("name")]),
-        ],
+      expect(defaultSelection(pickOne), 1);
+      expect(shareButton(_session([pickOne]), const {}).enabled, isTrue);
+    });
+
+    test("the button does the next step", () {
+      // One kind missing: add it.
+      final one = shareButton(
+        _session([
+          _pickOne(obtainable: [_descriptor("email")]),
+        ]),
+        const {},
       );
-
-      final ok = _session([owned]);
-      expect(showFootnote(shareButton(ok, const {0: 0}), const {0: 0}), isTrue);
-
-      // A card still to be added: not yet.
-      final waiting = _session([owned, missing]);
-      const sel = {0: 0, 1: -1};
-      expect(showFootnote(shareButton(waiting, sel), sel), isFalse);
-
-      // Nothing shared at all.
-      final nothing = _session([optional]);
-      const none = {0: -1};
-      expect(showFootnote(shareButton(nothing, none), none), isFalse);
+      expect(one.enabled, isFalse);
+      expect(one.next?.kind, NextKind.add);
+      expect(one.next?.descriptor?.credentialId, "email");
+      expect(one.toDo, 1);
+      // Several kinds: choose.
+      final several = shareButton(
+        _session([
+          _pickOne(
+            obtainable: [_descriptor("passport"), _descriptor("idcard")],
+          ),
+          _pickOne(obtainable: [_descriptor("email")]),
+        ]),
+        const {},
+      );
+      expect(several.next?.kind, NextKind.pick);
+      expect(several.next?.index, 0);
+      expect(several.toDo, 2);
+      expect(several.ready, [false, false]);
+      // A revoked card of the only kind: a new one; a singleton: get again.
+      NextStep? renew({bool single = false}) => shareButton(
+        _session([
+          _pickOne(
+            owned: [
+              _bundle([_instance("address", revoked: true)]),
+            ],
+            obtainable: [
+              CredentialDescriptor(
+                credentialId: "address",
+                name: "Address",
+                issuer: _party("Gemeente"),
+                category: null,
+                attributes: const [],
+                issueURL: "https://www.issuer.example/get",
+                isSingleton: single,
+              ),
+            ],
+          ),
+        ]),
+        const {},
+      ).next;
+      expect(renew()?.kind, NextKind.addAgain);
+      expect(renew(single: true)?.kind, NextKind.fetchAgain);
     });
 
     test("the card that blocks sharing is named", () {
@@ -799,6 +744,28 @@ void main() {
       );
       expect(button.enabled, isFalse);
       expect(button.blockedCard, address);
+    });
+  });
+
+  group("is_singleton from irmago", () {
+    Map<String, dynamic> party() => {"id": "x", "name": "X", "verified": true};
+    Map<String, dynamic> descriptor([bool? single]) => {
+      "credential_id": "pbdf.gemeente.address",
+      "name": "Address",
+      "issuer": party(),
+      "attributes": const [],
+      "is_singleton": ?single,
+    };
+
+    test("is read on a credential type", () {
+      expect(
+        CredentialDescriptor.fromJson(descriptor(true)).isSingleton,
+        isTrue,
+      );
+    });
+
+    test("is false when an older irmago leaves it out", () {
+      expect(CredentialDescriptor.fromJson(descriptor()).isSingleton, isFalse);
     });
   });
 }

@@ -295,7 +295,9 @@ void main() {
       );
     });
 
-    testWidgets("a revoked card: chip, reason and the fix", (tester) async {
+    testWidgets("a revoked card in the sheet: chip, reason and the fix", (
+      tester,
+    ) async {
       var fixed = 0;
       await _pump(
         tester,
@@ -311,14 +313,33 @@ void main() {
       );
       expect(find.text("Revoked"), findsOneWidget);
       expect(
-        find.text("Gemeente Nijmegen withdrew this card."),
+        find.text("This card has been revoked and can't be used any more."),
         findsOneWidget,
       );
       await tester.tap(find.byKey(const Key("shared_card_fix")));
       expect(fixed, 1);
     });
 
-    testWidgets("the last copy gets a warning chip", (tester) async {
+    testWidgets("on the share screen a revoked card has no button", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _inPage(
+          SharedCardTile(
+            bundle: DisclosureBundle(
+              credentials: [_instance("Address", revoked: true)],
+            ),
+            problemStrip: true,
+          ),
+        ),
+      );
+      expect(find.text("Revoked"), findsOneWidget);
+      expect(find.byKey(const Key("shared_card_problem")), findsOneWidget);
+      expect(find.byKey(const Key("shared_card_fix")), findsNothing);
+    });
+
+    testWidgets("the last copy gets no warning", (tester) async {
       await _pump(
         tester,
         _inPage(
@@ -329,7 +350,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text("Last use"), findsOneWidget);
+      expect(find.byKey(const Key("shared_card_chip")), findsNothing);
       expect(find.byKey(const Key("shared_card_fix")), findsNothing);
     });
 

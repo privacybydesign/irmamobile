@@ -29,8 +29,13 @@ class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;
 
-  /// The requestor the card is added for, during a request.
+  /// The requestor the card is added for, during a request, when the card
+  /// holds more than they ask: a note says they only get what they ask.
   final String? forRequestor;
+
+  /// What happens when adding it, for Yivi's own ways (an e-mail code, a
+  /// document scan); it comes before the store's intro.
+  final String? howIntro;
   final AddDataDetailsPart part;
 
   /// The card's width in [AddDataDetailsPart.card].
@@ -41,6 +46,7 @@ class AddDataDetailsContent extends StatelessWidget {
     required this.credential,
     this.faq,
     this.forRequestor,
+    this.howIntro,
     this.part = AddDataDetailsPart.all,
     this.cardWidth = 220,
   });
@@ -108,11 +114,12 @@ class AddDataDetailsContent extends StatelessWidget {
           0,
         ),
         child: Text(
-          intro.isNotEmpty
-              ? intro
-              : context.tr("data.add.details.obtain", {
-                  "credential": credential.name,
-                }),
+          howIntro ??
+              (intro.isNotEmpty
+                  ? intro
+                  : context.tr("data.add.details.obtain", {
+                      "credential": credential.name,
+                    })),
           style: palette
               .body(15)
               .copyWith(height: 22 / 15, color: palette.heading),

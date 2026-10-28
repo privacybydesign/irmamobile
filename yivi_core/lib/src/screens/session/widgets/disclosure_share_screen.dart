@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -15,10 +17,11 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
-import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
+import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/fill_scroll_view.dart";
@@ -29,6 +32,7 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/signature_message.dart";
+import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/technical_details.dart";
@@ -40,28 +44,30 @@ import "session_requestor_header.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
 
-/// The share screen: who asks, as the subject of the page ("Webshop Noord
-/// is asking for your data"), one card per requested item with only the
-/// values that are shared, optional data, the message to sign or the card
-/// offered in return, and one button.
+/// The share screen: one title that says who asks what ("Webshop Noord is
+/// asking for your data"), who they are, then one card per requested item
+/// with only the values that are shared, optional data, the message to
+/// sign or the card offered in return, and one button.
 ///
 /// - A card with other choices has a strip at its foot: "You can also
-///   choose …" with "Change choice", which opens the Change sheet.
+///   choose another card" with "Change choice", which opens the Change sheet.
 /// - A required card that is not in the app yet is an empty spot: Add
-///   opens the Change sheet on adding it, and the new card flies into the
-///   spot. With several types to choose from, the spot shows them as small
-///   cards, and the choice is made in the sheet.
-/// - Optional data that is not shared is its card, faded in a dashed edge,
-///   with "Share too" on that edge; once shared it has "Don't share".
-/// - The footnote and Technical details sit at the bottom of the page, also
-///   when it does not scroll.
+///   opens adding it, and the new card flies into the spot. With several
+///   types to choose from, the spot shows them as small cards, and the
+///   choice is made in a sheet with only those types.
+/// - A card in the app that does not count for the request (a value is not
+///   what they ask) is shown as it is, with what they ask.
+/// - Optional data that is not shared is a row naming its kinds, with
+///   "Share"; once shared it is a card with "Change choice".
+/// - The footnote sits right under the last card.
 /// - Once the requestor card has scrolled under the bar, a glass pill in the
 ///   bar says who asks, as on the detail pages.
 ///
 /// The button is the consent: there is no confirmation dialog after it,
-/// except for a party nobody vouches for. It is disabled with the reason
-/// above it while a card is missing or cannot be shared, and closes the
-/// session when such a card cannot be added or renewed in Yivi.
+/// except for a party nobody vouches for. While something is missing or
+/// can't be used, the button does that next step ("Add passport") with
+/// what is left above it; it closes the session when that can't be done in
+/// Yivi.
 ///
 /// Everything comes from [session] and the user's selection
 /// ([sessionUserChoicesProvider]); the rules live in
@@ -106,6 +112,55 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   GlobalKey _landingKey(int i) =>
       _landingKeys[i] ??= GlobalKey(debugLabel: "share_landing_$i");
 
+  /// Pick-ones whose card just landed: a green ring for a moment.
+  final _landed = <int>{};
+
+  /// Something was missing or couldn't be used, and now everything is
+  /// there: "All set" above the button.
+  bool _hadToDo = false;
+  bool _allSet = false;
+
+  /// The share button is fading in after the last card landed; taps are
+  /// ignored meanwhile (a second tap on "Back to …" would land on it).
+  bool _arriving = false;
+  final _timers = <Timer>[];
+
+  static Set<int> _emptyOf(SessionState s) => {
+    for (final (i, p)
+        in (s.disclosurePlan?.disclosureChoicesOverview ??
+                const <DisclosurePickOne>[])
+            .indexed)
+      if (isEmptySpot(p)) i,
+  };
+
+  static bool _hasToDo(SessionState s) => shareButton(s, const {}).next != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _hadToDo = _hasToDo(widget.session);
+  }
+
+  @override
+  void didUpdateWidget(DisclosureShareScreen old) {
+    super.didUpdateWidget(old);
+    final filled = _emptyOf(old.session).difference(_emptyOf(widget.session));
+    if (filled.isEmpty) return;
+    _landed.addAll(filled);
+    _later(const Duration(milliseconds: 2400), () => _landed.removeAll(filled));
+    if (_hadToDo && !_hasToDo(widget.session)) {
+      _allSet = true;
+      _arriving = true;
+      _later(const Duration(milliseconds: 1300), () => _arriving = false);
+    }
+  }
+
+  void _later(Duration d, VoidCallback change) => _timers.add(
+    Timer(d, () {
+      if (mounted) setState(change);
+    }),
+  );
+
   int get _sessionId => widget.session.id;
 
   List<DisclosurePickOne> get _pickOnes =>
@@ -113,6 +168,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
   @override
   void dispose() {
+    for (final t in _timers) {
+      t.cancel();
+    }
     _scrolledPast.dispose();
     super.dispose();
   }
@@ -135,6 +193,36 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         landingKey: _landingKey(i),
       );
 
+  /// "Choose what you add": the sheet with only the kinds that can be
+  /// added for pick-one [i] (and "Don't share" for optional data).
+  void _openKinds(int i) => showChangeChoiceSheet(
+    context: context,
+    sessionId: _sessionId,
+    index: i,
+    kindsOnly: true,
+    landingKey: _landingKey(i),
+  );
+
+  /// What the share button does before it can share.
+  void _doNext(NextStep next) => switch (next.kind) {
+    NextKind.add ||
+    NextKind.addAgain ||
+    NextKind.fetchAgain => _openChoice(next.index, addNew: next.descriptor),
+    NextKind.pick => _openKinds(next.index),
+    NextKind.addBoth => _openChoice(next.index),
+  };
+
+  String _nextLabel(NextStep next) {
+    final name = {"name": next.descriptor?.name ?? ""};
+    return switch (next.kind) {
+      NextKind.add => context.tr("share.next.add", name),
+      NextKind.addAgain => context.tr("share.next.add_again", name),
+      NextKind.fetchAgain => context.tr("share.next.fetch_again", name),
+      NextKind.pick => context.tr("share.next.pick"),
+      NextKind.addBoth => context.tr("share.add_both"),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -147,7 +235,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       choices.disclosureChoices,
       choices.addedOptionalIndices,
     );
-    final button = shareButton(session, selections);
+    final wallet = ref.watch(walletCardsProvider);
+    final button = shareButton(session, selections, wallet: wallet);
     final offered = session.offeredCredentials ?? const [];
     final isSignature = session.type == SessionType.signature;
     final kind = isSignature
@@ -187,59 +276,70 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
 
     final ask = t("share.ask.$kind");
-    final lead = required.isEmpty && optional.isNotEmpty
-        ? t("share.section.nothing_required_text", {"requestor": requestor})
-        : t(switch (kind) {
-            "sign" => "share.lead_sign",
-            "share_receive" => "share.lead_receive",
-            _ => "share.lead",
-          });
+    // Only optional data: say that nothing has to be shared.
+    final lead = t("share.section.nothing_required_text", {
+      "requestor": requestor,
+    });
 
     final message = isSignature && session.messageToSign != null
-        ? SurfaceCard(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 8,
-              children: [
-                Text(
-                  t("share.message_label"),
-                  style: palette
-                      .body(13, weight: FontWeight.w700)
-                      .copyWith(color: palette.secondaryText),
-                ),
-                SignatureMessage(message: session.messageToSign!),
-              ],
-            ),
-          )
+        ? _QuotedMessage(message: session.messageToSign!)
         : null;
 
+    // One title says who asks what; the card under it says who they are.
     final requestorPart = <_Spaced>[
       _Spaced(
         0,
-        KeyedSubtree(
-          key: _headerKey,
-          child: RequestorCard(
-            requestor: session.requestor,
-            ask: ask,
-            onInfo: openTrust,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Semantics(
+            header: true,
+            child: Text(
+              t("share.title.$kind", {"requestor": requestor}),
+              key: const Key("share_title"),
+              style: palette
+                  .display(27, weight: FontWeight.w700)
+                  .copyWith(height: 34 / 27, color: palette.text),
+            ),
           ),
         ),
       ),
       _Spaced(
-        12,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            lead,
-            key: const Key("share_lead"),
-            style: palette
-                .body(15)
-                .copyWith(height: 22 / 15, color: palette.secondaryText),
-          ),
+        18,
+        KeyedSubtree(
+          key: _headerKey,
+          child: RequestorCard(requestor: session.requestor, onInfo: openTrust),
         ),
       ),
-      if (message != null) _Spaced(14, message),
+      if (required.isEmpty && optional.isNotEmpty)
+        _Spaced(
+          12,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              lead,
+              key: const Key("share_lead"),
+              style: palette
+                  .body(15)
+                  .copyWith(height: 22 / 15, color: palette.secondaryText),
+            ),
+          ),
+        ),
+      if (message != null) ...[
+        _Spaced(24, _SectionLabel(t("share.message_label"))),
+        _Spaced(12, message),
+        _Spaced(
+          10,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              t("share.message_how"),
+              style: palette
+                  .body(14)
+                  .copyWith(height: 20 / 14, color: palette.secondaryText),
+            ),
+          ),
+        ),
+      ],
     ];
 
     final requestedPart = <_Spaced>[
@@ -269,15 +369,17 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ],
     ];
 
-    // Only when the button shares something: not while a card is missing,
-    // and not when nothing is shared.
-    final footnote = showFootnote(button, selections)
-        ? _Footnote(text: t("share.footnote", {"requestor": requestor}))
-        : null;
+    // Right under the last card, always: what leaves the phone, and what
+    // doesn't.
+    final footnote = _Footnote(
+      text: t(isSignature ? "share.footnote_sign" : "share.footnote", {
+        "requestor": requestor,
+      }),
+    );
     final pageEnd = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [?footnote],
+      children: [footnote],
     );
 
     // Nobody vouches for the requestor: Share becomes "Share anyway", asks
@@ -288,7 +390,21 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         button.label != ShareLabel.close &&
         button.label != ShareLabel.shareWithoutData;
     void share() => widget.onShare(disclosureChoicesFor(pickOnes, selections));
+    final next = button.next;
     final bar = _ShareBar(
+      steps: next != null && button.ready.length > 1 ? button.ready : null,
+      tone: risky
+          ? _ReasonTone.risky
+          : next != null
+          ? _ReasonTone.soft
+          : _allSet && button.enabled
+          ? _ReasonTone.ready
+          : _ReasonTone.plain,
+      arriving: _arriving,
+      isNext: next != null,
+      decline: button.mismatch == null
+          ? null
+          : (label: t("share.trust.confirm.dont_share"), onTap: widget.onClose),
       reason: switch (button) {
         ShareButtonState(cannotAdd: final p?) =>
           _issuersOf(p).isEmpty
@@ -299,20 +415,26 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   "name": _inSentence(_spotName(p)),
                   "issuer": _issuersOf(p),
                 }),
-        ShareButtonState(missing: final p?) => t("share.reason.missing", {
-          "name": _inSentence(_spotName(p)),
-        }),
         ShareButtonState(cannotRenewFrom: final issuer?) => t(
           "share.reason.cant_renew",
           {"requestor": requestor, "issuer": issuer},
         ),
-        ShareButtonState(blockedCard: final b?) => t("share.reason.renew", {
-          "name": _inSentence(_bundleName(b)),
-        }),
+        ShareButtonState(mismatch: _?) => t("share.reason.not_counted"),
+        ShareButtonState(missing: _?) =>
+          button.toDo == 1
+              ? t("share.reason.add_one")
+              : t("share.reason.add_many", {"count": "${button.toDo}"}),
+        ShareButtonState(blockedCard: _?) =>
+          button.toDo == 1
+              ? t("share.reason.fix_one")
+              : t("share.reason.fix_many", {"count": "${button.toDo}"}),
         _ when risky => t("share.trust.risky.reason", {"requestor": requestor}),
+        _ when _allSet && button.enabled => t("share.reason.ready"),
         _ => null,
       },
-      label: risky
+      label: next != null
+          ? _nextLabel(next)
+          : risky
           ? t(
               button.label == ShareLabel.signAndShare
                   ? "share.trust.risky.sign_anyway"
@@ -323,7 +445,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             }),
       primary: button.label != ShareLabel.close && !risky,
       risky: risky,
-      onPressed: !button.enabled
+      onPressed: next != null
+          ? () => _doNext(next)
+          : !button.enabled
           ? null
           : button.label == ShareLabel.close
           ? widget.onClose
@@ -442,15 +566,14 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             gap: 56,
             start: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ..._laidOut(requestorPart),
-                const SizedBox(height: 28),
-                pageEnd,
-              ],
+              children: _laidOut(requestorPart),
             ),
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _laidOut(requestedPart, first: true),
+              children: _laidOut([
+                ...requestedPart,
+                _Spaced(16, footnote),
+              ], first: true),
             ),
             actions: bar,
           ),
@@ -491,21 +614,13 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   16 + insets.right,
                   16 + insets.bottom,
                 ),
-                // At least the screen high, so the footnote and the details
-                // sit at its bottom also when the page is short.
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: _laidOut([...requestorPart, ...requestedPart]),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 28),
-                      child: pageEnd,
-                    ),
-                  ],
+                  children: _laidOut([
+                    ...requestorPart,
+                    ...requestedPart,
+                    _Spaced(16, footnote),
+                  ]),
                 ),
               ),
             );
@@ -583,9 +698,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     inList: _inSentence,
   );
 
-  static String _bundleName(DisclosureBundle b) =>
-      b.credentials.map((c) => c.name).join(" + ");
-
   String _inSentence(String name) => inSentence(
     name,
     language: FlutterI18n.currentLocale(context)?.languageCode,
@@ -596,19 +708,15 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       if (d.issuer.name.isNotEmpty) d.issuer.name,
   }.join(", ");
 
-  /// "You can also choose your other email address or your mobile number",
-  /// with "Change choice": the strip at the foot of a card with other
-  /// choices. Null when there are none.
+  /// "You can also choose another card" (or "add another card"), with
+  /// "Change choice": the strip at the foot of a card with other choices.
+  /// Null when there are none.
   Widget? _choiceStrip(int i, DisclosurePickOne p, int selected) {
     if (!canChange(p)) return null;
-    final items = alsoChoose(p, selected);
-    if (items.isEmpty) return null;
-    final list = orList([
-      for (final (kind, name) in items)
-        context.tr("share.also_${kind.name}", {"name": _inSentence(name)}),
-    ], context.tr("share.or"));
+    final also = alsoChoice(p, selected);
+    if (also == null) return null;
     return _ChoiceStrip(
-      text: context.tr("share.also", {"list": list}),
+      text: context.tr("share.also_${also.name}"),
       button: SmallPill(
         key: Key("share_change_$i"),
         label: context.tr("share.change_choice"),
@@ -630,8 +738,20 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     // Right under the section's label the spot's room above its dashed edge
     // (for the pill) is the gap; under a card it is 12 more, as between
     // cards, so the pill never touches the card above.
-    final gap = empty && first ? 0.0 : 12.0;
-    final child = empty ? _emptySpot(i, p) : _filledTile(i, p, k);
+    final mismatch = empty
+        ? walletMismatch(p, ref.watch(walletCardsProvider))
+        : null;
+    final gap = empty && first && mismatch == null ? 0.0 : 12.0;
+    final child = mismatch != null
+        ? _MismatchTile(
+            key: Key("share_not_counted_$i"),
+            mismatch: mismatch,
+            landingKey: useSessionColumns(context) ? null : _landingKey(i),
+            requestor: widget.session.requestor.name,
+          )
+        : empty
+        ? _emptySpot(i, p)
+        : _filledTile(i, p, k);
     if (!useSessionColumns(context)) return _Spaced(gap, child);
     // On a tablet the Change sheet is a dialog and nothing flies: the card
     // that was added fades into its spot. The switcher holds the spot as
@@ -657,7 +777,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final t = context.tr;
     final addable = addableOptions(p);
     final plan = widget.session.disclosurePlan?.issueDuringDisclosure;
-    final mismatch = spotMismatch(p, plan);
     final together = spotTogether(p, plan);
     final issuers = _issuersOf(p);
     final single = addable.length == 1 && !together ? addable.single : null;
@@ -726,36 +845,38 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               "value": localizedAttributeText(context, value) ?? "",
             }),
       ],
-      wrong: mismatch == null
+      // One kind: straight to adding it. Several: the sheet with only the
+      // kinds; a set: the sheet that adds them one by one.
+      onTap: addable.isEmpty
           ? null
-          : t("share.spot.wrong", {
-              "offered":
-                  localizedAttributeText(context, mismatch.offered) ?? "–",
-              "needed":
-                  localizedAttributeText(context, mismatch.required) ?? "",
-            }),
-      onTap: addable.isEmpty ? null : () => _openChoice(i, addNew: single),
+          : several
+          ? () => _openKinds(i)
+          : () => _openChoice(i, addNew: single),
     );
   }
 
   Widget _filledTile(int i, DisclosurePickOne p, int k) {
     final bundle = p.ownedOptions![k];
     final problem = problemOfBundle(bundle);
-    final fix = problem == null ? null : fixFor(p, bundle);
     final isNew = addedDuringRequest(
       p,
       bundle,
       widget.session.disclosurePlan?.issueDuringDisclosure,
     );
-    final tile = SharedCardTile(
-      key: Key("share_slot_$i"),
-      bundle: bundle,
-      landingKey: _landingKey(i),
-      isNew: isNew,
-      problemStrip: true,
-      fixLabel: fix == null ? null : context.tr("share.renew"),
-      onFix: fix == null ? null : () => _openChoice(i, addNew: fix),
-      footer: _choiceStrip(i, p, k) ?? _togetherStrip(bundle),
+    // A card that can't be used says so; the share button does the fix.
+    final tile = CardTileOutline(
+      shown: _landed.contains(i),
+      color: YiviPalette.of(context).successText,
+      child: SharedCardTile(
+        key: Key("share_slot_$i"),
+        bundle: bundle,
+        landingKey: _landingKey(i),
+        isNew: isNew,
+        problemStrip: true,
+        footer: problem != null
+            ? null
+            : _choiceStrip(i, p, k) ?? _togetherStrip(bundle),
+      ),
     );
     if (!canChange(p)) return tile;
     // Flies into the Change sheet, where the same card is the checked one.
@@ -791,10 +912,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
   }
 
-  /// Optional data. Not shared: a row, "Add optional data", that opens
-  /// the sheet with "Share nothing", the cards in the app and the ones to
-  /// add. Shared: the card with all it shares and a strip with "Change
-  /// choice", which opens that sheet again.
+  /// Optional data. Not shared: a row naming its kinds, "Not shared.
+  /// {requestor} asks for it, but you don't have to.", with "Share", which
+  /// opens the sheet ("Don't share" on top, the cards in the app, the ones
+  /// to add; with none in the app, only the kinds). Shared: the card with
+  /// all it shares and a strip with "Change choice".
   _Spaced _optionalItem(
     int i,
     DisclosurePickOne p,
@@ -804,20 +926,17 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final owned = p.ownedOptions ?? const <DisclosureBundle>[];
     final k = selectionOf(p, selections[i]);
     if (k < 0) {
-      final what = optionalWhatText(context, p);
       return _Spaced(
         12,
         _OptionalRow(
           key: Key("share_add_optional_$i"),
           landingKey: useSessionColumns(context) ? null : _landingKey(i),
-          title: context.tr("share.optional.row_title"),
+          title: orList(optionalKinds(p), context.tr("share.or")),
           subtitle: context.tr("share.optional.row_sub", {
-            "what": what.isEmpty
-                ? what
-                : what[0].toUpperCase() + what.substring(1),
+            "requestor": widget.session.requestor.name,
           }),
           pick: context.tr("share.optional.row_pick"),
-          onTap: () => _openChoice(i),
+          onTap: owned.isEmpty ? () => _openKinds(i) : () => _openChoice(i),
         ),
       );
     }
@@ -941,8 +1060,8 @@ class _ChoiceStrip extends StatelessWidget {
   }
 }
 
-/// Optional data that is not shared: one row, "Add optional data", with
-/// what is asked under it and "Choose" at the end. The whole row opens the
+/// Optional data that is not shared: one row with the kinds it takes, that
+/// it is not shared under it, and "Share" at the end. The whole row opens the
 /// sheet; the pill only says so. A card added in the sheet lands on its
 /// plus.
 class _OptionalRow extends StatelessWidget {
@@ -1001,8 +1120,11 @@ class _OptionalRow extends StatelessWidget {
                       Text(
                         subtitle,
                         style: palette
-                            .body(12.5)
-                            .copyWith(color: palette.secondaryText),
+                            .body(13.5)
+                            .copyWith(
+                              height: 19 / 13.5,
+                              color: palette.secondaryText,
+                            ),
                       ),
                     ],
                   ),
@@ -1055,12 +1177,11 @@ class _Footnote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return CentredMaxWidth(
-      maxWidth: 320,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Text(
         text,
         key: const Key("share_footnote"),
-        textAlign: TextAlign.center,
         style: palette
             .body(13.5)
             .copyWith(height: 19 / 13.5, color: palette.secondaryText),
@@ -1069,9 +1190,28 @@ class _Footnote extends StatelessWidget {
   }
 }
 
-/// The button at the bottom, with why it cannot be pressed above it.
+/// How the line above the share button reads.
+enum _ReasonTone {
+  /// What is left to do before sharing: one short semibold line.
+  soft,
+
+  /// Everything is there: green, with a check.
+  ready,
+
+  /// Nobody vouches for the requestor: red.
+  risky,
+
+  /// Why it can't be done in Yivi.
+  plain,
+}
+
+/// The button at the bottom, with what is left above it.
 class _ShareBar extends StatelessWidget {
   final String? reason;
+  final _ReasonTone tone;
+
+  /// Per required item whether it is ready: dots above the reason.
+  final List<bool>? steps;
   final String label;
   final bool primary;
 
@@ -1080,72 +1220,269 @@ class _ShareBar extends StatelessWidget {
   final bool risky;
   final VoidCallback? onPressed;
 
+  /// The button just became "Share": it fades in, and ignores taps meanwhile.
+  final bool arriving;
+
+  /// The button does the next step ("Add passport"), not share.
+  final bool isNext;
+
+  /// A quiet "Don't share" under the button: the request may not be for her.
+  final ({String label, VoidCallback onTap})? decline;
+
   /// In a bar across the bottom; otherwise just the reason and the button
   /// (the landscape panel).
   final bool inBar;
 
   const _ShareBar({
     required this.reason,
+    this.tone = _ReasonTone.plain,
+    this.steps,
     required this.label,
     required this.primary,
     this.risky = false,
     required this.onPressed,
+    this.arriving = false,
+    this.isNext = false,
+    this.decline,
     this.inBar = true,
   });
 
   /// The same reason and button, without the bar around them.
   _ShareBar inline() => _ShareBar(
     reason: reason,
+    tone: tone,
+    steps: steps,
     label: label,
     primary: primary,
     risky: risky,
     onPressed: onPressed,
+    arriving: arriving,
+    isNext: isNext,
+    decline: decline,
     inBar: false,
   );
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final style = switch (tone) {
+      _ReasonTone.risky =>
+        palette
+            .body(13.5, weight: FontWeight.w600)
+            .copyWith(height: 19 / 13.5, color: palette.errorText),
+      _ReasonTone.soft =>
+        palette
+            .body(15, weight: FontWeight.w600)
+            .copyWith(height: 20 / 15, color: palette.text),
+      _ReasonTone.ready =>
+        palette
+            .body(14.5, weight: FontWeight.w600)
+            .copyWith(height: 20 / 14.5, color: palette.successText),
+      _ReasonTone.plain =>
+        palette.body(13.5).copyWith(height: 19 / 13.5, color: palette.heading),
+    };
+    final Widget button = risky
+        ? PillButton(
+            label: label,
+            style: PillStyle.neutral,
+            size: PillSize.large,
+            onPressed: onPressed,
+          )
+        : primary
+        ? FancyPillButton(label: label, onPressed: onPressed)
+        : PillButton(label: label, size: PillSize.large, onPressed: onPressed);
+    final pill = isNext
+        ? KeyedSubtree(key: const Key("share_next"), child: button)
+        : button;
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: [
+        if (steps case final dots?)
+          ExcludeSemantics(
+            child: Row(
+              key: const Key("share_steps"),
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 6,
+              children: [
+                for (final done in dots)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: done
+                          ? palette.successText
+                          : palette.secondaryText.withValues(alpha: 0.3),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         if (reason != null)
-          Text(
-            reason!,
+          Text.rich(
+            TextSpan(
+              children: [
+                if (tone == _ReasonTone.ready)
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        size: 17,
+                        color: palette.successText,
+                      ),
+                    ),
+                  ),
+                TextSpan(text: reason),
+              ],
+            ),
             key: const Key("share_reason"),
             textAlign: TextAlign.center,
-            style: risky
-                ? palette
-                      .body(13.5, weight: FontWeight.w600)
-                      .copyWith(height: 19 / 13.5, color: palette.errorText)
-                : palette
-                      .body(13.5)
-                      .copyWith(height: 19 / 13.5, color: palette.heading),
+            style: style,
           ),
         KeyedSubtree(
           key: const Key("share_button"),
-          child: risky
-              ? PillButton(
-                  label: label,
-                  style: PillStyle.neutral,
-                  size: PillSize.large,
-                  onPressed: onPressed,
+          child: arriving
+              ? IgnorePointer(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: YiviMotion.duration(
+                      context,
+                      const Duration(milliseconds: 1300),
+                    ),
+                    builder: (context, t, child) =>
+                        Opacity(opacity: t, child: child),
+                    child: pill,
+                  ),
                 )
-              : primary
-              ? FancyPillButton(label: label, onPressed: onPressed)
-              : PillButton(
-                  label: label,
-                  size: PillSize.large,
-                  onPressed: onPressed,
-                ),
+              : pill,
         ),
+        if (decline case final d?)
+          TextLink(
+            key: const Key("share_decline"),
+            label: d.label,
+            onPressed: d.onTap,
+          ),
       ],
     );
     // Floats over the page: solid behind the reason and the button, with
     // the fade above it, so the reason never sits on a card.
     return inBar ? IrmaBottomBarBase(child: content) : content;
+  }
+}
+
+/// The message to sign, as a quote: brand-red marks around it.
+class _QuotedMessage extends StatelessWidget {
+  final String message;
+
+  const _QuotedMessage({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final mark = TextStyle(
+      fontFamily: "Georgia",
+      fontFamilyFallback: const ["serif"],
+      fontSize: 56,
+      height: 1,
+      color: palette.primary,
+    );
+    return SurfaceCard(
+      key: const Key("share_message"),
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ExcludeSemantics(child: Text("\u201C", style: mark)),
+          SignatureMessage(message: message),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ExcludeSemantics(child: Text("\u201D", style: mark)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A card in the app of a kind the request takes, that does not count for
+/// it: one of its values is not what they ask. Shown as it is, with that
+/// value in red and what they ask beside it, and a strip that says what
+/// she can do: get it again if it changed, or else not share.
+class _MismatchTile extends StatelessWidget {
+  final WalletMismatch mismatch;
+  final GlobalKey? landingKey;
+  final String requestor;
+
+  const _MismatchTile({
+    super.key,
+    required this.mismatch,
+    required this.landingKey,
+    required this.requestor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final card = mismatch.card;
+    final asked = localizedAttributeText(context, mismatch.asked) ?? "";
+    final have = localizedAttributeText(context, mismatch.have) ?? "";
+    final single = mismatch.descriptor.isSingleton || card.isSingleton;
+    final art = CredentialCardArt(credential: card, width: CardTile.miniWidth);
+    return CardTile(
+      key: const Key("share_not_counted"),
+      art: landingKey == null
+          ? art
+          : CardFlightLanding(landingKey: landingKey!, child: art),
+      title: card.name,
+      subtitle: card.issuer.name,
+      chip: StatusChip(
+        label: context.tr("share.not_counted.chip"),
+        tone: DialogTone.danger,
+      ),
+      body: [
+        YiviCredentialCardAttributeList(
+          card.attributes,
+          credentialId: card.credentialId,
+          disclosure: true,
+          showDividers: true,
+          mismatched: {
+            for (final a in card.attributes)
+              if (a.effectiveDisplayName == mismatch.attributeName)
+                claimPathKey(a.claimPath),
+          },
+          mismatchedTag: context.tr("share.not_counted.asked", {
+            "value": asked,
+          }),
+        ),
+      ],
+      footer: CardTileStrip(
+        key: const Key("share_not_counted_note"),
+        children: [
+          Expanded(
+            child: Text(
+              context.tr(
+                single
+                    ? "share.not_counted.text_single"
+                    : "share.not_counted.text",
+                {
+                  "requestor": requestor,
+                  "field": mismatch.attributeName,
+                  "value": asked,
+                  "have": have,
+                },
+              ),
+              style: palette
+                  .body(13.5)
+                  .copyWith(height: 19 / 13.5, color: palette.heading),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

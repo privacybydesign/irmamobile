@@ -1,18 +1,16 @@
-import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/session_state.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/action_feedback.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../models/disclosure_view_model.dart";
 import "issuance_permission.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
@@ -40,6 +38,15 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   /// code).
   final bool onOtherDevice;
 
+  /// The same phone, with a link back: "Back to {host}" opens it
+  /// ([onReturn]).
+  final String? returnHost;
+  final VoidCallback? onReturn;
+
+  /// The same phone without a link back, on iOS: she goes back herself, with
+  /// ◀ at the top left.
+  final bool goBackYourself;
+
   final String? _translationKey;
 
   DisclosureFeedbackScreen({
@@ -49,6 +56,9 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     bool? isSignatureSession,
     this.shared = const [],
     this.onOtherDevice = false,
+    this.returnHost,
+    this.onReturn,
+    this.goBackYourself = false,
   }) : isSignatureSession = isSignatureSession ?? false,
        _translationKey = _translationKeys[feedbackType];
 
@@ -93,77 +103,100 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     );
   }
 
-  /// "Shared with {requestor}": a check, what was shared, and a note when
-  /// that was a card's last use.
+  /// "Shared with {requestor}": a check, the title, what to do now (big, at
+  /// the top: go on on the other screen, back to the website), and what
+  /// they got.
   Widget _buildShared(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final lang = FlutterI18n.currentLocale(context)?.languageCode;
     final requestor = {"requestor": widget.otherParty};
     final shared = widget.shared;
+    final host = widget.returnHost;
 
     final title = shared.isEmpty
         ? context.tr("share.done.title_none")
         : widget.isSignatureSession
         ? context.tr("share.done.title_signature")
         : context.tr("share.done.title", requestor);
-    final text = shared.isEmpty
-        ? context.tr("share.done.text_none", requestor)
+    final (nextHead, nextText) = host != null
+        ? (
+            context.tr("share.done.next.return_head", {"host": host}),
+            context.tr("share.done.next.return_text"),
+          )
+        : widget.goBackYourself
+        ? (
+            context.tr("share.done.next.back_head"),
+            context.tr("share.done.next.back_text"),
+          )
         : widget.onOtherDevice
-        ? context.tr("share.done.text_second_device", requestor)
-        : context.tr("share.done.text", requestor);
-    final lastUse = shared.firstWhereOrNull(isLastUse);
+        ? (
+            context.tr("share.done.next.other_head"),
+            context.tr("share.done.next.other_text"),
+          )
+        : (null, null);
+    final nextBox = nextHead == null
+        ? null
+        : _NextBox(
+            head: nextHead,
+            text: nextText!,
+            statusBar: widget.goBackYourself,
+          );
 
     final heading = <Widget>[
-      const Center(child: DoneCheck(key: Key("share_done_check"), size: 84)),
-      const SizedBox(height: 12),
+      const Align(
+        alignment: Alignment.centerLeft,
+        child: DoneCheck(key: Key("share_done_check"), size: 64),
+      ),
+      const SizedBox(height: 16),
       Semantics(
         header: true,
         child: Text(
           title,
           key: const Key("share_done_title"),
-          textAlign: TextAlign.center,
-          style: palette.display(25).copyWith(color: palette.text),
+          style: palette.display(27).copyWith(color: palette.text),
         ),
       ),
-      const SizedBox(height: 12),
-      Text(
-        text,
-        textAlign: TextAlign.center,
-        style: palette
-            .body(15)
-            .copyWith(height: 22 / 15, color: palette.heading),
-      ),
+      if (nextBox != null) ...[const SizedBox(height: 18), nextBox],
+      if (shared.isEmpty) ...[
+        const SizedBox(height: 12),
+        Text(
+          context.tr("share.done.text_none", requestor),
+          style: palette
+              .body(15)
+              .copyWith(height: 22 / 15, color: palette.heading),
+        ),
+      ],
     ];
     final details = <Widget>[
+      if (shared.isNotEmpty)
+        CapsLabel(
+          context.tr("share.done.they_got", requestor),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+        ),
       for (final instance in shared)
         SharedCardTile(
           bundle: DisclosureBundle(credentials: [instance]),
           showStatus: false,
         ),
-      if (lastUse != null)
-        Container(
-          key: const Key("share_done_last_use"),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: ShapeDecoration(
-            color: palette.warningSurface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: YiviCorners.cardRadius,
-            ),
-          ),
+      if (shared.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text(
-            context.tr("share.done.last_use", {
-              "name": inSentence(lastUse.name, language: lang),
-            }),
+            context.tr("share.done.in_activity"),
             style: palette
-                .body(14)
-                .copyWith(height: 20 / 14, color: palette.warningText),
+                .body(13.5)
+                .copyWith(height: 19 / 13.5, color: palette.secondaryText),
           ),
         ),
     ];
+    final label = host != null
+        ? context.tr("share.done.next.return_head", {"host": host})
+        : FlutterI18n.translate(context, "share.done.button");
+    void done() =>
+        host != null ? widget.onReturn?.call() : widget.onDismiss(context);
     final button = FancyPillButton(
       key: const Key("ok_button"),
-      label: FlutterI18n.translate(context, "share.done.button"),
-      onPressed: () => widget.onDismiss(context),
+      label: label,
+      onPressed: done,
     );
 
     // A phone held sideways, as the issuance success: the check and the
@@ -181,15 +214,22 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           body: IssuanceLandscape(
             key: const Key("share_done_landscape"),
             title: title,
-            note: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                text,
-                style: palette
-                    .body(15)
-                    .copyWith(height: 22 / 15, color: palette.heading),
-              ),
-            ),
+            note:
+                nextBox ??
+                (shared.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Text(
+                          context.tr("share.done.text_none", requestor),
+                          style: palette
+                              .body(15)
+                              .copyWith(
+                                height: 22 / 15,
+                                color: palette.heading,
+                              ),
+                        ),
+                      )
+                    : const SizedBox.shrink()),
             overview: const [
               Center(child: DoneCheck(key: Key("share_done_check"), size: 84)),
             ],
@@ -201,9 +241,9 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
             ],
             actions: FancyPillButton(
               key: const Key("ok_button"),
-              label: FlutterI18n.translate(context, "share.done.button"),
+              label: label,
               size: PillSize.regular,
-              onPressed: () => widget.onDismiss(context),
+              onPressed: done,
             ),
           ),
         ),
@@ -247,10 +287,13 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
         scrollsUnderBars: true,
         body: BarInsetsBuilder(
           builder: (context, insets) => ListView(
-            padding: insets + const EdgeInsets.fromLTRB(16, 24, 16, 24),
+            padding: insets + const EdgeInsets.fromLTRB(16, 16, 16, 24),
             children: [
               ...heading,
-              for (final d in details) ...[const SizedBox(height: 16), d],
+              for (final (n, d) in details.indexed) ...[
+                SizedBox(height: n == 0 ? 28 : 12),
+                d,
+              ],
             ],
           ),
         ),
@@ -265,5 +308,102 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     if (state == AppLifecycleState.resumed) {
       widget.onDismiss(context);
     }
+  }
+}
+
+/// What to do now, at the top of the done screen: a head and a line, and on
+/// iOS without a link back a small status bar with ◀ lit, where she taps to
+/// go back. The bar shows no app name: she may have come from a browser,
+/// mail or another app.
+class _NextBox extends StatelessWidget {
+  final String head;
+  final String text;
+  final bool statusBar;
+
+  const _NextBox({
+    required this.head,
+    required this.text,
+    required this.statusBar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Container(
+      key: const Key("share_done_next"),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: ShapeDecoration(
+        color: palette.infoSurface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 4,
+        children: [
+          if (statusBar)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: ExcludeSemantics(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(7),
+                          ),
+                          side: BorderSide(color: palette.primary, width: 2),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 5,
+                        children: [
+                          Text(
+                            "\u25C0",
+                            style: palette
+                                .body(12, weight: FontWeight.w700)
+                                .copyWith(color: palette.link),
+                          ),
+                          Container(
+                            width: 46,
+                            height: 9,
+                            decoration: ShapeDecoration(
+                              color: palette.link.withValues(alpha: 0.35),
+                              shape: const StadiumBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      "9:41",
+                      style: palette
+                          .body(12, weight: FontWeight.w600)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          Text(
+            head,
+            style: palette
+                .display(19, weight: FontWeight.w700)
+                .copyWith(height: 25 / 19, color: palette.text),
+          ),
+          Text(
+            text,
+            style: palette
+                .body(15)
+                .copyWith(height: 21 / 15, color: palette.heading),
+          ),
+        ],
+      ),
+    );
   }
 }

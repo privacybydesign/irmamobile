@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/theme/yivi_palette.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -54,20 +53,17 @@ Future<void> specificAttributeValuesTest(
     "irma-demo.ideal.ideal.bic": "INGBNL2A",
   });
 
-  // The spot says so in place (no dialog): what was added next to what is
-  // needed. It stays empty, and Share keeps waiting.
-  final wrongFinder = find.descendant(
-    of: findEmptySpot(1),
-    matching: find.byKey(const Key("share_spot_wrong")),
-  );
-  await tester.waitFor(wrongFinder);
+  // The card is in the app but doesn't count: it shows in place (no
+  // dialog), its BIC in red with what they ask beside it, and Share keeps
+  // waiting.
+  final notCounted = findNotCounted(1);
+  await tester.waitFor(notCounted);
   expect(find.byType(Dialog), findsNothing);
   expect(
-    tester.widget<Text>(wrongFinder).data,
-    "You added INGBNL2A, needed RABONL2U. Tap to add it again.",
+    find.descendant(of: notCounted, matching: find.text("Asked: RABONL2U")),
+    findsOneWidget,
   );
-  final palette = YiviPalette.of(tester.element(wrongFinder));
-  expect(tester.widget<Text>(wrongFinder).style?.color, palette.errorText);
+  expect(shareReason(tester), "Your card doesn't count for this request");
   expect(shareButtonEnabled(tester), isFalse);
 
   // Now issue the credential with requested BIC
@@ -79,7 +75,7 @@ Future<void> specificAttributeValuesTest(
 
   // The right card is in its place, without the note.
   await expectAddedInPlace(tester, 1);
-  expect(find.byKey(const Key("share_spot_wrong")), findsNothing);
+  expect(findNotCounted(1), findsNothing);
   await tapShare(tester);
   await evaluateFeedback(tester);
 }

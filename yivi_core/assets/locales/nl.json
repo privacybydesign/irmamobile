@@ -271,14 +271,18 @@
         "purpose_question": "Wat kan ik met deze gegevens?",
         "howto_question": "Hoe werkt het?",
         "back_button": "Annuleer",
-        "get_button": "Voeg toe",
-        "obtain": "Voeg {credential} toe aan mijn Yivi-app",
+        "get_button": "Volgende",
+        "obtain": "Dit kaartje komt in je Yivi-app.",
         "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier.",
-        "disclosure_info_requestor": "Je krijgt alles, maar {requestor} krijgt alleen wat erom gevraagd wordt.",
-        "you_get": "Je krijgt",
+        "disclosure_info_requestor": "{requestor} krijgt hiervan alleen wat ze vragen.",
+        "you_get": "In je app komt",
         "good_to_know": "Goed om te weten",
         "show_all": "Toon alle {count}",
-        "steps_peek": "{count} stappen · {first}"
+        "steps_peek": "{count} stappen · {first}",
+        "title_add": "{name} toevoegen",
+        "how_email": "Je vult je e-mailadres in. Yivi stuurt je een code; die typ je hier in. Daarna staat je e-mailadres in je app.",
+        "how_phone": "Je vult je mobiele nummer in. Yivi stuurt je een code per sms; die typ je hier in. Daarna staat je nummer in je app.",
+        "how_document": "Je maakt een foto van je document en houdt het daarna tegen je telefoon. Zo leest Yivi de chip."
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",
@@ -295,8 +299,16 @@
       "website": {
         "heading": "Ga verder op de website",
         "body": "{issuer} vraagt je om op de website te bevestigen wie je bent. Daarna kom je vanzelf hier terug.",
-        "open": "Website openen",
-        "caption": "De website opent in je browser; dit verzoek wacht hier op je."
+        "open": "Naar {host}",
+        "caption": "De website opent in je browser; dit verzoek wacht hier op je.",
+        "step_open": "Je browser opent {host}",
+        "step_do": "Je doet daar wat {issuer} vraagt",
+        "step_back": "Yivi opent vanzelf weer, terug bij dit verzoek",
+        "not_done": "Nog niet klaar op de website?",
+        "not_done_body": "{issuer} heeft nog niets gestuurd. Ga verder op de website. Als je daar klaar bent, opent Yivi vanzelf weer.",
+        "waits": "{requestor} wacht hier op je. Er gaat niets weg tot je zelf deelt.",
+        "continue": "Verder op de website",
+        "other": "Iets anders kiezen"
       }
     },
     "search": {
@@ -537,8 +549,8 @@
       "text": "De gegevens zijn successvol aan Yivi toegevoegd.",
       "added_one": "{name} is aan Yivi toegevoegd.",
       "added_many": "Deze {count} kaarten zijn aan Yivi toegevoegd.",
-      "added_one_back": "{name} is aan Yivi toegevoegd. Hierna terug naar {requestor}.",
-      "added_many_back": "Deze {count} kaarten zijn aan Yivi toegevoegd. Hierna terug naar {requestor}.",
+      "added_one_back": "Het kaartje staat nu in je app. Ga terug naar {requestor} om verder te gaan.",
+      "added_many_back": "De {count} kaartjes staan nu in je app. Ga terug naar {requestor} om verder te gaan.",
       "back_to": "Terug naar {requestor}",
       "added_header": "Toegevoegd"
     },
@@ -1310,13 +1322,9 @@
     "step_count": "Stap {step} van {total}",
     "problem": {
       "revoked": "Ingetrokken",
-      "revoked_note": "{issuer} heeft deze kaart ingetrokken.",
-      "used_up": "Opgebruikt",
-      "used_up_note": "Deze kaart is zo vaak gedeeld als mogelijk is.",
+      "revoked_note": "Dit kaartje is ingetrokken en kan niet meer gebruikt worden.",
       "expired": "Verlopen",
-      "expired_note": "Deze kaart is niet meer geldig.",
-      "last_use": "Laatste keer",
-      "last_use_note": "Hierna kan de kaart niet meer gedeeld worden. Je kunt daarna een nieuwe toevoegen."
+      "expired_note": "Dit kaartje is verlopen en kan niet meer gebruikt worden."
     },
     "bar": {
       "share": "Gegevens delen",
@@ -1325,39 +1333,39 @@
     },
     "button": {
       "share": "Delen met {requestor}",
-      "sign_and_share": "Ondertekenen en delen",
+      "sign_and_share": "Ondertekenen",
       "share_and_add": "Delen en kaart toevoegen",
       "share_without_data": "Delen zonder gegevens",
       "close": "Sluiten"
     },
     "reason": {
       "cant_renew": "{requestor} heeft een kaart nodig die je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe.",
-      "missing": "Voeg eerst je {name} toe. Daarna kun je delen.",
       "cant_add": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan dan de QR-code opnieuw.",
       "cant_add_unknown": "Yivi kan {name} niet toevoegen. Haal het eerst bij de uitgever en scan dan de QR-code opnieuw.",
-      "renew": "Vernieuw eerst je {name}. Daarna kun je delen."
+      "add_one": "Nog één ding toevoegen, dan kun je delen",
+      "add_many": "Nog {count} dingen toevoegen, dan kun je delen",
+      "fix_one": "Nog één ding regelen, dan kun je delen",
+      "fix_many": "Nog {count} dingen regelen, dan kun je delen",
+      "not_counted": "Je kaartje telt niet mee voor dit verzoek",
+      "ready": "Alles staat klaar. Kijk nog even wat je deelt."
     },
     "section": {
       "you_share": "Dit deel je",
-      "with_signature": "Dit deel je met je handtekening",
-      "optional": "Optioneel",
+      "with_signature": "Je ondertekent met",
+      "optional": "Als je wil",
       "you_receive": "Dit krijg je terug",
       "nothing_required_text": "{requestor} vraagt niets wat je moet delen."
     },
     "add": "Toevoegen",
     "not_in_app_yet": "Nog niet in je app",
     "or": " of ",
-    "message_label": "Je ondertekent dit bericht",
+    "message_label": "Je ondertekent",
     "footnote": "{requestor} krijgt alleen wat hierboven staat. Al het andere blijft op je telefoon.",
     "sheet": {
-      "add_optional": "Optionele gegevens toevoegen",
-      "another": "Ander(e) {name}",
-      "pick_card": "Kies een kaartje",
-      "subtitle_one": "Je hebt er maar één nodig. Tik op een kaart in je app, of voeg een nieuwe toe.",
-      "subtitle_one_add": "Je hebt er maar één nodig. Kies wat je wilt toevoegen.",
+      "pick_card": "Welk kaartje deel je?",
+      "subtitle_one": "{requestor} heeft er maar één nodig. Tik op het kaartje dat je wil delen.",
+      "subtitle_one_add": "{requestor} heeft er maar één nodig. Kies er één.",
       "already_in_app": "Al in je app",
-      "another_het": "Ander {name}",
-      "another_de": "Andere {name}",
       "for_requestor": "Voor {requestor}",
       "progress_short": "{step} van {total}",
       "progress_done": "Klaar",
@@ -1374,20 +1382,34 @@
       "together_added": "{name} staat in je app. {requestor} heeft ook {next} nodig: voeg die nu toe.",
       "together_add_next": "{next} toevoegen",
       "later": "Later",
-      "optional_title": "Optionele gegevens",
-      "optional_intro": "{requestor} vraagt ook om {what}. Dat hoef je niet te delen.",
-      "share_nothing": "Niets delen",
-      "share_nothing_sub": "{requestor} krijgt {what} niet"
+      "optional_title": "Wil je dit ook delen?",
+      "optional_intro": "{requestor} vraagt hierom, maar het hoeft niet. Ook zonder kun je delen.",
+      "share_nothing": "Niet delen",
+      "share_nothing_sub": "{requestor} krijgt dit niet",
+      "subtitle_one_docs": "{requestor} heeft er maar één nodig. Kies een document dat je bij de hand hebt.",
+      "add_other": "Een ander kaartje toevoegen",
+      "optional_intro_many": "{requestor} vraagt om een van deze kaartjes, maar het hoeft niet. Ook zonder kun je delen.",
+      "optional_intro_none": "{requestor} vraagt hierom, maar het hoeft niet. Je hebt het nog niet in je app.",
+      "optional_intro_many_none": "{requestor} vraagt om een van deze kaartjes, maar het hoeft niet. Je hebt er nog geen in je app.",
+      "or_add_one": "Of voeg er een toe",
+      "or_add_it": "Of voeg het toe"
     },
     "done": {
       "title": "Gedeeld met {requestor}",
-      "title_signature": "Ondertekend en gedeeld",
+      "title_signature": "Ondertekend",
       "title_none": "Klaar",
-      "text": "{requestor} heeft alleen ontvangen wat hier staat. Je vindt dit terug in Activiteit.",
-      "text_second_device": "Ga verder op het andere apparaat. {requestor} heeft alleen ontvangen wat hier staat.",
       "text_none": "{requestor} heeft geen gegevens van je ontvangen. Je vindt dit terug in Activiteit.",
-      "last_use": "Dit was de laatste keer dat deze {name} gedeeld kon worden. Voeg een nieuwe toe als je hem weer nodig hebt.",
-      "button": "Klaar"
+      "button": "Klaar",
+      "they_got": "Dit heeft {requestor} gekregen",
+      "in_activity": "Je vindt dit terug in Activiteit.",
+      "next": {
+        "other_head": "Ga verder op het andere scherm",
+        "other_text": "Waar je de QR-code scande. Daar gaat het nu verder.",
+        "return_head": "Terug naar {host}",
+        "return_text": "Daar gaat het verder.",
+        "back_head": "Ga terug naar de website",
+        "back_text": "Tik linksboven in je scherm op ◀ met de naam van de app waar je vandaan kwam."
+      }
     },
     "call": {
       "title": "Gedeeld. Bel nu {requestor}",
@@ -1397,7 +1419,6 @@
     "spot": {
       "many": "Je kiest er één bij het toevoegen",
       "cant": "Kan niet in Yivi worden toegevoegd. Haal het eerst bij {issuer}.",
-      "wrong": "Je voegde {offered} toe, nodig is {needed}. Tik om opnieuw toe te voegen.",
       "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
       "must_be": "{field} moet {value} zijn",
       "must_be_value": "Moet {value} zijn",
@@ -1533,14 +1554,7 @@
       "sign": "vraagt je iets te ondertekenen",
       "share_receive": "vraagt om je gegevens en geeft je een kaartje"
     },
-    "lead": "Hieronder staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te delen drukt.",
-    "lead_sign": "Hieronder staat precies wat ze krijgen. Er gaat pas iets weg als je op de knop om te ondertekenen drukt.",
-    "lead_receive": "Je deelt wat hieronder staat en krijgt een kaartje terug. Er gaat pas iets weg als je op de knop om te delen drukt.",
-    "also": "Je kunt ook {list} kiezen",
-    "also_other": "je andere {name}",
-    "also_your": "je {name}",
     "change_choice": "Wijzig keuze",
-    "renew": "Vernieuwen",
     "new_chip": "Nieuw",
     "together": "Deze horen bij elkaar. {requestor} krijgt ze allebei, of geen van beide.",
     "also_share": "Ook delen",
@@ -1551,12 +1565,55 @@
     "add_both": "Allebei toevoegen",
     "and": " en ",
     "optional": {
-      "what_fields": "je {list}",
-      "what_cards": "gegevens uit je {list}",
-      "row_title": "Optionele gegevens toevoegen",
-      "row_sub": "{what} · mag je weglaten",
-      "row_pick": "Kiezen",
-      "also": "Je kunt ook iets anders kiezen of dit niet delen"
+      "row_sub": "Deel je niet. {requestor} vraagt erom, maar het hoeft niet.",
+      "row_pick": "Wel delen",
+      "also": "Dit hoeft niet. Je kunt het ook niet delen of iets anders kiezen."
+    },
+    "title": {
+      "share": "{requestor} vraagt om je gegevens",
+      "sign": "{requestor} vraagt je iets te ondertekenen",
+      "share_receive": "{requestor} vraagt om je gegevens"
+    },
+    "message_how": "Je ondertekent door onderaan op de knop te drukken.",
+    "footnote_sign": "{requestor} krijgt alleen het bericht en wat hierboven staat. Al het andere blijft op je telefoon.",
+    "next": {
+      "add": "{name} toevoegen",
+      "add_again": "{name} opnieuw toevoegen",
+      "fetch_again": "{name} opnieuw ophalen",
+      "pick": "Kies wat je toevoegt"
+    },
+    "also_choose": "Je kunt ook een ander kaartje kiezen",
+    "also_add": "Je kunt ook een ander kaartje toevoegen",
+    "match_tag": "Precies wat ze vragen",
+    "not_counted": {
+      "chip": "Telt niet mee",
+      "asked": "Gevraagd: {value}",
+      "text_single": "{requestor} vraagt {field} {value}. In je app staat {have}. Is dat veranderd? Haal het kaartje dan opnieuw op. Zo niet, dan kun je dit niet delen.",
+      "text": "{requestor} vraagt {field} {value}. In je app staat {have}. Is dat veranderd? Voeg dan een nieuw kaartje toe. Zo niet, dan kun je dit niet delen."
+    },
+    "how": {
+      "email": "Je krijgt een code per e-mail",
+      "phone": "Je krijgt een code per sms",
+      "document": "Je scant het document met je telefoon",
+      "via": "{issuer} · via {host}"
+    },
+    "offer": {
+      "question": "{issuer} stuurt je dit kaartje",
+      "question_many": "{issuer} stuurt je {count} kaartjes",
+      "lead_many": "Ze komen allemaal in je app. Er staat bij welk kaartje {requestor} gebruikt.",
+      "add": "Toevoegen",
+      "add_many": "{count} kaartjes toevoegen",
+      "retry": "Opnieuw proberen",
+      "dont_replace": "Niet vervangen",
+      "add_anyway": "Toch toevoegen",
+      "replace_anyway": "Toch vervangen",
+      "not_counted": "Dit kaartje telt niet mee voor {requestor}",
+      "asks": "{requestor} vraagt",
+      "has": "Dit kaartje heeft",
+      "tag_not_counted": "Telt niet mee",
+      "tag_extra": "Komt er ook bij",
+      "done_not_counted": "Het kaartje staat nu in je app, maar telt niet mee voor {requestor}. Gevraagd: {field} {value}.",
+      "done_replaced_not_counted": "Het kaartje in je app is vervangen, maar telt niet mee voor {requestor}. Gevraagd: {field} {value}."
     }
   },
   "contact_sheet": {

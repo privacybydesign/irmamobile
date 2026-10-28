@@ -614,8 +614,9 @@ void main() {
         await tester.tap(find.byKey(const Key("sheet_open_website")));
         await tester.pumpAndSettle();
         expect(calls.obtained, ["pbdf.gemeente.personalData"]);
-        expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
-        expect(find.text("Open again"), findsOneWidget);
+        // Back without the card: not done on the website yet, and on there.
+        expect(find.text("Not done on the website yet?"), findsOneWidget);
+        expect(find.text("Continue on the website"), findsOneWidget);
       });
     }
 
@@ -679,7 +680,9 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
         findsOneWidget,
       );
-      expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
+      // No request waits under Add data: no note that it waits.
+      expect(find.byKey(const Key("sheet_opened_note")), findsNothing);
+      expect(find.text("Not done on the website yet?"), findsOneWidget);
       expect(find.byKey(const Key("sheet_external_note")), findsNothing);
 
       comeBack(tester);
@@ -866,18 +869,18 @@ void main() {
         );
       });
 
-      testWidgets("opened: the note at the right, Open again in the bar", (
+      testWidgets("opened: Continue on the website in the bar", (
         tester,
       ) async {
         await openWebsite(tester, size: side);
-        // The website page: its way on (Open again) in the bar.
+        // The website page: its way on in the bar.
         final go = tester.getRect(find.byKey(const Key("sheet_open_website")));
-        final opened = tester.getRect(
-          find.byKey(const Key("sheet_opened_note")),
+        final heading = tester.getRect(
+          find.byKey(const Key("sheet_website_heading")),
         );
         expect(go.center.dy, closeTo(title(tester).center.dy, 2));
-        expect(opened.top, greaterThan(go.bottom));
-        expect(find.text("Open again"), findsOneWidget);
+        expect(heading.top, greaterThan(go.bottom));
+        expect(find.text("Continue on the website"), findsOneWidget);
         expect(
           find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
           findsOneWidget,

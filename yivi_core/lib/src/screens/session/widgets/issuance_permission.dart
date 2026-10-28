@@ -19,7 +19,6 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/large_title_scroll_view.dart";
-import "../../../widgets/note_box.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
@@ -311,18 +310,45 @@ class IssuanceOffer {
     ];
   }
 
-  /// "{requestor} needs …; this card has …": inside a request, when an
-  /// offered card won't do for it. Part of [overview] unless it is left out
-  /// there (landscape shows it with the values).
+  /// "This card doesn't count for {requestor}": inside a request, when an
+  /// offered card won't do for it, what they ask next to what the card has.
+  /// Part of [overview] unless it is left out there (landscape shows it
+  /// with the values).
   Widget? note(BuildContext context) {
-    final text = _mismatchText(context, issuanceMismatches(_cards, _steps));
-    return text == null
-        ? null
-        : NoteBox(
-            key: const Key("issuance_mismatch"),
-            text: text,
-            warning: true,
-          );
+    final miss = issuanceMismatches(_cards, _steps).firstOrNull;
+    final request = forRequest;
+    if (miss == null || request == null) return null;
+    final requestor = request.requestor.name;
+    return _MismatchBox(
+      key: const Key("issuance_mismatch"),
+      head: t(context, "share.offer.not_counted", {"requestor": requestor}),
+      asks: t(context, "share.offer.asks", {"requestor": requestor}),
+      asked:
+          "${miss.attributeName} ${localizedAttributeText(context, miss.required) ?? ""}",
+      has: t(context, "share.offer.has"),
+      got:
+          "${miss.attributeName} ${localizedAttributeText(context, miss.offered) ?? "–"}",
+    );
+  }
+
+  /// The tag of [card] inside a request: what the request uses ("For
+  /// {requestor}"), what doesn't count, or what comes along ("Comes too").
+  String? _tagOf(BuildContext context, schemaless.Credential card) {
+    final request = forRequest;
+    if (request == null) return null;
+    final mismatched = issuanceMismatches([card], _steps).isNotEmpty;
+    if (mismatched) return t(context, "share.offer.tag_not_counted");
+    final used = {
+      for (final step in _steps)
+        for (final b in step.options)
+          for (final d in b.credentials) d.credentialId,
+    };
+    if (used.contains(card.credentialId) || _cards.length == 1) {
+      return t(context, "issuance.for_request", {
+        "requestor": request.requestor.name,
+      });
+    }
+    return t(context, "share.offer.tag_extra");
   }
 
   /// "For {requestor} · step n of m" inside a request, "Back from the
@@ -344,26 +370,6 @@ class IssuanceOffer {
     return issuer == null
         ? null
         : t(context, "issuance.returned_from", {"issuer": issuer});
-  }
-
-  String? _mismatchText(
-    BuildContext context,
-    List<IssuanceMismatch> mismatches,
-  ) {
-    final miss = mismatches.firstOrNull;
-    final request = forRequest;
-    if (miss == null || request == null) return null;
-    final offered = localizedAttributeText(context, miss.offered);
-    return t(
-      context,
-      offered == null ? "issuance.mismatch_none" : "issuance.mismatch",
-      {
-        "requestor": request.requestor.name,
-        "attribute": miss.attributeName,
-        "value": localizedAttributeText(context, miss.required) ?? "",
-        "offered": ?offered,
-      },
-    );
   }
 
   String? _validUntil(BuildContext context, schemaless.Credential card) {
@@ -442,7 +448,12 @@ class IssuanceOffer {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _GroupHeader(card: card, until: _validUntil(context, card)),
+                  _GroupHeader(
+                    card: card,
+                    until: _validUntil(context, card),
+                    tag: _tagOf(context, card),
+                    tagBad: issuanceMismatches([card], _steps).isNotEmpty,
+                  ),
                   Divider(height: 1, color: palette.divider),
                   values(card),
                 ],
@@ -459,7 +470,17 @@ class _GroupHeader extends StatelessWidget {
   final schemaless.Credential card;
   final String? until;
 
-  const _GroupHeader({required this.card, required this.until});
+  /// Inside a request: what it is for ("For {requestor}", "Comes too",
+  /// "Doesn't count", the last in red when [tagBad]).
+  final String? tag;
+  final bool tagBad;
+
+  const _GroupHeader({
+    required this.card,
+    required this.until,
+    this.tag,
+    this.tagBad = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -478,8 +499,14 @@ class _GroupHeader extends StatelessWidget {
               style: palette.display(14).copyWith(color: palette.heading),
             ),
           ),
+          if (tag != null)
+            StatusChip(
+              key: const Key("issuance_card_tag"),
+              label: tag!,
+              tone: tagBad ? DialogTone.danger : DialogTone.info,
+            )
           // Wraps rather than pushing the name off at a large text size.
-          if (until != null)
+          else if (until != null)
             Flexible(
               child: Text(
                 until!,
@@ -572,6 +599,79 @@ class IssuanceLandscape extends StatelessWidget {
             ...receives,
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// "This card doesn't count for {requestor}", with what they ask and what
+/// the card has under it, the card's value in red.
+class _MismatchBox extends StatelessWidget {
+  final String head;
+  final String asks;
+  final String asked;
+  final String has;
+  final String got;
+
+  const _MismatchBox({
+    super.key,
+    required this.head,
+    required this.asks,
+    required this.asked,
+    required this.has,
+    required this.got,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    Widget row(String label, String value, {bool bad = false}) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: palette
+                .body(14)
+                .copyWith(height: 20 / 14, color: palette.heading),
+          ),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: palette
+                .body(14, weight: FontWeight.w700)
+                .copyWith(
+                  height: 20 / 14,
+                  color: bad ? palette.errorText : palette.text,
+                ),
+          ),
+        ),
+      ],
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: ShapeDecoration(
+        color: palette.errorSurface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 6,
+        children: [
+          Text(
+            head,
+            style: palette
+                .body(15, weight: FontWeight.w700)
+                .copyWith(height: 21 / 15, color: palette.errorText),
+          ),
+          row(asks, asked),
+          row(has, got, bad: true),
+        ],
       ),
     );
   }

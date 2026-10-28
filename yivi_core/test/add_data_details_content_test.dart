@@ -100,7 +100,7 @@ void main() {
     expect(find.text("Email address"), findsWidgets);
     expect(find.text("Yivi"), findsOneWidget);
     expect(find.textContaining("Example card"), findsNothing);
-    expect(find.text("YOU GET"), findsOneWidget);
+    expect(find.text("GOES INTO YOUR APP"), findsOneWidget);
     final list = find.byKey(const Key("add_data_checklist"));
     expect(
       find.descendant(of: list, matching: find.text("Email domain name")),
@@ -163,7 +163,7 @@ void main() {
       tester,
       _type("irma-demo.gemeente.personalData", "Personal data", ["BSN"]),
     );
-    expect(find.text("Add Personal data to my Yivi-app"), findsOneWidget);
+    expect(find.text("This card goes into your Yivi app."), findsOneWidget);
     expect(find.text("BSN"), findsOneWidget);
     expect(find.text("GOOD TO KNOW"), findsNothing);
   });
@@ -200,7 +200,7 @@ void main() {
     await pump(tester, email, faq: _emailFaq, forRequestor: "Webshop Noord");
     expect(
       find.textContaining(
-        "You get all of it, but Webshop Noord only gets what it asks for.",
+        "Webshop Noord only gets what they ask from this.",
       ),
       findsOneWidget,
     );

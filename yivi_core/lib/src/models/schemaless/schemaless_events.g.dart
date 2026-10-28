@@ -253,6 +253,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
       : CredentialDisplay.fromJson(json['display'] as Map<String, dynamic>),
   issuanceDate: (json['issuance_date'] as num?)?.toInt(),
   expiryDate: (json['expiry_date'] as num?)?.toInt(),
+  isSingleton: json['is_singleton'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CredentialToJson(Credential instance) =>
@@ -274,4 +275,5 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
       'revoked': instance.revoked,
       'revocation_supported': instance.revocationSupported,
       'issue_url': instance.issueUrl,
+      'is_singleton': instance.isSingleton,
     };

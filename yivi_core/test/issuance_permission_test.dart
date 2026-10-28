@@ -261,7 +261,8 @@ void main() {
       ),
     );
 
-    expect(find.text("For Test Verifier"), findsOneWidget);
+    // The chip, and the tag on the card the request uses.
+    expect(find.text("For Test Verifier"), findsNWidgets(2));
   });
 
   testWidgets("a value the request cannot use is warned about first", (
@@ -297,13 +298,23 @@ void main() {
     );
 
     expect(find.byKey(const Key("issuance_mismatch")), findsOneWidget);
+    final box = find.byKey(const Key("issuance_mismatch"));
     expect(
-      find.text(
-        "Test Verifier needs BIC RABONL2U. This card has INGBNL2A, so it "
-        "won't count for this request. You can still add it.",
+      find.descendant(
+        of: box,
+        matching: find.text("This card doesn't count for Test Verifier"),
       ),
       findsOneWidget,
     );
+    expect(
+      find.descendant(of: box, matching: find.text("BIC RABONL2U")),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: box, matching: find.text("BIC INGBNL2A")),
+      findsOneWidget,
+    );
+    expect(find.text("Doesn't count"), findsOneWidget);
   });
 
   testWidgets("a matching value needs no warning", (tester) async {

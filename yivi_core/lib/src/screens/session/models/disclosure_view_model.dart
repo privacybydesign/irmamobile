@@ -10,19 +10,18 @@ import "../../../widgets/credential_card/models/credential_card_status.dart";
 // sends and the user's own selection only. Pure functions, so every rule of
 // the design can be unit tested without pumping a screen.
 
-/// Why a card cannot be shared right now. Shown as a red chip on the card,
-/// and the share button stays disabled while a selected card has one.
-enum CardProblem { revoked, usedUp, expired }
+/// Why a card cannot be shared right now: a chip on the card, and the share
+/// button does the fix first.
+enum CardProblem { revoked, expired }
 
-/// The problem of [instance], if any. Revoked wins over used up, which
-/// wins over expired.
+/// The problem of [instance], if any. Revoked wins over expired. A card that
+/// was shared as often as it can be (used up) counts as expired: to the
+/// user it is a card that has run out.
 CardProblem? problemOf(SelectableCredentialInstance instance) {
   final status = _statusOf(instance);
   if (instance.revoked) return CardProblem.revoked;
-  if (status.instanceExpireState == ExpireState.expired) {
-    return CardProblem.usedUp;
-  }
-  if (status.timeExpireState == ExpireState.expired) {
+  if (status.instanceExpireState == ExpireState.expired ||
+      status.timeExpireState == ExpireState.expired) {
     return CardProblem.expired;
   }
   return null;
@@ -31,11 +30,6 @@ CardProblem? problemOf(SelectableCredentialInstance instance) {
 /// The first problem of any card in [bundle].
 CardProblem? problemOfBundle(DisclosureBundle bundle) =>
     bundle.credentials.map(problemOf).nonNulls.firstOrNull;
-
-/// The card can be shared once more, and then no longer: a warning chip,
-/// not a problem.
-bool isLastUse(SelectableCredentialInstance instance) =>
-    problemOf(instance) == null && instance.batchInstanceCountRemaining == 1;
 
 CredentialCardStatus _statusOf(SelectableCredentialInstance instance) =>
     CredentialCardStatus(
@@ -98,11 +92,15 @@ List<ObtainableBundle> addableBundles(DisclosurePickOne pickOne) {
 }
 
 /// The owned option shown for [pickOne] when the user has not picked one:
-/// the first, in irmago's order (#657 puts the best one first). Optional
-/// data starts left out (-1).
+/// the first that can be shared, in irmago's order (#657 puts the best one
+/// first), and only when none can, the first. Optional data starts left
+/// out (-1).
 int defaultSelection(DisclosurePickOne pickOne) {
   if (pickOne.optional) return -1;
-  return (pickOne.ownedOptions ?? const []).isEmpty ? -1 : 0;
+  final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
+  if (owned.isEmpty) return -1;
+  final usable = owned.indexWhere((b) => problemOfBundle(b) == null);
+  return usable < 0 ? 0 : usable;
 }
 
 /// The selected owned option of [pickOne]: [selected] when it is still a
@@ -140,7 +138,7 @@ Map<int, int> selectionsFrom(
             final have = b.credentialHashes;
             return have.length == want.length && have.containsAll(want);
           });
-    out[i] = k >= 0 ? k : (owned.isEmpty ? -1 : 0);
+    out[i] = k >= 0 ? k : defaultSelection(pickOne);
   }
   return out;
 }
@@ -198,104 +196,38 @@ String spotName(
   return together ? names.join(" + ") : orList(names, or);
 }
 
-/// How the share screen names another choice for a pick-one, in "You can
-/// also choose …".
-enum AlsoKind {
-  /// Another card of the type that is selected now: "your other …".
-  other,
+/// What the strip under a card offers besides it: another card in the app
+/// ("You can also choose another card"), or else adding one ("You can also
+/// add another card"). The strip names no cards: the sheet shows them.
+enum AlsoChoice { choose, add }
 
-  /// Any other type, one in the app or one to add: "your …".
-  your,
+/// [AlsoChoice] for [pickOne] with owned option [selected] in use; null when
+/// there is nothing else.
+AlsoChoice? alsoChoice(DisclosurePickOne pickOne, int selected) {
+  final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
+  for (final (k, b) in owned.indexed) {
+    if (k != selected && problemOfBundle(b) == null) return AlsoChoice.choose;
+  }
+  return addableOptions(pickOne).isEmpty ? null : AlsoChoice.add;
 }
 
-/// The other choices for [pickOne] next to the selected owned option
-/// [selected], for "You can also choose your other email address or your
-/// mobile number": the name of each and how to say it, without repeats (a
-/// type both in the app and to add is named once), in the order of the
-/// cards in the app and then the types that can be added.
-List<(AlsoKind, String)> alsoChoose(DisclosurePickOne pickOne, int selected) {
-  final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
-  String idOf(DisclosureBundle b) =>
-      b.credentials.map((c) => c.credentialId).join("+");
-  String nameOf(DisclosureBundle b) =>
-      b.credentials.map((c) => c.name).join(" + ");
-  final current = selected >= 0 && selected < owned.length
-      ? idOf(owned[selected])
-      : null;
-
-  final out = <(AlsoKind, String)>[];
-  void add(String id, String name) {
-    final item = (id == current ? AlsoKind.other : AlsoKind.your, name);
-    if (!out.contains(item)) out.add(item);
+/// The kinds of card optional [pickOne] takes, by their names, to say what
+/// it is ("Passport, Driving licence or ID card"): those in the app first,
+/// then those that can be added, each once. Only names: which values each
+/// kind holds differs, so the sentence never lists them.
+List<String> optionalKinds(DisclosurePickOne pickOne) {
+  final out = <String>[];
+  void add(String name) {
+    if (name.isNotEmpty && !out.contains(name)) out.add(name);
   }
 
-  for (final (k, b) in owned.indexed) {
-    if (k != selected) add(idOf(b), nameOf(b));
+  for (final b in pickOne.ownedOptions ?? const <DisclosureBundle>[]) {
+    add(b.credentials.map((c) => c.name).join(" + "));
   }
-  for (final d in addableOptions(pickOne)) {
-    add(d.credentialId, d.name);
+  for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[]) {
+    add(d.name);
   }
   return out;
-}
-
-/// What optional [pickOne] asks for, to name it in a sentence ("Webshop
-/// asks for your date of birth too"): the requested fields of its first
-/// option (the first card in the app, else the first one to add), or, with
-/// more than [OptionalWhat.maxFields] of them, the cards they come from.
-OptionalWhat optionalWhat(DisclosurePickOne pickOne) {
-  final owned =
-      (pickOne.ownedOptions ?? const <DisclosureBundle>[]).firstOrNull;
-  final toAdd =
-      (pickOne.obtainableBundles ?? const <ObtainableBundle>[]).firstOrNull;
-  (String, List<String>) ownedCard(SelectableCredentialInstance c) =>
-      (c.name, [for (final a in c.attributes) a.effectiveDisplayName]);
-  (String, List<String>) cardToAdd(CredentialDescriptor d) => (
-    d.name,
-    [
-      for (final a in d.attributes)
-        if (a.requestedValue != null) a.effectiveDisplayName,
-    ],
-  );
-  final List<(String, List<String>)> cards = owned != null
-      ? [for (final c in owned.credentials) ownedCard(c)]
-      : toAdd != null
-      ? [
-          for (final d in toAdd.missing) cardToAdd(d),
-          for (final c in toAdd.owned) ownedCard(c),
-        ]
-      : [
-          for (final d in (pickOne.obtainableOptions ?? const []).take(1))
-            cardToAdd(d),
-        ];
-  final fields = <String>{for (final (_, f) in cards) ...f}.toList();
-  if (fields.isEmpty || fields.length > OptionalWhat.maxFields) {
-    return OptionalWhat(byCard: true, names: [for (final (n, _) in cards) n]);
-  }
-  return OptionalWhat(byCard: false, names: fields);
-}
-
-/// The names [optionalWhat] found: the fields ("date of birth"), or the
-/// cards they come from ([byCard]: "personal data").
-class OptionalWhat {
-  /// More fields than this are named by their cards.
-  static const maxFields = 3;
-
-  final bool byCard;
-  final List<String> names;
-
-  const OptionalWhat({required this.byCard, required this.names});
-
-  @override
-  bool operator ==(Object other) =>
-      other is OptionalWhat &&
-      other.byCard == byCard &&
-      const ListEquality<String>().equals(other.names, names);
-
-  @override
-  int get hashCode => Object.hash(byCard, Object.hashAll(names));
-
-  @override
-  String toString() => "OptionalWhat(byCard: $byCard, names: $names)";
 }
 
 /// [items] as one list in a sentence: "a, b and c", with [and] (" and ")
@@ -330,27 +262,6 @@ List<(String, AttributeValue)> spotRequiredValues(
       if (a.requestedValue case final v? when v.hasConcreteValue)
         (a.effectiveDisplayName, v),
 ];
-
-/// The value of a card that was added for [pickOne] but does not match what
-/// the request needs, compared with what it needs; null when there is none.
-IssuanceMismatch? spotMismatch(
-  DisclosurePickOne pickOne,
-  IssueDuringDisclosure? plan,
-) {
-  final wrong = plan?.wrongCredentialIssued;
-  if (wrong == null || !isEmptySpot(pickOne)) return null;
-  final templates = [
-    for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[])
-      if (d.credentialId == wrong.credentialId) d,
-  ];
-  if (templates.isEmpty) return null;
-  return issuanceMismatches(
-    [wrong],
-    [
-      IssuanceStep(options: [IssuanceBundle(credentials: templates)]),
-    ],
-  ).firstOrNull;
-}
 
 /// Whether the card selected for [pickOne] was added during this request.
 bool addedDuringRequest(
@@ -395,19 +306,112 @@ CredentialDescriptor? fixFor(
           category: null,
           attributes: const [],
           issueURL: card.issueUrl,
+          isSingleton: card.isSingleton,
         );
 }
 
-/// What the share button says.
+/// What the share button says when it shares.
 enum ShareLabel { share, signAndShare, shareAndAdd, shareWithoutData, close }
 
-/// The share button: its label, whether it can be pressed, and why not.
+/// What the button does before it can share: the next thing to add or fix.
+enum NextKind {
+  /// "{name} toevoegen": adds [NextStep.descriptor].
+  add,
+
+  /// "{name} opnieuw toevoegen": a new one for a card that can't be used.
+  addAgain,
+
+  /// "{name} opnieuw ophalen": a card the app holds only one of; the new
+  /// one replaces it.
+  fetchAgain,
+
+  /// "Kies wat je toevoegt": several kinds to choose from.
+  pick,
+
+  /// "Allebei toevoegen": a set of cards only accepted together.
+  addBoth,
+}
+
+/// The next step of the share button, for pick-one [index].
+class NextStep {
+  final int index;
+  final NextKind kind;
+
+  /// What [NextKind.add], [NextKind.addAgain] and [NextKind.fetchAgain] add.
+  final CredentialDescriptor? descriptor;
+
+  const NextStep(this.index, this.kind, [this.descriptor]);
+}
+
+/// A card in the app of a kind a required item takes, that is not offered
+/// because one of its values is not what the request needs ("Your address
+/// says Utrecht; they ask for Rijnstad"). Only when the values demonstrably
+/// differ: a card that fails for another reason is not named.
+class WalletMismatch {
+  final Credential card;
+
+  /// The type to get again, as the request describes it.
+  final CredentialDescriptor descriptor;
+  final String attributeName;
+  final AttributeValue? have;
+  final AttributeValue asked;
+
+  const WalletMismatch({
+    required this.card,
+    required this.descriptor,
+    required this.attributeName,
+    required this.have,
+    required this.asked,
+  });
+}
+
+/// The [WalletMismatch] of empty spot [pickOne] in [wallet], if any: the
+/// first card of one of its kinds with a value that differs from a concrete
+/// requested value.
+WalletMismatch? walletMismatch(
+  DisclosurePickOne pickOne,
+  List<Credential> wallet,
+) {
+  if (!isEmptySpot(pickOne)) return null;
+  for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[]) {
+    for (final card in wallet) {
+      if (card.credentialId != d.credentialId) continue;
+      for (final wanted in d.attributes) {
+        final asked = wanted.requestedValue;
+        if (asked == null || !asked.hasConcreteValue) continue;
+        final got = card.attributes.firstWhereOrNull(
+          (a) => const ListEquality<dynamic>().equals(
+            a.claimPath,
+            wanted.claimPath,
+          ),
+        );
+        if (got?.value == null || sameValue(got!.value, asked)) continue;
+        return WalletMismatch(
+          card: card,
+          descriptor: d,
+          attributeName: wanted.effectiveDisplayName,
+          have: got.value,
+          asked: asked,
+        );
+      }
+    }
+  }
+  return null;
+}
+
+/// The share button: what it says, and what it does first while it can't
+/// share yet ([next]). It never sits there disabled while something can be
+/// done in Yivi.
 class ShareButtonState {
   final ShareLabel label;
+
+  /// It shares when pressed: nothing is missing or blocked.
   final bool enabled;
 
-  /// The problem of a selected card that blocks sharing, and that card,
-  /// for "Renew your address first."
+  /// What it does instead while something is missing or can't be used.
+  final NextStep? next;
+
+  /// The problem of a selected card that blocks sharing, and that card.
   final CardProblem? blockedBy;
   final DisclosureBundle? blockedCard;
 
@@ -415,54 +419,130 @@ class ShareButtonState {
   /// the button closes the session, with "Ask {issuer} for a new one."
   final String? cannotRenewFrom;
 
-  /// The first empty spot, for "Add {name} first."
+  /// The first empty spot that can be added from Yivi.
   final DisclosurePickOne? missing;
 
   /// An empty spot nothing can be added for from Yivi: the button closes
   /// the session, with "Get it from {issuer} first."
   final DisclosurePickOne? cannotAdd;
 
+  /// The card in the app that does not count for the first empty spot.
+  final WalletMismatch? mismatch;
+
+  /// How many required items still need adding or fixing ("Nog 2 dingen
+  /// toevoegen"), and per required item whether it is ready (the dots).
+  final int toDo;
+  final List<bool> ready;
+
   const ShareButtonState({
     required this.label,
     required this.enabled,
+    this.next,
     this.blockedBy,
     this.blockedCard,
     this.cannotRenewFrom,
     this.missing,
     this.cannotAdd,
+    this.mismatch,
+    this.toDo = 0,
+    this.ready = const [],
   });
 }
 
+/// The next step for empty spot [i] ([pickOne]): add its one kind, choose
+/// between its kinds, or add a set; with a card in the app that does not
+/// count ([mismatch]), get that kind again.
+NextStep _nextForSpot(
+  int i,
+  DisclosurePickOne pickOne,
+  IssueDuringDisclosure? plan,
+  WalletMismatch? mismatch,
+) {
+  if (mismatch != null) {
+    final d = mismatch.descriptor;
+    return NextStep(
+      i,
+      d.isSingleton || mismatch.card.isSingleton
+          ? NextKind.fetchAgain
+          : NextKind.add,
+      d,
+    );
+  }
+  if (spotTogether(pickOne, plan)) return NextStep(i, NextKind.addBoth);
+  final addable = addableOptions(pickOne);
+  return addable.length == 1
+      ? NextStep(i, NextKind.add, addable.single)
+      : NextStep(i, NextKind.pick);
+}
+
 /// The share button for [state], with [selections] holding the user's pick
-/// per pick-one index (missing entries use [defaultSelection]).
-ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
+/// per pick-one index (missing entries use [defaultSelection]). [wallet]
+/// finds a card in the app that does not count for an empty spot.
+ShareButtonState shareButton(
+  SessionState state,
+  Map<int, int> selections, {
+  List<Credential> wallet = const [],
+}) {
   final pickOnes = state.disclosurePlan?.disclosureChoicesOverview ?? const [];
+  final plan = state.disclosurePlan?.issueDuringDisclosure;
   CardProblem? blockedBy;
   DisclosureBundle? blockedCard;
   String? cannotRenewFrom;
   DisclosurePickOne? missing;
   DisclosurePickOne? cannotAdd;
+  WalletMismatch? mismatch;
+  NextStep? next;
   var anyShared = false;
+  var toDo = 0;
+  final ready = <bool>[];
 
   for (final (i, pickOne) in pickOnes.indexed) {
     if (isEmptySpot(pickOne)) {
+      ready.add(false);
       if (addableOptions(pickOne).isEmpty) {
         cannotAdd ??= pickOne;
       } else {
-        missing ??= pickOne;
+        toDo++;
+        if (missing == null) {
+          missing = pickOne;
+          mismatch = walletMismatch(pickOne, wallet);
+          next ??= _nextForSpot(i, pickOne, plan, mismatch);
+        }
       }
       continue;
     }
     final k = selectionOf(pickOne, selections[i]);
-    if (k < 0) continue;
+    if (k < 0) {
+      if (!pickOne.optional) ready.add(false);
+      continue;
+    }
     anyShared = true;
     final bundle = pickOne.ownedOptions![k];
     final problem = problemOfBundle(bundle);
-    if (problem == null || pickOne.optional) continue;
+    if (pickOne.optional) continue;
+    ready.add(problem == null);
+    if (problem == null) continue;
+    toDo++;
     blockedCard ??= bundle;
     blockedBy ??= problem;
-    final stuck = fixFor(pickOne, bundle) == null && !canChange(pickOne);
-    if (stuck) cannotRenewFrom ??= bundle.credentials.first.issuer.name;
+    final fix = fixFor(pickOne, bundle);
+    final kinds = addableOptions(pickOne);
+    if (fix == null && kinds.isEmpty) {
+      cannotRenewFrom ??= bundle.credentials.first.issuer.name;
+      continue;
+    }
+    // One kind: a new one of it straight away. More: choose, because the
+    // app doesn't know why the card stopped or whether a new one of the
+    // same kind will do.
+    next ??= kinds.length > 1
+        ? NextStep(i, NextKind.pick)
+        : NextStep(
+            i,
+            fix!.isSingleton || bundle.credentials.any((c) => c.isSingleton)
+                ? NextKind.fetchAgain
+                : NextKind.addAgain,
+            fix,
+          );
   }
 
   if (cannotAdd != null) {
@@ -470,6 +550,7 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
       label: ShareLabel.close,
       enabled: true,
       cannotAdd: cannotAdd,
+      ready: ready,
     );
   }
   if (cannotRenewFrom != null) {
@@ -479,6 +560,7 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
       blockedBy: blockedBy,
       blockedCard: blockedCard,
       cannotRenewFrom: cannotRenewFrom,
+      ready: ready,
     );
   }
   final label = state.type == SessionType.signature
@@ -492,20 +574,15 @@ ShareButtonState shareButton(SessionState state, Map<int, int> selections) {
   return ShareButtonState(
     label: label,
     enabled: blockedBy == null && missing == null,
+    next: next,
     blockedBy: blockedBy,
     blockedCard: blockedCard,
     missing: missing,
+    mismatch: mismatch,
+    toDo: toDo,
+    ready: ready,
   );
 }
-
-/// Whether the share screen says "{requestor} only gets what is above":
-/// only when the button shares (nothing is missing or blocked) and at least
-/// one card is in [selections]. Not while a card is still to be added, and
-/// not when nothing is shared.
-bool showFootnote(ShareButtonState button, Map<int, int> selections) =>
-    button.enabled &&
-    button.label != ShareLabel.close &&
-    selections.values.any((k) => k >= 0);
 
 // --- The issuance permission inside a request -------------------------------
 

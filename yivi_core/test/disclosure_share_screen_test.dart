@@ -52,6 +52,25 @@ class _NoWallet extends SchemalessCredentialOrderController {
   Future<List<Credential>> build() async => const [];
 }
 
+/// An iDEAL card in the app with a BIC the request does not take.
+class _WrongBank extends SchemalessCredentialOrderController {
+  @override
+  Future<List<Credential>> build() async => [
+    testCredential(
+      type: "ideal",
+      hash: "wrong-ideal",
+      name: "iDEAL",
+      attributes: [
+        Attribute(
+          claimPath: ["bic"],
+          displayName: "BIC",
+          value: AttributeValue(type: AttributeType.string, string: "INGBNL2A"),
+        ),
+      ],
+    ),
+  ];
+}
+
 class _OneCard extends SchemalessCredentialOrderController {
   @override
   Future<List<Credential>> build() async => [
@@ -250,6 +269,22 @@ Future<_Calls> _pump(
 
 final _share = find.byKey(const Key("share_button"));
 
+/// Opens "Add another card" in the open sheet, when its kinds are folded
+/// away (a usable card is in the app).
+Future<void> _openAdd(WidgetTester tester) async {
+  final toggle = find.byKey(const Key("sheet_add_toggle"));
+  final rows = find.byWidgetPredicate((w) {
+    final key = w.key;
+    return key is ValueKey<String> &&
+        key.value.startsWith("sheet_add_") &&
+        key.value != "sheet_add_toggle";
+  });
+  if (toggle.evaluate().isNotEmpty && rows.evaluate().isEmpty) {
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+  }
+}
+
 /// The hashes sent per pick-one.
 List<List<String>> _hashes(List<DisclosureDisconSelection> sent) => [
   for (final d in sent) [for (final c in d.credentials) c.credentialHash],
@@ -269,21 +304,13 @@ void main() {
       ]),
     );
 
-    // Who asks, as the subject: "Webshop Noord is asking for your data";
-    // under it, exactly what they get.
+    // One title says who asks what: "Webshop Noord is asking for your
+    // data"; the card under it says who they are.
+    expect(find.text("Webshop Noord is asking for your data"), findsOneWidget);
     expect(find.text("Webshop Noord"), findsOneWidget);
     expect(find.text("Registered with Yivi"), findsOneWidget);
-    expect(find.text("is asking for your data"), findsOneWidget);
-    expect(
-      find.text(
-        "Below is exactly what they get. Nothing is sent until you press "
-        "the share button.",
-      ),
-      findsOneWidget,
-    );
+    expect(find.text("is asking for your data"), findsNothing);
     expect(find.text("YOU SHARE THIS"), findsOneWidget);
-    // No large title any more.
-    expect(find.text("Share your data with"), findsNothing);
     expect(find.text("s@werk.example"), findsOneWidget);
     // Only one option: nothing to change.
     expect(find.byKey(const Key("share_change_0")), findsNothing);
@@ -316,15 +343,17 @@ void main() {
 
     expect(find.text("Jansen"), findsOneWidget);
     // The other choice, in a strip at the foot of the card.
-    expect(find.text("You can also choose your ID card"), findsOneWidget);
+    expect(find.text("You can also choose another card"), findsOneWidget);
     expect(find.text("Change choice"), findsOneWidget);
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
-    expect(find.text("Pick a card"), findsOneWidget);
+    expect(find.text("Which card do you share?"), findsOneWidget);
+    // A radio in each card's header, on the one in use.
+    expect(find.byKey(const Key("sheet_radio_on")), findsOneWidget);
 
     await tester.tap(find.byKey(const Key("sheet_owned_hash-idcard-de Vries")));
     await tester.pumpAndSettle();
-    expect(find.text("Pick a card"), findsNothing);
+    expect(find.text("Which card do you share?"), findsNothing);
     expect(find.text("de Vries"), findsOneWidget);
     expect(find.text("Jansen"), findsNothing);
 
@@ -350,20 +379,24 @@ void main() {
 
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
-    expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
-    // An empty card: its name, its issuer, and Add on its edge.
+    // Adding is folded away under "Add another card" while a usable card is
+    // in the app.
+    expect(find.byKey(const Key("sheet_add_idcard")), findsNothing);
+    await tester.tap(find.byKey(const Key("sheet_add_toggle")));
+    await tester.pumpAndSettle();
+    // A row: its name, and how you get it (who gives it, and where).
     final add = find.byKey(const Key("sheet_add_idcard"));
-    expect(find.descendant(of: add, matching: find.text("ID card")), findsOne);
-    expect(find.descendant(of: add, matching: find.text("Issuer")), findsOne);
     expect(
-      find.descendant(
-        of: add,
-        matching: find.byKey(const Key("empty_spot_add")),
-      ),
-      findsOne,
+      find.descendant(of: add, matching: find.text("ID card")),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(of: add, matching: find.textContaining("Issuer")),
+      findsWidgets,
     );
 
     // First its details, step 1 of 3, as on the add-data page.
+    await _openAdd(tester);
     await tester.tap(find.byKey(const Key("sheet_add_idcard")));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
@@ -372,7 +405,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text("For Webshop Noord"), findsOneWidget);
-    expect(find.byKey(const Key("add_data_disclosure_note")), findsOneWidget);
+    expect(find.text("Add ID card"), findsWidgets);
     expect(calls.obtained, isEmpty);
 
     // Then a page that says where adding goes, step 2 of 3; nothing opens
@@ -393,7 +426,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
-    expect(find.text("Open again"), findsOneWidget);
+    expect(find.text("Continue on the website"), findsOneWidget);
+    expect(find.byKey(const Key("sheet_choose_other")), findsOneWidget);
   });
 
   group("optional data", () {
@@ -404,27 +438,33 @@ void main() {
         session: _session([_passportOrIdCard(optional: true)]),
       );
 
-      // Not shared: one row that says what is asked.
+      // Not shared: one row naming its kinds, and that it is not shared.
       final row = find.byKey(const Key("share_add_optional_0"));
-      expect(find.text("Add optional data"), findsOneWidget);
-      expect(find.text("Your value · you can leave this out"), findsOneWidget);
+      expect(find.text("Passport or ID card"), findsOneWidget);
+      expect(
+        find.text(
+          "Not shared. Webshop Noord asks for it, but you don't have to.",
+        ),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key("share_slot_0")), findsNothing);
       expect(find.text("Share without data"), findsOneWidget);
-      // Nothing is shared: no footnote.
-      expect(find.byKey(const Key("share_footnote")), findsNothing);
+      // The footnote is always there.
+      expect(find.byKey(const Key("share_footnote")), findsOneWidget);
 
       await tester.tap(row);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-      expect(find.text("Optional data"), findsOneWidget);
+      expect(find.text("Do you want to share this too?"), findsOneWidget);
       expect(
         find.text(
-          "Webshop Noord also asks for your value. You don't have to share it.",
+          "Webshop Noord asks for one of these cards, but you don't have to. "
+          "You can share without it too.",
         ),
         findsOneWidget,
       );
       final nothing = find.byKey(const Key("sheet_share_nothing"));
-      expect(find.text("Webshop Noord won't get your value"), findsOneWidget);
+      expect(find.text("Webshop Noord doesn't get this"), findsOneWidget);
       bool outlined(Finder f) => tester
           .widget<CardTileOutline>(
             find.descendant(of: f, matching: find.byType(CardTileOutline)),
@@ -441,12 +481,22 @@ void main() {
       expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
       expect(find.byKey(const Key("share_add_optional_0")), findsNothing);
       expect(
-        find.text("You can also choose something else, or not share this"),
+        find.text(
+          "You don't have to. You can also not share it, or choose something "
+          "else.",
+        ),
         findsOneWidget,
       );
       expect(find.text("Share with Webshop Noord"), findsOneWidget);
 
       // Change choice: the same sheet, the outline on the card in use.
+      unawaited(
+        Scrollable.ensureVisible(
+          tester.element(find.byKey(const Key("share_change_0"))),
+          alignment: 0.5,
+        ),
+      );
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
       expect(outlined(nothing), isFalse);
@@ -512,11 +562,8 @@ void main() {
         ]),
       );
 
-      // More than three fields: named by the card.
-      expect(
-        find.text("Data from your personal data · you can leave this out"),
-        findsOneWidget,
-      );
+      // Named by its kind, never by its fields.
+      expect(find.text("Personal data"), findsOneWidget);
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
       for (var n = 0; n < fields.length; n++) {
@@ -540,6 +587,7 @@ void main() {
       await tester.tap(find.byKey(const Key("share_add_optional_0")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_share_nothing")), findsOneWidget);
+      await _openAdd(tester);
       await tester.tap(find.byKey(const Key("sheet_add_idcard")));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
@@ -678,7 +726,7 @@ void main() {
   });
 
   group("cards that cannot be shared", () {
-    testWidgets("revoked: the reason, the button off, and the fix", (
+    testWidgets("revoked: the card says so, the button does the fix", (
       tester,
     ) async {
       final calls = await _pump(
@@ -698,19 +746,20 @@ void main() {
 
       expect(find.text("Revoked"), findsOneWidget);
       expect(
-        find.text("Renew your address first. Then you can share."),
+        find.text("One more thing to sort out, then you can share"),
         findsOneWidget,
       );
-      // The note in a red strip, with Renew in it; no footnote yet.
+      // The note in a calm strip, without a button: the share button does
+      // the fix.
       expect(find.byKey(const Key("shared_card_problem")), findsOneWidget);
-      expect(find.text("Renew"), findsOneWidget);
-      expect(find.byKey(const Key("share_footnote")), findsNothing);
-      await tester.tap(_share);
-      expect(calls.shared, isEmpty);
+      expect(find.byKey(const Key("shared_card_fix")), findsNothing);
+      expect(find.byKey(const Key("share_footnote")), findsOneWidget);
+      expect(find.text("Add Address again"), findsOneWidget);
 
-      // The fix opens the sheet straight on adding a new one: its details.
-      await tester.tap(find.byKey(const Key("shared_card_fix")));
+      // It opens the sheet straight on adding a new one: its details.
+      await tester.tap(_share);
       await tester.pumpAndSettle();
+      expect(calls.shared, isEmpty);
       expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
       expect(find.text("Address"), findsWidgets);
       await tester.tap(find.byKey(const Key("sheet_go_button")));
@@ -735,7 +784,8 @@ void main() {
         ]),
       );
 
-      expect(find.text("Used up"), findsOneWidget);
+      // A used-up card counts as expired.
+      expect(find.text("Expired"), findsOneWidget);
       expect(
         find.text(
           "Webshop Noord needs a card you can't renew in Yivi. Ask PID Issuer for a new one.",
@@ -760,17 +810,26 @@ void main() {
       ),
     );
 
-    expect(find.text("is asking you to sign something"), findsOneWidget);
+    expect(
+      find.text("Webshop Noord is asking you to sign something"),
+      findsOneWidget,
+    );
+    // The message as a quote, under its own label.
+    expect(find.text("YOU SIGN"), findsOneWidget);
+    expect(find.byKey(const Key("share_message")), findsOneWidget);
+    expect(
+      find.text("You sign by pressing the button at the bottom."),
+      findsOneWidget,
+    );
+    expect(find.text("YOU SIGN WITH"), findsOneWidget);
+    expect(find.text("Sign"), findsOneWidget);
     expect(
       find.text(
-        "Below is exactly what they get. Nothing is sent until you press "
-        "the sign button.",
+        "Webshop Noord only gets the message and what is above. Everything "
+        "else stays on your phone.",
       ),
       findsOneWidget,
     );
-    expect(find.text("You sign this message"), findsOneWidget);
-    expect(find.text("YOU SHARE THIS WITH YOUR SIGNATURE"), findsOneWidget);
-    expect(find.text("Sign and share"), findsOneWidget);
   });
 
   testWidgets("a card in return: You receive, Share and add card", (
@@ -798,10 +857,7 @@ void main() {
       ),
     );
 
-    expect(
-      find.text("is asking for your data and gives you a card"),
-      findsOneWidget,
-    );
+    expect(find.text("Webshop Noord is asking for your data"), findsOneWidget);
     expect(find.text("YOU GET THIS IN RETURN"), findsOneWidget);
     expect(find.text("Share and add card"), findsOneWidget);
   });
@@ -848,15 +904,24 @@ void main() {
         ),
         findsOneWidget,
       );
+      // The button adds it, with what is left above it; the footnote is
+      // there all along.
       expect(
-        find.text("Add your ID card first. Then you can share."),
+        find.text("One more thing to add, then you can share"),
         findsOneWidget,
       );
-      // A card is still missing: no footnote yet.
-      expect(find.byKey(const Key("share_footnote")), findsNothing);
+      expect(
+        find.descendant(of: _share, matching: find.text("Add ID card")),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("share_footnote")), findsOneWidget);
+      // Two items, one ready: a dot each.
+      expect(find.byKey(const Key("share_steps")), findsOneWidget);
       await tester.tap(_share);
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(calls.shared, isEmpty);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+      expect(find.text("Add ID card"), findsWidgets);
     });
 
     testWidgets("one way to get it: the spot looks like the card, with what "
@@ -960,29 +1025,29 @@ void main() {
       );
       expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
 
-      // In the sheet each type is an empty card, as on the share screen:
-      // what it would share, and what it must hold.
+      // The sheet has only the kinds, a row each: its name and how you
+      // get it.
       await tester.tap(spot);
       await tester.pumpAndSettle();
-      final passport = find.byKey(const Key("sheet_add_passport"));
-      final idcard = find.byKey(const Key("sheet_add_idcard"));
-      for (final card in [passport, idcard]) {
+      expect(find.text("Choose what to add"), findsWidgets);
+      expect(find.byKey(const Key("sheet_kinds")), findsOneWidget);
+      for (final (id, name) in [
+        ("passport", "Passport"),
+        ("idcard", "ID card"),
+      ]) {
+        final row = find.byKey(Key("sheet_add_$id"));
+        expect(
+          find.descendant(of: row, matching: find.text(name)),
+          findsWidgets,
+        );
         expect(
           find.descendant(
-            of: card,
-            matching: find.byKey(const Key("empty_spot_add")),
+            of: row,
+            matching: find.text("Issuer · via issuer.example"),
           ),
           findsOne,
         );
       }
-      expect(
-        find.descendant(of: idcard, matching: find.text("Must be NLD")),
-        findsOne,
-      );
-      expect(
-        find.descendant(of: passport, matching: find.textContaining("Must be")),
-        findsNothing,
-      );
     });
 
     testWidgets("the Add pill on the spot's edge opens it too", (tester) async {
@@ -1089,7 +1154,11 @@ void main() {
         findsNWidgets(2),
       );
       expect(
-        find.text("Add your passport or ID card first. Then you can share."),
+        find.text("One more thing to add, then you can share"),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: _share, matching: find.text("Choose what to add")),
         findsOneWidget,
       );
       await tester.tap(find.byKey(const Key("share_spot_0")));
@@ -1151,7 +1220,13 @@ void main() {
       ) async {
         await _pump(tester, session: together(), size: tall);
         // The spot's pressable surface lies over its label.
-        await tester.tap(find.text("Add both"), warnIfMissed: false);
+        await tester.tap(
+          find.descendant(
+            of: find.byKey(const Key("share_spot_1")),
+            matching: find.text("Add both"),
+          ),
+          warnIfMissed: false,
+        );
         await tester.pumpAndSettle();
         expect(find.text("CARD 1 OF 2"), findsOneWidget);
         expect(find.text("CARD 2 OF 2"), findsOneWidget);
@@ -1227,71 +1302,63 @@ void main() {
       expect(calls.closed, 1);
     });
 
-    testWidgets("a card with the wrong value: what was added, what is needed", (
-      tester,
-    ) async {
+    testWidgets("a card in the app with the wrong value: shown as it is, "
+        "with what they ask", (tester) async {
       await _pump(
         tester,
-        session: withPlan(
-          [
-            DisclosurePickOne(
-              optional: false,
-              ownedOptions: const [],
-              obtainableOptions: [
-                CredentialDescriptor(
-                  credentialId: "ideal",
-                  name: "iDEAL",
-                  issuer: _party("Issuer"),
-                  category: null,
-                  attributes: [
-                    Attribute(
-                      claimPath: ["bic"],
-                      displayName: "BIC",
-                      requestedValue: AttributeValue(
-                        type: AttributeType.string,
-                        string: "RABONL2U",
-                      ),
+        wallet: _WrongBank.new,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              CredentialDescriptor(
+                credentialId: "ideal",
+                name: "iDEAL",
+                issuer: _party("Issuer"),
+                category: null,
+                attributes: [
+                  Attribute(
+                    claimPath: ["bic"],
+                    displayName: "BIC",
+                    requestedValue: AttributeValue(
+                      type: AttributeType.string,
+                      string: "RABONL2U",
                     ),
-                  ],
-                  issueURL: "https://www.issuer.example/ideal",
-                ),
-              ],
-            ),
-          ],
-          IssueDuringDisclosure(
-            steps: const [],
-            wrongCredentialIssued: testCredential(
-              type: "ideal",
-              hash: "wrong-ideal",
-              name: "iDEAL",
-              attributes: [
-                Attribute(
-                  claimPath: ["bic"],
-                  displayName: "BIC",
-                  value: AttributeValue(
-                    type: AttributeType.string,
-                    string: "INGBNL2A",
                   ),
-                ),
-              ],
-            ),
+                ],
+                issueURL: "https://www.issuer.example/ideal",
+              ),
+            ],
           ),
-        ),
+        ]),
       );
+      // Her own card, not an empty spot that says there is nothing.
+      expect(find.byKey(const Key("share_spot_0")), findsNothing);
+      final card = find.byKey(const Key("share_not_counted_0"));
+      expect(card, findsOneWidget);
       expect(
-        find.text("You added INGBNL2A, needed RABONL2U. Tap to add it again."),
-        findsOneWidget,
-      );
-      // The value it must have, in the spot's row for that field.
-      final spot = find.byKey(const Key("share_spot_0"));
-      expect(
-        find.descendant(of: spot, matching: find.text("BIC")),
+        find.descendant(of: card, matching: find.text("Doesn't count")),
         findsOneWidget,
       );
       expect(
-        find.descendant(of: spot, matching: find.text("Must be RABONL2U")),
+        find.descendant(of: card, matching: find.text("INGBNL2A")),
         findsOneWidget,
       );
+      expect(
+        find.descendant(of: card, matching: find.text("Asked: RABONL2U")),
+        findsOneWidget,
+      );
+      expect(
+        find.text("Your card doesn't count for this request"),
+        findsOneWidget,
+      );
+      // Not a singleton: add another; and a quiet way out.
+      expect(
+        find.descendant(of: _share, matching: find.text("Add iDEAL")),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("share_decline")), findsOneWidget);
     });
 
     testWidgets("once added: in its place, added and selected", (tester) async {
@@ -1347,8 +1414,8 @@ void main() {
     });
   });
 
-  testWidgets("tablet: the question, who asks and the footnote left, what "
-      "is shared right", (tester) async {
+  testWidgets("tablet: the question and who asks left, what is shared and "
+      "the footnote right", (tester) async {
     // A 13" iPad held upright; sideways a tablet has the phone's panel.
     await _pump(
       tester,
@@ -1357,13 +1424,14 @@ void main() {
     );
     expect(find.byType(SessionColumns), findsOneWidget);
     final slot = tester.getRect(find.byKey(const Key("share_slot_0")));
-    for (final left in ["session_requestor_header", "share_footnote"]) {
-      expect(
-        tester.getRect(find.byKey(Key(left))).right,
-        lessThan(slot.left),
-        reason: left,
-      );
-    }
+    expect(
+      tester.getRect(find.byKey(const Key("session_requestor_header"))).right,
+      lessThan(slot.left),
+    );
+    // The footnote right under the last card.
+    final footnote = tester.getRect(find.byKey(const Key("share_footnote")));
+    expect(footnote.left, greaterThanOrEqualTo(slot.left));
+    expect(footnote.top, greaterThan(slot.bottom));
   });
 
   group("the Change sheet", () {
@@ -1388,14 +1456,13 @@ void main() {
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
 
+      await _openAdd(tester);
       final email = tester.getTopLeft(find.byKey(const Key("sheet_add_email")));
       final mobile = tester.getTopLeft(
         find.byKey(const Key("sheet_add_mobile")),
       );
       expect(email.dy, lessThan(mobile.dy));
-      expect(find.text("Another email address"), findsOneWidget);
-      expect(find.text("Mobile number"), findsOneWidget);
-      expect(find.text("NOT IN YOUR APP YET"), findsOneWidget);
+      expect(find.text("Mobile number"), findsWidgets);
     });
 
     testWidgets("the share page's band waits for the requestor's pill", (
@@ -1434,6 +1501,7 @@ void main() {
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
 
+      await _openAdd(tester);
       final owned = find.byKey(const Key("sheet_owned_hash-passport-Jansen"));
       final add = find.byKey(const Key("sheet_add_idcard"));
       Finder outlineIn(Finder card) => find.descendant(
@@ -1483,10 +1551,9 @@ void main() {
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
 
-      expect(find.text("Pick a card"), findsOneWidget);
-      expect(find.text("ALREADY IN YOUR APP"), findsOneWidget);
+      expect(find.text("Which card do you share?"), findsOneWidget);
       expect(find.text("sanne@devries.example"), findsOneWidget);
-      expect(find.text("Another email address"), findsOneWidget);
+      expect(find.text("Add another card"), findsOneWidget);
     });
 
     testWidgets("the current card is the checked radio", (tester) async {
@@ -1592,6 +1659,7 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
+      await _openAdd(tester);
       await tester.tap(find.byKey(const Key("sheet_add_idcard")));
       await tester.pumpAndSettle();
 
@@ -1615,7 +1683,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_go_button")), findsNothing);
-      expect(find.text("Pick a card"), findsOneWidget);
+      expect(find.text("Which card do you share?"), findsOneWidget);
     });
 
     testWidgets("back from adding returns to the choice", (tester) async {
@@ -1633,12 +1701,13 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
+      await _openAdd(tester);
       await tester.tap(find.byKey(const Key("sheet_add_idcard")));
       await tester.pumpAndSettle();
       await tester.tap(find.bySemanticsLabel("Go back"));
       await tester.pumpAndSettle();
 
-      expect(find.text("Pick a card"), findsOneWidget);
+      expect(find.text("Which card do you share?"), findsOneWidget);
     });
   });
 
@@ -1680,6 +1749,7 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
+      await _openAdd(tester);
       await tester.tap(find.byKey(const Key("sheet_add_idcard")));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
@@ -1711,10 +1781,7 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
         findsOneWidget,
       );
-      expect(
-        find.text("Do you want to add this data to your Yivi app?"),
-        findsOneWidget,
-      );
+      expect(find.text("Issuer sends you this card"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_issue_add")));
       await tester.pump();
       final granted = calls.interactions.last;
@@ -1826,7 +1893,7 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
         findsOneWidget,
       );
-      expect(find.text("Open again"), findsOneWidget);
+      expect(find.text("Continue on the website"), findsOneWidget);
     });
 
     testWidgets("closing once adding has started asks first", (tester) async {
@@ -2005,6 +2072,7 @@ void main() {
       calls.repo.allocateSessionId();
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
+      await _openAdd(tester);
       await tester.tap(find.byKey(const Key("sheet_add_pbdf.sidn-pbdf.email")));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
@@ -2199,6 +2267,7 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
+      await _openAdd(tester);
       await tester.tap(find.byKey(const Key("sheet_add_pbdf.pbdf.passport")));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key("sheet_go_button")));
@@ -2788,10 +2857,10 @@ void main() {
           message: "I agree.",
         ),
       );
-      // The message's card: 14 above its label.
+      // The message, as a quote, level with the requestor's card.
       expect(
         tester.getRect(card).top,
-        tester.getRect(find.text("You sign this message")).top - 14,
+        tester.getRect(find.byKey(const Key("share_message"))).top,
       );
     });
 
@@ -2824,7 +2893,20 @@ void main() {
           DisclosurePickOne(
             optional: false,
             ownedOptions: const [],
-            obtainableOptions: [_descriptor("idcard", "ID card")],
+            obtainableOptions: [
+              _descriptor(
+                "idcard",
+                "ID card",
+                attributes: [
+                  Attribute(
+                    claimPath: ["name"],
+                    displayName: "Name",
+                    requestedValue: AttributeValue(type: AttributeType.string),
+                  ),
+                  Attribute(claimPath: ["photo"], displayName: "Photo"),
+                ],
+              ),
+            ],
           ),
         ]),
       );

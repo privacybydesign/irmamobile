@@ -221,6 +221,11 @@ class SelectableCredentialInstance {
   final bool revocationSupported;
   final String? issueUrl;
 
+  /// The scheme allows only one card of this type in the app: a new one
+  /// replaces the old one. False when irmago does not send it, and for types
+  /// without a scheme entry.
+  final bool isSingleton;
+
   SelectableCredentialInstance({
     required this.credentialId,
     required this.hash,
@@ -236,6 +241,7 @@ class SelectableCredentialInstance {
     this.image,
     this.batchInstanceCountRemaining,
     this.issueUrl,
+    this.isSingleton = false,
   });
 
   factory SelectableCredentialInstance.fromJson(Map<String, dynamic> json) =>

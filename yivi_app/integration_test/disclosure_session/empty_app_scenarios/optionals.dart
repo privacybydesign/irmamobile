@@ -44,7 +44,7 @@ Future<void> optionalsTest(
     "Demo Address or Demo iDIN",
     hint: "You pick one when adding",
   );
-  expect(find.text("OPTIONAL"), findsOneWidget);
+  expect(find.text("IF YOU LIKE"), findsOneWidget);
   expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
   expectShareWaitsFor(tester, "Demo Address or Demo iDIN");
 

@@ -475,40 +475,47 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     // Same-device session with a browser return URL (external / in-app): hand
-    // the user back to where they started by opening it.
+    // the user back to where they started by opening it. After sharing, she
+    // first sees what was shared, with "Back to {host}" to go there.
     if (returnUrl != null) {
       if (_returnUrlError != null) {
         return _buildError(_returnUrlError!);
       }
+      if (session.type != .issuance) {
+        return DisclosureFeedbackScreen(
+          feedbackType: .success,
+          isSignatureSession: session.type == .signature,
+          otherParty: session.requestor.name,
+          onDismiss: (_) => pop(),
+          shared: _sharedInstances,
+          returnHost: _hostOf(returnUrl),
+          onReturn: () => _goToReturnUrl(returnUrl),
+        );
+      }
       if (!_returnUrlSideEffectFired) {
         _returnUrlSideEffectFired = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (returnUrl.isInApp) {
-            // Pop first so the in-app browser overlays home / underlying.
-            _popToUnderlyingOrHome();
-            await _openReturnUrl(
-              returnUrl,
-              alwaysExternal: false,
-              popOnSuccess: false,
-            );
-          } else {
-            // Open first; only pop if the launch succeeded so a failure can
-            // surface the error screen on top of the success screen.
-            await _openReturnUrl(
-              returnUrl,
-              alwaysExternal: true,
-              popOnSuccess: true,
-            );
-          }
-        });
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _goToReturnUrl(returnUrl),
+        );
       }
       return _buildLoadingScreen(session);
     }
 
     // Same-device session: hand the user back to the calling app. iOS lacks a
-    // programmatic way to do that, so we show ArrowBack telling them to tap
-    // the back link in the status bar. On Android we move the task to the
-    // background so the OS surfaces the previous app automatically.
+    // programmatic way to do that: after sharing, the done screen says to tap
+    // ◀ at the top left; after an issuance, ArrowBack. On Android we move
+    // the task to the background so the OS surfaces the previous app
+    // automatically.
+    if (Platform.isIOS && session.type != .issuance) {
+      return DisclosureFeedbackScreen(
+        feedbackType: .success,
+        isSignatureSession: session.type == .signature,
+        otherParty: session.requestor.name,
+        onDismiss: (_) => pop(),
+        shared: _sharedInstances,
+        goBackYourself: true,
+      );
+    }
     if (Platform.isIOS) {
       return ArrowBack(
         type: session.type == .issuance
@@ -602,6 +609,28 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       context.popToUnderlyingSessionOrHome(
         hasUnderlyingSession: widget.hasUnderlyingSession,
       );
+    }
+  }
+
+  /// The host of [url] without "www.", for "Back to {host}".
+  static String _hostOf(ReturnURL url) {
+    final host = url.uri.host;
+    return host.startsWith("www.") ? host.substring(4) : host;
+  }
+
+  /// Opens the return URL: in the in-app browser over home (popped first),
+  /// or outside the app, popping once it opened so a failure can show the
+  /// error screen.
+  Future<void> _goToReturnUrl(ReturnURL returnUrl) async {
+    if (returnUrl.isInApp) {
+      _popToUnderlyingOrHome();
+      await _openReturnUrl(
+        returnUrl,
+        alwaysExternal: false,
+        popOnSuccess: false,
+      );
+    } else {
+      await _openReturnUrl(returnUrl, alwaysExternal: true, popOnSuccess: true);
     }
   }
 

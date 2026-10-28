@@ -64,9 +64,6 @@ class EmptyCardSpot extends StatelessWidget {
   /// are no [rows] to show them in.
   final List<String> requirements;
 
-  /// "You added …, needed …" after a card with the wrong value was added.
-  final String? wrong;
-
   /// Null when it cannot be added from Yivi.
   final VoidCallback? onTap;
 
@@ -103,7 +100,6 @@ class EmptyCardSpot extends StatelessWidget {
     required this.subtitle,
     this.rows = const [],
     this.requirements = const [],
-    this.wrong,
     this.onTap,
     this.onTapDown,
     this.onTapCancel,
@@ -209,14 +205,6 @@ class EmptyCardSpot extends StatelessWidget {
           Text(
             r,
             style: palette.body(12.5).copyWith(color: palette.secondaryText),
-          ),
-        if (wrong != null)
-          Text(
-            wrong!,
-            key: const Key("share_spot_wrong"),
-            style: palette
-                .body(12.5, weight: FontWeight.w600)
-                .copyWith(color: palette.errorText),
           ),
       ],
     );

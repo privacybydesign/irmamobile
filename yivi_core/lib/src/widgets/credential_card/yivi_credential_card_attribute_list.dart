@@ -50,6 +50,15 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // Claim paths whose value is exactly what is asked for: shown in the
   // success colour.
   final Set<String> matched;
+
+  /// A tag beside a [matched] value ("✓ Exactly what they ask"), and beside
+  /// a [mismatched] one ("Asked: …").
+  final String? matchedTag;
+  final String? mismatchedTag;
+
+  /// A single value whose label is this (the card's name, "Email address"
+  /// on the card "Email address") is shown without its label.
+  final String? hideLabel;
   // The field a search found the card by (a claim path key): its row is lit,
   // with the searched text ([foundQuery]) marked, and carries [foundKey] so
   // the screen can bring it into view.
@@ -68,6 +77,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.layout = CredentialCardLayout.standard,
     this.mismatched = const {},
     this.matched = const {},
+    this.matchedTag,
+    this.mismatchedTag,
+    this.hideLabel,
     this.found,
     this.foundQuery = "",
     this.foundKey,
@@ -127,6 +139,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       showDividers: showDividers,
       disclosure: disclosure,
       layout: layout,
+      matchedTag: matchedTag,
+      mismatchedTag: mismatchedTag,
+      hideLabel: attributes.length == 1 ? hideLabel : null,
     );
     return _NestedList(nodes: _normalize(tree.children), ctx: ctx);
   }
@@ -570,6 +585,7 @@ class _FlatRow extends StatelessWidget {
         isFirst: isFirst,
         disclosure: ctx.disclosure,
         layout: ctx.layout,
+        ctx: ctx,
       ),
     );
   }
@@ -585,17 +601,19 @@ class _RowContent extends StatelessWidget {
   final bool isFirst;
   final bool disclosure;
   final CredentialCardLayout layout;
+  final _Ctx? ctx;
   const _RowContent({
     required this.node,
     required this.isFirst,
     required this.disclosure,
     required this.layout,
+    this.ctx,
   });
 
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n, layout: layout),
+      _RowNode n => _LeafContent(node: n, layout: layout, ctx: ctx),
       _AgeNode n => _AgeContent(node: n, layout: layout),
       _PrimArrayNode n => _PrimArrayContent(node: n),
       // Only a header without values gets here (see _rowDrawsBorder).
@@ -618,7 +636,8 @@ class _RowContent extends StatelessWidget {
 class _LeafContent extends StatelessWidget {
   final _RowNode node;
   final CredentialCardLayout layout;
-  const _LeafContent({required this.node, required this.layout});
+  final _Ctx? ctx;
+  const _LeafContent({required this.node, required this.layout, this.ctx});
 
   @override
   Widget build(BuildContext context) {
@@ -632,7 +651,9 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        if (found == null)
+        if (found == null && label == ctx?.hideLabel)
+          const SizedBox.shrink()
+        else if (found == null)
           Text(label, style: attributeLabelStyle(context, layout: layout))
         else
           Text.rich(
@@ -677,6 +698,26 @@ class _LeafContent extends StatelessWidget {
       layout: layout,
     );
     final found = node.found;
+    final tag = node.match
+        ? ctx?.matchedTag
+        : node.mismatch
+        ? ctx?.mismatchedTag
+        : null;
+    if (found == null && tag != null) {
+      return Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(text, style: style),
+          _ValueTag(
+            key: Key(node.match ? "value_tag_match" : "value_tag_mismatch"),
+            text: tag,
+            match: node.match,
+          ),
+        ],
+      );
+    }
     // Plain text unless a search found this row: readers of the list (and
     // tests) look for its values as plain Text.
     if (found == null) return Text(text, style: style);
@@ -699,6 +740,43 @@ class _LeafContent extends StatelessWidget {
       child: AttributePhoto(
         bytes: bytes,
         title: attribute.effectiveDisplayName,
+      ),
+    );
+  }
+}
+
+/// "✓ Exactly what they ask" beside a value that is precisely what the
+/// request wants, or "Asked: …" beside one that is not.
+class _ValueTag extends StatelessWidget {
+  final String text;
+  final bool match;
+
+  const _ValueTag({super.key, required this.text, required this.match});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final ink = match ? palette.successText : palette.errorText;
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        color: match ? palette.successSurface : palette.errorSurface,
+        shape: const StadiumBorder(),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(7, 2, 9, 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 3,
+          children: [
+            if (match) Icon(Icons.check_rounded, size: 13, color: ink),
+            Text(
+              text,
+              style: palette
+                  .body(12, weight: FontWeight.w600)
+                  .copyWith(color: ink, height: 16 / 12),
+            ),
+          ],
+        ),
       ),
     );
   }

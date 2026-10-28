@@ -1,12 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 Future<void> filledSpecificAttributeValuesMatchTest(
@@ -37,8 +35,9 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   // the address is in place, the e-mail address an empty spot.
   await waitForRequest(tester);
   expect(findShareSlot(0), findsOneWidget);
-  expectEmptySpot(1, "Demo Email address");
-  expect(find.byKey(const Key("share_spot_wrong")), findsNothing);
+  // The e-mail address in the app doesn't count: it shows in place, with
+  // what they ask beside its domain.
+  expect(findNotCounted(1), findsOneWidget);
   expectShareWaitsFor(tester, "Demo Email address");
 
   // The issuer adds an e-mail address with the wrong domain.
@@ -47,14 +46,10 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     "irma-demo.sidn-pbdf.email.domain": "demo.com",
   });
 
-  // The spot says so in place: what was added and what is needed.
-  final wrong = find.byKey(const Key("share_spot_wrong"));
-  await tester.waitFor(wrong);
-  expect(findEmptySpot(1), findsOneWidget);
-  expect(
-    tester.widget<Text>(wrong).data,
-    "You added demo.com, needed test.com. Tap to add it again.",
-  );
+  // Still the card that doesn't count, now the one just added.
+  await tester.pumpAndSettle();
+  expect(findNotCounted(1), findsOneWidget);
+  expect(findEmptySpot(1), findsNothing);
 
   // Now the issuer adds the right one: it lands in its spot.
   await issueCredentials(tester, irmaBinding, {
@@ -62,7 +57,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     "irma-demo.sidn-pbdf.email.domain": "test.com",
   });
   await expectAddedInPlace(tester, 1);
-  expect(wrong, findsNothing);
+  expect(findNotCounted(1), findsNothing);
   expect(find.byType(RequestorCard), findsOneWidget);
 
   final cardsFinder = findCredentialCards();

@@ -146,9 +146,18 @@ Future<void> revocationTest(
     isRevoked: true,
   );
 
-  // The share button is disabled, with the reason above it.
+  // The button doesn't share: it gets a new card (or, without a way to in
+  // Yivi, closes), with what is left above it. The card itself has no
+  // button.
   expect(shareButtonEnabled(tester), isFalse);
-  expect(find.text("Replace the revoked card to share."), findsOneWidget);
+  expect(
+    shareReason(tester),
+    anyOf(
+      "One more thing to sort out, then you can share",
+      contains("can't renew"),
+    ),
+  );
+  expect(find.byKey(const Key("shared_card_fix")), findsNothing);
 
   expect(find.byKey(const Key("share_change_0")), findsNothing);
 

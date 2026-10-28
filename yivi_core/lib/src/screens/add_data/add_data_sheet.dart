@@ -90,6 +90,7 @@ Future<void> obtainAgain(
           image: card.image,
           attributes: const [],
           issueURL: issueUrl,
+          isSingleton: card.isSingleton,
         );
   if (descriptor == null) {
     return ref

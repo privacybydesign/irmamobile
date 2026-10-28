@@ -27,6 +27,11 @@ class CredentialDescriptor {
   @JsonKey(name: "issue_url")
   final String? issueURL;
 
+  /// The scheme allows only one card of this type in the app: a new one
+  /// replaces the old one. False when irmago does not send it, and for types
+  /// without a scheme entry.
+  final bool isSingleton;
+
   CredentialDescriptor({
     required this.credentialId,
     required this.name,
@@ -35,6 +40,7 @@ class CredentialDescriptor {
     required this.attributes,
     required this.issueURL,
     this.image,
+    this.isSingleton = false,
   });
 
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>

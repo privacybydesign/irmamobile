@@ -196,7 +196,7 @@ void main() {
       );
 
       expect(
-        find.text("Cred email has been added to Yivi. Next, back to Webshop."),
+        find.text("The card is now in your app. Go back to Webshop to continue."),
         findsOneWidget,
       );
       await tester.tap(find.text("Back to Webshop"));
@@ -241,6 +241,9 @@ void main() {
       List<SelectableCredentialInstance> shared = const [],
       bool signature = false,
       bool onOtherDevice = false,
+      String? returnHost,
+      VoidCallback? onReturn,
+      bool goBackYourself = false,
       VoidCallback? onDone,
     }) => _pump(
       tester,
@@ -249,6 +252,9 @@ void main() {
         otherParty: "Webshop",
         isSignatureSession: signature,
         onOtherDevice: onOtherDevice,
+        returnHost: returnHost,
+        onReturn: onReturn,
+        goBackYourself: goBackYourself,
         shared: shared,
         onDismiss: (_) => onDone?.call(),
       ),
@@ -266,32 +272,64 @@ void main() {
 
       expect(find.byKey(const Key("share_done_check")), findsOneWidget);
       expect(find.text("Shared with Webshop"), findsOneWidget);
-      expect(
-        find.text(
-          "Webshop received only what is listed here. You can find this in "
-          "Activity.",
-        ),
-        findsOneWidget,
-      );
+      expect(find.text("THIS IS WHAT WEBSHOP GOT"), findsOneWidget);
+      expect(find.text("You'll find this in Activity."), findsOneWidget);
       expect(find.text("anna@example.com"), findsOneWidget);
 
       await tester.tap(find.text("Done"));
       expect(done, 1);
     });
 
-    testWidgets("on another device: continue there", (tester) async {
+    testWidgets("on another device: continue there, at the top", (
+      tester,
+    ) async {
       await pump(tester, shared: [email], onOtherDevice: true);
 
+      final next = find.byKey(const Key("share_done_next"));
       expect(
-        find.textContaining("Continue on the other device."),
+        find.descendant(
+          of: next,
+          matching: find.text("Continue on the other screen"),
+        ),
         findsOneWidget,
       );
+      expect(
+        tester.getRect(next).top,
+        lessThan(tester.getRect(find.text("anna@example.com")).top),
+      );
+    });
+
+    testWidgets("with a link back: Back to {host} is the button", (
+      tester,
+    ) async {
+      var returned = 0;
+      await pump(
+        tester,
+        shared: [email],
+        returnHost: "webshop.example",
+        onReturn: () => returned++,
+      );
+
+      expect(find.text("Back to webshop.example"), findsNWidgets(2));
+      await tester.tap(find.byKey(const Key("ok_button")));
+      expect(returned, 1);
+    });
+
+    testWidgets("iOS without a link back: tap ◀ at the top left", (
+      tester,
+    ) async {
+      await pump(tester, shared: [email], goBackYourself: true);
+
+      expect(find.text("Go back to the website"), findsOneWidget);
+      expect(find.textContaining("Tap ◀"), findsOneWidget);
+      // No browser named: she may have come from any app.
+      expect(find.textContaining("Safari"), findsNothing);
     });
 
     testWidgets("a signature", (tester) async {
       await pump(tester, shared: [email], signature: true);
 
-      expect(find.text("Signed and shared"), findsOneWidget);
+      expect(find.text("Signed"), findsOneWidget);
     });
 
     testWidgets("nothing shared", (tester) async {
@@ -306,21 +344,11 @@ void main() {
       );
     });
 
-    testWidgets("a card's last use: one note after the list, no chip", (
-      tester,
-    ) async {
+    testWidgets("a card's last use: no note, no chip", (tester) async {
       await pump(tester, shared: [_shared("age", "Age limits", left: 1)]);
 
-      expect(find.byKey(const Key("share_done_last_use")), findsOneWidget);
-      expect(
-        find.text(
-          "That was the last time this age limits could be shared. Add a new "
-          "one when you need it again.",
-        ),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key("share_done_last_use")), findsNothing);
       expect(find.byKey(const Key("shared_card_chip")), findsNothing);
-      expect(find.byKey(const Key("shared_card_note")), findsNothing);
     });
   });
 
