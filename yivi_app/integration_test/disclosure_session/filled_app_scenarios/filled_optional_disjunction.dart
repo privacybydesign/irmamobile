@@ -60,7 +60,7 @@ Future<void> filledOptionalDisjunctionTest(
   expect(
     find.descendant(
       of: findChoiceSheet(),
-      matching: find.text("Optional data"),
+      matching: find.text("Do you want to share this too?"),
     ),
     findsOneWidget,
   );

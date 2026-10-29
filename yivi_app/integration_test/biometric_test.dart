@@ -311,7 +311,16 @@ void main() {
         AppLifecycleState.inactive,
       );
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.hidden,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.paused,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.hidden,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
       );
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.resumed,
@@ -349,7 +358,16 @@ void main() {
         AppLifecycleState.inactive,
       );
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.hidden,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.paused,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.hidden,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
       );
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.resumed,

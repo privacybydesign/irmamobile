@@ -38,7 +38,7 @@ Future<void> completelyOptionalTest(
   // Nothing is required: the share screen opens directly, with the e-mail
   // address as optional data that is not in the app yet.
   await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.text("Nothing required"), findsOneWidget);
+  expect(find.byKey(const Key("share_lead")), findsOneWidget);
   expect(findShareSlot(0), findsNothing);
 
   // Add it: the sheet offers it under "Not in your app yet".

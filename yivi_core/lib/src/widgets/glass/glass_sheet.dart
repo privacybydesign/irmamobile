@@ -1,5 +1,6 @@
 import "dart:math" as math;
 
+import "package:flutter/rendering.dart";
 import "package:flutter/scheduler.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
@@ -434,6 +435,16 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   /// This sheet is fully open: the page under it is covered (GlassSheetCover).
   bool _covering = false;
 
+  /// The sheet is lower than full height ([GlassSheetPage.fit]): the page
+  /// above it shows, so it is never covered.
+  bool _fitted = false;
+
+  void _setFitted(bool fitted) {
+    if (fitted == _fitted) return;
+    _fitted = fitted;
+    _cover(controller?.status == AnimationStatus.completed && !fitted);
+  }
+
   /// While fully open the sheet hides the route under it: that page, which
   /// shows only as the dimmed strip above the sheet, stays built and laid
   /// out but is not drawn ([ModalRoute.offstage]), and the sheet paints the
@@ -461,7 +472,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   }
 
   void _onCoverStatus(AnimationStatus status) =>
-      _cover(status == AnimationStatus.completed);
+      _cover(status == AnimationStatus.completed && !_fitted);
 
   @override
   void install() {
@@ -540,8 +551,9 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
         padding: sides,
         child: Align(
           alignment: Alignment.bottomCenter,
+          // At most this high: a sheet that fits its content is lower.
           child: ConstrainedBox(
-            constraints: BoxConstraints.tightFor(height: height),
+            constraints: BoxConstraints(maxHeight: height),
             child: Material(
               type: MaterialType.transparency,
               child: LayoutBuilder(
@@ -582,6 +594,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                       child: _GlassSheet(
                         attached: true,
                         height: height,
+                        onFitted: _setFitted,
                         keyboard: media.viewInsets.bottom,
                         bottomInset: media.viewInsets.bottom > 0
                             ? 0
@@ -666,11 +679,16 @@ class _GlassSheet extends StatefulWidget {
   final double keyboard;
   final Widget child;
 
+  /// Told whether the sheet is lower than [height] (or on its way there), so
+  /// the route leaves the page above it uncovered.
+  final ValueChanged<bool>? onFitted;
+
   const _GlassSheet({
     required this.attached,
     required this.height,
     this.bottomInset = 0,
     this.keyboard = 0,
+    this.onFitted,
     required this.child,
   });
 
@@ -680,20 +698,78 @@ class _GlassSheet extends StatefulWidget {
   State<_GlassSheet> createState() => _GlassSheetState();
 }
 
-class _GlassSheetState extends State<_GlassSheet> {
+class _GlassSheetState extends State<_GlassSheet>
+    with SingleTickerProviderStateMixin {
   /// How many [GlassSheetNoRim]s in the sheet hide its rim.
   final _rimHiders = _RimHiders();
 
+  /// The height a page that fits its content asks for ([GlassSheetPage.fit]);
+  /// null: full height.
+  double? _fit;
+
+  /// No page has said yet how high it wants the sheet: the first answer
+  /// is taken at once, while the sheet is still coming up.
+  bool _first = true;
+
+  /// The height laid out now, between full and fitted while it changes.
+  late final _height = AnimationController.unbounded(vsync: this);
+
+  /// The height of the frame the last report was measured in.
+  double _laidOut = 0;
+
   @override
   void dispose() {
+    _height.dispose();
     _rimHiders.dispose();
     super.dispose();
+  }
+
+  double get _full => widget.height ?? double.infinity;
+
+  /// A page's report: [slack] is how much room its content leaves (negative
+  /// when it scrolls), null when it wants the full height.
+  void _report(double? slack) {
+    if (!mounted || widget.height == null) return;
+    final full = _full;
+    double? fit;
+    if (slack != null) {
+      final wanted = _laidOut - slack;
+      // Nearly full: just full.
+      fit = wanted >= full - 24 ? null : wanted;
+    }
+    if (fit == _fit && !_first) return;
+    if (fit != null && _fit != null && (fit - _fit!).abs() < 0.5) return;
+    final wasFirst = _first;
+    _first = false;
+    _fit = fit;
+    final target = fit ?? full;
+    if (fit != null) widget.onFitted?.call(true);
+    if (wasFirst || MediaQuery.disableAnimationsOf(context)) {
+      _height.value = target;
+      if (fit == null) widget.onFitted?.call(false);
+      setState(() {});
+      return;
+    }
+    // Grows into the full sheet while the next page slides in (or back to
+    // the fitted one as it slides out): the same time and curve.
+    _height
+        .animateTo(
+          target,
+          duration: const Duration(milliseconds: 340),
+          curve: Curves.easeInOutCubic,
+        )
+        .whenCompleteOrCancel(() {
+          if (mounted && _fit == null) widget.onFitted?.call(false);
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     final attached = widget.attached;
-    final height = widget.height;
+    final full = widget.height;
+    if (full != null && (_first || (_fit == null && !_height.isAnimating))) {
+      _height.value = _fit ?? full;
+    }
     final keyboard = widget.keyboard;
     final bottomInset = widget.bottomInset;
     final palette = YiviPalette.of(context);
@@ -732,8 +808,9 @@ class _GlassSheetState extends State<_GlassSheet> {
               covered: false,
               child: ClipPath(
                 clipper: ShapeBorderClipper(shape: shape),
-                child: SizedBox(
-                  height: height,
+                child: _SheetHeight(
+                  height: full == null ? null : _height,
+                  onLaidOut: (h) => _laidOut = h,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: keyboard),
                     child: MediaQuery(
@@ -755,8 +832,11 @@ class _GlassSheetState extends State<_GlassSheet> {
                       // Its bar has text buttons when it floats.
                       child: GlassSheetFloating(
                         floating: !attached,
-                        // Cards on the sheet one level above it.
-                        child: YiviPaletteScope.onSheet(child: widget.child),
+                        child: _SheetFit(
+                          report: full == null ? null : _report,
+                          // Cards on the sheet one level above it.
+                          child: YiviPaletteScope.onSheet(child: widget.child),
+                        ),
                       ),
                     ),
                   ),
@@ -768,6 +848,63 @@ class _GlassSheetState extends State<_GlassSheet> {
       ),
     );
   }
+}
+
+/// The sheet's height while it changes between fitting its content and
+/// full ([height] null: as high as it is allowed). Tells [onLaidOut] the
+/// height of every layout.
+class _SheetHeight extends StatelessWidget {
+  final Animation<double>? height;
+  final ValueChanged<double> onLaidOut;
+  final Widget child;
+
+  const _SheetHeight({
+    required this.height,
+    required this.onLaidOut,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final height = this.height;
+    if (height == null) return child;
+    return AnimatedBuilder(
+      animation: height,
+      child: child,
+      builder: (context, child) {
+        onLaidOut(height.value);
+        return SizedBox(height: height.value, child: child);
+      },
+    );
+  }
+}
+
+/// Where a page of a sheet tells it how high it wants to be: see
+/// [GlassSheetPage.fit].
+class _SheetFit extends InheritedWidget {
+  final ValueChanged<double?>? report;
+
+  const _SheetFit({required this.report, required super.child});
+
+  static ValueChanged<double?>? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_SheetFit>()?.report;
+
+  @override
+  bool updateShouldNotify(_SheetFit old) => old.report != report;
+}
+
+/// Tells a [GlassSheetScrollView] in a page that fits its content to measure
+/// it ([GlassSheetPage.fit]); only on the page on top.
+class _FitPage extends InheritedWidget {
+  final ValueChanged<double?> report;
+
+  const _FitPage({required this.report, required super.child});
+
+  static _FitPage? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_FitPage>();
+
+  @override
+  bool updateShouldNotify(_FitPage old) => old.report != report;
 }
 
 /// How many [GlassSheetNoRim]s hide a sheet's rim; knows when the sheet is
@@ -1912,6 +2049,11 @@ class GlassSheetPage extends StatefulWidget {
   /// room while a screen has none.
   final bool slotBottom;
 
+  /// The sheet is as high as this page's content, while it is the page on
+  /// top: a short choice is a low sheet. It grows into the full sheet as a
+  /// page without [fit] comes in over it, and goes back as that page goes.
+  final bool fit;
+
   const GlassSheetPage({
     super.key,
     required this.title,
@@ -1931,6 +2073,7 @@ class GlassSheetPage extends StatefulWidget {
     bool split = false,
     this.edge = true,
     this.slotBottom = false,
+    this.fit = false,
   }) : padding = split ? EdgeInsets.zero : padding,
        scrolls = scrolls && !split,
        childClearsBottom = childClearsBottom || split,
@@ -1982,6 +2125,14 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       });
     }
     final top = role?.top ?? true;
+    // The page on top says how high the sheet should be: as its content, or
+    // full.
+    final report = top ? _SheetFit.of(context) : null;
+    if (report != null && !widget.fit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) report(null);
+      });
+    }
     final pinnedFades = moving && other != null && !other.pinned;
     // Underneath, the top page's pinned part stands in for this one, unless
     // it has none.
@@ -2061,7 +2212,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         ],
       ),
     );
-    return SheetActionSlotScope(
+    final page = SheetActionSlotScope(
       slot: _slot,
       child: BarOverBody(
         expand: role != null,
@@ -2069,6 +2220,9 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         body: role == null ? body : role.slide(body),
       ),
     );
+    return report != null && widget.fit
+        ? _FitPage(report: report, child: page)
+        : page;
   }
 
   /// What scrolls, and the buttons under it: [GlassSheetPage.bottom] and
@@ -2232,6 +2386,19 @@ class GlassSheetScrollView extends StatelessWidget {
   Widget build(BuildContext context) {
     // Not clipped at the top: under a [GlassSheetPage]'s header the content
     // goes on, blurred. The page clips the bottom.
+    final fit = slivers == null ? _FitPage.maybeOf(context) : null;
+    if (fit != null) {
+      return _FitMeasure(
+        report: fit.report,
+        padding: _padding(context),
+        child: SingleChildScrollView(
+          physics: glassSheetScrollPhysics(context),
+          clipBehavior: Clip.none,
+          padding: _padding(context),
+          child: _SizeReport(child: child!),
+        ),
+      );
+    }
     return switch (slivers) {
       final slivers? => CustomScrollView(
         physics: glassSheetScrollPhysics(context),
@@ -2315,4 +2482,130 @@ class _OpenTopClipper extends CustomClipper<Rect> {
 
   @override
   bool shouldReclip(_OpenTopClipper oldClipper) => false;
+}
+
+/// Measures a fitting page's content after each layout: how much room its
+/// scroll view leaves ([report] gets the slack; negative when it scrolls).
+class _FitMeasure extends StatefulWidget {
+  final ValueChanged<double?> report;
+  final EdgeInsets padding;
+  final Widget child;
+
+  const _FitMeasure({
+    required this.report,
+    required this.padding,
+    required this.child,
+  });
+
+  @override
+  State<_FitMeasure> createState() => _FitMeasureState();
+}
+
+class _FitMeasureState extends State<_FitMeasure> {
+  final _content = GlobalKey(debugLabel: "sheet_fit_content");
+
+  /// The room the scroll view has: the height the content could take.
+  double? _room;
+
+  void _measure() {
+    if (!mounted) return;
+    final content = _SizeReport.find(_content.currentContext);
+    final room = _room;
+    if (room == null || !room.isFinite || content == null || !content.hasSize) {
+      return;
+    }
+    widget.report(room - (content.size.height + widget.padding.vertical));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SizeChanged(
+      onChanged: () =>
+          WidgetsBinding.instance.addPostFrameCallback((_) => _measure()),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxHeight != _room) {
+            _room = constraints.maxHeight;
+            WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+          }
+          return KeyedSubtree(key: _content, child: widget.child);
+        },
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // On top again (back from a page over it): say so once more.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+  }
+
+  @override
+  void didUpdateWidget(_FitMeasure old) {
+    super.didUpdateWidget(old);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+  }
+}
+
+/// Tells [onChanged] when its subtree's [_SizeReport] changes size.
+class _SizeChanged extends InheritedWidget {
+  final VoidCallback onChanged;
+
+  const _SizeChanged({required this.onChanged, required super.child});
+
+  @override
+  bool updateShouldNotify(_SizeChanged old) => false;
+}
+
+/// The content of a fitting page, whose size [_FitMeasure] reads.
+class _SizeReport extends SingleChildRenderObjectWidget {
+  const _SizeReport({required Widget super.child});
+
+  /// The content's box under [context].
+  static RenderBox? find(BuildContext? context) {
+    RenderBox? found;
+    void visit(Element e) {
+      if (found != null) return;
+      if (e.widget is _SizeReport) {
+        found = e.renderObject as RenderBox?;
+        return;
+      }
+      e.visitChildren(visit);
+    }
+
+    if (context is Element) context.visitChildren(visit);
+    return found;
+  }
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderSizeReport(
+    context.getInheritedWidgetOfExactType<_SizeChanged>()?.onChanged,
+  );
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderSizeReport render,
+  ) {
+    render.onChanged = context
+        .getInheritedWidgetOfExactType<_SizeChanged>()
+        ?.onChanged;
+  }
+}
+
+class _RenderSizeReport extends RenderProxyBox {
+  _RenderSizeReport(this.onChanged);
+
+  VoidCallback? onChanged;
+  Size? _last;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size != _last) {
+      _last = size;
+      onChanged?.call();
+    }
+  }
 }

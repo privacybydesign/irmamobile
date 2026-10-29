@@ -1,3 +1,4 @@
+import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
@@ -45,9 +46,20 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
 
   bool _onScroll(ScrollNotification n) {
     if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    _titleShown.value =
+    final shown =
         n.metrics.pixels - n.metrics.minScrollExtent >=
         widget.largeTitleBottom - TitleScrollEdge.barHeight;
+    // A scroll can end during layout (the content changed size under it):
+    // the title then changes once the frame is done, not in the middle of it.
+    final phase = SchedulerBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.persistentCallbacks ||
+        phase == SchedulerPhase.midFrameMicrotasks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _titleShown.value = shown;
+      });
+    } else {
+      _titleShown.value = shown;
+    }
     return false;
   }
 

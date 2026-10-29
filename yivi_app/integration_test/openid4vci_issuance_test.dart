@@ -10,7 +10,6 @@ import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";
@@ -18,7 +17,7 @@ import "irma_binding.dart";
 import "util.dart";
 
 const _emailCredentialTileKey =
-    "https://veramo-issuer.openid4vc.staging.yivi.app/test-issuer/vct/email";
+    "https://veramo-issuer.openid4vc.staging.yivi.app/vct/email";
 
 final List<AttrRow> _organizationExpectedAttributes = [
   ("University Name", "TU Delft"),
@@ -603,7 +602,12 @@ Future<void> testCancelTxCodeScreenDismissesSession(
 
   // Tx code screen — tap "Cancel" in the bottom bar to dismiss the session.
   await tester.pumpUntilFound(find.byType(OpenID4VCIPreAuthTxCodeScreen));
-  await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+  // The code field takes the keyboard: the bar can be below it while it
+  // comes up. Without the keyboard the bar is in reach.
+  final cancel = find.byKey(const Key("bottom_bar_secondary"));
+  FocusManager.instance.primaryFocus?.unfocus();
+  await tester.pumpUntilFound(cancel.hitTestable());
+  await tester.tap(cancel);
 
   // Should be back at home (no confirmation dialog). Wait for the tx_code
   // screen to actually unmount — until then, its blinking cursor blocks
@@ -703,7 +707,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
   );
   await tester.pump(const Duration(seconds: 1));
 
-  expect(find.text("Data deleted"), findsExactly(2));
+  expect(findActivityOfKind("Deleted"), findsExactly(2));
 
   // Most-recent activity entry → unique-card removal (deleted second)
   await tester.tapAndSettle(
@@ -721,7 +725,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
   );
 
   // Back to activity list, then drill into the older removal
-  await tester.tapAndSettle(find.byType(YiviBackButton));
+  await tester.tapAndSettle(find.byKey(const Key("activity_detail_done")));
 
   await tester.tapAndSettle(
     find.byType(ActivityCard, skipOffstage: false).at(1),
@@ -775,7 +779,7 @@ Future<void> testIssueNonExpiringCredentialShowsUnlimitedValidity(
   expect(
     find.descendant(
       of: findCredentialDetail(),
-      matching: find.text("Valid indefinitely"),
+      matching: find.textContaining("Valid indefinitely"),
     ),
     findsOneWidget,
   );

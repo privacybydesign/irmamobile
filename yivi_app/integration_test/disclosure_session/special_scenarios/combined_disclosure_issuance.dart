@@ -40,10 +40,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(
 
   // One screen for both: what is shared, and the card that is received.
   await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(
-    find.text("is asking for your data and gives you a card"),
-    findsOneWidget,
-  );
+  expect(find.textContaining("is asking for your data"), findsOneWidget);
   expect(find.text("YOU GET THIS IN RETURN"), findsOneWidget);
   expect(find.text("Demo Login data"), findsWidgets);
   expect(find.text("1234"), findsOneWidget);

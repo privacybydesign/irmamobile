@@ -373,7 +373,9 @@ WalletMismatch? walletMismatch(
   List<Credential> wallet,
 ) {
   if (!isEmptySpot(pickOne)) return null;
-  for (final d in pickOne.obtainableOptions ?? const <CredentialDescriptor>[]) {
+  // Only a kind she can get again in Yivi: otherwise the spot says where to
+  // get it.
+  for (final d in addableOptions(pickOne)) {
     for (final card in wallet) {
       if (card.credentialId != d.credentialId) continue;
       for (final wanted in d.attributes) {

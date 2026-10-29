@@ -125,20 +125,33 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   bool _arriving = false;
   final _timers = <Timer>[];
 
+  /// The pick-ones with no card in the app yet (a spot, or optional data
+  /// with nothing to pick).
   static Set<int> _emptyOf(SessionState s) => {
     for (final (i, p)
         in (s.disclosurePlan?.disclosureChoicesOverview ??
                 const <DisclosurePickOne>[])
             .indexed)
-      if (isEmptySpot(p)) i,
+      if ((p.ownedOptions ?? const []).isEmpty) i,
   };
 
   static bool _hasToDo(SessionState s) => shareButton(s, const {}).next != null;
+
+  /// Pick-ones that got their card while a sheet was open: they light up
+  /// once it has landed ([_land]), not while the sheet still covers them.
+  final _arrived = <int>{};
+
+  /// Sheets of this screen that are open.
+  int _sheets = 0;
+
+  /// The landing spot a card is flying to now.
+  GlobalKey? _flyingTo;
 
   @override
   void initState() {
     super.initState();
     _hadToDo = _hasToDo(widget.session);
+    CardFlight.landing.addListener(_onFlight);
   }
 
   @override
@@ -146,13 +159,55 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     super.didUpdateWidget(old);
     final filled = _emptyOf(old.session).difference(_emptyOf(widget.session));
     if (filled.isEmpty) return;
-    _landed.addAll(filled);
-    _later(const Duration(milliseconds: 2400), () => _landed.removeAll(filled));
-    if (_hadToDo && !_hasToDo(widget.session)) {
-      _allSet = true;
-      _arriving = true;
-      _later(const Duration(milliseconds: 1300), () => _arriving = false);
+    _arrived.addAll(filled);
+    // Nothing over the page (the card came in some other way): at once.
+    if (_sheets == 0 && !CardFlight.isFlying) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _land(fromSheet: false),
+      );
     }
+  }
+
+  /// A flight to one of this screen's spots ended: the card is in place.
+  void _onFlight() {
+    final to = CardFlight.landing.value;
+    final was = _flyingTo;
+    _flyingTo = to;
+    if (to == null && was != null && _landingKeys.containsValue(was)) _land();
+  }
+
+  /// The cards that arrived are in place: a green ring around each for a
+  /// moment, and, when nothing is left to do, "All set". Back from a sheet
+  /// the share button fades in, ignoring taps meanwhile: it sits where "Back
+  /// to …" was, and a second tap there must not share.
+  void _land({bool fromSheet = true}) {
+    if (!mounted || _arrived.isEmpty) return;
+    final landed = {..._arrived};
+    _arrived.clear();
+    setState(() {
+      _landed.addAll(landed);
+      if (_hadToDo && !_hasToDo(widget.session)) {
+        _allSet = true;
+        if (fromSheet) {
+          _arriving = true;
+          _later(const Duration(milliseconds: 1300), () => _arriving = false);
+        }
+      }
+    });
+    _later(const Duration(milliseconds: 2400), () => _landed.removeAll(landed));
+  }
+
+  /// Shows a sheet of this screen; once it has gone, a card that came in
+  /// without a flight (a tablet, where it fades in) lands.
+  Future<void> _inSheet(Future<void> sheet) async {
+    _sheets++;
+    try {
+      await sheet;
+    } finally {
+      _sheets--;
+    }
+    if (!mounted || CardFlight.isFlying) return;
+    _land();
   }
 
   void _later(Duration d, VoidCallback change) => _timers.add(
@@ -168,6 +223,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
   @override
   void dispose() {
+    CardFlight.landing.removeListener(_onFlight);
     for (final t in _timers) {
       t.cancel();
     }
@@ -184,23 +240,26 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// "Change choice", "Add" on a spot, and the fix of a card that cannot be
   /// shared: the choice sheet for pick-one [i]. With [addNew] it opens on
   /// adding that type.
-  void _openChoice(int i, {CredentialDescriptor? addNew}) =>
-      showChangeChoiceSheet(
-        context: context,
-        sessionId: _sessionId,
-        index: i,
-        addNew: addNew,
-        landingKey: _landingKey(i),
-      );
+  void _openChoice(int i, {CredentialDescriptor? addNew}) => _inSheet(
+    showChangeChoiceSheet(
+      context: context,
+      sessionId: _sessionId,
+      index: i,
+      addNew: addNew,
+      landingKey: _landingKey(i),
+    ),
+  );
 
   /// "Choose what you add": the sheet with only the kinds that can be
   /// added for pick-one [i] (and "Don't share" for optional data).
-  void _openKinds(int i) => showChangeChoiceSheet(
-    context: context,
-    sessionId: _sessionId,
-    index: i,
-    kindsOnly: true,
-    landingKey: _landingKey(i),
+  void _openKinds(int i) => _inSheet(
+    showChangeChoiceSheet(
+      context: context,
+      sessionId: _sessionId,
+      index: i,
+      kindsOnly: true,
+      landingKey: _landingKey(i),
+    ),
   );
 
   /// What the share button does before it can share.
@@ -523,6 +582,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                 ),
                 content: FillScrollView(
                   scrollKey: const Key("share_scroll_view"),
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.fromLTRB(0, top, 16, 16 + media.bottom),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -608,6 +668,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               },
               child: FillScrollView(
                 scrollKey: const Key("share_scroll_view"),
+                // Scrolls (and bounces) also when it all fits.
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
                   16 + insets.left,
                   16 + insets.top,
@@ -941,17 +1003,21 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       );
     }
     final bundle = owned[k];
-    final tile = SharedCardTile(
-      key: Key("share_slot_$i"),
-      bundle: bundle,
-      landingKey: _landingKey(i),
-      footer: _ChoiceStrip(
-        text: context.tr("share.optional.also"),
-        button: SmallPill(
-          key: Key("share_change_$i"),
-          label: context.tr("share.change_choice"),
-          tone: SmallPillTone.surface,
-          onPressed: () => _openChoice(i),
+    final tile = CardTileOutline(
+      shown: _landed.contains(i),
+      color: YiviPalette.of(context).successText,
+      child: SharedCardTile(
+        key: Key("share_slot_$i"),
+        bundle: bundle,
+        landingKey: _landingKey(i),
+        footer: _ChoiceStrip(
+          text: context.tr("share.optional.also"),
+          button: SmallPill(
+            key: Key("share_change_$i"),
+            label: context.tr("share.change_choice"),
+            tone: SmallPillTone.surface,
+            onPressed: () => _openChoice(i),
+          ),
         ),
       ),
     );
@@ -1141,32 +1207,29 @@ class _OptionalRow extends StatelessWidget {
   }
 }
 
-/// A card the requestor gives in return (an issuance with disclosure).
+/// A card the requestor gives in return (an issuance with disclosure): a
+/// tile like the cards that are shared, with its name, who gives it and
+/// every value it holds.
 class _OfferedCard extends StatelessWidget {
   final schemaless.Credential card;
 
   const _OfferedCard({required this.card});
 
   @override
-  Widget build(BuildContext context) {
-    return SurfaceCard(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 10,
-          children: [
-            CredentialCardArt(credential: card, width: constraints.maxWidth),
-            YiviCredentialCardAttributeList(
-              card.attributes,
-              credentialId: card.credentialId,
-              showDividers: true,
-            ),
-          ],
+  Widget build(BuildContext context) => CardTile(
+    key: const Key("share_offered_card"),
+    art: CredentialCardArt(credential: card, width: CardTile.miniWidth),
+    title: card.name,
+    subtitle: card.issuer.name,
+    body: [
+      if (card.attributes.isNotEmpty)
+        YiviCredentialCardAttributeList(
+          card.attributes,
+          credentialId: card.credentialId,
+          showDividers: true,
         ),
-      ),
-    );
-  }
+    ],
+  );
 }
 
 class _Footnote extends StatelessWidget {

@@ -4,7 +4,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
-import "package:yivi_core/src/screens/more/widgets/tiles.dart";
 import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 
 import "helpers/helpers.dart";
@@ -185,12 +184,9 @@ void main() {
         findsOneWidget,
       );
 
-      // Check if the contact link is present
+      // At the bottom: a way to ask a question, by e-mail.
       await tester.scrollUntilVisible(
-        find.descendant(
-          of: find.byType(ContactLinkTile),
-          matching: find.text("Contact us"),
-        ),
+        find.byKey(const Key("help_send_email")),
         75,
       );
     });

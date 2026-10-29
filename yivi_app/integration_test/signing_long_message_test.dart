@@ -69,7 +69,7 @@ void main() {
       // The signing screen rendered (i.e. did not freeze).
       await tester.waitFor(find.byType(DisclosureShareScreen));
       expect(find.byType(DisclosureShareScreen), findsOneWidget);
-      expect(find.text("You sign this message"), findsOneWidget);
+      expect(find.text("YOU SIGN"), findsOneWidget);
 
       // The message is shown truncated to a few lines with an ellipsis, plus a
       // bold, tappable "Read more" link to reveal the full text (chat-app

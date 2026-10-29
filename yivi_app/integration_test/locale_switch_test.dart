@@ -3,6 +3,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -39,8 +40,8 @@ void main() {
       // Data tab shows the credential with its English name.
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
       expect(find.byType(DataTab), findsOneWidget);
-      expect(find.text("Demo Email address"), findsWidgets);
-      expect(find.text("Demo E-mailadres"), findsNothing);
+      expect(_cardNamed("Demo Email address"), findsWidgets);
+      expect(_cardNamed("Demo E-mailadres"), findsNothing);
 
       // Switch the in-app language to Dutch.
       await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
@@ -68,8 +69,14 @@ void main() {
 
       // The same credential now renders with its Dutch name, re-resolved by the
       // Go client after the SetLocaleEvent.
-      expect(find.text("Demo E-mailadres"), findsWidgets);
-      expect(find.text("Demo Email address"), findsNothing);
+      expect(_cardNamed("Demo E-mailadres"), findsWidgets);
+      expect(_cardNamed("Demo Email address"), findsNothing);
     });
   });
 }
+
+/// A card picture of a credential named [name]. A built-in card design draws
+/// the name inside its picture, not as a text widget.
+Finder _cardNamed(String name) => find.byWidgetPredicate(
+  (w) => w is CredentialCardArt && w.credential.name == name,
+);

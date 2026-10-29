@@ -350,10 +350,15 @@ class _FoldHeader extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Marks a fold's heading, so readers of the list (and tests) can tell it
+  /// from an attribute's label.
+  static const headingKey = Key("attribute_fold_header");
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final row = ConstrainedBox(
+      key: headingKey,
       constraints: BoxConstraints(minHeight: minHeight),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -550,6 +555,7 @@ class _ListHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
+      key: _FoldHeader.headingKey,
       padding: const EdgeInsets.only(top: 10, bottom: 2),
       child: Semantics(
         header: true,
@@ -584,6 +590,7 @@ class _BlockName extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Container(
+      key: _FoldHeader.headingKey,
       margin: const EdgeInsets.only(top: 8),
       padding: EdgeInsets.only(top: line ? 8 : 0),
       decoration: line

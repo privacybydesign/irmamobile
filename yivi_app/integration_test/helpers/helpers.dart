@@ -1204,6 +1204,28 @@ List<Text> attributeRowTexts(Finder attributeList) {
 ///   - 12: eyebrow header (group/item) — closes the current run, ignored.
 List<_LabelValues> _renderedRows(WidgetTester tester, Finder cardAttList) {
   final texts = attributeRowTexts(cardAttList);
+  // The headings of nested objects and lists (folds) have the label's size:
+  // they close the current run, as an eyebrow does.
+  final headings = find
+      .descendant(
+        of: find.descendant(
+          of: cardAttList,
+          matching: find.byKey(const Key("attribute_fold_header")),
+        ),
+        matching: find.byType(Text),
+      )
+      .evaluate()
+      .map((e) => e.widget)
+      .toSet();
+  // The values of a list of plain values are chips with the label's size.
+  final arrayValues = find
+      .descendant(
+        of: cardAttList,
+        matching: find.byKey(const Key("attribute_array_value")),
+      )
+      .evaluate()
+      .map((e) => e.widget)
+      .toSet();
 
   final rendered = <_LabelValues>[];
   String? pendingLabel;
@@ -1221,6 +1243,14 @@ List<_LabelValues> _renderedRows(WidgetTester tester, Finder cardAttList) {
     final size = t.style?.fontSize;
     final data = t.data;
     if (data == null) continue;
+    if (headings.contains(t)) {
+      flush();
+      continue;
+    }
+    if (arrayValues.contains(t)) {
+      pendingValues?.add(data);
+      continue;
+    }
     if (size == 14) {
       flush();
       pendingLabel = data;
@@ -1268,9 +1298,16 @@ List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
         } else if (value.every((v) => v is String)) {
           out.add(_LabelValues(label, value.cast<String>()));
         } else if (value.every((v) => v is List)) {
-          // List<Block>: array of items. Recurse into each item.
+          // List<Block>: array of items. Recurse into each item. An item's
+          // first value, when it is text, is its name (a heading), not a
+          // row: the renderer names the item by it.
           for (final item in value) {
-            walk((item as List).cast<AttrRow>());
+            final rows = (item as List).cast<AttrRow>();
+            walk(
+              rows.isNotEmpty && rows.first.$2 is String
+                  ? rows.sublist(1)
+                  : rows,
+            );
           }
         } else if (value.every((v) => v is AttrRow)) {
           // List<AttrRow>: a nested group. Recurse into its children without
@@ -1581,3 +1618,12 @@ Future<void> dragSheetHeaderDown(WidgetTester tester) async {
   await g.up();
   await tester.pump(const Duration(milliseconds: 400));
 }
+
+/// The activity cards of [kind] ("Deleted", "Shared", …): each card's second
+/// line starts with it, followed by the cards involved.
+Finder findActivityOfKind(String kind) => find.byWidgetPredicate(
+  (w) =>
+      w is Text &&
+      w.data == null &&
+      (w.textSpan?.toPlainText() ?? "").startsWith(kind),
+);

@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 
 import "../../helpers/helpers.dart";
@@ -42,8 +43,14 @@ Future<void> returnUrlHttpsInAppTest(
   await waitForRequest(tester);
 
   await tapShare(tester);
-
   await tester.pumpAndSettle();
+
+  // The done screen first: what was shared, and "Back to {host}" at the
+  // top and as its button. Nothing opens before she taps it.
+  await tester.waitFor(find.byKey(const Key("share_done_next")));
+  expect(externalLaunches, isEmpty);
+  expect(inAppLaunches, isEmpty);
+  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
 
   expect(inAppLaunches, [_returnUrl]);
   expect(externalLaunches, isEmpty);

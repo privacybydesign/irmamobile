@@ -30,6 +30,7 @@ import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart"
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
 import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/document_flow_footer.dart";
@@ -272,12 +273,12 @@ final _share = find.byKey(const Key("share_button"));
 /// Opens "Add another card" in the open sheet, when its kinds are folded
 /// away (a usable card is in the app).
 Future<void> _openAdd(WidgetTester tester) async {
-  final toggle = find.byKey(const Key("sheet_add_toggle"));
+  final toggle = find.byKey(const Key("sheet_more_toggle"));
   final rows = find.byWidgetPredicate((w) {
     final key = w.key;
     return key is ValueKey<String> &&
         key.value.startsWith("sheet_add_") &&
-        key.value != "sheet_add_toggle";
+        key.value != "sheet_more_toggle";
   });
   if (toggle.evaluate().isNotEmpty && rows.evaluate().isEmpty) {
     await tester.tap(toggle);
@@ -338,6 +339,33 @@ void main() {
     ]);
   });
 
+  testWidgets("the page scrolls also when it all fits", (tester) async {
+    await _pump(
+      tester,
+      session: _session([
+        DisclosurePickOne(
+          optional: false,
+          ownedOptions: [
+            _bundle(_instance("email", "Email", "s@werk.example")),
+          ],
+        ),
+      ]),
+    );
+    final scrollable = tester.widget<SingleChildScrollView>(
+      find.byKey(const Key("share_scroll_view")),
+    );
+    expect(scrollable.physics, isA<AlwaysScrollableScrollPhysics>());
+    final title = find.text("Webshop Noord is asking for your data");
+    final before = tester.getRect(title).top;
+    final gesture = await tester.startGesture(tester.getCenter(title));
+    await gesture.moveBy(const Offset(0, 80));
+    await tester.pump();
+    expect(tester.getRect(title).top, greaterThan(before));
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(tester.getRect(title).top, closeTo(before, 0.5));
+  });
+
   testWidgets("Change opens the sheet; a tap picks and closes", (tester) async {
     final calls = await _pump(tester, session: _session([_passportOrIdCard()]));
 
@@ -382,7 +410,7 @@ void main() {
     // Adding is folded away under "Add another card" while a usable card is
     // in the app.
     expect(find.byKey(const Key("sheet_add_idcard")), findsNothing);
-    await tester.tap(find.byKey(const Key("sheet_add_toggle")));
+    await tester.tap(find.byKey(const Key("sheet_more_toggle")));
     await tester.pumpAndSettle();
     // A row: its name, and how you get it (who gives it, and where).
     final add = find.byKey(const Key("sheet_add_idcard"));
@@ -1165,6 +1193,52 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_add_passport")), findsOneWidget);
       expect(find.byKey(const Key("sheet_add_idcard")), findsOneWidget);
+    });
+
+    testWidgets("Choose what to add is a low sheet; adding one grows it "
+        "into the full sheet, and back", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              _descriptor("passport", "Passport"),
+              _descriptor("idcard", "ID card"),
+            ],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_spot_0")));
+      await tester.pumpAndSettle();
+      final low = tester.getRect(find.byKey(const Key("glass_sheet")));
+      // As high as the two rows need: well under the full sheet, and the
+      // page shows above it.
+      expect(low.bottom, 844);
+      expect(low.height, lessThan(844 * 0.7));
+      final kinds = tester.getRect(find.byKey(const Key("sheet_kinds")));
+      expect(kinds.bottom, lessThan(low.bottom));
+
+      // A kind: its details come in, the sheet grows with them.
+      await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 170));
+      final half = tester.getRect(find.byKey(const Key("glass_sheet")));
+      expect(half.height, greaterThan(low.height));
+      await tester.pumpAndSettle();
+      final full = tester.getRect(find.byKey(const Key("glass_sheet")));
+      expect(full.height, greaterThan(half.height));
+      expect(full.top, lessThan(80));
+
+      // Back: low again.
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(const Key("glass_sheet"))).height,
+        closeTo(low.height, 1),
+      );
     });
 
     group("two cards only accepted together", () {
@@ -1978,6 +2052,146 @@ void main() {
         expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
       });
     }
+
+    /// A request with [above] cards in the app before an empty ID card spot,
+    /// and the ID card added through the sheet: the main session gets it
+    /// once the issuance is done, as irmago sends it.
+    Future<(StreamController<SessionState>, StreamController<SessionState>)>
+    addIdCard(WidgetTester tester, {int above = 0}) async {
+      final sessions = StreamController<SessionState>.broadcast();
+      final nested = StreamController<SessionState>();
+      addTearDown(sessions.close);
+      addTearDown(nested.close);
+      final idcard = _descriptor("idcard", "ID card");
+      SessionState state({required bool owned}) => _session([
+        for (var n = 0; n < above; n++)
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [_bundle(_instance("email$n", "Email", "a$n@b.nl"))],
+          ),
+        DisclosurePickOne(
+          optional: false,
+          ownedOptions: [
+            if (owned) _bundle(_instance("idcard", "ID card", "Jansen")),
+          ],
+          obtainableOptions: [idcard],
+        ),
+      ]);
+      await _pump(
+        tester,
+        sessions: sessions.stream,
+        nested: {nestedId: nested.stream},
+      );
+      sessions.add(state(owned: false));
+      await tester.pumpAndSettle();
+      final spot = find.byKey(Key("share_spot_$above"));
+      unawaited(Scrollable.ensureVisible(tester.element(spot), alignment: 0.5));
+      await tester.pumpAndSettle();
+      await tester.tap(spot);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_open_website")));
+      await tester.pumpAndSettle();
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      nested.add(issuance(SessionStatus.success));
+      sessions.add(state(owned: true));
+      await tester.pumpAndSettle();
+      return (sessions, nested);
+    }
+
+    Finder ring(int i) => find.descendant(
+      of: find.ancestor(
+        of: find.byKey(Key("share_slot_$i")),
+        matching: find.byType(CardTileOutline),
+      ),
+      matching: find.byKey(const Key("card_tile_outline")),
+    );
+
+    testWidgets("the card lands, then a green ring for a moment and All set", (
+      tester,
+    ) async {
+      await addIdCard(tester);
+      // Behind the sheet the card is in, but nothing lights up yet.
+      expect(ring(0), findsNothing);
+
+      await tester.tap(find.byKey(const Key("sheet_back_to_request")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      // Still flying: no ring yet.
+      expect(find.byKey(const Key("sheet_flight_card")), findsOneWidget);
+      expect(ring(0), findsNothing);
+      await tester.pumpAndSettle();
+
+      // Landed: the ring, green, and everything is there.
+      expect(ring(0), findsOneWidget);
+      final outline = tester.widget<CardTileOutline>(
+        find.ancestor(
+          of: find.byKey(const Key("share_slot_0")),
+          matching: find.byType(CardTileOutline),
+        ),
+      );
+      expect(
+        outline.color,
+        YiviPalette.of(
+          tester.element(find.byKey(const Key("share_slot_0"))),
+        ).successText,
+      );
+      expect(
+        find.textContaining("All set. Have one more look at what you share."),
+        findsOneWidget,
+      );
+      // The share button fades in, and doesn't take a tap meanwhile.
+      expect(
+        find.descendant(of: _share, matching: find.byType(IgnorePointer)),
+        findsWidgets,
+      );
+
+      await tester.pump(const Duration(milliseconds: 2500));
+      await tester.pumpAndSettle();
+      expect(ring(0), findsNothing);
+    });
+
+    testWidgets("a spot out of view: the page scrolls to it first, then the "
+        "card flies", (tester) async {
+      await addIdCard(tester, above: 6);
+      final scroll = find.byKey(
+        const Key("share_scroll_view"),
+        skipOffstage: false,
+      );
+      // The page (under the sheet) as she left it: scrolled to the top.
+      tester
+          .state<ScrollableState>(
+            find
+                .descendant(
+                  of: scroll,
+                  matching: find.byType(Scrollable, skipOffstage: false),
+                  skipOffstage: false,
+                )
+                .first,
+          )
+          .position
+          .jumpTo(0);
+      await tester.pump();
+
+      await tester.tap(find.byKey(const Key("sheet_back_to_request")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      // Scrolling first, under the sheet: no card flies yet.
+      expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
+      expect(find.byKey(const Key("sheet_flight_card")), findsOneWidget);
+      await tester.pumpAndSettle();
+
+      // The card is in view, clear of the share button.
+      final card = tester.getRect(find.byKey(const Key("share_slot_6")));
+      final button = tester.getRect(_share);
+      expect(card.top, greaterThan(0));
+      expect(card.bottom, lessThan(button.top));
+    });
 
     testWidgets("tablet upright: a card added for a spot fades in over it", (
       tester,

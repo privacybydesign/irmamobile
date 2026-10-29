@@ -48,23 +48,27 @@ Future<void> mdlPortraitAndPrivilegesTest(
   // Metadata order, except that YiviCredentialCardAttributeList sorts image
   // attributes to the bottom of the card, so the portrait renders last even
   // though irmago sends it second. The portrait row has a label and a picture,
-  // no text value; the privileges are one item with its category code.
-  const rows = [
-    ("Licence number", mdlLicenceNumber),
-    (
-      "Driving Privileges",
-      [
-        [("vehicle_category_code", mdlVehicleCategory)],
-      ],
-    ),
-    ("Portrait", <String>[]),
-  ];
+  // no text value. The privileges are one item, named by its first value
+  // (the category code), with nothing else in it.
+  const rows = [("Licence number", mdlLicenceNumber), ("Portrait", <String>[])];
   await evaluateCredentialCard(
     tester,
     cardsFinder,
     credentialName: mdlCredentialName,
     issuerName: eudiIssuerDisplayName,
     attributes: rows,
+  );
+
+  // The privileges: a fold "Driving Privileges" with one item, named by its
+  // category code.
+  final list = find.byType(YiviCredentialCardAttributeList);
+  expect(
+    find.descendant(of: list, matching: find.text("Driving Privileges")),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(of: list, matching: find.text(mdlVehicleCategory)),
+    findsOneWidget,
   );
 
   // The portrait is drawn as an image, and its base64 text is nowhere.

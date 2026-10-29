@@ -695,7 +695,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
   // nothing", both e-mail addresses in the app and another one to add.
   final optional = _optionalItemIndex();
   await openOptionalSheet(tester, optional);
-  expect(find.text("Optional data"), findsOneWidget);
+  expect(find.text("Do you want to share this too?"), findsOneWidget);
   _expectOwnedRows(tester, ["one@example.com", "two@example.com"]);
   expect(findSheetAddRow(_emailId), findsOneWidget);
 

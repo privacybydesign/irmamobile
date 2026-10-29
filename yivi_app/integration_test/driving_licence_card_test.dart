@@ -364,7 +364,7 @@ Future<void> _startDisclosure(
       "disclose": [[[ $requested ]]]
     }
   ''');
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureShareScreen));
   await tester.ensureVisible(_table);
   await tester.pumpAndSettle();
 }

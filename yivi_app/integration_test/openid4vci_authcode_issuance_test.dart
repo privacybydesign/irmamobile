@@ -20,7 +20,6 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_authcode_pending_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -173,7 +172,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   expect(find.text("YOU RECEIVED"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    find.byType(YiviCredentialCard).first,
+    findCredentialCards().first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "AuthCode Issuer",
     isExpired: false,

@@ -56,7 +56,11 @@ Future<void> multiBundleChoicePartialTest(
   await tapSpot(tester, 0);
   expect(findSheetAddRow("irma-demo.MijnOverheid.fullName"), findsOneWidget);
   expect(findSheetAddRow("irma-demo.MijnOverheid.root"), findsNothing);
-  expect(findSheetAddRow("irma-demo.idin.idin"), findsOneWidget);
+  // Bundle B (iDIN and address, neither in the app) is one set to add.
+  expect(
+    findSheetAddRow("irma-demo.idin.idin+irma-demo.gemeente.address"),
+    findsOneWidget,
+  );
   await startAdding(tester, "irma-demo.MijnOverheid.fullName");
 
   // The test issues the card the way the website would; the issuance shows

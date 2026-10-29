@@ -10,10 +10,15 @@ class FillScrollView extends StatelessWidget {
   /// The key of the scroll view itself, which tests look for.
   final Key? scrollKey;
 
+  /// Its physics; the platform's by default (which doesn't scroll a page
+  /// that fits).
+  final ScrollPhysics? physics;
+
   const FillScrollView({
     super.key,
     this.padding = EdgeInsets.zero,
     this.scrollKey,
+    this.physics,
     required this.child,
   });
 
@@ -22,6 +27,7 @@ class FillScrollView extends StatelessWidget {
     builder: (context, constraints) => SingleChildScrollView(
       key: scrollKey,
       padding: padding,
+      physics: physics,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: (constraints.maxHeight - padding.vertical).clamp(

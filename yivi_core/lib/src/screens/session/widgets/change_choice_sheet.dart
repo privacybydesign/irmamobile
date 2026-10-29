@@ -10,6 +10,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
@@ -341,7 +342,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// the sheet just closes. On a tablet held upright, where the share screen
   /// has its tablet columns, the card fades into its spot instead; held
   /// sideways (also an unfolded phone) it flies, as on the phone.
-  void _finish() {
+  Future<void> _finish() async {
     final cards = issueAdded ?? const <schemaless.Credential>[];
     final landing = widget.landingKey;
     final i = cards.indexWhere(
@@ -353,16 +354,21 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         i >= 0 &&
         !useSessionColumns(context) &&
         _nextOfSet(cards) == null) {
-      // The spot to the middle of the page behind the sheet, so the card
-      // lands in view.
+      // First the spot into view on the page behind the sheet (to its middle,
+      // clear of the bars), then the flight: the card lands where she sees
+      // it.
       final spot = landing.currentContext;
-      if (spot != null) {
-        Scrollable.ensureVisible(
+      if (spot != null && !_inView(spot)) {
+        await Scrollable.ensureVisible(
           spot,
           alignment: 0.5,
-          duration: const Duration(milliseconds: 300),
+          duration: YiviMotion.duration(
+            context,
+            const Duration(milliseconds: 320),
+          ),
           curve: Curves.easeOutCubic,
         );
+        if (!mounted) return;
       }
       CardFlight.start(
         context,
@@ -376,6 +382,21 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     }
     // On "Success" while the sheet goes.
     issueClose();
+  }
+
+  /// Whether [spot] is in view on its page, clear of the bars over it (the
+  /// top bar, the share button at the bottom).
+  static bool _inView(BuildContext spot) {
+    final box = spot.findRenderObject();
+    final scrollable = Scrollable.maybeOf(spot);
+    final viewport = scrollable?.context.findRenderObject();
+    if (box is! RenderBox || viewport is! RenderBox || !box.hasSize) {
+      return true;
+    }
+    final top = box.localToGlobal(Offset.zero, ancestor: viewport).dy;
+    final bottom = top + box.size.height;
+    const bars = 120.0, button = 190.0;
+    return top >= bars && bottom <= viewport.size.height - button;
   }
 
   @override
@@ -589,7 +610,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           if (addable.isNotEmpty) ...[
             const SizedBox(height: 24),
             _AddToggle(
-              key: const Key("sheet_add_toggle"),
+              key: const Key("sheet_more_toggle"),
               label: context.tr("share.sheet.add_other"),
               open: addOpen,
               onTap: usable ? () => setState(() => _addOpen = !_addOpen) : null,
@@ -654,6 +675,9 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       title: pickOne.optional
           ? context.tr("share.sheet.optional_title")
           : context.tr("share.next.pick"),
+      // A low sheet with only the kinds; it grows into the full sheet as
+      // adding one comes in.
+      fit: true,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         key: const Key("sheet_kinds"),

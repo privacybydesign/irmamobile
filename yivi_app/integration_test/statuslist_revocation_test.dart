@@ -46,13 +46,19 @@ const _issuerName = "Test Issuer";
 const _revokedLabel = "Revoked";
 
 /// The "Revoked" validity chip of the open credential detail view.
+// The chip is a rich text with an icon in front: match its text.
 final _revokedChip = find.descendant(
   of: findCredentialDetail(),
-  matching: find.text(_revokedLabel),
+  matching: find.textContaining(_revokedLabel),
 );
 
 /// Room for a live status list fetch from staging, round-tripped over the bridge.
 const _refreshTimeout = Duration(seconds: 30);
+
+/// How long to keep asking for a sweep until the revocation shows, and how
+/// often.
+const _revokedTimeout = Duration(seconds: 90);
+const _refreshStep = Duration(seconds: 5);
 
 Future<void> _testRevocationSurfacesOnCardAndNotification(
   WidgetTester tester,
@@ -97,7 +103,7 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   _refreshStatuses(irmaBinding);
 
   await _openStatusListCredential(tester);
-  await tester.pumpUntilFound(_revokedChip, timeout: _refreshTimeout);
+  await _pumpUntilRevoked(tester, irmaBinding);
   await evaluateCredentialCard(
     tester,
     findCredentialDetail(),
@@ -176,7 +182,7 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
   // Required: the disclosure-time check reads only the cache, which issuance
   // warmed with the still-valid token.
   _refreshStatuses(irmaBinding);
-  await _awaitRevokedInCredentialList(tester);
+  await _awaitRevokedInCredentialList(tester, irmaBinding);
 
   final dcql = {
     "credentials": [
@@ -231,8 +237,31 @@ Future<void> _openStatusListCredential(WidgetTester tester) async {
 
 /// Waits until the refresh has landed, so the session starts against a wallet
 /// that already knows about the revocation.
-Future<void> _awaitRevokedInCredentialList(WidgetTester tester) async {
+Future<void> _awaitRevokedInCredentialList(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await _openStatusListCredential(tester);
-  await tester.pumpUntilFound(_revokedChip, timeout: _refreshTimeout);
+  await _pumpUntilRevoked(tester, irmaBinding);
   await closeCredentialDetail(tester);
+}
+
+/// Waits for the open detail view to say "Revoked", asking for a fresh
+/// status sweep every few seconds meanwhile: staging re-signs its list a
+/// moment after the revoke, so one sweep right after it can still read the
+/// old list.
+Future<void> _pumpUntilRevoked(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  final end = DateTime.now().add(_revokedTimeout);
+  while (DateTime.now().isBefore(end)) {
+    try {
+      await tester.pumpUntilFound(_revokedChip, timeout: _refreshStep);
+      return;
+    } on TestFailure {
+      _refreshStatuses(irmaBinding);
+    }
+  }
+  await tester.pumpUntilFound(_revokedChip, timeout: _refreshStep);
 }

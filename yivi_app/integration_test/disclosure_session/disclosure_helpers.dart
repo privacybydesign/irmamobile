@@ -21,6 +21,15 @@ import "../util.dart";
 Future<void> tapShare(WidgetTester tester) async {
   final button = find.byKey(const Key("share_button"));
   await tester.waitFor(button);
+  // Right after a card landed the button fades in and ignores taps (a
+  // second tap on "Back to …" must not share): wait for it.
+  final fading = find.descendant(
+    of: button,
+    matching: find.byWidgetPredicate((w) => w is IgnorePointer && w.ignoring),
+  );
+  for (var i = 0; i < 40 && fading.evaluate().isNotEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
   await tester.tapAndSettle(button);
   await confirmShareAnyway(tester);
 }
@@ -199,9 +208,10 @@ String? shareReason(WidgetTester tester) {
 void expectEmptySpot(int i, String title, {String? hint}) {
   final spot = findEmptySpot(i);
   expect(spot, findsOneWidget, reason: "empty spot $i");
+  // The title (and, for a type named after its issuer, the issuer under it).
   expect(
     find.descendant(of: spot, matching: find.text(spotTitle(title))),
-    findsOneWidget,
+    findsWidgets,
   );
   if (hint != null) {
     expect(
@@ -313,12 +323,35 @@ Finder findShareSlot(int i) => find.byKey(Key("share_slot_$i"));
 /// The open Change sheet.
 Finder findChoiceSheet() => find.byKey(const Key("disclosure_choice_sheet"));
 
-/// Opens the Change sheet of requested item [i].
+/// Opens the Change sheet of requested item [i], with the kinds to add
+/// unfolded ([openMoreInSheet]).
 Future<void> changeChoice(WidgetTester tester, int i) async {
   final change = find.byKey(Key("share_change_$i"), skipOffstage: false);
   await _scrollToCentre(tester, change);
   await tester.tapAndSettle(change);
   expect(findChoiceSheet(), findsOneWidget);
+  await openMoreInSheet(tester);
+}
+
+/// Unfolds "Add another card" in the open sheet, when it is folded (a
+/// usable card is in the app).
+Future<void> openMoreInSheet(WidgetTester tester) async {
+  final toggle = find.descendant(
+    of: findChoiceSheet(),
+    matching: find.byKey(const Key("sheet_more_toggle")),
+  );
+  if (toggle.evaluate().isEmpty) return;
+  final open = find.descendant(
+    of: findChoiceSheet(),
+    matching: find.byWidgetPredicate((w) {
+      final key = w.key;
+      return key is ValueKey<String> &&
+          key.value.startsWith("sheet_add_") &&
+          key.value != "sheet_add_";
+    }),
+  );
+  if (open.evaluate().isNotEmpty) return;
+  await tester.tapAndSettle(toggle);
 }
 
 /// Shares optional item [i]: its row ("Add optional data") opens its sheet,
@@ -344,6 +377,7 @@ Future<void> openOptionalSheet(WidgetTester tester, int i) async {
   }
   expect(findChoiceSheet(), findsOneWidget);
   expect(findShareNothing(), findsOneWidget);
+  await openMoreInSheet(tester);
 }
 
 /// "Share nothing" in the sheet of an optional item.
@@ -449,13 +483,7 @@ Future<void> startAdding(WidgetTester tester, String credentialId) async {
   final row = findSheetAddRow(credentialId);
   // With a usable card in the app the kinds to add are folded away under
   // "Add another card".
-  final toggle = find.descendant(
-    of: findChoiceSheet(),
-    matching: find.byKey(const Key("sheet_add_toggle")),
-  );
-  if (row.evaluate().isEmpty && toggle.evaluate().isNotEmpty) {
-    await tester.tapAndSettle(toggle);
-  }
+  await openMoreInSheet(tester);
   await tester.scrollUntilVisible(
     row,
     100,

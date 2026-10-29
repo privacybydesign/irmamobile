@@ -39,9 +39,14 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
     _notificationsBloc = BlocProvider.of<NotificationsBloc>(context);
   }
 
+  /// A notification's card is being opened: the tab goes, but she comes
+  /// back to it, so the others stay unread.
+  bool _toCard = false;
+
   @override
   void dispose() {
-    _notificationsBloc.add(MarkAllNotificationsAsRead());
+    // Left: everything here has been seen.
+    if (!_toCard) _notificationsBloc.add(MarkAllNotificationsAsRead());
     super.dispose();
   }
 
@@ -65,11 +70,13 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
         return;
       }
       if (card != null) {
+        _toCard = true;
         WalletTransition.begin(pictureContext, card.hash);
         pictureContext.pushCredentialDetailScreen(card.hash);
         return;
       }
     }
+    _toCard = true;
     context.pushCredentialsDetailsScreen(
       CredentialsDetailsRouteParams(credentialTypeId: action.credentialTypeId),
     );

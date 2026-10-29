@@ -1064,6 +1064,8 @@ class _PrimArrayContent extends StatelessWidget {
                   ),
                   child: Text(
                     formatAttributeValue(context, v),
+                    // A value of the list, for readers of it (and tests).
+                    key: const Key("attribute_array_value"),
                     style: palette
                         .body(14, weight: FontWeight.w600)
                         .copyWith(color: palette.heading),

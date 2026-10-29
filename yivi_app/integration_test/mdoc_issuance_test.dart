@@ -32,6 +32,7 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/eudi_issuance_helpers.dart";
@@ -318,7 +319,7 @@ Future<void> testDeleteAvMdoc(
     find.byKey(const Key("nav_button_activity"), skipOffstage: false),
   );
   await tester.pump(const Duration(seconds: 1));
-  expect(find.text("Data deleted"), findsOneWidget);
+  expect(findActivityOfKind("Deleted"), findsOneWidget);
   await tester.tapAndSettle(
     find.byType(ActivityCard, skipOffstage: false).at(0),
   );
@@ -465,13 +466,12 @@ Future<void> testIssueMdlPortraitAndPrivileges(
   );
   expect(find.textContaining("iVBORw0KGgo"), findsNothing);
 
-  // Driving privileges: an array of objects, one nested row per key.
+  // Driving privileges: a list of objects, each item named by its first
+  // value (the category code).
   _expectLabelIgnoringCase(tester, card, "Driving Privileges");
-  _expectAttributeRow(
-    tester,
-    card,
-    "vehicle_category_code",
-    mdlVehicleCategory,
+  expect(
+    find.descendant(of: attributeList, matching: find.text(mdlVehicleCategory)),
+    findsOneWidget,
   );
 }
 
@@ -516,8 +516,14 @@ Future<void> testDutchAppLanguageKeepsEnglishLabels(
   await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-  // The tile and the card still carry the English text the issuer publishes.
-  expect(find.text(avCredentialName), findsWidgets);
+  // The tile and the card still carry the English text the issuer publishes
+  // (the card's picture draws the name: look at the card it shows).
+  expect(
+    find.byWidgetPredicate(
+      (w) => w is CredentialCardArt && w.credential.name == avCredentialName,
+    ),
+    findsWidgets,
+  );
   await navigateToCredentialDetailsPage(tester, avDocType);
   final card = findCredentialDetail();
   expect(card, findsOneWidget);
