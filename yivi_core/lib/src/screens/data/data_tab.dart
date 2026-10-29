@@ -844,7 +844,8 @@ class ViewSwitcher extends StatelessWidget {
               key: const Key("wallet_view_marker"),
               decoration: ShapeDecoration(
                 shape: const StadiumBorder(),
-                color: palette.isDark ? palette.lens : palette.heading,
+                // Light: a white thumb, flat (no shadow, unlike iOS).
+                color: palette.isDark ? palette.lens : palette.surface,
               ),
             ),
           ),
@@ -870,7 +871,8 @@ class ViewSwitcher extends StatelessWidget {
       label: FlutterI18n.translate(context, "wallet.view.label"),
       // Flat, as the cards under it: it is on the page, not floating. A
       // quiet tint of the page instead of a line around it, as the iOS
-      // segmented control; the outline only with Increase Contrast.
+      // segmented control (its grey fill in light); the outline only with
+      // Increase Contrast.
       child: Container(
         padding: const EdgeInsets.all(3),
         decoration: ShapeDecoration(
@@ -879,9 +881,9 @@ class ViewSwitcher extends StatelessWidget {
                 ? YiviEdges.block(context)
                 : BorderSide.none,
           ),
-          color: palette.heading.withValues(
-            alpha: palette.isDark ? 0.12 : 0.06,
-          ),
+          color: palette.isDark
+              ? palette.heading.withValues(alpha: 0.12)
+              : const Color(0x29767680),
         ),
         child: segments,
       ),
@@ -920,7 +922,7 @@ class _Segment extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final dark = palette.isDark;
     final fg = selected
-        ? (dark ? palette.selectedTab : palette.surface)
+        ? (dark ? palette.selectedTab : palette.text)
         : palette.heading;
     return Semantics(
       button: true,

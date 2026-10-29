@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../package_name.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_edges.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
@@ -58,9 +59,14 @@ class CredentialCardArt extends StatelessWidget {
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
 
-  /// How strongly the light top edge shows, 0 to 1: the thickness of the
-  /// card catching the light, so the cards in the stack read as stacked.
+  /// How strongly the card's stack edge shows, 0 to 1, so the cards in the
+  /// stack read as separate cards: in light the light top edge (the card
+  /// catching the light), in dark a seam in the page's colour around it,
+  /// cutting it out of the card it overlaps.
   final double edge;
+
+  /// The width of the dark theme's seam (see [edge]).
+  static const double seamWidth = 0.5;
 
   const CredentialCardArt({
     super.key,
@@ -149,6 +155,24 @@ class CredentialCardArt extends StatelessWidget {
           ]),
           child: art,
         ),
+      );
+    }
+
+    if (dark && edge > 0) {
+      art = DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            borderRadius: radiusFor(width),
+            side: BorderSide(
+              color: YiviPalette.of(
+                context,
+              ).background.withValues(alpha: edge.clamp(0.0, 1.0)),
+              width: seamWidth,
+              strokeAlign: BorderSide.strokeAlignOutside,
+            ),
+          ),
+        ),
+        child: art,
       );
     }
 
