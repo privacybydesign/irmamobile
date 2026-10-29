@@ -16,6 +16,11 @@ import "../../../widgets/two_pane.dart";
 /// where a card's top left corner is. [onMove] gets the card's index and its
 /// new one, the latter counted with the card taken out, as
 /// `SliverReorderableList.onReorderItem` does.
+///
+/// Cards that overlap (the stack) give a [room]: the cards after the one in
+/// the hand step that much further away, so it overlaps none of them. Let
+/// go, it lands in that free place, and only then do they close up again,
+/// over it, instead of it dropping through the card below it.
 class DragToArrange extends StatefulWidget {
   final List<String> keys;
   final Size size;
@@ -25,6 +30,10 @@ class DragToArrange extends StatefulWidget {
   final double? slotHeight;
   final Offset Function(int index) slot;
   final int Function(Offset topLeft) indexAt;
+
+  /// How much further the cards after the one in the hand move away, while
+  /// it is in the hand and while it lands.
+  final Offset room;
 
   /// Off while searching, or while a received card flies in.
   final bool enabled;
@@ -45,6 +54,7 @@ class DragToArrange extends StatefulWidget {
     this.slotHeight,
     required this.slot,
     required this.indexAt,
+    this.room = Offset.zero,
     required this.enabled,
     required this.slide,
     required this.curve,
@@ -74,9 +84,16 @@ class _DragToArrangeState extends State<DragToArrange> {
   Offset _pointer = Offset.zero;
   double _scrollStart = 0;
 
-  /// The card just let go, kept on top while it lands.
+  /// The card just let go, kept on top while it lands, and the place it
+  /// lands in.
   String? _landing;
+  int _landingAt = 0;
   Timer? _landed;
+
+  /// After a landing: the cards after it close the [DragToArrange.room]
+  /// again, over it.
+  bool _closing = false;
+  Timer? _closed;
   Timer? _autoScroll;
 
   ScrollPosition? get _scroll => Scrollable.maybeOf(context)?.position;
@@ -84,6 +101,7 @@ class _DragToArrangeState extends State<DragToArrange> {
   @override
   void dispose() {
     _landed?.cancel();
+    _closed?.cancel();
     _autoScroll?.cancel();
     super.dispose();
   }
@@ -159,10 +177,22 @@ class _DragToArrangeState extends State<DragToArrange> {
     setState(() {
       _dragged = null;
       _landing = dragged;
+      _landingAt = to;
+      _closing = false;
     });
     _landed?.cancel();
+    _closed?.cancel();
+    // Landed in the free place: back among the others in one frame (nothing
+    // overlaps it yet, so that does not show), and they close up over it.
     _landed = Timer(DragToArrange.shift, () {
-      if (mounted) setState(() => _landing = null);
+      if (!mounted) return;
+      setState(() {
+        _landing = null;
+        _closing = true;
+      });
+      _closed = Timer(DragToArrange.shift, () {
+        if (mounted) setState(() => _closing = false);
+      });
     });
     if (from != to) widget.onMove(from, to);
   }
@@ -187,10 +217,24 @@ class _DragToArrangeState extends State<DragToArrange> {
         if (k != onTop) k,
       if (onTop != null && indexOf.containsKey(onTop)) onTop,
     ];
-    final busy = _dragged != null || _landing != null;
+    final busy = _dragged != null || _landing != null || _closing;
+    // The place after which the cards keep their distance, if they do.
+    final roomAfter = _dragged != null
+        ? _to
+        : _landing != null
+        ? _landingAt
+        : null;
+    final roomOpen = roomAfter != null && roomAfter < keys.length - 1;
+    Offset slot(String k) {
+      final place = placeOf[k]!;
+      final at = widget.slot(place);
+      return roomAfter != null && place > roomAfter ? at + widget.room : at;
+    }
 
     return SizedBox.fromSize(
-      size: widget.size,
+      // Taller while the room is open or closing, so the page's extent does
+      // not jump under the last cards.
+      size: roomOpen || _closing ? widget.size + widget.room : widget.size,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -198,7 +242,7 @@ class _DragToArrangeState extends State<DragToArrange> {
             _place(
               key: k,
               index: indexOf[k]!,
-              at: k == _dragged ? _handAt : widget.slot(placeOf[k]!),
+              at: k == _dragged ? _handAt : slot(k),
               duration: k == _dragged
                   ? Duration.zero
                   : busy

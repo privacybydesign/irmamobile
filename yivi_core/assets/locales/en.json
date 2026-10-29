@@ -511,11 +511,6 @@
   },
   "data_tab": {
     "expired_label": "{name}, expired",
-    "favourites": {
-      "title": "Favourites",
-      "add": "Add to favourites",
-      "remove": "Remove from favourites"
-    },
     "start": {
       "title": "No data yet",
       "website_text": "Tap “Open Yivi app” there",

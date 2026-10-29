@@ -1,7 +1,5 @@
 import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
 
-import "feature_flags.dart";
-
 /// Light or dark colours, or following the system setting.
 enum Appearance {
   system,
@@ -86,10 +84,6 @@ class IrmaPreferences {
              ? Appearance.dark.name
              : Appearance.system.name,
        ),
-       _favouriteCredentials = preferences.getStringList(
-         _favouriteCredentialsKey,
-         defaultValue: [],
-       ),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -119,15 +113,12 @@ class IrmaPreferences {
        _localBackendHost = preferences.getString(
          _localBackendHostKey,
          defaultValue: "",
-       ),
-       _featureFlags = {
-         for (final flag in FeatureFlag.values)
-           flag: preferences.getBool(flag.prefKey, defaultValue: false),
-       } {
+       ) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
     preferences.remove(_developerModePrefVisibleKey);
+    _retiredDataTabKeys.forEach(preferences.remove);
   }
 
   static Future<IrmaPreferences> fromInstance({
@@ -226,10 +217,13 @@ class IrmaPreferences {
   static const String _appearanceKey = "preference.appearance";
   final Preference<String> _appearance;
 
-  // Credential ids the user pinned to the top of the data tab
-  static const String _favouriteCredentialsKey =
-      "preference.favourite_credentials";
-  final Preference<List<String>> _favouriteCredentials;
+  /// Retired: the pins of the old type-based data tab, and its feature flags.
+  static const List<String> _retiredDataTabKeys = [
+    "preference.favourite_credentials",
+    "preference.feature_flag.dataTabV2",
+    "preference.feature_flag.dataTabCategories",
+    "preference.feature_flag.formFieldsV2",
+  ];
 
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
   // All wiped by clearAll(), so a logout/reset restarts the whole flow.
@@ -284,9 +278,6 @@ class IrmaPreferences {
   /// "localhost" with `adb reverse`. Empty means the real backends.
   static const String _localBackendHostKey = "preference.local_backend_host";
   final Preference<String> _localBackendHost;
-
-  /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
-  final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
   // =============================================================================
 
@@ -382,11 +373,6 @@ class IrmaPreferences {
   Future<bool> setAppearance(Appearance appearance) =>
       _appearance.setValue(appearance.name);
 
-  Stream<List<String>> getFavouriteCredentials() => _favouriteCredentials;
-
-  Future<bool> setFavouriteCredentials(List<String> ids) =>
-      _favouriteCredentials.setValue(ids);
-
   // --- App-store review prompt ----------------------------------------------
 
   int getReviewSuccessCountNow() => _reviewSuccessCount.getValue();
@@ -439,13 +425,6 @@ class IrmaPreferences {
 
   Future<bool> setLocalBackendHost(String host) =>
       _localBackendHost.setValue(host);
-
-  // --- Feature flags --------------------------------------------------------
-
-  Stream<bool> getFeatureFlag(FeatureFlag flag) => _featureFlags[flag]!;
-
-  Future<bool> setFeatureFlag(FeatureFlag flag, bool value) =>
-      _featureFlags[flag]!.setValue(value);
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

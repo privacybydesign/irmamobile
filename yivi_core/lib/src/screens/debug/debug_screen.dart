@@ -9,7 +9,6 @@ import "../../prototypes/prototypes_screen.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/handle_pointer.dart";
-import "../../util/navigation.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -137,12 +136,6 @@ class _DebugScreenState extends State<DebugScreen> {
                   Icons.verified_outlined,
                   "debug.cert_management.title",
                   onTap: _onOpenCertManagement,
-                ),
-                // Debug-only labels are plain English.
-                _buildListTile(
-                  Icons.flag_outlined,
-                  "Feature flags",
-                  onTap: context.pushFeatureFlagsScreen,
                 ),
                 const LocalBackendsTile(),
               ],

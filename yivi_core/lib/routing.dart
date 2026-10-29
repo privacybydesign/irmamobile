@@ -26,7 +26,6 @@ import "src/screens/data/credential_detail/credential_detail_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
-import "src/screens/debug/feature_flags_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/document_flow_steps.dart";
 import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
@@ -211,13 +210,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             mode: PresentationMode.sheet,
             path: "debug",
             builder: (context, state) => const DebugScreen(),
-            routes: [
-              _adaptive(
-                mode: PresentationMode.sheet,
-                path: "feature_flags",
-                builder: (context, state) => const FeatureFlagsScreen(),
-              ),
-            ],
           ),
           _adaptive(
             mode: PresentationMode.sheet,

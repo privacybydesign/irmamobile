@@ -1660,8 +1660,32 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
     });
   }
 
+  /// The system back (Android) on a subpage: back a page, as the back
+  /// button and the swipe, instead of closing the sheet. Not while another
+  /// route is over the sheet, nor on a page that steps back through its own
+  /// screens (its [NavigatorPopHandler] gets the back then).
+  Future<bool> _systemBack() async {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return false;
+    if (widget.pages.length < 2) return false;
+    final inner = _inner[widget.pages.last.key];
+    if (inner != null && inner.enabled) return false;
+    // A page still sliding: the back is used up, the slide goes on.
+    if (_moving.value || _dragging) return true;
+    widget.onBack();
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Only under a Router: the system back reaches the app through it.
+    final router = Router.maybeOf(context);
+    final pages = _pages(context);
+    return router?.backButtonDispatcher == null
+        ? pages
+        : BackButtonListener(onBackButtonPressed: _systemBack, child: pages);
+  }
+
+  Widget _pages(BuildContext context) {
     final top = _shown.last;
     final under = _shown.length > 1 ? _shown[_shown.length - 2] : null;
     // A page with screens of its own takes the swipe also as the only page.

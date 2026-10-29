@@ -868,16 +868,20 @@ class ViewSwitcher extends StatelessWidget {
     return Semantics(
       container: true,
       label: FlutterI18n.translate(context, "wallet.view.label"),
-      // Flat, as the cards under it: it is on the page, not floating.
+      // Flat, as the cards under it: it is on the page, not floating. A
+      // quiet tint of the page instead of a line around it, as the iOS
+      // segmented control; the outline only with Increase Contrast.
       child: Container(
         padding: const EdgeInsets.all(3),
         decoration: ShapeDecoration(
           shape: StadiumBorder(
             side: MediaQuery.highContrastOf(context)
                 ? YiviEdges.block(context)
-                : BorderSide(color: palette.outline),
+                : BorderSide.none,
           ),
-          color: palette.surface,
+          color: palette.heading.withValues(
+            alpha: palette.isDark ? 0.12 : 0.06,
+          ),
         ),
         child: segments,
       ),
@@ -963,6 +967,9 @@ class _Segment extends StatelessWidget {
 class _StackView extends ConsumerWidget {
   static const double _stripHeight = 64;
 
+  /// Between the card in the hand and the card below it.
+  static const double _landingGap = 8;
+
   /// How far the card open in the detail pane slides out of the stack.
   static const double nudge = 16;
 
@@ -998,6 +1005,12 @@ class _StackView extends ConsumerWidget {
       slotWidth: width,
       slot: (i) => Offset(0, i * _stripHeight),
       indexAt: (at) => (at.dy / _stripHeight).round(),
+      // The cards below the one in the hand clear all of it (lifted), and a
+      // little more, so it lands without dropping through them.
+      room: Offset(
+        0,
+        cardHeight * DragToArrange.lift - _stripHeight + _landingGap,
+      ),
       enabled: arrangeable,
       // The cards slide down when a received card joins the top.
       slide: _slideForFlight(),

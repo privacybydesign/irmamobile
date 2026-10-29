@@ -6,14 +6,12 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/providers/feature_flag_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
@@ -95,22 +93,16 @@ Future<IrmaPreferences> freshPrefs({List<String> order = const []}) async {
   return prefs;
 }
 
-/// Provider overrides for a wallet that holds [held], with [flags] switched on
-/// and the others off. [store] is what the add data screen lists.
+/// Provider overrides for a wallet that holds [held]. [store] is what the add data screen lists.
 List<Override> dataTabOverrides({
   required List<Credential> held,
   required IrmaPreferences prefs,
   List<CredentialStoreItem> store = const [],
-  Set<FeatureFlag> flags = const {},
 }) {
   final repository = _FakeRepository()
     ..subject.add((credentials: held, problematic: const []));
 
   return [
-    for (final flag in FeatureFlag.values)
-      featureFlagProvider(
-        flag,
-      ).overrideWith((ref) => Stream.value(flags.contains(flag))),
     irmaRepositoryProvider.overrideWithValue(repository),
     credentialStoreProvider.overrideWith((ref) => Stream.value(store)),
     preferencesProvider.overrideWithValue(prefs),

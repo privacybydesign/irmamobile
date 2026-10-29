@@ -514,11 +514,6 @@
   },
   "data_tab": {
     "expired_label": "{name}, verlopen",
-    "favourites": {
-      "title": "Favorieten",
-      "add": "Voeg toe aan favorieten",
-      "remove": "Verwijder uit favorieten"
-    },
     "start": {
       "title": "Nog geen gegevens",
       "website_text": "Tik daar op ‘Open Yivi-app’",

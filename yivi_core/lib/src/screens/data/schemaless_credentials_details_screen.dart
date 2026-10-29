@@ -3,10 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/feature_flags.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../providers/favourite_credentials_provider.dart";
-import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
@@ -81,15 +78,7 @@ class _CredentialsDetailsScreenState
       ],
     );
 
-    final pinnable =
-        credential != null &&
-        (ref.watch(featureFlagProvider(FeatureFlag.dataTabCategories)).value ??
-            false);
-
     return IrmaAppBar(
-      actions: [
-        if (pinnable) _FavouriteButton(credentialId: credential.credentialId),
-      ],
       title: AnimatedBuilder(
         animation: _scrollController,
         builder: (context, child) {
@@ -241,32 +230,6 @@ class _CredentialsDetailsScreenState
       credentialId: credential.credentialId,
       issueUrl: credential.issueUrl,
       card: credential,
-    );
-  }
-}
-
-/// Pins the credential to the top of the data tab, or unpins it.
-class _FavouriteButton extends ConsumerWidget {
-  final String credentialId;
-
-  const _FavouriteButton({required this.credentialId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final favourite =
-        ref.watch(favouriteCredentialsProvider).value?.contains(credentialId) ??
-        false;
-
-    return PlainIconButton(
-      key: const Key("favourite_button"),
-      icon: favourite ? Icons.star_rounded : Icons.star_border_rounded,
-      iconSize: 28,
-      semanticsLabel: FlutterI18n.translate(
-        context,
-        favourite ? "data_tab.favourites.remove" : "data_tab.favourites.add",
-      ),
-      onPressed: () =>
-          ref.read(favouriteCredentialsControllerProvider).toggle(credentialId),
     );
   }
 }

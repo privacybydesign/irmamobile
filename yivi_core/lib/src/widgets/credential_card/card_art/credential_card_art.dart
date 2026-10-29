@@ -122,7 +122,8 @@ class CredentialCardArt extends StatelessWidget {
                 ),
               ),
             ),
-            if (edge > 0)
+            // Light only: on a dark card the white edge reads as a shine.
+            if (edge > 0 && !dark)
               IgnorePointer(
                 child: CustomPaint(
                   painter: _EdgePainter(
