@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_svgs.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/card_art_support.dart";
 
 void main() {
@@ -108,5 +109,46 @@ void main() {
     final untinted = yiviCardColors(null, brightness: Brightness.dark);
     expect(untinted.background.computeLuminance(), lessThan(0.05));
     expect(untinted.foreground, const Color(0xFFE6E8EC));
+  });
+
+  group("svgTopColour", () {
+    test("a plain fill", () {
+      expect(
+        svgTopColour(
+          '<svg><rect width="10" height="10" fill="#1E5B46"/></svg>',
+        ),
+        const Color(0xFF1E5B46),
+      );
+    });
+
+    test(
+      "the first stop of the gradient the fill names, not a shape in defs",
+      () {
+        const svg =
+            '<svg><defs><clipPath id="c"><rect width="4" height="4" fill="#FF0000"/></clipPath>'
+            '<linearGradient id="g"><stop offset="0" stop-color="#E8F2FB"/>'
+            '<stop offset="1" stop-color="#000000"/></linearGradient></defs>'
+            '<rect width="10" height="10" fill="url(#g)"/></svg>';
+        expect(svgTopColour(svg), const Color(0xFFE8F2FB));
+      },
+    );
+
+    test("null when there is no colour to read", () {
+      expect(svgTopColour('<svg><image href="x.png"/></svg>'), isNull);
+    });
+
+    test("every built-in card has one, and the light ones read light", () {
+      for (final MapEntry(key: key, value: svg) in builtinCardSvgs.entries) {
+        expect(svgTopColour(svg), isNotNull, reason: key);
+      }
+      expect(
+        svgTopColour(builtinCardSvgs["ivido"]!)!.computeLuminance(),
+        greaterThan(0.5),
+      );
+      expect(
+        svgTopColour(builtinCardSvgs["passport"]!)!.computeLuminance(),
+        lessThan(0.5),
+      );
+    });
   });
 }

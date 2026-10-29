@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart";
 import "../../../../package_name.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_edges.dart";
-import "../../../theme/yivi_palette.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
@@ -59,14 +58,11 @@ class CredentialCardArt extends StatelessWidget {
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
 
-  /// How strongly the card's stack edge shows, 0 to 1, so the cards in the
-  /// stack read as separate cards: in light the light top edge (the card
-  /// catching the light), in dark a seam in the page's colour around it,
-  /// cutting it out of the card it overlaps.
+  /// How strongly the light top edge shows, 0 to 1: the thickness of the
+  /// card catching the light, so the cards in the stack read as stacked.
+  /// Light theme only: in dark the card's hairline sets it off (see
+  /// [_hairline]).
   final double edge;
-
-  /// The width of the dark theme's seam (see [edge]).
-  static const double seamWidth = 0.5;
 
   const CredentialCardArt({
     super.key,
@@ -115,15 +111,10 @@ class CredentialCardArt extends StatelessWidget {
                 decoration: ShapeDecoration(
                   shape: RoundedRectangleBorder(
                     borderRadius: radiusFor(width),
-                    // Light on the dark page, so the card's edge shows;
-                    // with Increase Contrast the outline of any block.
+                    // With Increase Contrast the outline of any block.
                     side: MediaQuery.highContrastOf(context)
                         ? YiviEdges.block(context)
-                        : BorderSide(
-                            color: dark
-                                ? const Color(0x1AFFFFFF)
-                                : const Color(0x1A000000),
-                          ),
+                        : BorderSide(color: _hairline(context, dark)),
                   ),
                 ),
               ),
@@ -158,51 +149,63 @@ class CredentialCardArt extends StatelessWidget {
       );
     }
 
-    if (dark && edge > 0) {
-      art = DecoratedBox(
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            borderRadius: radiusFor(width),
-            side: BorderSide(
-              color: YiviPalette.of(
-                context,
-              ).background.withValues(alpha: edge.clamp(0.0, 1.0)),
-              width: seamWidth,
-              strokeAlign: BorderSide.strokeAlignOutside,
-            ),
-          ),
-        ),
-        child: art,
-      );
-    }
-
     // No shadow: like a printed card, only the fine edge above sets it off.
     return ExcludeSemantics(child: art);
   }
 
-  Widget _art(BuildContext context) {
-    final yiviCard = _YiviCard(credential: credential, hintText: hintText);
+  /// The fine line just inside the card's edge. Light: a faint dark line.
+  /// Dark: a light line, so the card stands off the black page and off the
+  /// card it overlaps in the stack; on a light card a dark one, where a light
+  /// line would vanish.
+  Color _hairline(BuildContext context, bool dark) {
+    if (!dark) return const Color(0x1A000000);
+    final top = _topColour(context);
+    return top != null && top.computeLuminance() > 0.5
+        ? const Color(0x33000000)
+        : const Color(0x3DFFFFFF);
+  }
+
+  /// The colour at the top of the card (see [svgTopColour]), or null when
+  /// that is not known.
+  Color? _topColour(BuildContext context) {
+    final (template, _) = _template(context);
+    if (template != null) return svgTopColour(template.svg);
+    final display = credential.display;
+    return parseCssColor(display?.backgroundColor) ??
+        yiviCardColors(
+          parseCssColor(display?.logoTint),
+          brightness: Theme.of(context).brightness,
+        ).background;
+  }
+
+  /// The SVG template the card is drawn from, and whether it is one of
+  /// Yivi's own; null when it is the Yivi card.
+  (schemaless.SvgCardTemplate?, bool) _template(BuildContext context) {
     final issuerTemplate = pickSvgTemplate(
       credential.display?.svgTemplates ?? const [],
       brightness: Theme.of(context).brightness,
       highContrast: MediaQuery.highContrastOf(context),
     );
-    final builtin = issuerTemplate == null
-        ? builtinCardTemplate(
-            credential.credentialId,
-            attributeIds: credential.attributes
-                .where((a) => a.claimPath.isNotEmpty)
-                .map((a) => "${a.claimPath.last}"),
-          )
-        : null;
-    final template = issuerTemplate ?? builtin;
+    if (issuerTemplate != null) return (issuerTemplate, false);
+    final builtin = builtinCardTemplate(
+      credential.credentialId,
+      attributeIds: credential.attributes
+          .where((a) => a.claimPath.isNotEmpty)
+          .map((a) => "${a.claimPath.last}"),
+    );
+    return (builtin, builtin != null);
+  }
+
+  Widget _art(BuildContext context) {
+    final yiviCard = _YiviCard(credential: credential, hintText: hintText);
+    final (template, builtin) = _template(context);
     if (template == null) return yiviCard;
 
     final yes = FlutterI18n.translate(context, "credential.boolean_yes");
     final no = FlutterI18n.translate(context, "credential.boolean_no");
     String text(schemaless.Attribute a) =>
         imageDataUri(a.value) ?? attributeText(a.value, yes: yes, no: no) ?? "";
-    final values = builtin == null
+    final values = !builtin
         // An issuer template names its slots with `svg_id`.
         ? {
             for (final a in credential.attributes)

@@ -67,6 +67,33 @@ Color? parseCssColor(String? input) {
   return null;
 }
 
+/// The colour at the top of an SVG card, the part of it that shows in the
+/// stack: the fill of its first shape outside `<defs>`, or the first stop
+/// of the gradient that fill names. Null when there is none to read (an
+/// image, a pattern). Remembered per template.
+Color? svgTopColour(String svg) => _topColours.putIfAbsent(svg, () {
+  final body = svg.replaceAll(RegExp(r"<defs\b.*?</defs>", dotAll: true), "");
+  final fill = RegExp(
+    r"""<(?:rect|path)\b[^>]*?\bfill=["']([^"']+)["']""",
+  ).firstMatch(body)?.group(1)?.trim();
+  if (fill == null) return null;
+  final ref = RegExp(r"^url\(#([^)]+)\)$").firstMatch(fill);
+  if (ref == null) return parseCssColor(fill);
+  final id = RegExp.escape(ref.group(1)!);
+  final gradient = RegExp(
+    """<(linear|radial)Gradient\\b[^>]*\\bid=["']$id["'][^>]*>(.*?)</\\1Gradient>""",
+    dotAll: true,
+  ).firstMatch(svg);
+  final stop = gradient == null
+      ? null
+      : RegExp(
+          r"""stop-color=["']([^"']+)["']""",
+        ).firstMatch(gradient.group(2)!);
+  return parseCssColor(stop?.group(1));
+});
+
+final _topColours = <String, Color?>{};
+
 /// Background and text colour of the Yivi card template for a credential
 /// without its own colours: a pale wash of the logo colour with dark text in
 /// the same hue, or a neutral white card when there is no tint.
