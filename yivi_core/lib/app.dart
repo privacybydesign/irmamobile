@@ -21,6 +21,7 @@ import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
 import "src/widgets/glass/glass_sheet.dart";
+import "src/widgets/glass/system_navigation_bar.dart";
 import "src/widgets/legacy_material_bridge.dart";
 import "src/widgets/lock_gate.dart";
 import "src/widgets/scroll_to_top.dart";
@@ -232,7 +233,9 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
                         // The page under an open sheet doesn't blur (performance).
                         child: GlassSheetCover(
                           opaqueGlass: _glassOpaque,
-                          child: child ?? const SizedBox.shrink(),
+                          child: SystemNavigationBarStyle(
+                            child: child ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                     ),

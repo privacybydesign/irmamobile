@@ -68,12 +68,16 @@ Future<void> runYiviApp({
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         // Android 15+ enforces edge-to-edge, so bar colors are ignored;
-        // icon brightness is what keeps the bars readable. App is light-only.
+        // icon brightness is what keeps the bars readable. Until the app's
+        // first frame sets them for its appearance (SystemNavigationBarStyle).
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark, // dark icons for light bg
         statusBarBrightness: Brightness.light, // iOS: light bg
-        systemNavigationBarColor: Colors.white,
+        systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
+        // No grey scrim behind Android's navigation buttons: the app draws
+        // what is behind them (SystemNavigationBarStyle).
+        systemNavigationBarContrastEnforced: false,
       ),
     );
 
