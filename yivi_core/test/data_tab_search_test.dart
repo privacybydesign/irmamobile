@@ -83,9 +83,9 @@ void main() {
   tearDown(() => repo.close());
 
   group("searching the data tab", () {
-    Future<void> pump(WidgetTester tester) async {
+    Future<void> pump(WidgetTester tester, {double height = 1200}) async {
       tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(390, 1200);
+      tester.view.physicalSize = Size(390, height);
       addTearDown(tester.view.reset);
       await pumpHome(
         tester,
@@ -108,7 +108,18 @@ void main() {
     }
 
     Future<void> search(WidgetTester tester, String query) async {
-      await tester.enterText(find.byKey(const Key("search_field")), query);
+      final field = find.byKey(const Key("search_field"));
+      // Under the large title the field is a button that starts the search,
+      // with the field to type in up in the bar.
+      final typing = find.descendant(
+        of: field,
+        matching: find.byType(EditableText),
+      );
+      if (typing.evaluate().isEmpty) {
+        await tester.tap(field);
+        await tester.pumpAndSettle();
+      }
+      await tester.enterText(field, query);
       await tester.pumpAndSettle();
     }
 
@@ -134,7 +145,7 @@ void main() {
     testWidgets("in the stack, results are list rows; Cancel brings the "
         "stack back", (tester) async {
       await pump(tester);
-      await tester.tap(find.byKey(const Key("wallet_view_stack")));
+      await pickView(tester, "stack");
       await tester.pumpAndSettle();
 
       await search(tester, "utrecht");
@@ -163,10 +174,85 @@ void main() {
       expect(container.read(walletViewProvider), WalletView.stack);
     });
 
+    testWidgets("one menu, behind … in the bar's top left, picks the view "
+        "and arranges", (tester) async {
+      await pump(tester);
+      final bar = tester.getRect(find.byKey(const Key("data_tab_add_data")));
+      final menu = tester.getRect(find.byKey(const Key("wallet_arrange")));
+      // On the bar's row, at its left; the large title under it.
+      expect(menu.center.dy, closeTo(bar.center.dy, 1));
+      expect(menu.left, 16);
+      expect(
+        tester.getTopLeft(find.text("Your data")).dy,
+        greaterThan(menu.bottom),
+      );
+      await pickView(tester, "grid");
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(DataTab)),
+      );
+      expect(container.read(walletViewProvider), WalletView.grid);
+
+      // The view shown is ticked; Arrange is in the same menu.
+      await tester.tap(find.byKey(const Key("wallet_arrange")));
+      await tester.pumpAndSettle();
+      bool ticked(String view) => find
+          .descendant(
+            of: find.byKey(Key("wallet_view_$view")),
+            matching: find.byIcon(Icons.check),
+          )
+          .evaluate()
+          .isNotEmpty;
+      expect(ticked("grid"), isTrue);
+      expect(ticked("stack"), isFalse);
+      expect(find.byKey(const Key("wallet_arrange_name")), findsOneWidget);
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets("the bar: + always, search once the field has gone under it, "
+        "and the small title with the large one gone", (tester) async {
+      await pump(tester, height: 420);
+      await pickView(tester, "list");
+      await tester.pumpAndSettle();
+      double opacityOf(Finder f) => tester
+          .widget<Opacity>(
+            find.ancestor(of: f, matching: find.byType(Opacity)).first,
+          )
+          .opacity;
+      final searchButton = find.byKey(const Key("data_search_button"));
+      expect(find.byKey(const Key("data_tab_add_data")), findsOneWidget);
+      expect(opacityOf(searchButton), 0);
+      expect(
+        tester
+            .widget<Opacity>(find.byKey(const Key("tab_small_title")))
+            .opacity,
+        0,
+      );
+
+      await tester.drag(
+        find.byKey(const Key("wallet_scroll")),
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+      expect(opacityOf(searchButton), 1);
+      expect(
+        tester
+            .widget<Opacity>(find.byKey(const Key("tab_small_title")))
+            .opacity,
+        1,
+      );
+
+      // The bar's search button starts the search too.
+      await tester.tap(searchButton);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("data_search_cancel")), findsOneWidget);
+    });
+
     testWidgets("a tap in the field switches to the search at once, with "
         "Cancel in place of Add", (tester) async {
       await pump(tester);
-      await tester.tap(find.byKey(const Key("wallet_view_stack")));
+      await pickView(tester, "stack");
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("data_search_cancel")), findsNothing);
 
@@ -398,4 +484,11 @@ void main() {
       expect(tester.getRect(find.text("v17")).top, greaterThan(844));
     });
   });
+}
+
+/// Picks [view] in the data tab's view menu.
+Future<void> pickView(WidgetTester tester, String view) async {
+  await tester.tap(find.byKey(const Key("wallet_arrange")));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(Key("wallet_view_$view")));
 }

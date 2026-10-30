@@ -170,7 +170,7 @@ void main() {
       tester,
     ) async {
       await pump(tester);
-      await tester.tap(find.byKey(const Key("wallet_view_stack")));
+      await pickView(tester, "stack");
       await tester.pumpAndSettle();
       // The top of the first card is its strip; the next card covers the
       // rest of it.
@@ -186,7 +186,7 @@ void main() {
 
     testWidgets("list: a row ticks at every place it passes", (tester) async {
       await pump(tester);
-      await tester.tap(find.byKey(const Key("wallet_view_list")));
+      await pickView(tester, "list");
       await tester.pumpAndSettle();
       final ticks = <String>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
@@ -219,7 +219,7 @@ void main() {
       tester,
     ) async {
       await pump(tester);
-      await tester.tap(find.byKey(const Key("wallet_view_grid")));
+      await pickView(tester, "grid");
       await tester.pumpAndSettle();
       final from = tester.getCenter(tile(_delta));
       final to = tester.getCenter(tile(_bravo));
@@ -232,7 +232,7 @@ void main() {
       tester,
     ) async {
       await pump(tester);
-      await tester.tap(find.byKey(const Key("wallet_view_grid")));
+      await pickView(tester, "grid");
       await tester.pumpAndSettle();
       // A quick swipe over the grid scrolls; the order stays.
       await tester.drag(tile(_delta), const Offset(0, 300));
@@ -240,4 +240,11 @@ void main() {
       expect(order(tester), ["Delta", "alpha", "Charlie", "Bravo"]);
     });
   });
+}
+
+/// Picks [view] in the data tab's view menu.
+Future<void> pickView(WidgetTester tester, String view) async {
+  await tester.tap(find.byKey(const Key("wallet_arrange")));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(Key("wallet_view_$view")));
 }

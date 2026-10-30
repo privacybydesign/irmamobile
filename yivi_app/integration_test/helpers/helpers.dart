@@ -1459,16 +1459,18 @@ List<schemaless.Credential> walletCards(WidgetTester tester) =>
 /// stack view the cards overlap, so tapping one in the middle hits the next
 /// one; the list view avoids that.
 Future<void> showWalletView(WidgetTester tester, WalletView view) async {
-  final button = find.byKey(Key("wallet_view_${view.name}"));
-  await tester.waitFor(button);
-  if (!tester.any(button.hitTestable())) {
+  // The view is picked in the menu under the cards' count.
+  final menu = find.byKey(const Key("wallet_arrange"));
+  await tester.waitFor(menu);
+  if (!tester.any(menu.hitTestable())) {
     await tester.scrollUntilVisible(
-      button.hitTestable(),
+      menu.hitTestable(),
       -200,
       scrollable: walletScrollable(),
     );
   }
-  await tester.tapAndSettle(button);
+  await tester.tapAndSettle(menu);
+  await tester.tapAndSettle(find.byKey(Key("wallet_view_${view.name}")));
 }
 
 /// Types [query] into the data tab's search field. The cards are filtered as

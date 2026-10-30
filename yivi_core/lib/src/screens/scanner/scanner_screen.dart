@@ -9,8 +9,8 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/icon_square.dart";
 import "util/camera_access.dart";
 import "widgets/qr_scanner.dart";
@@ -121,11 +121,11 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
           builder: (context, constraints) {
             // Sideways: wider than high (a phone held sideways).
             final side = constraints.maxWidth > constraints.maxHeight;
-            final close = GlassIconButton(
+            final close = RoundIconButton(
               key: const Key("irma_app_bar_close"),
-              semanticsLabel: FlutterI18n.translate(context, "ui.close"),
+              label: FlutterI18n.translate(context, "ui.close"),
               dark: true,
-              icon: const Icon(Icons.close, color: Colors.white, size: 22),
+              icon: Icons.close,
               onTap: () => Navigator.of(context).pop(),
             );
             return Stack(

@@ -1311,7 +1311,11 @@
       "with_parties-0": "met {count} partijen",
       "with_parties-1": "met 1 partij",
       "with_parties-2": "met {count} partijen"
-    }
+    },
+    "title": "Je gegevens",
+    "count-0": "{count} kaarten",
+    "count-1": "1 kaart",
+    "count-2": "{count} kaarten"
   },
   "share": {
     "step_count": "Stap {step} van {total}",

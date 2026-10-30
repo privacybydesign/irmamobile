@@ -12,8 +12,8 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/glass/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -211,18 +211,11 @@ class _CameraScaffold extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: GlassIconButton(
+                    child: RoundIconButton(
                       key: const Key("irma_app_bar_leading"),
                       dark: true,
-                      icon: const Icon(
-                        Icons.arrow_back_rounded,
-                        size: 22,
-                        color: Colors.white,
-                      ),
-                      semanticsLabel: FlutterI18n.translate(
-                        context,
-                        "ui.go_back",
-                      ),
+                      icon: Icons.arrow_back_rounded,
+                      label: FlutterI18n.translate(context, "ui.go_back"),
                       onTap: () => Navigator.of(context).maybePop(),
                     ),
                   ),

@@ -2,7 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
-import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/surface_card.dart";
 import "../../widgets/translated_text.dart";
 import "../enrollment/widgets/enrollment_page.dart";
@@ -50,10 +50,10 @@ class BackToWebsiteScreen extends StatelessWidget {
     return EnrollmentPage(
       about: const Center(child: _BrowserSketch()),
       action: action,
-      trailing: GlassIconButton(
+      trailing: RoundIconButton(
         key: const Key("back_to_website_close"),
-        semanticsLabel: FlutterI18n.translate(context, "accessibility.close"),
-        icon: Icon(Icons.close_rounded, size: 22, color: palette.text),
+        label: FlutterI18n.translate(context, "accessibility.close"),
+        icon: Icons.close_rounded,
         onTap: () => Navigator.of(context).pop(),
       ),
     );

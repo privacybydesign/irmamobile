@@ -22,6 +22,10 @@ class GlassSearchField extends StatefulWidget {
   final FocusNode? focusNode;
   final double height;
 
+  /// A solid field on the page's surface, with a thin edge, instead of glass
+  /// (the home screen's Data tab).
+  final bool solid;
+
   const GlassSearchField({
     super.key,
     required this.hintKey,
@@ -31,6 +35,7 @@ class GlassSearchField extends StatefulWidget {
     this.controller,
     this.focusNode,
     this.height = 48,
+    this.solid = false,
   });
 
   @override
@@ -97,8 +102,20 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     final palette = YiviPalette.of(context);
     final hint = FlutterI18n.translate(context, widget.hintKey);
     // The clear button is part of the field: tapping it keeps the keyboard.
+    Widget surface({required Widget child}) => widget.solid
+        ? DecoratedBox(
+            decoration: ShapeDecoration(
+              color: palette.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: const BorderRadius.all(Radius.circular(14)),
+                side: BorderSide(color: palette.divider),
+              ),
+            ),
+            child: child,
+          )
+        : GlassSurface(child: child);
     return TextFieldTapRegion(
-      child: GlassSurface(
+      child: surface(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: _focusField,

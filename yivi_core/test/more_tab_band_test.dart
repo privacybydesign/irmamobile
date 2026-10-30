@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
+import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -24,7 +25,9 @@ void main() {
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(390, 844);
+    // Short enough for the list to scroll its large title away above
+    // Android's docked tab bar, which leaves less room at the bottom.
+    tester.view.physicalSize = const Size(390, 760);
     addTearDown(tester.view.reset);
     await pumpHome(
       tester,
@@ -43,12 +46,14 @@ void main() {
     final scroll = find.byType(Scrollable).first;
 
     expect(band, findsNothing);
-    await tester.drag(scroll, const Offset(0, -10));
+    // From the large title, which a short drag can't open as a row can.
+    final from = tester.getCenter(find.byType(TabLargeTitle));
+    await tester.dragFrom(from, const Offset(0, -10));
     await tester.pumpAndSettle();
     expect(titleOpacity(), 0);
     expect(band, findsNothing);
 
-    await tester.drag(scroll, const Offset(0, -300));
+    await tester.dragFrom(from, const Offset(0, -300));
     await tester.pumpAndSettle();
     expect(titleOpacity(), 1);
     expect(band, findsOneWidget);

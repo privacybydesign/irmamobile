@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/glass/glass_surface.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
+import "package:yivi_core/src/widgets/glass/round_icon_button.dart";
 
 Future<void> _pump(
   WidgetTester tester,
@@ -263,18 +263,24 @@ void main() {
     });
   });
 
-  testWidgets("a glass icon button fades through the glass, not an Opacity", (
+  testWidgets("a round icon button is 44 across, solid, and fades", (
     tester,
   ) async {
     await _pump(
       tester,
-      GlassIconButton(
-        icon: const Icon(Icons.close),
-        semanticsLabel: "Close",
+      RoundIconButton(
+        key: const Key("round"),
+        icon: Icons.close,
+        label: "Close",
         onTap: () {},
         opacity: 0.4,
       ),
     );
-    expect(tester.widget<GlassSurface>(find.byType(GlassSurface)).opacity, 0.4);
+    expect(
+      tester.getSize(find.byKey(const Key("round"))),
+      const Size(RoundIconButton.size, RoundIconButton.size),
+    );
+    expect(find.byType(BackdropFilter), findsNothing);
+    expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.4);
   });
 }

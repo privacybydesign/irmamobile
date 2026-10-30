@@ -178,11 +178,13 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: Center(
-                child: GlassIconButton(
-                  icon: const Icon(Icons.close, key: Key("icon")),
-                  semanticsLabel: "Close",
-                  onTap: () {},
+                child: GlassSurface(
+                  shape: const CircleBorder(),
                   opacity: opacity,
+                  child: const SizedBox.square(
+                    dimension: 44,
+                    child: Icon(Icons.close, key: Key("icon")),
+                  ),
                 ),
               ),
             ),
@@ -197,7 +199,7 @@ void main() {
       expect(blur, findsOneWidget);
       // No fading layer between the button and its blur.
       Finder inButton(Type type) => find.descendant(
-        of: find.byType(GlassIconButton),
+        of: find.byType(GlassSurface),
         matching: find.byType(type),
       );
       for (final layer in [Opacity, FadeTransition]) {

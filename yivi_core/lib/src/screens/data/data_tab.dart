@@ -20,7 +20,6 @@ import "../../providers/search_query_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
-import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
@@ -36,8 +35,11 @@ import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_menu.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/glass/search_scroll_edge.dart";
+import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/search_mark.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
@@ -140,6 +142,15 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
     ref.read(dataSearchQueryProvider.notifier).set(q);
   }
 
+  /// The field under the large title, or the bar's search button: search
+  /// mode, with the field in the bar and the keyboard up.
+  void _startSearching() {
+    ref.read(dataSearchActiveProvider.notifier).set(true);
+    afterFrame(() {
+      if (mounted) _focus.requestFocus();
+    });
+  }
+
   void _stopSearching() {
     _search.clear();
     _focus.unfocus();
@@ -151,8 +162,15 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    final top = padding.top + FloatingBarPlacement.topGap(context);
-    final topInset = top + _topBarHeight + 8;
+    final panes = _withPane(context);
+    final top = panes
+        ? padding.top + FloatingBarPlacement.topGap(context)
+        : padding.top;
+    // Next to a pane, and while searching, the list starts under the bar;
+    // on a phone held upright its large title is on the bar's row.
+    final topInset = panes
+        ? top + _topBarHeight + 8
+        : HomeTabTop.listTop(context);
     final searching =
         ref.watch(dataSearchActiveProvider) || _query.trim().isNotEmpty;
 
@@ -164,43 +182,79 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       afterFrame(() => _revealCard(context, hash, top: topInset));
     });
 
-    // The cards scroll under the floating search row; the edge goes away
-    // with the row when a card opens.
-    final list = SearchScrollEdge(
-      height: top + _topBarHeight + 8,
-      top: top,
-      row: Row(
-        spacing: 8,
-        children: [
-          Expanded(
-            child: GlassSearchField(
-              fieldKey: const Key("search_field"),
-              hintKey: "wallet.search_placeholder",
-              controller: _search,
-              focusNode: _focus,
-              onChanged: _onQuery,
+    final field = GlassSearchField(
+      fieldKey: const Key("search_field"),
+      hintKey: "wallet.search_placeholder",
+      controller: _search,
+      focusNode: _focus,
+      onChanged: _onQuery,
+      solid: true,
+      height: panes ? 48 : 44,
+    );
+    // Blue, as a plain action next to a field (the red is for the main one).
+    final cancel = TextButton(
+      key: const Key("data_search_cancel"),
+      style: TextButton.styleFrom(foregroundColor: palette.link),
+      onPressed: _stopSearching,
+      child: Text(FlutterI18n.translate(context, "wallet.search_cancel")),
+    );
+    final content = _Content(
+      query: _query,
+      searching: searching,
+      topInset: topInset,
+      titleTop: HomeTabTop.titleTop(context),
+      onStartSearch: panes ? null : _startSearching,
+    );
+
+    // Next to a pane: the field floats over the list, with + beside it.
+    final list = panes
+        ? SearchScrollEdge(
+            height: top + _topBarHeight + 8,
+            top: top,
+            row: Row(
+              spacing: 8,
+              children: [
+                Expanded(child: field),
+                if (searching)
+                  cancel
+                else
+                  RoundIconButton(
+                    key: const Key("data_tab_add_data"),
+                    label: FlutterI18n.translate(context, "wallet.add_data"),
+                    icon: Icons.add,
+                    onTap: () => showAddDataSheet(context),
+                  ),
+              ],
             ),
-          ),
-          if (searching)
-            TextButton(
-              key: const Key("data_search_cancel"),
-              onPressed: _stopSearching,
-              child: Text(
-                FlutterI18n.translate(context, "wallet.search_cancel"),
-              ),
-            )
-          else
-            GlassIconButton(
+            child: content,
+          )
+        // A phone held upright: the large title scrolls under a solid bar,
+        // with "…" at its left and + at its right.
+        : HomeTabTop(
+            title: FlutterI18n.translate(context, "home.nav_bar.data"),
+            searching: searching,
+            searchRow: Row(
+              spacing: 4,
+              children: [
+                Expanded(child: field),
+                cancel,
+              ],
+            ),
+            searchButtonKey: const Key("data_search_button"),
+            searchLabel: FlutterI18n.translate(
+              context,
+              "wallet.search_placeholder",
+            ),
+            onSearch: _startSearching,
+            leading: const _ViewMenuButton(),
+            trailing: RoundIconButton(
               key: const Key("data_tab_add_data"),
-              size: 48,
-              semanticsLabel: FlutterI18n.translate(context, "wallet.add_data"),
-              icon: Icon(Icons.add, size: 26, color: palette.text),
+              icon: Icons.add,
+              label: FlutterI18n.translate(context, "wallet.add_data"),
               onTap: () => showAddDataSheet(context),
             ),
-        ],
-      ),
-      child: _Content(query: _query, searching: searching, topInset: topInset),
-    );
+            child: content,
+          );
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -339,10 +393,19 @@ class _Content extends ConsumerWidget {
   final bool searching;
   final double topInset;
 
+  /// A phone held upright: the list starts with the large title and the
+  /// search field, whose tap starts this.
+  final VoidCallback? onStartSearch;
+
+  /// Where the large title starts, on the bar's row ([onStartSearch]).
+  final double titleTop;
+
   const _Content({
     required this.query,
     required this.searching,
     required this.topInset,
+    this.titleTop = 0,
+    this.onStartSearch,
   });
 
   @override
@@ -396,6 +459,8 @@ class _Content extends ConsumerWidget {
                 query: query,
                 searching: searching,
                 topInset: topInset,
+                titleTop: titleTop,
+                onStartSearch: onStartSearch,
               ),
       _ => const Center(child: CircularProgressIndicator()),
     };
@@ -413,12 +478,18 @@ class _CardList extends ConsumerWidget {
   final bool searching;
   final double topInset;
 
+  /// See [_Content.onStartSearch] and [_Content.titleTop].
+  final VoidCallback? onStartSearch;
+  final double titleTop;
+
   const _CardList({
     required this.cards,
     required this.problematic,
     required this.query,
     required this.searching,
     required this.topInset,
+    required this.titleTop,
+    this.onStartSearch,
   });
 
   @override
@@ -468,18 +539,17 @@ class _CardList extends ConsumerWidget {
           mediumContentMaxWidth,
         );
         final side = (constraints.maxWidth - contentWidth) / 2;
-        // The stack sits a little further in than the rest (1.5 times the
-        // side), so its cards are a little smaller. Next to a detail pane
-        // it is 16 narrower than the column instead: the card open in the
-        // pane slides that far to the right, out of the stack.
+        // The stack is as wide as the rest (the search field, the rows of
+        // the list): one edge down the page. Next to a detail pane it is 16
+        // narrower than the column: the card open in the pane slides that
+        // far to the right, out of the stack.
         final panes = useHomePanes(context);
         final stackWidth = panes
             ? contentWidth - _StackView.nudge
-            : min(constraints.maxWidth - 48, mediumContentMaxWidth);
-        final stackSide = (constraints.maxWidth - stackWidth) / 2;
+            : contentWidth;
         final stackPadding = panes
             ? EdgeInsets.only(left: side, right: side + _StackView.nudge)
-            : EdgeInsets.symmetric(horizontal: stackSide);
+            : EdgeInsets.symmetric(horizontal: side);
 
         Widget box(Widget child) => SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: side),
@@ -489,7 +559,34 @@ class _CardList extends ConsumerWidget {
         return CustomScrollView(
           key: const Key("wallet_scroll"),
           slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: topInset)),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: !searching && onStartSearch != null
+                    ? titleTop
+                    : topInset,
+              ),
+            ),
+            if (!searching && onStartSearch != null)
+              box(
+                PushAway(
+                  direction: PushAwayDirection.up,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 12,
+                      children: [
+                        const TabLargeTitle("wallet.title"),
+                        HomeTabSearchField(
+                          key: const Key("search_field"),
+                          hint: context.tr("wallet.search_placeholder"),
+                          onTap: onStartSearch!,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             if (!searching && ref.watch(emailBannerVisibleProvider))
               box(
                 const PushAway(
@@ -500,12 +597,14 @@ class _CardList extends ConsumerWidget {
                   ),
                 ),
               ),
-            if (!searching)
+            // Next to a pane; on a phone held upright the view menu is in the
+            // bar's top left.
+            if (!searching && onStartSearch == null)
               box(
                 PushAway(
                   direction: PushAwayDirection.up,
                   // In line with the search field above it, in every view.
-                  child: _Header(arrangeable: cards.length > 1, view: view),
+                  child: _Header(count: cards.length, view: view),
                 ),
               ),
             for (final pc in problematic)
@@ -643,323 +742,185 @@ void openCard(
   cardContext.pushCredentialDetailScreen(credential.hash, found: found);
 }
 
-class _Header extends ConsumerWidget {
-  /// Whether there is anything to arrange: more than one card.
-  final bool arrangeable;
+/// "16 cards", and the menu that picks the view and arranges the cards.
+class _Header extends StatelessWidget {
+  final int count;
   final WalletView view;
 
-  const _Header({required this.arrangeable, required this.view});
+  const _Header({required this.count, required this.view});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Nearer the cards than the search row above it: both are about how
-    // the cards are shown, their order and their view.
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 6),
+      padding: const EdgeInsets.only(top: 6, bottom: 6),
       child: Row(
         children: [
           Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: arrangeable ? const _ArrangeButton() : null,
+            child: Text(
+              FlutterI18n.plural(context, "wallet.count", count),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: palette.display(14).copyWith(color: palette.secondaryText),
             ),
           ),
-          ViewSwitcher(
-            view: view,
-            // The narrow list beside the pane of a phone held sideways.
-            compact: usePhoneLandscape(context),
-            onChanged: (v) => ref.read(walletViewProvider.notifier).set(v),
-          ),
+          // Nothing to arrange with one card: the views only.
+          _ViewMenu(view: view, arrangeable: count > 1),
         ],
       ),
     );
   }
 }
 
-/// "Arrange": a menu that tidies the cards up once, by name, newest first or
-/// by issuer. There is one order, the user's: what comes out is simply
-/// that, to drag on from. A toast says what happened and can undo it.
-class _ArrangeButton extends ConsumerWidget {
-  const _ArrangeButton();
-
-  static const _icons = {
-    CardArrangement.name: Icons.sort_by_alpha_rounded,
-    CardArrangement.newest: Icons.schedule_rounded,
-    CardArrangement.issuer: Icons.account_balance_outlined,
-  };
-
-  Future<void> _open(BuildContext context, WidgetRef ref) async {
-    final by = await showGlassMenu<CardArrangement>(
-      context,
-      items: [
-        for (final way in CardArrangement.values)
-          GlassMenuItem(
-            key: Key("wallet_arrange_${way.name}"),
-            value: way,
-            label: context.tr("wallet.arrange.${way.name}"),
-            icon: _icons[way]!,
-          ),
-      ],
-      footnote: context.tr("wallet.arrange.hint"),
-    );
-    if (by == null || !context.mounted) return;
-    final order = ref.read(
-      schemalessCredentialOrderControllerProvider.notifier,
-    );
-    final before = order.arrange(by);
-    HapticFeedback.mediumImpact();
-    showAppToast(
-      context,
-      context.tr("wallet.arrange.done_${by.name}"),
-      key: const Key("wallet_arrange_toast"),
-      overTabBar: true,
-      action: (
-        label: context.tr("wallet.arrange.undo"),
-        onTap: () => order.restore(before),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = YiviPalette.of(context);
-    final style = palette.display(14).copyWith(color: palette.heading);
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        key: const Key("wallet_arrange"),
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _open(context, ref),
-        child: PressScale(
-          child: ConstrainedBox(
-            // A finger's room, though the text is small.
-            constraints: const BoxConstraints(minHeight: 44),
-            // Smaller rather than cut off when the view switch leaves
-            // little room (large text, a narrow phone).
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 2,
-                children: [
-                  Icon(Icons.swap_vert_rounded, size: 18, color: style.color),
-                  const SizedBox(width: 2),
-                  Text(
-                    context.tr("wallet.arrange.button"),
-                    maxLines: 1,
-                    style: style,
-                  ),
-                  Icon(Icons.expand_more_rounded, size: 18, color: style.color),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The Stack / List / Grid switch.
-class ViewSwitcher extends StatelessWidget {
+/// The view (Stack, List, Grid) and "Arrange" in one menu, under a button
+/// that says which view is shown. Arranging tidies the cards up once, by
+/// name, newest first or by issuer: there is one order, the user's, and
+/// what comes out is simply that, to drag on from. A toast says what
+/// happened and can undo it.
+class _ViewMenu extends ConsumerWidget {
   final WalletView view;
-  final ValueChanged<WalletView> onChanged;
+  final bool arrangeable;
 
-  /// Icons only, without their names (still read by a screen reader).
-  final bool compact;
+  const _ViewMenu({required this.view, required this.arrangeable});
 
-  const ViewSwitcher({
-    super.key,
-    required this.view,
-    required this.onChanged,
-    this.compact = false,
-  });
-
-  static const _icons = {
+  static const _viewIcons = {
     WalletView.stack: Icons.view_agenda_outlined,
     WalletView.list: Icons.view_list_rounded,
     WalletView.grid: Icons.grid_view_rounded,
   };
 
-  /// A segment's width: padding, the icon, and its name when not [compact].
-  double _widthOf(BuildContext context, String label) {
-    if (compact) return _Segment.minWidth;
-    final palette = YiviPalette.of(context);
-    final text = TextPainter(
-      text: TextSpan(text: label, style: palette.display(12)),
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-      maxLines: 1,
-    )..layout();
-    return max(
-      _Segment.minWidth,
-      (2 * _Segment.padding + _Segment.icon + _Segment.gap + text.width)
-          .ceilToDouble(),
+  static const _arrangeIcons = {
+    CardArrangement.name: Icons.sort_by_alpha_rounded,
+    CardArrangement.newest: Icons.schedule_rounded,
+    CardArrangement.issuer: Icons.account_balance_outlined,
+  };
+
+  Future<void> _open(BuildContext context, WidgetRef ref) =>
+      open(context, ref, view: view, arrangeable: arrangeable);
+
+  /// The menu, under the button at [context].
+  static Future<void> open(
+    BuildContext context,
+    WidgetRef ref, {
+    required WalletView view,
+    required bool arrangeable,
+  }) async {
+    final picked = await showGlassMenu<Object>(
+      context,
+      items: [
+        for (final (i, v) in WalletView.values.indexed)
+          GlassMenuItem(
+            key: Key("wallet_view_${v.name}"),
+            value: v,
+            label: context.tr("wallet.view.${v.name}"),
+            icon: _viewIcons[v]!,
+            section: i == 0 ? context.tr("wallet.view.label") : null,
+            checked: v == view,
+          ),
+        if (arrangeable)
+          for (final (i, way) in CardArrangement.values.indexed)
+            GlassMenuItem(
+              key: Key("wallet_arrange_${way.name}"),
+              value: way,
+              label: context.tr("wallet.arrange.${way.name}"),
+              icon: _arrangeIcons[way]!,
+              section: i == 0 ? context.tr("wallet.arrange.button") : null,
+            ),
+      ],
+      footnote: arrangeable ? context.tr("wallet.arrange.hint") : null,
     );
+    if (!context.mounted) return;
+    switch (picked) {
+      case final WalletView v:
+        ref.read(walletViewProvider.notifier).set(v);
+      case final CardArrangement by:
+        final order = ref.read(
+          schemalessCredentialOrderControllerProvider.notifier,
+        );
+        final before = order.arrange(by);
+        HapticFeedback.mediumImpact();
+        showAppToast(
+          context,
+          context.tr("wallet.arrange.done_${by.name}"),
+          key: const Key("wallet_arrange_toast"),
+          overTabBar: true,
+          action: (
+            label: context.tr("wallet.arrange.undo"),
+            onTap: () => order.restore(before),
+          ),
+        );
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final labels = {
-      for (final v in WalletView.values)
-        v: FlutterI18n.translate(context, "wallet.view.${v.name}"),
-    };
-    final widths = [
-      for (final v in WalletView.values) _widthOf(context, labels[v]!),
-    ];
-    final index = WalletView.values.indexOf(view);
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    final before = widths.take(index).fold(0.0, (a, w) => a + w);
-    final total = widths.fold(0.0, (a, w) => a + w);
-    final start = rtl ? total - before - widths[index] : before;
-    // As the tab bar: one choice marker that slides to the picked view.
-    // Its edges overshoot each on their own but stop at the ends of the
-    // switch, so at an end it squashes a little instead of being cut off.
-    final segments = SizedBox(
-      width: total,
-      height: _Segment.height,
-      child: Stack(
-        children: [
-          TweenAnimationBuilder<Offset>(
-            duration: YiviMotion.duration(
-              context,
-              const Duration(milliseconds: 360),
-            ),
-            curve: YiviMotion.overshoot,
-            tween: Tween(end: Offset(start, start + widths[index])),
-            builder: (context, edges, child) {
-              final left = edges.dx.clamp(0.0, total);
-              final right = edges.dy.clamp(left, total);
-              return Positioned(
-                left: left,
-                top: 0,
-                bottom: 0,
-                width: right - left,
-                child: child!,
-              );
-            },
-            child: DecoratedBox(
-              key: const Key("wallet_view_marker"),
-              decoration: ShapeDecoration(
-                shape: const StadiumBorder(),
-                // Light: a white thumb, flat (no shadow, unlike iOS).
-                color: palette.isDark ? palette.lens : palette.surface,
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              for (final (i, v) in WalletView.values.indexed)
-                _Segment(
-                  key: Key("wallet_view_${v.name}"),
-                  label: labels[v]!,
-                  icon: _icons[v]!,
-                  width: widths[i],
-                  selected: v == view,
-                  compact: compact,
-                  onTap: () => onChanged(v),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-    return Semantics(
-      container: true,
-      label: FlutterI18n.translate(context, "wallet.view.label"),
-      // Flat, as the cards under it: it is on the page, not floating. A
-      // quiet tint of the page instead of a line around it, as the iOS
-      // segmented control (its grey fill in light); the outline only with
-      // Increase Contrast.
-      child: Container(
-        padding: const EdgeInsets.all(3),
-        decoration: ShapeDecoration(
-          shape: StadiumBorder(
-            side: MediaQuery.highContrastOf(context)
-                ? YiviEdges.block(context)
-                : BorderSide.none,
-          ),
-          color: palette.isDark
-              ? palette.heading.withValues(alpha: 0.12)
-              : const Color(0x29767680),
-        ),
-        child: segments,
-      ),
-    );
-  }
-}
-
-/// One choice of [ViewSwitcher]: its icon and name over the sliding
-/// marker, in the marker's ink while it is the choice.
-class _Segment extends StatelessWidget {
-  static const double height = 36;
-  static const double minWidth = 44;
-  static const double padding = 12;
-  static const double icon = 16;
-  static const double gap = 6;
-
-  final String label;
-  final IconData iconData;
-  final double width;
-  final bool selected;
-  final bool compact;
-  final VoidCallback onTap;
-
-  const _Segment({
-    super.key,
-    required this.label,
-    required IconData icon,
-    required this.width,
-    required this.selected,
-    required this.compact,
-    required this.onTap,
-  }) : iconData = icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final dark = palette.isDark;
-    final fg = selected
-        ? (dark ? palette.selectedTab : palette.text)
-        : palette.heading;
+    final label = context.tr("wallet.view.${view.name}");
     return Semantics(
       button: true,
-      selected: selected,
-      label: label,
+      label: "${context.tr("wallet.view.label")}: $label",
       excludeSemantics: true,
       child: GestureDetector(
+        key: const Key("wallet_arrange"),
         behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+        onTap: () => _open(context, ref),
         child: PressScale(
-          child: SizedBox(
-            width: width,
-            height: height,
-            // The ink follows the marker: it changes as the marker comes.
-            child: TweenAnimationBuilder<Color?>(
-              tween: ColorTween(end: fg),
-              duration: YiviMotion.duration(
-                context,
-                const Duration(milliseconds: 200),
+          // A finger's room around the 36 high pill.
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Container(
+              height: 36,
+              padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
+              decoration: ShapeDecoration(
+                color: palette.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  side: BorderSide(color: palette.divider),
+                ),
               ),
-              builder: (context, color, _) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: gap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 6,
                 children: [
-                  Icon(iconData, size: icon, color: color),
-                  if (!compact)
-                    Text(
-                      label,
-                      maxLines: 1,
-                      style: palette.display(12).copyWith(color: color),
-                    ),
+                  Icon(_viewIcons[view], size: 18, color: palette.text),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    style: palette.display(14).copyWith(color: palette.text),
+                  ),
+                  Icon(
+                    Icons.expand_more_rounded,
+                    size: 18,
+                    color: palette.text,
+                  ),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The view menu's button at the top left of the phone's bar: "…", for the
+/// view (Stack, List, Grid) and arranging the cards. Nothing without cards.
+class _ViewMenuButton extends ConsumerWidget {
+  const _ViewMenuButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(walletCardsProvider).length;
+    if (count == 0) return const SizedBox.shrink();
+    final view = ref.watch(walletViewProvider) ?? WalletView.stack;
+    return RoundIconButton(
+      key: const Key("wallet_arrange"),
+      icon: Icons.more_horiz,
+      label:
+          "${context.tr("wallet.view.label")}: "
+          "${context.tr("wallet.view.${view.name}")}",
+      onTap: () =>
+          _ViewMenu.open(context, ref, view: view, arrangeable: count > 1),
     );
   }
 }

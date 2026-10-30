@@ -171,6 +171,13 @@ void main() {
     matching: find.byType(EditableText),
   );
 
+  /// A tap on the field under the large title: the search, with the field
+  /// to type in up in the bar.
+  Future<void> startSearch(WidgetTester tester) async {
+    await tester.tap(find.byKey(const Key("activity_search_field")));
+    await _settle(tester);
+  }
+
   testWidgets("no tags until something is asked", (tester) async {
     await pump(tester);
     expect(find.text("Shop 0"), findsOneWidget);
@@ -182,7 +189,7 @@ void main() {
     "the empty field suggests what happened; a pick is a chip with a cross",
     (tester) async {
       await pump(tester);
-      await tester.tap(field);
+      await startSearch(tester);
       await _settle(tester);
       expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
       expect(find.byKey(const Key("activity_search_cancel")), findsOneWidget);
@@ -206,7 +213,7 @@ void main() {
 
   testWidgets("typing suggests the parties that match", (tester) async {
     await pump(tester);
-    await tester.tap(field);
+    await startSearch(tester);
     await tester.enterText(field, "shop 17");
     await _settle(tester);
     await tester.tap(
@@ -220,7 +227,7 @@ void main() {
 
   testWidgets("the search key searches the typed words", (tester) async {
     await pump(tester);
-    await tester.tap(field);
+    await startSearch(tester);
     await tester.enterText(field, "agree");
     await tester.testTextInput.receiveAction(TextInputAction.search);
     await _settle(tester);
@@ -232,7 +239,7 @@ void main() {
 
   testWidgets("Cancel leaves the question as it was", (tester) async {
     await pump(tester);
-    await tester.tap(field);
+    await startSearch(tester);
     await tester.enterText(field, "gem");
     await _settle(tester);
     await tester.tap(find.byKey(const Key("activity_search_cancel")));

@@ -180,7 +180,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+                              padding: const EdgeInsets.only(bottom: 16),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.baseline,
                                 textBaseline: TextBaseline.alphabetic,

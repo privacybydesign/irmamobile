@@ -13,7 +13,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/centred_max_width.dart";
-import "../../../widgets/glass/glass_surface.dart";
+import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/surface_card.dart";
 import "../../activity/activity_entry.dart";
@@ -318,14 +318,14 @@ class _CardActivityEntryPage extends ConsumerWidget {
             right: 16 + padding.right,
             child: Row(
               children: [
-                GlassIconButton(
+                RoundIconButton(
                   key: const Key("card_activity_entry_back"),
-                  semanticsLabel: FlutterI18n.translate(
+                  label: FlutterI18n.translate(
                     context,
                     "wallet.detail.back_to_card",
                   ),
                   onTap: navigator.pop,
-                  icon: Icon(Icons.arrow_back_rounded, color: palette.text),
+                  icon: Icons.arrow_back_rounded,
                 ),
                 const Spacer(),
                 IrmaCloseButton(

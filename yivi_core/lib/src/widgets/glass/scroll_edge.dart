@@ -79,11 +79,16 @@ class ScrollEdgeBand extends StatelessWidget {
   final Color? color;
   final double opacity;
 
+  /// Opaque, without blur, and a shade lighter than the page as content
+  /// comes under it: the home screen's top bar, which is solid.
+  final bool solid;
+
   const ScrollEdgeBand({
     super.key,
     required this.under,
     this.color,
     this.opacity = 1,
+    this.solid = false,
   });
 
   static const double _blur = 12;
@@ -102,12 +107,19 @@ class ScrollEdgeBand extends StatelessWidget {
     final palette = YiviPalette.of(context);
     // Opaque glass (developer setting): the band in full colour, as with
     // high contrast.
-    final solid = MediaQuery.highContrastOf(context) || GlassOpaque.of(context);
+    final solid =
+        this.solid ||
+        MediaQuery.highContrastOf(context) ||
+        GlassOpaque.of(context);
     // Under an open sheet nothing of it shows: no blur to redo every frame.
     final blur = !GlassScope.coveredOf(context);
     final base = color ?? palette.background;
     // In dark mode the frost is a shade lighter than the page, as on iOS.
-    final fill = palette.isDark ? Color.lerp(base, Colors.white, 0.03)! : base;
+    final fill = this.solid
+        ? Color.lerp(base, Colors.white, (palette.isDark ? 0.09 : 0.6) * t)!
+        : palette.isDark
+        ? Color.lerp(base, Colors.white, 0.03)!
+        : base;
     final line = palette.isDark
         ? const Color(0x21FFFFFF)
         : const Color(0x1A000000);

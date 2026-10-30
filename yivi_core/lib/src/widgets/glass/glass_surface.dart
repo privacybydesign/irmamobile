@@ -324,63 +324,6 @@ class _OuterShadowPainter extends CustomPainter {
       !listEquals(old.shadows, shadows);
 }
 
-/// A round glass button with an icon, like the close and plus buttons.
-class GlassIconButton extends StatelessWidget {
-  final Widget icon;
-  final VoidCallback? onTap;
-  final String semanticsLabel;
-  final double size;
-
-  /// Dark glass, for a live camera picture. Give it a white icon.
-  final bool dark;
-
-  /// Fades the button; see [GlassSurface.opacity].
-  final double opacity;
-
-  const GlassIconButton({
-    super.key,
-    required this.icon,
-    required this.onTap,
-    required this.semanticsLabel,
-    this.size = 44,
-    this.dark = false,
-    this.opacity = 1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final a = opacity.clamp(0.0, 1.0);
-    return Semantics(
-      button: true,
-      label: semanticsLabel,
-      excludeSemantics: true,
-      child: IgnorePointer(
-        ignoring: a == 0,
-        child: _PressScale(
-          scale: PressScale.glass,
-          child: GlassSurface(
-            shape: const CircleBorder(),
-            dark: dark,
-            opacity: a,
-            child: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                highlightColor: Colors.transparent,
-                customBorder: const CircleBorder(),
-                onTap: onTap,
-                child: SizedBox.square(
-                  dimension: size,
-                  child: Center(child: icon),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Grows (or shrinks) its child slightly while pressed.
 class _PressScale extends StatefulWidget {
   final Widget child;

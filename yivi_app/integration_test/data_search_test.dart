@@ -103,11 +103,8 @@ void main() {
 /// Opens the detail view of the first card on the data tab. Uses the list
 /// view, as the stack view overlaps the cards.
 Future<void> pressFirstCredentialCard(WidgetTester tester) async {
-  // While searching the results are a list already, without the toggle.
-  if (find
-      .byKey(Key("wallet_view_${WalletView.list.name}"))
-      .evaluate()
-      .isNotEmpty) {
+  // While searching the results are a list already, without the menu.
+  if (find.byKey(const Key("wallet_arrange")).evaluate().isNotEmpty) {
     await showWalletView(tester, WalletView.list);
   }
   await tester.tapAndSettle(findAllWalletCards().first);

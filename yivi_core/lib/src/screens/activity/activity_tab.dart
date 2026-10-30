@@ -23,8 +23,10 @@ import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
-import "../../widgets/glass/glass_surface.dart";
+import "../../widgets/glass/home_tab_top.dart";
+import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/glass/search_scroll_edge.dart";
+import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_transition.dart";
@@ -112,6 +114,15 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   void _startSearching() {
     setState(() => _searching = true);
     _scheduleCounts();
+  }
+
+  /// The field under the large title, or the bar's search button: the
+  /// search, with the field up in the bar and the keyboard up.
+  void _startSearchingInBar() {
+    _startSearching();
+    afterFrame(() {
+      if (mounted) _focus.requestFocus();
+    });
   }
 
   void _stopSearching() {
@@ -509,11 +520,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   // --------------------------------------------------------------------- list
 
+  /// The log, under [header] (a phone's large title, field and chips).
   Widget _buildLogEntries(
     BuildContext context,
     ActivityLogState state,
-    double top,
-  ) {
+    double top, {
+    List<Widget> header = const [],
+  }) {
     final logEntries = state.entries;
     final moreLogsAvailable = state.moreAvailable;
     final query = state.filter;
@@ -562,6 +575,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         padding.bottom + bottomBarSpace(context),
       ),
       children: [
+        ...header,
         if (!query.isEmpty && logEntries.isNotEmpty)
           PushAway(
             child: Padding(
@@ -640,51 +654,19 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     // The field, and the chips under it while something is asked.
     final headerHeight = 60.0 + (chips.isEmpty ? 0 : activityChipHeight + 8);
 
-    final filterButton = Stack(
-      clipBehavior: Clip.none,
-      children: [
-        GlassIconButton(
-          key: const Key("activity_filter_button"),
-          size: 48,
-          semanticsLabel: query.isEmpty
-              ? FlutterI18n.translate(context, "activity.query.filter")
-              : FlutterI18n.translate(
-                  context,
-                  "activity.query.filter_active",
-                  translationParams: {"count": "${query.facetCount}"},
-                ),
-          onTap: _openFilter,
-          icon: Icon(Icons.tune_rounded, color: palette.text),
-        ),
-        if (!query.isEmpty)
-          Positioned(
-            top: -2,
-            right: -2,
-            child: ExcludeSemantics(
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 20),
-                height: 20,
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                alignment: Alignment.center,
-                decoration: ShapeDecoration(
-                  color: palette.link,
-                  shape: StadiumBorder(
-                    side: BorderSide(color: palette.surface, width: 2),
-                  ),
-                ),
-                child: Text(
-                  "${query.facetCount}",
-                  style: palette
-                      .body(11.5)
-                      .copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: palette.onLink,
-                      ),
-                ),
-              ),
+    final filterCount = query.isEmpty ? 0 : query.facetCount;
+    final filterButton = RoundIconButton(
+      key: const Key("activity_filter_button"),
+      icon: Icons.tune_rounded,
+      label: filterCount == 0
+          ? FlutterI18n.translate(context, "activity.query.filter")
+          : FlutterI18n.translate(
+              context,
+              "activity.query.filter_active",
+              translationParams: {"count": "$filterCount"},
             ),
-          ),
-      ],
+      count: filterCount,
+      onTap: _openFilter,
     );
 
     final row = Column(
@@ -732,6 +714,96 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           ),
       ],
     );
+
+    // A phone held upright: the large title, the field and the chips at the
+    // top of the log, scrolling under a solid bar with the filter at its
+    // right, as on the Data tab.
+    if (!useHomePanes(context)) {
+      final header = <Widget>[
+        PushAway(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: HomeTabTop.fieldGap,
+              children: [
+                const TabLargeTitle("home.nav_bar.activity"),
+                HomeTabSearchField(
+                  key: const Key("activity_search_field"),
+                  hint: FlutterI18n.translate(
+                    context,
+                    "activity.query.search_hint",
+                  ),
+                  onTap: _startSearchingInBar,
+                ),
+                if (chips.isNotEmpty)
+                  SizedBox(
+                    height: activityChipHeight,
+                    child: ListView.separated(
+                      key: const Key("activity_chips"),
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      itemCount: chips.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 8),
+                      itemBuilder: (_, i) => chips[i],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ];
+      return Scaffold(
+        backgroundColor: palette.background,
+        body: HomeTabTop(
+          title: FlutterI18n.translate(context, "home.nav_bar.activity"),
+          searching: _searching,
+          searchRow: Row(
+            spacing: 4,
+            children: [
+              Expanded(
+                child: GlassSearchField(
+                  fieldKey: const Key("activity_search_field"),
+                  hintKey: "activity.query.search_hint",
+                  controller: _search,
+                  focusNode: _focus,
+                  onChanged: _onTyped,
+                  onSubmitted: _searchText,
+                  solid: true,
+                  height: 44,
+                ),
+              ),
+              TextButton(
+                key: const Key("activity_search_cancel"),
+                // Blue, as a plain action next to a field.
+                style: TextButton.styleFrom(foregroundColor: palette.link),
+                onPressed: _stopSearching,
+                child: Text(
+                  FlutterI18n.translate(context, "activity.query.cancel"),
+                ),
+              ),
+            ],
+          ),
+          searchButtonKey: const Key("activity_search_button"),
+          searchLabel: FlutterI18n.translate(
+            context,
+            "activity.query.search_hint",
+          ),
+          onSearch: _startSearchingInBar,
+          trailing: filterButton,
+          child: _searching
+              ? _suggestionList(HomeTabTop.listTop(context))
+              : !state.loaded
+              ? Center(child: LoadingIndicator())
+              : _buildLogEntries(
+                  context,
+                  state,
+                  HomeTabTop.titleTop(context),
+                  header: header,
+                ),
+        ),
+      );
+    }
 
     final listTop = top + headerHeight;
     final list = SearchScrollEdge(

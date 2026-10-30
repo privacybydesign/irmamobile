@@ -148,10 +148,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                child: const TabLargeTitle("home.nav_bar.more"),
-              ),
+              const TabLargeTitle("home.nav_bar.more"),
               ...appManagement,
               ...about,
               const SizedBox(height: 32),

@@ -17,9 +17,7 @@ import "../data/wallet/wallet_transition.dart";
 import "../more/more_tab.dart";
 import "../notifications/bloc/notifications_bloc.dart";
 import "../notifications/notifications_tab.dart";
-import "widgets/glass_rail.dart";
-import "widgets/glass_sidebar.dart";
-import "widgets/glass_tab_bar.dart";
+import "widgets/home_navigation.dart";
 import "widgets/irma_nav_bar.dart";
 import "widgets/pending_pointer_listener.dart";
 import "widgets/scan_tip.dart";
@@ -65,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final changeTab = _changeTab;
 
     final palette = YiviPalette.of(context);
-    final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     // The tabs are kept alive, so leaving Notifications is no dispose of it:
     // what it showed counts as read once another tab is picked.
@@ -99,56 +96,79 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? _withSidebar(context, tabState, changeTab)
                     : useHomePanes(context)
                     ? _withRail(context, tabState, changeTab)
-                    : Stack(
-                        children: [
-                          Positioned.fill(child: _tab(tabState, changeTab)),
-                          // Fades the content out under the floating tab bar.
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: 96 + bottomPadding,
-                            child: IgnorePointer(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      palette.background.withValues(alpha: 0),
-                                      palette.background.withValues(
-                                        alpha: 0.85,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // Clear of a side panel (an unfolded phone).
-                          Positioned(
-                            left: 16 + MediaQuery.paddingOf(context).left,
-                            right: 16 + MediaQuery.paddingOf(context).right,
-                            bottom: FloatingBarPlacement.tabBarBottom(context),
-                            child: PushAway(
-                              direction: PushAwayDirection.down,
-                              child: CentredMaxWidth(
-                                maxWidth: mediumContentMaxWidth,
-                                child: GlassTabBar(
-                                  selectedTab: tabState,
-                                  onChangeTab: changeTab,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (tabState == .data) _scanTipOverBar(context),
-                        ],
-                      ),
+                    : _withTabBar(context, tabState, changeTab),
               ),
             ),
           );
         },
       ),
+    );
+  }
+
+  /// A phone held upright: the tab bar at the bottom, floating over the tab
+  /// on iOS (with the content fading out under it), docked under it on
+  /// Android, down under the system's buttons or gesture handle.
+  Widget _withTabBar(
+    BuildContext context,
+    IrmaNavBarTab tab,
+    ValueChanged<IrmaNavBarTab> changeTab,
+  ) {
+    final palette = YiviPalette.of(context);
+    final padding = MediaQuery.paddingOf(context);
+    final docked = HomeNavigation.docked(context);
+    final bar = HomeTabBar(
+      selectedTab: tab,
+      onChangeTab: changeTab,
+      docked: docked,
+    );
+    return Stack(
+      children: [
+        Positioned.fill(child: _tab(tab, changeTab)),
+        if (docked)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: PushAway(direction: PushAwayDirection.down, child: bar),
+          )
+        else ...[
+          // Fades the content out under the floating tab bar.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 96 + padding.bottom,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      palette.background.withValues(alpha: 0),
+                      palette.background.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Clear of a side panel (an unfolded phone).
+          Positioned(
+            left: 16 + padding.left,
+            right: 16 + padding.right,
+            bottom: FloatingBarPlacement.tabBarBottom(context),
+            child: PushAway(
+              direction: PushAwayDirection.down,
+              child: CentredMaxWidth(
+                maxWidth: mediumContentMaxWidth,
+                child: bar,
+              ),
+            ),
+          ),
+        ],
+        if (tab == .data) _scanTipOverBar(context),
+      ],
     );
   }
 
@@ -167,19 +187,25 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
 
-  /// A phone held sideways, and a tablet below [sidebarBreakpoint]: a
-  /// floating rail on the left instead of the tab bar, with the tab (a list
-  /// and the picked item's details) beside it.
+  /// A phone held sideways, and a tablet below [sidebarBreakpoint]: a rail
+  /// on the left instead of the tab bar, with the tab (a list and the picked
+  /// item's details) beside it. On iOS the rail floats in the safe area, on
+  /// Android it is docked to the edge.
   Widget _withRail(
     BuildContext context,
     IrmaNavBarTab tab,
     ValueChanged<IrmaNavBarTab> changeTab,
   ) {
     final padding = MediaQuery.paddingOf(context);
-    // In the safe area on the notch side; 16 from the edge without a notch.
-    final railLeft = padding.left > 0 ? padding.left : 16.0;
+    final docked = HomeNavigation.docked(context);
+    // Floating: in the safe area on the notch side; 16 from the edge without
+    // a notch. Docked: at the edge, the inset inside the rail.
+    final railLeft = docked ? 0.0 : (padding.left > 0 ? padding.left : 16.0);
+    final railWidth = docked
+        ? padding.left + HomeRail.dockedWidth
+        : HomeRail.width;
     // The tabs keep 16 on their sides: their content starts 12 from the rail.
-    final contentLeft = railLeft + GlassRail.width - 4;
+    final contentLeft = railLeft + railWidth - 4;
     return Stack(
       children: [
         Positioned.fill(
@@ -190,16 +216,33 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _tab(tab, changeTab),
           ),
         ),
-        Positioned(
-          left: railLeft,
-          top: padding.top,
-          bottom: padding.bottom,
-          width: GlassRail.width,
-          child: Center(
-            child: GlassRail(selectedTab: tab, onChangeTab: changeTab),
+        if (docked)
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: railWidth,
+            child: HomeRail(
+              selectedTab: tab,
+              onChangeTab: changeTab,
+              docked: true,
+            ),
+          )
+        else
+          Positioned(
+            left: railLeft,
+            top: padding.top,
+            bottom: padding.bottom,
+            width: railWidth,
+            child: Center(
+              child: HomeRail(
+                selectedTab: tab,
+                onChangeTab: changeTab,
+                docked: false,
+              ),
+            ),
           ),
-        ),
-        if (tab == .data) _scanTipBesideRail(context, railLeft),
+        if (tab == .data) _scanTipBesideRail(context, railLeft + railWidth),
       ],
     );
   }
@@ -209,28 +252,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _scanTipOverBar(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     final width = MediaQuery.sizeOf(context).width;
+    final docked = HomeNavigation.docked(context);
     final available = width - 32 - padding.left - padding.right;
     return Positioned(
-      right:
-          16 +
-          padding.right +
-          max(0.0, (available - mediumContentMaxWidth) / 2),
-      bottom: FloatingBarPlacement.tabBarBottom(context) + 64 + 12,
+      right: docked
+          ? padding.right + 10
+          : 16 +
+                padding.right +
+                max(0.0, (available - mediumContentMaxWidth) / 2),
+      bottom: HomeTabBar.topFromBottom(context) + 12,
       child: const _ScanTipWhenDue(rail: false),
     );
   }
 
   /// The first-visit tip beside the rail's Scan button, the bottom of the
   /// rail, which is centred top to bottom.
-  Widget _scanTipBesideRail(BuildContext context, double railLeft) {
+  Widget _scanTipBesideRail(BuildContext context, double railRight) {
     final padding = MediaQuery.paddingOf(context);
     final height = MediaQuery.sizeOf(context).height;
     final railMiddle =
         padding.top + (height - padding.top - padding.bottom) / 2;
     final scanMiddle =
-        railMiddle + GlassRail.height / 2 - GlassRail.scanButtonSize / 2;
+        railMiddle + HomeRail.height / 2 - 10 - HomeRail.scanButtonSize / 2;
     return Positioned(
-      left: railLeft + GlassRail.width + 12,
+      left: railRight + 12,
       top: scanMiddle,
       child: const FractionalTranslation(
         translation: Offset(0, -0.5),
@@ -239,29 +284,35 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// The tablet layout: the glass sidebar on the left instead of the
-  /// floating tab bar.
+  /// The tablet layout: the sidebar on the left instead of the tab bar,
+  /// floating with a margin on iOS, docked to the edge on Android.
   Widget _withSidebar(
     BuildContext context,
     IrmaNavBarTab tab,
     ValueChanged<IrmaNavBarTab> changeTab,
   ) {
     final padding = MediaQuery.paddingOf(context);
+    final docked = HomeNavigation.docked(context);
+    final sidebar = HomeSidebar(
+      selectedTab: tab,
+      onChangeTab: changeTab,
+      docked: docked,
+    );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            padding.left + 16,
-            padding.top + 16,
-            16,
-            padding.bottom + 16,
+        if (docked)
+          SizedBox(width: padding.left + sidebarWidth + 16, child: sidebar)
+        else
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              padding.left + 16,
+              padding.top + 16,
+              16,
+              padding.bottom + 16,
+            ),
+            child: SizedBox(width: sidebarWidth, child: sidebar),
           ),
-          child: SizedBox(
-            width: sidebarWidth,
-            child: GlassSidebar(selectedTab: tab, onChangeTab: changeTab),
-          ),
-        ),
         Expanded(
           child: MediaQuery.removePadding(
             context: context,

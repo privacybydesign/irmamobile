@@ -1311,7 +1311,11 @@
       "with_parties-0": "mit {count} Parteien",
       "with_parties-1": "mit 1 Partei",
       "with_parties-2": "mit {count} Parteien"
-    }
+    },
+    "title": "Deine Daten",
+    "count-0": "{count} Karten",
+    "count-1": "1 Karte",
+    "count-2": "{count} Karten"
   },
   "share": {
     "step_count": "Schritt {step} von {total}",

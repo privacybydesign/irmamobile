@@ -14,11 +14,20 @@ class GlassMenuItem<T> {
   final IconData icon;
   final Key? key;
 
+  /// The name of the group of choices this item starts, shown above it.
+  final String? section;
+
+  /// For a choice among several (a view): whether it is the current one,
+  /// ticked at the start. Null for an action.
+  final bool? checked;
+
   const GlassMenuItem({
     required this.value,
     required this.label,
     required this.icon,
     this.key,
+    this.section,
+    this.checked,
   });
 }
 
@@ -186,6 +195,11 @@ class _Menu<T> extends StatelessWidget {
       height: 0.5,
       color: palette.secondaryText.withValues(alpha: 0.25),
     );
+    // Between groups, and above the footnote: a band, as on iOS.
+    final gap = Container(
+      height: 6,
+      color: palette.secondaryText.withValues(alpha: 0.08),
+    );
     const shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
     );
@@ -201,14 +215,26 @@ class _Menu<T> extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final (i, item) in items.indexed) ...[
-                if (i > 0) divider,
+                if (item.section case final section?) ...[
+                  if (i > 0) gap,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        section,
+                        style: palette
+                            .body(12.5, weight: FontWeight.w600)
+                            .copyWith(color: palette.secondaryText),
+                      ),
+                    ),
+                  ),
+                ] else if (i > 0)
+                  divider,
                 _Row(item: item, palette: palette),
               ],
               if (footnote != null) ...[
-                Container(
-                  height: 6,
-                  color: palette.secondaryText.withValues(alpha: 0.08),
-                ),
+                gap,
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                   child: Text(
@@ -240,24 +266,34 @@ class _Row<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The theme's grey lights the row up while it is pressed, as on iOS.
-    return InkWell(
-      key: item.key,
-      onTap: () => Navigator.of(context).pop(item.value),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 46),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: Text(
-                  item.label,
-                  style: palette.body(16).copyWith(color: palette.text),
+    return Semantics(
+      selected: item.checked ?? false,
+      child: InkWell(
+        key: item.key,
+        onTap: () => Navigator.of(context).pop(item.value),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 46),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              spacing: 12,
+              children: [
+                if (item.checked case final checked?)
+                  SizedBox(
+                    width: 18,
+                    child: checked
+                        ? Icon(Icons.check, size: 18, color: palette.primary)
+                        : null,
+                  ),
+                Expanded(
+                  child: Text(
+                    item.label,
+                    style: palette.body(16).copyWith(color: palette.text),
+                  ),
                 ),
-              ),
-              Icon(item.icon, size: 20, color: palette.text),
-            ],
+                Icon(item.icon, size: 20, color: palette.text),
+              ],
+            ),
           ),
         ),
       ),

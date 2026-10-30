@@ -1308,7 +1308,11 @@
       "with_parties-0": "with {count} parties",
       "with_parties-1": "with 1 party",
       "with_parties-2": "with {count} parties"
-    }
+    },
+    "title": "Your data",
+    "count-0": "{count} cards",
+    "count-1": "1 card",
+    "count-2": "{count} cards"
   },
   "missing_data": {
     "known_party": "Known party"

@@ -16,9 +16,7 @@ import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/pane_handoffs.dart";
-import "package:yivi_core/src/screens/home/widgets/glass_rail.dart";
-import "package:yivi_core/src/screens/home/widgets/glass_sidebar.dart";
-import "package:yivi_core/src/screens/home/widgets/glass_tab_bar.dart";
+import "package:yivi_core/src/screens/home/widgets/home_navigation.dart";
 import "package:yivi_core/src/screens/home/widgets/irma_nav_bar.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
@@ -53,6 +51,20 @@ const _sideInsets = FakeViewPadding(left: 62, right: 62, bottom: 21);
 const _upright = Size(390, 844);
 const _uprightInsets = FakeViewPadding(top: 62, bottom: 34);
 const _tablet = Size(1180, 820);
+
+/// An iPhone or iPad: the floating rail and sidebar.
+void iosTest(String description, WidgetTesterCallback body) => testWidgets(
+  description,
+  body,
+  variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+);
+
+/// Android: the docked rail and sidebar.
+void androidTest(String description, WidgetTesterCallback body) => testWidgets(
+  description,
+  body,
+  variant: TargetPlatformVariant.only(TargetPlatform.android),
+);
 
 void main() {
   late IrmaRepository repo;
@@ -186,15 +198,15 @@ void main() {
   String location(GoRouter router) => router.state.uri.toString();
 
   group("the frame", () {
-    testWidgets("sideways: the rail on the left, no tab bar", (tester) async {
+    iosTest("sideways: the rail on the left, no tab bar", (tester) async {
       await pump(tester);
-      expect(find.byType(GlassRail), findsOneWidget);
-      expect(find.byType(GlassTabBar), findsNothing);
-      expect(find.byType(GlassSidebar), findsNothing);
+      expect(find.byType(HomeRail), findsOneWidget);
+      expect(find.byType(HomeTabBar), findsNothing);
+      expect(find.byType(HomeSidebar), findsNothing);
       // In the safe area on the notch side, the content 12 to its right.
-      final rail = tester.getRect(find.byType(GlassRail));
+      final rail = tester.getRect(find.byType(HomeRail));
       expect(rail.left, 62);
-      expect(rail.width, 60);
+      expect(rail.width, HomeRail.width);
       final search = tester.getRect(find.byType(GlassSearchField));
       expect(search.left, rail.right + 12);
       expect(search.top, 12);
@@ -206,15 +218,79 @@ void main() {
       expect(tabs.state, IrmaNavBarTab.more);
     });
 
-    testWidgets("upright: the tab bar, no rail", (tester) async {
+    androidTest("sideways on Android: the rail docked to the edge", (
+      tester,
+    ) async {
+      await pump(tester);
+      final rail = tester.getRect(find.byType(HomeRail));
+      expect(rail.left, 0);
+      // The cutout's inset inside it.
+      expect(rail.width, 62 + HomeRail.dockedWidth);
+      final search = tester.getRect(find.byType(GlassSearchField));
+      expect(search.left, rail.right + 12);
+      expect(find.byKey(const Key("nav_button_scanner")), findsOneWidget);
+    });
+
+    iosTest("upright on iOS: the bar floats, with Scan in it", (tester) async {
       await pump(tester, view: _upright, insets: _uprightInsets);
-      expect(find.byType(GlassTabBar), findsOneWidget);
-      expect(find.byType(GlassRail), findsNothing);
+      final bar = tester.getRect(find.byType(HomeTabBar));
+      final scan = tester.getRect(find.byKey(const Key("nav_button_scanner")));
+      expect(bar.left, 16);
+      expect(bar.right, _upright.width - 16);
+      expect(bar.bottom, _upright.height - 21);
+      expect(bar.height, HomeTabBar.floatingHeight);
+      // Inside the bar, at its right end.
+      expect(bar.contains(scan.center), isTrue);
+      // As far from the bar's end as from its top and bottom.
+      expect(scan.right, closeTo(bar.right - (bar.bottom - scan.bottom), 1));
+      expect(scan.width, HomeScanButton.size);
+      expect(HomeNavigation.bottomBarShown.value, isFalse);
+    });
+
+    androidTest("upright on Android: the bar docked under the buttons, the "
+        "line under the tab picked", (tester) async {
+      await pump(tester, view: _upright, insets: _uprightInsets);
+      final bar = tester.getRect(find.byType(HomeTabBar));
+      expect(bar.left, 0);
+      expect(bar.right, _upright.width);
+      expect(bar.bottom, _upright.height);
+      expect(bar.height, HomeTabBar.dockedHeight + _uprightInsets.bottom);
+      // The frosted band behind the system's buttons stays away.
+      expect(HomeNavigation.bottomBarShown.value, isTrue);
+
+      final line = find.byKey(const Key("nav_selected_line"));
+      double lineX() => tester.getCenter(line).dx;
+      expect(
+        lineX(),
+        closeTo(
+          tester.getCenter(find.byKey(const Key("nav_button_data"))).dx,
+          1,
+        ),
+      );
+      expect(tester.getTopLeft(line).dy, closeTo(bar.top + 1, 1));
+      await tester.tap(find.byKey(const Key("nav_button_activity")));
+      // The line slides there (the tab itself keeps loading).
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        lineX(),
+        closeTo(
+          tester.getCenter(find.byKey(const Key("nav_button_activity"))).dx,
+          1,
+        ),
+      );
+    });
+
+    iosTest("upright: the tab bar, no rail", (tester) async {
+      await pump(tester, view: _upright, insets: _uprightInsets);
+      expect(find.byType(HomeTabBar), findsOneWidget);
+      expect(find.byType(HomeRail), findsNothing);
     });
   });
 
   group("data", () {
-    testWidgets("the list beside the pane; a tap opens the card in the pane, "
+    iosTest("the list beside the pane; a tap opens the card in the pane, "
         "and it slides out of the stack", (tester) async {
       final router = await pump(tester);
       // The first card until one is picked.
@@ -229,8 +305,9 @@ void main() {
       final pane = tester.getRect(
         find.byKey(const Key("credential_detail_pane_personal")),
       );
-      // The list: 300 of content between 16 on either side.
-      expect(pane.left, closeTo(118 + 332, 1));
+      // The list: 41.5 % of the room beside the rail (294 of content), with
+      // 16 on either side.
+      expect(pane.left, closeTo(62 + HomeRail.width - 4 + 294 + 32, 1));
       // The pane reaches the edge; its content keeps clear of the Dynamic
       // Island.
       expect(pane.right, 874);
@@ -254,7 +331,7 @@ void main() {
       expect(left("address") - left("personal"), closeTo(16, 0.5));
     });
 
-    testWidgets("the open card tilts a little to the right", (tester) async {
+    iosTest("the open card tilts a little to the right", (tester) async {
       await pump(tester);
       final turned = tester
           .widgetList<Transform>(
@@ -278,7 +355,7 @@ void main() {
       expect(straight, isEmpty);
     });
 
-    testWidgets("a card that opens out of view comes to the middle", (
+    iosTest("a card that opens out of view comes to the middle", (
       tester,
     ) async {
       await pump(tester);
@@ -301,7 +378,7 @@ void main() {
       expect(tester.getCenter(tile("address")).dy, closeTo(before, 1));
     });
 
-    testWidgets("beside a side panel the card in the pane keeps its shape", (
+    iosTest("beside a side panel the card in the pane keeps its shape", (
       tester,
     ) async {
       // An iPhone Duo unfolded, held sideways: the control bar at the right.
@@ -321,7 +398,7 @@ void main() {
       );
     });
 
-    testWidgets("the search field floats on top of the cards", (tester) async {
+    iosTest("the search field floats on top of the cards", (tester) async {
       await pump(tester);
       await tester.drag(
         find.byKey(const Key("wallet_scroll")),
@@ -335,7 +412,7 @@ void main() {
       expect(hit.path.any((e) => e.target == field), isTrue);
     });
 
-    testWidgets("on a tablet the open card slides out of the stack too", (
+    iosTest("on a tablet the open card slides out of the stack too", (
       tester,
     ) async {
       await pump(tester, view: _tablet, insets: FakeViewPadding.zero);
@@ -344,12 +421,12 @@ void main() {
       expect(left("personal") - left("address"), closeTo(16, 0.5));
     });
 
-    testWidgets("a tablet under 1300 has the rail, the details the room", (
+    iosTest("a tablet under 1300 has the rail, the details the room", (
       tester,
     ) async {
       await pump(tester, view: _tablet, insets: FakeViewPadding.zero);
-      expect(find.byType(GlassRail), findsOneWidget);
-      expect(find.byType(GlassSidebar), findsNothing);
+      expect(find.byType(HomeRail), findsOneWidget);
+      expect(find.byType(HomeSidebar), findsNothing);
       final pane = tester.getRect(
         find.byKey(const Key("credential_detail_pane_personal")),
       );
@@ -358,19 +435,19 @@ void main() {
       expect(pane.width, greaterThan(640));
     });
 
-    testWidgets("from 1300 the sidebar with labels", (tester) async {
+    iosTest("from 1300 the sidebar with labels", (tester) async {
       await pump(
         tester,
         view: const Size(1366, 1024),
         insets: FakeViewPadding.zero,
       );
-      expect(find.byType(GlassSidebar), findsOneWidget);
-      expect(find.byType(GlassRail), findsNothing);
+      expect(find.byType(HomeSidebar), findsOneWidget);
+      expect(find.byType(HomeRail), findsNothing);
     });
   });
 
   group("turning the phone", () {
-    testWidgets("upright to sideways: an open card moves into the pane", (
+    iosTest("upright to sideways: an open card moves into the pane", (
       tester,
     ) async {
       final router = await pump(tester, view: _upright, insets: _uprightInsets);
@@ -390,7 +467,7 @@ void main() {
       );
     });
 
-    testWidgets("sideways to upright: the list, never the picked card's "
+    iosTest("sideways to upright: the list, never the picked card's "
         "page", (tester) async {
       final router = await pump(tester);
       await tapCard(tester, "email");
@@ -404,7 +481,7 @@ void main() {
       expect(find.byType(CredentialDetailScreen), findsNothing);
     });
 
-    testWidgets("Instellingen open upright moves into the More pane", (
+    iosTest("Instellingen open upright moves into the More pane", (
       tester,
     ) async {
       final router = await pump(tester, view: _upright, insets: _uprightInsets);
@@ -423,7 +500,7 @@ void main() {
   });
 
   group("more", () {
-    testWidgets("Instellingen in the pane; Veelgestelde vragen switches", (
+    iosTest("Instellingen in the pane; Veelgestelde vragen switches", (
       tester,
     ) async {
       final router = await pump(tester);

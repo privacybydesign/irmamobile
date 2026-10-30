@@ -27,8 +27,9 @@ class TitleScrollEdge extends StatefulWidget {
     required this.child,
   });
 
-  /// The bar under the status bar, where the small title sits.
-  static const barHeight = 44.0;
+  /// The bar under the status bar, where the small title sits: as high as
+  /// the Data tab's, whose buttons are in it.
+  static const barHeight = 52.0;
 
   @override
   State<TitleScrollEdge> createState() => _TitleScrollEdgeState();
@@ -112,19 +113,33 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
   }
 }
 
-/// The large title at the top of a tab page with a [TitleScrollEdge], from
-/// the translation at [titleKey].
+/// The large title at the top of a home tab (Data, Notifications, More),
+/// from the translation at [titleKey]: the same size on each, at the same
+/// place ([tabTitleTop], at the content's edge), scrolling under the bar
+/// where the small title takes over.
 class TabLargeTitle extends StatelessWidget {
   final String titleKey;
 
   const TabLargeTitle(this.titleKey, {super.key});
 
+  /// The title's row.
+  static const double height = 44;
+
   @override
-  Widget build(BuildContext context) => Semantics(
-    header: true,
-    child: TranslatedText(
-      titleKey,
-      style: YiviPalette.of(context).display(26, weight: FontWeight.w700),
+  Widget build(BuildContext context) => SizedBox(
+    height: height,
+    child: Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Semantics(
+        header: true,
+        child: TranslatedText(
+          titleKey,
+          maxLines: 1,
+          style: YiviPalette.of(context)
+              .display(30, weight: FontWeight.w700)
+              .copyWith(height: 36 / 30, letterSpacing: -0.3),
+        ),
+      ),
     ),
   );
 }
