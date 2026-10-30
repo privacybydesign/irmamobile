@@ -101,6 +101,32 @@ class AttributeValue {
   Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
+/// Turns a claim key into a label, for a claim the issuer gave no display
+/// name: camelCase and snake_case are split into words, the first word is
+/// capitalised and the rest lowercased, and all-caps words such as "ECTS" or
+/// "BRIN" are kept as they are. `targetCode` reads "Target code",
+/// `institutionBRINCode` "Institution BRIN code".
+String readableClaimKey(String key) {
+  final words = key
+      .replaceAllMapped(
+        RegExp(r"([a-z0-9])([A-Z])|([A-Z])([A-Z][a-z])"),
+        (m) => m[1] != null ? "${m[1]} ${m[2]}" : "${m[3]} ${m[4]}",
+      )
+      .replaceAll("_", " ")
+      .split(" ")
+      .where((w) => w.isNotEmpty)
+      .toList();
+  return [
+    for (final (i, w) in words.indexed)
+      if (w.length > 1 && w == w.toUpperCase())
+        w
+      else if (i == 0)
+        w[0].toUpperCase() + w.substring(1)
+      else
+        w[0].toLowerCase() + w.substring(1),
+  ].join(" ");
+}
+
 @JsonSerializable(fieldRename: .snake)
 class Attribute {
   final List<dynamic> claimPath;
@@ -125,17 +151,18 @@ class Attribute {
   });
 
   /// The display name to render in the UI. Falls back to the last non-int
-  /// segment of [claimPath] when the backend did not supply a display name,
-  /// so the UI shows the field identifier instead of an empty label. Int
-  /// segments (array indices) are skipped so positions like
-  /// `["tags", 0]` fall back to "tags" rather than "0".
+  /// segment of [claimPath], made readable by [readableClaimKey], when the
+  /// backend did not supply a display name, so the UI shows the field
+  /// identifier instead of an empty label. Int segments (array indices) are
+  /// skipped so positions like `["tags", 0]` fall back to "Tags" rather than
+  /// "0".
   String get effectiveDisplayName {
     final name = displayName;
     if (name != null && name.isNotEmpty) return name;
     if (claimPath.isEmpty) return name ?? "";
     for (var i = claimPath.length - 1; i >= 0; i--) {
       final seg = claimPath[i];
-      if (seg is String) return seg;
+      if (seg is String) return readableClaimKey(seg);
     }
     return claimPath.join(".");
   }

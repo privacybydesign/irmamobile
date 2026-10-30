@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for SD-JWT-secured W3C VCDM credentials (format `vc+sd-jwt`)
 
+### Changed
+- An attribute the issuer gave no display name is labelled with its key made readable, e.g. `targetCode` as "Target code" and `institutionBRINCode` as "Institution BRIN code", instead of the raw key ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+
+### Fixed
+- Nested claims the issuer gave no display name keep their structure on the card ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+  - The entries of a list are titled after the list and numbered per list, e.g. "ALIGNMENT 1/2" and "ALIGNMENT 2/2", instead of "ITEM 1/4" .. "ITEM 4/4" numbered across every such list on the card. A list of values inside such an entry is shown in that entry.
+  - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
+  - A first key that every attribute on the card shares, such as a VCDM credential's `credentialSubject` or the namespace of an mdoc with one namespace, gets no heading of its own.
+
 ## [8.3.3] - 2026-10-16
 ### Added
 - Amounts in attributes that use irmago's `currency:<code>` display hint (e.g. `displayHint="currency:EUR"`) are shown as currency in the app's language, e.g. "€ 12,50" in Dutch and "€12.50" in English. With an irmago that doesn't send display hints yet, or with an amount or code that can't be formatted, the raw value is shown as before ([privacybydesign/irmago#752](https://github.com/privacybydesign/irmago/issues/752))
