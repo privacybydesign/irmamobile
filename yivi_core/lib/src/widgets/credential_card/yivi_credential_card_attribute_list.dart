@@ -23,6 +23,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<AttributeGroupRenderer>? renderers;
   // The attributes are being shared (a disclosure), not the whole credential.
   final bool disclosure;
+  // The claim paths start with an mso_mdoc namespace: who defined the data
+  // element, not a part of the credential, so it never gets a level.
+  final bool namespaced;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -31,6 +34,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.credentialId,
     this.renderers,
     this.disclosure = false,
+    this.namespaced = false,
   });
 
   @override
@@ -67,7 +71,11 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       ...remaining.where(_isImage),
     ];
 
-    final tree = _buildTree(sorted, compareTo: compareTo);
+    final tree = _buildTree(
+      sorted,
+      compareTo: compareTo,
+      namespaced: namespaced,
+    );
     _insertGroups(tree.children, groups, attributes);
     final items = _flatten(tree);
 
@@ -188,6 +196,7 @@ class _PrimCollector {
 _GroupNode _buildTree(
   List<schemaless.Attribute> attrs, {
   List<schemaless.Attribute>? compareTo,
+  bool namespaced = false,
 }) {
   final headers = <String, schemaless.Attribute>{};
   for (final e in attrs) {
@@ -240,15 +249,17 @@ _GroupNode _buildTree(
     }
   }
 
-  // A first key every attribute shares, such as a VCDM credential's
-  // `credentialSubject` or the namespace of an mdoc with only one, is the
-  // credential itself rather than a part of it, so it gets no level of its own.
+  // The first key gets no level of its own when it is an mdoc namespace,
+  // however many the card shows, or when every attribute shares it, like a
+  // VCDM credential's `credentialSubject`: that key is the credential itself
+  // rather than a part of it.
   final firstKey = attrs.firstOrNull?.claimPath.firstOrNull;
   final rootLength =
-      firstKey is String &&
-          attrs.every(
-            (a) => a.claimPath.length > 1 && a.claimPath[0] == firstKey,
-          )
+      namespaced ||
+          firstKey is String &&
+              attrs.every(
+                (a) => a.claimPath.length > 1 && a.claimPath[0] == firstKey,
+              )
       ? 1
       : 0;
 

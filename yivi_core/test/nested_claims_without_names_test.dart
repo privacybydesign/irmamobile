@@ -198,4 +198,76 @@ void main() {
     expect(find.text("KOPPELINGEN 2/2"), findsOneWidget);
     expect(find.textContaining("ALIGNMENT"), findsNothing);
   });
+
+  group("mdoc namespaces", () {
+    schemaless.Attribute element(String namespace, String id, String value) =>
+        schemaless.Attribute(
+          claimPath: [namespace, id],
+          displayName: null,
+          value: schemaless.AttributeValue(
+            type: schemaless.AttributeType.string,
+            string: value,
+          ),
+        );
+
+    // An mDL with the AAMVA extension: elements from two namespaces, which
+    // the common-root rule alone would show under two namespace headings.
+    final twoNamespaces = [
+      element("org.iso.18013.5.1", "family_name", "Jansen"),
+      element("org.iso.18013.5.1", "given_name", "Jan"),
+      element("org.iso.18013.5.1.aamva", "organ_donor", "1"),
+    ];
+
+    testWidgets("a namespace gets no level, however many there are", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(YiviCredentialCardAttributeList(twoNamespaces, namespaced: true)),
+      );
+
+      expect(find.textContaining("ORG.ISO"), findsNothing);
+      expect(_left(tester, "Jansen"), equals(_left(tester, "1")));
+      expect(find.text("Organ donor"), findsOneWidget);
+    });
+
+    testWidgets("without the flag the first keys are taken for objects", (
+      tester,
+    ) async {
+      // Pins why the card has to tell the list: from the paths alone two
+      // namespaces look like two objects.
+      await tester.pumpWidget(
+        _wrap(YiviCredentialCardAttributeList(twoNamespaces)),
+      );
+
+      expect(find.text("ORG.ISO.18013.5.1"), findsOneWidget);
+    });
+
+    testWidgets("an object inside an element still gets a level", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          YiviCredentialCardAttributeList([
+            element("org.iso.18013.5.1", "family_name", "Jansen"),
+            schemaless.Attribute(
+              claimPath: const [
+                "org.iso.18013.5.1",
+                "place_of_birth",
+                "locality",
+              ],
+              displayName: null,
+              value: schemaless.AttributeValue(
+                type: schemaless.AttributeType.string,
+                string: "Arnhem",
+              ),
+            ),
+            element("org.iso.18013.5.1.aamva", "organ_donor", "1"),
+          ], namespaced: true),
+        ),
+      );
+
+      expect(find.text("PLACE OF BIRTH"), findsOneWidget);
+      expect(_left(tester, "Arnhem"), greaterThan(_left(tester, "Jansen")));
+    });
+  });
 }
