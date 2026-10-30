@@ -2797,7 +2797,7 @@ void main() {
       await _pump(tester, session: _session(email()));
       final logo = find.byType(RequestorLogo);
       final from = tester.getRect(logo);
-      expect(from.width, 64);
+      expect(from.width, 52);
 
       await tester.tap(find.byKey(const Key("session_requestor_header")));
       await tester.pump();
@@ -2808,7 +2808,7 @@ void main() {
         for (final e in find.byType(FittedBox).evaluate())
           tester.getRect(find.byWidget(e.widget)).width,
       ];
-      expect(sizes.any((w) => w > 64 && w < 84), isTrue);
+      expect(sizes.any((w) => w > 52 && w < 84), isTrue);
 
       await tester.pumpAndSettle();
       final inSheet = find.descendant(

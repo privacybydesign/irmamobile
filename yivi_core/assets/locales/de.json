@@ -1362,6 +1362,7 @@
       "subtitle_one_add": "{requestor} braucht nur eine. Wähle eine.",
       "already_in_app": "Schon in deiner App",
       "for_requestor": "Für {requestor}",
+      "for_requestor_set": "Für {requestor} · Karte {n} von {total}",
       "progress_short": "{step} von {total}",
       "progress_done": "Fertig",
       "progress_done_label": "Alle Schritte erledigt",

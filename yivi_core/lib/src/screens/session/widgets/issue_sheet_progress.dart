@@ -15,13 +15,35 @@ import "session_requestor_header.dart";
 sealed class IssueSheetSubject {
   const IssueSheetSubject();
 
-  const factory IssueSheetSubject.request(TrustedParty requestor) = _ForRequest;
+  /// For [requestor]'s request; [ofSet] is where the card stands in a set
+  /// the request only accepts together (card 1 of 2).
+  const factory IssueSheetSubject.request(
+    TrustedParty requestor, {
+    ({int n, int total})? ofSet,
+  }) = _ForRequest;
   const factory IssueSheetSubject.card(CredentialDescriptor card) = _ForCard;
 }
 
 class _ForRequest extends IssueSheetSubject {
   final TrustedParty requestor;
-  const _ForRequest(this.requestor);
+  final ({int n, int total})? ofSet;
+  const _ForRequest(this.requestor, {this.ofSet});
+
+  /// "For {requestor}", or "For {requestor} · card 1 of 2" in a set.
+  String text(BuildContext context) {
+    final set = ofSet;
+    return FlutterI18n.translate(
+      context,
+      set == null
+          ? "share.sheet.for_requestor"
+          : "share.sheet.for_requestor_set",
+      translationParams: {
+        "requestor": requestor.name,
+        if (set != null) "n": "${set.n}",
+        if (set != null) "total": "${set.total}",
+      },
+    );
+  }
 }
 
 class _ForCard extends IssueSheetSubject {
@@ -189,7 +211,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
     // held sideways that goes under the bar's title instead
     // ([IssueSheetRequestorLine]).
     return switch (widget.subject) {
-      _ForRequest(:final requestor) when !useSheetColumns(context) => Column(
+      final _ForRequest subject when !useSheetColumns(context) => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -200,12 +222,12 @@ class _IssueSheetProgressState extends State<IssueSheetProgress>
             child: Row(
               spacing: 8,
               children: [
-                ExcludeSemantics(child: requestorAvatar(requestor, size: 20)),
+                ExcludeSemantics(
+                  child: requestorAvatar(subject.requestor, size: 20),
+                ),
                 Flexible(
                   child: Text(
-                    context.tr("share.sheet.for_requestor", {
-                      "requestor": requestor.name,
-                    }),
+                    subject.text(context),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: palette
@@ -251,11 +273,7 @@ class IssueSheetRequestorLine extends StatelessWidget {
         ExcludeSemantics(child: requestorAvatar(subject.requestor, size: 16)),
         Flexible(
           child: Text(
-            FlutterI18n.translate(
-              context,
-              "share.sheet.for_requestor",
-              translationParams: {"requestor": subject.requestor.name},
-            ),
+            subject.text(context),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: palette

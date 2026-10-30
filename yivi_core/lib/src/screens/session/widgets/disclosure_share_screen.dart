@@ -366,7 +366,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         18,
         KeyedSubtree(
           key: _headerKey,
-          child: RequestorCard(requestor: session.requestor, onInfo: openTrust),
+          child: RequestorCard.compact(
+            requestor: session.requestor,
+            onInfo: openTrust,
+          ),
         ),
       ),
       if (required.isEmpty && optional.isNotEmpty)

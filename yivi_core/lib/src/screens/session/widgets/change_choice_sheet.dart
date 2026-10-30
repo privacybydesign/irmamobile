@@ -168,8 +168,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   schemaless.TrustedParty? get _requestor => issueRequest?.requestor;
 
   @override
-  IssueSheetSubject issueSubject(CredentialDescriptor d) =>
-      IssueSheetSubject.request(_requestor ?? d.issuer);
+  IssueSheetSubject issueSubject(CredentialDescriptor d) {
+    final set = _set;
+    final n = set?.indexWhere((c) => c.credentialId == d.credentialId) ?? -1;
+    return IssueSheetSubject.request(
+      _requestor ?? d.issuer,
+      ofSet: set != null && n >= 0 ? (n: n + 1, total: set.length) : null,
+    );
+  }
 
   @override
   String issueStopText() => context.tr("share.sheet.stop_text", {
@@ -262,11 +268,13 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         "next": _inSentence(next.name),
       });
     }
+    // The last card of a set added one by one: the set is in.
+    final count = _set?.length ?? cards.length;
     return context.tr(
-      cards.length > 1
+      count > 1
           ? "issuance.success_feedback.added_many_back"
           : "issuance.success_feedback.added_one_back",
-      _successParams(cards),
+      {..._successParams(cards), "count": "$count"},
     );
   }
 
@@ -311,6 +319,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   void _add(List<CredentialDescriptor> missing) {
     _set = missing.length > 1 ? missing : null;
     issueOpen(missing.first);
+  }
+
+  /// Adds [d], one card of a [set] only accepted together, and then the
+  /// rest of it. The set is kept: once [d] is in the app the request only
+  /// offers the others, and no longer reads as a set.
+  void _addOfSet(List<CredentialDescriptor> set, CredentialDescriptor d) {
+    _set = set;
+    issueOpen(d);
   }
 
   SessionUserChoicesNotifier get _choices =>
@@ -485,7 +501,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                 title: d.name,
                 subtitle: d.issuer.name,
                 rows: emptySpotRows(context, d),
-                onTap: () => issueOpen(d),
+                onTap: () => _addOfSet(set, d),
               ),
           ],
         ],

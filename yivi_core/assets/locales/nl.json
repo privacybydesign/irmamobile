@@ -1362,6 +1362,7 @@
       "subtitle_one_add": "{requestor} heeft er maar één nodig. Kies er één.",
       "already_in_app": "Al in je app",
       "for_requestor": "Voor {requestor}",
+      "for_requestor_set": "Voor {requestor} · kaart {n} van {total}",
       "progress_short": "{step} van {total}",
       "progress_done": "Klaar",
       "progress_done_label": "Alle stappen klaar",

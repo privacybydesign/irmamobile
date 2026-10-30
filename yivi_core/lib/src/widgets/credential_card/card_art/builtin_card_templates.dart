@@ -203,6 +203,57 @@ Map<String, String> builtinTemplateValues(
   return values;
 }
 
+/// The attributes of [credential]'s built-in card that make up its main
+/// value: the line under the credential's name at the top of the card
+/// (`{{firstName}} {{lastName}}`, `{{street}} {{houseNumber}}`), in the
+/// order the card shows them. Empty without a built-in card.
+List<schemaless.Attribute> builtinHeaderAttributes(
+  schemaless.Credential credential,
+) {
+  final template = builtinCardTemplate(
+    credential.credentialId,
+    attributeIds: credential.attributes
+        .where((a) => a.claimPath.isNotEmpty)
+        .map((a) => "${a.claimPath.last}"),
+  );
+  if (template == null) return const [];
+  final ids = _headerIds.putIfAbsent(
+    template.svg,
+    () => _headerIdsOf(template.svg),
+  );
+  return [
+    for (final id in ids)
+      for (final a in credential.attributes)
+        if (a.claimPath.isNotEmpty &&
+            {
+              "${a.claimPath.last}",
+              ?_aliases["${a.claimPath.last}"],
+            }.contains(id))
+          a,
+  ];
+}
+
+final _headerIds = <String, List<String>>{};
+
+/// The attribute placeholders of the text right after `{{yivi.name}}`:
+/// every template puts its main value there, under the name.
+List<String> _headerIdsOf(String svg) {
+  final name = svg.indexOf("{{yivi.name}}");
+  if (name < 0) return const [];
+  final after = svg.indexOf("</text>", name);
+  if (after < 0) return const [];
+  final line = RegExp(
+    r"<text[^>]*>(.*?)</text>",
+    dotAll: true,
+  ).firstMatch(svg.substring(after + "</text>".length));
+  if (line == null) return const [];
+  return [
+    for (final m in RegExp(r"\{\{([^}]+)\}\}").allMatches(line.group(1)!))
+      if (!m.group(1)!.startsWith("label.") && !m.group(1)!.startsWith("yivi."))
+        m.group(1)!,
+  ];
+}
+
 /// A transparent 1×1 PNG, for an image placeholder without a picture.
 const transparentPixel =
     "data:image/png;base64,"

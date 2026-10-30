@@ -8,6 +8,7 @@ import "empty_app_scenarios/completely_optional.dart";
 import "empty_app_scenarios/multi_bundle_choice.dart";
 import "empty_app_scenarios/multi_bundle_choice_partial.dart";
 import "empty_app_scenarios/multi_cred_bundle.dart";
+import "empty_app_scenarios/multi_cred_bundle_in_sheet.dart";
 import "empty_app_scenarios/multi_cred_bundle_partial.dart";
 import "empty_app_scenarios/no_choice.dart";
 import "empty_app_scenarios/no_choice_multiple_creds.dart";
@@ -74,6 +75,12 @@ void main() {
         testWidgets(
           "partial",
           (tester) => multiCredBundlePartialTest(tester, irmaBinding),
+        );
+
+        // Same condiscon; both singletons added one by one in the sheet.
+        testWidgets(
+          "in-sheet",
+          (tester) => multiCredBundleInSheetTest(tester, irmaBinding),
         );
       });
 

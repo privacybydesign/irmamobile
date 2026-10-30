@@ -61,6 +61,52 @@ void main() {
     expect(hintOf(passport, [passport]), "Sanne");
   });
 
+  test("a built-in card shows the value at its top, not the first attribute", () {
+    final passport = testCredential(
+      type: "pbdf.pbdf.passport",
+      hash: "a",
+      attributes: [
+        stringAttr("documentType", "P"),
+        stringAttr("firstName", "Sanne"),
+        stringAttr("lastName", "de Vries"),
+      ],
+    );
+    expect(hintOf(passport, [passport]), "Sanne de Vries");
+
+    final big = testCredential(
+      type: "pbdf.pbdf.big",
+      hash: "b",
+      attributes: [stringAttr("bignumber", "19012345601"), stringAttr("profession", "Arts")],
+    );
+    expect(hintOf(big, [big]), "Arts");
+
+    final address = testCredential(
+      type: "pbdf-staging.gemeente.address",
+      hash: "c",
+      attributes: [
+        stringAttr("zipcode", "1234 AB"),
+        stringAttr("street", "Meander"),
+        stringAttr("houseNumber", "501"),
+      ],
+    );
+    expect(hintOf(address, [address]), "Meander 501");
+  });
+
+  test("two built-in cards with the same top value tell themselves apart", () {
+    final a = testCredential(
+      type: "pbdf.pbdf.passport",
+      hash: "a",
+      attributes: [stringAttr("firstName", "Sanne"), stringAttr("dateOfExpiry", "2030-01-01")],
+    );
+    final b = testCredential(
+      type: "pbdf.pbdf.passport",
+      hash: "b",
+      attributes: [stringAttr("firstName", "Sanne"), stringAttr("dateOfExpiry", "2034-06-01")],
+    );
+    expect(hintOf(a, [a, b]), "2030-01-01");
+    expect(hintOf(b, [a, b]), "2034-06-01");
+  });
+
   test("only yes/no values fall back to the date added", () {
     final ages = testCredential(
       type: "pbdf.pbdf.ageLimits",

@@ -1362,6 +1362,7 @@
       "subtitle_one_add": "{requestor} only needs one. Choose one.",
       "already_in_app": "Already in your app",
       "for_requestor": "For {requestor}",
+      "for_requestor_set": "For {requestor} · card {n} of {total}",
       "progress_short": "{step} of {total}",
       "progress_done": "Done",
       "progress_done_label": "All steps done",

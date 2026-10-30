@@ -198,8 +198,10 @@ class RequestorCard extends StatelessWidget {
   /// Opens the trust sheet.
   final VoidCallback? onInfo;
 
-  /// The landscape form, for the panel at the left: the logo (52) beside the
-  /// name and [ask], the pill with ⓘ under them.
+  /// The share screen's form, under its title and in the landscape panel:
+  /// the logo (52) beside the name, [ask] and the pill with ⓘ, all aligned
+  /// to the left like the title. Without it the centred form of the pairing
+  /// screen.
   final bool compact;
 
   const RequestorCard({
@@ -256,52 +258,46 @@ class RequestorCard extends StatelessWidget {
             decoration: decoration,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
+              child: Row(
+                spacing: 12,
                 children: [
-                  Row(
-                    spacing: 12,
-                    children: [
-                      RequestorLogo(
-                        requestor: requestor,
-                        style: style,
-                        size: 52,
-                        showBadge: !style.trust.vouched,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              requestor.name,
-                              key: const Key("session_requestor_name"),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: palette
-                                  .display(17, weight: FontWeight.w700)
-                                  .copyWith(
-                                    height: 22 / 17,
-                                    color: palette.text,
-                                  ),
-                            ),
-                            if (ask != null)
-                              Text(
-                                ask!,
-                                key: const Key("session_requestor_ask"),
-                                style: palette
-                                    .body(13.5)
-                                    .copyWith(
-                                      height: 18 / 13.5,
-                                      color: palette.heading,
-                                    ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  RequestorLogo(
+                    requestor: requestor,
+                    style: style,
+                    size: 52,
+                    showBadge: !style.trust.vouched,
                   ),
-                  ?pillRow,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          requestor.name,
+                          key: const Key("session_requestor_name"),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: palette
+                              .display(17, weight: FontWeight.w700)
+                              .copyWith(height: 22 / 17, color: palette.text),
+                        ),
+                        if (ask != null)
+                          Text(
+                            ask!,
+                            key: const Key("session_requestor_ask"),
+                            style: palette
+                                .body(13.5)
+                                .copyWith(
+                                  height: 18 / 13.5,
+                                  color: palette.heading,
+                                ),
+                          ),
+                        if (pillRow != null) ...[
+                          const SizedBox(height: 6),
+                          pillRow,
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
