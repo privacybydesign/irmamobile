@@ -1001,6 +1001,9 @@
       }
     }
   },
+  "document_scan": {
+    "title": "Identity document photos"
+  },
   "debug": {
     "title": "Debugging",
     "issue_digid": "Issue DigiD",

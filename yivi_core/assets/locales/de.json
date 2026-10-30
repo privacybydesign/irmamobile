@@ -1001,6 +1001,9 @@
       }
     }
   },
+  "document_scan": {
+    "title": "Fotos des Ausweisdokuments"
+  },
   "debug": {
     "title": "Fehlersuche",
     "issue_digid": "DigiD ausstellen",

@@ -68,6 +68,11 @@ dependencies:
       ref: v4.1.0
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
+  webview_flutter: ^4.13.0
+  # Platform implementations, referenced directly for the camera settings in
+  # DocumentScanWebView (Android autoplay, iOS inline playback).
+  webview_flutter_android: ^4.13.0
+  webview_flutter_wkwebview: ^3.23.0
   # Temporary forks because their original repos are not compatible with new android api's.
   # Should be reverted back to their published version when they're made compatible.
   native_device_orientation:
@@ -84,6 +89,8 @@ dev_dependencies:
   # Runtime code uses streaming_shared_preferences (which pulls this in transitively).
   shared_preferences: ^2.0.7
   flutter_lints: ^6.0.0
+  # Test-only: document_scan_test.dart fakes the web view platform.
+  webview_flutter_platform_interface: ^2.15.0
   flutter_native_splash: ^2.4.6
   build_runner: ^2.10.5
   flutter_launcher_icons: ^0.14.1

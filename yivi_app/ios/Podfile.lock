@@ -105,6 +105,9 @@ PODS:
     - SQLCipher/common
   - url_launcher_ios (0.0.1):
     - Flutter
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - yivi_core (0.0.1):
     - Flutter
     - SQLCipher (~> 4.10.0)
@@ -129,6 +132,7 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
   - yivi_core (from `.symlinks/plugins/yivi_core/ios`)
 
 SPEC REPOS:
@@ -191,6 +195,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
   yivi_core:
     :path: ".symlinks/plugins/yivi_core/ios"
 
@@ -231,8 +237,9 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
+  webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
   yivi_core: a3ab0d1f43072b4c28c8fda757a25cebe72bdc47
 
 PODFILE CHECKSUM: 54610184bab4119db3853cca6af24219baee7049
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0

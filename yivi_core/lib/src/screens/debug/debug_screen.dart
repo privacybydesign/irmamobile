@@ -11,6 +11,7 @@ import "../../widgets/translated_text.dart";
 import "cert_management/cert_management_screen.dart";
 import "cert_management/widgets/cert_management_warning_dialog.dart";
 import "debug_helper.dart";
+import "id_scan_debug.dart"; // LOCAL ONLY, never commit
 import "scheme_management/scheme_management_screen.dart";
 import "scheme_management/widgets/scheme_management_warning_dialog.dart";
 import "session/session_helper_screen.dart";
@@ -160,6 +161,12 @@ class _DebugScreenState extends State<DebugScreen> {
                 ),
               ),
             ),
+          ),
+          // LOCAL ONLY, never commit.
+          ListTile(
+            leading: const Icon(Icons.document_scanner_outlined),
+            title: const Text("ID Scan test"),
+            onTap: () => runIdScanDebug(context),
           ),
           _buildListTile(
             Icons.delete,
