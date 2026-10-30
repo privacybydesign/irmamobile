@@ -226,7 +226,7 @@ void main() {
     },
   );
 
-  testWidgets("a tag's cross while searching takes it off the draft", (
+  testWidgets("a tag's cross while typing takes it off; the keyboard stays", (
     tester,
   ) async {
     await pump(tester);
@@ -238,6 +238,7 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
     expect(find.byKey(const Key("activity_chips")), findsNothing);
+    expect(tester.testTextInput.hasAnyClients, isTrue);
     expect(
       find.byKey(const Key("activity_suggestion_kind:signed")),
       findsOneWidget,

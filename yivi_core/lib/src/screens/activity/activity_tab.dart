@@ -156,11 +156,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _scheduleCounts();
   }
 
-  /// A tag's cross while searching: the draft without it. The keyboard goes,
-  /// as only a pick keeps it.
+  /// A tag's cross while searching: the draft without it. The keyboard
+  /// stays if it was up.
   void _changeDraft(ActivityQuery query) {
-    _focus.unfocus();
+    final typing = _focus.hasFocus;
     setState(() => _draft = query);
+    if (typing) _focus.requestFocus();
     _scheduleCounts();
   }
 

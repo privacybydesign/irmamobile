@@ -4,6 +4,7 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "glass_surface.dart";
@@ -28,10 +29,15 @@ enum PillSize {
   static const double regularHeight = 52;
 }
 
-/// The primary action: a pill in the faceted Yivi red (`ui/btn-bg.svg`, the
-/// same art as today's fancy button), with a light top edge. No red glow
-/// behind it: it stands on its own colour.
+/// The primary action: a rounded rectangle in the faceted Yivi red
+/// (`ui/btn-bg.svg`, the same art as today's fancy button), with a light top
+/// edge. No red glow behind it: it stands on its own colour.
 class FancyPillButton extends StatelessWidget {
+  /// The shape of every big text button: the corners of a card.
+  static const shape = RoundedRectangleBorder(
+    borderRadius: YiviCorners.cardRadius,
+  );
+
   final String label;
   final VoidCallback? onPressed;
   final PillSize size;
@@ -74,13 +80,13 @@ class FancyPillButton extends StatelessWidget {
         child: DecoratedBox(
           position: DecorationPosition.foreground,
           decoration: ShapeDecoration(
-            shape: const StadiumBorder(),
+            shape: shape,
             color: enabled
                 ? null
                 : palette.background.withValues(alpha: bar ? 0.6 : 0.5),
           ),
           child: ClipPath(
-            clipper: const ShapeBorderClipper(shape: StadiumBorder()),
+            clipper: const ShapeBorderClipper(shape: shape),
             child: Stack(
               children: [
                 Positioned.fill(
@@ -388,7 +394,7 @@ class PillButton extends StatelessWidget {
         enabled: onPressed != null,
         child: Material(
           color: fill,
-          shape: StadiumBorder(side: side),
+          shape: FancyPillButton.shape.copyWith(side: side),
           clipBehavior: Clip.antiAlias,
           // No ink: the pill gives feedback by scaling, like the other glass
           // buttons.
