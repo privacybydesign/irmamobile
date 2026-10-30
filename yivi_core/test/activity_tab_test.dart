@@ -186,18 +186,33 @@ void main() {
   });
 
   testWidgets(
-    "the empty field suggests what happened; a pick is a chip with a cross",
+    "a pick is a tag under the field, the keyboard stays; Enter asks it",
     (tester) async {
       await pump(tester);
       await startSearch(tester);
       await _settle(tester);
       expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
       expect(find.byKey(const Key("activity_search_cancel")), findsOneWidget);
+      final asked = queries().length;
 
       await tester.tap(
         find.byKey(const Key("activity_suggestion_kind:signed")),
       );
       await _settle(tester);
+      // Still searching: the tag shows, the field keeps the keyboard, and
+      // nothing is asked yet. The pick is no longer suggested.
+      expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
+      expect(find.byKey(const Key("activity_chip_kinds")), findsOneWidget);
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      expect(queries().length, asked);
+      expect(
+        find.byKey(const Key("activity_suggestion_kind:signed")),
+        findsNothing,
+      );
+
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      expect(find.byKey(const Key("activity_suggestions")), findsNothing);
       expect(queries().last.filter.types, [LogType.signature]);
       expect(find.byKey(const Key("activity_chip_kinds")), findsOneWidget);
       expect(find.text("Gemeente"), findsOneWidget);
@@ -211,6 +226,24 @@ void main() {
     },
   );
 
+  testWidgets("a tag's cross while searching takes it off the draft", (
+    tester,
+  ) async {
+    await pump(tester);
+    await startSearch(tester);
+    await _settle(tester);
+    await tester.tap(find.byKey(const Key("activity_suggestion_kind:signed")));
+    await _settle(tester);
+    await tester.tap(find.byKey(const Key("activity_chip_kinds")));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
+    expect(find.byKey(const Key("activity_chips")), findsNothing);
+    expect(
+      find.byKey(const Key("activity_suggestion_kind:signed")),
+      findsOneWidget,
+    );
+  });
+
   testWidgets("typing suggests the parties that match", (tester) async {
     await pump(tester);
     await startSearch(tester);
@@ -219,6 +252,11 @@ void main() {
     await tester.tap(
       find.byKey(const Key("activity_suggestion_party:Shop 17")),
     );
+    await _settle(tester);
+    // The field is empty again, for the next tag.
+    expect(tester.widget<EditableText>(field).controller.text, isEmpty);
+    expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
+    await tester.testTextInput.receiveAction(TextInputAction.search);
     await _settle(tester);
     expect(queries().last.filter.partyKey, "Shop 17");
     expect(find.byType(ActivityCard), findsOneWidget);

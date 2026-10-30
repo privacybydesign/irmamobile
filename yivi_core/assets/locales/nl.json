@@ -109,7 +109,9 @@
         "from_card": "Uit {card}",
         "last": "{times}, het laatst {date}"
       },
-      "not_fitting": "Past niet bij je filters",
+      "fits-0": "Past niet bij je filters",
+      "fits-1": "1 past bij je filters",
+      "fits-2": "{count} passen bij je filters",
       "clear": "Wis filters",
       "none": "Geen activiteit die hierbij past.",
       "everything": "Alle activiteit",

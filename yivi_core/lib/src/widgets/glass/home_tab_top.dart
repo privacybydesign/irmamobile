@@ -15,12 +15,15 @@ import "title_scroll_edge.dart";
 /// sliding in at the centre as the large title goes under it, the search
 /// button once the field has gone under it, and [trailing] always. The bar
 /// is clear at first and solid as the title goes. While [searching] the bar
-/// holds [searchRow] (the field and Cancel) instead, and the list starts
-/// under it ([listTop]).
+/// holds [searchRow] (the field and Cancel) instead, with [searchBelow]
+/// ([searchBelowHeight] high, the tags asked so far) pinned under it, and
+/// the list starts under them ([listTop]).
 class HomeTabTop extends StatefulWidget {
   final String title;
   final bool searching;
   final Widget searchRow;
+  final Widget? searchBelow;
+  final double searchBelowHeight;
   final Widget? leading;
   final Widget? trailing;
 
@@ -41,6 +44,8 @@ class HomeTabTop extends StatefulWidget {
     required this.onSearch,
     required this.child,
     this.searchButtonKey,
+    this.searchBelow,
+    this.searchBelowHeight = 0,
     this.leading,
     this.trailing,
   });
@@ -48,9 +53,16 @@ class HomeTabTop extends StatefulWidget {
   /// The bar's height under the status bar.
   static const double barHeight = 52;
 
-  /// From the top of the screen to the list while searching: under the bar.
-  static double listTop(BuildContext context) =>
-      MediaQuery.paddingOf(context).top + barHeight + 2;
+  /// From the top of the screen to the list while searching: under the bar
+  /// and, [below] high, what is pinned under it.
+  static double listTop(BuildContext context, {double below = 0}) =>
+      MediaQuery.paddingOf(context).top +
+      barHeight +
+      2 +
+      (below > 0 ? below + belowGap : 0);
+
+  /// The space between the search field and what is pinned under it.
+  static const double belowGap = 8;
 
   /// From the top of the screen to the large title.
   static double titleTop(BuildContext context) =>
@@ -92,9 +104,13 @@ class _HomeTabTopState extends State<HomeTabTop> {
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     final searching = widget.searching;
+    final below = searching ? widget.searchBelow : null;
+    final belowHeight = below == null
+        ? 0.0
+        : widget.searchBelowHeight + HomeTabTop.belowGap;
     return ScrollEdge(
       // Collapsed, the bar has some room under its buttons.
-      height: padding.top + HomeTabTop.barHeight + 10,
+      height: padding.top + HomeTabTop.barHeight + 10 + belowHeight,
       // While searching it comes as soon as something is under the bar;
       // otherwise as the large title goes under it.
       band: (context, under) => PushAway(
@@ -122,6 +138,14 @@ class _HomeTabTopState extends State<HomeTabTop> {
                 : _Bar(scrolled: _scrolled, top: widget),
           ),
         ),
+        if (below != null)
+          Positioned(
+            left: padding.left,
+            right: padding.right,
+            top: padding.top + HomeTabTop.barHeight + HomeTabTop.belowGap,
+            height: widget.searchBelowHeight,
+            child: PushAway(direction: PushAwayDirection.up, child: below),
+          ),
       ],
       child: NotificationListener<ScrollNotification>(
         onNotification: (n) {

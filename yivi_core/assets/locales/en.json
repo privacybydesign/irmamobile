@@ -109,7 +109,9 @@
         "from_card": "From {card}",
         "last": "{times}, last on {date}"
       },
-      "not_fitting": "Doesn't fit your filters",
+      "fits-0": "Doesn't fit your filters",
+      "fits-1": "1 fits your filters",
+      "fits-2": "{count} fit your filters",
       "clear": "Clear filters",
       "none": "No activity matches.",
       "everything": "All activity",

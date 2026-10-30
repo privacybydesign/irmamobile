@@ -73,10 +73,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   final _focus = FocusNode();
 
   /// Whether the suggestions show. It starts when the field gets focus and
-  /// ends on a pick, a search or Cancel, not when the field loses focus: a
-  /// tap on a suggestion takes the focus first.
+  /// ends on a search (Enter) or Cancel, not when the field loses focus.
   bool _searching = false;
   String _typed = "";
+
+  /// The question being built while searching: the applied one at the
+  /// start, a tag more with each pick. Enter applies it; Cancel drops it.
+  ActivityQuery? _draft;
 
   /// How many entries each suggestion would leave: those with none fade.
   final _counts = <String, int>{};
@@ -106,13 +109,19 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   ActivityQuery get _query => ref.read(activityLogProvider).filter;
 
+  /// What the suggestions build on: the draft while searching.
+  ActivityQuery get _asked => _draft ?? _query;
+
   void _ask(ActivityQuery query) {
     ref.read(activityLogProvider.notifier).setFilter(query);
     if (_scrollController.hasClients) _scrollController.jumpTo(0);
   }
 
   void _startSearching() {
-    setState(() => _searching = true);
+    setState(() {
+      _searching = true;
+      _draft = _query;
+    });
     _scheduleCounts();
   }
 
@@ -131,17 +140,43 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     setState(() {
       _searching = false;
       _typed = "";
+      _draft = null;
     });
   }
 
+  /// A suggestion: a tag more on the draft. The field empties and keeps the
+  /// keyboard, to add another.
   void _pick(ActivityQuery query) {
-    _stopSearching();
-    _ask(query);
+    _search.clear();
+    setState(() {
+      _draft = query;
+      _typed = "";
+    });
+    _focus.requestFocus();
+    _scheduleCounts();
   }
 
+  /// A tag's cross while searching: the draft without it. The keyboard goes,
+  /// as only a pick keeps it.
+  void _changeDraft(ActivityQuery query) {
+    _focus.unfocus();
+    setState(() => _draft = query);
+    _scheduleCounts();
+  }
+
+  /// The draft with what is still typed as words to search.
+  ActivityQuery _withTyped(ActivityQuery q, String typed) {
+    final words = typed.trim();
+    if (words.isEmpty) return q;
+    final text = q.text.trim();
+    return q.copyWith(text: text.isEmpty ? words : "$text $words");
+  }
+
+  /// Enter: the draft is asked, with the typed words as a text search.
   void _searchText(String text) {
-    if (text.trim().isEmpty) return;
-    _pick(_query.copyWith(text: text.trim()));
+    final next = _withTyped(_asked, text);
+    _stopSearching();
+    _ask(next);
   }
 
   void _onTyped(String text) {
@@ -211,7 +246,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// recent parties. Typed: what happened, cards, parties and fields whose
   /// name has the typed text.
   List<(String, List<_Suggestion>)> _suggestions() {
-    final q = _query;
+    final q = _asked;
     final typed = normaliseForSearch(_typed.trim());
     bool hit(String s) =>
         typed.isEmpty || normaliseForSearch(s).contains(typed);
@@ -229,13 +264,14 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     final kinds = [
       for (final kind in activityKindOrder)
-        if (hit(FlutterI18n.translate(context, kind.labelKey)))
+        if (!q.kinds.contains(logTypeOf(kind)) &&
+            hit(FlutterI18n.translate(context, kind.labelKey)))
           _Suggestion(
             key: "kind:${kind.name}",
             leading: _kindIcon(kind),
             title: FlutterI18n.translate(context, kind.labelKey),
             subtitle: "",
-            query: q.copyWith(kinds: {logTypeOf(kind)}),
+            query: q.copyWith(kinds: {...q.kinds, logTypeOf(kind)}),
           ),
     ];
     if (typed.isEmpty) {
@@ -244,7 +280,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         (
           FlutterI18n.translate(context, "activity.query.suggest.recent"),
           [
-            for (final p in parties.take(4))
+            for (final p in parties.where((p) => p != q.party).take(4))
               _Suggestion(
                 key: "party:${p.key}",
                 leading: ActivityPartyLogo(
@@ -262,7 +298,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     final cards = [
       for (final c in _cards)
-        if (hit(c.name))
+        if (c != q.card && hit(c.name))
           _Suggestion(
             key: "card:${c.key}",
             leading: CredentialCardArt(
@@ -279,7 +315,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     ];
     final partyHits = [
       for (final p in parties)
-        if (hit(p.party.name))
+        if (p != q.party && hit(p.party.name))
           _Suggestion(
             key: "party:${p.key}",
             leading: ActivityPartyLogo(
@@ -298,7 +334,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       for (final g in claimTokenGroups(c.art.attributes)) {
         for (final t in g.tokens) {
           final label = claimTokenLabel(context, t);
-          if (!hit(label)) continue;
+          if (!hit(label) || (q.card == c && q.fields.contains(t))) continue;
           final next = q.card == c
               ? q.copyWith(fields: {...q.fields, t}.toList())
               : q.withCard(c).copyWith(fields: [t]);
@@ -342,7 +378,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _countDelay = Timer(const Duration(milliseconds: 150), () async {
       if (!mounted || !_searching) return;
       final generation = ++_countGeneration;
-      final all = [for (final (_, items) in _suggestions()) ...items];
+      final all = [
+        for (final (_, items) in _suggestions()) ...items,
+        if (_typed.trim().isNotEmpty) _textSuggestion(),
+      ];
       List<int> counts;
       try {
         counts = await ref.read(irmaRepositoryProvider).countLogs([
@@ -366,10 +405,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final padding = MediaQuery.paddingOf(context);
     final groups = _suggestions();
     final typed = _typed.trim();
+    final asked = !_asked.isEmpty;
     Widget row(_Suggestion s) {
-      final faded = (_counts[s.key] ?? 1) == 0;
-      final subtitle = faded
-          ? FlutterI18n.translate(context, "activity.query.not_fitting")
+      final count = _counts[s.key];
+      final faded = count == 0;
+      // With tags on, how many would fit them all; otherwise what it is.
+      final subtitle = faded || (asked && count != null)
+          ? FlutterI18n.plural(context, "activity.query.fits", count!)
           : s.subtitle;
       return Opacity(
         opacity: faded ? 0.38 : 1,
@@ -411,6 +453,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                         ],
                       ),
                     ),
+                    Icon(Icons.add_rounded, size: 22, color: palette.faint),
                   ],
                 ),
               ),
@@ -443,40 +486,44 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         if (typed.isNotEmpty)
           GlassGroup(
             dividerIndent: 14 + 46 + 12,
-            children: [
-              row(
-                _Suggestion(
-                  key: "text",
-                  leading: Icon(Icons.search, color: palette.link),
-                  title: FlutterI18n.translate(
-                    context,
-                    "activity.query.suggest.search_for",
-                    translationParams: {"text": typed},
-                  ),
-                  subtitle: FlutterI18n.translate(
-                    context,
-                    "activity.query.suggest.search_where",
-                  ),
-                  query: _query.copyWith(text: typed),
-                ),
-              ),
-            ],
+            children: [row(_textSuggestion())],
           ),
       ],
     );
   }
 
+  /// "Search for …": the typed words as a tag.
+  _Suggestion _textSuggestion() {
+    final typed = _typed.trim();
+    return _Suggestion(
+      key: "text",
+      leading: Icon(Icons.search, color: YiviPalette.of(context).link),
+      title: FlutterI18n.translate(
+        context,
+        "activity.query.suggest.search_for",
+        translationParams: {"text": typed},
+      ),
+      subtitle: FlutterI18n.translate(
+        context,
+        "activity.query.suggest.search_where",
+      ),
+      query: _withTyped(_asked, typed),
+    );
+  }
+
   // -------------------------------------------------------------------- chips
 
-  /// What is asked, one chip per filter, each with a cross to take it off.
+  /// What is asked, one chip per filter, each with a cross to take it off:
+  /// the applied question, or while searching the draft.
   List<Widget> _chips(ActivityQuery q) {
     final card = q.card;
+    final change = _searching ? _changeDraft : _ask;
     return [
       if (q.kinds.isNotEmpty)
         ActivityFacetChip(
           key: const Key("activity_chip_kinds"),
           label: activityKindsLabel(context, q.kinds),
-          onRemove: () => _ask(q.copyWith(kinds: {})),
+          onRemove: () => change(q.copyWith(kinds: {})),
         ),
       if (card != null)
         ActivityFacetChip(
@@ -489,19 +536,19 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           label: q.fields.isEmpty
               ? card.name
               : "${activityFieldsLabel(context, q.fields)} · ${card.name}",
-          onRemove: () => _ask(q.withCard(null)),
+          onRemove: () => change(q.withCard(null)),
         ),
       if (q.party != null)
         ActivityFacetChip(
           key: const Key("activity_chip_party"),
           label: q.party!.party.name,
-          onRemove: () => _ask(q.copyWith(party: () => null)),
+          onRemove: () => change(q.copyWith(party: () => null)),
         ),
       if (q.period != ActivityPeriod.all)
         ActivityFacetChip(
           key: const Key("activity_chip_period"),
           label: activityPeriodLabel(context, q),
-          onRemove: () => _ask(
+          onRemove: () => change(
             q.copyWith(
               period: ActivityPeriod.all,
               from: () => null,
@@ -513,7 +560,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         ActivityFacetChip(
           key: const Key("activity_chip_text"),
           label: quotedSearch(q.text),
-          onRemove: () => _ask(q.copyWith(text: "")),
+          onRemove: () => change(q.copyWith(text: "")),
         ),
     ];
   }
@@ -650,7 +697,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final top = padding.top + FloatingBarPlacement.topGap(context);
     final state = ref.watch(activityLogProvider);
     final query = state.filter;
-    final chips = _searching ? const <Widget>[] : _chips(query);
+    final chips = _chips(_searching ? _asked : query);
     // The field, and the chips under it while something is asked.
     final headerHeight = 60.0 + (chips.isEmpty ? 0 : activityChipHeight + 8);
 
@@ -784,6 +831,18 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               ),
             ],
           ),
+          // The tags asked so far stay under the field while typing.
+          searchBelow: chips.isEmpty
+              ? null
+              : ListView.separated(
+                  key: const Key("activity_chips"),
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: chips.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (_, i) => chips[i],
+                ),
+          searchBelowHeight: activityChipHeight,
           searchButtonKey: const Key("activity_search_button"),
           searchLabel: FlutterI18n.translate(
             context,
@@ -792,7 +851,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           onSearch: _startSearchingInBar,
           trailing: filterButton,
           child: _searching
-              ? _suggestionList(HomeTabTop.listTop(context))
+              ? _suggestionList(
+                  HomeTabTop.listTop(
+                    context,
+                    below: chips.isEmpty ? 0 : activityChipHeight,
+                  ),
+                )
               : !state.loaded
               ? Center(child: LoadingIndicator())
               : _buildLogEntries(
