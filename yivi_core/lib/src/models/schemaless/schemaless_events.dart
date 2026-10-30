@@ -72,6 +72,11 @@ class AttributeValue {
   final String? imagePath;
   final String? base64Image;
 
+  /// The type of a [base64Image], recognised by irmago from the image itself,
+  /// e.g. "image/png" or "image/svg+xml". Null when irmago did not recognise
+  /// it, or is too old to send it.
+  final String? mimeType;
+
   /// The attribute type's display hint from the scheme, e.g. "yesno" or
   /// "currency:EUR". Older irmago versions don't send it, so it may be null
   /// for values that have a hint in the scheme.
@@ -85,6 +90,7 @@ class AttributeValue {
     this.imagePath,
     this.base64Image,
     this.displayHint,
+    this.mimeType,
   });
 
   /// Whether this value has actual data set (not just a type marker).

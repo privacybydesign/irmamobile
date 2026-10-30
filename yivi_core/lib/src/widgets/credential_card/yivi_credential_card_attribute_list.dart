@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
+import "../base64_image.dart";
 import "../irma_app_bar.dart";
 import "attribute_groups/attribute_group.dart";
 import "attribute_groups/attribute_group_registry.dart";
@@ -807,12 +808,15 @@ class _LeafContent extends StatelessWidget {
 
   Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
     final attribute = node.attribute;
-    final bytes = decodeAttributeImage(attribute.value);
-    if (bytes == null) return const SizedBox.shrink();
-    final image = Image.memory(
-      bytes,
+    final value = attribute.value;
+    final raw = value?.imagePath ?? value?.base64Image;
+    // Issuers sometimes fill an empty image attribute with a placeholder such
+    // as " "; Base64Image renders nothing for that rather than an error box.
+    if (raw == null || raw.trim().isEmpty) return const SizedBox.shrink();
+    final image = Base64Image(
+      base64: raw,
+      mimeType: value?.mimeType,
       fit: BoxFit.fitWidth,
-      errorBuilder: (_, _, _) => const SizedBox.shrink(),
     );
     return GestureDetector(
       onTap: () {

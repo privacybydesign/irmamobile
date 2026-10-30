@@ -59,6 +59,7 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       imagePath: json['image_path'] as String?,
       base64Image: json['base64_image'] as String?,
       displayHint: json['display_hint'] as String?,
+      mimeType: json['mime_type'] as String?,
     );
 
 Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
@@ -69,6 +70,7 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
       'string': instance.string,
       'image_path': instance.imagePath,
       'base64_image': instance.base64Image,
+      'mime_type': instance.mimeType,
       'display_hint': instance.displayHint,
     };
 

@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for SD-JWT-secured W3C VCDM credentials (format `vc+sd-jwt`)
+- An attribute image in SVG format is shown. It used to render blank, because every attribute image was drawn as a bitmap. Attribute images now draw like logos: as an SVG when irmago's new `mime_type` says so or, without one, when the image starts like an SVG; as a bitmap otherwise ([privacybydesign/irmago#779](https://github.com/privacybydesign/irmago/issues/779))
 
 ### Changed
 - An attribute the issuer gave no display name is labelled with its key made readable, e.g. `targetCode` as "Target code" and `institutionBRINCode` as "Institution BRIN code", instead of the raw key ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
 
 ### Fixed
+- A credential, issuer or verifier logo that is not valid base64, or not an image, no longer shows as a grey error box: it is left out, as attribute images already were.
 - Nested claims the issuer gave no display name keep their structure on the card ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
   - The entries of a list are titled after the list and numbered per list, e.g. "ALIGNMENT 1/2" and "ALIGNMENT 2/2", instead of "ITEM 1/4" .. "ITEM 4/4" numbered across every such list on the card. A list of values inside such an entry is shown in that entry.
   - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
