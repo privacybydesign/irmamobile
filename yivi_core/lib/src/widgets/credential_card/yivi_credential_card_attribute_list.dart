@@ -412,7 +412,38 @@ _GroupNode _buildTree(
 
   flushAllPrims();
   _stampItemTotals(root);
+  _valuesFirst(root);
   return root;
+}
+
+/// Orders every level as simple values, then sections (nested objects and
+/// lists), then images, keeping the order within each of the three. A value
+/// would otherwise land between two sections, where it reads as part of the
+/// one above it.
+void _valuesFirst(_Node node) {
+  final children = switch (node) {
+    _GroupNode n => n.children,
+    _ItemNode n => n.children,
+    _ => null,
+  };
+  if (children == null) return;
+
+  int rank(_Node c) => switch (c) {
+    _RowNode n when _isImage(n.attribute) => 2,
+    _RowNode() || _PrimArrayNode() => 0,
+    // A header without descendants is drawn as a labelled row.
+    _GroupNode n when n.children.isEmpty => 0,
+    _ => 1,
+  };
+  final ordered = [
+    for (final r in [0, 1, 2]) ...children.where((c) => rank(c) == r),
+  ];
+  children
+    ..clear()
+    ..addAll(ordered);
+  for (final c in children) {
+    _valuesFirst(c);
+  }
 }
 
 void _stampItemTotals(_Node node) {

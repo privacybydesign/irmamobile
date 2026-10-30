@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nested claims the issuer gave no display name keep their structure on the card ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
   - The entries of a list are titled after the list and numbered per list, e.g. "ALIGNMENT 1/2" and "ALIGNMENT 2/2", instead of "ITEM 1/4" .. "ITEM 4/4" numbered across every such list on the card. A list of values inside such an entry is shown in that entry.
   - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
+  - Each level shows its values first, then its nested objects and lists, then its images. A value used to land between two headings when its key sorted between theirs, where it read as part of the heading above it.
   - A first key that every attribute on the card shares, such as a VCDM credential's `credentialSubject`, gets no heading of its own. Neither does an mdoc namespace, however many the card shows: an mDL with AAMVA fields shows its elements in one list, as before. This needs irmago to send the format of a credential the wallet does not hold yet, which it does from the version that adds `format` to credential descriptors.
 
 ## [8.3.3] - 2026-10-16

@@ -199,6 +199,65 @@ void main() {
     expect(find.textContaining("ALIGNMENT"), findsNothing);
   });
 
+  testWidgets("a level shows its values before its sections", (tester) async {
+    await tester.pumpWidget(_wrap(YiviCredentialCardAttributeList(_badge)));
+
+    // credentialSubject.id and the list of values in credentialSubject.type
+    // sort around achievement and result, but are shown above every section.
+    expect(_top(tester, "did:key:z123"), lessThan(_top(tester, "ACHIEVEMENT")));
+    expect(
+      _top(tester, "OpenBadgeCredential"),
+      lessThan(_top(tester, "ACHIEVEMENT")),
+    );
+    // Inside ACHIEVEMENT, its value ECTS comes before its sections.
+    expect(_top(tester, "6"), lessThan(_top(tester, "ALIGNMENT 1/2")));
+    // The sections keep their own order.
+    expect(_top(tester, "ALIGNMENT 2/2"), lessThan(_top(tester, "CRITERIA")));
+    expect(
+      _top(tester, "CRITERIA"),
+      lessThan(_top(tester, "RESULT DESCRIPTION")),
+    );
+    expect(_top(tester, "ACHIEVEMENT"), lessThan(_top(tester, "RESULT")));
+  });
+
+  testWidgets("an image stays below the sections", (tester) async {
+    const png =
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC";
+    await tester.pumpWidget(
+      _wrap(
+        YiviCredentialCardAttributeList([
+          schemaless.Attribute(
+            claimPath: const ["portrait"],
+            displayName: "Photo",
+            value: schemaless.AttributeValue(
+              type: schemaless.AttributeType.base64Image,
+              base64Image: png,
+            ),
+          ),
+          schemaless.Attribute(
+            claimPath: const ["address", "street"],
+            displayName: null,
+            value: schemaless.AttributeValue(
+              type: schemaless.AttributeType.string,
+              string: "Meander",
+            ),
+          ),
+          schemaless.Attribute(
+            claimPath: const ["birthdate"],
+            displayName: null,
+            value: schemaless.AttributeValue(
+              type: schemaless.AttributeType.string,
+              string: "1990-01-01",
+            ),
+          ),
+        ]),
+      ),
+    );
+
+    expect(_top(tester, "1990-01-01"), lessThan(_top(tester, "ADDRESS")));
+    expect(_top(tester, "Meander"), lessThan(_top(tester, "Photo")));
+  });
+
   group("mdoc namespaces", () {
     schemaless.Attribute element(String namespace, String id, String value) =>
         schemaless.Attribute(
