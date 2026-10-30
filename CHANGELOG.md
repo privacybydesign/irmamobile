@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for SD-JWT-secured W3C VCDM credentials (format `vc+sd-jwt`)
+- An attribute image in SVG format is shown. It used to render blank, because every attribute image was drawn as a bitmap. Attribute images now draw like logos: as an SVG when irmago's new `mime_type` says so or, without one, when the image starts like an SVG; as a bitmap otherwise ([privacybydesign/irmago#779](https://github.com/privacybydesign/irmago/issues/779))
+
+### Changed
+- An attribute the issuer gave no display name is labelled with its key made readable, e.g. `targetCode` as "Target code" and `institutionBRINCode` as "Institution BRIN code", instead of the raw key ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+
+### Fixed
+- A credential, issuer or verifier logo that is not valid base64, or not an image, no longer shows as a grey error box: it is left out, as attribute images already were.
+- Nested claims the issuer gave no display name keep their structure on the card ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+  - The entries of a list are titled after the list and numbered per list, e.g. "ALIGNMENT 1/2" and "ALIGNMENT 2/2", instead of "ITEM 1/4" .. "ITEM 4/4" numbered across every such list on the card. A list of values inside such an entry is shown in that entry.
+  - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
+  - Each level shows its values first, then its nested objects and lists, then its images. A value used to land between two headings when its key sorted between theirs, where it read as part of the heading above it.
+  - A first key that every attribute on the card shares, such as a VCDM credential's `credentialSubject`, gets no heading of its own. Neither does an mdoc namespace, however many the card shows: an mDL with AAMVA fields shows its elements in one list, as before. This needs irmago to send the format of a credential the wallet does not hold yet, which it does from the version that adds `format` to credential descriptors.
 
 ## [8.3.3] - 2026-10-16
 ### Added

@@ -377,9 +377,8 @@ Widget previewPrimArrayWithHeader() => _card(
 )
 Widget previewPrimArrayWithoutHeader() => _card(
   attributes: [
-    // No `["tags"]` header attribute. Pre-PR this rendered with an empty
-    // label (effectively no header); after the PR the label falls back to
-    // "tags" from the claim path.
+    // No `["tags"]` header attribute. The label falls back to the claim
+    // path's key, made readable: "Tags".
     _leaf(claimPath: const ["tags", 0], stringValue: "red"),
     _leaf(claimPath: const ["tags", 1], stringValue: "green"),
     _leaf(claimPath: const ["tags", 2], stringValue: "blue"),
@@ -447,8 +446,8 @@ Widget previewObjectArrayWithHeader() => _card(
 )
 Widget previewObjectArrayWithoutHeader() => _card(
   attributes: [
-    // No `["addresses"]` header. The per-item eyebrow falls back to "ITEM"
-    // because `parentHeader` is null. Compare with the previous preview.
+    // No `["addresses"]` header. The per-item eyebrow falls back to the
+    // array's key, "ADDRESSES 1/2". Compare with the previous preview.
     _leaf(
       claimPath: const ["addresses", 0, "street"],
       displayName: "Street",

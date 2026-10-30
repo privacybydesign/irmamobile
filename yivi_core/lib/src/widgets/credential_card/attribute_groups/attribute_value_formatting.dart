@@ -1,6 +1,3 @@
-import "dart:convert";
-
-import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
@@ -107,18 +104,4 @@ String? formatCurrencyAmount(String amount, String currency, String? locale) {
   } on Object {
     return null;
   }
-}
-
-/// Decodes an image attribute value, or returns null when it holds no usable
-/// image. Issuers sometimes fill an empty image attribute with a placeholder
-/// such as " "; decoding that throws during build and greys out the whole card.
-Uint8List? decodeAttributeImage(schemaless.AttributeValue? value) {
-  final raw = value?.imagePath ?? value?.base64Image ?? "";
-  final Uint8List bytes;
-  try {
-    bytes = const Base64Decoder().convert(raw.trim());
-  } on FormatException {
-    return null;
-  }
-  return bytes.isEmpty ? null : bytes;
 }
