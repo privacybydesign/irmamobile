@@ -32,6 +32,10 @@ class GlassGroup extends StatelessWidget {
         side: YiviEdges.block(context),
       );
 
+  /// The line between two rows.
+  static Divider _divider(YiviPalette palette, double indent) =>
+      Divider(height: 1, thickness: 1, indent: indent, color: palette.divider);
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -46,13 +50,7 @@ class GlassGroup extends StatelessWidget {
         children: [
           for (var i = 0; i < children.length; i++) ...[
             children[i],
-            if (i < children.length - 1)
-              Divider(
-                height: 1,
-                thickness: 1,
-                indent: dividerIndent,
-                color: palette.divider,
-              ),
+            if (i < children.length - 1) _divider(palette, dividerIndent),
           ],
         ],
       ),
@@ -60,16 +58,7 @@ class GlassGroup extends StatelessWidget {
     if (header == null) return group;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
-          child: Semantics(
-            header: true,
-            child: Text(header!, style: palette.display(16)),
-          ),
-        ),
-        group,
-      ],
+      children: [_GroupHeader(header!), group],
     );
   }
 }
@@ -98,16 +87,7 @@ class SliverGlassGroup extends StatelessWidget {
     final header = this.header;
     return SliverMainAxisGroup(
       slivers: [
-        if (header != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
-              child: Semantics(
-                header: true,
-                child: Text(header, style: palette.display(16)),
-              ),
-            ),
-          ),
+        if (header != null) SliverToBoxAdapter(child: _GroupHeader(header)),
         DecoratedSliver(
           decoration: ShapeDecoration(
             color: palette.surface,
@@ -130,15 +110,27 @@ class SliverGlassGroup extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: itemBuilder(context, i),
             ),
-            separatorBuilder: (_, _) => Divider(
-              height: 1,
-              thickness: 1,
-              indent: dividerIndent,
-              color: palette.divider,
-            ),
+            separatorBuilder: (_, _) =>
+                GlassGroup._divider(palette, dividerIndent),
           ),
         ),
       ],
     );
   }
+}
+
+/// The header above a group, outside it.
+class _GroupHeader extends StatelessWidget {
+  final String text;
+
+  const _GroupHeader(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
+    child: Semantics(
+      header: true,
+      child: Text(text, style: YiviPalette.of(context).display(16)),
+    ),
+  );
 }

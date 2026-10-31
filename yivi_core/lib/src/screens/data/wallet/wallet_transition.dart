@@ -398,7 +398,7 @@ class PushAway extends StatelessWidget {
           transform: Matrix4.translationValues(0, 60 * s, 0)
             ..scaleByDouble(k, k, 1, 1),
           child: ClipRect(
-            clipper: _AboveY(cut / k),
+            clipper: ClipAboveY(cut / k),
             child: ColorFiltered(
               colorFilter: ColorFilter.mode(
                 Colors.black.withValues(alpha: 0.35 * s.clamp(0.0, 1.0)),
@@ -723,16 +723,16 @@ class RenderCoveredByStack extends RenderProxyBox {
 }
 
 /// Clips to what is above [y] (in the child's coordinates).
-class _AboveY extends CustomClipper<Rect> {
+class ClipAboveY extends CustomClipper<Rect> {
   final double y;
 
-  const _AboveY(this.y);
+  const ClipAboveY(this.y);
 
   @override
   Rect getClip(Size size) => Rect.fromLTRB(-1e5, -1e5, 1e5, y);
 
   @override
-  bool shouldReclip(_AboveY oldClipper) => oldClipper.y != y;
+  bool shouldReclip(ClipAboveY oldClipper) => oldClipper.y != y;
 }
 
 /// How a card opening from the stack moves (Wallet depth).

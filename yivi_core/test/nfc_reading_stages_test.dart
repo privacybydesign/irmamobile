@@ -154,7 +154,6 @@ NfcReadingTranslationKeys _translationKeys() {
     title: "$key.title",
     cancelledByUser: "$key.cancelled_by_user",
     cancelled: "$key.cancelled",
-    cancelling: "$key.cancelling",
     timeoutWaitingForTag: "$key.timeout_waiting_for_tag",
     tagLostTryAgain: "$key.tag_lost_try_again",
     failedToInitiateSession: "$key.failed_initiate_session",

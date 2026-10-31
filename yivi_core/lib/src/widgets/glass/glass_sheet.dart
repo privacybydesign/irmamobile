@@ -239,9 +239,6 @@ class _FormSheetDragState extends State<_FormSheetDrag>
   );
 }
 
-/// The route of a sheet: it slides up from the bottom over a dim barrier,
-/// closes on a tap outside it, a drag down or a pull of its list, and is a
-/// [PageRoute], so heroes fly into it (a modal bottom sheet is not).
 /// Closes the sheet [context] is in: at once, or, while something in it does
 /// not let it go ([GlassSheetConfirmDismiss]), by asking that first. A
 /// close, not a step back: a [NavigatorPopHandler] in the sheet (a flow
@@ -263,15 +260,15 @@ bool glassSheetClosing(BuildContext context) {
   return route is _GlassSheetRoute && route._closeAsked;
 }
 
+/// The route of a sheet: it slides up from the bottom over a dim barrier,
+/// closes on a tap outside it, a drag down or a pull of its list, and is a
+/// [PageRoute], so heroes fly into it (a modal bottom sheet is not).
 class _GlassSheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 
   _GlassSheetRoute({required this.builder, required this.barrierLabel}) {
     _pull.addListener(_followPull);
   }
-
-  /// A pull this far, or a flick down this fast, closes the sheet: the
-  /// numbers of the credential's page.
 
   // How far the list is pulled down at its top.
   final _pull = ValueNotifier<double>(0);
@@ -1159,13 +1156,7 @@ class GlassSheetHeader extends StatelessWidget {
       ),
     );
 
-    Widget shown(Widget child) => Visibility(
-      visible: buttons,
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      child: child,
-    );
+    Widget shown(Widget child) => _kept(buttons, child);
     // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
     void close() => closeGlassSheet(context);
     final keepsClose = SheetKeepsClose.of(context);
@@ -1293,12 +1284,9 @@ class GlassSheetHeader extends StatelessWidget {
           spacing: 12,
           children: [
             if (onBack != null)
-              Visibility(
-                visible: buttons,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: FadeTransition(
+              _kept(
+                buttons,
+                FadeTransition(
                   opacity: backOpacity ?? kAlwaysCompleteAnimation,
                   child: YiviBackButton(onTap: onBack),
                 ),
@@ -1312,13 +1300,10 @@ class GlassSheetHeader extends StatelessWidget {
             ),
             ?leading,
             if (closable)
-              Visibility(
-                visible: buttons,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
+              _kept(
+                buttons,
                 // maybePop, so a [GlassSheetConfirmDismiss] can ask first.
-                child: IrmaCloseButton(onTap: () => closeGlassSheet(context)),
+                IrmaCloseButton(onTap: () => closeGlassSheet(context)),
               ),
           ],
         ),
@@ -1480,18 +1465,6 @@ class GlassSheetConfirmDismiss extends StatelessWidget {
   );
 }
 
-/// Pages inside one sheet, as the navigation stack of a native iOS sheet.
-/// [pages] is the stack, the first at the bottom, each with a key of its own;
-/// the last is shown. A new last page slides in from the right over the one
-/// under it, which moves a third of the way left; a removed one slides back
-/// out. A horizontal swipe on a subpage takes it back the iOS way: it follows
-/// the finger, and past half way or with a flick it calls [onBack], which
-/// removes it.
-///
-/// A [GlassSheetPage] slides only its body: its bar (the titles fade into
-/// each other) and its pinned part stay where they are, so the sheet's top
-/// does not move between steps. Any other page slides as a whole when it is
-/// wrapped in a [GlassSheetPageMotion].
 /// A page of [GlassSheetPages] with screens of its own (adding a document):
 /// while [enabled], a back swipe on the page goes back one of its screens,
 /// following the finger, instead of back a page of the sheet.
@@ -1509,6 +1482,18 @@ abstract interface class GlassSheetInnerSwipe {
   void end(double velocity);
 }
 
+/// Pages inside one sheet, as the navigation stack of a native iOS sheet.
+/// [pages] is the stack, the first at the bottom, each with a key of its own;
+/// the last is shown. A new last page slides in from the right over the one
+/// under it, which moves a third of the way left; a removed one slides back
+/// out. A horizontal swipe on a subpage takes it back the iOS way: it follows
+/// the finger, and past half way or with a flick it calls [onBack], which
+/// removes it.
+///
+/// A [GlassSheetPage] slides only its body: its bar (the titles fade into
+/// each other) and its pinned part stay where they are, so the sheet's top
+/// does not move between steps. Any other page slides as a whole when it is
+/// wrapped in a [GlassSheetPageMotion].
 class GlassSheetPages extends StatefulWidget {
   final List<Widget> pages;
   final VoidCallback onBack;
@@ -1982,13 +1967,7 @@ class _GlassSheetHoldState extends State<GlassSheetHold> {
     }
     // Both pages have buttons: the top page's stand in for the other's.
     final Widget shown = otherHeld
-        ? Visibility(
-            visible: role.top,
-            maintainState: true,
-            maintainAnimation: true,
-            maintainSize: true,
-            child: widget.child,
-          )
+        ? _kept(role.top, widget.child)
         : FadeTransition(opacity: role.ownOpacity, child: widget.child);
     return IgnorePointer(
       ignoring: !role.top,
@@ -2176,14 +2155,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final pinnedFades = moving && other != null && !other.pinned;
     // Underneath, the top page's pinned part stands in for this one, unless
     // it has none.
-    Widget? pinnedShown(Widget? pinned) => pinned == null
+    final pinnedShown = pinned == null
         ? null
-        : Visibility(
-            visible: top || pinnedFades,
-            maintainState: true,
-            maintainAnimation: true,
-            maintainSize: true,
-            child: pinnedFades
+        : _kept(
+            top || pinnedFades,
+            pinnedFades
                 ? FadeTransition(opacity: role.ownOpacity, child: pinned)
                 : pinned,
           );
@@ -2219,7 +2195,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         },
       ),
       // The progress: a line the full width of the sheet, under the bar.
-      ?pinnedShown(pinned),
+      ?pinnedShown,
     ];
     final body = ScrollEdgeListener(
       notifier: _under,
@@ -2381,15 +2357,7 @@ extension on _GlassSheetPageState {
             secondaryLabel: secondary?.label,
             onSecondary: secondary?.onTap,
           );
-          return SheetBottomBar(
-            child: Visibility(
-              visible: !empty,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: row,
-            ),
-          );
+          return SheetBottomBar(child: _kept(!empty, row));
         },
       ),
     ];
@@ -2427,34 +2395,36 @@ class GlassSheetScrollView extends StatelessWidget {
   Widget build(BuildContext context) {
     // Not clipped at the top: under a [GlassSheetPage]'s header the content
     // goes on, blurred. The page clips the bottom.
+    final inset = _padding(context);
+    final physics = glassSheetScrollPhysics(context);
     final fit = slivers == null ? _FitPage.maybeOf(context) : null;
     if (fit != null) {
       return _FitMeasure(
         report: fit.report,
-        padding: _padding(context),
+        padding: inset,
         child: SingleChildScrollView(
-          physics: glassSheetScrollPhysics(context),
+          physics: physics,
           clipBehavior: Clip.none,
-          padding: _padding(context),
+          padding: inset,
           child: _SizeReport(child: child!),
         ),
       );
     }
     return switch (slivers) {
       final slivers? => CustomScrollView(
-        physics: glassSheetScrollPhysics(context),
+        physics: physics,
         clipBehavior: Clip.none,
         slivers: [
           SliverPadding(
-            padding: _padding(context),
+            padding: inset,
             sliver: SliverMainAxisGroup(slivers: slivers),
           ),
         ],
       ),
       null => SingleChildScrollView(
-        physics: glassSheetScrollPhysics(context),
+        physics: physics,
         clipBehavior: Clip.none,
-        padding: _padding(context),
+        padding: inset,
         child: child,
       ),
     };
@@ -2626,3 +2596,13 @@ class _RenderSizeReport extends RenderProxyBox {
     }
   }
 }
+
+/// [child], hidden while not [visible] but still laid out, animated and
+/// holding its state (a page's buttons under the top page's own).
+Widget _kept(bool visible, Widget child) => Visibility(
+  visible: visible,
+  maintainSize: true,
+  maintainAnimation: true,
+  maintainState: true,
+  child: child,
+);

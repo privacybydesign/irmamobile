@@ -101,9 +101,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   Timer? _countDelay;
   var _countGeneration = 0;
 
-  /// The entries shown last, for the default of the tablet detail pane.
-  List<LogInfo> _latestEntries = const [];
-
   @override
   void initState() {
     super.initState();
@@ -165,8 +162,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     });
     _ask(keep ?? before);
   }
-
-  void _cancelSearching() => _endSearching();
 
   /// The log shows what the draft and the typed words find, a moment
   /// after typing stops (a tag at once).
@@ -286,12 +281,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// its fields instead of the cards (after the parties). While typing, what
   /// has the typed text in its name, and last the typed words to find in
   /// the data alone.
-  List<List<_Suggestion>> _candidates() {
+  List<List<_Suggestion>> _candidates(List<PartySummary> parties) {
     final q = _asked;
     final typed = normaliseForSearch(_typed.trim());
     bool hit(String s) =>
         typed.isEmpty || normaliseForSearch(s).contains(typed);
-    final parties = ref.watch(activityPartiesProvider).value ?? const [];
     final card = q.card;
 
     final kinds = [
@@ -380,7 +374,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   List<_Suggestion> _suggestions() {
     final take = _typed.trim().isEmpty ? 4 : 6;
     return [
-      for (final group in _candidates())
+      for (final group in _candidates(
+        ref.watch(activityPartiesProvider).value ?? const [],
+      ))
         ...() {
           final left = group.where((s) => _counts[s.key] != 0).toList();
           // Sorted once every count is in: no shuffling while they come.
@@ -401,7 +397,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _countDelay = Timer(const Duration(milliseconds: 150), () async {
       if (!mounted || !_searching) return;
       final generation = ++_countGeneration;
-      final all = _candidates().flattened.toList();
+      final all = _candidates(
+        ref.read(activityPartiesProvider).value ?? const [],
+      ).flattened.toList();
       List<int> counts;
       try {
         counts = await ref.read(irmaRepositoryProvider).countLogs([
@@ -543,13 +541,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final moreLogsAvailable = state.moreAvailable;
     final query = state.filter;
     _addPostFrameCallback();
-    // The detail pane shows the newest entry until one is picked; it was
-    // built before the entries came in, so build it again.
-    final firstEntries = _latestEntries.isEmpty && logEntries.isNotEmpty;
-    _latestEntries = logEntries;
-    if (firstEntries && useHomePanes(context)) {
-      afterFrame(() => setState(() {}));
-    }
     final local = FlutterI18n.currentLocale(context).toString();
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
@@ -741,7 +732,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       key: const Key("activity_search_cancel"),
       // Blue, as a plain action next to a field.
       style: TextButton.styleFrom(foregroundColor: palette.link),
-      onPressed: _cancelSearching,
+      onPressed: _endSearching,
       child: Text(FlutterI18n.translate(context, "activity.query.cancel")),
     );
 
@@ -900,7 +891,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return Scaffold(
       backgroundColor: palette.background,
       resizeToAvoidBottomInset: false,
-      body: useHomePanes(context) ? _withDetailPane(list) : list,
+      body: _withDetailPane(list),
     );
   }
 
@@ -908,7 +899,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// entry (the newest until the user picks one).
   Widget _withDetailPane(Widget list) {
     final entry =
-        ref.watch(selectedActivityProvider) ?? _latestEntries.firstOrNull;
+        ref.watch(selectedActivityProvider) ??
+        ref.watch(activityLogProvider).entries.firstOrNull;
     return TwoPane(
       list: list,
       detail: entry == null

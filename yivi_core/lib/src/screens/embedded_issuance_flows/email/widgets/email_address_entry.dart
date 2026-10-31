@@ -7,12 +7,11 @@ import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
 
-bool isValidEmail(String value) {
-  if (value.isEmpty) return false;
-  return RegExp(
-    r"^(?:[a-zA-Z0-9_+-])+(?:[\.+](?:[a-zA-Z0-9_-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
-  ).hasMatch(value);
-}
+final _emailPattern = RegExp(
+  r"^(?:[a-zA-Z0-9_+-])+(?:[\.+](?:[a-zA-Z0-9_-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
+);
+
+bool isValidEmail(String value) => _emailPattern.hasMatch(value);
 
 /// The e-mail address field of adding an e-mail address, with its
 /// validation: kept in lower case, filled in with the address typed before

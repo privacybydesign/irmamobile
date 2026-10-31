@@ -63,15 +63,15 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     if (context.mounted) context.goHomeScreen();
   }
 
-  String _step(BuildContext context, EnrollmentStepNumber step) =>
-      FlutterI18n.translate(
-        context,
-        "enrollment.step",
-        translationParams: {
-          "current": "${step.number}",
-          "total": "${step.total}",
-        },
-      );
+  String _step(
+    BuildContext context,
+    EnrollmentStepNumber step, {
+    String key = "enrollment.step",
+  }) => FlutterI18n.translate(
+    context,
+    key,
+    translationParams: {"current": "${step.number}", "total": "${step.total}"},
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -148,13 +148,10 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           }
           if (state is EnrollmentEmail) {
             return EnrollmentEmailScreen(
-              stepLabel: FlutterI18n.translate(
+              stepLabel: _step(
                 context,
-                "enrollment.step_optional",
-                translationParams: {
-                  "current": "${state.step.number}",
-                  "total": "${state.step.total}",
-                },
+                state.step,
+                key: "enrollment.step_optional",
               ),
               account: () => bloc.account,
               pin: bloc.pin!,

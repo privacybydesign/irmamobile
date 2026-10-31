@@ -14,6 +14,11 @@ import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/sheet_action_row.dart";
 import "../../widgets/irma_markdown.dart";
+import "../../widgets/step_number_disc.dart";
+
+/// Which part of the details to show: all of it, or (in the two columns of a
+/// sheet held sideways, [SheetSplit]) the card with its name, or the rest.
+enum AddDataDetailsPart { all, card, rest }
 
 /// What a credential type is, compact for the sheet (its name is in the
 /// sheet's bar): a small example card beside "Issued by {issuer}", the intro,
@@ -21,10 +26,6 @@ import "../../widgets/irma_markdown.dart";
 /// is for and how it is added, folded into one group. During a request
 /// ([forRequestor]) a note says that only what is asked is shared. The first
 /// step of adding a card in a sheet ([IssueFlow]).
-/// Which part of the details to show: all of it, or (in the two columns of a
-/// sheet held sideways, [SheetSplit]) the card with its name, or the rest.
-enum AddDataDetailsPart { all, card, rest }
-
 class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;
@@ -547,22 +548,12 @@ class _Step extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
-        ExcludeSemantics(
-          child: Container(
-            width: 22,
-            height: 22,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: palette.tint,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              number,
-              style: palette
-                  .body(12, weight: FontWeight.w700)
-                  .copyWith(color: palette.link, height: 1),
-            ),
-          ),
+        StepNumberDisc(
+          number,
+          size: 22,
+          style: palette
+              .body(12, weight: FontWeight.w700)
+              .copyWith(color: palette.link, height: 1),
         ),
         Expanded(child: _Markdown(text)),
       ],

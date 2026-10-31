@@ -25,7 +25,6 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
-import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/credential_card/attribute_groups/attribute_group.dart";
@@ -167,7 +166,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    final panes = _withPane(context);
+    final panes = useHomePanes(context);
     final top = panes
         ? padding.top + FloatingBarPlacement.topGap(context)
         : padding.top;
@@ -183,7 +182,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
     // cards of its type in the pane) comes into view in the list: to the
     // middle when it was not all in view.
     ref.listen(selectedCardProvider, (_, hash) {
-      if (hash == null || !_withPane(context)) return;
+      if (hash == null || !useHomePanes(context)) return;
       afterFrame(() => _revealCard(context, hash, top: topInset));
     });
 
@@ -202,6 +201,12 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       onPressed: _stopSearching,
       child: Text(FlutterI18n.translate(context, "wallet.search_cancel")),
     );
+    final add = RoundIconButton(
+      key: const Key("data_tab_add_data"),
+      icon: CupertinoIcons.add,
+      label: FlutterI18n.translate(context, "wallet.add_data"),
+      onTap: () => showAddDataSheet(context),
+    );
     final content = _Content(
       query: _query,
       searching: searching,
@@ -219,15 +224,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
               spacing: 8,
               children: [
                 Expanded(child: field),
-                if (searching)
-                  cancel
-                else
-                  RoundIconButton(
-                    key: const Key("data_tab_add_data"),
-                    label: FlutterI18n.translate(context, "wallet.add_data"),
-                    icon: CupertinoIcons.add,
-                    onTap: () => showAddDataSheet(context),
-                  ),
+                if (searching) cancel else add,
               ],
             ),
             child: content,
@@ -253,26 +250,16 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
             leading: const _ViewMenuButton(),
             // The + turns into the close button of a card that opens.
             trailingTurnsIntoClose: true,
-            trailing: RoundIconButton(
-              key: const Key("data_tab_add_data"),
-              icon: CupertinoIcons.add,
-              label: FlutterI18n.translate(context, "wallet.add_data"),
-              onTap: () => showAddDataSheet(context),
-            ),
+            trailing: add,
             child: content,
           );
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: palette.background,
-      body: _withPane(context) ? _withDetailPane(list) : list,
+      body: panes ? _withDetailPane(list) : list,
     );
   }
-
-  /// Whether the cards sit next to a detail pane: on a tablet, and on a
-  /// phone held sideways. Without cards the pane offers the ways to get
-  /// started.
-  bool _withPane(BuildContext context) => useHomePanes(context);
 
   /// The tablet layout: the cards next to the details of the open card
   /// (the first card until the user picks one).
@@ -516,10 +503,7 @@ class _CardList extends ConsumerWidget {
     final palette = YiviPalette.of(context);
     final hints = ref.watch(instanceHintsProvider);
     final view = ref.watch(walletViewProvider) ?? WalletView.stack;
-    final hintTexts = {
-      for (final c in cards)
-        c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
-    };
+    final hintTexts = instanceHintTexts(context, cards, hints);
 
     // While searching the results are always list rows, whatever view was
     // picked: only a row has room to say why a card matched. The view
@@ -550,6 +534,10 @@ class _CardList extends ConsumerWidget {
         // narrower than the column: the card open in the pane slides that
         // far to the right, out of the stack.
         final panes = useHomePanes(context);
+        // The card the detail pane shows, followed as the pick changes.
+        final openHash = panes
+            ? _paneCardHash(ref.watch(selectedCardProvider), this.cards)
+            : null;
         final stackWidth = panes
             ? contentWidth - _StackView.nudge
             : contentWidth;
@@ -639,7 +627,7 @@ class _CardList extends ConsumerWidget {
                       hintTexts: hintTexts,
                       width: stackWidth,
                       arrangeable: arrangeable,
-                      openHash: panes ? _openInPane(ref, cards) : null,
+                      openHash: openHash,
                     ),
                   ),
                   WalletView.list => SliverToBoxAdapter(
@@ -650,6 +638,7 @@ class _CardList extends ConsumerWidget {
                       arrangeable: arrangeable,
                       query: query,
                       results: {for (final r in results) r.hash: r},
+                      openHash: openHash,
                     ),
                   ),
                   WalletView.grid => SliverToBoxAdapter(
@@ -658,6 +647,7 @@ class _CardList extends ConsumerWidget {
                       hintTexts: hintTexts,
                       width: contentWidth,
                       arrangeable: arrangeable,
+                      openHash: openHash,
                     ),
                   ),
                 },
@@ -1147,10 +1137,6 @@ class _Nudge extends StatelessWidget {
 String? _paneCardHash(String? selected, List<schemaless.Credential> cards) =>
     cards.any((c) => c.hash == selected) ? selected : cards.firstOrNull?.hash;
 
-/// The card the detail pane shows, followed as the pick changes.
-String? _openInPane(WidgetRef ref, List<schemaless.Credential> cards) =>
-    _paneCardHash(ref.watch(selectedCardProvider), cards);
-
 /// A row a card: its picture, name, hint and issuer. Hold a row to drag it
 /// to another place.
 class _ListView extends ConsumerWidget {
@@ -1165,6 +1151,9 @@ class _ListView extends ConsumerWidget {
   final String query;
   final Map<String, CardSearchResult> results;
 
+  /// The card open in the detail pane, if there is one.
+  final String? openHash;
+
   const _ListView({
     required this.cards,
     required this.hintTexts,
@@ -1172,6 +1161,7 @@ class _ListView extends ConsumerWidget {
     required this.arrangeable,
     this.query = "",
     this.results = const {},
+    this.openHash,
   });
 
   /// The height of every row: its picture, or its three lines of text when
@@ -1230,6 +1220,7 @@ class _ListView extends ConsumerWidget {
             child: _ListRow(
               credential: c,
               hintText: hintTexts[c.hash],
+              selected: c.hash == openHash,
               // Nothing lands in a search result.
               flightTarget: i == 0 && results.isEmpty,
               query: query,
@@ -1250,15 +1241,6 @@ class _ListView extends ConsumerWidget {
   }
 }
 
-/// Whether [credential] is the card shown in the tablet detail pane.
-bool _isOpenInPane(BuildContext context, schemaless.Credential credential) {
-  if (!useHomePanes(context)) return false;
-  final container = ProviderScope.containerOf(context);
-  final selected = container.read(selectedCardProvider);
-  final cards = container.read(walletCardsProvider);
-  return _paneCardHash(selected, cards) == credential.hash;
-}
-
 class _ListRow extends StatelessWidget {
   /// The width of its card picture, and the room around it.
   static const double picture = 88;
@@ -1269,6 +1251,9 @@ class _ListRow extends StatelessWidget {
 
   /// The thumbnail is where a received card lands.
   final bool flightTarget;
+
+  /// Whether the detail pane shows this card.
+  final bool selected;
 
   /// The screen reader's ways to move it ([moveActions]).
   final Map<CustomSemanticsAction, VoidCallback>? moves;
@@ -1281,6 +1266,7 @@ class _ListRow extends StatelessWidget {
     required this.credential,
     this.hintText,
     this.flightTarget = false,
+    this.selected = false,
     this.moves,
     this.query = "",
     this.result,
@@ -1294,7 +1280,6 @@ class _ListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final selected = _isOpenInPane(context, credential);
     final result = this.result;
     final folded = foldQuery(query);
     // Name, hint and issuer are marked where the name search found them
@@ -1387,11 +1372,15 @@ class _GridView extends ConsumerWidget {
   final double width;
   final bool arrangeable;
 
+  /// The card open in the detail pane, if there is one.
+  final String? openHash;
+
   const _GridView({
     required this.cards,
     required this.hintTexts,
     required this.width,
     required this.arrangeable,
+    this.openHash,
   });
 
   @override
@@ -1458,7 +1447,7 @@ class _GridView extends ConsumerWidget {
                           side: BorderSide(
                             width: 2,
                             strokeAlign: BorderSide.strokeAlignOutside,
-                            color: _isOpenInPane(context, c)
+                            color: c.hash == openHash
                                 ? palette.primary
                                 : Colors.transparent,
                           ),

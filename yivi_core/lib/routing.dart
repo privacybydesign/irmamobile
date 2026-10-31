@@ -185,22 +185,18 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(
+          // An ordinary page, pushed from the side. On tablets the details
+          // show in the pane instead.
+          _adaptive(
+            mode: PresentationMode.full,
             path: "activity_details",
-            // An ordinary page, pushed from the side. On tablets the details
-            // show in the pane instead.
-            pageBuilder: (context, state) {
+            builder: (context, state) {
               final log = state.extra as LogInfo;
-              return AdaptivePage<void>(
-                key: state.pageKey,
-                name: "/home/activity_details",
-                mode: PresentationMode.full,
-                child: activityHandoff(
-                  context,
-                  log,
-                  ActivityDetailsScreen(
-                    args: ActivityDetailsScreenArgs(logEntry: log),
-                  ),
+              return activityHandoff(
+                context,
+                log,
+                ActivityDetailsScreen(
+                  args: ActivityDetailsScreenArgs(logEntry: log),
                 ),
               );
             },
@@ -425,20 +421,16 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   final args = PassportNfcReadingRouteParams.fromQueryParams(
                     state.uri.queryParameters,
                   );
+                  final mrz = type == .passport
+                      ? ScannedPassportMrz.new
+                      : ScannedIdCardMrz.new;
                   return DocumentFlowSteps.nfc(
-                    type == .passport
-                        ? ScannedPassportMrz(
-                            documentNumber: args.documentNumber,
-                            countryCode: args.countryCode ?? "",
-                            dateOfBirth: args.dateOfBirth,
-                            dateOfExpiry: args.dateOfExpiry,
-                          )
-                        : ScannedIdCardMrz(
-                            documentNumber: args.documentNumber,
-                            countryCode: args.countryCode ?? "",
-                            dateOfBirth: args.dateOfBirth,
-                            dateOfExpiry: args.dateOfExpiry,
-                          ),
+                    mrz(
+                      documentNumber: args.documentNumber,
+                      countryCode: args.countryCode ?? "",
+                      dateOfBirth: args.dateOfBirth,
+                      dateOfExpiry: args.dateOfExpiry,
+                    ),
                     onCancel: context.goHomeScreen,
                   );
                 },
@@ -465,7 +457,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   );
 }
 
-/// The route path of each document's MRZ and NFC screens.
 class RouteNotFoundScreen extends StatelessWidget {
   const RouteNotFoundScreen();
 

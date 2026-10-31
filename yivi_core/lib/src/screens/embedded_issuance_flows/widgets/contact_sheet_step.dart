@@ -70,18 +70,8 @@ class ContactSheetStep extends ConsumerStatefulWidget {
   /// Whether [kind]'s flow is at the code, so the sheet shows the code page.
   /// Watches the flow from a build; [watch] false reads it once (a
   /// callback).
-  static bool atCode(WidgetRef ref, ContactKind kind, {bool watch = true}) {
-    if (kind == ContactKind.email) {
-      final state = watch
-          ? ref.watch(emailIssuanceProvider)
-          : ref.read(emailIssuanceProvider);
-      return state.stage == EmailIssuanceStage.enteringVerificationCode;
-    }
-    final state = watch
-        ? ref.watch(smsIssuanceProvider)
-        : ref.read(smsIssuanceProvider);
-    return state.stage == SmsIssuanceStage.enteringVerificationCode;
-  }
+  static bool atCode(WidgetRef ref, ContactKind kind, {bool watch = true}) =>
+      _stageOf(ref, kind, watch: watch) == _Stage.code;
 
   /// Back from the code to the address, filled in, to change it.
   static void backToAddress(WidgetRef ref, ContactKind kind) {
@@ -98,6 +88,28 @@ class ContactSheetStep extends ConsumerStatefulWidget {
 
 /// The stage of either flow, in the terms of this step.
 enum _Stage { entering, sending, code }
+
+/// [kind]'s stage: watched from a build, or read once ([watch] false).
+_Stage _stageOf(WidgetRef ref, ContactKind kind, {required bool watch}) {
+  if (kind == ContactKind.email) {
+    final p = emailIssuanceProvider;
+    return _emailStage((watch ? ref.watch(p) : ref.read(p)).stage);
+  }
+  final p = smsIssuanceProvider;
+  return _smsStage((watch ? ref.watch(p) : ref.read(p)).stage);
+}
+
+_Stage _emailStage(EmailIssuanceStage s) => switch (s) {
+  EmailIssuanceStage.enteringEmail => _Stage.entering,
+  EmailIssuanceStage.waiting => _Stage.sending,
+  EmailIssuanceStage.enteringVerificationCode => _Stage.code,
+};
+
+_Stage _smsStage(SmsIssuanceStage s) => switch (s) {
+  SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
+  SmsIssuanceStage.waiting => _Stage.sending,
+  SmsIssuanceStage.enteringVerificationCode => _Stage.code,
+};
 
 class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   final _focusNode = FocusNode();
@@ -153,21 +165,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   }
 
   /// The stage outside build, where watching is not allowed.
-  _Stage _stageNow() => _email
-      ? _emailStage(ref.read(emailIssuanceProvider).stage)
-      : _smsStage(ref.read(smsIssuanceProvider).stage);
-
-  static _Stage _emailStage(EmailIssuanceStage s) => switch (s) {
-    EmailIssuanceStage.enteringEmail => _Stage.entering,
-    EmailIssuanceStage.waiting => _Stage.sending,
-    EmailIssuanceStage.enteringVerificationCode => _Stage.code,
-  };
-
-  static _Stage _smsStage(SmsIssuanceStage s) => switch (s) {
-    SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
-    SmsIssuanceStage.waiting => _Stage.sending,
-    SmsIssuanceStage.enteringVerificationCode => _Stage.code,
-  };
+  _Stage _stageNow() => _stageOf(ref, widget.kind, watch: false);
 
   bool _errorNow() => !_none(
     _email

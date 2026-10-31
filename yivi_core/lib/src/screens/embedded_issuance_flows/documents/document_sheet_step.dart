@@ -272,10 +272,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
           _Screen.instruction ||
           _Screen.reader ||
           _Screen.manual => widget.type.scanTitleKey,
-          _Screen.chip => widget.type.scanTitleKey.replaceFirst(
-            ".scan.title",
-            ".nfc.title",
-          ),
+          _Screen.chip => widget.type.nfcTitleKey,
           _Screen.face => "face_verification.title",
         };
 

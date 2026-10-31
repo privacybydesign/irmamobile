@@ -151,8 +151,6 @@ class CardTransition extends ChangeNotifier {
   /// built and drawn): from the next frame on, the motion runs.
   void ready() => _ready = true;
 
-  bool get isReady => _ready;
-
   void _tick(Duration elapsed) {
     if (_start == null) {
       if (!_ready && elapsed < _readyTimeout) return;

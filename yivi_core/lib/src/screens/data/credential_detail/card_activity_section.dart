@@ -128,10 +128,11 @@ class _SeeAll extends ConsumerWidget {
     return InkWell(
       key: const Key("card_activity_see_all"),
       onTap: () {
-        ref
-            .read(activityLogProvider.notifier)
-            .setFilter(ActivityQuery(card: ActivityCardRef.of(credential)));
-        context.read<HomeTabState>().add(IrmaNavBarTab.activity);
+        _askActivityTab(
+          context,
+          ref,
+          ActivityQuery(card: ActivityCardRef.of(credential)),
+        );
         // In the tablet layout the card is a pane of the Data tab, not a
         // page of its own: switching tabs is enough.
         if (!useHomePanes(context)) Navigator.of(context).maybePop();
@@ -185,6 +186,12 @@ class _AddedRow extends StatelessWidget {
   }
 }
 
+/// Asks the Activity tab [query] and switches to it.
+void _askActivityTab(BuildContext context, WidgetRef ref, ActivityQuery query) {
+  ref.read(activityLogProvider.notifier).setFilter(query);
+  context.read<HomeTabState>().add(IrmaNavBarTab.activity);
+}
+
 /// Opens [log] as a page over the card: it slides in from the side, with
 /// back (to the card) at the left and close (the card too) at the right.
 void pushCardActivityEntry(BuildContext context, LogInfo log) {
@@ -218,8 +225,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
                 top: padding.top + IrmaAppBar.contentTop,
                 // Closes the entry and the card, and asks the Activity tab.
                 onAsk: (query) {
-                  ref.read(activityLogProvider.notifier).setFilter(query);
-                  context.read<HomeTabState>().add(IrmaNavBarTab.activity);
+                  _askActivityTab(context, ref, query);
                   navigator.pop();
                   if (!useHomePanes(context)) navigator.maybePop();
                 },

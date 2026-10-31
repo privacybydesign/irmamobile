@@ -62,8 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final changeTab = _changeTab;
-
     final palette = YiviPalette.of(context);
 
     // The tabs are kept alive, so leaving Notifications is no dispose of it:
@@ -91,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                 ).bridgedDispatch(AndroidSendToBackgroundEvent());
               } else {
-                changeTab(.data);
+                _changeTab(.data);
               }
             },
             child: PendingPointerListener(
@@ -99,10 +97,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: palette.background,
                 resizeToAvoidBottomInset: false,
                 body: useSidebar(context)
-                    ? _withSidebar(context, tabState, changeTab)
+                    ? _withSidebar(context, tabState)
                     : useHomePanes(context)
-                    ? _withRail(context, tabState, changeTab)
-                    : _withTabBar(context, tabState, changeTab),
+                    ? _withRail(context, tabState)
+                    : _withTabBar(context, tabState),
               ),
             ),
           );
@@ -114,22 +112,18 @@ class _HomeScreenState extends State<HomeScreen> {
   /// A phone held upright: the tab bar at the bottom, floating over the tab
   /// on iOS (with the content fading out under it), docked under it on
   /// Android, down under the system's buttons or gesture handle.
-  Widget _withTabBar(
-    BuildContext context,
-    IrmaNavBarTab tab,
-    ValueChanged<IrmaNavBarTab> changeTab,
-  ) {
+  Widget _withTabBar(BuildContext context, IrmaNavBarTab tab) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final docked = HomeNavigation.docked(context);
     final bar = HomeTabBar(
       selectedTab: tab,
-      onChangeTab: changeTab,
+      onChangeTab: _changeTab,
       docked: docked,
     );
     return Stack(
       children: [
-        Positioned.fill(child: _tab(tab, changeTab)),
+        Positioned.fill(child: _tab(tab)),
         if (docked)
           Positioned(
             left: 0,
@@ -189,28 +183,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The selected tab, with the ones visited before kept alive out of
   /// sight, so going back to a tab finds it as it was left.
-  Widget _tab(IrmaNavBarTab tab, ValueChanged<IrmaNavBarTab> changeTab) =>
-      _KeptTabs(
-        key: _keptTabs,
-        selected: tab,
-        tabKeys: _tabKeys,
-        builder: (tab) => switch (tab) {
-          .notifications => NotificationsTab(),
-          .data => DataTab(),
-          .activity => ActivityTab(),
-          .more => MoreTab(onChangeTab: changeTab),
-        },
-      );
+  Widget _tab(IrmaNavBarTab tab) => _KeptTabs(
+    key: _keptTabs,
+    selected: tab,
+    tabKeys: _tabKeys,
+    builder: (tab) => switch (tab) {
+      .notifications => NotificationsTab(),
+      .data => DataTab(),
+      .activity => ActivityTab(),
+      .more => MoreTab(onChangeTab: _changeTab),
+    },
+  );
 
   /// A phone held sideways, and a tablet below [sidebarBreakpoint]: a rail
   /// on the left instead of the tab bar, with the tab (a list and the picked
   /// item's details) beside it. On iOS the rail floats in the safe area, on
   /// Android it is docked to the edge.
-  Widget _withRail(
-    BuildContext context,
-    IrmaNavBarTab tab,
-    ValueChanged<IrmaNavBarTab> changeTab,
-  ) {
+  Widget _withRail(BuildContext context, IrmaNavBarTab tab) {
     final padding = MediaQuery.paddingOf(context);
     final docked = HomeNavigation.docked(context);
     // Floating: in the safe area on the notch side; 16 from the edge without
@@ -228,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: MediaQuery.removePadding(
             context: context,
             removeLeft: true,
-            child: _tab(tab, changeTab),
+            child: _tab(tab),
           ),
         ),
         if (docked)
@@ -239,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: railWidth,
             child: HomeRail(
               selectedTab: tab,
-              onChangeTab: changeTab,
+              onChangeTab: _changeTab,
               docked: true,
             ),
           )
@@ -252,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Center(
               child: HomeRail(
                 selectedTab: tab,
-                onChangeTab: changeTab,
+                onChangeTab: _changeTab,
                 docked: false,
               ),
             ),
@@ -301,16 +290,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The tablet layout: the sidebar on the left instead of the tab bar,
   /// floating with a margin on iOS, docked to the edge on Android.
-  Widget _withSidebar(
-    BuildContext context,
-    IrmaNavBarTab tab,
-    ValueChanged<IrmaNavBarTab> changeTab,
-  ) {
+  Widget _withSidebar(BuildContext context, IrmaNavBarTab tab) {
     final padding = MediaQuery.paddingOf(context);
     final docked = HomeNavigation.docked(context);
     final sidebar = HomeSidebar(
       selectedTab: tab,
-      onChangeTab: changeTab,
+      onChangeTab: _changeTab,
       docked: docked,
     );
     return Row(
@@ -332,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: MediaQuery.removePadding(
             context: context,
             removeLeft: true,
-            child: _tab(tab, changeTab),
+            child: _tab(tab),
           ),
         ),
       ],

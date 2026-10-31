@@ -312,9 +312,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
 
   void _toBar() {
     setState(() => _inBar = true);
-    afterFrame(() {
-      if (mounted) _focus.requestFocus();
-    });
+    afterFrame(_focus.requestFocus);
   }
 
   /// Out of the bar once left empty.
@@ -324,8 +322,8 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     }
   }
 
-  bool _matches(CredentialStoreItem item) {
-    final query = normaliseForSearch(_search.text.trim());
+  /// Whether [item] matches [query], already [normaliseForSearch]ed.
+  static bool _matches(CredentialStoreItem item, String query) {
     if (query.isEmpty) return true;
     final credential = item.credential;
     return normaliseForSearch(credential.name).contains(query) ||
@@ -380,9 +378,10 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         ),
       ],
       AsyncData(value: final value) => () {
+        final query = normaliseForSearch(_search.text.trim());
         final groups = [
           for (final group in value)
-            (group, group.items.where(_matches).toList()),
+            (group, group.items.where((i) => _matches(i, query)).toList()),
         ].where((g) => g.$2.isNotEmpty).toList();
         return [
           if (groups.isEmpty)

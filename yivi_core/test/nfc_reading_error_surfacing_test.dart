@@ -212,7 +212,6 @@ NfcReadingTranslationKeys _passportKeys() => NfcReadingTranslationKeys(
   title: "passport.nfc.title",
   cancelledByUser: "passport.nfc.cancelled_by_user",
   cancelled: "passport.nfc.cancelled",
-  cancelling: "passport.nfc.cancelling",
   timeoutWaitingForTag: "passport.nfc.timeout_waiting_for_tag",
   tagLostTryAgain: "passport.nfc.tag_lost_try_again",
   failedToInitiateSession: "passport.nfc.failed_to_initiate_session",

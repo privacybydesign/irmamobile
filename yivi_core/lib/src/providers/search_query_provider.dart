@@ -25,9 +25,3 @@ final dataSearchRefocusProvider =
     NotifierProvider<helpers.ValueNotifier<bool>, bool>(
       () => helpers.ValueNotifier(false),
     );
-
-/// The search of the Activity tab.
-final activitySearchQueryProvider =
-    NotifierProvider<helpers.ValueNotifier<String>, String>(
-      () => helpers.ValueNotifier(""),
-    );

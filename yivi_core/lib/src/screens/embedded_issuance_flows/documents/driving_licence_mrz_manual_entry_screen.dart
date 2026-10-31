@@ -1,30 +1,15 @@
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
+import "package:vcmrtd/vcmrtd.dart";
 
+import "document_translation_keys.dart";
 import "widgets/driving_licence_mrz_field.dart";
 import "widgets/manual_entry_layout.dart";
 
-/// Data returned on continue.
-class DrivingLicenceMrzManualEntryData {
-  final String documentNumber;
-  final String version;
-  final String randomData;
-  final String configuration;
-  final String countryCode;
-
-  DrivingLicenceMrzManualEntryData({
-    required this.documentNumber,
-    required this.version,
-    required this.randomData,
-    required this.configuration,
-    required this.countryCode,
-  });
-}
-
 /// This screen is for when the camera doesn't work(?)
 class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
-  /// Now receives the collected data from the 3 fields.
-  final void Function(DrivingLicenceMrzManualEntryData data) onContinue;
+  /// Receives the parsed MRZ.
+  final void Function(DrivingLicenceMrzResult result) onContinue;
   final VoidCallback onCancel;
 
   const DrivingLicenceMrzManualEntryScreen({
@@ -43,43 +28,40 @@ class _DrivingLicencetMrzManualEntryScreenState
   final _manualEntryFormKey = GlobalKey<FormState>();
   final _documentNrCtrl = TextEditingController();
 
-  bool _canContinue = false; // soft validity during typing
+  DrivingLicenceMrzResult? _parsed; // soft validity during typing
+
+  bool get _canContinue => _parsed != null;
+
+  @override
+  void dispose() {
+    _documentNrCtrl.dispose();
+    super.dispose();
+  }
 
   void _recomputeCanContinue() {
-    final result = DrivingLicenceMrzParser().tryParse([_documentNrCtrl.text]);
-    final ok = result != null;
-
-    if (ok != _canContinue) {
-      setState(() => _canContinue = ok);
+    final could = _canContinue;
+    _parsed = DrivingLicenceMrzParser().tryParse([_documentNrCtrl.text]);
+    if (_canContinue != could) {
+      setState(() {});
     }
   }
 
   void _onContinuePressed() {
     final form = _manualEntryFormKey.currentState;
     if (form != null && form.validate()) {
-      final result = DrivingLicenceMrzParser().tryParse([
-        _documentNrCtrl.text,
-      ])!;
-      final data = DrivingLicenceMrzManualEntryData(
-        documentNumber: result.documentNumber,
-        version: result.version,
-        randomData: result.randomData,
-        configuration: result.configuration,
-        countryCode: result.countryCode,
-      );
-      widget.onContinue(data);
+      widget.onContinue(_parsed!);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return ManualEntryScaffold(
-      appBarTitleKey: "driving_licence.scan.title",
+      appBarTitleKey: DocumentType.drivingLicence.scanTitleKey,
       formKey: _manualEntryFormKey,
       onChanged: _recomputeCanContinue,
       titleKey: "driving_licence.manual.title",
       explanationKey: "driving_licence.manual.explanation",
-      tipKey: "document_flow.manual.tip_driving_licence",
+      tipKey: DocumentType.drivingLicence.manualTipKey,
       onContinue: _canContinue ? _onContinuePressed : null,
       onCancel: widget.onCancel,
       fields: [DrivingLicenceMrzInputField(controller: _documentNrCtrl)],

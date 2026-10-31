@@ -404,18 +404,21 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ],
     ];
 
+    final requiredLabel = isSignature
+        ? t("share.section.with_signature")
+        : t("share.section.you_share");
     final requestedPart = <_Spaced>[
       if (required.isNotEmpty) ...[
-        _Spaced(
-          24,
-          _SectionLabel(
-            isSignature
-                ? t("share.section.with_signature")
-                : t("share.section.you_share"),
-          ),
-        ),
+        _Spaced(24, _SectionLabel(requiredLabel)),
         for (final (n, (i, p)) in required.indexed)
-          _requiredItem(i, p, selections, first: n == 0),
+          _requiredItem(
+            i,
+            p,
+            selections,
+            wallet: wallet,
+            columns: columns,
+            first: n == 0,
+          ),
       ],
       if (optional.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.optional"))),
@@ -437,11 +440,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       text: t(isSignature ? "share.footnote_sign" : "share.footnote", {
         "requestor": requestor,
       }),
-    );
-    final pageEnd = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [footnote],
     );
 
     // Nobody vouches for the requestor: Share becomes "Share anyway", asks
@@ -525,9 +523,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       // have the first section label's room above them (in the panel an
       // invisible copy, so the text size can't move them apart).
       final firstLabel = required.isNotEmpty
-          ? (isSignature
-                ? t("share.section.with_signature")
-                : t("share.section.you_share"))
+          ? requiredLabel
           : optional.isNotEmpty
           ? t("share.section.optional")
           : offered.isNotEmpty
@@ -596,7 +592,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                       if (!combined)
                         Padding(
                           padding: const EdgeInsets.only(top: 28),
-                          child: pageEnd,
+                          child: footnote,
                         ),
                     ],
                   ),
@@ -757,10 +753,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     inList: _inSentence,
   );
 
-  String _inSentence(String name) => inSentence(
-    name,
-    language: FlutterI18n.currentLocale(context)?.languageCode,
-  );
+  String _inSentence(String name) => inSentence(name, language: context.lang);
 
   static String _issuersOf(DisclosurePickOne p) => {
     for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
@@ -790,25 +783,25 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     int i,
     DisclosurePickOne p,
     Map<int, int> selections, {
+    required List<schemaless.Credential> wallet,
+    required bool columns,
     required bool first,
   }) {
     final k = selectionOf(p, selections[i]);
     final empty = k < 0;
-    final mismatch = empty
-        ? walletMismatch(p, ref.watch(walletCardsProvider))
-        : null;
+    final mismatch = empty ? walletMismatch(p, wallet) : null;
     const gap = 12.0;
     final child = mismatch != null
         ? _MismatchTile(
             key: Key("share_not_counted_$i"),
             mismatch: mismatch,
-            landingKey: useSessionColumns(context) ? null : _landingKey(i),
+            landingKey: columns ? null : _landingKey(i),
             requestor: widget.session.requestor.name,
           )
         : empty
         ? _emptySpot(i, p)
         : _filledTile(i, p, k);
-    if (!useSessionColumns(context)) return _Spaced(gap, child);
+    if (!columns) return _Spaced(gap, child);
     // On a tablet the Change sheet is a dialog and nothing flies: the card
     // that was added fades into its spot. The switcher holds the spot as
     // well, so it is already there when the card comes; its key keeps it
@@ -1079,14 +1072,13 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!shown) {
-      return ExcludeSemantics(
-        child: Visibility(
-          visible: false,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: _SectionLabel(title),
-        ),
+      // Hidden from screen readers too (maintainSemantics is off).
+      return Visibility(
+        visible: false,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: _SectionLabel(title),
       );
     }
     return CapsLabel(title, padding: const EdgeInsets.symmetric(horizontal: 6));

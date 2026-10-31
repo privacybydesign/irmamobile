@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -184,9 +183,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
 
   @override
   void beforeIssueAdd(CredentialDescriptor d) {
-    final pickOnes =
-        issueRequest?.disclosurePlan?.disclosureChoicesOverview ?? const [];
-    if (widget.index < pickOnes.length && pickOnes[widget.index].optional) {
+    if (_pickOne?.optional ?? false) {
       _choices.includeOptionalWhenAdded(widget.index);
     }
   }
@@ -332,10 +329,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   SessionUserChoicesNotifier get _choices =>
       ref.read(sessionUserChoicesProvider(widget.sessionId).notifier);
 
-  String _inSentence(String name) => inSentence(
-    name,
-    language: FlutterI18n.currentLocale(context)?.languageCode,
-  );
+  String _inSentence(String name) => inSentence(name, language: context.lang);
 
   /// "Share nothing": the optional data is left out.
   void _pickNothing() {
@@ -472,11 +466,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           ),
           for (final (n, d) in set.indexed) ...[
             SizedBox(height: n == 0 ? 18 : 24),
-            _Label(
+            CapsLabel(
               context.tr("share.sheet.together_step", {
                 "n": "${n + 1}",
                 "total": "${set.length}",
               }),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
             ),
             if (inApp.contains(d.credentialId)) ...[
               const SizedBox(height: 8),
@@ -720,10 +715,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               onTap: _pickNothing,
             ),
             const SizedBox(height: 24),
-            _Label(
+            CapsLabel(
               context.tr(
                 many ? "share.sheet.or_add_one" : "share.sheet.or_add_it",
               ),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
             ),
           ],
           ..._kindRows(addable, requestor, landscape),
@@ -824,16 +820,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       ],
     ];
   }
-}
-
-class _Label extends StatelessWidget {
-  final String text;
-
-  const _Label(this.text);
-
-  @override
-  Widget build(BuildContext context) =>
-      CapsLabel(text, padding: const EdgeInsets.symmetric(horizontal: 6));
 }
 
 /// The text under a sheet's title, at the top of its scrolling content.

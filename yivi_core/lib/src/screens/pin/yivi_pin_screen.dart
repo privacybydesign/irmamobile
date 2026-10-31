@@ -910,3 +910,19 @@ String pinTryAgainIn(BuildContext context, Duration left) {
     translationParams: {"time": time},
   );
 }
+
+/// What the line under the title says after a wrong PIN or during a block:
+/// how long until the next try, or the tries [left] after a [wrong] PIN.
+/// Null when neither.
+String? pinAttemptLine(
+  BuildContext context, {
+  Duration blockedFor = Duration.zero,
+  required bool wrong,
+  int? left,
+}) {
+  if (blockedFor.inSeconds > 0) return pinTryAgainIn(context, blockedFor);
+  if (wrong && left != null && left > 0) {
+    return FlutterI18n.plural(context, "pin.wrong.attempts", left);
+  }
+  return null;
+}

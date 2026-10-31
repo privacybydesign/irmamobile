@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/round_icon_button.dart";
+import "../../widgets/step_number_disc.dart";
 import "../../widgets/surface_card.dart";
 import "../../widgets/translated_text.dart";
 import "../enrollment/widgets/enrollment_page.dart";
@@ -76,22 +77,11 @@ class _Step extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12,
         children: [
-          ExcludeSemantics(
-            child: Container(
-              width: 26,
-              height: 26,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: palette.tint,
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                "$number",
-                style: palette
-                    .display(13, weight: FontWeight.w700)
-                    .copyWith(color: palette.link),
-              ),
-            ),
+          StepNumberDisc(
+            "$number",
+            style: palette
+                .display(13, weight: FontWeight.w700)
+                .copyWith(color: palette.link),
           ),
           Expanded(
             child: Padding(

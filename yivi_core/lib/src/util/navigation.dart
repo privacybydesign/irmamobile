@@ -228,23 +228,14 @@ extension RoutingHelpers on BuildContext {
   void pushNfcReadingScreenFor(ScannedMrz mrz) {
     final countryCode = mrz.countryCode.isEmpty ? null : mrz.countryCode;
     switch (mrz) {
-      case ScannedPassportMrz():
+      case ScannedPassportMrz(:final dateOfBirth, :final dateOfExpiry) ||
+          ScannedIdCardMrz(:final dateOfBirth, :final dateOfExpiry):
         _pushNfcReadingScreen(
-          .passport,
+          mrz.documentType,
           PassportNfcReadingRouteParams(
             documentNumber: mrz.documentNumber,
-            dateOfBirth: mrz.dateOfBirth,
-            dateOfExpiry: mrz.dateOfExpiry,
-            countryCode: countryCode,
-          ).toQueryParams(),
-        );
-      case ScannedIdCardMrz():
-        _pushNfcReadingScreen(
-          .identityCard,
-          PassportNfcReadingRouteParams(
-            documentNumber: mrz.documentNumber,
-            dateOfBirth: mrz.dateOfBirth,
-            dateOfExpiry: mrz.dateOfExpiry,
+            dateOfBirth: dateOfBirth,
+            dateOfExpiry: dateOfExpiry,
             countryCode: countryCode,
           ).toQueryParams(),
         );

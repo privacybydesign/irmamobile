@@ -179,13 +179,7 @@ class DocumentFlowFooter extends StatelessWidget {
     }
     if (sheetActionInBar(context)) {
       return SheetSlotAction(
-        action: primary == null
-            ? null
-            : SheetAction(
-                key: primary.key,
-                label: label(primary)!,
-                onTap: primary.onPressed,
-              ),
+        action: asAction(primary),
         child: secondary == null
             ? const SizedBox.shrink()
             : Center(

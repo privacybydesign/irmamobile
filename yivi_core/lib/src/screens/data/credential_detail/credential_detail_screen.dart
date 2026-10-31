@@ -108,6 +108,13 @@ class _CredentialDetailScreenState
         ? null
         : instanceHintText(context, hints[_hash] ?? const NoHint());
 
+    final siblings = credential == null
+        ? const <schemaless.Credential>[]
+        : cards
+              .where((c) => c.credentialId == credential.credentialId)
+              .toList();
+    final hintTexts = instanceHintTexts(context, siblings, hints);
+
     final transition = widget.transition;
     return WalletDetailScaffold(
       openKey: _hash,
@@ -180,18 +187,8 @@ class _CredentialDetailScreenState
                         // Only on the card the search found, not on a sibling
                         // picked after.
                         found: _hash == widget.hash ? widget.found : null,
-                        siblings: cards
-                            .where(
-                              (c) => c.credentialId == credential.credentialId,
-                            )
-                            .toList(),
-                        hintTexts: {
-                          for (final c in cards)
-                            c.hash: instanceHintText(
-                              context,
-                              hints[c.hash] ?? const NoHint(),
-                            ),
-                        },
+                        siblings: siblings,
+                        hintTexts: hintTexts,
                         onSwitch: (hash) => setState(() => _hash = hash),
                         // Its place in the stack is gone: no way back.
                         onDeleted: () => transition != null
@@ -244,17 +241,15 @@ class CredentialDetailPane extends ConsumerWidget {
     // Held sideways the pane is low: the card shows small, beside its name,
     // instead of big above the details.
     final compact = usePhoneLandscape(context);
+    final siblings = cards
+        .where((c) => c.credentialId == credential.credentialId)
+        .toList();
     final details = _Details(
       credential: credential,
       found: found,
       showTitle: !compact,
-      siblings: cards
-          .where((c) => c.credentialId == credential.credentialId)
-          .toList(),
-      hintTexts: {
-        for (final c in cards)
-          c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
-      },
+      siblings: siblings,
+      hintTexts: instanceHintTexts(context, siblings, hints),
       onSwitch: onSwitch,
       onDeleted: onDeleted,
     );

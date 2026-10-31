@@ -435,7 +435,7 @@ class WalletReveal extends StatelessWidget {
             child: Transform.translate(
               offset: Offset(0, dy),
               child: ClipRect(
-                clipper: _Above(line - restTop - dy),
+                clipper: ClipAboveY(line - restTop - dy),
                 child: child,
               ),
             ),
@@ -455,18 +455,6 @@ class WalletReveal extends StatelessWidget {
       child: child,
     );
   }
-}
-
-class _Above extends CustomClipper<Rect> {
-  final double y;
-
-  const _Above(this.y);
-
-  @override
-  Rect getClip(Size size) => Rect.fromLTRB(-1e5, -1e5, 1e5, y);
-
-  @override
-  bool shouldReclip(_Above oldClipper) => oldClipper.y != y;
 }
 
 /// The close button of a page opened by a card transition. It is there

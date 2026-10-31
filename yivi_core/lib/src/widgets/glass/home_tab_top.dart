@@ -106,6 +106,15 @@ class HomeTabTop extends StatefulWidget {
   /// scrolling: the bar, its line and the small title come in with it.
   static double _titleGone(double px) => ((px - 8) / 30).clamp(0.0, 1.0);
 
+  /// The scrolling over which [_titleGone] and the bar's search button
+  /// change; outside it neither does.
+  static const double _scrollReadFrom = _fieldUnderBar - 10 < 8
+      ? _fieldUnderBar - 10
+      : 8;
+  static const double _scrollReadTo = _fieldUnderBar + 20 > 38
+      ? _fieldUnderBar + 20
+      : 38;
+
   /// How far the list scrolls before [below], under the field, reaches its
   /// pinned place under the bar.
   static const double _belowUnderBar =
@@ -172,12 +181,7 @@ class _HomeTabTopState extends State<HomeTabTop> {
                         )) *
                   (1 - _iv(open, 0.6, 1));
               return searching
-                  ? AnimatedBuilder(
-                      animation: under,
-                      builder: (context, _) => ScrollEdgeBand(
-                        under: AlwaysStoppedAnimation(under.value * keep),
-                      ),
-                    )
+                  ? ScrollEdgeBand(under: under, opacity: keep)
                   : ValueListenableBuilder<double>(
                       valueListenable: _scrolled,
                       builder: (context, px, _) => ScrollEdgeBand(
@@ -198,11 +202,8 @@ class _HomeTabTopState extends State<HomeTabTop> {
             child: _OpenHandoff(
               builder: (context, open) => searching
                   ? _handoff(
-                      opacity: (open) => 1 - _iv(open, 0, 0.4),
-                      Opacity(
-                        opacity: 1 - _iv(open, 0, 0.4),
-                        child: widget.searchRow,
-                      ),
+                      opacity: _barGoes,
+                      Opacity(opacity: _barGoes(open), child: widget.searchRow),
                     )
                   : _Bar(scrolled: _scrolled, top: widget, open: open),
             ),
@@ -228,7 +229,12 @@ class _HomeTabTopState extends State<HomeTabTop> {
             if (depth == 0 &&
                 metrics != null &&
                 metrics.axis == Axis.vertical) {
-              _scrolled.value = metrics.pixels;
+              // Held within the range the bar reads, so the bar stops
+              // rebuilding once its title and search button are in.
+              _scrolled.value = metrics.pixels.clamp(
+                HomeTabTop._scrollReadFrom,
+                HomeTabTop._scrollReadTo,
+              );
               final pinned = metrics.pixels >= HomeTabTop._belowUnderBar;
               if (pinned != _belowPinned) setState(() => _belowPinned = pinned);
             }
@@ -256,6 +262,9 @@ Widget _handoff(
   scaleOrigin: Alignment.center,
   child: child,
 );
+
+/// How far the bar has gone as the card opens ([open] 0 to 1).
+double _barGoes(double open) => 1 - _iv(open, 0, 0.4);
 
 /// [value] from [a] to [b], as 0 to 1.
 double _iv(double value, double a, double b) =>
@@ -321,7 +330,7 @@ class _Bar extends StatelessWidget {
     return ValueListenableBuilder<double>(
       valueListenable: scrolled,
       builder: (context, px, _) {
-        final going = 1 - _iv(open, 0, 0.4);
+        final going = _barGoes(open);
         final title = HomeTabTop._titleGone(px) * going;
         final search =
             ((px - HomeTabTop._fieldUnderBar + 10) / 30).clamp(0.0, 1.0) *
@@ -345,7 +354,7 @@ class _Bar extends StatelessWidget {
                 child: top.leading == null
                     ? null
                     : _handoff(
-                        opacity: (open) => 1 - _iv(open, 0, 0.4),
+                        opacity: _barGoes,
                         open == 0
                             ? top.leading!
                             : Opacity(opacity: going, child: top.leading),
@@ -354,7 +363,7 @@ class _Bar extends StatelessWidget {
             ),
             Expanded(
               child: _handoff(
-                opacity: (open) => 1 - _iv(open, 0, 0.4),
+                opacity: _barGoes,
                 ExcludeSemantics(
                   // The large title says the same on the page.
                   child: Opacity(
@@ -385,7 +394,7 @@ class _Bar extends StatelessWidget {
                   // Not there, for a finger or a screen reader, until it
                   // has mostly come in.
                   _handoff(
-                    opacity: (open) => 1 - _iv(open, 0, 0.4),
+                    opacity: _barGoes,
                     IgnorePointer(
                       ignoring: search < 0.5,
                       child: ExcludeSemantics(

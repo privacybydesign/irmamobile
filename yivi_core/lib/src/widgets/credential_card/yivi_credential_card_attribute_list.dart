@@ -229,8 +229,6 @@ bool _isImage(schemaless.Attribute a) =>
 // Tree builder
 // ─────────────────────────────────────────────────────────────────────────────
 
-String _pathKey(List<dynamic> p) => claimPathKey(p);
-
 class _StackFrame {
   final List<dynamic> path;
   final List<_Node> childrenArr;
@@ -266,13 +264,13 @@ _GroupNode _buildTree(
 }) {
   final headers = <String, schemaless.Attribute>{};
   for (final e in attrs) {
-    if (e.value == null) headers[_pathKey(e.claimPath)] = e;
+    if (e.value == null) headers[claimPathKey(e.claimPath)] = e;
   }
 
-  schemaless.AttributeValue? lookupCompare(List<dynamic> claimPath) {
-    return compareTo
-        ?.firstWhereOrNull((c) => listEquals(c.claimPath, claimPath))
-        ?.value;
+  // The first value at each claim path of [compareTo].
+  final compareValues = <String, schemaless.AttributeValue?>{};
+  for (final c in compareTo ?? const <schemaless.Attribute>[]) {
+    compareValues.putIfAbsent(claimPathKey(c.claimPath), () => c.value);
   }
 
   final root = _GroupNode(path: const [], children: []);
@@ -319,9 +317,9 @@ _GroupNode _buildTree(
     for (var i = 0; i < p.length; i++) {
       if (p[i] is! int) continue;
       final itemPath = p.sublist(0, i + 1);
-      final itemKey = _pathKey(itemPath);
+      final itemKey = claimPathKey(itemPath);
       final alreadyOpen = stack.any(
-        (f) => f.isItem && _pathKey(f.path) == itemKey,
+        (f) => f.isItem && claimPathKey(f.path) == itemKey,
       );
       if (alreadyOpen) continue;
 
@@ -330,7 +328,7 @@ _GroupNode _buildTree(
       final arrayFrame = stack.last;
       final itemIndex =
           arrayFrame.childrenArr.whereType<_ItemNode>().length + 1;
-      final parentHeader = headers[_pathKey(arrayHeaderPath)];
+      final parentHeader = headers[claimPathKey(arrayHeaderPath)];
       final item = _ItemNode(
         parentLabel: parentHeader?.effectiveDisplayName,
         itemIndex: itemIndex,
@@ -371,7 +369,7 @@ _GroupNode _buildTree(
     final parentArrPath = p.length > 1
         ? p.sublist(0, p.length - 1)
         : const <dynamic>[];
-    final parentKey = _pathKey(parentArrPath);
+    final parentKey = claimPathKey(parentArrPath);
     for (final k in primCollectors.keys.toList()) {
       if (k != parentKey) flushPrim(k);
     }
@@ -403,14 +401,15 @@ _GroupNode _buildTree(
     ensureItemFrames(p);
     popToPrefix(parentArrPath);
     final frame = stack.last;
+    final key = claimPathKey(p);
     frame.childrenArr.add(
       _RowNode(
         attribute: e,
         hasCompareTo: compareTo != null,
-        compareToValue: lookupCompare(p),
-        mismatch: mismatched.contains(_pathKey(p)),
-        match: matched.contains(_pathKey(p)),
-        found: found?.claimKey == _pathKey(p) ? found : null,
+        compareToValue: compareValues[key],
+        mismatch: mismatched.contains(key),
+        match: matched.contains(key),
+        found: found?.claimKey == key ? found : null,
       ),
     );
   }
@@ -580,13 +579,7 @@ class _FlatRow extends StatelessWidget {
         : theme.tinySpacing;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: pad),
-      child: _RowContent(
-        node: node,
-        isFirst: isFirst,
-        disclosure: ctx.disclosure,
-        layout: ctx.layout,
-        ctx: ctx,
-      ),
+      child: _RowContent(node: node, isFirst: isFirst, ctx: ctx),
     );
   }
 }
@@ -599,29 +592,25 @@ class _RowContent extends StatelessWidget {
   final _Node node;
   // The first row of the list: nothing is drawn above it.
   final bool isFirst;
-  final bool disclosure;
-  final CredentialCardLayout layout;
-  final _Ctx? ctx;
+  final _Ctx ctx;
   const _RowContent({
     required this.node,
     required this.isFirst,
-    required this.disclosure,
-    required this.layout,
-    this.ctx,
+    required this.ctx,
   });
 
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n, layout: layout, ctx: ctx),
-      _AgeNode n => _AgeContent(node: n, layout: layout),
+      _RowNode n => _LeafContent(node: n, ctx: ctx),
+      _AgeNode n => _AgeContent(node: n, layout: ctx.layout),
       _PrimArrayNode n => _PrimArrayContent(node: n),
       // Only a header without values gets here (see _rowDrawsBorder).
       _GroupNode n => Text(n.label ?? "", style: attributeLabelStyle(context)),
       _ItemNode() => const SizedBox.shrink(),
       _AttributeGroupNode n => AttributeGroupScope(
         isFirst: isFirst,
-        isDisclosure: disclosure,
+        isDisclosure: ctx.disclosure,
         child: Builder(builder: n.group.build),
       ),
     };
@@ -635,9 +624,10 @@ class _RowContent extends StatelessWidget {
 
 class _LeafContent extends StatelessWidget {
   final _RowNode node;
-  final CredentialCardLayout layout;
-  final _Ctx? ctx;
-  const _LeafContent({required this.node, required this.layout, this.ctx});
+  final _Ctx ctx;
+  const _LeafContent({required this.node, required this.ctx});
+
+  CredentialCardLayout get layout => ctx.layout;
 
   @override
   Widget build(BuildContext context) {
@@ -649,9 +639,8 @@ class _LeafContent extends StatelessWidget {
     final column = Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
-      spacing: 0,
       children: [
-        if (found == null && label == ctx?.hideLabel)
+        if (found == null && label == ctx.hideLabel)
           const SizedBox.shrink()
         else if (found == null)
           Text(label, style: attributeLabelStyle(context, layout: layout))
@@ -690,7 +679,7 @@ class _LeafContent extends StatelessWidget {
   Widget _buildValue(BuildContext context, IrmaThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
-    if (_isImage(node.attribute)) return _tappableImage(context, theme);
+    if (_isImage(node.attribute)) return _tappableImage();
     final text = formatAttributeValue(context, val);
     final style = attributeValueStyle(
       context,
@@ -699,9 +688,9 @@ class _LeafContent extends StatelessWidget {
     );
     final found = node.found;
     final tag = node.match
-        ? ctx?.matchedTag
+        ? ctx.matchedTag
         : node.mismatch
-        ? ctx?.mismatchedTag
+        ? ctx.mismatchedTag
         : null;
     if (found == null && tag != null) {
       return Wrap(
@@ -731,7 +720,7 @@ class _LeafContent extends StatelessWidget {
     );
   }
 
-  Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
+  Widget _tappableImage() {
     final attribute = node.attribute;
     final bytes = decodeAttributeImage(attribute.value);
     if (bytes == null) return const SizedBox.shrink();

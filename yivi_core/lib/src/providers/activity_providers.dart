@@ -3,6 +3,7 @@ import "dart:async";
 import "package:collection/collection.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../data/irma_repository.dart";
 import "../models/log_entry.dart";
 import "../screens/activity/activity_entry.dart";
 import "../screens/activity/activity_query.dart";
@@ -40,6 +41,22 @@ class ActivityLogState {
   });
 
   bool get moreAvailable => nextCursor != null;
+
+  /// The same, with [loading] (and the other values given) changed.
+  ActivityLogState copyWith({bool? loading, bool? loaded}) => ActivityLogState(
+    filter: filter,
+    entries: entries,
+    nextCursor: nextCursor,
+    loading: loading ?? this.loading,
+    loaded: loaded ?? this.loaded,
+    counts: counts,
+  );
+}
+
+/// Has [ref] asked again whenever the activity log may have changed.
+void _refetchOnLogChange(Ref ref, IrmaRepository repo) {
+  final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
 }
 
 /// The Activity tab's log: irmago filters, searches and pages it; this keeps
@@ -76,14 +93,7 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
   Future<void> refresh() async {
     final generation = ++_generation;
     final filter = state.filter;
-    state = ActivityLogState(
-      filter: filter,
-      entries: state.entries,
-      nextCursor: state.nextCursor,
-      loading: true,
-      loaded: state.loaded,
-      counts: state.counts,
-    );
+    state = state.copyWith(loading: true);
     try {
       final page = await ref
           .read(irmaRepositoryProvider)
@@ -119,14 +129,7 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
     if (cursor == null || state.loading) return;
     final generation = _generation;
     final filter = state.filter;
-    state = ActivityLogState(
-      filter: filter,
-      entries: state.entries,
-      nextCursor: cursor,
-      loading: true,
-      loaded: true,
-      counts: state.counts,
-    );
+    state = state.copyWith(loading: true, loaded: true);
     LogPage? page;
     try {
       page = await ref
@@ -189,18 +192,20 @@ class CardActivity {
 final cardActivityProvider = FutureProvider.autoDispose
     .family<CardActivity, String>((ref, hash) async {
       final repo = ref.watch(irmaRepositoryProvider);
-      final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
-      ref.onDispose(sub.cancel);
-      final page = await repo.queryLogs(
-        LogQuery(
-          filter: LogFilter(credentialHash: hash),
-          limit: cardActivityLimit,
-          withCounts: true,
+      _refetchOnLogChange(ref, repo);
+      // Both at once: they do not depend on each other.
+      final (page, sharedWith) = await (
+        repo.queryLogs(
+          LogQuery(
+            filter: LogFilter(credentialHash: hash),
+            limit: cardActivityLimit,
+            withCounts: true,
+          ),
         ),
-      );
-      final sharedWith = await repo.listParties(
-        LogFilter(credentialHash: hash, types: const [LogType.disclosure]),
-      );
+        repo.listParties(
+          LogFilter(credentialHash: hash, types: const [LogType.disclosure]),
+        ),
+      ).wait;
       return CardActivity(
         entries: page.entries,
         total: page.counts?.total ?? page.entries.length,
@@ -216,22 +221,26 @@ final activityPartiesProvider = FutureProvider.autoDispose<List<PartySummary>>((
   ref,
 ) async {
   final repo = ref.watch(irmaRepositoryProvider);
-  final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
-  ref.onDispose(sub.cancel);
+  _refetchOnLogChange(ref, repo);
   return repo.listParties(const LogFilter(includeHidden: false));
 });
 
+/// The latest removals in the log, asked again when the log changes.
+final _removalLogProvider = FutureProvider.autoDispose<LogPage>((ref) {
+  final repo = ref.watch(irmaRepositoryProvider);
+  _refetchOnLogChange(ref, repo);
+  return repo.queryLogs(
+    const LogQuery(filter: LogFilter(types: [LogType.removal]), limit: 200),
+  );
+});
+
 /// The card types the log knows that are no longer in the wallet: what was
-/// deleted, to still filter on. One per type, drawn as the log kept it.
+/// deleted, to still filter on. One per type, drawn as the log kept it. A
+/// change of the wallet only filters again; the log is not asked again.
 final removedCardTypesProvider =
     FutureProvider.autoDispose<List<ActivityCardRef>>((ref) async {
-      final repo = ref.watch(irmaRepositoryProvider);
       final wallet = ref.watch(walletCardsProvider);
-      final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
-      ref.onDispose(sub.cancel);
-      final page = await repo.queryLogs(
-        const LogQuery(filter: LogFilter(types: [LogType.removal]), limit: 200),
-      );
+      final page = await ref.watch(_removalLogProvider.future);
       final held = {for (final c in wallet) c.credentialId};
       final seen = <String>{};
       return [

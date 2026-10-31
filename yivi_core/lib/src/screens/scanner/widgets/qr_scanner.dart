@@ -46,9 +46,7 @@ class QRScannerState extends State<QRScanner>
 
   @override
   void dispose() {
-    if (_errorTimer?.isActive ?? false) {
-      _errorTimer?.cancel();
-    }
+    _errorTimer?.cancel();
     _shake.dispose();
     _torch.dispose();
     super.dispose();
@@ -176,9 +174,7 @@ class QRScannerState extends State<QRScanner>
 
   Future<void> _foundQR(String qr) async {
     // If we already found a correct QR, cancel the current error message
-    if (_errorTimer != null && _errorTimer!.isActive) {
-      _errorTimer!.cancel();
-    }
+    _errorTimer?.cancel();
 
     // Don't continue if this screen has already been 'used'
     if (found) {

@@ -286,10 +286,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       _nestedId == null &&
       !_pin;
 
-  String _inSentence(String name) => inSentence(
-    name,
-    language: FlutterI18n.currentLocale(context)?.languageCode,
-  );
+  String _inSentence(String name) => inSentence(name, language: context.lang);
 
   /// Takes the next session that starts into this sheet (an issuance
   /// scanned on the lock screen): its offer, the PIN if irmago asks and

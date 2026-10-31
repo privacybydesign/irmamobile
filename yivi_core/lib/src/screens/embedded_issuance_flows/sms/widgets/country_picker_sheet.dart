@@ -84,6 +84,27 @@ class _CountryPicker extends StatefulWidget {
 class _CountryPickerState extends State<_CountryPicker> {
   String _query = "";
 
+  /// The countries by name in [_language], each with its name and its
+  /// English name normalised for search; sorted once per language rather
+  /// than on every keystroke.
+  String? _language;
+  List<(Country, String, String)> _byName = const [];
+
+  List<(Country, String, String)> _sortedFor(String? language) {
+    if (language != _language || _byName.isEmpty) {
+      _language = language;
+      _byName = [
+        for (final c in widget.countries)
+          (
+            c,
+            normaliseForSearch(countryName(c, language)),
+            normaliseForSearch(c.name ?? ""),
+          ),
+      ]..sort((a, b) => a.$2.compareTo(b.$2));
+    }
+    return _byName;
+  }
+
   String _t(String key) =>
       FlutterI18n.translate(context, "sms_issuance.enter_phone.$key");
 
@@ -93,11 +114,8 @@ class _CountryPickerState extends State<_CountryPicker> {
     final language = FlutterI18n.currentLocale(context)?.languageCode;
     String name(Country c) => countryName(c, language);
 
-    final byName = [...widget.countries]
-      ..sort(
-        (a, b) =>
-            normaliseForSearch(name(a)).compareTo(normaliseForSearch(name(b))),
-      );
+    final sorted = _sortedFor(language);
+    final byName = [for (final e in sorted) e.$1];
     final common = [
       for (final code in widget.common)
         ...widget.countries.where((c) => c.alpha2Code == code),
@@ -105,13 +123,21 @@ class _CountryPickerState extends State<_CountryPicker> {
 
     final query = normaliseForSearch(_query);
     final digits = _query.replaceAll(RegExp(r"[^\d]"), "");
-    bool matches(Country c) =>
-        normaliseForSearch(name(c)).contains(query) ||
-        normaliseForSearch(c.name ?? "").contains(query) ||
-        (c.alpha2Code ?? "").toLowerCase() == query ||
-        (digits.isNotEmpty &&
-            (c.dialCode ?? "").replaceAll("+", "").startsWith(digits));
-    final found = query.isEmpty ? const <Country>[] : byName.where(matches);
+    bool matches((Country, String, String) e) {
+      final (c, norm, normEn) = e;
+      return norm.contains(query) ||
+          normEn.contains(query) ||
+          (c.alpha2Code ?? "").toLowerCase() == query ||
+          (digits.isNotEmpty &&
+              (c.dialCode ?? "").replaceAll("+", "").startsWith(digits));
+    }
+
+    final found = query.isEmpty
+        ? const <Country>[]
+        : [
+            for (final e in sorted)
+              if (matches(e)) e.$1,
+          ];
 
     final landscape = useSheetColumns(context);
     Widget row(Country c) => _CountryRow(
@@ -199,7 +225,7 @@ class _CountryPickerState extends State<_CountryPicker> {
         else ...[
           // As far below the search field as a list under a header.
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          group(null, found.toList()),
+          group(null, found),
         ],
       ],
     );

@@ -102,11 +102,22 @@ class PhoneNumberEntry extends ConsumerStatefulWidget {
 class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
   final _controller = TextEditingController();
 
-  late final List<Country> _countries;
+  /// The countries to pick from: the package's list with the Caribbean
+  /// ones added and the unsupported ones left out, built once.
+  static final List<Country> _countries = () {
+    _ensureCaribbeanCountriesRegistered();
+    _removeExcludedCountries();
+    return CountryProvider.getCountriesData(
+      countries: null,
+    ).where((c) => c.alpha2Code != null).toSet().toList();
+  }();
+
   late Country _country;
 
   /// The number in international format, while it is valid.
   String? _valid;
+
+  static final _nonDial = RegExp(r"[^\d+]");
 
   /// Which check of the typed number is the latest (they are async).
   var _check = 0;
@@ -114,11 +125,6 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
   @override
   void initState() {
     super.initState();
-    _ensureCaribbeanCountriesRegistered();
-    _removeExcludedCountries();
-    _countries = CountryProvider.getCountriesData(
-      countries: null,
-    ).where((c) => c.alpha2Code != null).toSet().toList();
     _country = _countryOf("NL") ?? _countries.first;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // The number typed before, when coming back from the code.
@@ -157,7 +163,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
 
   Future<void> _validate() async {
     final check = ++_check;
-    final digits = _controller.text.replaceAll(RegExp(r"[^\d+]"), "");
+    final digits = _controller.text.replaceAll(_nonDial, "");
     final iso = _country.alpha2Code!;
     String? number;
     try {
@@ -184,7 +190,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
   Future<void> _changed() async {
     _validate();
     final value = _controller.value;
-    final digits = value.text.replaceAll(RegExp(r"[^\d+]"), "");
+    final digits = value.text.replaceAll(_nonDial, "");
     if (digits.isEmpty || value.selection.end != value.text.length) return;
     String? formatted;
     try {
@@ -197,7 +203,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
     }
     // Only while nothing was typed meanwhile.
     if (!mounted || formatted == null || _controller.value != value) return;
-    if (formatted.replaceAll(RegExp(r"[^\d+]"), "") != digits) return;
+    if (formatted.replaceAll(_nonDial, "") != digits) return;
     _controller.value = TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),

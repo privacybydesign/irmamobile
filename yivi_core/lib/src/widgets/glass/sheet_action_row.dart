@@ -238,6 +238,24 @@ class SheetActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final secondary = secondaryLabel;
     final primary = primaryLabel;
+    final secondaryButton = secondary == null
+        ? null
+        : PillButton(
+            key: secondaryKey,
+            label: secondary,
+            onPressed: onSecondary,
+            style: PillStyle.text,
+            size: PillSize.regular,
+          );
+    final primaryButton = primary == null
+        ? null
+        : FancyPillButton(
+            key: primaryKey,
+            label: primary,
+            onPressed: onPrimary,
+            leading: primaryLeading,
+            size: PillSize.regular,
+          );
     // In the left column of a [SheetSplit] they take its width, side by
     // side, as in portrait.
     if (useSheetColumns(context) && !SheetSplit.isIn(context)) {
@@ -247,30 +265,12 @@ class SheetActionRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 12,
         children: [
-          if (secondary != null)
+          if (secondaryButton != null)
             Flexible(
-              child: SizedBox(
-                height: height,
-                child: PillButton(
-                  key: secondaryKey,
-                  label: secondary,
-                  onPressed: onSecondary,
-                  style: PillStyle.text,
-                  size: PillSize.regular,
-                ),
-              ),
+              child: SizedBox(height: height, child: secondaryButton),
             ),
-          if (primary != null)
-            SizedBox(
-              width: landscapeWidth,
-              child: FancyPillButton(
-                key: primaryKey,
-                label: primary,
-                onPressed: onPrimary,
-                leading: primaryLeading,
-                size: PillSize.regular,
-              ),
-            ),
+          if (primaryButton != null)
+            SizedBox(width: landscapeWidth, child: primaryButton),
         ],
       );
     }
@@ -279,26 +279,8 @@ class SheetActionRow extends StatelessWidget {
         spacing: 8,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (secondary != null)
-            Expanded(
-              child: PillButton(
-                key: secondaryKey,
-                label: secondary,
-                onPressed: onSecondary,
-                style: PillStyle.text,
-                size: PillSize.regular,
-              ),
-            ),
-          if (primary != null)
-            Expanded(
-              child: FancyPillButton(
-                key: primaryKey,
-                label: primary,
-                onPressed: onPrimary,
-                leading: primaryLeading,
-                size: PillSize.regular,
-              ),
-            ),
+          if (secondaryButton != null) Expanded(child: secondaryButton),
+          if (primaryButton != null) Expanded(child: primaryButton),
         ],
       ),
     );

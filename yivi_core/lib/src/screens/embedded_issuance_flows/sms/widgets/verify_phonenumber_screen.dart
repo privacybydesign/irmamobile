@@ -44,9 +44,10 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
 
   @override
   void dispose() {
-    super.dispose();
     routeObserver.unsubscribe(this);
     _focusNode.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   @override

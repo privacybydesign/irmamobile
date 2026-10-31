@@ -45,7 +45,6 @@ class NfcReadingTranslationKeys {
   final String title;
   final String cancelledByUser;
   final String cancelled;
-  final String cancelling;
   final String timeoutWaitingForTag;
   final String tagLostTryAgain;
   final String failedToInitiateSession;
@@ -60,7 +59,6 @@ class NfcReadingTranslationKeys {
     required this.title,
     required this.cancelledByUser,
     required this.cancelled,
-    required this.cancelling,
     required this.timeoutWaitingForTag,
     required this.tagLostTryAgain,
     required this.failedToInitiateSession,
@@ -109,12 +107,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// Shows a loader instead of the (already-completed) readout page, so the
   /// user is not sent back to the readout screen after the liveness session.
   bool _preparingIssuance = false;
-
-  DocumentType get _documentType => switch (widget.mrz) {
-    ScannedPassportMrz() => .passport,
-    ScannedDrivingLicenceMrz() => .drivingLicence,
-    ScannedIdCardMrz() => .identityCard,
-  };
 
   // Android polls for the tag as soon as the screen opens. iOS needs a tap
   // first, because that opens Apple's own NFC sheet.
@@ -334,11 +326,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // start the issuance session at the irma server
       final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
         result,
-        switch (widget.mrz) {
-          ScannedPassportMrz() => .passport,
-          ScannedDrivingLicenceMrz() => .drivingLicence,
-          ScannedIdCardMrz() => .identityCard,
-        },
+        widget.mrz.documentType,
       );
       if (!navContext.mounted) {
         return;
@@ -490,7 +478,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         _waitingPicture(context),
         (
           "$keys.waiting_title$device",
-          _documentType == .passport
+          widget.mrz.documentType == .passport
               ? "$keys.waiting_body_passport"
               : "$keys.waiting_body_card$device",
         ),
@@ -507,7 +495,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       _NfcStage.reading => (
         NfcProgressRing(
           progress: progressForState(state),
-          label: FlutterI18n.translate(context, _documentType.readingLabelKey),
+          label: FlutterI18n.translate(
+            context,
+            widget.mrz.documentType.readingLabelKey,
+          ),
         ),
         ("$keys.reading_title", "$keys.reading_body"),
         [if (!inSheet) cancelAction],
@@ -539,7 +530,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       titleKey: text.$1,
       bodyKey: text.$2,
       textParams: {
-        "document": FlutterI18n.translate(context, _documentType.nameKey),
+        "document": FlutterI18n.translate(
+          context,
+          widget.mrz.documentType.nameKey,
+        ),
       },
       actions: actions,
     );
@@ -548,7 +542,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// The phone settling on the passport cover, or on the back of the card,
   /// as on the canvas.
   Widget _waitingPicture(BuildContext context) {
-    final isPassport = _documentType == .passport;
+    final isPassport = widget.mrz.documentType == .passport;
     return Semantics(
       image: true,
       label: isPassport
@@ -562,12 +556,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               translationParams: {
                 "document": FlutterI18n.translate(
                   context,
-                  _documentType.nameKey,
+                  widget.mrz.documentType.nameKey,
                 ),
               },
             ),
       child: NfcPhoneOnDocument(
-        document: switch (_documentType) {
+        document: switch (widget.mrz.documentType) {
           .passport => NfcDocumentPicture.passport,
           .identityCard => NfcDocumentPicture.identityCard,
           .drivingLicence => NfcDocumentPicture.drivingLicence,
@@ -744,7 +738,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     return (state) {
       final params = {
-        "document": FlutterI18n.translate(context, _documentType.nameKey),
+        "document": FlutterI18n.translate(
+          context,
+          widget.mrz.documentType.nameKey,
+        ),
       };
       String translate(String key) =>
           FlutterI18n.translate(context, key, translationParams: params);

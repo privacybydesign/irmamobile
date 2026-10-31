@@ -330,7 +330,12 @@ class UnlockPinEntry extends ConsumerWidget {
     final blocked = blockedFor.inSeconds > 0;
     final enabled = !blocked && !busy;
     // A wrong PIN or a block, said in the line under the title.
-    final line = pinStateLine(context, state, blockedFor);
+    final line = pinAttemptLine(
+      context,
+      blockedFor: blockedFor,
+      wrong: state.pinInvalid,
+      left: state.remainingAttempts,
+    );
     final waiting = this.waiting;
 
     void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
@@ -358,7 +363,7 @@ class UnlockPinEntry extends ConsumerWidget {
                   : PinInstructionStyle.line,
               upperGap: waiting == null ? 40 : 48,
               centreUpper: centreUpper,
-              detail: line?.text,
+              detail: line,
               detailKind: line == null
                   ? PinDetailKind.info
                   : PinDetailKind.error,
@@ -384,21 +389,4 @@ class UnlockPinEntry extends ConsumerWidget {
       ],
     );
   }
-}
-
-/// What the line under the title says after a wrong PIN or during a block:
-/// the tries left, or how long until the next try. Null when neither.
-({String text})? pinStateLine(
-  BuildContext context,
-  PinUnlockState state,
-  Duration blockedFor,
-) {
-  if (blockedFor.inSeconds > 0) {
-    return (text: pinTryAgainIn(context, blockedFor));
-  }
-  final left = state.remainingAttempts;
-  if (state.pinInvalid && left != null && left > 0) {
-    return (text: FlutterI18n.plural(context, "pin.wrong.attempts", left));
-  }
-  return null;
 }

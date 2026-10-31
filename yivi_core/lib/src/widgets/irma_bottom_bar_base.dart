@@ -19,7 +19,7 @@ class IrmaBottomBarBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final mediaQuery = MediaQuery.of(context);
+    final padding = MediaQuery.paddingOf(context);
 
     // Floats over the page: the content scrolls underneath and fades out
     // above the bar, as in the design (with `extendBody`). The fade is a
@@ -48,8 +48,8 @@ class IrmaBottomBarBase extends StatelessWidget {
           color: palette.background,
           child: Padding(
             padding: .only(
-              left: theme.defaultSpacing + mediaQuery.padding.left,
-              right: theme.defaultSpacing + mediaQuery.padding.right,
+              left: theme.defaultSpacing + padding.left,
+              right: theme.defaultSpacing + padding.right,
               // The same place on every screen (see buttonBottom).
               bottom: FloatingBarPlacement.buttonPadding(
                 context,

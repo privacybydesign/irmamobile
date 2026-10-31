@@ -8,6 +8,7 @@ import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_action_row.dart";
 import "../../../widgets/note_box.dart";
+import "../../../widgets/step_number_disc.dart";
 import "../../../widgets/surface_card.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
@@ -203,22 +204,11 @@ class _NumberedStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 12,
       children: [
-        ExcludeSemantics(
-          child: Container(
-            width: 26,
-            height: 26,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: palette.tint,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              "$n",
-              style: palette
-                  .body(13, weight: FontWeight.w700)
-                  .copyWith(color: palette.link, height: 1),
-            ),
-          ),
+        StepNumberDisc(
+          "$n",
+          style: palette
+              .body(13, weight: FontWeight.w700)
+              .copyWith(color: palette.link, height: 1),
         ),
         Expanded(
           child: Padding(

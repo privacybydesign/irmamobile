@@ -69,10 +69,6 @@ String activityPeriodLabel(BuildContext context, ActivityQuery query) {
       " – ${day(to, to != null && to.year != thisYear)}";
 }
 
-/// "1 keer", "4 keer".
-String activityTimes(BuildContext context, int count) =>
-    FlutterI18n.plural(context, "activity.query.times", count);
-
 /// "7 resultaten".
 String activityResults(BuildContext context, int count) =>
     FlutterI18n.plural(context, "activity.query.results", count);

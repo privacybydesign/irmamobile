@@ -150,26 +150,6 @@ class SchemalessCredentialOrderController
     _applyOrder(current);
   }
 
-  /// Like [reorder], for a list that shows only some of the credentials, such
-  /// as one section of the data tab. [section] is that list in display order
-  /// and the indices refer to it. The credentials outside it keep their place.
-  void reorderWithin(
-    List<schemaless.Credential> section,
-    int oldIndex,
-    int newIndex,
-  ) {
-    final reordered = [...section];
-    reordered.insert(newIndex, reordered.removeAt(oldIndex));
-
-    // The section's credentials take over the slots it already had.
-    final ids = {for (final c in section) c.credentialId};
-    var next = 0;
-    _applyOrder([
-      for (final c in state.requireValue)
-        ids.contains(c.credentialId) ? reordered[next++] : c,
-    ]);
-  }
-
   /// Tidies the cards up [by] a sort, once: what comes out is simply the
   /// user's order, to drag on from. Returns the order before, for [restore].
   List<String> arrange(CardArrangement by) {

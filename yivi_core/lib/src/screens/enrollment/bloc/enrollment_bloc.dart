@@ -73,6 +73,15 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       : Enrolling();
 
   /// After the last step: the home screen once the account is there.
+  /// Goes to [next], creating the account first when that is [Enrolling].
+  Stream<EnrollmentState> _goTo(EnrollmentState next) async* {
+    if (next is Enrolling) {
+      yield* _finish();
+    } else {
+      yield next;
+    }
+  }
+
   Stream<EnrollmentState> _finish() async* {
     yield Enrolling();
     final error = await account;
@@ -124,12 +133,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       } else if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
           unawaited(_startAccount());
-          final next = _biometricOrNext();
-          if (next is Enrolling) {
-            yield* _finish();
-          } else {
-            yield next;
-          }
+          yield* _goTo(_biometricOrNext());
         } else {
           yield EnrollmentConfirmPin(step: _pinStep, confirmationFailed: true);
         }
@@ -138,12 +142,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
     } else if (state is EnrollmentBiometric &&
         event is EnrollmentBiometricDone) {
-      final next = _emailOrDone();
-      if (next is Enrolling) {
-        yield* _finish();
-      } else {
-        yield next;
-      }
+      yield* _goTo(_emailOrDone());
     } else if (state is EnrollmentEmail && event is EnrollmentEmailDone) {
       yield* _finish();
     } else if (state is EnrollmentFailed &&

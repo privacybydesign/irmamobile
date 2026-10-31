@@ -98,8 +98,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
 
   /// The notification whose card the detail pane shows: the one picked,
   /// else the first about that card.
-  String? _paneNotificationId(List<Notification> notifications) {
-    final hash = _paneHash(notifications);
+  String? _paneNotificationId(List<Notification> notifications, String? hash) {
     if (hash == null) return null;
     bool about(Notification n) =>
         n is CredentialStatusNotification && n.credentialHash == hash;
@@ -112,9 +111,8 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
 
   /// The tablet layout: the notifications next to the card the picked one
   /// is about (that of the newest notification until the user picks one).
-  Widget _withDetailPane(Widget list, List<Notification> notifications) {
+  Widget _withDetailPane(Widget list, String? hash) {
     final palette = YiviPalette.of(context);
-    final hash = _paneHash(notifications);
     final selection = ref.read(selectedNotificationCardProvider.notifier);
     return TwoPane(
       list: list,
@@ -149,110 +147,107 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
 
-    return BlocProvider.value(
-      value: BlocProvider.of<NotificationsBloc>(context),
-      child: Scaffold(
-        backgroundColor: palette.background,
-        body: TitleScrollEdge(
-          title: FlutterI18n.translate(context, "notifications.title"),
-          largeTitleBottom: tabTitleBottom,
-          child: BlocBuilder<NotificationsBloc, NotificationsState>(
-            builder: (context, state) {
-              if (state is NotificationsLoading) {
-                return Center(child: LoadingIndicator());
-              } else if (state is NotificationsLoaded) {
-                final notifications = state.notifications;
-                final unread = notifications.where((n) => !n.read).length;
-                final openId = useHomePanes(context)
-                    ? _paneNotificationId(notifications)
-                    : null;
+    return Scaffold(
+      backgroundColor: palette.background,
+      body: TitleScrollEdge(
+        title: FlutterI18n.translate(context, "notifications.title"),
+        largeTitleBottom: tabTitleBottom,
+        child: BlocBuilder<NotificationsBloc, NotificationsState>(
+          builder: (context, state) {
+            if (state is NotificationsLoading) {
+              return Center(child: LoadingIndicator());
+            } else if (state is NotificationsLoaded) {
+              final notifications = state.notifications;
+              final unread = notifications.where((n) => !n.read).length;
+              final panes = useHomePanes(context);
+              final paneHash = panes ? _paneHash(notifications) : null;
+              final openId = panes
+                  ? _paneNotificationId(notifications, paneHash)
+                  : null;
 
-                final list = RefreshIndicator(
-                  edgeOffset: padding.top,
-                  onRefresh: () => Future.sync(_onRefresh),
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: tabPagePadding(context),
-                    children: [
-                      CentredMaxWidth(
-                        maxWidth: mediumContentMaxWidth,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Expanded(
-                                    child: const TabLargeTitle(
-                                      "notifications.title",
-                                    ),
+              final list = RefreshIndicator(
+                edgeOffset: padding.top,
+                onRefresh: () => Future.sync(_onRefresh),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: tabPagePadding(context),
+                  children: [
+                    CentredMaxWidth(
+                      maxWidth: mediumContentMaxWidth,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Expanded(
+                                  child: const TabLargeTitle(
+                                    "notifications.title",
                                   ),
-                                  if (unread > 0)
-                                    Text(
-                                      FlutterI18n.translate(
-                                        context,
-                                        "notifications.new_count",
-                                        translationParams: {"count": "$unread"},
-                                      ),
-                                      style: palette
-                                          .body(14)
-                                          .copyWith(color: palette.heading),
+                                ),
+                                if (unread > 0)
+                                  Text(
+                                    FlutterI18n.translate(
+                                      context,
+                                      "notifications.new_count",
+                                      translationParams: {"count": "$unread"},
                                     ),
-                                ],
+                                    style: palette
+                                        .body(14)
+                                        .copyWith(color: palette.heading),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (notifications.isEmpty)
+                            const NoNotifications()
+                          else ...[
+                            for (final notification in notifications)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: IrmaDismissible(
+                                  key: Key(notification.id),
+                                  borderRadius: YiviCorners.cardRadius,
+                                  onDismissed: () =>
+                                      _onNotificationDismiss(notification),
+                                  child: NotificationCard(
+                                    notification: notification,
+                                    selected: notification.id == openId,
+                                    onTap: (pictureContext) =>
+                                        _onNotificationTap(
+                                          notification,
+                                          pictureContext,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: TranslatedText(
+                                "notifications.swipe_hint",
+                                textAlign: TextAlign.center,
+                                style: palette
+                                    .body(12)
+                                    .copyWith(color: palette.secondaryText),
                               ),
                             ),
-                            if (notifications.isEmpty)
-                              const NoNotifications()
-                            else ...[
-                              for (final notification in notifications)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: IrmaDismissible(
-                                    key: Key(notification.id),
-                                    borderRadius: YiviCorners.cardRadius,
-                                    onDismissed: () =>
-                                        _onNotificationDismiss(notification),
-                                    child: NotificationCard(
-                                      notification: notification,
-                                      selected: notification.id == openId,
-                                      onTap: (pictureContext) =>
-                                          _onNotificationTap(
-                                            notification,
-                                            pictureContext,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: TranslatedText(
-                                  "notifications.swipe_hint",
-                                  textAlign: TextAlign.center,
-                                  style: palette
-                                      .body(12)
-                                      .copyWith(color: palette.secondaryText),
-                                ),
-                              ),
-                            ],
                           ],
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-                return useHomePanes(context)
-                    ? _withDetailPane(list, notifications)
-                    : list;
-              }
-
-              throw Exception(
-                "NotificationsScreen does not support this state: $state",
+                    ),
+                  ],
+                ),
               );
-            },
-          ),
+              return panes ? _withDetailPane(list, paneHash) : list;
+            }
+
+            throw Exception(
+              "NotificationsScreen does not support this state: $state",
+            );
+          },
         ),
       ),
     );

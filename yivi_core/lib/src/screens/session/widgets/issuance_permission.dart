@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
@@ -240,23 +239,15 @@ class IssuanceOffer {
     this.showRequestChip = true,
   });
 
-  List<schemaless.Credential> get _cards => cards;
-
   List<IssuanceStep> get _steps =>
       forRequest?.disclosurePlan?.issueDuringDisclosure?.steps ??
       const <IssuanceStep>[];
-
-  static String t(
-    BuildContext context,
-    String key, [
-    Map<String, String>? params,
-  ]) => FlutterI18n.translate(context, key, translationParams: params);
 
   String? _returnedChip(BuildContext context) {
     final issuer = returnedFromIssuer;
     return issuer == null
         ? null
-        : t(context, "issuance.returned_from", {"issuer": issuer});
+        : context.tr("issuance.returned_from", {"issuer": issuer});
   }
 
   /// The card (or the pile), its chips and the mismatch note.
@@ -266,27 +257,27 @@ class IssuanceOffer {
     bool withNote = true,
   }) {
     final steps = _steps;
-    final many = _cards.length > 1;
-    final issuers = _cards.map((c) => c.issuer.name).toSet();
-    final first = _cards.firstOrNull;
+    final many = cards.length > 1;
+    final issuers = cards.map((c) => c.issuer.name).toSet();
+    final first = cards.firstOrNull;
 
     final chips = [
       StatusChip(
         label: issuers.length > 1
-            ? t(context, "issuance.from_issuers", {
+            ? context.tr("issuance.from_issuers", {
                 "count": "${issuers.length}",
               })
             : issuers.firstOrNull ?? "",
       ),
       if (many)
         StatusChip(
-          label: t(context, "issuance.card_count", {
-            "count": "${_cards.length}",
+          label: context.tr("issuance.card_count", {
+            "count": "${cards.length}",
           }),
         ),
       if (!many && (first?.display?.svgTemplates.isNotEmpty ?? false))
         StatusChip(
-          label: t(context, "credential_card.source.issuer_design"),
+          label: context.tr("credential_card.source.issuer_design"),
           tone: DialogTone.info,
         ),
       if (showRequestChip ? _context(context, steps) : _returnedChip(context)
@@ -300,7 +291,7 @@ class IssuanceOffer {
 
     return [
       if (many)
-        CardPile(cards: _cards)
+        CardPile(cards: cards)
       else if (first != null)
         Center(
           child: CredentialCardArt(credential: first, width: cardWidth),
@@ -315,17 +306,17 @@ class IssuanceOffer {
   /// Part of [overview] unless it is left out there (landscape shows it
   /// with the values).
   Widget? note(BuildContext context) {
-    final miss = issuanceMismatches(_cards, _steps).firstOrNull;
+    final miss = issuanceMismatches(cards, _steps).firstOrNull;
     final request = forRequest;
     if (miss == null || request == null) return null;
     final requestor = request.requestor.name;
     return _MismatchBox(
       key: const Key("issuance_mismatch"),
-      head: t(context, "share.offer.not_counted", {"requestor": requestor}),
-      asks: t(context, "share.offer.asks", {"requestor": requestor}),
+      head: context.tr("share.offer.not_counted", {"requestor": requestor}),
+      asks: context.tr("share.offer.asks", {"requestor": requestor}),
       asked:
           "${miss.attributeName} ${localizedAttributeText(context, miss.required) ?? ""}",
-      has: t(context, "share.offer.has"),
+      has: context.tr("share.offer.has"),
       got:
           "${miss.attributeName} ${localizedAttributeText(context, miss.offered) ?? "–"}",
     );
@@ -333,22 +324,25 @@ class IssuanceOffer {
 
   /// The tag of [card] inside a request: what the request uses ("For
   /// {requestor}"), what doesn't count, or what comes along ("Comes too").
-  String? _tagOf(BuildContext context, schemaless.Credential card) {
+  String? _tagOf(
+    BuildContext context,
+    schemaless.Credential card, {
+    required bool mismatched,
+  }) {
     final request = forRequest;
     if (request == null) return null;
-    final mismatched = issuanceMismatches([card], _steps).isNotEmpty;
-    if (mismatched) return t(context, "share.offer.tag_not_counted");
+    if (mismatched) return context.tr("share.offer.tag_not_counted");
     final used = {
       for (final step in _steps)
         for (final b in step.options)
           for (final d in b.credentials) d.credentialId,
     };
-    if (used.contains(card.credentialId) || _cards.length == 1) {
-      return t(context, "issuance.for_request", {
+    if (used.contains(card.credentialId) || cards.length == 1) {
+      return context.tr("issuance.for_request", {
         "requestor": request.requestor.name,
       });
     }
-    return t(context, "share.offer.tag_extra");
+    return context.tr("share.offer.tag_extra");
   }
 
   /// "For {requestor} · step n of m" inside a request, "Back from the
@@ -356,27 +350,24 @@ class IssuanceOffer {
   String? _context(BuildContext context, List<IssuanceStep> steps) {
     final request = forRequest;
     if (request != null) {
-      final step = stepNumberFor(_cards, steps);
+      final step = stepNumberFor(cards, steps);
       final requestor = request.requestor.name;
       return step == null
-          ? t(context, "issuance.for_request", {"requestor": requestor})
-          : t(context, "issuance.for_request_step", {
+          ? context.tr("issuance.for_request", {"requestor": requestor})
+          : context.tr("issuance.for_request_step", {
               "requestor": requestor,
               "step": "$step",
               "total": "${steps.length}",
             });
     }
-    final issuer = returnedFromIssuer;
-    return issuer == null
-        ? null
-        : t(context, "issuance.returned_from", {"issuer": issuer});
+    return _returnedChip(context);
   }
 
   String? _validUntil(BuildContext context, schemaless.Credential card) {
     final expiry = card.expiryDate ?? 0;
     if (expiry <= 0) return null;
     final lang = context.lang;
-    return t(context, "wallet.detail.valid_until", {
+    return context.tr("wallet.detail.valid_until", {
       "date": printableDate(
         DateTime.fromMillisecondsSinceEpoch(expiry * 1000),
         lang,
@@ -392,9 +383,13 @@ class IssuanceOffer {
     BuildContext context, {
     String headingKey = "issuance.you_will_receive",
   }) {
-    final mismatches = issuanceMismatches(_cards, _steps);
+    final mismatches = issuanceMismatches(cards, _steps);
+    // Per card: a value the request waiting underneath cannot use.
+    final bad = [
+      for (final card in cards) issuanceMismatches([card], _steps).isNotEmpty,
+    ];
     final palette = YiviPalette.of(context);
-    final many = _cards.length > 1;
+    final many = cards.length > 1;
 
     Set<String> mismatchedIn(schemaless.Credential card) => {
       for (final m in mismatches)
@@ -409,7 +404,7 @@ class IssuanceOffer {
           mismatched: mismatchedIn(card),
         );
 
-    final heading = Text(t(context, headingKey), style: palette.display(16));
+    final heading = Text(context.tr(headingKey), style: palette.display(16));
 
     return [
       Padding(
@@ -425,7 +420,7 @@ class IssuanceOffer {
                     Expanded(child: heading),
                     Flexible(
                       child: Text(
-                        t(context, "issuance.all_together"),
+                        context.tr("issuance.all_together"),
                         textAlign: TextAlign.end,
                         style: palette
                             .body(13)
@@ -438,7 +433,7 @@ class IssuanceOffer {
         ),
       ),
       // One card looks like each of several: its name above its values.
-      for (final (i, card) in _cards.indexed)
+      for (final (i, card) in cards.indexed)
         Padding(
           padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
           child: SurfaceCard(
@@ -451,8 +446,8 @@ class IssuanceOffer {
                   _GroupHeader(
                     card: card,
                     until: _validUntil(context, card),
-                    tag: _tagOf(context, card),
-                    tagBad: issuanceMismatches([card], _steps).isNotEmpty,
+                    tag: _tagOf(context, card, mismatched: bad[i]),
+                    tagBad: bad[i],
                   ),
                   Divider(height: 1, color: palette.divider),
                   values(card),

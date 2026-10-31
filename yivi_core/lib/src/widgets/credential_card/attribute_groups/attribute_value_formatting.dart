@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
@@ -7,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
+import "../../base64_image.dart";
 import "../models/credential_card_layout.dart";
 
 // Text styles and value formatting shared by the attribute list and by
@@ -164,7 +163,8 @@ Uint8List? decodeAttributeImage(schemaless.AttributeValue? value) {
   final raw = value?.imagePath ?? value?.base64Image ?? "";
   final Uint8List bytes;
   try {
-    bytes = const Base64Decoder().convert(raw.trim());
+    // Cached, so a rebuilt row hands its photo the same bytes.
+    bytes = decodeBase64Cached(raw.trim());
   } on FormatException {
     return null;
   }

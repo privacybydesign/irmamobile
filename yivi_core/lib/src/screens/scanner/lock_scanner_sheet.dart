@@ -84,8 +84,7 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet>
   /// Back to the scanner: the scan is dropped, so nothing starts.
   void _back() {
     ref.read(irmaRepositoryProvider).setPendingPointer(null);
-    issueReleaseSession();
-    lockScannerSheetHolds.value = false;
+    _letGo();
     setState(() => _scanned = null);
   }
 

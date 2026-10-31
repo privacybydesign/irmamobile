@@ -73,12 +73,11 @@ class IrmaBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final mediaQuery = MediaQuery.of(context);
 
     // Change layout according to limited height (i.e. landscape mode) and alignment setting.
     final vertical =
         alignment == IrmaBottomBarAlignment.automatic &&
-        mediaQuery.size.height > 450;
+        MediaQuery.sizeOf(context).height > 450;
     return IrmaBottomBarBase(
       // "Cancel" under the main button sits low, as on iOS.
       endsWithTextButton: vertical && secondaryButtonLabel != null,

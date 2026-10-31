@@ -15,12 +15,6 @@ import "passport_mrz_manual_entry_screen.dart";
 /// same screens and only differ in where the next step goes. In a sheet they
 /// show without their own bar (see `DocumentStepInSheet`).
 abstract final class DocumentFlowSteps {
-  static String _segment(DocumentType type) => switch (type) {
-    .passport => "passport",
-    .identityCard => "id_card",
-    .drivingLicence => "driving_licence",
-  };
-
   /// How to hold the document; [onStart] goes on to the camera or the
   /// manual entry.
   static Widget instruction(
@@ -40,7 +34,7 @@ abstract final class DocumentFlowSteps {
     required VoidCallback onManual,
     required VoidCallback onCancel,
   }) {
-    final s = _segment(type);
+    final s = type.keySegment;
     final keys = MrzReaderTranslationKeys(
       title: "$s.scan.title",
       manualEntryButton: "$s.scan.manual",
@@ -86,21 +80,15 @@ abstract final class DocumentFlowSteps {
     if (type == .drivingLicence) {
       return DrivingLicenceMrzManualEntryScreen(
         onCancel: onCancel,
-        onContinue: (data) => onRead(
-          ScannedDrivingLicenceMrz(
-            documentNumber: data.documentNumber,
-            countryCode: data.countryCode,
-            version: data.version,
-            randomData: data.randomData,
-            configuration: data.configuration,
-          ),
-        ),
+        onContinue: (r) => onRead(ScannedDrivingLicenceMrz.fromMRZResult(r)),
       );
     }
-    final s = _segment(type);
+    final s = type.keySegment;
     return PassportMrzManualEntryScreen(
       translationKeys: PassportMrzManualEntryTranslationKeys(
         title: "$s.manual.title",
+        appBarTitle: type.scanTitleKey,
+        tip: type.manualTipKey,
         explanation: "$s.manual.explanation",
         dateOfBirth: "$s.manual.fields.date_of_birth",
         dateOfBirthRequired: "$s.manual.fields.date_of_birth_required",
@@ -134,7 +122,7 @@ abstract final class DocumentFlowSteps {
     required VoidCallback onCancel,
     Future<bool> Function(BuildContext context)? faceIntro,
   }) {
-    final s = _segment(mrz.documentType);
+    final s = mrz.documentType.keySegment;
     return NfcReadingScreen(
       translationKeys: NfcReadingTranslationKeys(
         cancelDialogTitle: "$s.nfc.cancel_dialog.title",
@@ -146,7 +134,6 @@ abstract final class DocumentFlowSteps {
         title: "$s.nfc.title",
         cancelledByUser: "$s.nfc.cancelled_by_user",
         cancelled: "$s.nfc.cancelled",
-        cancelling: "$s.nfc.cancelling",
         timeoutWaitingForTag: "$s.nfc.timeout_waiting_for_tag",
         tagLostTryAgain: "$s.nfc.tag_lost_try_again",
         failedToInitiateSession: "$s.nfc.failed_to_initiate_session",

@@ -44,6 +44,9 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
   FocusNode? _ownFocus;
   FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
 
+  /// Whether there is text: the clear button shows.
+  late bool _hasText = _controller.text.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
@@ -56,12 +59,14 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     if (old.controller != widget.controller) {
       (old.controller ?? _own)?.removeListener(_changed);
       _controller.addListener(_changed);
+      _hasText = _controller.text.isNotEmpty;
     }
   }
 
   /// The clear button follows the text, also when typed in the other field.
   void _changed() {
-    if (mounted) setState(() {});
+    final hasText = _controller.text.isNotEmpty;
+    if (mounted && hasText != _hasText) setState(() => _hasText = hasText);
   }
 
   @override
@@ -142,7 +147,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                     ),
                   ),
                 ),
-                if (_controller.text.isNotEmpty)
+                if (_hasText)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Semantics(

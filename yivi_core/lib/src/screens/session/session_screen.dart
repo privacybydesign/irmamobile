@@ -144,20 +144,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           _underlying;
     }
 
-    // Track the latest non-null remainingTxCodeAttempts so that, if the
-    // session subsequently errors out, we can detect the tx_code-lockout
-    // case and show the dedicated screen.
     ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      // Track the latest non-null remainingTxCodeAttempts so that, if the
+      // session subsequently errors out, we can detect the tx_code-lockout
+      // case and show the dedicated screen.
       final attempts = next.value?.remainingTxCodeAttempts;
       if (attempts != null) {
         _lastSeenRemainingTxCodeAttempts = attempts;
       }
-    });
 
-    // Auto-trigger OID4VCI side effects on first entry into the relevant
-    // states. The flag prevents re-firing on rebuilds (e.g. when the user
-    // returns from a cancelled browser session).
-    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      // Auto-trigger OID4VCI side effects on first entry into the relevant
+      // states. The flag prevents re-firing on rebuilds (e.g. when the user
+      // returns from a cancelled browser session).
       final session = next.value;
       if (session == null || _autoTriggeredForOpenID4VCI) return;
 
@@ -326,10 +324,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     _repo.enterSessionPin(widget.sessionId, pin);
   }
 
-  void _dismissSession() {
-    final repo = ref.read(irmaRepositoryProvider);
-    repo.dismissSession(widget.sessionId);
-  }
+  void _dismissSession() => _repo.dismissSession(widget.sessionId);
 
   Future<void> _showDismissDialog() async {
     final confirmed = await showConfirmDialog(
@@ -362,8 +357,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
     _sharedInstances = _instancesFor(disclosureChoices);
-    final repo = ref.read(irmaRepositoryProvider);
-    repo.grantSession(widget.sessionId, disclosureChoices);
+    _repo.grantSession(widget.sessionId, disclosureChoices);
   }
 
   Widget _buildSuccess(SessionState session) {
@@ -388,11 +382,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           linkingNotifier.markLinked();
         });
       }
-      return EmailLinkedScreen(
-        onDismiss: (_) => context.popToUnderlyingSessionOrHome(
-          hasUnderlyingSession: widget.hasUnderlyingSession,
-        ),
-      );
+      return EmailLinkedScreen(onDismiss: (_) => _popToUnderlyingOrHome());
     }
 
     // Latch the in-app-launched decision on first build, then clear the
@@ -402,14 +392,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (_inAppLaunchedSuccess == null) {
       _inAppLaunchedSuccess = _repo.didIssueInAppLaunchedCredential(session);
       _repo.clearInAppLaunches();
-    }
-
-    void pop() {
-      if (mounted) {
-        context.popToUnderlyingSessionOrHome(
-          hasUnderlyingSession: widget.hasUnderlyingSession,
-        );
-      }
     }
 
     // An issuance during a request: confirm what was added, then back to
@@ -431,10 +413,28 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (_inAppLaunchedSuccess!) {
       return IssuanceSuccessScreen(
         credentials: session.offeredCredentials ?? const [],
-        onDismiss: (_) => pop(),
+        onDismiss: (_) => _popToUnderlyingOrHome(),
         flyHome: true,
       );
     }
+
+    // "Shared with {requestor}", with what to do now.
+    Widget shared({
+      bool onOtherDevice = false,
+      String? returnHost,
+      VoidCallback? onReturn,
+      bool goBackYourself = false,
+    }) => DisclosureFeedbackScreen(
+      feedbackType: .success,
+      isSignatureSession: session.type == .signature,
+      otherParty: session.requestor.name,
+      onDismiss: (_) => _popToUnderlyingOrHome(),
+      shared: _sharedInstances,
+      onOtherDevice: onOtherDevice,
+      returnHost: returnHost,
+      onReturn: onReturn,
+      goBackYourself: goBackYourself,
+    );
 
     final returnUrl = session.parsedClientReturnUrl;
 
@@ -460,18 +460,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       if (session.type == .issuance) {
         return IssuanceSuccessScreen(
           credentials: session.offeredCredentials ?? const [],
-          onDismiss: (_) => pop(),
+          onDismiss: (_) => _popToUnderlyingOrHome(),
           flyHome: true,
         );
       }
-      return DisclosureFeedbackScreen(
-        feedbackType: .success,
-        isSignatureSession: session.type == .signature,
-        otherParty: session.requestor.name,
-        onDismiss: (_) => pop(),
-        shared: _sharedInstances,
-        onOtherDevice: true,
-      );
+      return shared(onOtherDevice: true);
     }
 
     // Same-device session with a browser return URL (external / in-app): hand
@@ -482,12 +475,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         return _buildError(_returnUrlError!);
       }
       if (session.type != .issuance) {
-        return DisclosureFeedbackScreen(
-          feedbackType: .success,
-          isSignatureSession: session.type == .signature,
-          otherParty: session.requestor.name,
-          onDismiss: (_) => pop(),
-          shared: _sharedInstances,
+        return shared(
           returnHost: _hostOf(returnUrl),
           onReturn: () => _goToReturnUrl(returnUrl),
         );
@@ -507,14 +495,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // the task to the background so the OS surfaces the previous app
     // automatically.
     if (Platform.isIOS && session.type != .issuance) {
-      return DisclosureFeedbackScreen(
-        feedbackType: .success,
-        isSignatureSession: session.type == .signature,
-        otherParty: session.requestor.name,
-        onDismiss: (_) => pop(),
-        shared: _sharedInstances,
-        goBackYourself: true,
-      );
+      return shared(goBackYourself: true);
     }
     if (Platform.isIOS) {
       return ArrowBack(
@@ -527,7 +508,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-      pop();
+      _popToUnderlyingOrHome();
     });
     return _buildLoadingScreen(session);
   }

@@ -38,6 +38,17 @@ schemaless.SvgCardTemplate? builtinCardTemplate(
   );
 }
 
+/// [builtinCardTemplate] for [credential], by its id and the attributes it
+/// has.
+schemaless.SvgCardTemplate? builtinCardTemplateFor(
+  schemaless.Credential credential,
+) => builtinCardTemplate(
+  credential.credentialId,
+  attributeIds: credential.attributes
+      .where((a) => a.claimPath.isNotEmpty)
+      .map((a) => "${a.claimPath.last}"),
+);
+
 /// The full SVG of each template, built on first use.
 final _svgs = <String, String>{};
 
@@ -210,12 +221,7 @@ Map<String, String> builtinTemplateValues(
 List<schemaless.Attribute> builtinHeaderAttributes(
   schemaless.Credential credential,
 ) {
-  final template = builtinCardTemplate(
-    credential.credentialId,
-    attributeIds: credential.attributes
-        .where((a) => a.claimPath.isNotEmpty)
-        .map((a) => "${a.claimPath.last}"),
-  );
+  final template = builtinCardTemplateFor(credential);
   if (template == null) return const [];
   final ids = _headerIds.putIfAbsent(
     template.svg,

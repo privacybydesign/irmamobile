@@ -298,14 +298,7 @@ class BarInsets {
     BuildContext context, [
     EdgeInsets base = EdgeInsets.zero,
   ]) {
-    final padding = MediaQuery.paddingOf(context);
-    return base +
-        EdgeInsets.fromLTRB(
-          padding.left,
-          padding.top,
-          padding.right,
-          padding.bottom,
-        );
+    return base + MediaQuery.paddingOf(context);
   }
 }
 

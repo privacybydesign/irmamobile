@@ -39,8 +39,6 @@ enum PhoneTransition {
   fade,
 }
 
-const _ease = YiviMotion.ease;
-
 /// A go_router page that presents its [child] by [mode] on tablets and with
 /// [phoneTransition] on phones. With "Reduce motion" on, every transition is
 /// a cross-fade.
@@ -99,6 +97,20 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       : _page.phoneTransition;
 
   bool get _platformPush => !_expanded && _phone == PhoneTransition.push;
+
+  /// The eased [animation] of the transitions, made once: a new one on every
+  /// frame would add a status listener to [animation] each time.
+  late final CurvedAnimation _curved = CurvedAnimation(
+    parent: animation!,
+    curve: YiviMotion.ease,
+    reverseCurve: Curves.easeIn,
+  );
+
+  @override
+  void dispose() {
+    _curved.dispose();
+    super.dispose();
+  }
 
   // Only a sheet on a tablet shows the app around it. On a phone the screen
   // covers the window, so it is opaque (once its transition is done), which
@@ -241,11 +253,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final curved = CurvedAnimation(
-      parent: animation,
-      curve: _ease,
-      reverseCurve: Curves.easeIn,
-    );
+    final curved = _curved;
     if (MediaQuery.disableAnimationsOf(context)) {
       return FadeTransition(opacity: animation, child: child);
     }

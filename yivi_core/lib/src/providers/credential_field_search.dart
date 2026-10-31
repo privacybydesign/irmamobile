@@ -71,7 +71,7 @@ const minValueQuery = 3;
 /// "E-mailadres" and "anna" does not find "Hanna". A label match wins over a
 /// value match on the same field.
 List<FieldHit> matchFields(List<SearchField> fields, String query) {
-  final q = _fold(query.trim()).text;
+  final q = foldQuery(query);
   if (q.length < minLabelQuery) return const [];
   final hits = <FieldHit>[];
   for (final f in fields) {
@@ -132,8 +132,9 @@ SearchMatch? findWordPrefix(
   final folded = _fold(text);
   final t = folded.text;
   for (var i = 0; i + query.length <= t.length; i++) {
-    final wordStart = i == 0 || !_isWordChar(t.codeUnitAt(i - 1));
-    if (wordStart && t.startsWith(query, i)) {
+    // The cheap test first: the word-start test runs a regex.
+    if (t.startsWith(query, i) &&
+        (i == 0 || !_isWordChar(t.codeUnitAt(i - 1)))) {
       return folded.original(i, i + query.length);
     }
   }

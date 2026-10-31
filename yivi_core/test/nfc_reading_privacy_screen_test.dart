@@ -84,7 +84,6 @@ NfcReadingTranslationKeys _translationKeys() {
     title: key,
     cancelledByUser: key,
     cancelled: key,
-    cancelling: key,
     timeoutWaitingForTag: key,
     tagLostTryAgain: key,
     failedToInitiateSession: key,

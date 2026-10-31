@@ -4,9 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "glass/round_icon_button.dart";
 
-/// The round close button ([RoundIconButton]). [IrmaCloseButton.filled] is
-/// the same button; it stays for the call sites that asked for the filled
-/// look before every close button became one.
+/// The round close button ([RoundIconButton]).
 class IrmaCloseButton extends StatelessWidget {
   final Function()? onTap;
 
@@ -17,13 +15,6 @@ class IrmaCloseButton extends StatelessWidget {
   final bool dark;
 
   const IrmaCloseButton({
-    super.key,
-    this.onTap,
-    this.opacity = 1,
-    this.dark = false,
-  });
-
-  const IrmaCloseButton.filled({
     super.key,
     this.onTap,
     this.opacity = 1,

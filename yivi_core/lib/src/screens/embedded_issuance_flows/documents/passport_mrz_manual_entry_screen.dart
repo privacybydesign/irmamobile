@@ -19,15 +19,15 @@ class PassportMrzManualEntryTranslationKeys {
 
   /// The bar title: the scan title of the document ("Scan passport"), next
   /// to the heading in the page.
-  String get appBarTitle => title.replaceFirst(".manual.title", ".scan.title");
+  final String appBarTitle;
 
   /// Where to find the details, under the fields.
-  String get tip => title.startsWith("id_card")
-      ? "document_flow.manual.tip_id_card"
-      : "document_flow.manual.tip_passport";
+  final String tip;
 
   PassportMrzManualEntryTranslationKeys({
     required this.title,
+    required this.appBarTitle,
+    required this.tip,
     required this.explanation,
     required this.dateOfBirth,
     required this.dateOfBirthRequired,
@@ -81,6 +81,14 @@ class _PassportMrzManualEntryScreenState
   final _expiryDateCtrl = TextEditingController();
 
   bool _canContinue = false; // soft validity during typing
+
+  @override
+  void dispose() {
+    _documentNrCtrl.dispose();
+    _dateOfBirthCtrl.dispose();
+    _expiryDateCtrl.dispose();
+    super.dispose();
+  }
 
   void _recomputeCanContinue() {
     // Keep this light: avoid calling validate() here.

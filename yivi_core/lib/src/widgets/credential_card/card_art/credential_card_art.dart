@@ -26,6 +26,16 @@ String instanceHintText(BuildContext context, InstanceHint hint) {
   };
 }
 
+/// [instanceHintText] of each of [cards], by hash.
+Map<String, String> instanceHintTexts(
+  BuildContext context,
+  Iterable<schemaless.Credential> cards,
+  Map<String, InstanceHint> hints,
+) => {
+  for (final c in cards)
+    c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
+};
+
 String _date(BuildContext context, DateTime date) =>
     printableDate(date, context.lang);
 
@@ -87,6 +97,7 @@ class CredentialCardArt extends StatelessWidget {
     final height = width / aspectRatio;
     final shape = shapeFor(width);
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final (template, builtin) = _template(context);
 
     Widget art = ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
@@ -102,7 +113,7 @@ class CredentialCardArt extends StatelessWidget {
                 child: SizedBox(
                   width: designWidth,
                   height: designHeight,
-                  child: _art(context),
+                  child: _art(context, template, builtin),
                 ),
               ),
             ),
@@ -114,7 +125,7 @@ class CredentialCardArt extends StatelessWidget {
                     // With Increase Contrast the outline of any block.
                     side: MediaQuery.highContrastOf(context)
                         ? YiviEdges.block(context)
-                        : BorderSide(color: _hairline(context, dark)),
+                        : BorderSide(color: _hairline(context, dark, template)),
                   ),
                 ),
               ),
@@ -157,9 +168,13 @@ class CredentialCardArt extends StatelessWidget {
   /// Dark: a light line, so the card stands off the black page and off the
   /// card it overlaps in the stack; on a light card a dark one, where a light
   /// line would vanish.
-  Color _hairline(BuildContext context, bool dark) {
+  Color _hairline(
+    BuildContext context,
+    bool dark,
+    schemaless.SvgCardTemplate? template,
+  ) {
     if (!dark) return const Color(0x1A000000);
-    final top = _topColour(context);
+    final top = _topColour(context, template);
     return top != null && top.computeLuminance() > 0.5
         ? const Color(0x33000000)
         : const Color(0x3DFFFFFF);
@@ -167,8 +182,10 @@ class CredentialCardArt extends StatelessWidget {
 
   /// The colour at the top of the card (see [svgTopColour]), or null when
   /// that is not known.
-  Color? _topColour(BuildContext context) {
-    final (template, _) = _template(context);
+  Color? _topColour(
+    BuildContext context,
+    schemaless.SvgCardTemplate? template,
+  ) {
     if (template != null) return svgTopColour(template.svg);
     final display = credential.display;
     return parseCssColor(display?.backgroundColor) ??
@@ -187,18 +204,16 @@ class CredentialCardArt extends StatelessWidget {
       highContrast: MediaQuery.highContrastOf(context),
     );
     if (issuerTemplate != null) return (issuerTemplate, false);
-    final builtin = builtinCardTemplate(
-      credential.credentialId,
-      attributeIds: credential.attributes
-          .where((a) => a.claimPath.isNotEmpty)
-          .map((a) => "${a.claimPath.last}"),
-    );
+    final builtin = builtinCardTemplateFor(credential);
     return (builtin, builtin != null);
   }
 
-  Widget _art(BuildContext context) {
+  Widget _art(
+    BuildContext context,
+    schemaless.SvgCardTemplate? template,
+    bool builtin,
+  ) {
     final yiviCard = _YiviCard(credential: credential, hintText: hintText);
-    final (template, builtin) = _template(context);
     if (template == null) return yiviCard;
 
     final yes = FlutterI18n.translate(context, "credential.boolean_yes");

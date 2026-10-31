@@ -64,7 +64,6 @@ class RoundIconButton extends StatelessWidget {
       ink = palette.text;
       edge = BorderSide.none;
     }
-    final disc = dark || on;
     final button = Stack(
       clipBehavior: Clip.none,
       children: [
@@ -76,9 +75,7 @@ class RoundIconButton extends StatelessWidget {
             shape: CircleBorder(side: edge),
           ),
           // As large as an SF Symbol in an iOS bar button.
-          child: disc
-              ? Icon(icon, size: iconSize, color: ink)
-              : Icon(icon, size: iconSize, color: ink),
+          child: Icon(icon, size: iconSize, color: ink),
         ),
         if (on)
           Positioned(

@@ -127,12 +127,12 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     final paddingSize = theme.screenPadding;
     final blockedLeft = _blockedLeft;
     final blocked = blockedLeft > Duration.zero;
-    final attempts = widget.remainingAttempts;
-    final String? line = blocked
-        ? pinTryAgainIn(context, blockedLeft)
-        : _wrong && attempts != null && attempts > 0
-        ? FlutterI18n.plural(context, "pin.wrong.attempts", attempts)
-        : null;
+    final line = pinAttemptLine(
+      context,
+      blockedFor: blockedLeft,
+      wrong: _wrong,
+      left: widget.remainingAttempts,
+    );
     final pad = Stack(
       alignment: Alignment.center,
       children: [

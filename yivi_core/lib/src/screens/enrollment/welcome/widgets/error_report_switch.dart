@@ -10,8 +10,22 @@ import "error_reporting_info_bottom_sheet.dart";
 
 /// "Share error messages and app status with Yivi", as a switch. The first
 /// part opens the sheet that explains what is shared.
-class ErrorReportSwitch extends StatelessWidget {
+class ErrorReportSwitch extends StatefulWidget {
   const ErrorReportSwitch({super.key});
+
+  @override
+  State<ErrorReportSwitch> createState() => _ErrorReportSwitchState();
+}
+
+class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
+  late final _recognizer = TapGestureRecognizer()
+    ..onTap = () => _explain(context);
+
+  @override
+  void dispose() {
+    _recognizer.dispose();
+    super.dispose();
+  }
 
   Future<void> _explain(BuildContext context) => showTitledGlassSheet(
     context: context,
@@ -60,8 +74,7 @@ class ErrorReportSwitch extends StatelessWidget {
                             color: palette.link,
                             decoration: TextDecoration.underline,
                           ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => _explain(context),
+                          recognizer: _recognizer,
                         ),
                         TextSpan(text: " $withYivi"),
                       ],

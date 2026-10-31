@@ -208,6 +208,16 @@ class IrmaPreferences {
   static const String _walletViewKey = "preference.wallet_view";
   final Preference<String> _walletView;
 
+  static const String _cardMotionKey = "preference.card_motion";
+
+  /// How a card opening from the stack moves (debug settings), encoded;
+  /// empty for the defaults.
+  final Preference<String> _cardMotion;
+
+  String getCardMotionNow() => _cardMotion.getValue();
+
+  Future<bool> setCardMotion(String value) => _cardMotion.setValue(value);
+
   /// The old "Dark mode (preview)" switch; only read to migrate it.
   static const String _darkModePreviewKey = "preference.dark_mode_preview";
   static const String _appearanceKey = "preference.appearance";
@@ -227,16 +237,6 @@ class IrmaPreferences {
   /// Successful sessions counted so far (disclosure, issuance and signature).
   static const String _reviewSuccessCountKey =
       "preference.review_success_count";
-  static const String _cardMotionKey = "preference.card_motion";
-
-  /// How a card opening from the stack moves (debug settings), encoded;
-  /// empty for the defaults.
-  final Preference<String> _cardMotion;
-
-  String getCardMotionNow() => _cardMotion.getValue();
-
-  Future<bool> setCardMotion(String value) => _cardMotion.setValue(value);
-
   final Preference<int> _reviewSuccessCount;
 
   /// How many times the sentiment gate has been shown: 0, 1 or 2.
