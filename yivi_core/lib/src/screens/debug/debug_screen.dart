@@ -18,6 +18,7 @@ import "debug_helper.dart";
 import "scheme_management/scheme_management_screen.dart";
 import "session/session_helper_screen.dart";
 import "util/snackbar.dart";
+import "widgets/card_motion_sliders.dart";
 import "widgets/local_backends_tile.dart";
 
 class DebugScreen extends StatefulWidget {
@@ -198,6 +199,8 @@ class _DebugScreenState extends State<DebugScreen> {
                   ),
               ],
             ),
+            const SizedBox(height: 24),
+            const GlassGroup(children: [CardMotionSliders()]),
             const SizedBox(height: 24),
             GlassGroup(
               children: [

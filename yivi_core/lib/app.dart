@@ -17,6 +17,7 @@ import "package_name.dart";
 import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/preferences_provider.dart";
+import "src/screens/data/card_transition/card_transition.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
@@ -210,16 +211,20 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             routerConfig: _router,
             // Beside a panel down the side of an upright screen; a tap
             // outside a text field puts the keyboard away.
-            builder: (context, child) => StatusBarScrollsToTop(
-              child: SidePanelInset(
-                child: UnfocusOnTapOutside(
-                  child: LegacyMaterialBridge(
-                    child: LockGate(
-                      router: _router,
-                      child: StoreReviewGate(
+            // Above the navigator: a card opening from the stack runs over
+            // the home page and its details page both.
+            builder: (context, child) => CardTransitions(
+              child: StatusBarScrollsToTop(
+                child: SidePanelInset(
+                  child: UnfocusOnTapOutside(
+                    child: LegacyMaterialBridge(
+                      child: LockGate(
                         router: _router,
-                        child: SystemNavigationBarStyle(
-                          child: child ?? const SizedBox.shrink(),
+                        child: StoreReviewGate(
+                          router: _router,
+                          child: SystemNavigationBarStyle(
+                            child: child ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                     ),

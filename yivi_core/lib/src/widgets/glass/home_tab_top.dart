@@ -4,6 +4,8 @@ import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../screens/data/card_transition/card_transition.dart";
+import "../../screens/data/card_transition/card_transition_layer.dart";
 import "../../screens/data/wallet/wallet_transition.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
@@ -154,25 +156,32 @@ class _HomeTabTopState extends State<HomeTabTop> {
         // otherwise as the large title goes under it. While something opens
         // it stays as it was, and goes at the end if the details have
         // nothing under their bar.
-        band: (context, under) => _OpenHandoff(
-          builder: (context, open) {
-            double band(double v) => v * (1 - _iv(open, 0.6, 1));
-            return searching
-                ? AnimatedBuilder(
-                    animation: under,
-                    builder: (context, _) => ScrollEdgeBand(
-                      under: AlwaysStoppedAnimation(band(under.value)),
-                    ),
-                  )
-                : ValueListenableBuilder<double>(
-                    valueListenable: _scrolled,
-                    builder: (context, px, _) => ScrollEdgeBand(
-                      under: AlwaysStoppedAnimation(
-                        band(HomeTabTop._titleGone(px)),
+        // It covers what of the large title is under the bar: it goes only
+        // once the title has (else that part of the title would show
+        // through for a moment).
+        band: (context, under) => CardTransitionFollow(
+          opacity: (t) =>
+              max(1 - _iv(t.barHandoff, 0.6, 1), min(1, t.headerOpacity * 4)),
+          child: _OpenHandoff(
+            builder: (context, open) {
+              double band(double v) => v * (1 - _iv(open, 0.6, 1));
+              return searching
+                  ? AnimatedBuilder(
+                      animation: under,
+                      builder: (context, _) => ScrollEdgeBand(
+                        under: AlwaysStoppedAnimation(band(under.value)),
                       ),
-                    ),
-                  );
-          },
+                    )
+                  : ValueListenableBuilder<double>(
+                      valueListenable: _scrolled,
+                      builder: (context, px, _) => ScrollEdgeBand(
+                        under: AlwaysStoppedAnimation(
+                          band(HomeTabTop._titleGone(px)),
+                        ),
+                      ),
+                    );
+            },
+          ),
         ),
         bar: [
           Positioned(
@@ -182,9 +191,12 @@ class _HomeTabTopState extends State<HomeTabTop> {
             height: HomeTabTop.barHeight,
             child: _OpenHandoff(
               builder: (context, open) => searching
-                  ? Opacity(
-                      opacity: 1 - _iv(open, 0, 0.4),
-                      child: widget.searchRow,
+                  ? _handoff(
+                      opacity: (open) => 1 - _iv(open, 0, 0.4),
+                      Opacity(
+                        opacity: 1 - _iv(open, 0, 0.4),
+                        child: widget.searchRow,
+                      ),
                     )
                   : _Bar(scrolled: _scrolled, top: widget, open: open),
             ),
@@ -223,6 +235,19 @@ class _HomeTabTopState extends State<HomeTabTop> {
   }
 }
 
+/// Paints [child] as the bar hands over to a card's details: [opacity]
+/// and [turn] (in quarter turns of 45°) from how far it is (0 to 1).
+/// Nothing when no card transition runs.
+Widget _handoff(
+  Widget child, {
+  double Function(double open)? opacity,
+  double Function(double open)? turn,
+}) => CardTransitionFollow(
+  opacity: opacity == null ? null : (t) => opacity(t.barHandoff),
+  turn: turn == null ? null : (t) => turn(t.barHandoff) * pi / 4,
+  child: child,
+);
+
 /// [value] from [a] to [b], as 0 to 1.
 double _iv(double value, double a, double b) =>
     ((value - a) / (b - a)).clamp(0.0, 1.0);
@@ -234,8 +259,21 @@ class _OpenHandoff extends StatelessWidget {
 
   const _OpenHandoff({required this.builder});
 
+  // A card opening from the stack: built once at rest, and what changes is
+  // painted by [CardTransitionFollow]s in the bar ([_handoff]), not built
+  // again on every frame.
   @override
   Widget build(BuildContext context) {
+    final scope = CardTransitionScope.maybeOf(context);
+    if (scope == null) return _fromRoute(context);
+    return ValueListenableBuilder<CardTransition?>(
+      valueListenable: scope.current,
+      builder: (context, t, _) =>
+          t != null ? builder(context, 0) : _fromRoute(context),
+    );
+  }
+
+  Widget _fromRoute(BuildContext context) {
     final secondary = ModalRoute.of(context)?.secondaryAnimation;
     if (secondary == null) return builder(context, 0);
     return ValueListenableBuilder<String?>(
@@ -295,25 +333,35 @@ class _Bar extends StatelessWidget {
               width: _side,
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: top.leading == null || open == 0
-                    ? top.leading
-                    : Opacity(opacity: going, child: top.leading),
+                child: top.leading == null
+                    ? null
+                    : _handoff(
+                        opacity: (open) => 1 - _iv(open, 0, 0.4),
+                        open == 0
+                            ? top.leading!
+                            : Opacity(opacity: going, child: top.leading),
+                      ),
               ),
             ),
             Expanded(
-              child: ExcludeSemantics(
-                // The large title says the same on the page.
-                child: Opacity(
-                  key: const Key("tab_small_title"),
-                  opacity: title,
-                  child: Transform.translate(
-                    offset: Offset(0, (1 - title) * 8),
-                    child: Text(
-                      top.title,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.display(17).copyWith(color: palette.text),
+              child: _handoff(
+                opacity: (open) => 1 - _iv(open, 0, 0.4),
+                ExcludeSemantics(
+                  // The large title says the same on the page.
+                  child: Opacity(
+                    key: const Key("tab_small_title"),
+                    opacity: title,
+                    child: Transform.translate(
+                      offset: Offset(0, (1 - title) * 8),
+                      child: Text(
+                        top.title,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .display(17)
+                            .copyWith(color: palette.text),
+                      ),
                     ),
                   ),
                 ),
@@ -327,19 +375,22 @@ class _Bar extends StatelessWidget {
                 children: [
                   // Not there, for a finger or a screen reader, until it
                   // has mostly come in.
-                  IgnorePointer(
-                    ignoring: search < 0.5,
-                    child: ExcludeSemantics(
-                      excluding: search < 0.5,
-                      child: Opacity(
-                        opacity: search,
-                        child: Transform.scale(
-                          scale: 0.8 + 0.2 * search,
-                          child: RoundIconButton(
-                            key: top.searchButtonKey,
-                            icon: CupertinoIcons.search,
-                            label: top.searchLabel,
-                            onTap: top.onSearch,
+                  _handoff(
+                    opacity: (open) => 1 - _iv(open, 0, 0.4),
+                    IgnorePointer(
+                      ignoring: search < 0.5,
+                      child: ExcludeSemantics(
+                        excluding: search < 0.5,
+                        child: Opacity(
+                          opacity: search,
+                          child: Transform.scale(
+                            scale: 0.8 + 0.2 * search,
+                            child: RoundIconButton(
+                              key: top.searchButtonKey,
+                              icon: CupertinoIcons.search,
+                              label: top.searchLabel,
+                              onTap: top.onSearch,
+                            ),
                           ),
                         ),
                       ),
@@ -347,7 +398,21 @@ class _Bar extends StatelessWidget {
                   ),
                   if (top.trailing case final trailing?)
                     open == 0
-                        ? trailing
+                        ? _handoff(
+                            // The + turns 45° into the close button and
+                            // stays: the details page covers it with its ✕
+                            // in the same place once it is there (fading,
+                            // there was a moment without a button). Another
+                            // button turns away and fades.
+                            opacity: turnsIntoClose
+                                ? null
+                                : (open) => 1 - _iv(open, 0.2, 0.6),
+                            turn: reduceMotion
+                                ? null
+                                : (open) =>
+                                      turnsIntoClose ? open : _iv(open, 0, 0.6),
+                            trailing,
+                          )
                         : Opacity(
                             opacity: trailingOpacity,
                             child: Transform.rotate(

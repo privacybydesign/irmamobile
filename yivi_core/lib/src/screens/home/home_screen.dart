@@ -12,6 +12,8 @@ import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/scroll_to_top.dart";
 import "../activity/activity_tab.dart";
+import "../data/card_transition/card_transition.dart";
+import "../data/card_transition/card_transition_layer.dart";
 import "../data/data_tab.dart";
 import "../data/wallet/wallet_transition.dart";
 import "../more/more_tab.dart";
@@ -80,6 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
           return PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, popResult) {
+              // A card open from the stack closes first.
+              if (CardTransitionScope.maybeOf(context)?.closeOpen() ?? false) {
+                return;
+              }
               if (tabState == .data) {
                 IrmaRepositoryProvider.of(
                   context,
@@ -129,25 +135,30 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: PushAway(direction: PushAwayDirection.down, child: bar),
+            child: CardTransitionDrop(
+              child: PushAway(direction: PushAwayDirection.down, child: bar),
+            ),
           )
         else ...[
-          // Fades the content out under the floating tab bar.
+          // Fades the content out under the floating tab bar (and goes with
+          // it when a card opens).
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
             height: 96 + padding.bottom,
             child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      palette.background.withValues(alpha: 0),
-                      palette.background.withValues(alpha: 0.85),
-                    ],
+              child: CardTransitionDrop(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        palette.background.withValues(alpha: 0),
+                        palette.background.withValues(alpha: 0.85),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -158,16 +169,20 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 16 + padding.left,
             right: 16 + padding.right,
             bottom: FloatingBarPlacement.tabBarBottom(context),
-            child: PushAway(
-              direction: PushAwayDirection.down,
-              child: CentredMaxWidth(
-                maxWidth: mediumContentMaxWidth,
-                child: bar,
+            child: CardTransitionDrop(
+              child: PushAway(
+                direction: PushAwayDirection.down,
+                child: CentredMaxWidth(
+                  maxWidth: mediumContentMaxWidth,
+                  child: bar,
+                ),
               ),
             ),
           ),
         ],
         if (tab == .data) _scanTipOverBar(context),
+        // A card opened from the stack, over all of it.
+        const Positioned.fill(child: OpenCardLayer()),
       ],
     );
   }

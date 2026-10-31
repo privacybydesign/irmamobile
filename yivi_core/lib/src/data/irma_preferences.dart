@@ -83,6 +83,7 @@ class IrmaPreferences {
              ? Appearance.dark.name
              : Appearance.system.name,
        ),
+       _cardMotion = preferences.getString(_cardMotionKey, defaultValue: ""),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -226,6 +227,16 @@ class IrmaPreferences {
   /// Successful sessions counted so far (disclosure, issuance and signature).
   static const String _reviewSuccessCountKey =
       "preference.review_success_count";
+  static const String _cardMotionKey = "preference.card_motion";
+
+  /// How a card opening from the stack moves (debug settings), encoded;
+  /// empty for the defaults.
+  final Preference<String> _cardMotion;
+
+  String getCardMotionNow() => _cardMotion.getValue();
+
+  Future<bool> setCardMotion(String value) => _cardMotion.setValue(value);
+
   final Preference<int> _reviewSuccessCount;
 
   /// How many times the sentiment gate has been shown: 0, 1 or 2.

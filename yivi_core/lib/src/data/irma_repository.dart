@@ -42,6 +42,7 @@ import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
+import "../screens/data/wallet/wallet_transition.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "app_language.dart";
@@ -74,6 +75,11 @@ class IrmaRepository {
     required this.preferences,
     this.defaultKeyshareScheme = "pbdf",
   }) : _bridge = client {
+    // How a card opens from the stack, as set in the debug settings.
+    final motion = preferences.getCardMotionNow();
+    if (motion.isNotEmpty) {
+      WalletTransition.motion.value = CardMotion.decode(motion);
+    }
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -731,8 +737,7 @@ class IrmaRepository {
   )).activity;
 
   /// How many entries each of [filters] matches, in order.
-  Future<List<int>> countLogs(List<LogFilter> filters) async =>
-      filters.isEmpty
+  Future<List<int>> countLogs(List<LogFilter> filters) async => filters.isEmpty
       ? const []
       : (await _askLog<LogCountsEvent>(
           (id) => CountLogsEvent(id, filters),

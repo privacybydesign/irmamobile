@@ -42,9 +42,13 @@ import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/glass/search_scroll_edge.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/search_mark.dart";
+import "../../widgets/slot_registry.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../add_data/add_data_sheet.dart";
+import "card_transition/card_transition.dart";
+import "card_transition/card_transition_layer.dart";
+import "card_transition/stack_cards.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_start.dart";
 import "wallet/card_hero.dart";
@@ -572,19 +576,21 @@ class _CardList extends ConsumerWidget {
               box(
                 PushAway(
                   direction: PushAwayDirection.up,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: HomeTabTop.fieldGap,
-                      children: [
-                        const TabLargeTitle("wallet.title"),
-                        HomeTabSearchField(
-                          key: const Key("search_field"),
-                          hint: context.tr("wallet.search_placeholder"),
-                          onTap: onStartSearch!,
-                        ),
-                      ],
+                  child: CardTransitionFade(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: HomeTabTop.fieldGap,
+                        children: [
+                          const TabLargeTitle("wallet.title"),
+                          HomeTabSearchField(
+                            key: const Key("search_field"),
+                            hint: context.tr("wallet.search_placeholder"),
+                            onTap: onStartSearch!,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -740,8 +746,41 @@ void openCard(
         container.read(dataSearchActiveProvider) &&
             View.of(cardContext).viewInsets.bottom > 0,
       );
+  // One card at a time: a tap while one opens or closes does nothing.
+  final transitions = CardTransitionScope.maybeOf(cardContext);
+  if (transitions != null && transitions.busy) return;
+  if (transitions != null &&
+      !MediaQuery.disableAnimationsOf(cardContext) &&
+      _openFromStack(cardContext, transitions, credential, found)) {
+    return;
+  }
   WalletTransition.begin(cardContext, credential.hash);
   cardContext.pushCredentialDetailScreen(credential.hash, found: found);
+}
+
+/// Opens [credential] from the stack with its card transition: its details
+/// come over the home screen at once, the card where it was tapped, and
+/// stay there while it is open. False when the card is not in the stack
+/// (another view) or the stack is not measured.
+bool _openFromStack(
+  BuildContext cardContext,
+  CardTransitionsState transitions,
+  schemaless.Credential credential,
+  String? found,
+) {
+  final picked = StackCards.hashes.indexOf(credential.hash);
+  if (picked < 0) return false;
+  final snapshot = StackCards.snapshot(cardContext, picked);
+  if (snapshot == null) return false;
+  return transitions.open(
+    snapshot: snapshot,
+    list: Scrollable.maybeOf(cardContext)?.position,
+    details: (context, transition) => CredentialDetailScreen(
+      hash: credential.hash,
+      found: found,
+      transition: transition,
+    ),
+  );
 }
 
 /// "16 cards", and the menu that picks the view and arranges the cards.
@@ -964,6 +1003,8 @@ class _StackView extends ConsumerWidget {
     final onMove = ref
         .read(schemalessCredentialOrderControllerProvider.notifier)
         .reorder;
+    // What a card transition measures when one of them is tapped.
+    StackCards.hashes = [for (final c in cards) c.hash];
     return DragToArrange(
       keys: [for (final c in cards) c.hash],
       size: Size(width, (cards.length - 1) * _stripHeight + cardHeight),
@@ -985,6 +1026,8 @@ class _StackView extends ConsumerWidget {
         final c = cards[i];
         return PushAway(
           hash: c.hash,
+          // Wallet depth: above the opening card sinks, below it falls.
+          stackIndex: i,
           child: WalletStackSlot(
             hash: c.hash,
             index: i,
@@ -996,25 +1039,37 @@ class _StackView extends ConsumerWidget {
                 open: c.hash == openHash,
                 width: width,
                 reduceMotion: reduceMotion,
-                child: _CardButton(
-                  credential: c,
-                  hintText: hintTexts[c.hash],
-                  pressDepth: 6,
-                  moves: arrangeable
-                      ? moveActions(
-                          context,
-                          index: i,
-                          count: cards.length,
-                          onMove: onMove,
-                        )
-                      : null,
-                  // Under the next card only its strip shows.
-                  revealHeight: i == cards.length - 1 ? null : _stripHeight,
-                  child: CardHero(
+                // Measured here, outside the card's press (it gives way
+                // under the finger): the card's place at rest.
+                child: RegisteredSlot(
+                  registry: StackCards.slots,
+                  id: i,
+                  child: _CardButton(
                     credential: c,
-                    width: width,
                     hintText: hintTexts[c.hash],
-                    edge: true,
+                    pressDepth: 6,
+                    moves: arrangeable
+                        ? moveActions(
+                            context,
+                            index: i,
+                            count: cards.length,
+                            onMove: onMove,
+                          )
+                        : null,
+                    // Under the next card only its strip shows.
+                    revealHeight: i == cards.length - 1 ? null : _stripHeight,
+                    // Sinks or falls while a card opens; the open card
+                    // itself is drawn by its details.
+                    child: StackCardFollow(
+                      index: i,
+                      width: width,
+                      child: CredentialCardArt(
+                        credential: c,
+                        width: width,
+                        hintText: hintTexts[c.hash],
+                        edge: 1,
+                      ),
+                    ),
                   ),
                 ),
               ),

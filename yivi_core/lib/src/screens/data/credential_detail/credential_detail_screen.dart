@@ -28,6 +28,8 @@ import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
 import "../../add_data/add_data_sheet.dart";
+import "../card_transition/card_transition.dart";
+import "../card_transition/card_transition_layer.dart";
 import "../wallet/card_hero.dart";
 import "../wallet/wallet_detail_scaffold.dart";
 import "card_activity_section.dart";
@@ -36,9 +38,13 @@ import "card_activity_section.dart";
 /// phone held sideways, and they would stretch.
 const _maxWidth = 460.0;
 
-/// Full-screen detail of one card (credential instance). Opens with the
-/// Wallet-style transition: the card flies here as a [CardHero] while the data
-/// tab pushes its other content away, then the details fade in from below.
+/// Full-screen detail of one card (credential instance).
+///
+/// Opened from the Data tab's stack it is part of that card's [transition]:
+/// over the home screen from the tap on, moved with the card while it opens
+/// and closes ([OpenCardLayer]). Opened anywhere else it is a page: the card
+/// flies here as a [CardHero] while the page below pushes its other content
+/// away, then the details fade in from below.
 class CredentialDetailScreen extends ConsumerStatefulWidget {
   final String hash;
 
@@ -46,7 +52,14 @@ class CredentialDetailScreen extends ConsumerStatefulWidget {
   /// brought into view.
   final String? found;
 
-  const CredentialDetailScreen({required this.hash, this.found});
+  /// The card transition it is part of, when opened from the stack.
+  final CardTransition? transition;
+
+  const CredentialDetailScreen({
+    required this.hash,
+    this.found,
+    this.transition,
+  });
 
   @override
   ConsumerState<CredentialDetailScreen> createState() =>
@@ -60,7 +73,7 @@ class _CredentialDetailScreenState
   /// Whether the card has scrolled away under the top bar: then a small
   /// one, its name and issuer show in the bar ([CompactBar]).
   final _scrolledPast = ValueNotifier(false);
-  final _headerKey = GlobalKey();
+  late final _headerKey = widget.transition?.cardKey ?? GlobalKey();
 
   @override
   void dispose() {
@@ -79,7 +92,10 @@ class _CredentialDetailScreenState
     return false;
   }
 
-  void _close() => Navigator.of(context).maybePop();
+  void _close() {
+    if (widget.transition case final t?) return t.close();
+    Navigator.of(context).maybePop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +108,10 @@ class _CredentialDetailScreenState
         ? null
         : instanceHintText(context, hints[_hash] ?? const NoHint());
 
+    final transition = widget.transition;
     return WalletDetailScaffold(
       openKey: _hash,
+      transition: transition,
       closeKey: const Key("credential_detail_done"),
       barBuilder: credential == null
           ? null
@@ -133,17 +151,28 @@ class _CredentialDetailScreenState
                       ),
                       child: GestureDetector(
                         onTap: _close,
-                        child: CardHero(
-                          key: _headerKey,
-                          credential: credential,
-                          width: width,
-                          hintText: hintText,
-                        ),
+                        // In a card transition the card is just drawn: it
+                        // is already where it goes.
+                        child: transition != null
+                            ? CredentialCardArt(
+                                key: _headerKey,
+                                credential: credential,
+                                width: width,
+                                hintText: hintText,
+                              )
+                            : CardHero(
+                                key: _headerKey,
+                                credential: credential,
+                                width: width,
+                                hintText: hintText,
+                              ),
                       ),
                     ),
                   ),
                   WalletReveal(
-                    animation: animation,
+                    animation: transition != null
+                        ? kAlwaysCompleteAnimation
+                        : animation,
                     child: CentredMaxWidth(
                       maxWidth: _maxWidth,
                       child: _Details(
@@ -164,7 +193,10 @@ class _CredentialDetailScreenState
                             ),
                         },
                         onSwitch: (hash) => setState(() => _hash = hash),
-                        onDeleted: _close,
+                        // Its place in the stack is gone: no way back.
+                        onDeleted: () => transition != null
+                            ? transition.dismiss()
+                            : _close(),
                       ),
                     ),
                   ),
