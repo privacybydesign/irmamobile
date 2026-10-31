@@ -472,7 +472,7 @@ Future<void> evaluateRequestor(
   // An activity shows its party card.
   final finder = find.descendant(
     of: reqeustorInfoFinder,
-    matching: find.byWidgetPredicate((w) => w is ActivityPartyCard),
+    matching: find.byWidgetPredicate((w) => w is ActivityHeroHeader),
     matchRoot: true,
   );
   expect(finder, findsAtLeast(1));

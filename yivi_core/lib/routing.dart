@@ -187,14 +187,14 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           ),
           GoRoute(
             path: "activity_details",
-            // The cards of the row fly into the details while the activity
-            // list moves away (see WalletTransition). On tablets the details
+            // An ordinary page, pushed from the side. On tablets the details
             // show in the pane instead.
             pageBuilder: (context, state) {
               final log = state.extra as LogInfo;
-              return WalletDetailPage(
+              return AdaptivePage<void>(
                 key: state.pageKey,
                 name: "/home/activity_details",
+                mode: PresentationMode.full,
                 child: activityHandoff(
                   context,
                   log,

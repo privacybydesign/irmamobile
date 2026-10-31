@@ -46,10 +46,10 @@
     "deleted_from": "Gegevens verwijderd van",
     "signed_for": "Bericht ondertekend voor",
     "note": {
-      "shared": "{name} kreeg alleen dit. Gegevens die hier niet staan, bleven op je telefoon.",
+      "shared": "Gegevens die hier niet staan, bleven op je telefoon.",
       "received": "De nieuwe kaarten zijn toegevoegd aan je Yivi-app.",
-      "deleted": "Je hebt deze gegevens uit je Yivi-app verwijderd. Ze kunnen niet worden hersteld.",
-      "signed": "Het bericht is ondertekend met de gegevens hierboven. {name} kreeg alleen dit."
+      "deleted": "Dit kan niet ongedaan worden gemaakt.",
+      "signed": "Gegevens die hier niet staan, bleven op je telefoon."
     },
     "kind": {
       "all": "Alles",
@@ -80,9 +80,9 @@
       "years-1": "{count} jaar geleden",
       "years-2": "{count} jaar geleden"
     },
-    "signed_by_you": "Door jou ondertekend, {date} om {time}",
     "chip_new": "Nieuw",
-    "back_to_activity": "Terug naar activiteit",
+    "not_checked": "{host} · niet gecontroleerd door Yivi",
+    "all_with_party": "Alle activiteit met {name}",
     "filter_label": "Toon activiteit",
     "filter_empty": {
       "shared": "Nog niets gedeeld",
@@ -96,6 +96,7 @@
       "filter": "Filter",
       "filter_active": "Filter, {count} actief",
       "remove_filter": "{filter} weghalen",
+      "add_filter": "{filter} toevoegen",
       "or": "of",
       "group_all": "{group} (alles)",
       "suggest": {

@@ -335,7 +335,7 @@ Future<void> verifyMostRecentActivityLog(
 
 /// Opens the most recent activity entry and asserts it represents an empty
 /// disclosure: an [IrmaEmptyCredentialCard] is shown, and the
-/// [ActivityPartyCard] contains [expectedRequestorName] (i.e. the log records *who* the
+/// [ActivityHeroHeader] contains [expectedRequestorName] (i.e. the log records *who* the
 /// transaction was with, even though no data was shared).
 Future<void> verifyEmptyDisclosureActivityLog(
   WidgetTester tester, {
@@ -351,7 +351,7 @@ Future<void> verifyEmptyDisclosureActivityLog(
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
   expect(find.byType(IrmaEmptyCredentialCard), findsOneWidget);
 
-  final requestorHeaderFinder = find.byType(ActivityPartyCard);
+  final requestorHeaderFinder = find.byType(ActivityHeroHeader);
   expect(requestorHeaderFinder, findsOneWidget);
   // The name is shown with non-breaking hyphens.
   expect(

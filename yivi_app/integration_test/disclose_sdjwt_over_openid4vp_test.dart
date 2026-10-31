@@ -340,7 +340,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
     credentialName: "Demo Email address",
     attributes: [("Email address", "one@example.com")],
   );
-  await evaluateRequestor(tester, find.byType(ActivityPartyCard), "Yivi B.V.");
+  await evaluateRequestor(tester, find.byType(ActivityHeroHeader), "Yivi B.V.");
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(
@@ -991,7 +991,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   expect(emailFound && mobilenumberFound, isTrue);
 
-  await evaluateRequestor(tester, find.byType(ActivityPartyCard), "Yivi B.V.");
+  await evaluateRequestor(tester, find.byType(ActivityHeroHeader), "Yivi B.V.");
 }
 
 /// Issue two email addresses and allow the user to pick between them

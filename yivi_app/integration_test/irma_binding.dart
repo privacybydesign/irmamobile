@@ -51,9 +51,13 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     return _instance!;
   }
 
+  /// [keepData]: when the app is already enrolled (a previous run on this
+  /// device), keep its data and enrollment instead of clearing them, so a
+  /// test can reuse the cards it issued before (measurements on a device).
   Future<void> setUp({
     EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled,
     bool acceptedTermsAndConditions = true,
+    bool keepData = false,
   }) async {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
     _preferences ??= await IrmaPreferences.fromInstance(
@@ -70,8 +74,14 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     _bridge.dispatch(AppReadyEvent(locale: "en"));
     EnrollmentStatusEvent currEnrollmentStatus = await statusFuture;
 
+    final kept =
+        keepData &&
+        currEnrollmentStatus.enrolledSchemeManagerIds.contains(
+          _testKeyshareSchemeId,
+        );
+
     // Ensure the app is not enrolled to its keyshare server yet.
-    if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
+    if (!kept && currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
       statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
         (event) => event is ClientPreferencesEvent,
@@ -81,9 +91,10 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     }
 
     // Ensure test scheme is available.
-    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(
-      _testKeyshareSchemeId,
-    )) {
+    if (!kept &&
+        !currEnrollmentStatus.unenrolledSchemeManagerIds.contains(
+          _testKeyshareSchemeId,
+        )) {
       _bridge.dispatch(
         InstallSchemeEvent(
           url: _testKeyshareSchemeUrl,
@@ -116,7 +127,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     await _preferences!.setShowNameChangedNotification(false);
 
     // Ensure enrollment status is set as expected.
-    if (enrollmentStatus == EnrollmentStatus.enrolled) {
+    if (!kept && enrollmentStatus == EnrollmentStatus.enrolled) {
       _bridge.dispatch(
         EnrollEvent(
           email: "",

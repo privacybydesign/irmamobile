@@ -1,9 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
 import "glass/glass_dialog.dart";
 
-/// A short fact as a pill, the one chip of the app: "by Yivi", "3 cards",
+/// A short fact as a chip, the one chip of the app: "by Yivi", "3 cards",
 /// "Valid until 31-08-2027", "New", "Expired", a count. 28 high and as
 /// wide as its one line (a label too long for the room ends in "…"), with
 /// an optional [icon] in front.
@@ -48,7 +49,8 @@ class StatusChip extends StatelessWidget {
       ),
       decoration: ShapeDecoration(
         color: fill,
-        shape: StadiumBorder(
+        shape: RoundedRectangleBorder(
+          borderRadius: YiviCorners.chipRadius,
           side: tone == DialogTone.neutral
               ? BorderSide(color: palette.outline)
               : BorderSide.none,

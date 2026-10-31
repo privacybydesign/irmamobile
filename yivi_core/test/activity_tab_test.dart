@@ -187,27 +187,41 @@ void main() {
   });
 
   testWidgets(
-    "a pick is a tag under the field, the keyboard stays; Enter asks it",
+    "a pick is a tag under the field and asks at once; the keyboard stays; "
+    "Enter keeps it",
     (tester) async {
       await pump(tester);
       await startSearch(tester);
       await _settle(tester);
       expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
       expect(find.byKey(const Key("activity_search_cancel")), findsOneWidget);
-      final asked = queries().length;
 
       await tester.tap(
         find.byKey(const Key("activity_suggestion_kind:signed")),
       );
       await _settle(tester);
       // Still searching: the tag shows, the field keeps the keyboard, and
-      // nothing is asked yet. The pick is no longer suggested.
+      // the log already shows what it finds. No kind is suggested any more:
+      // a second would only widen the question.
       expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
       expect(find.byKey(const Key("activity_chip_kinds")), findsOneWidget);
       expect(tester.testTextInput.hasAnyClients, isTrue);
-      expect(queries().length, asked);
+      expect(queries().last.filter.types, [LogType.signature]);
+      final rows = find.byType(ActivityCard);
+      expect(
+        find.descendant(of: rows, matching: find.text("Gemeente")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: rows, matching: find.text("Shop 0")),
+        findsNothing,
+      );
       expect(
         find.byKey(const Key("activity_suggestion_kind:signed")),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key("activity_suggestion_kind:shared")),
         findsNothing,
       );
 
@@ -315,32 +329,66 @@ void main() {
     expect(queries().last.filter.text, isNull);
   });
 
-  testWidgets('"Show N results" counts what is asked and asks it', (
+  testWidgets("searching shows the results as you type, with how many; "
+      "Cancel goes back", (tester) async {
+    await pump(tester);
+    await startSearch(tester);
+    expect(find.byKey(const Key("activity_show_results")), findsNothing);
+    await tester.enterText(field, "agree");
+    await _settle(tester);
+    final count = log
+        .where((e) => _matches(e, const LogFilter(text: "agree")))
+        .length;
+    expect(queries().last.filter.text, "agree");
+    expect(
+      tester.widget<Text>(find.byKey(const Key("activity_result_count"))).data,
+      count == 1 ? "1 result" : "$count results",
+    );
+    expect(
+      find.descendant(
+        of: find.byType(ActivityCard),
+        matching: find.text("Gemeente"),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key("activity_search_cancel")));
+    await _settle(tester);
+    expect(queries().last.filter.text, isNull);
+    expect(find.text("Shop 0"), findsOneWidget);
+  });
+
+  testWidgets("suggestions only narrow, and never lead to nothing", (
     tester,
   ) async {
     await pump(tester);
     await startSearch(tester);
-    // Nothing asked yet: no button.
-    expect(find.byKey(const Key("activity_show_results")), findsNothing);
-    await tester.enterText(field, "agree");
-    await _settle(tester);
-    final button = find.byKey(const Key("activity_show_results"));
-    final count = log
-        .where((e) => _matches(e, const LogFilter(text: "agree")))
-        .length;
+    // Nothing was deleted or received in this log: those are not offered.
     expect(
-      find.descendant(
-        of: button,
-        matching: find.text(
-          count == 1 ? "Show 1 result" : "Show $count results",
-        ),
-      ),
+      find.byKey(const Key("activity_suggestion_kind:deleted")),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const Key("activity_suggestion_kind:shared")),
       findsOneWidget,
     );
-    await tester.tap(button);
+    await tester.enterText(field, "shop 17");
     await _settle(tester);
-    expect(queries().last.filter.text, "agree");
-    expect(button, findsNothing);
+    await tester.tap(
+      find.byKey(const Key("activity_suggestion_party:Shop 17")),
+    );
+    await _settle(tester);
+    // A party is picked: no parties any more.
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(
+              "activity_suggestion_party:",
+            ),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets("Cancel leaves the question as it was", (tester) async {
@@ -450,7 +498,10 @@ void main() {
 
     // The next page comes in from the bridge between drags.
     for (var i = 0; i < 20 && find.text("Gemeente").evaluate().isEmpty; i++) {
-      await tester.drag(find.byType(ListView).first, const Offset(0, -600));
+      await tester.drag(
+        find.byType(CustomScrollView).first,
+        const Offset(0, -600),
+      );
       await _settle(tester, rounds: 3);
     }
     expect(find.text("Gemeente"), findsOneWidget);

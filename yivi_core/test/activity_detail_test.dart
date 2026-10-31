@@ -12,13 +12,14 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dar
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
 
-TrustedParty _party(String name, {bool verified = true}) => TrustedParty(
-  id: name,
-  name: name,
-  url: null,
-  parent: null,
-  verified: verified,
-);
+TrustedParty _party(String name, {bool verified = true, String? url}) =>
+    TrustedParty(
+      id: name,
+      name: name,
+      url: url,
+      parent: null,
+      verified: verified,
+    );
 
 LogCredential _credential(String name, List<Attribute> attributes) =>
     LogCredential(
@@ -35,13 +36,16 @@ LogInfo _log(
   LogType type, {
   String message = "",
   String verifier = "Webshop Noord",
+  bool verified = true,
+  String? url,
+  bool sharedToReceive = false,
 }) {
   final credentials = [
     _credential("Email address", [
       stringAttr("email", "s.devries@werk.example"),
     ]),
   ];
-  final party = _party(verifier);
+  final party = _party(verifier, verified: verified, url: url);
   return LogInfo(
     type: type,
     time: DateTime.utc(2026, 10, 11, 14, 32),
@@ -49,7 +53,13 @@ LogInfo _log(
         ? IssuanceLog(
             protocol: Protocol.irma,
             credentials: credentials,
-            disclosedCredentials: const [],
+            disclosedCredentials: sharedToReceive
+                ? [
+                    _credential("Mobile number", [
+                      stringAttr("mobilenumber", "+31612345678"),
+                    ]),
+                  ]
+                : const [],
             issuer: _party("Yivi"),
           )
         : null,
@@ -101,44 +111,65 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets("shared: the centred header, the tile and the note", (
+  testWidgets("shared: the hero, the tile and the note, each fact once", (
     tester,
   ) async {
     await pump(tester, _log(LogType.disclosure));
 
-    expect(find.byKey(const Key("activity_party_card")), findsNothing);
+    expect(find.byKey(const Key("activity_hero")), findsOneWidget);
     expect(find.text("Shared with"), findsOneWidget);
-    expect(find.text("Webshop Noord"), findsOneWidget);
+    // The name in the hero; the bar's title waits until it scrolls away.
+    expect(find.text("Webshop Noord"), findsWidgets);
     expect(find.text("Known party"), findsOneWidget);
-    // When, as a date pill and a time pill, and how long ago.
-    final date = DateFormat.yMMMMEEEEd(
-      "en",
-    ).format(DateTime.utc(2026, 10, 11, 14, 32).toLocal());
+    // When, once: the date and the time on one line.
+    final time = DateTime.utc(2026, 10, 11, 14, 32).toLocal();
     expect(
-      find.descendant(
-        of: find.byKey(const Key("activity_date_pill")),
-        matching: find.text(date),
+      find.text(
+        "${DateFormat.yMMMMd("en").format(time)} · ${DateFormat.jm("en").format(time)}",
       ),
       findsOneWidget,
     );
-    expect(find.byKey(const Key("activity_time_pill")), findsOneWidget);
-    expect(find.textContaining("ago"), findsOneWidget);
-    // The pass is gone.
-    expect(find.text("DATE"), findsNothing);
-    expect(find.text("YOU SHARED"), findsOneWidget);
+    expect(find.textContaining("ago"), findsNothing);
+    // One kind of card: no section heading, the header says it.
+    expect(find.text("You shared"), findsNothing);
     expect(find.byType(ActivityCredentialTile), findsOneWidget);
     expect(find.text("s.devries@werk.example"), findsOneWidget);
-    expect(find.textContaining("Webshop Noord got only this"), findsOne);
+    expect(
+      find.text("Fields that are not listed stayed on your phone."),
+      findsOne,
+    );
+    // The tile does not open anything.
+    expect(
+      find.descendant(
+        of: find.byType(ActivityCredentialTile),
+        matching: find.byType(InkWell),
+      ),
+      findsNothing,
+    );
   });
 
-  testWidgets("signed: the message above the data", (tester) async {
+  testWidgets("a party Yivi does not know: its website, not checked", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _log(LogType.disclosure, verified: false, url: "https://shop.example"),
+    );
+    expect(find.text("shop.example · not checked by Yivi"), findsOneWidget);
+    expect(find.byIcon(Icons.verified_user_rounded), findsNothing);
+  });
+
+  testWidgets("signed: the message above the data, without a footer", (
+    tester,
+  ) async {
     await pump(
       tester,
       _log(LogType.signature, message: "I apply for a parking permit."),
     );
 
     expect(find.text("Message signed for"), findsOneWidget);
-    expect(find.text("YOU SIGNED WITH"), findsOneWidget);
+    expect(find.text("You signed with"), findsNothing);
+    expect(find.textContaining("Signed by you"), findsNothing);
     final message = tester.getRect(find.text("I apply for a parking permit."));
     final card = tester.getRect(find.byType(ActivityCredentialTile));
     expect(message.top, lessThan(card.top));
@@ -147,106 +178,38 @@ void main() {
   testWidgets("received and deleted read differently", (tester) async {
     await pump(tester, _log(LogType.issuance));
     expect(find.text("Received from"), findsOneWidget);
-    expect(find.text("YOU RECEIVED"), findsOneWidget);
     expect(find.text("New"), findsOneWidget);
+    // No note: the header says it.
+    expect(find.byIcon(Icons.shield_outlined), findsNothing);
 
     await pump(tester, _log(LogType.removal));
     expect(find.text("Data deleted from"), findsOneWidget);
-    expect(find.text("YOU DELETED"), findsOneWidget);
     expect(find.text("Deleted"), findsOneWidget);
-    expect(find.textContaining("cannot be recovered"), findsOneWidget);
+    expect(find.text("This cannot be undone."), findsOneWidget);
   });
 
-  /// Scrolls down and back in small steps; at each step the compact bar
-  /// shows exactly when the whole header is above the top bar.
-  Future<void> expectBarFollowsHeader(WidgetTester tester) async {
-    bool barShown() => find.byType(ActivityCompactBar).evaluate().isNotEmpty;
-    double headerBottom() =>
-        tester.getRect(find.byType(ActivityPartyCard)).bottom;
-    // No safe area in the test: the top bar ends at 60.
-    const barBottom = 60.0;
-
-    expect(barShown(), isFalse);
-    var sawShown = false;
-    for (final dy in [...List.filled(18, -40.0), ...List.filled(18, 40.0)]) {
-      await tester.drag(find.byType(ListView), Offset(0, dy));
-      await tester.pumpAndSettle();
-      final gone = headerBottom() < barBottom;
-      expect(barShown(), gone, reason: "header bottom ${headerBottom()}");
-      sawShown |= gone;
-    }
-    expect(sawShown, isTrue, reason: "never scrolled the header away");
-    expect(barShown(), isFalse);
-  }
-
-  testWidgets("the compact bar shows once the header has scrolled away, and "
-      "hides again", (tester) async {
-    await pump(
-      tester,
-      _log(LogType.signature, message: List.filled(600, "word").join(" ")),
-    );
-    await expectBarFollowsHeader(tester);
+  testWidgets("two kinds of card: a heading for each", (tester) async {
+    await pump(tester, _log(LogType.issuance, sharedToReceive: true));
+    expect(find.text("You received"), findsOneWidget);
+    expect(find.text("You shared to receive it"), findsOneWidget);
   });
 
-  testWidgets("the band comes on the first scroll, as in a sheet: before "
-      "the compact bar", (tester) async {
-    await pump(
-      tester,
-      _log(LogType.signature, message: List.filled(600, "word").join(" ")),
-    );
-    final band = find.byKey(const Key("scroll_edge_band"));
-    expect(band, findsNothing);
-    await tester.drag(find.byType(ListView), const Offset(0, -40));
-    await tester.pumpAndSettle();
-    expect(find.byType(ActivityCompactBar), findsNothing);
-    expect(band, findsOneWidget);
-    await tester.drag(find.byType(ListView), const Offset(0, -800));
-    await tester.pumpAndSettle();
-    expect(find.byType(ActivityCompactBar), findsOneWidget);
-    expect(band, findsOneWidget);
-  });
-
-  testWidgets("with a name on two lines the bar waits for the whole header", (
+  testWidgets("the bar shows the name once it has scrolled under it", (
     tester,
   ) async {
     await pump(
       tester,
-      _log(
-        LogType.signature,
-        verifier: "Gemeentelijke Belastingsamenwerking Voorbeeldstad",
-        message: List.filled(600, "word").join(" "),
-      ),
+      _log(LogType.signature, message: List.filled(600, "word").join(" ")),
     );
-    final nameLines =
-        tester
-            .getSize(
-              find.text("Gemeentelijke Belastingsamenwerking Voorbeeldstad"),
-            )
-            .height /
-        32;
-    expect(nameLines, greaterThan(1.5), reason: "the name should wrap");
-    await expectBarFollowsHeader(tester);
-
-    // The bar still says who and when.
-    await tester.drag(find.byType(ListView), const Offset(0, -800));
+    double title() => tester
+        .widget<AnimatedOpacity>(find.byKey(const Key("irma_app_bar_title")))
+        .opacity;
+    expect(title(), 0);
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
     await tester.pumpAndSettle();
-    final bar = find.byType(ActivityCompactBar);
-    expect(
-      find.descendant(
-        of: bar,
-        matching: find.text(
-          "Gemeentelijke Belastingsamenwerking Voorbeeldstad",
-        ),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(of: bar, matching: find.byType(ActivityPartyLogo)),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(of: bar, matching: find.textContaining("Signed")),
-      findsOneWidget,
-    );
+    expect(title(), 1);
+    await tester.drag(find.byType(ListView), const Offset(0, 500));
+    await tester.pumpAndSettle();
+    expect(title(), 0);
   });
 }

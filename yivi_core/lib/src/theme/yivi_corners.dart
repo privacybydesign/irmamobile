@@ -25,5 +25,11 @@ class YiviCorners {
   /// Small card pictures in a list.
   static const thumbnail = 6.0;
 
+  /// Chips and tags: status chips, the activity query's tags and
+  /// suggestions, the filter sheet's toggles.
+  static const chip = 8.0;
+
   static const cardRadius = BorderRadius.all(Radius.circular(card));
+
+  static const chipRadius = BorderRadius.all(Radius.circular(chip));
 }

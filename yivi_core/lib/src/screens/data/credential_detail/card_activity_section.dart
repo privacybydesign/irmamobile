@@ -12,7 +12,6 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
@@ -25,8 +24,8 @@ import "../../home/home_screen.dart";
 import "../../home/widgets/irma_nav_bar.dart";
 
 /// The Activity section of a card's details: how often it was shared, then
-/// its newest entries as rows like those of the Activity tab (who, what
-/// happened in its colour, which of its fields went along, when). A row
+/// its newest entries as the Activity tab's rows (which of its fields went
+/// along instead of the cards). A row
 /// opens the entry as a page over the card; "See all" closes the card and
 /// opens the Activity tab, asking about this card.
 class CardActivitySection extends ConsumerWidget {
@@ -83,10 +82,12 @@ class CardActivitySection extends ConsumerWidget {
           child: Column(
             children: [
               for (final (i, log) in entries.indexed)
-                _CardActivityRow(
-                  log: log,
-                  credential: credential,
-                  last: i == entries.length - 1 && !more,
+                ActivityCard(
+                  key: Key("card_activity_${logKey(log)}"),
+                  logEntry: log,
+                  focusCard: ActivityCardRef.of(credential),
+                  divider: i < entries.length - 1 || more,
+                  onTap: () => pushCardActivityEntry(context, log),
                 ),
               if (more) _SeeAll(credential: credential, total: activity.total),
               // A card whose issuance is not in the log: when it was added.
@@ -109,98 +110,6 @@ class CardActivitySection extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// One entry about the card: the other party's logo, its name, what
-/// happened (in its colour) and which of the card's fields went along, and
-/// when. Opens the entry as a page over the card.
-class _CardActivityRow extends ConsumerWidget {
-  final LogInfo log;
-  final schemaless.Credential credential;
-  final bool last;
-
-  const _CardActivityRow({
-    required this.log,
-    required this.credential,
-    required this.last,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = YiviPalette.of(context);
-    final wallet = ref.watch(walletCardsProvider);
-    final entry = ActivityEntry.fromLog(log, wallet: wallet);
-    final mine = entry.cards
-        .where((c) => c.credential.credentialId == credential.credentialId)
-        .firstOrNull;
-    final what = mine == null ? "" : describeShared(mine.credential.attributes);
-    final kind = FlutterI18n.translate(context, entry.kind.labelKey);
-    final when = formatActivityTimestamp(context, entry.localTime);
-    return Semantics(
-      button: true,
-      excludeSemantics: true,
-      label: [
-        entry.party.name,
-        kind,
-        what,
-        when,
-      ].where((s) => s.isNotEmpty).join(", "),
-      child: InkWell(
-        key: Key("card_activity_${logKey(log)}"),
-        onTap: () => pushCardActivityEntry(context, log),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 60),
-          padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
-          decoration: BoxDecoration(
-            border: last
-                ? null
-                : Border(bottom: BorderSide(color: palette.divider)),
-          ),
-          child: Row(
-            spacing: 12,
-            children: [
-              ActivityPartyLogo(party: entry.party, size: 40),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.party.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.display(15).copyWith(color: palette.text),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: kind,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: activityKindInk(palette, entry.kind),
-                            ),
-                          ),
-                          if (what.isNotEmpty) TextSpan(text: " · $what"),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.body(13).copyWith(color: palette.heading),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                when,
-                style: palette.body(13).copyWith(color: palette.secondaryText),
-              ),
-              Icon(Icons.chevron_right_rounded, size: 20, color: palette.faint),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -302,16 +211,18 @@ class _CardActivityEntryPage extends ConsumerWidget {
         children: [
           ListView(
             key: const Key("card_activity_entry"),
-            padding: EdgeInsets.fromLTRB(
-              16,
-              padding.top + IrmaAppBar.contentTop,
-              16,
-              padding.bottom + 32,
-            ),
+            padding: EdgeInsets.only(bottom: padding.bottom + 32),
             children: [
-              CentredMaxWidth(
-                maxWidth: 460,
-                child: ActivityDetailBody(entry: entry),
+              ActivityDetailBody(
+                entry: entry,
+                top: padding.top + IrmaAppBar.contentTop,
+                // Closes the entry and the card, and asks the Activity tab.
+                onAsk: (query) {
+                  ref.read(activityLogProvider.notifier).setFilter(query);
+                  context.read<HomeTabState>().add(IrmaNavBarTab.activity);
+                  navigator.pop();
+                  if (!useHomePanes(context)) navigator.maybePop();
+                },
               ),
             ],
           ),

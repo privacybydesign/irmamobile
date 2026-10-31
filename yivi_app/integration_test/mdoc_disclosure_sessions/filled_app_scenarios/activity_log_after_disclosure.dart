@@ -49,7 +49,7 @@ Future<void> activityLogAfterDisclosureTest(
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 
   // Who the data went to.
-  final requestorHeaderFinder = find.byType(ActivityPartyCard);
+  final requestorHeaderFinder = find.byType(ActivityHeroHeader);
   expect(requestorHeaderFinder, findsOneWidget);
   expect(
     find.descendant(

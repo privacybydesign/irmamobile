@@ -169,7 +169,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
 
   // Verify activity log
   await navigateToLatestActivity(tester);
-  expect(find.text("YOU RECEIVED"), findsOneWidget);
+  expect(find.text("Received from"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     findCredentialCards().first,
@@ -273,7 +273,7 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
   await tester.tapAndSettle(find.text("OK"));
 
   await navigateToLatestActivity(tester);
-  expect(find.text("YOU RECEIVED"), findsOneWidget);
+  expect(find.text("Received from"), findsOneWidget);
   await tester.pumpAndSettle();
 
   final activityScrollable = find.byType(Scrollable).first;

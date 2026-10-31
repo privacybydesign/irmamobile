@@ -46,10 +46,10 @@
     "deleted_from": "Daten gelöscht von",
     "signed_for": "Nachricht signiert für",
     "note": {
-      "shared": "{name} hat nur das erhalten. Nicht aufgeführte Angaben blieben auf deinem Telefon.",
+      "shared": "Nicht aufgeführte Angaben blieben auf deinem Telefon.",
       "received": "Die neuen Karten wurden deiner Yivi-App hinzugefügt.",
-      "deleted": "Sie haben diese Daten aus Ihrer Yivi-App gelöscht. Sie können nicht wiederhergestellt werden.",
-      "signed": "Die Nachricht wurde mit den obigen Daten signiert. {name} hat nur das erhalten."
+      "deleted": "Das lässt sich nicht rückgängig machen.",
+      "signed": "Nicht aufgeführte Angaben blieben auf deinem Telefon."
     },
     "kind": {
       "all": "Alle",
@@ -80,9 +80,9 @@
       "years-1": "vor {count} Jahr",
       "years-2": "vor {count} Jahren"
     },
-    "signed_by_you": "Von dir signiert, {date} um {time}",
     "chip_new": "Neu",
-    "back_to_activity": "Zurück zur Aktivität",
+    "not_checked": "{host} · nicht von Yivi geprüft",
+    "all_with_party": "Alle Aktivitäten mit {name}",
     "filter_label": "Aktivität anzeigen",
     "filter_empty": {
       "shared": "Noch nichts geteilt",
@@ -96,6 +96,7 @@
       "filter": "Filter",
       "filter_active": "Filter, {count} aktiv",
       "remove_filter": "{filter} entfernen",
+      "add_filter": "{filter} hinzufügen",
       "or": "oder",
       "group_all": "{group} (alle)",
       "suggest": {

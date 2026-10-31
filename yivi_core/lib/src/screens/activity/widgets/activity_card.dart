@@ -8,42 +8,49 @@ import "../../../models/log_entry.dart";
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/glass/glass_surface.dart";
-import "../../data/wallet/wallet_transition.dart";
 import "../activity_entry.dart";
-import "../activity_flight.dart";
 import "../activity_query.dart";
 import "activity_detail_parts.dart";
 
 /// One log entry as a row of the Activity tab: a small stack of its cards
-/// with the other party's logo on it, the party, what happened (in its
-/// colour) and to which cards, and when.
-///
-/// Opening it pushes the other rows away while the stack's cards fly into
-/// their tiles in the details ([ActivityFlight]).
+/// with the other party's logo on it, the party and when, what happened (in
+/// its colour) and to which cards, and a chevron. Rows sit edge to edge on a
+/// white band, a divider between them; pressed, a row turns grey.
 class ActivityCard extends ConsumerWidget {
   final LogInfo logEntry;
 
-  /// Whether the detail pane shows this entry: the row gets a red border.
+  /// Whether the detail pane shows this entry: the row is tinted.
   final bool selected;
 
   /// The card the list is filtered on: the row then says which of its
   /// fields went along instead of naming the cards.
   final ActivityCardRef? focusCard;
 
+  /// A divider under the row, from the text to the edge: all but the last
+  /// row of a band.
+  final bool divider;
+
+  /// Instead of opening the entry on the Activity tab (a card's activity
+  /// opens it over the card).
+  final VoidCallback? onTap;
+
   const ActivityCard({
     super.key,
     required this.logEntry,
     this.selected = false,
     this.focusCard,
+    this.divider = false,
+    this.onTap,
   });
+
+  /// Where the divider starts: under the text, past the pile.
+  static const double dividerIndent = 16 + ActivityCardStack.width + 12;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,108 +80,103 @@ class ActivityCard extends ConsumerWidget {
         ? "${titles.take(2).join(", ")} +${titles.length - 2}"
         : titles.join(", ");
 
-    return PushAway(
-      hash: entry.key,
-      fadeWhenOpening: true,
-      child: Semantics(
-        label: FlutterI18n.translate(
-          context,
-          kind.semanticsKey,
-          translationParams: {
-            "otherParty": entry.party.name,
-            "issuerName": entry.party.name,
-            "date": timestamp,
-          },
-        ),
-        button: true,
-        excludeSemantics: true,
-        child: PressScale(
-          scale: PressScale.card,
-          child: Material(
-            color: palette.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: YiviCorners.cardRadius,
-              side: selected
-                  ? BorderSide(width: 2, color: palette.primary)
-                  : YiviEdges.block(context),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Builder(
-              builder: (rowContext) => InkWell(
-                // A card, not a row: it gives way under the finger
-                // (PressScale) instead of turning grey.
-                highlightColor: Colors.transparent,
-                onTap: () {
-                  if (!useHomePanes(context)) {
-                    WalletTransition.begin(rowContext, entry.key);
-                  }
-                  openActivity(context, logEntry);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  child: Row(
-                    spacing: 14,
-                    children: [
-                      ActivityCardStack(entry: entry),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.party.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: palette
-                                  .display(16)
-                                  .copyWith(color: palette.text),
-                            ),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: FlutterI18n.translate(
-                                      context,
-                                      kind.labelKey,
-                                    ),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: activityKindInk(palette, kind),
-                                    ),
-                                  ),
-                                  if (cardsText.isNotEmpty)
-                                    TextSpan(text: " · $cardsText"),
-                                ],
+    return Semantics(
+      label: FlutterI18n.translate(
+        context,
+        kind.semanticsKey,
+        translationParams: {
+          "otherParty": entry.party.name,
+          "issuerName": entry.party.name,
+          "date": timestamp,
+        },
+      ),
+      button: true,
+      selected: selected,
+      excludeSemantics: true,
+      child: Material(
+        color: selected
+            ? palette.primary.withValues(alpha: palette.isDark ? 0.22 : 0.12)
+            : Colors.transparent,
+        child: InkWell(
+          onTap: onTap ?? () => openActivity(context, logEntry),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    ActivityCardStack(entry: entry),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 2,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            spacing: 8,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  entry.party.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: palette
+                                      .display(16, weight: FontWeight.w500)
+                                      .copyWith(color: palette.text),
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: palette
-                                  .body(14)
-                                  .copyWith(color: palette.heading),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 88),
-                            child: Text(
-                              timestamp,
-                              textAlign: TextAlign.right,
-                              style: palette
-                                  .body(12)
-                                  .copyWith(color: palette.heading),
-                            ),
+                              Text(
+                                timestamp,
+                                style: palette
+                                    .body(13)
+                                    .copyWith(color: palette.secondaryText),
+                              ),
+                            ],
                           ),
-                        ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: FlutterI18n.translate(
+                                    context,
+                                    kind.labelKey,
+                                  ),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: activityKindInk(palette, kind),
+                                  ),
+                                ),
+                                if (cardsText.isNotEmpty)
+                                  TextSpan(text: " · $cardsText"),
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: palette
+                                .body(14)
+                                .copyWith(color: palette.heading),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 22,
+                      color: palette.faint,
+                    ),
+                  ],
                 ),
               ),
-            ),
+              if (divider)
+                PositionedDirectional(
+                  start: dividerIndent,
+                  end: 0,
+                  bottom: 0,
+                  child: Divider(height: 1, color: palette.divider),
+                ),
+            ],
           ),
         ),
       ),
@@ -227,25 +229,6 @@ class ActivityCardStack extends StatelessWidget {
                   ),
                 ),
               ),
-            // The cards past the third have no place in the pile; the flight
-            // takes them from behind it. Their slots are measured, not shown.
-            for (var i = 3; i < cards.length; i++)
-              Positioned(
-                left: (width - cardWidth) / 2,
-                top: 22 - _cardHeight / 2,
-                child: Transform.scale(
-                  scale: 0.76,
-                  child: ActivityFlightSlot(
-                    entryKey: entry.key,
-                    index: i,
-                    pile: true,
-                    child: const SizedBox(
-                      width: cardWidth,
-                      height: _cardHeight,
-                    ),
-                  ),
-                ),
-              ),
             // Back to front: the first card is on top.
             for (var i = shown - 1; i >= 0; i--)
               Positioned(
@@ -253,15 +236,10 @@ class ActivityCardStack extends StatelessWidget {
                 top: 38 - 8.0 * i - _cardHeight / 2,
                 child: Transform.scale(
                   scale: 1 - 0.12 * i,
-                  child: ActivityFlightSlot(
-                    entryKey: entry.key,
-                    index: i,
-                    pile: true,
-                    child: CredentialCardArt(
-                      credential: cards[i].art,
-                      width: cardWidth,
-                      greyedOut: cards[i].deleted,
-                    ),
+                  child: CredentialCardArt(
+                    credential: cards[i].art,
+                    width: cardWidth,
+                    greyedOut: cards[i].deleted,
                   ),
                 ),
               ),
@@ -282,13 +260,10 @@ class ActivityCardStack extends StatelessWidget {
             Positioned(
               right: -8,
               bottom: -4,
-              child: ActivityFlightLogoSlot(
-                entryKey: entry.key,
-                child: ActivityPartyLogo(
-                  party: entry.party,
-                  size: ActivityPartyLogo.pileSize,
-                  ring: palette.surface,
-                ),
+              child: ActivityPartyLogo(
+                party: entry.party,
+                size: ActivityPartyLogo.pileSize,
+                ring: palette.surface,
               ),
             ),
           ],

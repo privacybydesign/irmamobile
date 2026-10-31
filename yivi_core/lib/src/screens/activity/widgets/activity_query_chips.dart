@@ -1,16 +1,21 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../activity_entry.dart";
 
-/// The height of the chips and tags of the activity query.
+/// The height of the rows of tags and suggestions under the activity
+/// search field.
 const double activityChipHeight = 36;
 
+/// The height of a tag or a suggestion in those rows.
+const double activityTagHeight = 32;
+
 /// A filter that is on, under the activity search field: its name and a
-/// cross that takes it off. Only filters that are on show a chip.
+/// cross that takes it off. Only filters that are on show a tag.
 class ActivityFacetChip extends StatelessWidget {
   final String label;
 
@@ -29,6 +34,11 @@ class ActivityFacetChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final leading = this.leading;
+    // The tint and ink of the filter button while a filter is on.
+    final fill = palette.primary.withValues(
+      alpha: palette.isDark ? 0.22 : 0.12,
+    );
+    final ink = palette.selectedTab;
     return Semantics(
       button: true,
       label: FlutterI18n.translate(
@@ -42,15 +52,15 @@ class ActivityFacetChip extends StatelessWidget {
         child: PressScale(
           scale: PressScale.glass,
           child: Container(
-            height: activityChipHeight,
-            padding: EdgeInsets.fromLTRB(leading == null ? 12 : 6, 0, 5, 0),
-            decoration: ShapeDecoration(
-              color: palette.link,
-              shape: const StadiumBorder(),
+            height: activityTagHeight,
+            padding: EdgeInsets.fromLTRB(leading == null ? 12 : 4, 0, 10, 0),
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: YiviCorners.chipRadius,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: 8,
+              spacing: 6,
               children: [
                 ?leading,
                 ConstrainedBox(
@@ -59,22 +69,77 @@ class ActivityFacetChip extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: palette.display(13).copyWith(color: palette.onLink),
+                    style: palette.display(13).copyWith(color: ink),
                   ),
                 ),
-                Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    color: palette.onLink.withValues(alpha: 0.18),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.close_rounded,
-                    size: 15,
-                    color: palette.onLink,
+                Icon(Icons.close_rounded, size: 16, color: ink),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A suggestion in the row under the activity search field and its tags:
+/// what it is (a kind's dot, a card's art, a party's logo), its name and a
+/// plus. Picking it adds it to the question as a tag.
+class ActivitySuggestionChip extends StatelessWidget {
+  final String label;
+  final Widget? leading;
+  final VoidCallback onTap;
+
+  const ActivitySuggestionChip({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.leading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final leading = this.leading;
+    return Semantics(
+      button: true,
+      label: FlutterI18n.translate(
+        context,
+        "activity.query.add_filter",
+        translationParams: {"filter": label},
+      ),
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: PressScale(
+          scale: PressScale.glass,
+          child: Container(
+            height: activityTagHeight,
+            padding: EdgeInsets.fromLTRB(leading == null ? 12 : 6, 0, 10, 0),
+            decoration: ShapeDecoration(
+              color: palette.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: YiviCorners.chipRadius,
+                side: BorderSide(color: palette.divider),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                ?leading,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 220),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette
+                        .display(13, weight: FontWeight.w500)
+                        .copyWith(color: palette.text),
                   ),
                 ),
+                Icon(Icons.add_rounded, size: 16, color: palette.secondaryText),
               ],
             ),
           ),
@@ -129,6 +194,9 @@ class ActivityToggleTag extends StatelessWidget {
             scale: faded ? 1 : PressScale.glass,
             child: GlassSurface(
               fill: fill,
+              shape: const RoundedRectangleBorder(
+                borderRadius: YiviCorners.chipRadius,
+              ),
               padding: EdgeInsets.fromLTRB(kind == null ? 14 : 9, 0, 14, 0),
               child: SizedBox(
                 height: activityChipHeight,

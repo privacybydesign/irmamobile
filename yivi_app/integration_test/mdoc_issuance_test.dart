@@ -344,7 +344,7 @@ Future<void> testActivityLogAfterIssuance(
   await issueAvMdoc(tester, irmaBinding);
 
   await _navigateToLatestActivity(tester);
-  expect(find.text("YOU RECEIVED"), findsOneWidget);
+  expect(find.text("Received from"), findsOneWidget);
   await tester.pumpAndSettle();
   await evaluateCredentialCard(
     tester,

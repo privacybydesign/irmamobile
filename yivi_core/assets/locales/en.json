@@ -46,10 +46,10 @@
     "deleted_from": "Data deleted from",
     "signed_for": "Message signed for",
     "note": {
-      "shared": "{name} got only this. Fields that are not listed stayed on your phone.",
+      "shared": "Fields that are not listed stayed on your phone.",
       "received": "The new cards were added to your Yivi app.",
-      "deleted": "You deleted this data from your Yivi app. It cannot be recovered.",
-      "signed": "The message was signed with the data above. {name} got only this."
+      "deleted": "This cannot be undone.",
+      "signed": "Fields that are not listed stayed on your phone."
     },
     "kind": {
       "all": "All",
@@ -80,9 +80,9 @@
       "years-1": "{count} year ago",
       "years-2": "{count} years ago"
     },
-    "signed_by_you": "Signed by you, {date} at {time}",
     "chip_new": "New",
-    "back_to_activity": "Back to activity",
+    "not_checked": "{host} · not checked by Yivi",
+    "all_with_party": "All activity with {name}",
     "filter_label": "Show activity",
     "filter_empty": {
       "shared": "Nothing shared yet",
@@ -96,6 +96,7 @@
       "filter": "Filter",
       "filter_active": "Filter, {count} on",
       "remove_filter": "Remove {filter}",
+      "add_filter": "Add {filter}",
       "or": "or",
       "group_all": "{group} (all)",
       "suggest": {

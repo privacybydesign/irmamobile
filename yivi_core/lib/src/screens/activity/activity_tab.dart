@@ -23,7 +23,6 @@ import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/empty_list_message.dart";
 import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/glass/floating_bar_placement.dart";
-import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -32,7 +31,6 @@ import "../../widgets/glass/search_scroll_edge.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/two_pane.dart";
-import "../data/wallet/wallet_transition.dart";
 import "activity_detail_screen.dart";
 import "activity_entry.dart";
 import "activity_filter_sheet.dart";
@@ -42,12 +40,16 @@ import "widgets/activity_card.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
 
-/// The Activity tab: the log, newest first, grouped by month. irmago does
-/// the asking: the search field suggests what to filter on (what happened,
-/// cards, parties, their fields) or searches the typed words, the filter
-/// sheet builds a whole question, and what is asked shows as chips under the
-/// field, each with a cross to take it off. The field, the filter button and
-/// the chips stay at the top while the list scrolls.
+/// The Activity tab: the log, newest first, a white band of rows per month
+/// under a header that sticks under the bar. irmago does the asking.
+///
+/// Searching, the log itself shows what the question so far finds: its
+/// tags sit in a row under the field (each with a cross), and a row of
+/// suggestions under them adds one more (what happened, a card or its
+/// fields, a party). Suggestions only narrow the question and never lead to
+/// nothing. Enter keeps the question, Cancel goes back to the one before.
+/// The filter sheet builds a whole question; what is asked shows as tags
+/// under the field.
 class ActivityTab extends ConsumerStatefulWidget {
   @override
   ConsumerState<ActivityTab> createState() => _ActivityTabState();
@@ -56,35 +58,45 @@ class ActivityTab extends ConsumerStatefulWidget {
 /// One suggestion while searching: picking it asks [query].
 class _Suggestion {
   final String key;
-  final Widget leading;
+  final Widget? leading;
   final String title;
-  final String subtitle;
   final ActivityQuery query;
 
   const _Suggestion({
     required this.key,
-    required this.leading,
     required this.title,
-    required this.subtitle,
     required this.query,
+    this.leading,
   });
 }
+
+/// The height of the row of suggestions under the field while searching.
+const double _suggestionRowHeight = 40;
+
+/// The height of the "12 results" line at the top of the log while
+/// searching.
+const double _liveCountHeight = 28;
 
 class _ActivityTabState extends ConsumerState<ActivityTab> {
   final _scrollController = ScrollController();
   final _search = TextEditingController();
   final _focus = FocusNode();
 
-  /// Whether the suggestions show. It starts when the field gets focus and
-  /// ends on a search (Enter) or Cancel, not when the field loses focus.
+  /// Whether a search is on. It starts when the field gets focus and ends
+  /// on Enter or Cancel, not when the field loses focus.
   bool _searching = false;
   String _typed = "";
 
-  /// The question being built while searching: the applied one at the
-  /// start, a tag more with each pick. Enter applies it; Cancel drops it.
-  ActivityQuery? _draft;
+  /// The question asked before searching: Cancel goes back to it.
+  ActivityQuery _before = ActivityQuery.empty;
 
-  /// How many entries each suggestion would leave: those with none fade.
+  /// The question being built while searching: the applied one at the
+  /// start, a tag more with each pick. The log shows what it finds with
+  /// the typed words.
+  ActivityQuery? _draft;
+  Timer? _liveDelay;
+
+  /// How many entries each suggestion would leave: those with none go.
   final _counts = <String, int>{};
   Timer? _countDelay;
   var _countGeneration = 0;
@@ -104,6 +116,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   @override
   void dispose() {
     _countDelay?.cancel();
+    _liveDelay?.cancel();
     _search.dispose();
     _focus.dispose();
     _scrollController.dispose();
@@ -123,6 +136,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   void _startSearching() {
     setState(() {
       _searching = true;
+      _before = _query;
       _draft = _query;
     });
     _scheduleCounts();
@@ -137,14 +151,37 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     });
   }
 
-  void _stopSearching() {
+  /// Ends the search: the log keeps [keep], or (Cancel) goes back to the
+  /// question asked before.
+  void _endSearching({ActivityQuery? keep}) {
+    _liveDelay?.cancel();
     _search.clear();
     _focus.unfocus();
+    final before = _before;
     setState(() {
       _searching = false;
       _typed = "";
       _draft = null;
     });
+    _ask(keep ?? before);
+  }
+
+  void _cancelSearching() => _endSearching();
+
+  /// The log shows what the draft and the typed words find, a moment
+  /// after typing stops (a tag at once).
+  void _showLive({bool now = false}) {
+    _liveDelay?.cancel();
+    void show() {
+      if (!mounted || !_searching) return;
+      _ask(_withTyped(_asked, _typed));
+    }
+
+    if (now) {
+      show();
+    } else {
+      _liveDelay = Timer(const Duration(milliseconds: 150), show);
+    }
   }
 
   /// A suggestion: a tag more on the draft. The field empties and keeps the
@@ -156,6 +193,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       _typed = "";
     });
     _focus.requestFocus();
+    _showLive(now: true);
     _scheduleCounts();
   }
 
@@ -165,6 +203,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final typing = _focus.hasFocus;
     setState(() => _draft = query);
     if (typing) _focus.requestFocus();
+    _showLive(now: true);
     _scheduleCounts();
   }
 
@@ -183,60 +222,26 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return q.copyWith(value: value.isEmpty ? words : "$value $words");
   }
 
-  /// What Enter (or "Show results") would ask: the draft with the typed
-  /// words.
-  ActivityQuery get _results => _withTyped(_asked, _typed);
-
-  /// Where the count of [_results] is kept with the suggestions'.
-  static const _resultsKey = "_results";
-
-  /// While searching with something asked: "Show 12 results" above the
-  /// keyboard (or the tab bar), which asks it as Enter does.
-  Widget? _showResultsButton(BuildContext context) {
-    if (!_searching || _results.isEmpty) return null;
-    final count = _counts[_resultsKey];
-    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
-    return Positioned(
-      left: 16,
-      right: 16,
-      bottom: keyboard > 0
-          ? keyboard + 12
-          : MediaQuery.paddingOf(context).bottom + bottomBarSpace(context) + 12,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: FancyPillButton(
-            key: const Key("activity_show_results"),
-            label: count == null
-                ? FlutterI18n.translate(context, "activity.query.show_results")
-                : FlutterI18n.plural(
-                    context,
-                    "activity.query.show_results_count",
-                    count,
-                  ),
-            size: PillSize.regular,
-            onPressed: count == 0 ? null : () => _searchText(_search.text),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Enter: the draft is asked, with the typed words as a text search.
-  void _searchText(String text) {
-    final next = _withTyped(_asked, text);
-    _stopSearching();
-    _ask(next);
-  }
+  /// Enter: the draft is kept, with the typed words as a text search.
+  void _searchText(String text) =>
+      _endSearching(keep: _withTyped(_asked, text));
 
   void _onTyped(String text) {
     setState(() => _typed = text);
+    _showLive();
     _scheduleCounts();
   }
 
   Future<void> _openFilter() async {
     final next = await showActivityFilterSheet(context, _query);
     if (next != null && mounted) _ask(next);
+  }
+
+  /// A row: its details. While searching the keyboard goes first, and
+  /// stays down when coming back.
+  void _open(LogInfo entry) {
+    if (_searching) _focus.unfocus();
+    openActivity(context, entry);
   }
 
   void _loadMoreLogs() => ref.read(activityLogProvider.notifier).loadMore();
@@ -275,150 +280,118 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     ...?ref.read(removedCardTypesProvider).value,
   ];
 
-  Widget _kindIcon(ActivityKind kind) =>
-      CornerBadge(icon: kind.icon, fill: kind.badge, size: 36, iconSize: 18);
-
-  Widget _initialIcon(String text) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      width: 36,
-      height: 36,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: palette.tint, shape: BoxShape.circle),
-      child: Text(
-        text.isEmpty ? "?" : text.characters.first.toUpperCase(),
-        style: palette.display(15).copyWith(color: palette.link),
-      ),
-    );
-  }
-
-  /// The suggestions, by group. With nothing typed: what happened and the
-  /// recent parties. Typed: what happened, cards, parties and fields whose
-  /// name has the typed text.
-  List<(String, List<_Suggestion>)> _suggestions() {
+  /// Everything that could be suggested, by group in the order shown, before
+  /// the counts weed out and sort. Only what narrows the question: no kinds
+  /// once one is picked, no parties once one is, and once a card is picked,
+  /// its fields instead of the cards (after the parties). While typing, what
+  /// has the typed text in its name, and last the typed words to find in
+  /// the data alone.
+  List<List<_Suggestion>> _candidates() {
     final q = _asked;
     final typed = normaliseForSearch(_typed.trim());
     bool hit(String s) =>
         typed.isEmpty || normaliseForSearch(s).contains(typed);
     final parties = ref.watch(activityPartiesProvider).value ?? const [];
-    String partySub(PartySummary p) => FlutterI18n.translate(
-      context,
-      "activity.query.suggest.last",
-      translationParams: {
-        "times": activityTimes(context, p.count),
-        "date": DateFormat.MMMd(
-          FlutterI18n.currentLocale(context).toString(),
-        ).format(p.lastTime.toLocal()),
-      },
-    );
+    final card = q.card;
 
     final kinds = [
-      for (final kind in activityKindOrder)
-        if (!q.kinds.contains(logTypeOf(kind)) &&
-            hit(FlutterI18n.translate(context, kind.labelKey)))
-          _Suggestion(
-            key: "kind:${kind.name}",
-            leading: _kindIcon(kind),
-            title: FlutterI18n.translate(context, kind.labelKey),
-            subtitle: "",
-            query: q.copyWith(kinds: {...q.kinds, logTypeOf(kind)}),
-          ),
-    ];
-    if (typed.isEmpty) {
-      return [
-        (FlutterI18n.translate(context, "activity.query.suggest.kinds"), kinds),
-        (
-          FlutterI18n.translate(context, "activity.query.suggest.recent"),
-          [
-            for (final p in parties.where((p) => p != q.party).take(4))
-              _Suggestion(
-                key: "party:${p.key}",
-                leading: ActivityPartyLogo(
-                  party: ActivityParty.of(p.party),
-                  size: 36,
-                ),
-                title: p.party.name,
-                subtitle: partySub(p),
-                query: q.copyWith(party: () => p),
+      if (q.kinds.isEmpty)
+        for (final kind in activityKindOrder)
+          if (hit(FlutterI18n.translate(context, kind.labelKey)))
+            _Suggestion(
+              key: "kind:${kind.name}",
+              leading: CornerBadge(
+                icon: kind.icon,
+                fill: kind.badge,
+                size: 20,
+                iconSize: 12,
               ),
-          ],
-        ),
-      ];
-    }
-
-    final cards = [
-      for (final c in _cards)
-        if (c != q.card && hit(c.name))
-          _Suggestion(
-            key: "card:${c.key}",
-            leading: CredentialCardArt(
-              credential: c.art,
-              width: 46,
-              greyedOut: c.removed,
+              title: FlutterI18n.translate(context, kind.labelKey),
+              query: q.copyWith(kinds: {logTypeOf(kind)}),
             ),
-            title: c.name,
-            subtitle: c.removed
-                ? FlutterI18n.translate(context, "activity.query.sheet.removed")
-                : "",
-            query: q.withCard(c),
-          ),
+    ];
+    final cards = [
+      if (card == null)
+        for (final c in _cards)
+          if (hit(c.name))
+            _Suggestion(
+              key: "card:${c.key}",
+              leading: CredentialCardArt(
+                credential: c.art,
+                width: 30,
+                greyedOut: c.removed,
+              ),
+              title: c.name,
+              query: q.withCard(c),
+            ),
     ];
     final partyHits = [
-      for (final p in parties)
-        if (p != q.party && hit(p.party.name))
-          _Suggestion(
-            key: "party:${p.key}",
-            leading: ActivityPartyLogo(
-              party: ActivityParty.of(p.party),
-              size: 36,
-            ),
-            title: p.party.name,
-            subtitle: partySub(p),
-            query: q.copyWith(party: () => p),
-          ),
-    ];
-    // A field of the card already asked about joins the fields picked; one
-    // of another card replaces them: the question is about one card.
-    final fields = <_Suggestion>[];
-    for (final c in _cards.where((c) => !c.removed)) {
-      for (final g in claimTokenGroups(c.art.attributes)) {
-        for (final t in g.tokens) {
-          final label = claimTokenLabel(context, t);
-          if (!hit(label) || (q.card == c && q.fields.contains(t))) continue;
-          final next = q.card == c
-              ? q.copyWith(fields: {...q.fields, t}.toList())
-              : q.withCard(c).copyWith(fields: [t]);
-          fields.add(
+      if (q.party == null)
+        for (final p in parties)
+          if (hit(p.party.name))
             _Suggestion(
-              key: "field:${c.key}:${t.key}",
-              leading: _initialIcon(label),
-              title: label,
-              subtitle: FlutterI18n.translate(
-                context,
-                "activity.query.suggest.from_card",
-                translationParams: {"card": c.name},
+              key: "party:${p.key}",
+              leading: ActivityPartyLogo(
+                party: ActivityParty.of(p.party),
+                size: 22,
               ),
-              query: next,
+              title: p.party.name,
+              query: q.copyWith(party: () => p),
             ),
-          );
-        }
-      }
-    }
+    ];
+    // The fields of the card asked about: picked fields join (either one).
+    final fields = <_Suggestion>[
+      if (card != null && !card.removed)
+        for (final g in claimTokenGroups(card.art.attributes))
+          for (final t in g.tokens)
+            if (!q.fields.contains(t) && hit(claimTokenLabel(context, t)))
+              _Suggestion(
+                key: "field:${card.key}:${t.key}",
+                title: claimTokenLabel(context, t),
+                query: q.copyWith(fields: {...q.fields, t}.toList()),
+              ),
+    ];
+    final words = _typed.trim();
     return [
-      if (kinds.isNotEmpty)
-        (FlutterI18n.translate(context, "activity.query.suggest.kinds"), kinds),
-      if (cards.isNotEmpty)
-        (FlutterI18n.translate(context, "activity.query.suggest.cards"), cards),
-      if (partyHits.isNotEmpty)
-        (
-          FlutterI18n.translate(context, "activity.query.suggest.parties"),
-          partyHits,
-        ),
-      if (fields.isNotEmpty)
-        (
-          FlutterI18n.translate(context, "activity.query.suggest.fields"),
-          fields,
-        ),
+      kinds,
+      if (card == null) ...[cards, partyHits] else ...[partyHits, fields],
+      if (words.isNotEmpty)
+        [
+          _Suggestion(
+            key: "value",
+            leading: Icon(
+              Icons.badge_outlined,
+              size: 18,
+              color: YiviPalette.of(context).link,
+            ),
+            title: FlutterI18n.translate(
+              context,
+              "activity.query.suggest.value_for",
+              translationParams: {"text": words},
+            ),
+            query: _withValue(_asked, words),
+          ),
+        ],
+    ];
+  }
+
+  /// The suggestions in one row: per group those that leave something, the
+  /// most found first, a few per group (more while typing).
+  List<_Suggestion> _suggestions() {
+    final take = _typed.trim().isEmpty ? 4 : 6;
+    return [
+      for (final group in _candidates())
+        ...() {
+          final left = group.where((s) => _counts[s.key] != 0).toList();
+          // Sorted once every count is in: no shuffling while they come.
+          if (left.every((s) => _counts.containsKey(s.key))) {
+            mergeSort(
+              left,
+              compare: (a, b) => _counts[b.key]!.compareTo(_counts[a.key]!),
+            );
+          }
+          return left.take(take);
+        }(),
     ];
   }
 
@@ -428,16 +401,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _countDelay = Timer(const Duration(milliseconds: 150), () async {
       if (!mounted || !_searching) return;
       final generation = ++_countGeneration;
-      final all = [
-        for (final (_, items) in _suggestions()) ...items,
-        if (_typed.trim().isNotEmpty) ..._typedSuggestions(),
-      ];
-      final results = _results;
+      final all = _candidates().flattened.toList();
       List<int> counts;
       try {
         counts = await ref.read(irmaRepositoryProvider).countLogs([
           for (final s in all) s.query.toLogFilter(),
-          if (!results.isEmpty) results.toLogFilter(),
         ]);
       } catch (_) {
         return;
@@ -448,146 +416,51 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         for (final (i, s) in all.indexed) {
           if (i < counts.length) _counts[s.key] = counts[i];
         }
-        if (!results.isEmpty && all.length < counts.length) {
-          _counts[_resultsKey] = counts[all.length];
-        }
       });
     });
   }
 
-  Widget _suggestionList(double top) {
-    final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
-    final groups = _suggestions();
-    final typed = _typed.trim();
-    final asked = !_asked.isEmpty;
-    Widget row(_Suggestion s) {
-      final count = _counts[s.key];
-      final faded = count == 0;
-      // With tags on, how many would fit them all; otherwise what it is.
-      final subtitle = faded || (asked && count != null)
-          ? FlutterI18n.plural(context, "activity.query.fits", count!)
-          : s.subtitle;
-      return Opacity(
-        opacity: faded ? 0.38 : 1,
-        child: Semantics(
-          button: true,
-          enabled: !faded,
-          child: InkWell(
-            key: Key("activity_suggestion_${s.key}"),
-            onTap: faded ? null : () => _pick(s.query),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 56),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    SizedBox(width: 46, child: Center(child: s.leading)),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            s.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: palette
-                                .display(15)
-                                .copyWith(color: palette.text),
-                          ),
-                          if (subtitle.isNotEmpty)
-                            Text(
-                              subtitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: palette
-                                  .body(13)
-                                  .copyWith(color: palette.secondaryText),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.add_rounded, size: 22, color: palette.faint),
-                  ],
-                ),
-              ),
+  /// The row of suggestions under the field (and the tags) while searching.
+  Widget? _suggestionRow({bool inset = true}) {
+    final suggestions = _suggestions();
+    if (suggestions.isEmpty) return null;
+    return SizedBox(
+      height: _suggestionRowHeight,
+      child: ListView.separated(
+        key: const Key("activity_suggestions"),
+        scrollDirection: Axis.horizontal,
+        clipBehavior: inset ? Clip.hardEdge : Clip.none,
+        padding: inset ? const EdgeInsets.symmetric(horizontal: 16) : null,
+        itemCount: suggestions.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final s = suggestions[i];
+          return Center(
+            child: ActivitySuggestionChip(
+              key: Key("activity_suggestion_${s.key}"),
+              label: s.title,
+              leading: s.leading,
+              onTap: () => _pick(s.query),
             ),
-          ),
-        ),
-      );
-    }
-
-    return ListView(
-      key: const Key("activity_suggestions"),
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(
-        16,
-        top,
-        16,
-        // Clear of the keyboard or the tab bar, and of "Show results".
-        max(
-              MediaQuery.viewInsetsOf(context).bottom + 12,
-              padding.bottom + bottomBarSpace(context),
-            ) +
-            72,
+          );
+        },
       ),
-      children: [
-        for (final (title, items) in groups)
-          if (items.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: GlassGroup(
-                header: title,
-                dividerIndent: 14 + 46 + 12,
-                children: [for (final s in items) row(s)],
-              ),
-            ),
-        if (typed.isNotEmpty)
-          GlassGroup(
-            dividerIndent: 14 + 46 + 12,
-            children: [for (final s in _typedSuggestions()) row(s)],
-          ),
-      ],
     );
   }
 
-  /// The typed words as a tag: "Search for …" everywhere, and "Data with
-  /// …" in the values alone (what was shared, say an e-mail address).
-  List<_Suggestion> _typedSuggestions() {
-    final typed = _typed.trim();
-    final link = YiviPalette.of(context).link;
-    return [
-      _Suggestion(
-        key: "text",
-        leading: Icon(Icons.search, color: link),
-        title: FlutterI18n.translate(
-          context,
-          "activity.query.suggest.search_for",
-          translationParams: {"text": typed},
-        ),
-        subtitle: FlutterI18n.translate(
-          context,
-          "activity.query.suggest.search_where",
-        ),
-        query: _withTyped(_asked, typed),
-      ),
-      _Suggestion(
-        key: "value",
-        leading: Icon(Icons.badge_outlined, color: link),
-        title: FlutterI18n.translate(
-          context,
-          "activity.query.suggest.value_for",
-          translationParams: {"text": typed},
-        ),
-        subtitle: FlutterI18n.translate(
-          context,
-          "activity.query.suggest.value_where",
-        ),
-        query: _withValue(_asked, typed),
-      ),
-    ];
-  }
+  /// A row of tags that scrolls sideways.
+  Widget _tagRow(List<Widget> chips, {EdgeInsets? padding}) => SizedBox(
+    height: activityChipHeight,
+    child: ListView.separated(
+      key: const Key("activity_chips"),
+      scrollDirection: Axis.horizontal,
+      clipBehavior: padding == null ? Clip.none : Clip.hardEdge,
+      padding: padding,
+      itemCount: chips.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 8),
+      itemBuilder: (_, i) => Center(child: chips[i]),
+    ),
+  );
 
   // -------------------------------------------------------------------- chips
 
@@ -655,11 +528,15 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   // --------------------------------------------------------------------- list
 
-  /// The log, under [header] (a phone's large title, field and chips).
+  /// The log: [header] (a phone's large title, field and tags) from [top],
+  /// then per month a header that sticks [pinTop] from the top of the
+  /// screen (under the bar and what is pinned under it) and its rows on a
+  /// white band.
   Widget _buildLogEntries(
     BuildContext context,
     ActivityLogState state,
     double top, {
+    required double pinTop,
     List<Widget> header = const [],
   }) {
     final logEntries = state.entries;
@@ -694,86 +571,139 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       }
     }
 
-    final clear = TextButton(
+    final clear = TextLink(
       key: const Key("activity_clear_filters"),
+      label: FlutterI18n.translate(context, "activity.query.clear"),
       onPressed: () => _ask(ActivityQuery.empty),
-      child: Text(FlutterI18n.translate(context, "activity.query.clear")),
+    );
+    final count = state.counts?.total ?? logEntries.length;
+    final bandEdge = palette.isDark
+        ? BorderSide.none
+        : BorderSide(color: palette.divider);
+    Widget padded(Widget child) => SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: child,
+      ),
     );
 
-    return ListView(
+    return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       controller: _scrollController,
-      padding: EdgeInsets.fromLTRB(
-        16,
-        top,
-        16,
-        padding.bottom + bottomBarSpace(context),
-      ),
-      children: [
-        ...header,
-        if (!query.isEmpty && logEntries.isNotEmpty)
-          PushAway(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      activityResults(
-                        context,
-                        state.counts?.total ?? logEntries.length,
-                      ),
-                      key: const Key("activity_result_count"),
-                      style: palette.body(14).copyWith(color: palette.heading),
-                    ),
-                  ),
-                  clear,
-                ],
+      // Searching, scrolling the results puts the keyboard away.
+      keyboardDismissBehavior: _searching
+          ? ScrollViewKeyboardDismissBehavior.onDrag
+          : ScrollViewKeyboardDismissBehavior.manual,
+      slivers: [
+        // The space above the list; scrolled, what stays of it is where the
+        // months stick.
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _TopSpace(top: top, pinned: min(pinTop, top)),
+        ),
+        if (header.isNotEmpty)
+          padded(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: HomeTabTop.fieldGap,
+                children: header,
               ),
             ),
           ),
-        if (logEntries.isEmpty && !query.isEmpty) ...[
-          const EmptyListMessage("activity.query.none"),
-          Center(child: clear),
-        ] else if (logEntries.isEmpty)
-          const EmptyListMessage("activity.empty_placeholder")
-        else ...[
-          for (final group in groups) ...[
-            PushAway(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-                child: Semantics(
-                  header: true,
+        if (_searching)
+          padded(
+            SizedBox(
+              height: _liveCountHeight,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  activityResults(context, count),
+                  key: const Key("activity_result_count"),
+                  style: palette
+                      .body(13)
+                      .copyWith(color: palette.secondaryText),
+                ),
+              ),
+            ),
+          )
+        else if (!query.isEmpty && logEntries.isNotEmpty)
+          padded(
+            Row(
+              children: [
+                Expanded(
                   child: Text(
-                    DateFormat(
+                    activityResults(context, count),
+                    key: const Key("activity_result_count"),
+                    style: palette.body(14).copyWith(color: palette.heading),
+                  ),
+                ),
+                clear,
+              ],
+            ),
+          ),
+        if (logEntries.isEmpty && !query.isEmpty) ...[
+          padded(const EmptyListMessage("activity.query.none")),
+          if (!_searching) padded(Center(child: clear)),
+        ] else if (logEntries.isEmpty)
+          padded(const EmptyListMessage("activity.empty_placeholder"))
+        else ...[
+          for (final group in groups)
+            SliverMainAxisGroup(
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _MonthHeader(
+                    title: DateFormat(
                       group.first.time.toLocal().year == DateTime.now().year
                           ? "MMMM"
                           : "MMMM y",
                       local,
                     ).format(group.first.time.toLocal()).toCapitalized(),
-                    style: palette.display(18),
+                    palette: palette,
+                    textScaler: MediaQuery.textScalerOf(context),
                   ),
                 ),
-              ),
-            ),
-            for (final entry in group)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: ActivityCard(
-                  key: ValueKey(logKey(entry)),
-                  logEntry: entry,
-                  focusCard: query.card,
-                  selected: open != null && sameLog(open, entry),
+                DecoratedSliver(
+                  decoration: BoxDecoration(
+                    color: palette.surface,
+                    border: Border(top: bandEdge, bottom: bandEdge),
+                  ),
+                  sliver: SliverList.builder(
+                    itemCount: group.length,
+                    itemBuilder: (context, i) {
+                      final entry = group[i];
+                      return ActivityCard(
+                        key: ValueKey(logKey(entry)),
+                        logEntry: entry,
+                        focusCard: query.card,
+                        selected: open != null && sameLog(open, entry),
+                        divider: i < group.length - 1,
+                        onTap: () => _open(entry),
+                      );
+                    },
+                  ),
                 ),
-              ),
-          ],
-          PushAway(
+              ],
+            ),
+          SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(top: 16, bottom: 16),
               child: EndOfListIndicator(isLoading: moreLogsAvailable),
             ),
           ),
         ],
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: _searching
+                ? max(
+                    MediaQuery.viewInsetsOf(context).bottom,
+                    padding.bottom + bottomBarSpace(context),
+                  )
+                : padding.bottom + bottomBarSpace(context),
+          ),
+        ),
       ],
     );
   }
@@ -786,12 +716,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final state = ref.watch(activityLogProvider);
     final query = state.filter;
     final chips = _chips(_searching ? _asked : query);
-    // A phone held sideways has little height: there the chips scroll with
+    final panes = useHomePanes(context);
+    final suggestionRow = _searching ? _suggestionRow(inset: !panes) : null;
+    // A phone held sideways has little height: there the tags scroll with
     // the log, and only stay at the top while searching.
     final chipsScroll = usePhoneLandscape(context) && !_searching;
     final rowChips = chipsScroll ? const <Widget>[] : chips;
-    // The field, and the chips under it while something is asked.
-    final headerHeight = 60.0 + (rowChips.isEmpty ? 0 : activityChipHeight + 8);
 
     final filterCount = query.isEmpty ? 0 : query.facetCount;
     final filterButton = RoundIconButton(
@@ -807,7 +737,112 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       count: filterCount,
       onTap: _openFilter,
     );
+    final cancel = TextButton(
+      key: const Key("activity_search_cancel"),
+      // Blue, as a plain action next to a field.
+      style: TextButton.styleFrom(foregroundColor: palette.link),
+      onPressed: _cancelSearching,
+      child: Text(FlutterI18n.translate(context, "activity.query.cancel")),
+    );
 
+    // A phone held upright: the large title, the field and the tags at the
+    // top of the log, scrolling under a solid bar with the filter at its
+    // right, as on the Data tab.
+    if (!panes) {
+      final header = <Widget>[
+        const TabLargeTitle("home.nav_bar.activity"),
+        HomeTabSearchField(
+          key: const Key("activity_search_field"),
+          hint: FlutterI18n.translate(context, "activity.query.search_hint"),
+          onTap: _startSearchingInBar,
+        ),
+        if (chips.isNotEmpty) _tagRow(chips),
+      ];
+      // Under the bar while searching: the tags, then the suggestions.
+      final belowHeight = _searching
+          ? (chips.isEmpty ? 0.0 : activityChipHeight + 2) +
+                (suggestionRow == null ? 0.0 : _suggestionRowHeight)
+          : activityChipHeight;
+      final below = _searching
+          ? (belowHeight == 0
+                ? null
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (chips.isNotEmpty) ...[
+                        _tagRow(
+                          chips,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        const SizedBox(height: 2),
+                      ],
+                      ?suggestionRow,
+                    ],
+                  ))
+          : chips.isEmpty
+          ? null
+          : _tagRow(chips, padding: const EdgeInsets.symmetric(horizontal: 16));
+      final listTop = HomeTabTop.listTop(
+        context,
+        below: below == null ? 0 : belowHeight,
+      );
+      return Scaffold(
+        backgroundColor: palette.background,
+        // The keyboard covers the tab; the list keeps clear of it itself.
+        resizeToAvoidBottomInset: false,
+        body: HomeTabTop(
+          title: FlutterI18n.translate(context, "home.nav_bar.activity"),
+          searching: _searching,
+          searchRow: Row(
+            spacing: 4,
+            children: [
+              Expanded(
+                child: GlassSearchField(
+                  fieldKey: const Key("activity_search_field"),
+                  hintKey: "activity.query.search_hint",
+                  controller: _search,
+                  focusNode: _focus,
+                  onChanged: _onTyped,
+                  onSubmitted: _searchText,
+                  height: 44,
+                ),
+              ),
+              cancel,
+            ],
+          ),
+          // The tags pin under the bar as they scroll up to it; while
+          // searching the tags and the suggestions are there at once.
+          below: below,
+          belowHeight: belowHeight,
+          searchButtonKey: const Key("activity_search_button"),
+          searchLabel: FlutterI18n.translate(
+            context,
+            "activity.query.search_hint",
+          ),
+          onSearch: _startSearchingInBar,
+          trailing: filterButton,
+          othersDrop: false,
+          child: !state.loaded
+              ? Center(child: LoadingIndicator())
+              : _searching
+              ? _buildLogEntries(context, state, listTop, pinTop: listTop)
+              : _buildLogEntries(
+                  context,
+                  state,
+                  HomeTabTop.titleTop(context),
+                  // Under the bar, and under the tags once they pin there.
+                  pinTop: HomeTabTop.listTop(
+                    context,
+                    below: chips.isEmpty ? 0 : activityChipHeight,
+                  ),
+                  header: header,
+                ),
+        ),
+      );
+    }
+
+    // The field (and Cancel or the filter), the tags, and while searching
+    // the suggestions.
     final row = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -824,180 +859,39 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 onSubmitted: _searchText,
               ),
             ),
-            if (_searching)
-              TextButton(
-                key: const Key("activity_search_cancel"),
-                onPressed: _stopSearching,
-                child: Text(
-                  FlutterI18n.translate(context, "activity.query.cancel"),
-                ),
-              )
-            else
-              filterButton,
+            if (_searching) cancel else filterButton,
           ],
         ),
         if (rowChips.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: SizedBox(
-              height: activityChipHeight,
-              child: ListView.separated(
-                key: const Key("activity_chips"),
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                itemCount: rowChips.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => rowChips[i],
-              ),
-            ),
+            child: _tagRow(rowChips),
           ),
+        if (suggestionRow != null)
+          Padding(padding: const EdgeInsets.only(top: 4), child: suggestionRow),
       ],
     );
-
-    // A phone held upright: the large title, the field and the chips at the
-    // top of the log, scrolling under a solid bar with the filter at its
-    // right, as on the Data tab.
-    if (!useHomePanes(context)) {
-      final header = <Widget>[
-        // The header: it fades where it is while an entry opens.
-        PushAway(
-          direction: PushAwayDirection.up,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: HomeTabTop.fieldGap,
-              children: [
-                const TabLargeTitle("home.nav_bar.activity"),
-                HomeTabSearchField(
-                  key: const Key("activity_search_field"),
-                  hint: FlutterI18n.translate(
-                    context,
-                    "activity.query.search_hint",
-                  ),
-                  onTap: _startSearchingInBar,
-                ),
-                if (chips.isNotEmpty)
-                  SizedBox(
-                    height: activityChipHeight,
-                    child: ListView.separated(
-                      key: const Key("activity_chips"),
-                      scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
-                      itemCount: chips.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 8),
-                      itemBuilder: (_, i) => chips[i],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ];
-      return Scaffold(
-        backgroundColor: palette.background,
-        // The keyboard covers the tab; the list and "Show results" keep
-        // clear of it themselves.
-        resizeToAvoidBottomInset: false,
-        body: _withResultsButton(
-          HomeTabTop(
-            title: FlutterI18n.translate(context, "home.nav_bar.activity"),
-            searching: _searching,
-            searchRow: Row(
-              spacing: 4,
-              children: [
-                Expanded(
-                  child: GlassSearchField(
-                    fieldKey: const Key("activity_search_field"),
-                    hintKey: "activity.query.search_hint",
-                    controller: _search,
-                    focusNode: _focus,
-                    onChanged: _onTyped,
-                    onSubmitted: _searchText,
-                    height: 44,
-                  ),
-                ),
-                TextButton(
-                  key: const Key("activity_search_cancel"),
-                  // Blue, as a plain action next to a field.
-                  style: TextButton.styleFrom(foregroundColor: palette.link),
-                  onPressed: _stopSearching,
-                  child: Text(
-                    FlutterI18n.translate(context, "activity.query.cancel"),
-                  ),
-                ),
-              ],
-            ),
-            // The tags pin under the bar as they scroll up to it, and stay
-            // under the field while typing.
-            below: chips.isEmpty
-                ? null
-                : ListView.separated(
-                    key: const Key("activity_chips"),
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: chips.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 8),
-                    itemBuilder: (_, i) => chips[i],
-                  ),
-            belowHeight: activityChipHeight,
-            searchButtonKey: const Key("activity_search_button"),
-            searchLabel: FlutterI18n.translate(
-              context,
-              "activity.query.search_hint",
-            ),
-            onSearch: _startSearchingInBar,
-            trailing: filterButton,
-            // Entries are rows: the others fade where they are.
-            othersDrop: false,
-            child: _searching
-                ? _suggestionList(
-                    HomeTabTop.listTop(
-                      context,
-                      below: chips.isEmpty ? 0 : activityChipHeight,
-                    ),
-                  )
-                : !state.loaded
-                ? Center(child: LoadingIndicator())
-                : _buildLogEntries(
-                    context,
-                    state,
-                    HomeTabTop.titleTop(context),
-                    header: header,
-                  ),
-          ),
-        ),
-      );
-    }
-
+    final headerHeight =
+        60.0 +
+        (rowChips.isEmpty ? 0 : activityChipHeight + 8) +
+        (suggestionRow == null ? 0 : _suggestionRowHeight + 4);
     final listTop = top + headerHeight;
     final list = SearchScrollEdge(
       height: listTop - 4,
       top: top,
       row: row,
-      child: _searching
-          ? _suggestionList(listTop)
-          : !state.loaded
+      child: !state.loaded
           ? Center(child: LoadingIndicator())
           : _buildLogEntries(
               context,
               state,
               listTop,
+              pinTop: listTop - 4,
               header: [
                 if (chipsScroll && chips.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: SizedBox(
-                      height: activityChipHeight,
-                      child: ListView.separated(
-                        key: const Key("activity_chips"),
-                        scrollDirection: Axis.horizontal,
-                        clipBehavior: Clip.none,
-                        itemCount: chips.length,
-                        separatorBuilder: (_, _) => const SizedBox(width: 8),
-                        itemBuilder: (_, i) => chips[i],
-                      ),
-                    ),
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: _tagRow(chips),
                   ),
               ],
             ),
@@ -1006,20 +900,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return Scaffold(
       backgroundColor: palette.background,
       resizeToAvoidBottomInset: false,
-      body: useHomePanes(context)
-          ? _withDetailPane(_withResultsButton(list))
-          : _withResultsButton(list),
+      body: useHomePanes(context) ? _withDetailPane(list) : list,
     );
   }
-
-  Widget _withResultsButton(Widget child) => Builder(
-    builder: (context) => Stack(
-      children: [
-        Positioned.fill(child: child),
-        ?_showResultsButton(context),
-      ],
-    ),
-  );
 
   /// The tablet layout: the activity next to the details of the picked
   /// entry (the newest until the user picks one).
@@ -1033,4 +916,72 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           : ActivityDetailPane(key: ValueKey(logKey(entry)), logEntry: entry),
     );
   }
+}
+
+/// The space above the log: [top] high, and scrolled, [pinned] of it stays
+/// (under the bar), so the month headers stick under it.
+class _TopSpace extends SliverPersistentHeaderDelegate {
+  final double top;
+  final double pinned;
+
+  const _TopSpace({required this.top, required this.pinned});
+
+  @override
+  double get maxExtent => top;
+
+  @override
+  double get minExtent => pinned;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlaps) =>
+      const SizedBox.expand();
+
+  @override
+  bool shouldRebuild(_TopSpace old) => old.top != top || old.pinned != pinned;
+}
+
+/// A month's header, on the page colour: it sticks under the bar while
+/// its rows scroll, and the next month's pushes it away.
+class _MonthHeader extends SliverPersistentHeaderDelegate {
+  final String title;
+  final YiviPalette palette;
+  final TextScaler textScaler;
+
+  const _MonthHeader({
+    required this.title,
+    required this.palette,
+    required this.textScaler,
+  });
+
+  double get _height => 18 + textScaler.scale(24) + 8;
+
+  @override
+  double get maxExtent => _height;
+
+  @override
+  double get minExtent => _height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlaps) =>
+      ColoredBox(
+        color: palette.background,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+          child: Semantics(
+            header: true,
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: palette.display(18).copyWith(height: 24 / 18),
+            ),
+          ),
+        ),
+      );
+
+  @override
+  bool shouldRebuild(_MonthHeader old) =>
+      old.title != title ||
+      old.palette != palette ||
+      old.textScaler != textScaler;
 }

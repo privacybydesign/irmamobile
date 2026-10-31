@@ -1,12 +1,14 @@
+import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
-import "../../../theme/yivi_edges.dart";
+import "../../../providers/activity_providers.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/caps_label.dart";
+import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -17,9 +19,8 @@ import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/party_avatar.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
-import "../../data/wallet/wallet_detail_scaffold.dart";
 import "../activity_entry.dart";
-import "../activity_flight.dart";
+import "../activity_query.dart";
 
 /// The text colour of [kind] on a surface, in both themes.
 Color activityKindInk(YiviPalette palette, ActivityKind kind) => switch (kind) {
@@ -97,13 +98,40 @@ class ActivityPartyLogo extends StatelessWidget {
   }
 }
 
-/// The top of the details, centred: the other party's logo with a badge for
-/// what happened, "Shared with" in that colour, its name, whether Yivi knows
-/// it, and when it happened as a date and a time pill.
-class ActivityPartyCard extends StatelessWidget {
+/// The tint of the band at the top of an entry's details, by what
+/// happened.
+Color activityKindTint(YiviPalette palette, ActivityKind kind) =>
+    switch (kind) {
+      ActivityKind.shared => palette.infoSurface,
+      ActivityKind.received => palette.successSurface,
+      // The page's own tint is the page colour in light mode.
+      ActivityKind.signed =>
+        palette.isDark ? palette.tint : const Color(0xFFE0E8EE),
+      ActivityKind.deleted => palette.errorSurface,
+    };
+
+/// The top of an entry's details: a band in the colour of what happened,
+/// from edge to edge, with the entry's cards as a large pile and the other
+/// party's logo on its corner; under it what happened ("Shared with", after
+/// its icon), the party, the date and time, and its website (with a shield
+/// when Yivi knows the party). Each fact once.
+class ActivityHeroHeader extends StatelessWidget {
   final ActivityEntry entry;
 
-  const ActivityPartyCard({super.key, required this.entry});
+  /// The band's room above the pile: it runs up under the bar and the
+  /// status bar.
+  final double top;
+
+  /// On the party's name, so the page can tell when it has gone under the
+  /// bar (and show it there).
+  final Key? nameKey;
+
+  const ActivityHeroHeader({
+    super.key,
+    required this.entry,
+    required this.top,
+    this.nameKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -112,170 +140,154 @@ class ActivityPartyCard extends StatelessWidget {
     final kind = entry.kind;
     final party = entry.party;
     final time = entry.localTime;
-    final fullDate = DateFormat.yMMMMEEEEd(lang).format(time);
-    final clock = activityTime(context, time);
+    final ink = activityKindInk(palette, kind);
+    final host = party.host;
+    final website = party.verified
+        ? (host ?? FlutterI18n.translate(context, "missing_data.known_party"))
+        : host == null
+        ? null
+        : FlutterI18n.translate(
+            context,
+            "activity.not_checked",
+            translationParams: {"host": host},
+          );
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Column(
-        children: [
-          ExcludeSemantics(
-            child: SizedBox.square(
-              dimension: 80,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  ActivityPartyLogo(party: party, size: 80),
-                  Positioned(
-                    right: -6,
-                    bottom: -6,
-                    child: CornerBadge(
-                      icon: kind.icon,
-                      fill: kind.badge,
-                      size: 32,
-                      iconSize: 15,
-                      ring: palette.background,
-                      ringWidth: 3,
-                    ),
+    return ColoredBox(
+      key: const Key("activity_hero"),
+      color: activityKindTint(palette, kind),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, top, 16, 28),
+        child: Column(
+          children: [
+            ActivityHeroPile(entry: entry),
+            const SizedBox(height: 22),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                ExcludeSemantics(
+                  child: CornerBadge(
+                    icon: kind.icon,
+                    fill: kind.badge,
+                    size: 20,
+                    iconSize: 12,
                   ),
-                ],
-              ),
+                ),
+                Flexible(
+                  child: Text(
+                    FlutterI18n.translate(context, kind.relationKey),
+                    style: palette
+                        .body(14, weight: FontWeight.w600)
+                        .copyWith(color: ink),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            FlutterI18n.translate(context, kind.relationKey),
-            textAlign: TextAlign.center,
-            style: palette
-                .body(14, weight: FontWeight.w600)
-                .copyWith(color: activityKindInk(palette, kind)),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Semantics(
+            const SizedBox(height: 2),
+            Semantics(
               header: true,
               child: Text(
                 party.name,
+                key: nameKey,
                 textAlign: TextAlign.center,
                 style: palette
-                    .display(26, weight: FontWeight.w700)
-                    .copyWith(color: palette.heading, height: 32 / 26),
+                    .display(24, weight: FontWeight.w700)
+                    .copyWith(color: palette.text, height: 30 / 24),
               ),
             ),
-          ),
-          if (party.verified || party.host != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 4,
-                children: [
-                  if (party.verified)
-                    Icon(
-                      Icons.verified_user_rounded,
-                      size: 14,
-                      color: palette.successText,
-                      semanticLabel: FlutterI18n.translate(
-                        context,
-                        "missing_data.known_party",
+            const SizedBox(height: 4),
+            Text(
+              "${DateFormat.yMMMMd(lang).format(time)}"
+              " · ${activityTime(context, time)}",
+              key: const Key("activity_hero_date"),
+              textAlign: TextAlign.center,
+              style: palette.body(14).copyWith(color: palette.heading),
+            ),
+            if (website != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 4,
+                  children: [
+                    if (party.verified)
+                      Icon(
+                        Icons.verified_user_rounded,
+                        size: 14,
+                        color: palette.successText,
+                        semanticLabel: host == null
+                            ? null
+                            : FlutterI18n.translate(
+                                context,
+                                "missing_data.known_party",
+                              ),
+                      ),
+                    Flexible(
+                      child: Text(
+                        website,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .body(13)
+                            .copyWith(color: palette.secondaryText),
                       ),
                     ),
-                  Flexible(
-                    child: Text(
-                      party.host ??
-                          FlutterI18n.translate(
-                            context,
-                            "missing_data.known_party",
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette
-                          .body(13)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          const SizedBox(height: 20),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _HeaderPill(
-                key: const Key("activity_date_pill"),
-                icon: Icons.calendar_month_rounded,
-                label: fullDate,
-              ),
-              _HeaderPill(
-                key: const Key("activity_time_pill"),
-                icon: Icons.schedule_rounded,
-                label: clock,
-                strong: true,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            activityAgo(context, time),
-            style: palette.body(12).copyWith(color: palette.secondaryText),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// A white pill with an icon, for the date and the time in the header.
-class _HeaderPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
+/// Up to three of an entry's cards as a large pile, each card behind a
+/// little higher and smaller, with the other party's logo on its corner.
+class ActivityHeroPile extends StatelessWidget {
+  final ActivityEntry entry;
 
-  /// Bold, with figures of equal width (the time).
-  final bool strong;
+  const ActivityHeroPile({super.key, required this.entry});
 
-  const _HeaderPill({
-    super.key,
-    required this.icon,
-    required this.label,
-    this.strong = false,
-  });
+  static const double width = 220;
+  static const double height = 158;
+  static const double cardWidth = 200;
+  static const double logoSize = 64;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Semantics(
-      label: label,
-      excludeSemantics: true,
-      child: Container(
-        // At least 40 high; a date too long for the width wraps instead of
-        // running out of the pill.
-        constraints: const BoxConstraints(minHeight: 40),
-        padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
-        decoration: ShapeDecoration(
-          color: palette.surface,
-          shape: StadiumBorder(side: YiviEdges.block(context)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8,
+    final cards = entry.cards;
+    final shown = cards.length.clamp(0, 3);
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Icon(icon, size: 18, color: palette.secondaryText),
-            Flexible(
-              child: Text(
-                label,
-                style: palette
-                    .body(
-                      14,
-                      weight: strong ? FontWeight.w700 : FontWeight.w600,
-                    )
-                    .copyWith(
-                      color: palette.text,
-                      fontFeatures: strong
-                          ? const [FontFeature.tabularFigures()]
-                          : null,
-                    ),
+            // Back to front: the first card is on top.
+            for (var i = shown - 1; i >= 0; i--)
+              Positioned(
+                left: (width - cardWidth) / 2,
+                top: 32 - 16.0 * i,
+                child: Transform.scale(
+                  scale: 1 - 0.1 * i,
+                  alignment: Alignment.topCenter,
+                  child: CredentialCardArt(
+                    credential: cards[i].art,
+                    width: cardWidth,
+                    greyedOut: cards[i].deleted,
+                  ),
+                ),
+              ),
+            Positioned(
+              right: -14,
+              bottom: -12,
+              child: ActivityPartyLogo(
+                party: entry.party,
+                size: logoSize,
+                ring: palette.surface,
               ),
             ),
           ],
@@ -325,18 +337,27 @@ class ActivityCompactBar extends StatelessWidget {
   }
 }
 
-/// The small uppercase label above a section's cards, as on the share
-/// screen ("You shared").
+/// The heading above a section's cards ("You received"), only when an
+/// entry has more than one: otherwise the header says it already.
 class ActivitySectionLabel extends StatelessWidget {
   final ActivityRole role;
 
   const ActivitySectionLabel({super.key, required this.role});
 
   @override
-  Widget build(BuildContext context) => CapsLabel(
-    FlutterI18n.translate(context, role.titleKey),
-    padding: const EdgeInsets.fromLTRB(10, 24, 10, 10),
-  );
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 28, 4, 8),
+      child: Semantics(
+        header: true,
+        child: Text(
+          FlutterI18n.translate(context, role.titleKey),
+          style: palette.display(16).copyWith(color: palette.text),
+        ),
+      ),
+    );
+  }
 }
 
 /// One card of a log entry, as a share screen tile: small card art, its
@@ -346,7 +367,7 @@ class ActivityCredentialTile extends StatelessWidget {
   final LogCredential credential;
   final ActivityEntryCard card;
 
-  /// The art, e.g. in an [ActivityFlightSlot].
+  /// The card's art.
   final Widget art;
 
   ActivityCredentialTile({super.key, required this.card, required this.art})
@@ -386,7 +407,7 @@ class ActivityCredentialTile extends StatelessWidget {
   }
 }
 
-/// The signed message, as a quote, with when it was signed.
+/// The signed message, as a quote (when it was signed is in the header).
 class ActivitySignedMessage extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -395,12 +416,11 @@ class ActivitySignedMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final time = entry.localTime;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
+          padding: const EdgeInsets.fromLTRB(4, 28, 4, 8),
           child: Semantics(
             header: true,
             child: Text(
@@ -426,34 +446,6 @@ class ActivitySignedMessage extends StatelessWidget {
                     .body(16)
                     .copyWith(height: 25 / 16, color: palette.text),
               ),
-              const SizedBox(height: 16),
-              Divider(height: 1, color: palette.divider),
-              const SizedBox(height: 12),
-              Row(
-                spacing: 6,
-                children: [
-                  Icon(
-                    Icons.edit_rounded,
-                    size: 14,
-                    color: palette.secondaryText,
-                  ),
-                  Expanded(
-                    child: Text(
-                      FlutterI18n.translate(
-                        context,
-                        "activity.signed_by_you",
-                        translationParams: {
-                          "date": activityShortDate(context, time),
-                          "time": activityTime(context, time),
-                        },
-                      ),
-                      style: palette
-                          .body(12)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
@@ -462,8 +454,9 @@ class ActivitySignedMessage extends StatelessWidget {
   }
 }
 
-/// The line at the end of the details, as the shield line under the share
-/// screen's cards.
+/// The line under the cards, as the shield line under the share screen's
+/// cards: what stayed on the phone, or that a deletion is final. None for
+/// what was received (the header says it).
 class ActivityFootnote extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -472,8 +465,9 @@ class ActivityFootnote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    if (entry.kind == ActivityKind.received) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
+      padding: const EdgeInsets.fromLTRB(4, 16, 4, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 8,
@@ -506,95 +500,164 @@ class ActivityFootnote extends StatelessWidget {
   }
 }
 
-/// Everything about a log entry, top to bottom: the pass header, the signed
-/// message, the cards per section and the footnote. Each part fades up with
-/// [animation]; with [heroes], the card arts fly in from the activity row.
+/// "All activity with {party}", with how many entries there are: asks the
+/// Activity tab about the party. Only when there is more than this one.
+class ActivityAllWithParty extends ConsumerWidget {
+  final ActivityEntry entry;
+  final void Function(ActivityQuery query) onAsk;
+
+  const ActivityAllWithParty({
+    super.key,
+    required this.entry,
+    required this.onAsk,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = YiviPalette.of(context);
+    final parties = ref.watch(activityPartiesProvider).value ?? const [];
+    final party = entry.party;
+    final summary = parties.firstWhereOrNull((p) {
+      final other = ActivityParty.of(p.party);
+      return other.name == party.name && other.host == party.host;
+    });
+    if (summary == null || summary.count < 2) return const SizedBox.shrink();
+    final label = FlutterI18n.translate(
+      context,
+      "activity.all_with_party",
+      translationParams: {"name": party.name},
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: SurfaceCard(
+        clipBehavior: Clip.antiAlias,
+        child: Semantics(
+          button: true,
+          label: "$label, ${summary.count}",
+          excludeSemantics: true,
+          child: InkWell(
+            key: const Key("activity_all_with_party"),
+            onTap: () => onAsk(ActivityQuery(party: summary)),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 52),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Icon(Icons.history_rounded, size: 20, color: palette.link),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: palette
+                            .display(16, weight: FontWeight.w500)
+                            .copyWith(color: palette.link),
+                      ),
+                    ),
+                    Text(
+                      "${summary.count}",
+                      style: palette
+                          .body(14)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Everything about a log entry, top to bottom: the hero header from edge
+/// to edge, then (16 in, at most [maxWidth] wide) the signed message, the
+/// cards per section, the footnote, and "All activity with …".
 class ActivityDetailBody extends StatelessWidget {
   final ActivityEntry entry;
-  final Animation<double> animation;
 
-  /// The card arts are the slots of [ActivityFlight] (the details screen).
-  final bool flight;
+  /// The room above the hero's pile (it runs up under the bar).
+  final double top;
 
-  /// Called on a tap on a card's art (back to the activity list).
-  final VoidCallback? onArtTap;
+  /// On the party's name in the header ([ActivityHeroHeader.nameKey]).
+  final Key? nameKey;
 
-  /// On the header, so the details screen can tell when it has scrolled
-  /// away (and show the compact bar).
-  final Key? headerKey;
-
-  /// The compact bar as the only header, instead of the big one: in the low
+  /// The compact bar as the only header, instead of the hero: in the low
   /// detail pane of a phone held sideways.
   final bool compactHeader;
+
+  final double maxWidth;
+
+  /// Asks the Activity tab about the party; without it, no such row.
+  final void Function(ActivityQuery query)? onAsk;
 
   const ActivityDetailBody({
     super.key,
     required this.entry,
-    this.animation = kAlwaysCompleteAnimation,
-    this.flight = false,
-    this.onArtTap,
-    this.headerKey,
+    this.top = 24,
+    this.nameKey,
     this.compactHeader = false,
+    this.maxWidth = 460,
+    this.onAsk,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget reveal(Widget child) =>
-        WalletReveal(animation: animation, child: child);
-    var index = 0;
-    Widget art(int i) {
-      final card = entry.cards[i];
-      final art = CredentialCardArt(
-        credential: card.art,
-        width: CardTile.miniWidth,
-        greyedOut: card.deleted,
-      );
-      final picture = flight
-          ? ActivityFlightSlot(
-              entryKey: entry.key,
-              index: i,
-              pile: false,
-              child: art,
-            )
-          : art;
-      if (onArtTap == null) return picture;
-      return Semantics(
-        button: true,
-        label: FlutterI18n.translate(context, "activity.back_to_activity"),
-        child: GestureDetector(onTap: onArtTap, child: picture),
-      );
-    }
-
+    final onAsk = this.onAsk;
+    final sections = entry.sections;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (compactHeader)
-          reveal(
-            ActivityCompactBar(
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, top, 16, 0),
+            child: ActivityCompactBar(
               key: const Key("activity_detail_compact_header"),
               entry: entry,
               opacity: 1,
             ),
           )
         else
-          reveal(ActivityPartyCard(key: headerKey, entry: entry)),
-        if (entry.message != null) reveal(ActivitySignedMessage(entry: entry)),
-        if (entry.sections.isEmpty)
-          reveal(
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              // Nothing was disclosed: one empty data card.
-              child: IrmaEmptyCredentialCard(),
+          ActivityHeroHeader(entry: entry, top: top, nameKey: nameKey),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: CentredMaxWidth(
+            maxWidth: maxWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (entry.message != null) ActivitySignedMessage(entry: entry),
+                if (sections.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    // Nothing was disclosed: one empty data card.
+                    child: IrmaEmptyCredentialCard(),
+                  ),
+                for (final section in sections) ...[
+                  if (sections.length > 1)
+                    ActivitySectionLabel(role: section.role)
+                  else
+                    const SizedBox(height: 20),
+                  for (final (i, card) in section.cards.indexed) ...[
+                    if (i > 0) const SizedBox(height: 12),
+                    ActivityCredentialTile(
+                      card: card,
+                      art: CredentialCardArt(
+                        credential: card.art,
+                        width: CardTile.miniWidth,
+                        greyedOut: card.deleted,
+                      ),
+                    ),
+                  ],
+                ],
+                ActivityFootnote(entry: entry),
+                if (onAsk != null)
+                  ActivityAllWithParty(entry: entry, onAsk: onAsk),
+              ],
             ),
           ),
-        for (final section in entry.sections) ...[
-          reveal(ActivitySectionLabel(role: section.role)),
-          for (final (i, card) in section.cards.indexed) ...[
-            if (i > 0) const SizedBox(height: 14),
-            reveal(ActivityCredentialTile(card: card, art: art(index++))),
-          ],
-        ],
-        reveal(ActivityFootnote(entry: entry)),
+        ),
       ],
     );
   }

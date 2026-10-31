@@ -2,15 +2,15 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
+import "../../providers/activity_providers.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
-import "../../widgets/centred_max_width.dart";
 import "../../widgets/compact_bar.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/two_pane.dart";
-import "../data/wallet/wallet_detail_scaffold.dart";
 import "activity_entry.dart";
-import "activity_flight.dart";
+import "activity_query.dart";
 import "widgets/activity_detail_parts.dart";
 
 class ActivityDetailsScreenArgs {
@@ -19,10 +19,10 @@ class ActivityDetailsScreenArgs {
   ActivityDetailsScreenArgs({required this.logEntry});
 }
 
-/// The details of one log entry. Opens with the Wallet-style transition: the
-/// cards of the row's stack fly into their tiles ([ActivityFlight]) while the
-/// activity list moves away, then the rest fades up. Pull down, Done, or a tap on a card
-/// closes it again.
+/// The details of one log entry, as an ordinary page: it slides in from
+/// the side with a back button, and the back swipe closes it. The hero
+/// header runs up under the bar; once the party's name has scrolled under
+/// the bar, the bar shows it.
 class ActivityDetailsScreen extends ConsumerStatefulWidget {
   final LogInfo logEntry;
 
@@ -37,96 +37,70 @@ class ActivityDetailsScreen extends ConsumerStatefulWidget {
 class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
   final _scroll = ScrollController();
 
-  /// Whether the header has scrolled away under the top bar: then the
-  /// compact bar shows who and when instead.
-  final _scrolledPast = ValueNotifier(false);
+  /// Whether the party's name has scrolled under the bar: the bar then
+  /// shows it, with its band.
+  final _nameUnderBar = ValueNotifier(false);
 
-  final _headerKey = GlobalKey();
-
-  /// The entry as last built, for the flight.
-  ActivityEntry? _entry;
-  bool _flightStarted = false;
+  final _nameKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    // Measured after the frame: during the scroll notification the header
+    // Measured after the frame: during the scroll notification the name
     // still has the position of the previous frame.
     _scroll.addListener(
-      () => WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader()),
+      () => WidgetsBinding.instance.addPostFrameCallback((_) => _checkName()),
     );
   }
 
-  /// The header grows when a long name or the date and time pills wrap.
-  void _checkHeader() {
+  void _checkName() {
     if (!mounted) return;
-    final under = headerUnderBar(context, _headerKey);
-    if (under != null) _scrolledPast.value = under;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_flightStarted) return;
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation == null) return;
-    _flightStarted = true;
-    // After the first frame: the tiles are laid out, and the overlay is not
-    // changed while the tree builds.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final entry = _entry;
-      if (!mounted || entry == null) return;
-      ActivityFlight.start(context, entry, animation);
-    });
+    final under = headerUnderBar(context, _nameKey);
+    if (under != null) _nameUnderBar.value = under;
   }
 
   @override
   void dispose() {
-    ActivityFlight.stop();
     _scroll.dispose();
-    _scrolledPast.dispose();
+    _nameUnderBar.dispose();
     super.dispose();
   }
 
-  void _close() => Navigator.of(context).maybePop();
+  /// "All activity with …": back to the Activity tab, asking about the
+  /// party.
+  void _ask(ActivityQuery query) {
+    ref.read(activityLogProvider.notifier).setFilter(query);
+    Navigator.of(context).maybePop();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final wallet = ref.watch(walletCardsProvider);
     final entry = ActivityEntry.fromLog(widget.logEntry, wallet: wallet);
-    _entry = entry;
-    // The header can change size (rotation, text size): check again after
-    // this layout.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader());
+    // The name can move (rotation, text size): check again after this
+    // layout.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkName());
 
-    return WalletDetailScaffold(
-      openKey: entry.key,
-      closeKey: const Key("activity_detail_done"),
-      barBuilder: (context, opacity) => CompactBarDropIn(
-        shown: _scrolledPast,
-        bar: (t) => ActivityCompactBar(entry: entry, opacity: opacity * t),
+    return Scaffold(
+      key: const Key("activity_detail_screen"),
+      extendBodyBehindAppBar: true,
+      backgroundColor: palette.background,
+      appBar: IrmaAppBar(
+        titleString: entry.party.name,
+        titleVisibility: _nameUnderBar,
+        edgeShown: _nameUnderBar,
       ),
-      builder: (context, physics, animation) => ListView(
+      body: ListView(
         controller: _scroll,
-        // Pulling down at the top dismisses the page.
-        physics: physics,
-        padding: EdgeInsets.fromLTRB(
-          16,
-          padding.top + IrmaAppBar.contentTop,
-          16,
-          padding.bottom + 32,
-        ),
+        padding: EdgeInsets.only(bottom: padding.bottom + 32),
         children: [
-          CentredMaxWidth(
-            maxWidth: 460,
-            child: ActivityDetailBody(
-              entry: entry,
-              animation: animation,
-              flight: true,
-              onArtTap: _close,
-              headerKey: _headerKey,
-            ),
+          ActivityDetailBody(
+            entry: entry,
+            top: padding.top + IrmaAppBar.contentTop,
+            nameKey: _nameKey,
+            onAsk: _ask,
           ),
         ],
       ),
@@ -135,7 +109,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
 }
 
 /// The detail pane of the activity tab in the tablet layout: the same
-/// content, without the transition.
+/// content.
 class ActivityDetailPane extends ConsumerWidget {
   final LogInfo logEntry;
 
@@ -145,16 +119,18 @@ class ActivityDetailPane extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wallet = ref.watch(walletCardsProvider);
     final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
+    final padding = paneContentPadding(context);
     return ListView(
       key: Key("activity_detail_pane_${entry.key}"),
-      padding: paneContentPadding(context),
+      padding: EdgeInsets.only(bottom: padding.bottom),
       children: [
-        CentredMaxWidth(
+        ActivityDetailBody(
+          entry: entry,
+          top: padding.top,
           maxWidth: 560,
-          child: ActivityDetailBody(
-            entry: entry,
-            compactHeader: usePhoneLandscape(context),
-          ),
+          compactHeader: usePhoneLandscape(context),
+          onAsk: (query) =>
+              ref.read(activityLogProvider.notifier).setFilter(query),
         ),
       ],
     );

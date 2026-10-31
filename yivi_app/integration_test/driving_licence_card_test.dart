@@ -223,7 +223,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
         await tester.tapAndSettle(find.byType(ActivityCard).first);
         expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-        expect(find.text("YOU SHARED"), findsOneWidget);
+        expect(find.text("Shared with"), findsOneWidget);
 
         await _expectSharedCategories(tester);
       },

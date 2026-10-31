@@ -42,22 +42,21 @@ void main() {
 
       // Check if the correct detail screen is rendered
       expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-      expect(find.byType(ActivityPartyCard), findsOneWidget);
+      expect(find.byType(ActivityHeroHeader), findsOneWidget);
 
-      // The centred header: who, and when as a date pill and a time pill,
-      // e.g. "Saturday, October 18, 2026".
       expect(find.text("Received from"), findsOneWidget);
+      // The hero: who, and when as one line, e.g. "October 18, 2026 ·
+      // 2:32 PM".
       expect(
         find.descendant(
-          of: find.byKey(const Key("activity_date_pill")),
+          of: find.byKey(const Key("activity_hero_date")),
           matching: find.textContaining(
-            RegExp(r"^[A-Z][a-z]+day, [A-Z][a-z]+ \d{1,2}, \d{4}$"),
+            RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} · "),
           ),
+          matchRoot: true,
         ),
         findsOneWidget,
       );
-      expect(find.byKey(const Key("activity_time_pill")), findsOneWidget);
-      expect(find.text("YOU RECEIVED"), findsOneWidget);
 
       // Find the activity card and check the content
       final activityCardFinder = find.byType(ActivityCredentialTile).first;

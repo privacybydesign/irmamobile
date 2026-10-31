@@ -188,7 +188,7 @@ Future<void> testIssueEmailOpenID4VCI(
 
   // Verify activity log
   await navigateToLatestActivity(tester);
-  expect(find.text("YOU RECEIVED"), findsOneWidget);
+  expect(find.text("Received from"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(ActivityCredentialTile).first,
@@ -238,7 +238,7 @@ Future<void> testIssueEmailOpenID4VCIWithTxCode(
 
   // Verify activity log
   await navigateToLatestActivity(tester);
-  expect(find.text("YOU RECEIVED"), findsOneWidget);
+  expect(find.text("Received from"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(ActivityCredentialTile).first,
@@ -321,7 +321,7 @@ Future<void> testIssueOrganizationOpenID4VCI(
 
   // Verify activity log — same nested-claim assertion.
   await navigateToLatestActivity(tester);
-  expect(find.text("YOU RECEIVED"), findsOneWidget);
+  expect(find.text("Received from"), findsOneWidget);
   await tester.pumpAndSettle();
 
   await evaluateCredentialCard(
@@ -725,7 +725,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
   );
 
   // Back to activity list, then drill into the older removal
-  await tester.tapAndSettle(find.byKey(const Key("activity_detail_done")));
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
 
   await tester.tapAndSettle(
     find.byType(ActivityCard, skipOffstage: false).at(1),
