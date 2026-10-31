@@ -326,12 +326,7 @@ void main() {
     );
 
     // The button is the consent: no dialog, the choices are sent at once.
-    await tester.tap(
-      find.descendant(
-        of: _share,
-        matching: find.text("Share with Webshop Noord"),
-      ),
-    );
+    await tester.tap(find.descendant(of: _share, matching: find.text("Share")));
     await tester.pumpAndSettle();
     expect(find.byType(Dialog), findsNothing);
     expect(_hashes(calls.shared.single), [
@@ -515,7 +510,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text("Share with Webshop Noord"), findsOneWidget);
+      expect(find.text("Share"), findsOneWidget);
 
       // Change choice: the same sheet, the outline on the card in use.
       unawaited(
@@ -1539,9 +1534,8 @@ void main() {
       expect(find.text("Mobile number"), findsWidgets);
     });
 
-    testWidgets("the share page's band waits for the requestor's pill", (
-      tester,
-    ) async {
+    testWidgets("the share page's band comes with the first scroll, not "
+        "with the compact bar", (tester) async {
       await _pump(
         tester,
         session: _session([
@@ -1555,7 +1549,7 @@ void main() {
         ]),
       );
       final appBar = tester.widget<IrmaAppBar>(find.byType(IrmaAppBar));
-      expect(appBar.edgeShown, isNotNull);
+      expect(appBar.edgeShown, isNull);
       expect(find.byKey(const Key("scroll_edge_band")), findsNothing);
     });
 
@@ -2726,7 +2720,7 @@ void main() {
       await _pump(tester, session: _session(email()));
       expect(find.text("Registered with Yivi"), findsOneWidget);
       expect(wash, findsNothing);
-      expect(find.text("Share with Webshop Noord"), findsOneWidget);
+      expect(find.text("Share"), findsOneWidget);
     });
 
     testWidgets("medium: just as calm, verified in the EU", (tester) async {
@@ -2739,7 +2733,7 @@ void main() {
       );
       expect(find.text("Verified in the EU"), findsOneWidget);
       expect(wash, findsNothing);
-      expect(find.text("Share with Webshop Noord"), findsOneWidget);
+      expect(find.text("Share"), findsOneWidget);
     });
 
     testWidgets("unknown: the red page, Share anyway, and it asks first", (
@@ -2890,14 +2884,15 @@ void main() {
         const Offset(0, -20),
       );
       await tester.pumpAndSettle();
+      // The band comes as content goes under the bar, as in a sheet; the
+      // compact bar only once the card is gone.
       expect(bar, findsNothing);
-      expect(band, findsNothing);
+      expect(band, findsOneWidget);
       await tester.drag(
         find.byKey(const Key("share_scroll_view")),
         const Offset(0, -480),
       );
       await tester.pumpAndSettle();
-      // The band comes with the bar.
       expect(bar, findsOneWidget);
       expect(band, findsOneWidget);
       // Nobody vouches: a red ! on its logo.

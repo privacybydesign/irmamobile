@@ -4,7 +4,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/glass/glass_surface.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
 ///
@@ -248,7 +247,7 @@ class _PinKeypadState extends State<PinKeypad> {
 class _KeyFace extends StatefulWidget {
   final Widget child;
 
-  /// Shows the key as a round glass button even when not pressed (digits).
+  /// Shows the key as a round button even when not pressed (digits).
   final bool resting;
 
   const _KeyFace({super.key, required this.child, this.resting = false});
@@ -305,8 +304,15 @@ class _KeyFaceState extends State<_KeyFace>
     return RepaintBoundary(
       child: AnimatedBuilder(
         animation: _press,
+        // Flat, as content on the page: a fill and a thin edge, no shadow.
         child: widget.resting
-            ? GlassSurface(shape: const CircleBorder(), child: content)
+            ? DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: palette.surface,
+                  shape: CircleBorder(side: BorderSide(color: palette.divider)),
+                ),
+                child: content,
+              )
             : content,
         builder: (context, child) {
           // As in the design: the pressed key shrinks a little and lights up.
@@ -317,7 +323,7 @@ class _KeyFaceState extends State<_KeyFace>
               fit: StackFit.expand,
               children: [
                 child!,
-                // The press light, over the glass.
+                // The press light, over the key.
                 if (t > 0)
                   DecoratedBox(
                     decoration: BoxDecoration(

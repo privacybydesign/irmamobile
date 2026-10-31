@@ -315,6 +315,34 @@ void main() {
     expect(queries().last.filter.text, isNull);
   });
 
+  testWidgets('"Show N results" counts what is asked and asks it', (
+    tester,
+  ) async {
+    await pump(tester);
+    await startSearch(tester);
+    // Nothing asked yet: no button.
+    expect(find.byKey(const Key("activity_show_results")), findsNothing);
+    await tester.enterText(field, "agree");
+    await _settle(tester);
+    final button = find.byKey(const Key("activity_show_results"));
+    final count = log
+        .where((e) => _matches(e, const LogFilter(text: "agree")))
+        .length;
+    expect(
+      find.descendant(
+        of: button,
+        matching: find.text(
+          count == 1 ? "Show 1 result" : "Show $count results",
+        ),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(button);
+    await _settle(tester);
+    expect(queries().last.filter.text, "agree");
+    expect(button, findsNothing);
+  });
+
   testWidgets("Cancel leaves the question as it was", (tester) async {
     await pump(tester);
     await startSearch(tester);

@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 import "../util/laid_out_box.dart";
-import "glass/glass_surface.dart";
+import "glass/scroll_edge.dart";
 
 /// Where the top bar's buttons end, from the top of the safe area: 16 above
 /// the 44 pt buttons of an `IrmaAppBar`, and the buttons.
@@ -47,16 +47,17 @@ class CompactBarDropIn extends StatelessWidget {
   );
 }
 
-/// The glass pill in the top bar of a detail page that says what the page
-/// is about once its header has scrolled away: a 32 pt [leading] picture,
-/// the [title] and a [subtitle] line, each on one line.
-class GlassCompactBar extends StatelessWidget {
+/// What a detail page is about, in its top bar once its header has
+/// scrolled away: a 32 pt [leading] picture, the [title] and a [subtitle]
+/// line, each on one line. Straight on the bar's band (see
+/// [HeaderEdgeBand]), as a sheet's title: no pill of its own.
+class CompactBar extends StatelessWidget {
   final Widget leading;
   final String title;
   final InlineSpan subtitle;
   final double opacity;
 
-  const GlassCompactBar({
+  const CompactBar({
     super.key,
     required this.leading,
     required this.title,
@@ -67,9 +68,8 @@ class GlassCompactBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return GlassSurface(
-      opacity: opacity,
-      padding: const EdgeInsets.fromLTRB(6, 0, 16, 0),
+    return Opacity(
+      opacity: opacity.clamp(0.0, 1.0),
       child: SizedBox(
         height: 44,
         child: Row(

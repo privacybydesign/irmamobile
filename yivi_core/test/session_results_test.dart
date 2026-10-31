@@ -196,7 +196,9 @@ void main() {
       );
 
       expect(
-        find.text("The card is now in your app. Go back to Webshop to continue."),
+        find.text(
+          "The card is now in your app. Go back to Webshop to continue.",
+        ),
         findsOneWidget,
       );
       await tester.tap(find.text("Back to Webshop"));
@@ -276,7 +278,10 @@ void main() {
       expect(find.text("You'll find this in Activity."), findsOneWidget);
       expect(find.text("anna@example.com"), findsOneWidget);
 
-      await tester.tap(find.text("Done"));
+      // On the same phone without a link back: no Done, only the close
+      // button in the bar.
+      expect(find.byKey(const Key("ok_button")), findsNothing);
+      await tester.tap(find.byKey(const Key("session_close")));
       expect(done, 1);
     });
 
@@ -335,7 +340,8 @@ void main() {
     testWidgets("nothing shared", (tester) async {
       await pump(tester);
 
-      expect(find.text("Done"), findsNWidgets(2));
+      // The title; no Done button on the same phone.
+      expect(find.text("Done"), findsOneWidget);
       expect(
         find.text(
           "Webshop received no data from you. You can find this in Activity.",

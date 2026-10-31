@@ -301,7 +301,7 @@ class ActivityCompactBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final time = entry.localTime;
-    return GlassCompactBar(
+    return CompactBar(
       opacity: opacity,
       leading: ActivityPartyLogo(party: entry.party, size: 32),
       title: entry.party.name,

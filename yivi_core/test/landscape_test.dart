@@ -142,7 +142,8 @@ void main() {
         feedbackType: DisclosureFeedbackType.success,
         otherParty: "Webshop",
         isSignatureSession: false,
-        onOtherDevice: false,
+        // On another device: with Done (on the same phone there is none).
+        onOtherDevice: true,
         shared: [
           SelectableCredentialInstance(
             credentialId: "email",

@@ -390,7 +390,7 @@ class RequestorCompactBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = RequestorTrustStyle.of(context, requestor);
-    return GlassCompactBar(
+    return CompactBar(
       key: const Key("requestor_compact_bar"),
       opacity: opacity,
       leading: ExcludeSemantics(

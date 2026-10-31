@@ -77,7 +77,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ValueListenable<bool>? titleVisibility;
 
   /// In place of the centred title: a bar from the leading edge up to the
-  /// actions, as the glass pill on a detail page that says what it is about
+  /// actions, as the compact bar on a detail page that says what it is about
   /// once its header has scrolled away. The title is then not shown.
   final Widget? startBar;
 

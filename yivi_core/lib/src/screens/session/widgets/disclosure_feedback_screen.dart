@@ -142,16 +142,14 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
           );
 
     final heading = <Widget>[
-      const Align(
-        alignment: Alignment.centerLeft,
-        child: DoneCheck(key: Key("share_done_check"), size: 64),
-      ),
+      const Center(child: DoneCheck(key: Key("share_done_check"), size: 64)),
       const SizedBox(height: 16),
       Semantics(
         header: true,
         child: Text(
           title,
           key: const Key("share_done_title"),
+          textAlign: TextAlign.center,
           style: palette.display(27).copyWith(color: palette.text),
         ),
       ),
@@ -160,6 +158,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
         const SizedBox(height: 12),
         Text(
           context.tr("share.done.text_none", requestor),
+          textAlign: TextAlign.center,
           style: palette
               .body(15)
               .copyWith(height: 22 / 15, color: palette.heading),
@@ -193,11 +192,15 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
         : FlutterI18n.translate(context, "share.done.button");
     void done() =>
         host != null ? widget.onReturn?.call() : widget.onDismiss(context);
-    final button = FancyPillButton(
-      key: const Key("ok_button"),
-      label: label,
-      onPressed: done,
-    );
+    // On the same phone without a link back there is nothing to do but
+    // close (the bar's close button).
+    final button = host != null || widget.onOtherDevice
+        ? FancyPillButton(
+            key: const Key("ok_button"),
+            label: label,
+            onPressed: done,
+          )
+        : null;
 
     // A phone held sideways, as the issuance success: the check and the
     // button in the panel at the left, the words and what was shared at the
@@ -206,7 +209,6 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
       return PopScope(
         canPop: false,
         child: SessionScaffold(
-          appBarTitle: "disclosure.feedback.header.success",
           onDismiss: () => widget.onDismiss(context),
           wide: true,
           scrollsUnderBars: true,
@@ -239,12 +241,14 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
                 d,
               ],
             ],
-            actions: FancyPillButton(
-              key: const Key("ok_button"),
-              label: label,
-              size: PillSize.regular,
-              onPressed: done,
-            ),
+            actions: button == null
+                ? null
+                : FancyPillButton(
+                    key: const Key("ok_button"),
+                    label: label,
+                    size: PillSize.regular,
+                    onPressed: done,
+                  ),
           ),
         ),
       );
@@ -256,7 +260,6 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
       return PopScope(
         canPop: false,
         child: SessionScaffold(
-          appBarTitle: "disclosure.feedback.header.success",
           onDismiss: () => widget.onDismiss(context),
           wide: true,
           scrollsUnderBars: true,
@@ -267,7 +270,10 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
             centreVertically: true,
             start: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [...heading, const SizedBox(height: 32), button],
+              children: [
+                ...heading,
+                if (button != null) ...[const SizedBox(height: 32), button],
+              ],
             ),
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -282,7 +288,6 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     return PopScope(
       canPop: false,
       child: SessionScaffold(
-        appBarTitle: "disclosure.feedback.header.success",
         onDismiss: () => widget.onDismiss(context),
         scrollsUnderBars: true,
         body: BarInsetsBuilder(
@@ -297,7 +302,9 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
             ],
           ),
         ),
-        bottomNavigationBar: IrmaBottomBarBase(child: button),
+        bottomNavigationBar: button == null
+            ? null
+            : IrmaBottomBarBase(child: button),
       ),
     );
   }

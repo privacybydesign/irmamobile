@@ -7,7 +7,9 @@ import "../../../widgets/irma_close_button.dart";
 
 class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;
-  final String appBarTitle;
+
+  /// The bar's title (a translation key); none when null.
+  final String? appBarTitle;
   final VoidCallback? onDismiss;
 
   /// The body spans the whole width, for the two-column tablet layouts
@@ -23,7 +25,7 @@ class SessionScaffold extends StatelessWidget {
   /// the bar's title shows only while this is true.
   final ValueListenable<bool>? barTitleVisibility;
 
-  /// A glass pill in the bar in place of the title (see
+  /// A compact bar ([CompactBar]) in place of the title (see
   /// [IrmaAppBar.startBar]).
   final Widget? startBar;
 
@@ -33,7 +35,7 @@ class SessionScaffold extends StatelessWidget {
   final bool cornerClose;
 
   /// The scroll edge band under the bar once content scrolls under it; off
-  /// for the share page, where only the buttons float over the content.
+  /// for the share page in columns, where only the buttons float over it.
   final bool scrollEdge;
 
   /// For a page whose header only appears once you scroll (the requestor's
@@ -46,7 +48,7 @@ class SessionScaffold extends StatelessWidget {
     this.onDismiss,
     this.bottomNavigationBar,
     this.body,
-    required this.appBarTitle,
+    this.appBarTitle,
     this.wide = false,
     this.scrollsUnderBars = false,
     this.barTitleVisibility,
@@ -72,6 +74,7 @@ class SessionScaffold extends StatelessWidget {
       body: body == null ? null : _keepClear(wide ? body! : _centred(body!)),
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
+        titleString: appBarTitle == null ? "" : null,
         titleVisibility: barTitleVisibility,
         startBar: startBar,
         edgeActions: cornerClose,

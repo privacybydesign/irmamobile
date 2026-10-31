@@ -115,6 +115,10 @@
       "fits-0": "Past niet bij je filters",
       "fits-1": "1 past bij je filters",
       "fits-2": "{count} passen bij je filters",
+      "show_results": "Toon resultaten",
+      "show_results_count-0": "Geen resultaten",
+      "show_results_count-1": "Toon 1 resultaat",
+      "show_results_count-2": "Toon {count} resultaten",
       "clear": "Wis filters",
       "none": "Geen activiteit die hierbij past.",
       "everything": "Alle activiteit",
@@ -1262,7 +1266,7 @@
     }
   },
   "wallet": {
-    "search_placeholder": "Zoek in je gegevens",
+    "search_placeholder": "Zoek op kaartjes, gegevens of uitgevers",
     "clear_search": "Zoekopdracht wissen",
     "search_cancel": "Annuleer",
     "add_data": "Gegevens toevoegen",
@@ -1338,7 +1342,7 @@
       "share_receive": "Delen en ontvangen"
     },
     "button": {
-      "share": "Delen met {requestor}",
+      "share": "Delen",
       "sign_and_share": "Ondertekenen",
       "share_and_add": "Delen en kaart toevoegen",
       "share_without_data": "Delen zonder gegevens",

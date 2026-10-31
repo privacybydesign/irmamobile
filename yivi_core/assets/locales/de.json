@@ -115,6 +115,10 @@
       "fits-0": "Passt nicht zu deinen Filtern",
       "fits-1": "1 passt zu deinen Filtern",
       "fits-2": "{count} passen zu deinen Filtern",
+      "show_results": "Ergebnisse anzeigen",
+      "show_results_count-0": "Keine Ergebnisse",
+      "show_results_count-1": "1 Ergebnis anzeigen",
+      "show_results_count-2": "{count} Ergebnisse anzeigen",
       "clear": "Filter löschen",
       "none": "Keine passende Aktivität.",
       "everything": "Alle Aktivitäten",
@@ -1262,7 +1266,7 @@
     }
   },
   "wallet": {
-    "search_placeholder": "Deine Daten durchsuchen",
+    "search_placeholder": "Karten, Daten oder Aussteller suchen",
     "clear_search": "Suche löschen",
     "search_cancel": "Abbrechen",
     "add_data": "Daten hinzufügen",
@@ -1338,7 +1342,7 @@
       "share_receive": "Teilen und erhalten"
     },
     "button": {
-      "share": "Mit {requestor} teilen",
+      "share": "Teilen",
       "sign_and_share": "Unterschreiben",
       "share_and_add": "Teilen und Karte hinzufügen",
       "share_without_data": "Ohne Daten teilen",

@@ -60,8 +60,8 @@ import "shared_card_tile.dart";
 /// - Optional data that is not shared is a row naming its kinds, with
 ///   "Share"; once shared it is a card with "Change choice".
 /// - The footnote sits right under the last card.
-/// - Once the requestor card has scrolled under the bar, a glass pill in the
-///   bar says who asks, as on the detail pages.
+/// - Once the requestor card has scrolled under the bar, a compact bar at
+///   the top says who asks, as on the detail pages.
 ///
 /// The button is the consent: there is no confirmation dialog after it,
 /// except for a party nobody vouches for. While something is missing or
@@ -98,7 +98,7 @@ class DisclosureShareScreen extends ConsumerStatefulWidget {
 
 class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// The requestor card, and whether it has scrolled under the bar (the
-  /// glass pill in the bar then says who asks).
+  /// compact bar then says who asks).
   final _headerKey = GlobalKey(debugLabel: "share_requestor_card");
   final _scrolledPast = ValueNotifier(false);
 
@@ -502,9 +502,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   ? "share.trust.risky.sign_anyway"
                   : "share.trust.risky.share_anyway",
             )
-          : t("share.button.${_labelName(button.label)}", {
-              "requestor": requestor,
-            }),
+          : t("share.button.${_labelName(button.label)}"),
       primary: button.label != ShareLabel.close && !risky,
       risky: risky,
       onPressed: next != null
@@ -648,10 +646,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       appBarTitle: "share.bar.$kind",
       onDismiss: widget.onDismiss,
       scrollsUnderBars: true,
-      // The band comes with the requestor's pill: before it only the
-      // buttons float over the content.
-      scrollEdge: false,
-      edgeShown: _scrolledPast,
       bottomNavigationBar: bar,
       startBar: _CompactBarSlot(
         shown: _scrolledPast,
@@ -1046,7 +1040,7 @@ class _Spaced {
   const _Spaced(this.gap, this.child);
 }
 
-/// The glass pill in the bar once the requestor card has scrolled away: it
+/// The compact bar once the requestor card has scrolled away: it
 /// fades in and comes down 8 pt, as on the detail pages.
 class _CompactBarSlot extends StatelessWidget {
   final ValueListenable<bool> shown;

@@ -120,9 +120,8 @@ void main() {
     expect(find.byType(CredentialDetailScreen), findsOneWidget);
   }, variant: _platforms);
 
-  testWidgets("scrolled down: no bar comes in, only the close button", (
-    tester,
-  ) async {
+  testWidgets("scrolled down: the band comes in behind the close button, "
+      "which stays put", (tester) async {
     await openDetail(tester);
     final close = find.byKey(const Key("credential_detail_done"));
     final corner = tester.getRect(close);
@@ -137,7 +136,7 @@ void main() {
         .jumpTo(300);
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key("scroll_edge_band")), findsNothing);
+    expect(find.byKey(const Key("scroll_edge_band")), findsOneWidget);
     expect(tester.getRect(close), corner);
   });
 

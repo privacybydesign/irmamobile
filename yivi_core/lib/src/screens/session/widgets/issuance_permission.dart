@@ -529,7 +529,7 @@ class IssuanceLandscape extends StatelessWidget {
   final List<Widget> overview;
   final Widget? note;
   final List<Widget> receives;
-  final Widget actions;
+  final Widget? actions;
 
   const IssuanceLandscape({
     super.key,
@@ -570,8 +570,10 @@ class IssuanceLandscape extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            actions,
+            if (actions case final actions?) ...[
+              const SizedBox(height: 16),
+              actions,
+            ],
           ],
         ),
       ),

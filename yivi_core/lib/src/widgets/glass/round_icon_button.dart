@@ -12,6 +12,9 @@ import "glass_surface.dart";
 class RoundIconButton extends StatelessWidget {
   static const double size = 44;
 
+  /// The icon's box: its glyph is about 16 (✕) to 20 pt (search) across.
+  static const double iconSize = 28;
+
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
@@ -66,7 +69,9 @@ class RoundIconButton extends StatelessWidget {
             color: fill,
             shape: CircleBorder(side: edge),
           ),
-          child: Icon(icon, size: 22, color: ink),
+          // As large as an SF Symbol in an iOS bar button: a Material
+          // glyph fills only part of its box.
+          child: Icon(icon, size: iconSize, color: ink),
         ),
         if (on)
           Positioned(

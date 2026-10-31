@@ -24,6 +24,7 @@ import "../../widgets/glass/floating_bar_placement.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/home_tab_top.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/glass/search_scroll_edge.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
@@ -178,6 +179,45 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final words = typed.trim();
     final value = q.value.trim();
     return q.copyWith(value: value.isEmpty ? words : "$value $words");
+  }
+
+  /// What Enter (or "Show results") would ask: the draft with the typed
+  /// words.
+  ActivityQuery get _results => _withTyped(_asked, _typed);
+
+  /// Where the count of [_results] is kept with the suggestions'.
+  static const _resultsKey = "_results";
+
+  /// While searching with something asked: "Show 12 results" above the
+  /// keyboard (or the tab bar), which asks it as Enter does.
+  Widget? _showResultsButton(BuildContext context) {
+    if (!_searching || _results.isEmpty) return null;
+    final count = _counts[_resultsKey];
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    return Positioned(
+      left: 16,
+      right: 16,
+      bottom: keyboard > 0
+          ? keyboard + 12
+          : MediaQuery.paddingOf(context).bottom + bottomBarSpace(context) + 12,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: FancyPillButton(
+            key: const Key("activity_show_results"),
+            label: count == null
+                ? FlutterI18n.translate(context, "activity.query.show_results")
+                : FlutterI18n.plural(
+                    context,
+                    "activity.query.show_results_count",
+                    count,
+                  ),
+            size: PillSize.regular,
+            onPressed: count == 0 ? null : () => _searchText(_search.text),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Enter: the draft is asked, with the typed words as a text search.
@@ -390,10 +430,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         for (final (_, items) in _suggestions()) ...items,
         if (_typed.trim().isNotEmpty) ..._typedSuggestions(),
       ];
+      final results = _results;
       List<int> counts;
       try {
         counts = await ref.read(irmaRepositoryProvider).countLogs([
           for (final s in all) s.query.toLogFilter(),
+          if (!results.isEmpty) results.toLogFilter(),
         ]);
       } catch (_) {
         return;
@@ -403,6 +445,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         _counts.clear();
         for (final (i, s) in all.indexed) {
           if (i < counts.length) _counts[s.key] = counts[i];
+        }
+        if (!results.isEmpty && all.length < counts.length) {
+          _counts[_resultsKey] = counts[all.length];
         }
       });
     });
@@ -478,7 +523,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         16,
         top,
         16,
-        padding.bottom + bottomBarSpace(context),
+        // Clear of the "Show results" button.
+        padding.bottom + bottomBarSpace(context) + 72,
       ),
       children: [
         for (final (title, items) in groups)
@@ -842,69 +888,71 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       ];
       return Scaffold(
         backgroundColor: palette.background,
-        body: HomeTabTop(
-          title: FlutterI18n.translate(context, "home.nav_bar.activity"),
-          searching: _searching,
-          searchRow: Row(
-            spacing: 4,
-            children: [
-              Expanded(
-                child: GlassSearchField(
-                  fieldKey: const Key("activity_search_field"),
-                  hintKey: "activity.query.search_hint",
-                  controller: _search,
-                  focusNode: _focus,
-                  onChanged: _onTyped,
-                  onSubmitted: _searchText,
-                  height: 44,
-                ),
-              ),
-              TextButton(
-                key: const Key("activity_search_cancel"),
-                // Blue, as a plain action next to a field.
-                style: TextButton.styleFrom(foregroundColor: palette.link),
-                onPressed: _stopSearching,
-                child: Text(
-                  FlutterI18n.translate(context, "activity.query.cancel"),
-                ),
-              ),
-            ],
-          ),
-          // The tags pin under the bar as they scroll up to it, and stay
-          // under the field while typing.
-          below: chips.isEmpty
-              ? null
-              : ListView.separated(
-                  key: const Key("activity_chips"),
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: chips.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 8),
-                  itemBuilder: (_, i) => chips[i],
-                ),
-          belowHeight: activityChipHeight,
-          searchButtonKey: const Key("activity_search_button"),
-          searchLabel: FlutterI18n.translate(
-            context,
-            "activity.query.search_hint",
-          ),
-          onSearch: _startSearchingInBar,
-          trailing: filterButton,
-          child: _searching
-              ? _suggestionList(
-                  HomeTabTop.listTop(
-                    context,
-                    below: chips.isEmpty ? 0 : activityChipHeight,
+        body: _withResultsButton(
+          HomeTabTop(
+            title: FlutterI18n.translate(context, "home.nav_bar.activity"),
+            searching: _searching,
+            searchRow: Row(
+              spacing: 4,
+              children: [
+                Expanded(
+                  child: GlassSearchField(
+                    fieldKey: const Key("activity_search_field"),
+                    hintKey: "activity.query.search_hint",
+                    controller: _search,
+                    focusNode: _focus,
+                    onChanged: _onTyped,
+                    onSubmitted: _searchText,
+                    height: 44,
                   ),
-                )
-              : !state.loaded
-              ? Center(child: LoadingIndicator())
-              : _buildLogEntries(
-                  context,
-                  state,
-                  HomeTabTop.titleTop(context),
-                  header: header,
                 ),
+                TextButton(
+                  key: const Key("activity_search_cancel"),
+                  // Blue, as a plain action next to a field.
+                  style: TextButton.styleFrom(foregroundColor: palette.link),
+                  onPressed: _stopSearching,
+                  child: Text(
+                    FlutterI18n.translate(context, "activity.query.cancel"),
+                  ),
+                ),
+              ],
+            ),
+            // The tags pin under the bar as they scroll up to it, and stay
+            // under the field while typing.
+            below: chips.isEmpty
+                ? null
+                : ListView.separated(
+                    key: const Key("activity_chips"),
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: chips.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 8),
+                    itemBuilder: (_, i) => chips[i],
+                  ),
+            belowHeight: activityChipHeight,
+            searchButtonKey: const Key("activity_search_button"),
+            searchLabel: FlutterI18n.translate(
+              context,
+              "activity.query.search_hint",
+            ),
+            onSearch: _startSearchingInBar,
+            trailing: filterButton,
+            child: _searching
+                ? _suggestionList(
+                    HomeTabTop.listTop(
+                      context,
+                      below: chips.isEmpty ? 0 : activityChipHeight,
+                    ),
+                  )
+                : !state.loaded
+                ? Center(child: LoadingIndicator())
+                : _buildLogEntries(
+                    context,
+                    state,
+                    HomeTabTop.titleTop(context),
+                    header: header,
+                  ),
+          ),
         ),
       );
     }
@@ -944,9 +992,20 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     return Scaffold(
       backgroundColor: palette.background,
-      body: useHomePanes(context) ? _withDetailPane(list) : list,
+      body: useHomePanes(context)
+          ? _withDetailPane(_withResultsButton(list))
+          : _withResultsButton(list),
     );
   }
+
+  Widget _withResultsButton(Widget child) => Builder(
+    builder: (context) => Stack(
+      children: [
+        Positioned.fill(child: child),
+        ?_showResultsButton(context),
+      ],
+    ),
+  );
 
   /// The tablet layout: the activity next to the details of the picked
   /// entry (the newest until the user picks one).

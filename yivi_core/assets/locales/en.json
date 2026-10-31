@@ -115,6 +115,10 @@
       "fits-0": "Doesn't fit your filters",
       "fits-1": "1 fits your filters",
       "fits-2": "{count} fit your filters",
+      "show_results": "Show results",
+      "show_results_count-0": "No results",
+      "show_results_count-1": "Show 1 result",
+      "show_results_count-2": "Show {count} results",
       "clear": "Clear filters",
       "none": "No activity matches.",
       "everything": "All activity",
@@ -1259,7 +1263,7 @@
     }
   },
   "wallet": {
-    "search_placeholder": "Search your data",
+    "search_placeholder": "Search cards, data or issuers",
     "clear_search": "Clear search",
     "search_cancel": "Cancel",
     "add_data": "Add data",
@@ -1338,7 +1342,7 @@
       "share_receive": "Share and receive"
     },
     "button": {
-      "share": "Share with {requestor}",
+      "share": "Share",
       "sign_and_share": "Sign",
       "share_and_add": "Share and add card",
       "share_without_data": "Share without data",
