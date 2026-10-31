@@ -5,14 +5,14 @@ import "glass_surface.dart";
 
 /// The app's round icon button: close, back, add, search, the view menu, the
 /// filter. Every one is this widget, [size] across (as iOS's round bar
-/// buttons), solid: the surface's colour with a thin edge, as the home tabs'
-/// bars. [dark] is the version over a camera picture or a photo. While
-/// [count] is more than 0 (filters on) it is tinted, with the count in a
-/// badge. It gives way a little under the finger.
+/// buttons). The icon stands bare on what is behind it (the page, or the
+/// band of a bar); only [dark], over a camera picture or a photo, has a
+/// disc. While [count] is more than 0 (filters on) it is a tinted disc, with
+/// the count in a badge. It gives way a little under the finger.
 class RoundIconButton extends StatelessWidget {
   static const double size = 44;
 
-  /// The icon's box: its glyph is about 16 (✕) to 20 pt (search) across.
+  /// The icon's box. Callers pass CupertinoIcons: thin strokes, as SF Symbols.
   static const double iconSize = 28;
 
   final IconData icon;
@@ -55,9 +55,9 @@ class RoundIconButton extends StatelessWidget {
       ink = palette.selectedTab;
       edge = BorderSide.none;
     } else {
-      fill = palette.surface;
+      fill = Colors.transparent;
       ink = palette.text;
-      edge = BorderSide(color: palette.divider);
+      edge = BorderSide.none;
     }
     final button = Stack(
       clipBehavior: Clip.none,
@@ -69,8 +69,7 @@ class RoundIconButton extends StatelessWidget {
             color: fill,
             shape: CircleBorder(side: edge),
           ),
-          // As large as an SF Symbol in an iOS bar button: a Material
-          // glyph fills only part of its box.
+          // As large as an SF Symbol in an iOS bar button.
           child: Icon(icon, size: iconSize, color: ink),
         ),
         if (on)

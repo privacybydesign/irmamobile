@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -125,7 +126,7 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
               key: const Key("irma_app_bar_close"),
               label: FlutterI18n.translate(context, "ui.close"),
               dark: true,
-              icon: Icons.close,
+              icon: CupertinoIcons.xmark,
               onTap: () => Navigator.of(context).pop(),
             );
             return Stack(

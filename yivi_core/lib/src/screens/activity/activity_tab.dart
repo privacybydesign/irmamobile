@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:collection/collection.dart";
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
@@ -790,7 +791,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final filterCount = query.isEmpty ? 0 : query.facetCount;
     final filterButton = RoundIconButton(
       key: const Key("activity_filter_button"),
-      icon: Icons.tune_rounded,
+      icon: CupertinoIcons.slider_horizontal_3,
       label: filterCount == 0
           ? FlutterI18n.translate(context, "activity.query.filter")
           : FlutterI18n.translate(

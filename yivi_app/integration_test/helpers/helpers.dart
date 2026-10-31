@@ -1580,7 +1580,7 @@ Future<void> tapAddCredentialTile(
   // The round plus button next to the data tab's search field.
   final addDataButton = find.descendant(
     of: find.byType(DataTab),
-    matching: find.byIcon(Icons.add),
+    matching: find.byIcon(CupertinoIcons.add),
   );
   await tester.tapAndSettle(addDataButton);
 

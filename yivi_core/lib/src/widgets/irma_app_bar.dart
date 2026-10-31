@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
@@ -36,7 +37,7 @@ class YiviBackButton extends StatelessWidget {
     return RoundIconButton(
       key: const Key("irma_app_bar_leading"),
       label: FlutterI18n.translate(context, "ui.go_back"),
-      icon: Icons.arrow_back_rounded,
+      icon: CupertinoIcons.arrow_left,
       onTap: () {
         if (onTap == null) {
           Navigator.of(context).pop();

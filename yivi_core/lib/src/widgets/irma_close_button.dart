@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -36,7 +37,7 @@ class IrmaCloseButton extends StatelessWidget {
       onTap: onTap ?? Navigator.of(context).pop,
       opacity: opacity,
       dark: dark,
-      icon: Icons.close,
+      icon: CupertinoIcons.xmark,
     );
   }
 }

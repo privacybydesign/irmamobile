@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -214,7 +215,7 @@ class _CameraScaffold extends StatelessWidget {
                     child: RoundIconButton(
                       key: const Key("irma_app_bar_leading"),
                       dark: true,
-                      icon: Icons.arrow_back_rounded,
+                      icon: CupertinoIcons.arrow_left,
                       label: FlutterI18n.translate(context, "ui.go_back"),
                       onTap: () => Navigator.of(context).maybePop(),
                     ),

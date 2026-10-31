@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
@@ -471,7 +472,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       leading: _pastField && !_inBar
           ? RoundIconButton(
               key: const Key("add_data_search_button"),
-              icon: Icons.search,
+              icon: CupertinoIcons.search,
               label: context.tr("data.add.search"),
               onTap: _toBar,
             )

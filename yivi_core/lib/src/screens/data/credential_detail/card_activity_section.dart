@@ -1,4 +1,4 @@
-import "package:flutter/cupertino.dart" show CupertinoPageRoute;
+import "package:flutter/cupertino.dart" show CupertinoIcons, CupertinoPageRoute;
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -325,7 +325,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
                     "wallet.detail.back_to_card",
                   ),
                   onTap: navigator.pop,
-                  icon: Icons.arrow_back_rounded,
+                  icon: CupertinoIcons.arrow_left,
                 ),
                 const Spacer(),
                 IrmaCloseButton(

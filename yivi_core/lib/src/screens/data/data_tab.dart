@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:collection/collection.dart";
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
@@ -220,7 +221,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
                   RoundIconButton(
                     key: const Key("data_tab_add_data"),
                     label: FlutterI18n.translate(context, "wallet.add_data"),
-                    icon: Icons.add,
+                    icon: CupertinoIcons.add,
                     onTap: () => showAddDataSheet(context),
                   ),
               ],
@@ -248,7 +249,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
             leading: const _ViewMenuButton(),
             trailing: RoundIconButton(
               key: const Key("data_tab_add_data"),
-              icon: Icons.add,
+              icon: CupertinoIcons.add,
               label: FlutterI18n.translate(context, "wallet.add_data"),
               onTap: () => showAddDataSheet(context),
             ),
@@ -914,7 +915,7 @@ class _ViewMenuButton extends ConsumerWidget {
     final view = ref.watch(walletViewProvider) ?? WalletView.stack;
     return RoundIconButton(
       key: const Key("wallet_arrange"),
-      icon: Icons.more_horiz,
+      icon: CupertinoIcons.ellipsis,
       label:
           "${context.tr("wallet.view.label")}: "
           "${context.tr("wallet.view.${view.name}")}",

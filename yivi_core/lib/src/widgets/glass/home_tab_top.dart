@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -253,7 +254,7 @@ class _Bar extends StatelessWidget {
                           scale: 0.8 + 0.2 * search,
                           child: RoundIconButton(
                             key: top.searchButtonKey,
-                            icon: Icons.search,
+                            icon: CupertinoIcons.search,
                             label: top.searchLabel,
                             onTap: top.onSearch,
                           ),
