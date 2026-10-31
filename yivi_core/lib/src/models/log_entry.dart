@@ -230,6 +230,7 @@ class LogFilter {
     this.partyKey,
     this.text,
     this.textOrTypes,
+    this.value,
     this.from,
     this.to,
     this.includeHidden,
@@ -266,6 +267,10 @@ class LogFilter {
   /// Types whose label matched [text] in the app's own language, so they
   /// match too.
   final List<LogType>? textOrTypes;
+
+  /// Every word must occur in the attribute values: only the data, not
+  /// names or messages.
+  final String? value;
 
   /// At or after [from], strictly before [to].
   @JsonKey(toJson: _utc)

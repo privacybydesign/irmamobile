@@ -2,14 +2,14 @@ import "package:material_ui/material_ui.dart";
 
 import "../../package_name.dart";
 
-/// Colours and text styles of the glass redesign, in a light and a dark
+/// Colours and text styles of the redesign, in a light and a dark
 /// variant. New screens read these through [YiviPalette.of] so they follow the
 /// app brightness; the older screens still use [IrmaThemeData] directly.
 @immutable
 class YiviPalette {
   final Brightness brightness;
 
-  /// Page background behind lists and floating glass controls. In the dark
+  /// Page background behind lists and floating controls. In the dark
   /// variant black. Under a [YiviPaletteScope] of a sheet: the sheet.
   ///
   /// In the dark variant every layer is lighter than the one it lies on:
@@ -39,7 +39,7 @@ class YiviPalette {
 
   /// Whether this is the palette for a sheet's content (dark variant only):
   /// [background] is the sheet, [surface] and [tint] are the raised levels,
-  /// and glass that doesn't blur is a solid [surface].
+  /// and what floats on it is a solid [surface].
   final bool onSheet;
 
   /// Body text.
@@ -84,24 +84,12 @@ class YiviPalette {
   /// Text and icons of destructive actions.
   final Color danger;
 
-  /// Highlight behind the selected tab in the glass tab bar and sidebar: a
-  /// white lens in the light variant; in the dark variant a lens darker than
-  /// the bar, so the selected red stands out against it. The one exception
-  /// to "lighter on top": a lighter lens takes the red label below 3:1.
-  final Color lens;
-
   /// Icon and label of the selected tab: the brand red, in the dark variant
-  /// a fully saturated, brighter red (about 5.4:1 on its dark lens).
+  /// a fully saturated, brighter red.
   final Color selectedTab;
 
-  final Color glassFill;
-  final Color glassBorder;
-  final Color glassHighlight;
+  /// The shadow of what floats over the page (the tab bar, menus, toasts).
   final Color glassShadow;
-
-  /// Fill of dialogs and other glass that carries a lot of text: more opaque
-  /// than [glassFill].
-  final Color glassStrongFill;
 
   /// Fill of the button that confirms a destructive action.
   final Color dangerFill;
@@ -145,13 +133,8 @@ class YiviPalette {
     required this.errorSurface,
     required this.errorText,
     required this.danger,
-    required this.lens,
     required this.selectedTab,
-    required this.glassFill,
-    required this.glassBorder,
-    required this.glassHighlight,
     required this.glassShadow,
-    required this.glassStrongFill,
     required this.dangerFill,
     required this.searchMark,
   });
@@ -184,18 +167,13 @@ class YiviPalette {
     errorSurface: Color(0xFFF5DBDB),
     errorText: Color(0xFF9E1414),
     danger: Color(0xFFBD1919),
-    lens: Color(0xD9FFFFFF),
     selectedTab: Color(0xFFBA3354),
-    glassFill: Color(0x8FFFFFFF),
-    glassBorder: Color(0xBFFFFFFF),
-    glassHighlight: Color(0xF2FFFFFF),
     glassShadow: Color(0x1A000000),
-    glassStrongFill: Color(0xD1FFFFFF),
     dangerFill: Color(0xFFBD1919),
     searchMark: Color(0xFFFFE88F),
   );
 
-  // Neutral greys, like the flat see-through glass on them: no blue cast.
+  // Neutral greys: no blue cast.
   static const dark = YiviPalette._(
     brightness: Brightness.dark,
     background: Color(0xFF000000),
@@ -223,15 +201,8 @@ class YiviPalette {
     errorSurface: Color(0xFF3A1A1C),
     errorText: Color(0xFFFF9A9A),
     danger: Color(0xFFFF7A7A),
-    lens: Color(0x8C000000),
     selectedTab: Color(0xFFFF2D55),
-    // White at 12%, as light glass is white: see-through, so what passes
-    // under it shows, blurred; over black just above a card on the page.
-    glassFill: Color(0x1FFFFFFF),
-    glassBorder: Color(0x24FFFFFF),
-    glassHighlight: Color(0x29FFFFFF),
     glassShadow: Color(0x73000000),
-    glassStrongFill: Color(0xE02C2C2E),
     dangerFill: Color(0xFFC42B2B),
     searchMark: Color(0xFF6B5300),
   );
@@ -266,13 +237,8 @@ class YiviPalette {
     errorSurface: light.errorSurface,
     errorText: light.errorText,
     danger: light.danger,
-    lens: light.lens,
     selectedTab: light.selectedTab,
-    glassFill: light.glassFill,
-    glassBorder: light.glassBorder,
-    glassHighlight: light.glassHighlight,
     glassShadow: light.glassShadow,
-    glassStrongFill: light.glassStrongFill,
     dangerFill: light.dangerFill,
     searchMark: light.searchMark,
   );
@@ -306,13 +272,8 @@ class YiviPalette {
     errorSurface: dark.errorSurface,
     errorText: dark.errorText,
     danger: dark.danger,
-    lens: dark.lens,
     selectedTab: dark.selectedTab,
-    glassFill: dark.glassFill,
-    glassBorder: dark.glassBorder,
-    glassHighlight: dark.glassHighlight,
     glassShadow: dark.glassShadow,
-    glassStrongFill: dark.glassStrongFill,
     dangerFill: dark.dangerFill,
     searchMark: dark.searchMark,
   );

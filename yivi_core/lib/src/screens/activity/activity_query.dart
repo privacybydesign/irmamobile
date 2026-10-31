@@ -228,6 +228,9 @@ class ActivityQuery {
   final DateTime? to;
   final String text;
 
+  /// Words to find in the data alone (values, not names or messages).
+  final String value;
+
   const ActivityQuery({
     this.kinds = const {},
     this.card,
@@ -237,6 +240,7 @@ class ActivityQuery {
     this.from,
     this.to,
     this.text = "",
+    this.value = "",
   });
 
   static const empty = ActivityQuery();
@@ -250,6 +254,7 @@ class ActivityQuery {
     DateTime? Function()? from,
     DateTime? Function()? to,
     String? text,
+    String? value,
   }) => ActivityQuery(
     kinds: kinds ?? this.kinds,
     card: card == null ? this.card : card(),
@@ -259,6 +264,7 @@ class ActivityQuery {
     from: from == null ? this.from : from(),
     to: to == null ? this.to : to(),
     text: text ?? this.text,
+    value: value ?? this.value,
   );
 
   /// Another card drops the fields of the one before.
@@ -272,7 +278,8 @@ class ActivityQuery {
       (fields.isNotEmpty ? 1 : 0) +
       (party != null ? 1 : 0) +
       (period != ActivityPeriod.all ? 1 : 0) +
-      (text.trim().isNotEmpty ? 1 : 0);
+      (text.trim().isNotEmpty ? 1 : 0) +
+      (value.trim().isNotEmpty ? 1 : 0);
 
   bool get isEmpty => facetCount == 0;
 
@@ -313,6 +320,7 @@ class ActivityQuery {
           : [for (final t in fields) t.path],
       partyKey: party?.key,
       text: words.isEmpty ? null : words,
+      value: value.trim().isEmpty ? null : value.trim(),
       from: start,
       to: end,
     );
@@ -328,7 +336,8 @@ class ActivityQuery {
       other.period == period &&
       other.from == from &&
       other.to == to &&
-      other.text == text;
+      other.text == text &&
+      other.value == value;
 
   @override
   int get hashCode => Object.hash(
@@ -340,5 +349,6 @@ class ActivityQuery {
     from,
     to,
     text,
+    value,
   );
 }

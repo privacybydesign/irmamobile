@@ -203,10 +203,8 @@ class _Menu<T> extends StatelessWidget {
     const shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
     );
-    // The stronger glass of a toast: the cards under it are busy.
     return GlassSurface(
       shape: shape,
-      fill: palette.glassStrongFill,
       child: Material(
         type: MaterialType.transparency,
         child: SingleChildScrollView(

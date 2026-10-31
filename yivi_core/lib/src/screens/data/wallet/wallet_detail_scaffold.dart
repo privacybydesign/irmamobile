@@ -223,9 +223,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                   top: padding.top + 16,
                   left: 16 + padding.left,
                   right: 16 + padding.right,
-                  // Faded by the glass itself: a FadeTransition would
-                  // darken its blur until the fade ends (see
-                  // GlassSurface.opacity).
+                  // Faded by the surface itself (GlassSurface.opacity).
                   child: AnimatedBuilder(
                     animation: chrome,
                     builder: (context, _) => Row(

@@ -34,7 +34,6 @@ class IrmaPreferences {
          _reportErrorsKey,
          defaultValue: false,
        ),
-       _glassOpaque = preferences.getBool(_glassOpaqueKey, defaultValue: false),
        _acceptedRootedRisk = preferences.getBool(
          _acceptedRootedRiskKey,
          defaultValue: false,
@@ -144,10 +143,6 @@ class IrmaPreferences {
 
   static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;
-
-  /// Developer setting: opaque glass, not see-through (GlassOpaque).
-  static const String _glassOpaqueKey = "preference.debug_glass_opaque";
-  final Preference<bool> _glassOpaque;
 
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
@@ -297,10 +292,6 @@ class IrmaPreferences {
   Stream<bool> getReportErrors() => _reportErrors;
 
   Future<bool> setReportErrors(bool value) => _reportErrors.setValue(value);
-
-  Stream<bool> getGlassOpaque() => _glassOpaque;
-
-  Future<bool> setGlassOpaque(bool value) => _glassOpaque.setValue(value);
 
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
 

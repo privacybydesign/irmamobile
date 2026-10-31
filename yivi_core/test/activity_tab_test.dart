@@ -8,6 +8,7 @@ import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/widgets/glass/home_tab_top.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -245,6 +246,30 @@ void main() {
     );
   });
 
+  testWidgets("the tags pin under the bar as they scroll up to it", (
+    tester,
+  ) async {
+    await pump(tester);
+    await startSearch(tester);
+    await _settle(tester);
+    await tester.tap(find.byKey(const Key("activity_suggestion_kind:shared")));
+    await _settle(tester);
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_chips")), findsOneWidget);
+
+    await tester.drag(find.text("Shop 3"), const Offset(0, -400));
+    await _settle(tester);
+    final pinTop = HomeTabTop.barHeight + HomeTabTop.belowGap;
+    expect(
+      find
+          .byKey(const Key("activity_chips"))
+          .evaluate()
+          .map((e) => tester.getTopLeft(find.byWidget(e.widget)).dy),
+      contains(pinTop),
+    );
+  });
+
   testWidgets("typing suggests the parties that match", (tester) async {
     await pump(tester);
     await startSearch(tester);
@@ -274,6 +299,20 @@ void main() {
     expect(find.byKey(const Key("activity_chip_text")), findsOneWidget);
     expect(find.text("Gemeente"), findsOneWidget);
     expect(find.byKey(const Key("activity_result_count")), findsOneWidget);
+  });
+
+  testWidgets("typed words can be found in the data alone", (tester) async {
+    await pump(tester);
+    await startSearch(tester);
+    await tester.enterText(field, "gmail");
+    await _settle(tester);
+    await tester.tap(find.byKey(const Key("activity_suggestion_value")));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_chip_value")), findsOneWidget);
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await _settle(tester);
+    expect(queries().last.filter.value, "gmail");
+    expect(queries().last.filter.text, isNull);
   });
 
   testWidgets("Cancel leaves the question as it was", (tester) async {

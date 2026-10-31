@@ -79,10 +79,15 @@ void main() {
     });
 
     group("YiviPalette $name", () {
-      test("dialog text on strong glass over the page", () {
-        final card = over(palette.glassStrongFill, palette.background);
-        expect(contrast(palette.heading, card), greaterThanOrEqualTo(aa));
-        expect(contrast(palette.text, card), greaterThanOrEqualTo(aa));
+      test("dialog text on the surface", () {
+        expect(
+          contrast(palette.heading, palette.surface),
+          greaterThanOrEqualTo(aa),
+        );
+        expect(
+          contrast(palette.text, palette.surface),
+          greaterThanOrEqualTo(aa),
+        );
       });
 
       test("status screen text on the background", () {
@@ -167,16 +172,6 @@ void main() {
       lighter(onSheet.surface, p.sheet);
       lighter(onSheet.tint, onSheet.surface);
       expect(onSheet.background, p.sheet);
-    });
-
-    test("floating glass above the cards that scroll under it", () {
-      lighter(p.glassFill, p.background);
-      expect(l(over(p.glassFill, p.background)), greaterThan(l(p.surface)));
-      lighter(p.glassFill, p.surface);
-    });
-
-    test("dialogs above a sheet", () {
-      lighter(p.glassStrongFill, p.sheet);
     });
   });
 }

@@ -106,9 +106,12 @@
         "fields": "Data",
         "search_for": "Search for \"{text}\"",
         "search_where": "In names, data and messages",
+        "value_for": "Data with \"{text}\"",
+        "value_where": "Only in the data itself, across all cards",
         "from_card": "From {card}",
         "last": "{times}, last on {date}"
       },
+      "value_chip": "Data: {text}",
       "fits-0": "Doesn't fit your filters",
       "fits-1": "1 fits your filters",
       "fits-2": "{count} fit your filters",
@@ -263,6 +266,8 @@
       "title": "Contact information"
     },
     "add": {
+      "search": "Search data to add",
+      "no_results": "No data found for “{query}”",
       "demo": "Demo (example data)",
       "staging": "Staging (test environment)",
       "title": "Adding data",
@@ -1419,6 +1424,7 @@
       "button": "Call {requestor}"
     },
     "spot": {
+      "add_first": "Add it to your app first",
       "many": "You pick one when adding",
       "cant": "Can't be added in Yivi. Get it from {issuer} first.",
       "cant_unknown": "Can't be added in Yivi.",

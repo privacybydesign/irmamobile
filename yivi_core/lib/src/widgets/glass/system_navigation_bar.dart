@@ -1,5 +1,3 @@
-import "dart:ui";
-
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,13 +5,12 @@ import "../../screens/home/widgets/home_navigation.dart";
 import "../../theme/yivi_palette.dart";
 import "floating_bar_placement.dart";
 import "glass_sheet.dart";
-import "glass_surface.dart";
 
 /// The system bars for the whole app: the status bar's icons and Android's
 /// navigation buttons dark in light mode and light in dark mode, without the
 /// grey scrim Android puts behind the buttons, and with the back, home and
 /// recents buttons
-/// ([FloatingBarPlacement.buttonNavigation]) a frosted band in the page's
+/// ([FloatingBarPlacement.buttonNavigation]) a solid band in the page's
 /// colour behind them, so content scrolling under them doesn't make them
 /// hard to see; in the sheet's colour while a sheet is open, and none over
 /// the home screen's docked tab bar, which runs under the buttons.
@@ -64,9 +61,6 @@ class SystemNavigationBarStyle extends StatelessWidget {
 class _ButtonsBand extends StatelessWidget {
   const _ButtonsBand();
 
-  static const double _blur = 12;
-  static const double _cover = 0.7;
-
   @override
   Widget build(BuildContext context) => IgnorePointer(
     child: ValueListenableBuilder<bool>(
@@ -79,19 +73,10 @@ class _ButtonsBand extends StatelessWidget {
           // Home's docked tab bar is under the buttons by itself: no band.
           if (sheets == 0 && docked) return const SizedBox.shrink();
           final base = sheets > 0 ? palette.sheet : palette.background;
-          final solid =
-              MediaQuery.highContrastOf(context) || GlassOpaque.of(context);
-          final band = ColoredBox(
+          return ColoredBox(
             key: const Key("navigation_buttons_band"),
-            color: base.withValues(alpha: solid ? 1 : _cover),
+            color: base,
             child: const SizedBox.expand(),
-          );
-          if (solid) return band;
-          return ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
-              child: band,
-            ),
           );
         },
       ),

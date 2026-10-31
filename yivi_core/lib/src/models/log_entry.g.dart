@@ -130,6 +130,7 @@ Map<String, dynamic> _$LogFilterToJson(LogFilter instance) => <String, dynamic>{
   'text_or_types': ?instance.textOrTypes
       ?.map((e) => _$LogTypeEnumMap[e]!)
       .toList(),
+  'value': ?instance.value,
   'from': ?_utc(instance.from),
   'to': ?_utc(instance.to),
   'include_hidden': ?instance.includeHidden,

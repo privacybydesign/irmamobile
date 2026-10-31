@@ -1,5 +1,4 @@
 import "dart:math";
-import "dart:ui";
 
 import "package:flutter/foundation.dart" show listEquals;
 import "package:material_ui/material_ui.dart";
@@ -7,86 +6,27 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 
-/// Where blur under it can be seen. The blur is the most expensive thing the
-/// app draws: Flutter redoes it on every frame, for every piece of glass. So
-/// it is off where it can't be seen:
-/// - [blur] false: glass on a sheet, whose colour is flat;
-/// - [covered]: the page under an open sheet, glass and scroll edges both
-///   (see GlassSheetCover).
-class GlassScope extends InheritedWidget {
-  final bool blur;
-  final bool covered;
-
-  const GlassScope({
-    super.key,
-    this.blur = true,
-    this.covered = false,
-    required super.child,
-  });
-
-  static GlassScope? _of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<GlassScope>();
-
-  /// Whether glass here blurs what is behind it.
-  static bool blurOf(BuildContext context) {
-    if (GlassOpaque.of(context)) return false;
-    final scope = _of(context);
-    return scope == null || (scope.blur && !scope.covered);
-  }
-
-  /// Whether a sheet covers this page.
-  static bool coveredOf(BuildContext context) => _of(context)?.covered ?? false;
-
-  @override
-  bool updateShouldNotify(GlassScope oldWidget) =>
-      oldWidget.blur != blur || oldWidget.covered != covered;
-}
-
-/// The developer setting "Opaque glass": every piece of glass, scroll edges
-/// included, is drawn in its own colour over the page, not see-through and
-/// without blur, to feel on a device what the glass costs. Set once around
-/// the app's pages, above any [GlassScope], so a sheet's own scope doesn't
-/// undo it.
-class GlassOpaque extends InheritedWidget {
-  final bool opaque;
-
-  const GlassOpaque({super.key, required this.opaque, required super.child});
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<GlassOpaque>()?.opaque ??
-      false;
-
-  @override
-  bool updateShouldNotify(GlassOpaque oldWidget) => oldWidget.opaque != opaque;
-}
-
-/// Frosted glass: a blurred, translucent fill with a light inner edge and a
-/// soft shadow. Turns into a solid surface when the platform asks for less
-/// transparency (high contrast), so text on it always stays readable.
+/// The surface of what floats over the page (the tab bar, a menu, a toast,
+/// a round button) or holds a sheet: solid, in the surface colour, with a
+/// thin edge and, as it floats, a soft shadow. No glass: the same on iOS and
+/// Android, and nothing to blur on every frame.
 class GlassSurface extends StatelessWidget {
   final Widget child;
   final ShapeBorder shape;
   final EdgeInsetsGeometry? padding;
 
-  /// Replaces the glass fill, e.g. for the tinted QR button.
+  /// Replaces the surface colour, e.g. for a tinted chip or the sheet.
   final Color? fill;
 
-  /// Blurs what is behind it; by default as its [GlassScope] says.
-  final bool? blur;
-
-  /// Fades the glass in or out. Use this instead of an [Opacity] or a
-  /// [FadeTransition] around it: inside their offscreen layer the blur
-  /// samples that empty layer, so the glass looks dark until the fade ends
-  /// and then jumps to its real look. Here the fill, edge, shadow and blur
-  /// strength fade, and only [child] goes through an opacity layer.
+  /// Fades the surface in or out: its fill, edge and shadow, and [child].
   final double opacity;
 
-  /// Dark glass, for a camera picture or a photo: a smoky fill with a faint
-  /// rim and no light sheen, in either theme. Give its content white.
+  /// Over a camera picture or a photo: dark, in either theme. Give its
+  /// content white.
   final bool dark;
 
-  /// The light edge round the glass; off for content that fills it edge to
-  /// edge in a dark colour.
+  /// The thin edge round it; off for content that fills it edge to edge in
+  /// a dark colour.
   final bool rim;
 
   const GlassSurface({
@@ -96,118 +36,30 @@ class GlassSurface extends StatelessWidget {
     this.padding,
     this.fill,
     this.opacity = 1,
-    this.blur,
     this.dark = false,
     this.rim = true,
   });
 
-  /// The fill and rim of [dark] glass.
-  static const darkFill = Color(0x8C282C32);
+  /// The fill and edge of a [dark] surface.
+  static const darkFill = Color(0xFF282C32);
   static const darkRim = Color(0x29FFFFFF);
-
-  /// The fill of a round button or key on a dark sheet: white at 10%, a
-  /// little lighter than the sheet and see-through, like the glass on the
-  /// page.
-  static const darkSheetButtonFill = Color(0x1AFFFFFF);
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final solid = MediaQuery.highContrastOf(context);
-    final opaque = GlassOpaque.of(context);
     final a = opacity.clamp(0.0, 1.0);
     Color fade(Color c) => a == 1 ? c : c.withValues(alpha: c.a * a);
-    // A round button on a dark sheet: see-through and blurred, as on the
-    // page. It is small, so its blur costs little; the sheet's other glass
-    // stays unblurred.
-    final sheetButton =
-        palette.isDark &&
-        palette.onSheet &&
-        !dark &&
-        !solid &&
-        fill == null &&
-        shape is CircleBorder;
-    // Other glass on a sheet doesn't blur and would only darken or barely
-    // lift the flat sheet: a solid fill one level above it instead.
-    final glassFill =
-        fill ??
-        (dark
-            ? (solid ? const Color(0xFF282C32) : darkFill)
-            : sheetButton
-            ? darkSheetButtonFill
-            : (solid || palette.onSheet ? palette.surface : palette.glassFill));
-    // Dark glass lies over a dark picture, not over the page.
-    final under = dark ? Colors.black : palette.background;
-    final edge = dark ? darkRim : palette.glassBorder;
-    final sheen = dark ? 0.0 : (solid ? 0.0 : palette.glassHighlight.a * 0.35);
-    // Dark theme glass is flat: only its see-through fill, no sheen and no
-    // rim, which looked cheap there. High contrast keeps the rim.
-    final flat = palette.isDark && !dark && !solid;
+    final surface = fill ?? (dark ? darkFill : palette.surface);
+    final edge = dark ? darkRim : palette.divider;
     final padded = Padding(
       padding: padding ?? EdgeInsets.zero,
       child: a == 1 ? child : Opacity(opacity: a, child: child),
     );
-
-    final shaped = ClipPath(
-      clipper: ShapeBorderClipper(shape: shape),
-      child: _maybeBlur(
-        solid:
-            solid ||
-            opaque ||
-            !(blur ?? (sheetButton || GlassScope.blurOf(context))),
-        sigma: 18 * a,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: shape,
-            // Opaque glass: its colour as it looks over the page.
-            color: fade(
-              opaque ? Color.alphaBlend(glassFill, under) : glassFill,
-            ),
-          ),
-          position: DecorationPosition.background,
-          child: flat
-              ? padded
-              : DecoratedBox(
-                  // The soft sheen along the top that makes it read as glass. It
-                  // lies on the glass, behind the content: in front of it, it
-                  // veiled whatever sat in the top half (a sheet's logo and
-                  // heading came out washed out).
-                  decoration: ShapeDecoration(
-                    shape: shape,
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        // A share of the theme's own highlight: a soft white
-                        // sheen in light, only a faint one on dark glass (an
-                        // absolute 35% white glowed there).
-                        palette.glassHighlight.withValues(alpha: sheen * a),
-                        palette.glassHighlight.withValues(alpha: 0),
-                      ],
-                      stops: const [0, 0.5],
-                    ),
-                  ),
-                  position: DecorationPosition.background,
-                  child: DecoratedBox(
-                    // The light edge, in front so content scrolling under it
-                    // keeps a crisp rim.
-                    decoration: ShapeDecoration(
-                      shape: rim ? _withSide(shape, fade(edge)) : shape,
-                    ),
-                    position: DecorationPosition.foreground,
-                    child: padded,
-                  ),
-                ),
-        ),
-      ),
-    );
-
     return CustomPaint(
       painter: _OuterShadowPainter(
         shape: shape,
-        // Nothing shows through opaque glass: no need to keep the shadow
-        // from under it.
-        under: opaque || glassFill.a == 1,
+        // Nothing shows through a solid surface: the shadow may be under it.
+        under: surface.a == 1 && a == 1,
         shadows: [
           BoxShadow(
             color: fade(palette.glassShadow),
@@ -221,19 +73,20 @@ class GlassSurface extends StatelessWidget {
           ),
         ],
       ),
-      child: shaped,
-    );
-  }
-
-  Widget _maybeBlur({
-    required bool solid,
-    required double sigma,
-    required Widget child,
-  }) {
-    if (solid || sigma <= 0) return child;
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-      child: child,
+      child: ClipPath(
+        clipper: ShapeBorderClipper(shape: shape),
+        child: DecoratedBox(
+          decoration: ShapeDecoration(shape: shape, color: fade(surface)),
+          child: DecoratedBox(
+            // The edge in front, so content under it keeps a crisp line.
+            decoration: ShapeDecoration(
+              shape: rim ? _withSide(shape, fade(edge)) : shape,
+            ),
+            position: DecorationPosition.foreground,
+            child: padded,
+          ),
+        ),
+      ),
     );
   }
 
@@ -251,10 +104,8 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
-/// Paints [shadows] around [shape], and not under it unless [under]. A
-/// shadow under translucent glass would show through it, and the blur would
-/// pick it up, so the glass looked dark (a black slab in the dark theme)
-/// wherever content scrolled underneath.
+/// Paints [shadows] around [shape], and not under it unless [under]: a
+/// shadow under a see-through fill would show through it.
 ///
 /// Cheap to draw: each shadow is a blurred rounded rectangle, which the
 /// renderer draws directly, where a blurred path is blurred in a layer of

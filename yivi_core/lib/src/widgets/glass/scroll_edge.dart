@@ -1,11 +1,8 @@
-import "dart:ui";
-
 import "package:flutter/foundation.dart";
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
-import "glass_surface.dart";
 
 /// How far content has scrolled under a bar, from 0 (nothing under it) to 1
 /// (a few points or more). Feed it the notifications of the scroll view
@@ -57,20 +54,17 @@ class ScrollEdgeListener extends StatelessWidget {
   );
 }
 
-/// The edge under a bar once content scrolls under it, as the "hard" scroll
-/// edge of iOS 27: from the top of the screen (or sheet) down to the bar's
-/// bottom, the content under it is blurred and mostly covered by
-/// [color], and a hairline marks where the bar ends. With nothing under
-/// the bar there is no band and no line.
+/// The bar behind a page's or sheet's header once content scrolls under it:
+/// solid, a shade lighter than [color] as content comes under it, with a
+/// hairline where the bar ends. With nothing under the bar there is no band
+/// and no line. The same on iOS and Android: no glass.
 ///
-/// Measured on iOS 27: content shows through at about 30 % (light) to 40 %
-/// (dark), the edge is sharp, and its line is black at 10 % (light) or
-/// white at 13 % (dark), one pixel thick.
+/// Its line is black at 10 % (light) or white at 13 % (dark), one pixel
+/// thick, as the iOS 27 scroll edge.
 ///
 /// Fills the space its parent gives it; put it behind the bar's content.
 /// [under] is how far content is under the bar (see [ScrollEdgeNotifier]);
-/// [opacity] fades the whole edge with the bar (it is passed to the blur and
-/// colours, not put in an [Opacity], which would darken the blur).
+/// [opacity] fades the whole edge with the bar.
 class ScrollEdgeBand extends StatelessWidget {
   final ValueListenable<double> under;
 
@@ -79,20 +73,12 @@ class ScrollEdgeBand extends StatelessWidget {
   final Color? color;
   final double opacity;
 
-  /// Opaque, without blur, and a shade lighter than the page as content
-  /// comes under it: the home screen's top bar, which is solid.
-  final bool solid;
-
   const ScrollEdgeBand({
     super.key,
     required this.under,
     this.color,
     this.opacity = 1,
-    this.solid = false,
   });
-
-  static const double _blur = 12;
-  static const double _cover = 0.7;
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
@@ -105,28 +91,19 @@ class ScrollEdgeBand extends StatelessWidget {
   Widget _band(BuildContext context, double t) {
     if (t <= 0) return const SizedBox.expand();
     final palette = YiviPalette.of(context);
-    // Opaque glass (developer setting): the band in full colour, as with
-    // high contrast.
-    final solid =
-        this.solid ||
-        MediaQuery.highContrastOf(context) ||
-        GlassOpaque.of(context);
-    // Under an open sheet nothing of it shows: no blur to redo every frame.
-    final blur = !GlassScope.coveredOf(context);
     final base = color ?? palette.background;
-    // In dark mode the frost is a shade lighter than the page, as on iOS.
-    final fill = this.solid
-        ? Color.lerp(base, Colors.white, (palette.isDark ? 0.09 : 0.6) * t)!
-        : palette.isDark
-        ? Color.lerp(base, Colors.white, 0.03)!
-        : base;
+    final fill = Color.lerp(
+      base,
+      Colors.white,
+      (palette.isDark ? 0.09 : 0.6) * t,
+    )!;
     final line = palette.isDark
         ? const Color(0x21FFFFFF)
         : const Color(0x1A000000);
     final band = DecoratedBox(
       key: const Key("scroll_edge_band"),
       decoration: BoxDecoration(
-        color: fill.withValues(alpha: fill.a * (solid ? 1 : _cover) * t),
+        color: fill.withValues(alpha: fill.a * t),
         border: Border(
           bottom: BorderSide(
             color: line.withValues(alpha: line.a * t),
@@ -136,13 +113,7 @@ class ScrollEdgeBand extends StatelessWidget {
       ),
       child: const SizedBox.expand(),
     );
-    if (solid || !blur) return band;
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: _blur * t, sigmaY: _blur * t),
-        child: band,
-      ),
-    );
+    return band;
   }
 }
 

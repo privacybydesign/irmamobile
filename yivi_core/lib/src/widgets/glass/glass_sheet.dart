@@ -665,7 +665,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   }
 }
 
-/// The look of every sheet: frosted glass, corners of 38 (concentric with a
+/// The look of every sheet: solid, corners of 38 (concentric with a
 /// 44 close button inset 16). Attached to the bottom edge it has square
 /// bottom corners, which the screen's own corners round off.
 class _GlassSheet extends StatefulWidget {
@@ -778,10 +778,7 @@ class _GlassSheetState extends State<_GlassSheet>
         : const BorderRadius.all(_GlassSheet._radius);
     final shape = RoundedRectangleBorder(borderRadius: radius);
     final media = MediaQuery.of(context);
-    // Opaque and not blurred: the glass fill let only a trace of the blurred
-    // page through, and that blur, redone every frame over the whole sheet,
-    // was the costliest thing on screen. The sheet level: in light the page
-    // colour, so its white cards stand out without a shadow; in dark below
+    // Solid, at the sheet level: in light the page colour, so its white cards stand out without a shadow; in dark below
     // the raised cards in it ([YiviPaletteScope]).
     final fill = palette.sheet;
     return ValueListenableBuilder<int>(
@@ -789,13 +786,10 @@ class _GlassSheetState extends State<_GlassSheet>
       builder: (context, hiders, child) => GlassSurface(
         key: const Key("glass_sheet"),
         fill: fill,
-        blur: false,
         rim: hiders == 0,
         shape: shape,
         child: child!,
       ),
-      // Glass on the sheet would only blur its flat colour; the sheet's own
-      // scroll edge does blur its content (it is not covered).
       child: _SheetRim(
         hiders: _rimHiders,
         // Its content lays out by the sheet's width, not the screen's
@@ -803,40 +797,36 @@ class _GlassSheetState extends State<_GlassSheet>
         child: LayoutBuilder(
           builder: (context, constraints) => SheetWidthScope(
             width: constraints.maxWidth,
-            child: GlassScope(
-              blur: false,
-              covered: false,
-              child: ClipPath(
-                clipper: ShapeBorderClipper(shape: shape),
-                child: _SheetHeight(
-                  height: full == null ? null : _height,
-                  onLaidOut: (h) => _laidOut = h,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: keyboard),
-                    child: MediaQuery(
-                      data: media.copyWith(
-                        padding: media.padding.copyWith(
-                          top: 0,
-                          bottom: 20 + bottomInset,
-                          // In landscape the sheet sits between the side insets.
-                          left: 0,
-                          right: 0,
-                        ),
-                        // The device's inset where the sheet meets the bottom edge,
-                        // so a button lands where it does on a full screen.
-                        viewPadding: media.viewPadding.copyWith(
-                          top: 0,
-                          bottom: attached ? media.viewPadding.bottom : 0,
-                        ),
+            child: ClipPath(
+              clipper: ShapeBorderClipper(shape: shape),
+              child: _SheetHeight(
+                height: full == null ? null : _height,
+                onLaidOut: (h) => _laidOut = h,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: keyboard),
+                  child: MediaQuery(
+                    data: media.copyWith(
+                      padding: media.padding.copyWith(
+                        top: 0,
+                        bottom: 20 + bottomInset,
+                        // In landscape the sheet sits between the side insets.
+                        left: 0,
+                        right: 0,
                       ),
-                      // Its bar has text buttons when it floats.
-                      child: GlassSheetFloating(
-                        floating: !attached,
-                        child: _SheetFit(
-                          report: full == null ? null : _report,
-                          // Cards on the sheet one level above it.
-                          child: YiviPaletteScope.onSheet(child: widget.child),
-                        ),
+                      // The device's inset where the sheet meets the bottom edge,
+                      // so a button lands where it does on a full screen.
+                      viewPadding: media.viewPadding.copyWith(
+                        top: 0,
+                        bottom: attached ? media.viewPadding.bottom : 0,
+                      ),
+                    ),
+                    // Its bar has text buttons when it floats.
+                    child: GlassSheetFloating(
+                      floating: !attached,
+                      child: _SheetFit(
+                        report: full == null ? null : _report,
+                        // Cards on the sheet one level above it.
+                        child: YiviPaletteScope.onSheet(child: widget.child),
                       ),
                     ),
                   ),
@@ -1061,6 +1051,11 @@ class GlassSheetHeader extends StatelessWidget {
   /// Without [onBack] only.
   final bool closeAtStart;
 
+  /// A button of the page's own (Add data's search, once its field has
+  /// scrolled away): at the start of the bar, or before the buttons at the
+  /// end when the start is taken.
+  final Widget? leading;
+
   /// The title fades while pages of [GlassSheetPages] change (the bar
   /// itself stays put); null when it simply shows.
   final Animation<double>? titleOpacity;
@@ -1090,6 +1085,7 @@ class GlassSheetHeader extends StatelessWidget {
     this.onAction,
     this.closable = true,
     this.closeAtStart = false,
+    this.leading,
     this.titleOpacity,
     this.backOpacity,
     this.actionOpacity,
@@ -1176,7 +1172,8 @@ class GlassSheetHeader extends StatelessWidget {
     final closable = this.closable || keepsClose;
     final closeStart =
         !floating && closable && closeAtStart && onBack == null && !keepsClose;
-    final Widget? start = closeStart
+    final leading = this.leading == null ? null : shown(this.leading!);
+    final Widget? taken = closeStart
         ? shown(IrmaCloseButton(onTap: close))
         : floating
         ? (onBack != null || closable
@@ -1200,7 +1197,9 @@ class GlassSheetHeader extends StatelessWidget {
                   ),
                 )
               : null);
+    final start = taken ?? leading;
     final end = <Widget>[
+      if (taken != null) ?leading,
       if (action != null)
         Flexible(
           child: shown(
@@ -1231,7 +1230,10 @@ class GlassSheetHeader extends StatelessWidget {
       child: SizedBox(
         height: 44,
         child: CustomMultiChildLayout(
-          delegate: _BarLayout(Directionality.of(context)),
+          delegate: _BarLayout(
+            Directionality.of(context),
+            fill: titleWidget != null,
+          ),
           children: [
             if (start != null) LayoutId(id: _BarSlot.start, child: start),
             LayoutId(id: _BarSlot.title, child: heading),
@@ -1257,6 +1259,7 @@ class GlassSheetHeader extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final titleWidget = this.titleWidget!;
     final subtitle = this.subtitle;
+    final leading = this.leading;
     final text = Semantics(
       header: true,
       namesRoute: true,
@@ -1307,6 +1310,7 @@ class GlassSheetHeader extends StatelessWidget {
                 child: titleWidget,
               ),
             ),
+            ?leading,
             if (closable)
               Visibility(
                 visible: buttons,
@@ -1331,7 +1335,11 @@ enum _BarSlot { start, title, end }
 class _BarLayout extends MultiChildLayoutDelegate {
   final TextDirection direction;
 
-  _BarLayout(this.direction);
+  /// The title's place fills the room between the buttons, not centred
+  /// (a search field in it).
+  final bool fill;
+
+  _BarLayout(this.direction, {this.fill = false});
 
   static const double _gap = 12;
 
@@ -1350,9 +1358,13 @@ class _BarLayout extends MultiChildLayoutDelegate {
       endSize = layoutChild(_BarSlot.end, loose);
       endWidth = endSize.width;
     }
+    final ltr = direction == TextDirection.ltr;
+    double clear(double width) => width == 0 ? 0.0 : width + _gap;
+    // Centred: as much room on either side. Filling: up to each button.
     final side = math.max(startWidth, endWidth);
-    final clear = side == 0 ? 0.0 : side + _gap;
-    final titleWidth = math.max(0.0, size.width - 2 * clear);
+    final before = fill ? clear(ltr ? startWidth : endWidth) : clear(side);
+    final after = fill ? clear(ltr ? endWidth : startWidth) : clear(side);
+    final titleWidth = math.max(0.0, size.width - before - after);
     final titleSize = layoutChild(
       _BarSlot.title,
       BoxConstraints(
@@ -1363,9 +1375,8 @@ class _BarLayout extends MultiChildLayoutDelegate {
     );
     positionChild(
       _BarSlot.title,
-      Offset(clear, (size.height - titleSize.height) / 2),
+      Offset(before, (size.height - titleSize.height) / 2),
     );
-    final ltr = direction == TextDirection.ltr;
     if (startSize != null) {
       positionChild(
         _BarSlot.start,
@@ -1387,7 +1398,8 @@ class _BarLayout extends MultiChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(_BarLayout old) => old.direction != direction;
+  bool shouldRelayout(_BarLayout old) =>
+      old.direction != direction || old.fill != fill;
 }
 
 /// A text button in the bar of a tablet's form sheet: "Cancel", or "‹ Back"
@@ -2036,6 +2048,9 @@ class GlassSheetPage extends StatefulWidget {
   /// See [GlassSheetHeader.closeAtStart].
   final bool closeAtStart;
 
+  /// See [GlassSheetHeader.leading].
+  final Widget? leading;
+
   /// Right under the title bar, the full width of the sheet, and above the
   /// scrolling [child], staying put while the page scrolls (the progress of
   /// adding a card).
@@ -2089,6 +2104,7 @@ class GlassSheetPage extends StatefulWidget {
     this.action,
     this.closable = true,
     this.closeAtStart = false,
+    this.leading,
     this.pinned,
     this.subtitle,
     EdgeInsets padding = EdgeInsets.zero,
@@ -2189,6 +2205,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                 : () => _slot.action?.onTap?.call(),
             closable: widget.closable,
             closeAtStart: widget.closeAtStart,
+            leading: widget.leading,
             buttons: top,
             titleOpacity: role?.titleOpacity,
             backOpacity: moving && other != null && !other.back
@@ -2217,8 +2234,8 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       behavior: HitTestBehavior.opaque,
       child: Stack(
         children: [
-          // Clipped to the sheet's top corners itself: its blur doesn't
-          // follow the sheet's rounded clip, and filled the corners square.
+          // Clipped to the sheet's top corners itself: it is drawn outside
+          // the sheet's rounded clip, and filled the corners square.
           if (widget.edge)
             Positioned.fill(
               child: ClipRRect(
@@ -2465,34 +2482,10 @@ Future<void> showTitledGlassSheet({
   ),
 );
 
-/// Tells the page under an open sheet that it is covered: its glass and
-/// scroll edges stop blurring ([GlassScope.covered]) while a sheet is fully
-/// open, and blur again as it starts to close. The sheet covers all of the
-/// page but a dimmed strip at the top, so that blur, redone every frame,
-/// could not be seen. Wraps the app's pages, and also carries the developer
-/// setting [opaqueGlass] ([GlassOpaque]).
-class GlassSheetCover extends StatelessWidget {
-  /// How many sheets are fully open.
+/// How many sheets are fully open: the band behind Android's buttons then
+/// takes the sheet's colour.
+abstract final class GlassSheetCover {
   static final covering = ValueNotifier<int>(0);
-
-  final Widget child;
-  final bool opaqueGlass;
-
-  const GlassSheetCover({
-    super.key,
-    required this.child,
-    this.opaqueGlass = false,
-  });
-
-  @override
-  Widget build(BuildContext context) => GlassOpaque(
-    opaque: opaqueGlass,
-    child: ValueListenableBuilder<int>(
-      valueListenable: covering,
-      builder: (context, n, child) => GlassScope(covered: n > 0, child: child!),
-      child: child,
-    ),
-  );
 }
 
 /// Clips at the bottom and the sides' far reaches only: open above, so a

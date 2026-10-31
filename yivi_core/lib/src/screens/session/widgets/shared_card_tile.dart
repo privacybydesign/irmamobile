@@ -66,9 +66,8 @@ class SharedCardTile extends ConsumerWidget {
   final bool isNew;
 
   /// Optional data that is not included: the card at half strength inside a
-  /// dashed edge, with [dashGap] left open for a pill on that edge.
+  /// dashed edge.
   final bool ghost;
-  final ({double width, double fromEnd})? dashGap;
 
   const SharedCardTile({
     super.key,
@@ -82,7 +81,6 @@ class SharedCardTile extends ConsumerWidget {
     this.problemStrip = false,
     this.isNew = false,
     this.ghost = false,
-    this.dashGap,
   }) : assert((fixLabel == null) == (onFix == null));
 
   /// The chip label of [problem] ("Revoked", "Expired").
@@ -165,7 +163,6 @@ class SharedCardTile extends ConsumerWidget {
       footer: bottom,
       dashed: ghost,
       faded: ghost,
-      dashGap: dashGap,
       art: _landing(
         context,
         CardTileMiniCards(cards: [for (final c in cards) _cardFor(c, wallet)]),

@@ -1078,7 +1078,9 @@ void main() {
       }
     });
 
-    testWidgets("the Add pill on the spot's edge opens it too", (tester) async {
+    testWidgets("the Add pill in the spot's strip opens it too", (
+      tester,
+    ) async {
       await _pump(
         tester,
         session: _session([
@@ -1089,10 +1091,8 @@ void main() {
           ),
         ]),
       );
-      // The pill's top half sticks out above the dashed edge.
-      final pill = find.byKey(const Key("empty_spot_add"));
-      final rect = tester.getRect(pill);
-      await tester.tapAt(rect.topCenter + const Offset(0, 6));
+      expect(find.text("Add it to your app first"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("empty_spot_add")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
     });

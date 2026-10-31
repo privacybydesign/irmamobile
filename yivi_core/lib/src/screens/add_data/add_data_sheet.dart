@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
@@ -13,13 +14,17 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/nfc_credentials.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
+import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
+import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/glass/round_icon_button.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../session/widgets/issue_flow.dart";
 
@@ -127,12 +132,27 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   Widget? _listPage;
   String? _listPageFor;
 
+  /// What is typed in the search. Kept here, not on the list page: a step
+  /// further than the details drops the list page, and coming back to it
+  /// the search is still there.
+  final _search = TextEditingController();
+
   Widget get _list {
     if (_listPage == null || _listPageFor != _justAdded) {
       _listPageFor = _justAdded;
-      _listPage = _AddDataListPage(justAdded: _justAdded, onOpen: _open);
+      _listPage = _AddDataListPage(
+        justAdded: _justAdded,
+        search: _search,
+        onOpen: _open,
+      );
     }
     return _listPage!;
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
   }
 
   @override
@@ -234,16 +254,83 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
 class _AddDataListPage extends ConsumerStatefulWidget {
   /// The name of the card just added with "Add more", noted at the top.
   final String? justAdded;
+
+  /// The search, owned by the sheet so it outlives this page.
+  final TextEditingController search;
   final void Function(CredentialStoreItem item, {required bool nfcBlocked})
   onOpen;
 
-  const _AddDataListPage({required this.justAdded, required this.onOpen});
+  const _AddDataListPage({
+    required this.justAdded,
+    required this.search,
+    required this.onOpen,
+  });
 
   @override
   ConsumerState<_AddDataListPage> createState() => _AddDataListPageState();
 }
 
+/// The search: a field at the top of the list, as on the Data tab, that
+/// scrolls away and leaves a search button at the start of the bar. A tap on
+/// either puts the field in the bar to type in; it goes back once it is
+/// empty and left.
 class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
+  TextEditingController get _search => widget.search;
+  final _focus = FocusNode();
+
+  /// The list's field has scrolled away under the bar.
+  bool _pastField = false;
+
+  /// The field is in the bar.
+  late bool _inBar = _search.text.isNotEmpty;
+
+  /// How far the list scrolls before its field is gone: the field and the
+  /// gap under it, half of it.
+  static const _fieldGap = 12.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_leaveBar);
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    final past =
+        n.metrics.pixels - n.metrics.minScrollExtent >
+        HomeTabSearchField.height / 2 + _fieldGap;
+    if (past != _pastField) setState(() => _pastField = past);
+    return false;
+  }
+
+  void _toBar() {
+    setState(() => _inBar = true);
+    afterFrame(() {
+      if (mounted) _focus.requestFocus();
+    });
+  }
+
+  /// Out of the bar once left empty.
+  void _leaveBar() {
+    if (!_focus.hasFocus && _search.text.trim().isEmpty && _inBar) {
+      setState(() => _inBar = false);
+    }
+  }
+
+  bool _matches(CredentialStoreItem item) {
+    final query = normaliseForSearch(_search.text.trim());
+    if (query.isEmpty) return true;
+    final credential = item.credential;
+    return normaliseForSearch(credential.name).contains(query) ||
+        normaliseForSearch(credential.issuer.name).contains(query);
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -293,9 +380,24 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       ],
       AsyncData(value: final value) => () {
         final groups = [
-          for (final group in value) (group, group.items),
+          for (final group in value)
+            (group, group.items.where(_matches).toList()),
         ].where((g) => g.$2.isNotEmpty).toList();
         return [
+          if (groups.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Text(
+                  context.tr("data.add.no_results", {
+                    "query": _search.text.trim(),
+                  }),
+                  key: const Key("add_data_no_results"),
+                  textAlign: TextAlign.center,
+                  style: palette.body(16).copyWith(color: palette.heading),
+                ),
+              ),
+            ),
           // A phone held sideways: each type a card of its own, two side by
           // side, under the category's name.
           if (landscape)
@@ -352,14 +454,46 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     };
 
     final justAdded = widget.justAdded;
-    return GlassSheetPage(
+    final page = GlassSheetPage(
       title: context.tr("data.add.title"),
+      titleWidget: _inBar
+          ? GlassSearchField(
+              fieldKey: const Key("add_data_search_bar"),
+              hintKey: "data.add.search",
+              controller: _search,
+              focusNode: _focus,
+              height: 44,
+              onChanged: (_) => setState(() {}),
+            )
+          : null,
+      // Once the list's field has gone under the bar, a button brings it
+      // back there.
+      leading: _pastField && !_inBar
+          ? RoundIconButton(
+              key: const Key("add_data_search_button"),
+              icon: Icons.search,
+              label: context.tr("data.add.search"),
+              onTap: _toBar,
+            )
+          : null,
       // The close button at the top right on a phone held upright, as in
       // other sheets; on a tablet and a phone held sideways at the top left,
       // where the pages after this one keep the top right for the way on.
       closeAtStart: useFormSheet(context) || usePhoneLandscape(context),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       slivers: [
+        // In the bar while searching, as the Data tab's: then not here.
+        if (!_inBar)
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: _fieldGap),
+            sliver: SliverToBoxAdapter(
+              child: HomeTabSearchField(
+                key: const Key("add_data_search"),
+                hint: context.tr("data.add.search"),
+                onTap: _toBar,
+              ),
+            ),
+          ),
         if (justAdded != null)
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 16),
@@ -404,6 +538,10 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
           ),
         ...body,
       ],
+    );
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScroll,
+      child: page,
     );
   }
 

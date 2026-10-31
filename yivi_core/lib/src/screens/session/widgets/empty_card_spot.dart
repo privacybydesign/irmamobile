@@ -46,8 +46,9 @@ List<(String, String)> emptySpotRows(
 /// A card that is not in the app yet: a dashed spot in the shape of the card
 /// it will be, with a dashed card where that card lands, its name, and what
 /// it will share, still empty ("Not in your app yet", or the value it must
-/// have). When it can be added, an "Add" pill sits on its top edge, at the
-/// end, where the dashed line breaks for it: the name keeps the whole line.
+/// have). When it can be added, a strip at its foot says to add it first,
+/// with an "Add" pill: the same strip a card with a choice has, with
+/// "Change choice".
 ///
 /// The one widget for this: on the share screen for a required card, and in
 /// the Change sheet for each type that can be added.
@@ -88,11 +89,6 @@ class EmptyCardSpot extends StatelessWidget {
   /// The pill's label; "Add" by default ("Add both" for a set).
   final String? addLabel;
 
-  /// Room above the dashed edge for the half of the pill that sticks out,
-  /// as much as the gap between cards, so a spot lines up with a card. It
-  /// is part of the spot's tap area.
-  static const double edgeRoom = 12;
-
   const EmptyCardSpot({
     super.key,
     this.landingKey,
@@ -109,29 +105,6 @@ class EmptyCardSpot extends StatelessWidget {
     this.addLabel,
   });
 
-  /// The gap a dashed top edge leaves for an [EdgeAddPill] with [label].
-  static ({double width, double fromEnd}) dashGapFor(
-    BuildContext context,
-    String label,
-  ) => (width: pillWidth(context, label) + 8, fromEnd: EdgeAddPill.end - 4);
-
-  /// The width of a [SmallPill] with an icon, so a dashed line can leave
-  /// it out.
-  static double pillWidth(BuildContext context, String label) {
-    final palette = YiviPalette.of(context);
-    final text = TextPainter(
-      text: TextSpan(
-        text: label,
-        style: palette.body(13, weight: FontWeight.w600),
-      ),
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-      maxLines: 1,
-    )..layout();
-    // SmallPill with an icon: 10 + icon 16 + 6 + text + 14.
-    return (10 + 16 + 6 + text.width + 14).ceilToDouble();
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -144,7 +117,6 @@ class EmptyCardSpot extends StatelessWidget {
       dashed: true,
       titleMaxLines: choice == null ? 1 : 3,
       subtitleMaxLines: together ? 3 : 1,
-      dashGap: canAdd ? dashGapFor(context, addLabel) : null,
       art: choice != null
           ? SizedBox(
               key: landingKey,
@@ -172,6 +144,27 @@ class EmptyCardSpot extends StatelessWidget {
             ),
       title: title,
       subtitle: subtitle,
+      footer: canAdd
+          ? CardTileStrip(
+              children: [
+                Expanded(
+                  child: Text(
+                    FlutterI18n.translate(context, "share.spot.add_first"),
+                    style: palette
+                        .body(13.5)
+                        .copyWith(height: 19 / 13.5, color: palette.heading),
+                  ),
+                ),
+                // Says what a tap does; the whole spot is the button.
+                SmallPill(
+                  key: const Key("empty_spot_add"),
+                  label: addLabel,
+                  tone: SmallPillTone.surface,
+                  onPressed: onTap,
+                ),
+              ],
+            )
+          : null,
       body: [
         if (rows.isNotEmpty)
           Column(
@@ -208,34 +201,15 @@ class EmptyCardSpot extends StatelessWidget {
           ),
       ],
     );
-    final spot = Stack(
-      clipBehavior: Clip.none,
-      children: [
-        CardTileOutline(shown: selected, child: tile),
-        if (canAdd)
-          // Says what a tap does; the whole spot is the button.
-          EdgeAddPill(
-            pillKey: const Key("empty_spot_add"),
-            label: addLabel,
-            onPressed: onTap,
-          ),
-      ],
-    );
+    final spot = CardTileOutline(shown: selected, child: tile);
     return Semantics(
       button: canAdd,
-      // The room above the edge is part of the tap area: the pill's top
-      // half is in it.
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         onTapDown: onTapDown == null ? null : (_) => onTapDown!(),
         onTapCancel: onTapCancel,
-        child: Padding(
-          padding: EdgeInsets.only(top: canAdd ? edgeRoom : 0),
-          child: canAdd
-              ? PressScale(scale: PressScale.card, child: spot)
-              : spot,
-        ),
+        child: canAdd ? PressScale(scale: PressScale.card, child: spot) : spot,
       ),
     );
   }
@@ -309,38 +283,4 @@ class _KindsArt extends StatelessWidget {
       ),
     );
   }
-}
-
-/// "+ {label}" on the top edge of a dashed card, in a [Stack] over it: it
-/// says what a tap does, and the whole card is the button.
-class EdgeAddPill extends StatelessWidget {
-  /// How far from the end of the top edge the pill sits.
-  static const end = 16.0;
-
-  final Key? pillKey;
-  final String label;
-  final VoidCallback? onPressed;
-
-  const EdgeAddPill({
-    super.key,
-    this.pillKey,
-    required this.label,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) => PositionedDirectional(
-    top: -SmallPill.height / 2,
-    end: end,
-    child: IgnorePointer(
-      child: ExcludeSemantics(
-        child: SmallPill(
-          key: pillKey,
-          label: label,
-          icon: Icons.add_rounded,
-          onPressed: onPressed,
-        ),
-      ),
-    ),
-  );
 }

@@ -35,10 +35,6 @@ class CardTile extends StatelessWidget {
   /// outline in [outline] instead of a shadow.
   final bool dashed;
 
-  /// Where the dashed outline breaks along the top edge, for a button that
-  /// sits on it: the gap's width and its distance from the trailing edge.
-  final ({double width, double fromEnd})? dashGap;
-
   /// A strip across the bottom of the tile, edge to edge: a [CardTileStrip]
   /// with another choice, a problem, or a note.
   final Widget? footer;
@@ -63,7 +59,6 @@ class CardTile extends StatelessWidget {
     this.body = const [],
     this.outline,
     this.dashed = false,
-    this.dashGap,
     this.footer,
     this.faded = false,
     this.titleMaxLines = 1,
@@ -95,7 +90,6 @@ class CardTile extends StatelessWidget {
       foregroundPainter: dashed
           ? DashedOutlinePainter(
               shape: _shape,
-              gap: dashGap,
               rtl: Directionality.of(context) == TextDirection.rtl,
               color: outline ?? palette.link.withValues(alpha: 0.35),
             )

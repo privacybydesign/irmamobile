@@ -58,10 +58,17 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
     return const ActivityLogState(loading: true);
   }
 
-  /// Shows the entries matching [filter], from the newest.
+  /// Shows the entries matching [filter], from the newest. What is shown
+  /// stays until the answer is in, so the list does not flash empty.
   void setFilter(ActivityQuery filter) {
     if (filter == state.filter) return;
-    state = ActivityLogState(filter: filter, loading: true);
+    state = ActivityLogState(
+      filter: filter,
+      entries: state.entries,
+      loading: true,
+      loaded: state.loaded,
+      counts: state.counts,
+    );
     refresh();
   }
 

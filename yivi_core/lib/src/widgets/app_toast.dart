@@ -68,13 +68,8 @@ void Function(String message, {Key? key, ToastAction? action}) appToastFor(
         maxWidth: 440,
         child: DecoratedBox(
           decoration: ShapeDecoration(
-            color: palette.glassStrongFill,
-            // Dark: flat like the glass, no rim.
-            shape: StadiumBorder(
-              side: palette.isDark
-                  ? BorderSide.none
-                  : BorderSide(color: palette.glassBorder),
-            ),
+            color: palette.surface,
+            shape: StadiumBorder(side: BorderSide(color: palette.divider)),
             shadows: [
               BoxShadow(
                 color: palette.glassShadow,

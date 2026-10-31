@@ -106,9 +106,12 @@
         "fields": "Gegevens",
         "search_for": "Zoek naar \"{text}\"",
         "search_where": "In namen, gegevens en berichten",
+        "value_for": "Gegevens met \"{text}\"",
+        "value_where": "Alleen in de gegevens zelf, in alle kaarten",
         "from_card": "Uit {card}",
         "last": "{times}, het laatst {date}"
       },
+      "value_chip": "Gegevens: {text}",
       "fits-0": "Past niet bij je filters",
       "fits-1": "1 past bij je filters",
       "fits-2": "{count} passen bij je filters",
@@ -263,6 +266,8 @@
       "title": "Contactgegevens"
     },
     "add": {
+      "search": "Zoek gegevens om toe te voegen",
+      "no_results": "Geen gegevens gevonden voor “{query}”",
       "demo": "Demo (voorbeeldgegevens)",
       "staging": "Staging (testomgeving)",
       "title": "Gegevens toevoegen",
@@ -1419,6 +1424,7 @@
       "button": "Bel {requestor}"
     },
     "spot": {
+      "add_first": "Voeg deze eerst toe aan je app",
       "many": "Je kiest er één bij het toevoegen",
       "cant": "Kan niet in Yivi worden toegevoegd. Haal het eerst bij {issuer}.",
       "cant_unknown": "Kan niet in Yivi worden toegevoegd.",

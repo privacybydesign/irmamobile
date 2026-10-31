@@ -62,7 +62,7 @@ class ToneDisc extends StatelessWidget {
   }
 }
 
-/// The app's dialog: a frosted card with 32 pt corners, an optional icon
+/// The app's dialog: a solid card with 32 pt corners, an optional icon
 /// disc, a centred title and message, and the actions stacked below as pills
 /// (the primary one first). For a yes/no question, see [showConfirmDialog].
 class GlassDialog extends StatelessWidget {
@@ -193,9 +193,7 @@ class GlassDialog extends StatelessWidget {
                       Radius.circular(YiviCorners.dialog),
                     ),
                   ),
-                  fill: MediaQuery.highContrastOf(context)
-                      ? palette.surface
-                      : palette.glassStrongFill,
+                  fill: palette.surface,
                   padding: const EdgeInsets.all(24),
                   child: SingleChildScrollView(child: content),
                 ),

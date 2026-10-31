@@ -173,6 +173,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return q.copyWith(text: text.isEmpty ? words : "$text $words");
   }
 
+  /// The draft with the typed words to find in the data alone.
+  ActivityQuery _withValue(ActivityQuery q, String typed) {
+    final words = typed.trim();
+    final value = q.value.trim();
+    return q.copyWith(value: value.isEmpty ? words : "$value $words");
+  }
+
   /// Enter: the draft is asked, with the typed words as a text search.
   void _searchText(String text) {
     final next = _withTyped(_asked, text);
@@ -381,7 +388,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       final generation = ++_countGeneration;
       final all = [
         for (final (_, items) in _suggestions()) ...items,
-        if (_typed.trim().isNotEmpty) _textSuggestion(),
+        if (_typed.trim().isNotEmpty) ..._typedSuggestions(),
       ];
       List<int> counts;
       try {
@@ -487,29 +494,47 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         if (typed.isNotEmpty)
           GlassGroup(
             dividerIndent: 14 + 46 + 12,
-            children: [row(_textSuggestion())],
+            children: [for (final s in _typedSuggestions()) row(s)],
           ),
       ],
     );
   }
 
-  /// "Search for …": the typed words as a tag.
-  _Suggestion _textSuggestion() {
+  /// The typed words as a tag: "Search for …" everywhere, and "Data with
+  /// …" in the values alone (what was shared, say an e-mail address).
+  List<_Suggestion> _typedSuggestions() {
     final typed = _typed.trim();
-    return _Suggestion(
-      key: "text",
-      leading: Icon(Icons.search, color: YiviPalette.of(context).link),
-      title: FlutterI18n.translate(
-        context,
-        "activity.query.suggest.search_for",
-        translationParams: {"text": typed},
+    final link = YiviPalette.of(context).link;
+    return [
+      _Suggestion(
+        key: "text",
+        leading: Icon(Icons.search, color: link),
+        title: FlutterI18n.translate(
+          context,
+          "activity.query.suggest.search_for",
+          translationParams: {"text": typed},
+        ),
+        subtitle: FlutterI18n.translate(
+          context,
+          "activity.query.suggest.search_where",
+        ),
+        query: _withTyped(_asked, typed),
       ),
-      subtitle: FlutterI18n.translate(
-        context,
-        "activity.query.suggest.search_where",
+      _Suggestion(
+        key: "value",
+        leading: Icon(Icons.badge_outlined, color: link),
+        title: FlutterI18n.translate(
+          context,
+          "activity.query.suggest.value_for",
+          translationParams: {"text": typed},
+        ),
+        subtitle: FlutterI18n.translate(
+          context,
+          "activity.query.suggest.value_where",
+        ),
+        query: _withValue(_asked, typed),
       ),
-      query: _withTyped(_asked, typed),
-    );
+    ];
   }
 
   // -------------------------------------------------------------------- chips
@@ -562,6 +587,16 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           key: const Key("activity_chip_text"),
           label: quotedSearch(q.text),
           onRemove: () => change(q.copyWith(text: "")),
+        ),
+      if (q.value.trim().isNotEmpty)
+        ActivityFacetChip(
+          key: const Key("activity_chip_value"),
+          label: FlutterI18n.translate(
+            context,
+            "activity.query.value_chip",
+            translationParams: {"text": quotedSearch(q.value)},
+          ),
+          onRemove: () => change(q.copyWith(value: "")),
         ),
     ];
   }
@@ -699,8 +734,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final state = ref.watch(activityLogProvider);
     final query = state.filter;
     final chips = _chips(_searching ? _asked : query);
+    // A phone held sideways has little height: there the chips scroll with
+    // the log, and only stay at the top while searching.
+    final chipsScroll = usePhoneLandscape(context) && !_searching;
+    final rowChips = chipsScroll ? const <Widget>[] : chips;
     // The field, and the chips under it while something is asked.
-    final headerHeight = 60.0 + (chips.isEmpty ? 0 : activityChipHeight + 8);
+    final headerHeight = 60.0 + (rowChips.isEmpty ? 0 : activityChipHeight + 8);
 
     final filterCount = query.isEmpty ? 0 : query.facetCount;
     final filterButton = RoundIconButton(
@@ -745,7 +784,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               filterButton,
           ],
         ),
-        if (chips.isNotEmpty)
+        if (rowChips.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: SizedBox(
@@ -754,9 +793,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 key: const Key("activity_chips"),
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
-                itemCount: chips.length,
+                itemCount: rowChips.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => chips[i],
+                itemBuilder: (_, i) => rowChips[i],
               ),
             ),
           ),
@@ -817,7 +856,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                   focusNode: _focus,
                   onChanged: _onTyped,
                   onSubmitted: _searchText,
-                  solid: true,
                   height: 44,
                 ),
               ),
@@ -832,8 +870,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               ),
             ],
           ),
-          // The tags asked so far stay under the field while typing.
-          searchBelow: chips.isEmpty
+          // The tags pin under the bar as they scroll up to it, and stay
+          // under the field while typing.
+          below: chips.isEmpty
               ? null
               : ListView.separated(
                   key: const Key("activity_chips"),
@@ -843,7 +882,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => chips[i],
                 ),
-          searchBelowHeight: activityChipHeight,
+          belowHeight: activityChipHeight,
           searchButtonKey: const Key("activity_search_button"),
           searchLabel: FlutterI18n.translate(
             context,
@@ -879,7 +918,28 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           ? _suggestionList(listTop)
           : !state.loaded
           ? Center(child: LoadingIndicator())
-          : _buildLogEntries(context, state, listTop),
+          : _buildLogEntries(
+              context,
+              state,
+              listTop,
+              header: [
+                if (chipsScroll && chips.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: SizedBox(
+                      height: activityChipHeight,
+                      child: ListView.separated(
+                        key: const Key("activity_chips"),
+                        scrollDirection: Axis.horizontal,
+                        clipBehavior: Clip.none,
+                        itemCount: chips.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (_, i) => chips[i],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
     );
 
     return Scaffold(

@@ -800,13 +800,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   }) {
     final k = selectionOf(p, selections[i]);
     final empty = k < 0;
-    // Right under the section's label the spot's room above its dashed edge
-    // (for the pill) is the gap; under a card it is 12 more, as between
-    // cards, so the pill never touches the card above.
     final mismatch = empty
         ? walletMismatch(p, ref.watch(walletCardsProvider))
         : null;
-    final gap = empty && first && mismatch == null ? 0.0 : 12.0;
+    const gap = 12.0;
     final child = mismatch != null
         ? _MismatchTile(
             key: Key("share_not_counted_$i"),

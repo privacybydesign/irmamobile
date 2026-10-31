@@ -254,12 +254,14 @@ Future<void> _pumpFor(
 void main() {
   _closingInADocument();
   group("the list", () {
-    testWidgets("is a sheet: its title and the groups, no search", (
+    testWidgets("is a sheet: its title, a search field and the groups", (
       tester,
     ) async {
       await _pump(tester);
       expect(_sheet, findsOneWidget);
       expect(find.text("Adding data"), findsOneWidget);
+      // The field is a button until tapped: no text field yet.
+      expect(find.byKey(const Key("add_data_search")), findsOneWidget);
       expect(find.byType(GlassSearchField), findsNothing);
       // Each type as its card, not a round logo.
       expect(
@@ -271,6 +273,51 @@ void main() {
       );
       expect(_row("pbdf.pbdf.passport"), findsOneWidget);
       expect(_row("pbdf.sidn-pbdf.email"), findsOneWidget);
+    });
+
+    testWidgets("the search: in the bar to type in, the list filtered", (
+      tester,
+    ) async {
+      await _pump(tester);
+      await tester.tap(find.byKey(const Key("add_data_search")));
+      await tester.pumpAndSettle();
+      final field = find.descendant(
+        of: find.byKey(const Key("add_data_search_bar")),
+        matching: find.byType(EditableText),
+      );
+      expect(field, findsOneWidget);
+      await tester.enterText(field, "pass");
+      await tester.pumpAndSettle();
+      expect(_row("pbdf.pbdf.passport"), findsOneWidget);
+      expect(_row("pbdf.sidn-pbdf.email"), findsNothing);
+
+      await tester.enterText(field, "nothing like it");
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("add_data_no_results")), findsOneWidget);
+    });
+
+    testWidgets("scrolled away, the field leaves a search button", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        store: [
+          CredentialStoreCategory(
+            category: "Personal",
+            items: [
+              for (var i = 0; i < 40; i++)
+                _item("irma-demo.x.card$i", "Card $i"),
+            ],
+          ),
+        ],
+      );
+      expect(find.byKey(const Key("add_data_search_button")), findsNothing);
+      await tester.drag(_row("irma-demo.x.card3"), const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("add_data_search_button")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("add_data_search_bar")), findsOneWidget);
+      expect(find.byKey(const Key("add_data_search_button")), findsNothing);
     });
 
     testWidgets("a long list builds only the rows on screen", (tester) async {
@@ -869,9 +916,7 @@ void main() {
         );
       });
 
-      testWidgets("opened: Continue on the website in the bar", (
-        tester,
-      ) async {
+      testWidgets("opened: Continue on the website in the bar", (tester) async {
         await openWebsite(tester, size: side);
         // The website page: its way on in the bar.
         final go = tester.getRect(find.byKey(const Key("sheet_open_website")));

@@ -172,7 +172,7 @@ void main() {
     });
   });
 
-  group("fading glass", () {
+  group("fading surfaces", () {
     Future<void> pumpGlass(WidgetTester tester, double opacity) =>
         tester.pumpWidget(
           MaterialApp(
@@ -191,24 +191,11 @@ void main() {
           ),
         );
 
-    testWidgets("the blur is never inside an opacity layer, so it does not "
-        "darken and pop at the end of the fade", (tester) async {
+    testWidgets("only the content fades through a layer; fully in, none", (
+      tester,
+    ) async {
       await pumpGlass(tester, 0.5);
-
-      final blur = find.byType(BackdropFilter);
-      expect(blur, findsOneWidget);
-      // No fading layer between the button and its blur.
-      Finder inButton(Type type) => find.descendant(
-        of: find.byType(GlassSurface),
-        matching: find.byType(type),
-      );
-      for (final layer in [Opacity, FadeTransition]) {
-        expect(
-          find.ancestor(of: blur, matching: inButton(layer)),
-          findsNothing,
-        );
-      }
-      // Only the icon fades through a layer.
+      expect(find.byType(BackdropFilter), findsNothing);
       expect(
         find.ancestor(
           of: find.byKey(const Key("icon")),
@@ -216,16 +203,8 @@ void main() {
         ),
         findsOneWidget,
       );
-    });
-
-    testWidgets("fully faded out there is no blur; fully in, no layer", (
-      tester,
-    ) async {
-      await pumpGlass(tester, 0);
-      expect(find.byType(BackdropFilter), findsNothing);
 
       await pumpGlass(tester, 1);
-      expect(find.byType(BackdropFilter), findsOneWidget);
       expect(
         find.ancestor(
           of: find.byKey(const Key("icon")),
@@ -236,7 +215,7 @@ void main() {
     });
   });
 
-  testWidgets("dark glass is flat: no sheen, no rim", (tester) async {
+  testWidgets("a surface is solid and flat: no sheen, no blur", (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(brightness: Brightness.dark),
@@ -258,13 +237,10 @@ void main() {
         .whereType<ShapeDecoration>();
     expect(decorations.where((d) => d.gradient != null), isEmpty);
     expect(
-      decorations.where(
-        (d) =>
-            d.shape is StadiumBorder &&
-            (d.shape as StadiumBorder).side != BorderSide.none,
-      ),
-      isEmpty,
+      decorations.where((d) => d.color != null).map((d) => d.color!.a),
+      everyElement(1.0),
     );
+    expect(find.byType(BackdropFilter), findsNothing);
   });
 
   testWidgets("a flying card slides under the card below its place", (

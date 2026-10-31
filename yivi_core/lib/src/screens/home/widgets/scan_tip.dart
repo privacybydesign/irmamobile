@@ -44,7 +44,6 @@ class ScanTip extends ConsumerWidget {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(YiviCorners.dialog)),
           ),
-          fill: palette.glassStrongFill,
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

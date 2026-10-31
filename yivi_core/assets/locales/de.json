@@ -106,9 +106,12 @@
         "fields": "Daten",
         "search_for": "Nach \"{text}\" suchen",
         "search_where": "In Namen, Daten und Nachrichten",
+        "value_for": "Daten mit \"{text}\"",
+        "value_where": "Nur in den Daten selbst, über alle Karten",
         "from_card": "Aus {card}",
         "last": "{times}, zuletzt am {date}"
       },
+      "value_chip": "Daten: {text}",
       "fits-0": "Passt nicht zu deinen Filtern",
       "fits-1": "1 passt zu deinen Filtern",
       "fits-2": "{count} passen zu deinen Filtern",
@@ -263,6 +266,8 @@
       "title": "Kontaktinformationen"
     },
     "add": {
+      "search": "Daten zum Hinzufügen suchen",
+      "no_results": "Keine Daten gefunden für „{query}“",
       "demo": "Demo (Beispieldaten)",
       "staging": "Staging (Testumgebung)",
       "title": "Daten hinzufügen",
@@ -1419,6 +1424,7 @@
       "button": "{requestor} anrufen"
     },
     "spot": {
+      "add_first": "Füge sie zuerst deiner App hinzu",
       "many": "Du wählst beim Hinzufügen eine aus",
       "cant": "Kann nicht in Yivi hinzugefügt werden. Hol es zuerst bei {issuer}.",
       "cant_unknown": "Kann nicht in Yivi hinzugefügt werden.",

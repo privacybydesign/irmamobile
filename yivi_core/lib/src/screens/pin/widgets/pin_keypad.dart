@@ -244,9 +244,7 @@ class _PinKeypadState extends State<PinKeypad> {
 /// settles only when both lift.
 ///
 /// Cheap to animate: the key paints on its own layer, and only the scale and
-/// the light change per frame; the glass is built once. The glass doesn't
-/// blur: behind the pad is only the page's own flat background, where a blur
-/// looks the same and costs a backdrop pass per key per frame.
+/// the light change per frame; the key's surface is built once.
 class _KeyFace extends StatefulWidget {
   final Widget child;
 
@@ -308,11 +306,7 @@ class _KeyFaceState extends State<_KeyFace>
       child: AnimatedBuilder(
         animation: _press,
         child: widget.resting
-            ? GlassSurface(
-                shape: const CircleBorder(),
-                blur: false,
-                child: content,
-              )
+            ? GlassSurface(shape: const CircleBorder(), child: content)
             : content,
         builder: (context, child) {
           // As in the design: the pressed key shrinks a little and lights up.

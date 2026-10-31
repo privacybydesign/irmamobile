@@ -1,8 +1,8 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
-import "glass_surface.dart";
 
 /// The pill-shaped glass search field at the top of the Data and Activity
 /// tabs. You can type in it straight away; a clear button appears once there
@@ -22,10 +22,6 @@ class GlassSearchField extends StatefulWidget {
   final FocusNode? focusNode;
   final double height;
 
-  /// A solid field on the page's surface, with a thin edge, instead of glass
-  /// (the home screen's Data tab).
-  final bool solid;
-
   const GlassSearchField({
     super.key,
     required this.hintKey,
@@ -35,7 +31,6 @@ class GlassSearchField extends StatefulWidget {
     this.controller,
     this.focusNode,
     this.height = 48,
-    this.solid = false,
   });
 
   @override
@@ -102,18 +97,17 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     final palette = YiviPalette.of(context);
     final hint = FlutterI18n.translate(context, widget.hintKey);
     // The clear button is part of the field: tapping it keeps the keyboard.
-    Widget surface({required Widget child}) => widget.solid
-        ? DecoratedBox(
-            decoration: ShapeDecoration(
-              color: palette.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(Radius.circular(14)),
-                side: BorderSide(color: palette.divider),
-              ),
-            ),
-            child: child,
-          )
-        : GlassSurface(child: child);
+    // Solid, as every search field: the surface colour with a thin edge.
+    Widget surface({required Widget child}) => DecoratedBox(
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: YiviCorners.cardRadius,
+          side: BorderSide(color: palette.divider),
+        ),
+      ),
+      child: child,
+    );
     return TextFieldTapRegion(
       child: surface(
         child: GestureDetector(

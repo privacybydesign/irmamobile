@@ -20,7 +20,6 @@ import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
-import "src/widgets/glass/glass_sheet.dart";
 import "src/widgets/glass/system_navigation_bar.dart";
 import "src/widgets/legacy_material_bridge.dart";
 import "src/widgets/lock_gate.dart";
@@ -55,8 +54,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _privacyScreenLoaded = false;
   var _appearance = Appearance.system;
-  StreamSubscription<bool>? _glassOpaqueSubscription;
-  var _glassOpaque = false;
 
   // TODO: When switching to Riverpod we should add a provider for the
   // router, as that will automatically preserve its state during rebuilds.
@@ -97,14 +94,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             setState(() => _appearance = appearance);
           }
         });
-    _glassOpaqueSubscription = ref
-        .read(preferencesProvider)
-        .getGlassOpaque()
-        .listen((off) {
-          if (mounted && off != _glassOpaque) {
-            setState(() => _glassOpaque = off);
-          }
-        });
     _handleUpdateSchemes();
     _listenShowNameChangedNotification();
   }
@@ -116,7 +105,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
     _appearanceSubscription?.cancel();
-    _glassOpaqueSubscription?.cancel();
     _enrollmentStatusSubscription?.cancel();
     super.dispose();
   }
@@ -230,12 +218,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
                       router: _router,
                       child: StoreReviewGate(
                         router: _router,
-                        // The page under an open sheet doesn't blur (performance).
-                        child: GlassSheetCover(
-                          opaqueGlass: _glassOpaque,
-                          child: SystemNavigationBarStyle(
-                            child: child ?? const SizedBox.shrink(),
-                          ),
+                        child: SystemNavigationBarStyle(
+                          child: child ?? const SizedBox.shrink(),
                         ),
                       ),
                     ),

@@ -25,7 +25,7 @@ abstract final class HomeNavigation {
       Theme.of(context).platform != TargetPlatform.iOS;
 
   /// Whether a docked bar is on screen, at the bottom, with nothing over it:
-  /// it is under Android's navigation buttons then, and the frosted band
+  /// it is under Android's navigation buttons then, and the solid band
   /// that SystemNavigationBarStyle puts behind them stays away.
   static final bottomBarShown = ValueNotifier(false);
 

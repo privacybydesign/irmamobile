@@ -188,7 +188,6 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       controller: _search,
       focusNode: _focus,
       onChanged: _onQuery,
-      solid: true,
       height: panes ? 48 : 44,
     );
     // Blue, as a plain action next to a field (the red is for the main one).

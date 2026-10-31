@@ -320,7 +320,7 @@ class PillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    // Dark theme: a flat pill in the glass fill, as a light outline there
+    // Dark theme: a flat pill in the surface colour, as a light outline there
     // looked cheap. High contrast keeps the outline.
     final flat =
         style == PillStyle.outlined &&
@@ -334,8 +334,8 @@ class PillButton extends StatelessWidget {
         BorderSide(color: Colors.white.withValues(alpha: 0.7), width: 1.5),
       ),
       PillStyle.outlined when flat => (
-        // The glass fill: white at 12% on the page, 10% on a sheet.
-        palette.onSheet ? GlassSurface.darkSheetButtonFill : palette.glassFill,
+        // Solid, a level above the page or sheet.
+        palette.surface,
         palette.text,
         BorderSide.none,
       ),

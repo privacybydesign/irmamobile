@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../screens/data/wallet/wallet_transition.dart";
+import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../two_pane.dart";
 import "round_icon_button.dart";
@@ -15,15 +16,18 @@ import "title_scroll_edge.dart";
 /// sliding in at the centre as the large title goes under it, the search
 /// button once the field has gone under it, and [trailing] always. The bar
 /// is clear at first and solid as the title goes. While [searching] the bar
-/// holds [searchRow] (the field and Cancel) instead, with [searchBelow]
-/// ([searchBelowHeight] high, the tags asked so far) pinned under it, and
-/// the list starts under them ([listTop]).
+/// holds [searchRow] (the field and Cancel) instead, and the list starts
+/// under it ([listTop]).
+///
+/// [below] ([belowHeight] high, the tags asked) sits in the list under the
+/// field; it pins under the bar once it scrolls up to it, and while
+/// searching it is there at once.
 class HomeTabTop extends StatefulWidget {
   final String title;
   final bool searching;
   final Widget searchRow;
-  final Widget? searchBelow;
-  final double searchBelowHeight;
+  final Widget? below;
+  final double belowHeight;
   final Widget? leading;
   final Widget? trailing;
 
@@ -44,8 +48,8 @@ class HomeTabTop extends StatefulWidget {
     required this.onSearch,
     required this.child,
     this.searchButtonKey,
-    this.searchBelow,
-    this.searchBelowHeight = 0,
+    this.below,
+    this.belowHeight = 0,
     this.leading,
     this.trailing,
   });
@@ -85,6 +89,17 @@ class HomeTabTop extends StatefulWidget {
   /// scrolling: the bar, its line and the small title come in with it.
   static double _titleGone(double px) => ((px - 8) / 30).clamp(0.0, 1.0);
 
+  /// How far the list scrolls before [below], under the field, reaches its
+  /// pinned place under the bar.
+  static const double _belowUnderBar =
+      tabTitleTop +
+      TabLargeTitle.height +
+      fieldGap +
+      HomeTabSearchField.height +
+      fieldGap -
+      barHeight -
+      belowGap;
+
   @override
   State<HomeTabTop> createState() => _HomeTabTopState();
 }
@@ -93,6 +108,9 @@ class _HomeTabTopState extends State<HomeTabTop> {
   /// How far the list has scrolled: the bar's small title and search
   /// button come in with it.
   final _scrolled = ValueNotifier<double>(0);
+
+  /// Whether [HomeTabTop.below] has scrolled up to the bar and stays there.
+  bool _belowPinned = false;
 
   @override
   void dispose() {
@@ -104,10 +122,10 @@ class _HomeTabTopState extends State<HomeTabTop> {
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     final searching = widget.searching;
-    final below = searching ? widget.searchBelow : null;
+    final below = searching || _belowPinned ? widget.below : null;
     final belowHeight = below == null
         ? 0.0
-        : widget.searchBelowHeight + HomeTabTop.belowGap;
+        : widget.belowHeight + HomeTabTop.belowGap;
     return ScrollEdge(
       // Collapsed, the bar has some room under its buttons.
       height: padding.top + HomeTabTop.barHeight + 10 + belowHeight,
@@ -116,12 +134,11 @@ class _HomeTabTopState extends State<HomeTabTop> {
       band: (context, under) => PushAway(
         direction: PushAwayDirection.up,
         child: searching
-            ? ScrollEdgeBand(under: under, solid: true)
+            ? ScrollEdgeBand(under: under)
             : ValueListenableBuilder<double>(
                 valueListenable: _scrolled,
                 builder: (context, px, _) => ScrollEdgeBand(
                   under: AlwaysStoppedAnimation(HomeTabTop._titleGone(px)),
-                  solid: true,
                 ),
               ),
       ),
@@ -143,14 +160,23 @@ class _HomeTabTopState extends State<HomeTabTop> {
             left: padding.left,
             right: padding.right,
             top: padding.top + HomeTabTop.barHeight + HomeTabTop.belowGap,
-            height: widget.searchBelowHeight,
+            height: widget.belowHeight,
             child: PushAway(direction: PushAwayDirection.up, child: below),
           ),
       ],
-      child: NotificationListener<ScrollNotification>(
+      // Scrolling, and a new list (the log back after searching) laid out
+      // where it was.
+      child: NotificationListener<Notification>(
         onNotification: (n) {
-          if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
-            _scrolled.value = n.metrics.pixels;
+          final (depth, metrics) = switch (n) {
+            ScrollNotification() => (n.depth, n.metrics),
+            ScrollMetricsNotification() => (n.depth, n.metrics),
+            _ => (-1, null),
+          };
+          if (depth == 0 && metrics != null && metrics.axis == Axis.vertical) {
+            _scrolled.value = metrics.pixels;
+            final pinned = metrics.pixels >= HomeTabTop._belowUnderBar;
+            if (pinned != _belowPinned) setState(() => _belowPinned = pinned);
           }
           return false;
         },
@@ -277,7 +303,7 @@ class HomeTabSearchField extends StatelessWidget {
           decoration: ShapeDecoration(
             color: palette.surface,
             shape: RoundedRectangleBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(14)),
+              borderRadius: YiviCorners.cardRadius,
               side: BorderSide(color: palette.divider),
             ),
           ),
