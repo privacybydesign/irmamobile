@@ -235,6 +235,13 @@ class CardTransition extends ChangeNotifier {
     return max(choreography.pose(i, progress(i)).dy, landing);
   }
 
+  /// The card just below the picked one, where it is now (null: none).
+  Rect? get nextCard {
+    final next = snapshot.picked + 1;
+    if (next >= snapshot.count) return null;
+    return _slot(next).translate(0, fall(next));
+  }
+
   /// The top of the card just below the picked one, as it falls: the
   /// picked card and its details show above it, never over it.
   double get revealLine {

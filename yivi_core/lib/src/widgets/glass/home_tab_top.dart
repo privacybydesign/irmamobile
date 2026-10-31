@@ -156,27 +156,33 @@ class _HomeTabTopState extends State<HomeTabTop> {
         // otherwise as the large title goes under it. While something opens
         // it stays as it was, and goes at the end if the details have
         // nothing under their bar.
-        // It covers what of the large title is under the bar: it goes only
-        // once the title has (else that part of the title would show
-        // through for a moment).
-        band: (context, under) => CardTransitionFollow(
-          opacity: (t) =>
-              max(1 - _iv(t.barHandoff, 0.6, 1), min(1, t.headerOpacity * 4)),
-          child: _OpenHandoff(
-            builder: (context, open) {
-              double band(double v) => v * (1 - _iv(open, 0.6, 1));
+        // It covers what of the large title is under the bar: while a card
+        // opens it goes only once the title has (else that part of the
+        // title would show through for a moment). Built again per frame of
+        // the transition (it is small) rather than faded in a layer.
+        band: (context, under) => _OpenHandoff(
+          builder: (context, open) => CardTransitionBuilder(
+            builder: (context, t) {
+              final keep =
+                  (t == null
+                      ? 1.0
+                      : max(
+                          1 - _iv(t.barHandoff, 0.6, 1),
+                          min(1.0, t.headerOpacity * 4),
+                        )) *
+                  (1 - _iv(open, 0.6, 1));
               return searching
                   ? AnimatedBuilder(
                       animation: under,
                       builder: (context, _) => ScrollEdgeBand(
-                        under: AlwaysStoppedAnimation(band(under.value)),
+                        under: AlwaysStoppedAnimation(under.value * keep),
                       ),
                     )
                   : ValueListenableBuilder<double>(
                       valueListenable: _scrolled,
                       builder: (context, px, _) => ScrollEdgeBand(
                         under: AlwaysStoppedAnimation(
-                          band(HomeTabTop._titleGone(px)),
+                          HomeTabTop._titleGone(px) * keep,
                         ),
                       ),
                     );
@@ -242,9 +248,12 @@ Widget _handoff(
   Widget child, {
   double Function(double open)? opacity,
   double Function(double open)? turn,
+  double Function(double open)? scale,
 }) => CardTransitionFollow(
   opacity: opacity == null ? null : (t) => opacity(t.barHandoff),
   turn: turn == null ? null : (t) => turn(t.barHandoff) * pi / 4,
+  scale: scale == null ? null : (t) => scale(t.barHandoff),
+  scaleOrigin: Alignment.center,
   child: child,
 );
 
@@ -411,6 +420,12 @@ class _Bar extends StatelessWidget {
                                 ? null
                                 : (open) =>
                                       turnsIntoClose ? open : _iv(open, 0, 0.6),
+                            scale: turnsIntoClose && !reduceMotion
+                                // As large as the ✕ it turns into.
+                                ? (open) =>
+                                      1 +
+                                      (RoundIconButton.plusAsClose - 1) * open
+                                : null,
                             trailing,
                           )
                         : Opacity(

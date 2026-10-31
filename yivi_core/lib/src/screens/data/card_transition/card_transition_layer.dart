@@ -197,29 +197,56 @@ class _RenderOpenCard extends RenderProxyBox {
     // Above the card there is nothing: the details' bar and background
     // only come once it is open.
     final reveal = t.revealLine + offset.dy - origin.dy;
-    context.pushClipRect(
+    final above = Rect.fromLTRB(
+      offset.dx,
+      offset.dy,
+      offset.dx + size.width,
+      reveal,
+    );
+    void draw(PaintingContext context, Offset _) {
+      // A little past the card below's top: behind its rounded corners.
+      final bandEnd = reveal + 40;
+      if (bandEnd > picked.bottom) {
+        context.canvas.drawRect(
+          Rect.fromLTRB(
+            offset.dx,
+            picked.bottom - 1,
+            offset.dx + size.width,
+            bandEnd,
+          ),
+          Paint()..color = background,
+        );
+      }
+      context.pushTransform(
+        needsCompositing,
+        Offset.zero,
+        move,
+        (context, _) => context.paintChild(child, offset),
+      );
+    }
+
+    // The card below is rounded at its top: beside its corners the card
+    // and the details still show (a straight cut there left notches).
+    final next = t.nextCard;
+    if (next == null || reveal >= offset.dy + size.height) {
+      context.pushClipRect(needsCompositing, Offset.zero, above, draw);
+      return;
+    }
+    final card = local(next);
+    final r = CredentialCardArt.radiusFor(card.width).topLeft;
+    final shown = Path.combine(
+      PathOperation.difference,
+      Path()..addRect(
+        Rect.fromLTRB(above.left, above.top, above.right, reveal + r.y),
+      ),
+      Path()..addRRect(RRect.fromRectAndCorners(card, topLeft: r, topRight: r)),
+    );
+    context.pushClipPath(
       needsCompositing,
       Offset.zero,
-      Rect.fromLTRB(offset.dx, offset.dy, offset.dx + size.width, reveal),
-      (context, _) {
-        if (reveal > picked.bottom) {
-          context.canvas.drawRect(
-            Rect.fromLTRB(
-              offset.dx,
-              picked.bottom - 1,
-              offset.dx + size.width,
-              reveal,
-            ),
-            Paint()..color = background,
-          );
-        }
-        context.pushTransform(
-          needsCompositing,
-          Offset.zero,
-          move,
-          (context, _) => context.paintChild(child, offset),
-        );
-      },
+      offset & size,
+      shown,
+      draw,
     );
   }
 
@@ -320,10 +347,14 @@ class CardTransitionFollow extends StatelessWidget {
 
   /// The corners of what is painted over it (fading, darkening).
   final Radius? corner;
+
+  /// What [scale] scales about (the top centre by default).
+  final Alignment scaleOrigin;
   final Widget child;
 
   const CardTransitionFollow({
     this.corner,
+    this.scaleOrigin = Alignment.topCenter,
     super.key,
     this.opacity,
     this.offset,
@@ -350,6 +381,7 @@ class CardTransitionFollow extends StatelessWidget {
         darken: darken,
         fadeTo: fadeTo,
         corner: corner,
+        scaleOrigin: scaleOrigin,
         child: child,
       ),
       // Kept as a finished picture: only moved and faded per frame.
@@ -367,9 +399,11 @@ class _FollowRender extends SingleChildRenderObjectWidget {
   final double Function(CardTransition t)? darken;
   final Color? fadeTo;
   final Radius? corner;
+  final Alignment scaleOrigin;
 
   const _FollowRender({
     required this.corner,
+    required this.scaleOrigin,
     required this.transition,
     required this.opacity,
     required this.offset,
@@ -386,7 +420,8 @@ class _FollowRender extends SingleChildRenderObjectWidget {
         ..scaleOf = scale
         ..darkenOf = darken
         ..fadeTo = fadeTo
-        ..corner = corner;
+        ..corner = corner
+        ..scaleOrigin = scaleOrigin;
 
   @override
   void updateRenderObject(BuildContext context, _RenderFollow render) => render
@@ -397,7 +432,8 @@ class _FollowRender extends SingleChildRenderObjectWidget {
     ..scaleOf = scale
     ..darkenOf = darken
     ..fadeTo = fadeTo
-    ..corner = corner;
+    ..corner = corner
+    ..scaleOrigin = scaleOrigin;
 }
 
 class _RenderFollow extends RenderProxyBox {
@@ -411,6 +447,7 @@ class _RenderFollow extends RenderProxyBox {
   Color? fadeTo;
 
   Radius? corner;
+  Alignment scaleOrigin = Alignment.topCenter;
 
   CardTransition? _transition;
   set transition(CardTransition? value) {
@@ -476,7 +513,7 @@ class _RenderFollow extends RenderProxyBox {
       }
 
       if (scale == 1) return paint(context, o);
-      final top = o + shift + Offset(size.width / 2, 0);
+      final top = o + shift + scaleOrigin.alongSize(size);
       context.pushTransform(
         needsCompositing,
         Offset.zero,

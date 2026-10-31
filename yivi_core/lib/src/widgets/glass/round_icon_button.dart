@@ -15,6 +15,11 @@ class RoundIconButton extends StatelessWidget {
   /// The icon's box. Callers pass CupertinoIcons: thin strokes, as SF Symbols.
   static const double iconSize = 28;
 
+  /// How much larger a + is drawn as it turns 45° into a close button: then
+  /// it is as large as the ✕ (measured: the ✕ is 29% larger than the +
+  /// turned, and a little bolder).
+  static const double plusAsClose = 1.29;
+
   final IconData icon;
   final String label;
   final VoidCallback? onTap;

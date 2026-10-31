@@ -1,9 +1,12 @@
 import "dart:math";
 
+import "package:flutter/cupertino.dart" show CupertinoIcons;
+
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../util/after_frame.dart";
+import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/glass/scroll_edge.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
@@ -299,17 +302,23 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                             final still = MediaQuery.disableAnimationsOf(
                               context,
                             );
+                            // In a card transition: takes over from the
+                            // bar's turned + as that same +, then turns
+                            // into the ✕.
+                            if (transition != null) {
+                              return _CloseFromPlus(
+                                closeKey: widget.closeKey,
+                                onTap: _close,
+                                opacity: chromeOpacity(),
+                                still: still,
+                              );
+                            }
                             return Transform.rotate(
                               angle: still ? 0 : turn * pi / 180,
                               child: IrmaCloseButton(
                                 key: widget.closeKey,
                                 onTap: _close,
-                                // In a card transition only while the
-                                // card is open: moving, the bar's + is
-                                // the ✕, where it stays.
-                                opacity: transition != null
-                                    ? chromeOpacity()
-                                    : opacity * (1 - _pullProgress),
+                                opacity: opacity * (1 - _pullProgress),
                               ),
                             );
                           },
@@ -458,4 +467,61 @@ class _Above extends CustomClipper<Rect> {
 
   @override
   bool shouldReclip(_Above oldClipper) => oldClipper.y != y;
+}
+
+/// The close button of a page opened by a card transition. It is there
+/// only while the card is open ([opacity]); moving, the bar's + turns into
+/// it. As it comes it is that turned + ([RoundIconButton.plusAsClose]),
+/// where the bar's is, and cross-fades into the ✕ (a little larger and
+/// bolder): it never pops in.
+class _CloseFromPlus extends StatelessWidget {
+  final Key closeKey;
+  final VoidCallback onTap;
+  final double opacity;
+  final bool still;
+
+  const _CloseFromPlus({
+    required this.closeKey,
+    required this.onTap,
+    required this.opacity,
+    required this.still,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = opacity > 0;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: shown ? 1 : 0),
+      duration: shown && !still
+          ? const Duration(milliseconds: 150)
+          : Duration.zero,
+      builder: (context, close, _) => Stack(
+        alignment: Alignment.center,
+        children: [
+          if (!still && close < 1)
+            IgnorePointer(
+              child: ExcludeSemantics(
+                child: Transform.rotate(
+                  angle: pi / 4,
+                  child: Transform.scale(
+                    scale: RoundIconButton.plusAsClose,
+                    child: RoundIconButton(
+                      icon: CupertinoIcons.add,
+                      label: "",
+                      onTap: () {},
+                      opacity: opacity * (1 - close),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          IrmaCloseButton(
+            key: closeKey,
+            onTap: onTap,
+            opacity: opacity * (still ? 1 : close),
+          ),
+        ],
+      ),
+    );
+  }
 }
