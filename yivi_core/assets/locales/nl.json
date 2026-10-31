@@ -284,7 +284,6 @@
         "back_button": "Annuleer",
         "get_button": "Volgende",
         "obtain": "Dit kaartje komt in je Yivi-app.",
-        "external_note": "Dit toevoegen gaat via {host}. Volg daar de stappen; Yivi opent daarna vanzelf weer, terug hier.",
         "disclosure_info_requestor": "{requestor} krijgt hiervan alleen wat ze vragen.",
         "you_get": "In je app komt",
         "good_to_know": "Goed om te weten",
@@ -793,13 +792,10 @@
     "title": "QR-code scannen",
     "instruction": {
       "message": "Richt je camera op een Yivi QR-code",
-      "side": "Richt je camera op een Yivi QR-code. Het scannen gaat vanzelf.",
       "semantic": "Richt je camera op een Yivi QR-code."
     },
-    "searching": "Zoeken naar een QR-code…",
     "success": {
       "message": "Gelukt, de QR-code is gescand",
-      "short": "Gelukt, gescand",
       "semantic": "Gelukt! De QR-code is gescand."
     },
     "error": {
@@ -807,7 +803,6 @@
       "semantic": "Sorry! Dit is geen Yivi QR-code."
     },
     "torch": "Zaklamp",
-    "torch_on": "Zaklamp aan",
     "no_camera": {
       "title": "Geen toegang tot je camera",
       "message": "Geef Yivi toegang tot je camera om QR-codes te scannen. Dat doe je in Instellingen.",
@@ -1589,9 +1584,9 @@
     "message_how": "Je ondertekent door onderaan op de knop te drukken.",
     "footnote_sign": "{requestor} krijgt alleen het bericht en wat hierboven staat. Al het andere blijft op je telefoon.",
     "next": {
-      "add": "{name} toevoegen",
-      "add_again": "{name} opnieuw toevoegen",
-      "fetch_again": "{name} opnieuw ophalen",
+      "add": "Gegevens toevoegen",
+      "add_again": "Opnieuw toevoegen",
+      "fetch_again": "Opnieuw ophalen",
       "pick": "Kies wat je toevoegt"
     },
     "also_choose": "Je kunt ook een ander kaartje kiezen",

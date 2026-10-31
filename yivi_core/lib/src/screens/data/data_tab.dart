@@ -571,10 +571,10 @@ class _CardList extends ConsumerWidget {
                 PushAway(
                   direction: PushAwayDirection.up,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 18),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 12,
+                      spacing: HomeTabTop.fieldGap,
                       children: [
                         const TabLargeTitle("wallet.title"),
                         HomeTabSearchField(

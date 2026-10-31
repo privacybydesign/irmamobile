@@ -284,7 +284,6 @@
         "back_button": "Cancel",
         "get_button": "Next",
         "obtain": "This card goes into your Yivi app.",
-        "external_note": "Adding this happens on {host}. Follow the steps there; Yivi then opens again by itself, back here.",
         "disclosure_info_requestor": "{requestor} only gets what they ask from this.",
         "you_get": "Goes into your app",
         "good_to_know": "Good to know",
@@ -790,13 +789,10 @@
     "title": "Scan QR code",
     "instruction": {
       "message": "Point your camera at a Yivi QR code",
-      "side": "Point your camera at a Yivi QR code. It scans by itself.",
       "semantic": "Point your camera at a Yivi QR code."
     },
-    "searching": "Looking for a QR code…",
     "success": {
       "message": "Done, the QR code is scanned",
-      "short": "Done, scanned",
       "semantic": "Done! The QR code is scanned."
     },
     "error": {
@@ -804,7 +800,6 @@
       "semantic": "Sorry! This is not a Yivi QR code."
     },
     "torch": "Flashlight",
-    "torch_on": "Flashlight on",
     "no_camera": {
       "title": "No access to your camera",
       "message": "Give Yivi access to your camera to scan QR codes. You do this in Settings.",
@@ -1589,9 +1584,9 @@
     "message_how": "You sign by pressing the button at the bottom.",
     "footnote_sign": "{requestor} only gets the message and what is above. Everything else stays on your phone.",
     "next": {
-      "add": "Add {name}",
-      "add_again": "Add {name} again",
-      "fetch_again": "Get {name} again",
+      "add": "Add data",
+      "add_again": "Add again",
+      "fetch_again": "Get it again",
       "pick": "Choose what to add"
     },
     "also_choose": "You can also choose another card",

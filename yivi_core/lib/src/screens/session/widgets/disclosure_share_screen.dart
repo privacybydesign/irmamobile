@@ -272,11 +272,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   };
 
   String _nextLabel(NextStep next) {
-    final name = {"name": next.descriptor?.name ?? ""};
+    // Not the card's name: the card on the page says which it is.
     return switch (next.kind) {
-      NextKind.add => context.tr("share.next.add", name),
-      NextKind.addAgain => context.tr("share.next.add_again", name),
-      NextKind.fetchAgain => context.tr("share.next.fetch_again", name),
+      NextKind.add => context.tr("share.next.add"),
+      NextKind.addAgain => context.tr("share.next.add_again"),
+      NextKind.fetchAgain => context.tr("share.next.fetch_again"),
       NextKind.pick => context.tr("share.next.pick"),
       NextKind.addBoth => context.tr("share.add_both"),
     };

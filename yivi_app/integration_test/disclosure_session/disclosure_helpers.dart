@@ -41,7 +41,7 @@ Future<void> confirmShareAnyway(WidgetTester tester) async {
 }
 
 /// Whether the share button shares when pressed now. While something is
-/// missing or can't be used it does that next step instead ("Add …",
+/// missing or can't be used it does that next step instead ("Add data",
 /// "Choose what to add"), and this is false.
 bool shareButtonEnabled(WidgetTester tester) {
   if (find.byKey(const Key("share_next")).evaluate().isNotEmpty) return false;
@@ -236,8 +236,9 @@ void expectEmptySpotRows(int i, List<String> labels) {
 }
 
 /// Checks that Share waits for [name] (the first empty spot's title): the
-/// button does that next step ("Add {name}", or "Choose what to add" for a
-/// choice of kinds), with what is left above it.
+/// button does that next step ("Add data", or "Choose what to add" for a
+/// choice of kinds), with what is left above it. The button does not name
+/// the card; [name] is the spot's.
 void expectShareWaitsFor(WidgetTester tester, String name) {
   expect(shareButtonEnabled(tester), isFalse, reason: "share button");
   expect(
@@ -255,7 +256,7 @@ void expectShareWaitsFor(WidgetTester tester, String name) {
   final text = tester.widget<Text>(label.first).data;
   expect(
     text,
-    anyOf("Add $name", "Get $name again", "Choose what to add", "Add both"),
+    anyOf("Add data", "Get it again", "Choose what to add", "Add both"),
   );
 }
 

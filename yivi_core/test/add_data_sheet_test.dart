@@ -542,9 +542,9 @@ void main() {
       expect(find.byKey(const Key("add_data_details_name")), findsOneWidget);
       // Not during a request: no note about sharing only what is asked.
       expect(find.textContaining("you will only share"), findsNothing);
-      // Issued on a website: said before leaving, at the foot of the
-      // details; the way on is the button at the bottom.
-      expect(find.byKey(const Key("sheet_external_note")), findsOneWidget);
+      // Issued on a website: no note about it on the details (the next
+      // page says where it goes); the way on is the button at the bottom.
+      expect(find.byKey(const Key("sheet_external_note")), findsNothing);
       expect(
         find.descendant(
           of: find.byType(SheetBottomBar),
@@ -903,11 +903,6 @@ void main() {
           find.byKey(const Key("add_data_you_get")),
         );
         expect(youGet.top, greaterThan(go.bottom));
-        // Where "Add" goes: at the foot of what you get.
-        final note = tester.getRect(
-          find.byKey(const Key("sheet_external_note")),
-        );
-        expect(note.left, greaterThanOrEqualTo(youGet.left - 8));
         // The progress: a line under the bar, no count.
         expect(find.text("1 of 3"), findsNothing);
         expect(

@@ -284,7 +284,6 @@
         "back_button": "Abbrechen",
         "get_button": "Weiter",
         "obtain": "Diese Karte kommt in deine Yivi-App.",
-        "external_note": "Das Hinzufügen geschieht auf {host}. Folge dort den Schritten; Yivi öffnet sich danach von selbst wieder, zurück hier.",
         "disclosure_info_requestor": "{requestor} bekommt davon nur, was sie fragen.",
         "you_get": "Kommt in deine App",
         "good_to_know": "Gut zu wissen",
@@ -793,13 +792,10 @@
     "title": "QR-Code scannen",
     "instruction": {
       "message": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code",
-      "side": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code. Das Scannen geht von selbst.",
       "semantic": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code."
     },
-    "searching": "Suche nach einem QR-Code…",
     "success": {
       "message": "Erledigt, der QR-Code ist gescannt",
-      "short": "Erledigt, gescannt",
       "semantic": "Erledigt! Der QR-Code ist gescannt."
     },
     "error": {
@@ -807,7 +803,6 @@
       "semantic": "Entschuldigung! Dies ist kein Yivi-QR-Code."
     },
     "torch": "Taschenlampe",
-    "torch_on": "Taschenlampe an",
     "no_camera": {
       "title": "Kein Zugriff auf Ihre Kamera",
       "message": "Geben Sie Yivi Zugriff auf Ihre Kamera, um QR-Codes zu scannen. Das tun Sie in den Einstellungen.",
@@ -1589,9 +1584,9 @@
     "message_how": "Du unterschreibst, indem du unten auf die Schaltfläche tippst.",
     "footnote_sign": "{requestor} bekommt nur die Nachricht und was oben steht. Alles andere bleibt auf deinem Telefon.",
     "next": {
-      "add": "{name} hinzufügen",
-      "add_again": "{name} erneut hinzufügen",
-      "fetch_again": "{name} erneut abrufen",
+      "add": "Daten hinzufügen",
+      "add_again": "Erneut hinzufügen",
+      "fetch_again": "Erneut abrufen",
       "pick": "Wähle, was du hinzufügst"
     },
     "also_choose": "Du kannst auch eine andere Karte wählen",

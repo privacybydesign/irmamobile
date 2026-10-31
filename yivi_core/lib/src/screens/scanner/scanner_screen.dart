@@ -1,4 +1,3 @@
-import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -11,13 +10,13 @@ import "../../theme/yivi_palette.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/icon_square.dart";
 import "util/camera_access.dart";
 import "widgets/qr_scanner.dart";
 
-/// The QR scanner, in a sheet (on a tablet too): the camera to the sheet's
-/// edges, the scan window, and what the scanner says.
+/// The QR scanner, in a sheet (on a tablet too): the sheet's bar, the
+/// camera with the scan window, and under it (beside it, sideways) a panel
+/// with what the scanner says and the torch.
 ///
 /// The sheet opens before the camera is allowed: the first time the system
 /// asks over it, and when access was refused the sheet says so, with a way
@@ -112,63 +111,15 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-
-    // The camera fills the sheet to its edges: no light rim round it.
-    return GlassSheetNoRim(
-      child: Scaffold(
-        backgroundColor: const Color(0xFF15181C),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            // Sideways: wider than high (a phone held sideways).
-            final side = constraints.maxWidth > constraints.maxHeight;
-            final close = RoundIconButton(
-              key: const Key("irma_app_bar_close"),
-              label: FlutterI18n.translate(context, "ui.close"),
-              dark: true,
-              icon: CupertinoIcons.xmark,
-              onTap: () => Navigator.of(context).pop(),
-            );
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(child: _body(side)),
-                // Upright the title is centred at the top; sideways it is in
-                // the scanner's column, and only the close button is up here.
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  top: side ? 12 : 16,
-                  height: 44,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (!side)
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            FlutterI18n.translate(context, "qr_scanner.title"),
-                            style: palette
-                                .display(17)
-                                .copyWith(
-                                  color: Colors.white,
-                                  shadows: const [
-                                    Shadow(
-                                      color: Color(0x73000000),
-                                      blurRadius: 8,
-                                    ),
-                                  ],
-                                ),
-                          ),
-                        ),
-                      Align(alignment: Alignment.centerRight, child: close),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+    // The sheet's own bar on top; the camera between it and the panel.
+    return GlassSheetPage(
+      title: FlutterI18n.translate(context, "qr_scanner.title"),
+      scrolls: false,
+      childClearsBottom: true,
+      child: LayoutBuilder(
+        // Sideways: wider than high (a phone held sideways).
+        builder: (context, constraints) =>
+            _body(constraints.maxWidth > constraints.maxHeight),
       ),
     );
   }
@@ -205,10 +156,10 @@ class _NoCamera extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tile = const IconSquare(
+    final tile = IconSquare(
       icon: Icons.no_photography_outlined,
-      fill: Color(0x14FFFFFF),
-      ink: Colors.white,
+      fill: palette.text.withValues(alpha: palette.isDark ? 0.1 : 0.06),
+      ink: palette.heading,
       size: 88,
       iconSize: 40,
       radius: YiviCorners.iconTile,
@@ -227,7 +178,7 @@ class _NoCamera extends StatelessWidget {
             child: Text(
               FlutterI18n.translate(context, "qr_scanner.no_camera.title"),
               textAlign: textAlign,
-              style: palette.display(20).copyWith(color: Colors.white),
+              style: palette.display(20).copyWith(color: palette.text),
             ),
           ),
           const SizedBox(height: 10),
@@ -236,7 +187,7 @@ class _NoCamera extends StatelessWidget {
             textAlign: textAlign,
             style: palette
                 .body(14.5)
-                .copyWith(color: const Color(0xD9FFFFFF), height: 21 / 14.5),
+                .copyWith(color: palette.secondaryText, height: 21 / 14.5),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -254,29 +205,26 @@ class _NoCamera extends StatelessWidget {
         ],
       ),
     );
-    return ColoredBox(
-      color: const Color(0xFF1C1F23),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: side
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ExcludeSemantics(child: tile),
-                    const SizedBox(width: 28),
-                    Flexible(child: text),
-                  ],
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ExcludeSemantics(child: tile),
-                    const SizedBox(height: 14),
-                    text,
-                  ],
-                ),
-        ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: side
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ExcludeSemantics(child: tile),
+                  const SizedBox(width: 28),
+                  Flexible(child: text),
+                ],
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ExcludeSemantics(child: tile),
+                  const SizedBox(height: 14),
+                  text,
+                ],
+              ),
       ),
     );
   }

@@ -841,31 +841,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     IssueSheetSubject subject,
     int total,
   ) {
-    final host = hostOf(d.issueURL) ?? "";
     final faq = _faqFor(d.credentialId);
-    // A card from an issuer's website: say up front that adding goes there
-    // (the next page says it again, with the way there).
-    final external =
-        ref.watch(
-          externalIssuerStatusProvider((
-            credentialId: d.credentialId,
-            issueUrl: d.issueURL,
-          )),
-        ) !=
-        ExternalIssuerStatus.notExternal;
     // One way on: dragging the sheet down and back are the way out.
     final action = SheetAction(
       key: const Key("sheet_go_button"),
       label: context.tr("data.add.details.get_button"),
       onTap: () => _add(d),
     );
-    // Where "Add" goes: at the foot of what the card is.
-    final hostNote = external
-        ? _HostNote(
-            key: const Key("sheet_external_note"),
-            text: context.tr("data.add.details.external_note", {"host": host}),
-          )
-        : null;
     // During a request: that the requestor only gets what they ask, when
     // the card holds more than that.
     final asked = d.attributes.where((a) => a.requestedValue != null).length;
@@ -894,7 +876,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 12,
-              children: [part(AddDataDetailsPart.rest), ?hostNote],
+              children: [part(AddDataDetailsPart.rest)],
             ),
           )
         : null;
@@ -918,7 +900,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
-            children: [part(AddDataDetailsPart.all), ?hostNote],
+            children: [part(AddDataDetailsPart.all)],
           ),
     );
   }
@@ -1344,39 +1326,6 @@ mixin StandaloneIssueFlow<W extends ConsumerStatefulWidget> on IssueFlow<W> {
 /// A choice on "Success" besides its way on, as a link
 /// ([IssueFlow.issueSuccessLink]).
 typedef IssueSuccessLink = ({String label, VoidCallback onTap, Key key});
-
-/// Where adding happens, quietly at the foot of the card's details.
-class _HostNote extends StatelessWidget {
-  final String text;
-
-  const _HostNote({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Icon(Icons.language_rounded, size: 16, color: palette.link),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: palette
-                  .body(13)
-                  .copyWith(height: 18 / 13, color: palette.heading),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// The PIN for the issuance in the sheet, as a page of the sheet: the PIN
 /// pad without the logo, under the sheet's bar and the progress.

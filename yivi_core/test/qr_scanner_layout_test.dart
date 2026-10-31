@@ -6,6 +6,7 @@ import "package:yivi_core/src/providers/qr_scanner_factory_provider.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
 import "package:yivi_core/src/screens/scanner/util/camera_access.dart";
 import "package:yivi_core/src/screens/scanner/widgets/qr_scanner.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";
@@ -60,23 +61,17 @@ const _yiviCode =
 
 void main() {
   group("the window", () {
-    test("upright: 264 square, a little above the middle", () {
+    test("264 square, in the middle of the camera", () {
       expect(
-        QRScannerState.windowFor(const Size(390, 782)),
-        const Rect.fromLTWH(63, 225, 264, 264),
+        QRScannerState.windowFor(const Size(390, 600)),
+        const Rect.fromLTWH(63, 168, 264, 264),
       );
     });
 
-    test("sideways: in the room right of the column", () {
-      final window = QRScannerState.windowFor(const Size(750, 392), side: true);
-      expect(window, const Rect.fromLTWH(398, 74, 264, 264));
-      expect(window.left, greaterThan(QRScannerState.sideColumn));
-    });
-
-    test("a short sheet: smaller, below the title and inside", () {
-      final window = QRScannerState.windowFor(const Size(390, 400));
-      expect(window.top, greaterThanOrEqualTo(76));
-      expect(window.bottom, lessThan(400));
+    test("a short camera: smaller, and inside it", () {
+      final window = QRScannerState.windowFor(const Size(390, 200));
+      expect(window.top, greaterThanOrEqualTo(32));
+      expect(window.bottom, lessThanOrEqualTo(168));
       expect(window.width, window.height);
     });
   });
@@ -116,21 +111,21 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
-    testWidgets("upright: the camera fills it, the instruction under the "
-        "window, the title at the top", (tester) async {
+    testWidgets("upright: the bar on top, the camera, and the panel under "
+        "it with the instruction", (tester) async {
       await pump(tester, permission: _FakePermission(CameraAccess.granted));
-      expect(
-        tester.getSize(find.byKey(const Key("camera"))),
-        const Size(390, 782),
-      );
-      expect(find.text("Scan QR code"), findsOneWidget);
+      final bar = tester.getRect(find.byKey(const Key("glass_sheet_title")));
+      final camera = tester.getRect(find.byKey(const Key("camera")));
       final status = tester.getRect(find.byKey(const Key("qr_scanner_status")));
-      expect(status.top, closeTo(225 + 264 + 28, 0.5));
+      expect(find.text("Scan QR code"), findsOneWidget);
+      expect(camera.width, 390);
+      expect(camera.top, greaterThan(bar.bottom));
+      expect(status.top, greaterThanOrEqualTo(camera.bottom));
       expect(find.text("Point your camera at a Yivi QR code"), findsOneWidget);
-      expect(find.byKey(const Key("irma_app_bar_close")), findsOneWidget);
+      expect(find.byType(IrmaCloseButton), findsOneWidget);
     });
 
-    testWidgets("sideways: the title and where it is in the column", (
+    testWidgets("sideways: the panel at the left, the camera at the right", (
       tester,
     ) async {
       await pump(
@@ -139,10 +134,12 @@ void main() {
         permission: _FakePermission(CameraAccess.granted),
       );
       expect(find.text("Scan QR code"), findsOneWidget);
-      expect(find.text("Looking for a QR code…"), findsOneWidget);
+      final camera = tester.getRect(find.byKey(const Key("camera")));
       final status = tester.getRect(find.byKey(const Key("qr_scanner_status")));
-      expect(status.right, lessThan(QRScannerState.sideColumn));
-      expect(find.byKey(const Key("irma_app_bar_close")), findsOneWidget);
+      expect(camera.left, QRScannerState.sideColumn);
+      expect(camera.right, 750);
+      expect(status.right, lessThanOrEqualTo(QRScannerState.sideColumn));
+      expect(find.byType(IrmaCloseButton), findsOneWidget);
     });
 
     testWidgets("the torch shows only with a torch, and switches", (
@@ -158,7 +155,16 @@ void main() {
       await tester.tap(find.byKey(const Key("qr_scanner_torch")));
       await tester.pump();
       expect(camera.toggles, 1);
-      expect(find.text("Flashlight on"), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byKey(const Key("qr_scanner_torch"))),
+        matchesSemantics(
+          label: "Flashlight",
+          isButton: true,
+          hasToggledState: true,
+          isToggled: true,
+          hasTapAction: true,
+        ),
+      );
     });
 
     testWidgets("a Yivi code: green, then handed on", (tester) async {
@@ -203,7 +209,7 @@ void main() {
       expect(permission.asked, 0);
       expect(find.byKey(const Key("camera")), findsNothing);
       expect(find.text("No access to your camera"), findsOneWidget);
-      expect(find.byKey(const Key("irma_app_bar_close")), findsOneWidget);
+      expect(find.byType(IrmaCloseButton), findsOneWidget);
 
       await tester.tap(find.byKey(const Key("qr_scanner_open_settings")));
       await tester.pump();
@@ -227,9 +233,7 @@ void main() {
         permission: _FakePermission(CameraAccess.denied),
       );
       expect(find.text("No access to your camera"), findsOneWidget);
-      expect(find.byKey(const Key("irma_app_bar_close")), findsOneWidget);
-      // No title over the picture sideways.
-      expect(find.text("Scan QR code"), findsNothing);
+      expect(find.byType(IrmaCloseButton), findsOneWidget);
     });
   });
 }

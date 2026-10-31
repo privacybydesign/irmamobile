@@ -1224,9 +1224,9 @@ class GlassSheetHeader extends StatelessWidget {
         shown(IrmaCloseButton(onTap: close)),
     ];
     return Padding(
-      // Room under the buttons, also once content scrolls under the bar and
-      // its edge shows; less above them on a phone held sideways.
-      padding: EdgeInsets.fromLTRB(16, sideways ? 12 : 16, 16, 12),
+      // A little room under the buttons, for the band once content scrolls
+      // under the bar; less above them on a phone held sideways.
+      padding: EdgeInsets.fromLTRB(16, sideways ? 12 : 16, 16, 4),
       child: SizedBox(
         height: 44,
         child: CustomMultiChildLayout(
@@ -1284,9 +1284,9 @@ class GlassSheetHeader extends StatelessWidget {
             ),
     );
     return Padding(
-      // As much room under the buttons as above them, for the edge that
-      // shows once content scrolls under the bar.
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      // A little room under the buttons, for the band once content scrolls
+      // under the bar.
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: SizedBox(
         height: 44,
         child: Row(

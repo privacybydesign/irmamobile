@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/after_frame.dart";
 import "../../../widgets/glass/scroll_edge.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
 import "wallet_transition.dart";
@@ -200,7 +201,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
           // content is under them, as in a sheet.
           Positioned.fill(
             child: ScrollEdge(
-              height: padding.top + 68,
+              height: padding.top + IrmaAppBar.toolbarHeight,
               band: (context, under) => AnimatedBuilder(
                 animation: chrome,
                 builder: (context, _) =>

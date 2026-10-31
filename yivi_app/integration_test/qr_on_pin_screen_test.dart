@@ -178,7 +178,10 @@ Future<void> testBackFromQrScanner(
   expect(qrScreen, findsOneWidget);
 
   // Sheet has a close button in the top-right (not a back button).
-  final closeButton = find.byKey(const Key("irma_app_bar_close"));
+  final closeButton = find.descendant(
+    of: qrScreen,
+    matching: find.byType(IrmaCloseButton),
+  );
   await tester.tapAndSettle(closeButton);
 
   // After dismissing the sheet we're back on LockGate's PinScreen.

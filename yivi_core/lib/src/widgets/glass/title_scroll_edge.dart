@@ -137,7 +137,11 @@ class TabLargeTitle extends StatelessWidget {
           maxLines: 1,
           style: YiviPalette.of(context)
               .display(30, weight: FontWeight.w700)
-              .copyWith(height: 36 / 30, letterSpacing: -0.3),
+              .copyWith(
+                height: 36 / 30,
+                letterSpacing: -0.3,
+                color: YiviPalette.of(context).text,
+              ),
         ),
       ),
     ),

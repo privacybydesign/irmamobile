@@ -15,6 +15,7 @@ import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/centred_max_width.dart";
+import "../../../widgets/compact_bar.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
@@ -55,6 +56,28 @@ class _CredentialDetailScreenState
     extends ConsumerState<CredentialDetailScreen> {
   late String _hash = widget.hash;
 
+  /// Whether the card has scrolled away under the top bar: then a small
+  /// one, its name and issuer show in the bar ([CompactBar]).
+  final _scrolledPast = ValueNotifier(false);
+  final _headerKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _scrolledPast.dispose();
+    super.dispose();
+  }
+
+  /// Measured after the frame: during the scroll notification the card
+  /// still has the position of the previous frame.
+  bool _onScroll(ScrollNotification _) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final under = headerUnderBar(context, _headerKey);
+      if (under != null) _scrolledPast.value = under;
+    });
+    return false;
+  }
+
   void _close() => Navigator.of(context).maybePop();
 
   @override
@@ -71,65 +94,81 @@ class _CredentialDetailScreenState
     return WalletDetailScaffold(
       openKey: _hash,
       closeKey: const Key("credential_detail_done"),
+      barBuilder: credential == null
+          ? null
+          : (context, opacity) => CompactBarDropIn(
+              shown: _scrolledPast,
+              bar: (t) => CompactBar(
+                key: const Key("credential_compact_bar"),
+                opacity: opacity * t,
+                leading: CredentialCardArt(credential: credential, width: 44),
+                title: credential.name,
+                subtitle: TextSpan(text: credential.issuer.name),
+              ),
+            ),
       builder: (context, physics, animation) {
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(
           builder: (context, constraints) {
             final width = (constraints.maxWidth - 32).clamp(0.0, _maxWidth);
-            return ListView(
-              // Pulling down at the top dismisses the page.
-              physics: physics,
-              padding: EdgeInsets.fromLTRB(
-                16,
-                padding.top + 76,
-                16,
-                padding.bottom + 32,
-              ),
-              children: [
-                Center(
-                  child: Semantics(
-                    button: true,
-                    label: FlutterI18n.translate(
-                      context,
-                      "wallet.detail.back_to_cards",
-                    ),
-                    child: GestureDetector(
-                      onTap: _close,
-                      child: CardHero(
-                        credential: credential,
-                        width: width,
-                        hintText: hintText,
+            return NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: ListView(
+                // Pulling down at the top dismisses the page.
+                physics: physics,
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  padding.top + 76,
+                  16,
+                  padding.bottom + 32,
+                ),
+                children: [
+                  Center(
+                    child: Semantics(
+                      button: true,
+                      label: FlutterI18n.translate(
+                        context,
+                        "wallet.detail.back_to_cards",
+                      ),
+                      child: GestureDetector(
+                        onTap: _close,
+                        child: CardHero(
+                          key: _headerKey,
+                          credential: credential,
+                          width: width,
+                          hintText: hintText,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                WalletReveal(
-                  animation: animation,
-                  child: CentredMaxWidth(
-                    maxWidth: _maxWidth,
-                    child: _Details(
-                      credential: credential,
-                      // Only on the card the search found, not on a sibling
-                      // picked after.
-                      found: _hash == widget.hash ? widget.found : null,
-                      siblings: cards
-                          .where(
-                            (c) => c.credentialId == credential.credentialId,
-                          )
-                          .toList(),
-                      hintTexts: {
-                        for (final c in cards)
-                          c.hash: instanceHintText(
-                            context,
-                            hints[c.hash] ?? const NoHint(),
-                          ),
-                      },
-                      onSwitch: (hash) => setState(() => _hash = hash),
-                      onDeleted: _close,
+                  WalletReveal(
+                    animation: animation,
+                    child: CentredMaxWidth(
+                      maxWidth: _maxWidth,
+                      child: _Details(
+                        credential: credential,
+                        // Only on the card the search found, not on a sibling
+                        // picked after.
+                        found: _hash == widget.hash ? widget.found : null,
+                        siblings: cards
+                            .where(
+                              (c) => c.credentialId == credential.credentialId,
+                            )
+                            .toList(),
+                        hintTexts: {
+                          for (final c in cards)
+                            c.hash: instanceHintText(
+                              context,
+                              hints[c.hash] ?? const NoHint(),
+                            ),
+                        },
+                        onSwitch: (hash) => setState(() => _hash = hash),
+                        onDeleted: _close,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         );
@@ -312,8 +351,12 @@ class _Details extends ConsumerWidget {
         ? status.instanceCount
         : null;
 
-    Widget heading(String key, {Map<String, String>? params}) => Padding(
-      padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
+    Widget heading(
+      String key, {
+      Map<String, String>? params,
+      double below = 8,
+    }) => Padding(
+      padding: EdgeInsets.fromLTRB(4, 24, 4, below),
       child: Semantics(
         header: true,
         child: Text(
@@ -491,7 +534,9 @@ class _Details extends ConsumerWidget {
             ),
           ),
         ],
-        heading("wallet.detail.activity"),
+        // Its summary line right under it, as a subtitle; the section
+        // keeps the usual gap itself when there is none.
+        heading("wallet.detail.activity", below: 2),
         CardActivitySection(credential: credential),
         const SizedBox(height: 24),
         _AboutRow(

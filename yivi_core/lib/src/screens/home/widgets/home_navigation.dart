@@ -66,7 +66,13 @@ const homeTabs = [
     Icons.notifications,
     Icons.notifications_outlined,
   ),
-  (IrmaNavBarTab.more, "home.nav_bar.more", Icons.more_horiz, Icons.more_horiz),
+  // Three lines, not the … of the Data tab's menu.
+  (
+    IrmaNavBarTab.more,
+    "home.nav_bar.more",
+    Icons.menu_rounded,
+    Icons.menu_rounded,
+  ),
 ];
 
 /// The tab bar of a phone held upright: on iOS a capsule floating over the
@@ -130,12 +136,7 @@ class _HomeTabBarState extends State<HomeTabBar> {
     final row = Row(
       children: [
         Expanded(child: tabs),
-        Container(
-          width: 1,
-          height: 32,
-          margin: const EdgeInsetsDirectional.only(start: 2, end: 6),
-          color: palette.divider,
-        ),
+        const SizedBox(width: 8),
         const HomeScanButton(),
       ],
     );

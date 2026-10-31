@@ -9,19 +9,18 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/session.dart";
 import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_motion.dart";
+import "../../../widgets/glass/floating_bar_placement.dart";
 import "qr_overlay.dart";
 import "scan_status.dart";
 
-/// The camera with the scan window, and what the scanner says about it.
-///
-/// Upright (and in a tablet's sheet) the window is in the middle, with the
-/// instruction as one line under it and the torch at the bottom. Sideways
-/// ([side]) the title, the instruction and where it is stand in a column at
-/// the left, over a dark fade, and the window is in the room to the right.
+/// The camera with the scan window, and the panel with what the scanner
+/// says and the torch: under the camera upright (and in a tablet's sheet),
+/// in a column at the left sideways ([side]). The panel is on the sheet
+/// itself, not over the picture.
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
 
-  /// Laid out sideways: the column at the left, the window at the right.
+  /// Laid out sideways: the panel at the left, the camera at the right.
   final bool side;
 
   const QRScanner({super.key, required this.onFound, this.side = false});
@@ -54,26 +53,20 @@ class QRScannerState extends State<QRScanner>
     super.dispose();
   }
 
-  /// The left column of the sideways scanner, and how far the window stays
-  /// from its right edge.
-  static const sideColumn = 310.0;
+  /// The width of the sideways panel.
+  static const sideColumn = 300.0;
 
-  /// Where the window is in a scanner of [size]: at most 264 square.
-  /// Upright a little above the middle, below the title; sideways in the
-  /// middle of the room right of the column.
-  static Rect windowFor(Size size, {bool side = false}) {
-    if (side) {
-      final s = math.min(264.0, size.height - 120).clamp(120.0, 264.0);
-      final centre = (sideColumn + size.width) / 2;
-      return Rect.fromLTWH(centre - s / 2, (size.height - s) / 2 + 10, s, s);
-    }
-    final s = [
-      264.0,
-      size.width - 112,
-      size.height * 0.42,
-    ].reduce(math.min).clamp(120.0, 264.0);
-    final top = math.max(76.0, (size.height - s) / 2 - 34);
-    return Rect.fromLTWH((size.width - s) / 2, top, s, s);
+  /// Where the window is in a camera of [size]: in the middle, at most 264
+  /// square, and at least 32 from its edges.
+  static Rect windowFor(Size size) {
+    final s = math
+        .min(264.0, math.min(size.width, size.height) - 64)
+        .clamp(120.0, 264.0);
+    return Rect.fromCenter(
+      center: size.center(Offset.zero),
+      width: s,
+      height: s,
+    );
   }
 
   ScanState get _state => found
@@ -92,104 +85,71 @@ class QRScannerState extends State<QRScanner>
 
   @override
   Widget build(BuildContext context) {
-    // The device's own inset (the home indicator), not the sheet's bottom
-    // padding, which adds room for a list to end above it.
-    final inset = MediaQuery.viewPaddingOf(context).bottom;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final window = windowFor(constraints.biggest, side: widget.side);
-        final state = _state;
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            Consumer(
-              builder: (context, ref, _) => ref
-                  .watch(qrScannerFactoryProvider)
-                  .build(onCodeFound: _foundQR, torch: _torch),
-            ),
-            AnimatedBuilder(
-              animation: _shake,
-              builder: (context, _) => CustomPaint(
-                painter: QROverlay(
-                  window: window,
-                  found: found,
-                  error: error,
-                  shake: _shakeOffset,
+    final state = _state;
+    final camera = ClipRect(
+      child: ColoredBox(
+        color: const Color(0xFF15181C),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final window = windowFor(constraints.biggest);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Consumer(
+                  builder: (context, ref, _) => ref
+                      .watch(qrScannerFactoryProvider)
+                      .build(onCodeFound: _foundQR, torch: _torch),
                 ),
-              ),
-            ),
-            Positioned.fromRect(
-              rect: window,
-              child: IgnorePointer(
-                child: found || error
-                    ? _ResultDisc(success: found)
-                    : const SizedBox.shrink(),
-              ),
-            ),
-            if (widget.side) ...[
-              // A dark fade under the column, so it reads over any picture.
-              const Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: 340,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        stops: [0, 0.7, 1],
-                        colors: [
-                          Color(0xD10C0E10),
-                          Color(0xB30C0E10),
-                          Color(0x000C0E10),
-                        ],
-                      ),
+                AnimatedBuilder(
+                  animation: _shake,
+                  builder: (context, _) => CustomPaint(
+                    painter: QROverlay(
+                      window: window,
+                      found: found,
+                      error: error,
+                      shake: _shakeOffset,
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 20,
-                top: 16,
-                bottom: inset > 0 ? inset : 16,
-                width: 270,
-                child: ScanSidePanel(state: state, torch: _torch),
-              ),
-            ] else ...[
-              // A fade at the top, so the title reads over any picture.
-              const Positioned(
-                left: 0,
-                right: 0,
-                top: 0,
-                height: 120,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0x80000000), Color(0x00000000)],
-                      ),
-                    ),
+                Positioned.fromRect(
+                  rect: window,
+                  child: IgnorePointer(
+                    child: found || error
+                        ? _ResultDisc(success: found)
+                        : const SizedBox.shrink(),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 16,
-                right: 16,
-                top: window.bottom + 28,
-                child: Center(child: ScanPill(state: state)),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: inset > 0 ? inset + 5 : 28,
-                child: Center(child: TorchButton(torch: _torch)),
-              ),
-            ],
-          ],
-        );
-      },
+              ],
+            );
+          },
+        ),
+      ),
+    );
+    final bottom = FloatingBarPlacement.buttonBottom(context);
+    if (widget.side) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: sideColumn,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, 12, 20, bottom),
+              child: ScanPanel(state: state, torch: _torch, side: true),
+            ),
+          ),
+          Expanded(child: camera),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(child: camera),
+        Padding(
+          padding: EdgeInsets.fromLTRB(20, 14, 16, bottom),
+          child: ScanPanel(state: state, torch: _torch),
+        ),
+      ],
     );
   }
 

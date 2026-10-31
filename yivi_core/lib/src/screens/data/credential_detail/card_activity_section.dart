@@ -74,7 +74,9 @@ class CardActivitySection extends ConsumerWidget {
               key: const Key("card_activity_summary"),
               style: palette.body(14).copyWith(color: palette.secondaryText),
             ),
-          ),
+          )
+        else
+          const SizedBox(height: 6),
         SurfaceCard(
           clipBehavior: Clip.antiAlias,
           child: Column(

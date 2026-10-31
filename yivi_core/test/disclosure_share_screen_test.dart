@@ -777,7 +777,7 @@ void main() {
       expect(find.byKey(const Key("shared_card_problem")), findsOneWidget);
       expect(find.byKey(const Key("shared_card_fix")), findsNothing);
       expect(find.byKey(const Key("share_footnote")), findsOneWidget);
-      expect(find.text("Add Address again"), findsOneWidget);
+      expect(find.text("Add again"), findsOneWidget);
 
       // It opens the sheet straight on adding a new one: its details.
       await tester.tap(_share);
@@ -934,7 +934,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: _share, matching: find.text("Add ID card")),
+        find.descendant(of: _share, matching: find.text("Add data")),
         findsOneWidget,
       );
       expect(find.byKey(const Key("share_footnote")), findsOneWidget);
@@ -1424,7 +1424,7 @@ void main() {
       );
       // Not a singleton: add another; and a quiet way out.
       expect(
-        find.descendant(of: _share, matching: find.text("Add iDEAL")),
+        find.descendant(of: _share, matching: find.text("Add data")),
         findsOneWidget,
       );
       expect(find.byKey(const Key("share_decline")), findsOneWidget);

@@ -57,9 +57,10 @@ class YiviBackButton extends StatelessWidget {
 /// Unlike Material's AppBar it does not clip, so the glass buttons keep their
 /// soft shadow.
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  /// 16 above the 44 pt buttons and 8 below them, so the edge under the bar
-  /// (once content scrolls under it) clears the buttons.
-  static const double toolbarHeight = 68;
+  /// 16 above the 44 pt buttons and 4 below them: the band under the bar
+  /// (once content scrolls under it) ends close under the bare icons, as
+  /// in the sheets and on the home tabs.
+  static const double toolbarHeight = 64;
 
   /// How far a close button in a free corner ([edgeActions]) is from the top
   /// and the side of the screen: clear of an iPhone's rounded corner.
@@ -167,7 +168,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           16 + padding.left,
           corner ? cornerInset : 16,
           corner ? cornerInset : 16 + padding.right,
-          corner ? 0 : 8,
+          corner ? 0 : 4,
         ),
         child: Stack(
           alignment: Alignment.center,

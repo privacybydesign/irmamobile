@@ -74,7 +74,7 @@ class HomeTabTop extends StatefulWidget {
       MediaQuery.paddingOf(context).top + tabTitleTop;
 
   /// The space between the large title and the search field under it.
-  static const double fieldGap = 12;
+  static const double fieldGap = 8;
 
   /// How far the list scrolls before the middle of the search field under
   /// the large title is under the bar: then the bar's search button takes
@@ -128,8 +128,8 @@ class _HomeTabTopState extends State<HomeTabTop> {
         ? 0.0
         : widget.belowHeight + HomeTabTop.belowGap;
     return ScrollEdge(
-      // Collapsed, the bar has some room under its buttons.
-      height: padding.top + HomeTabTop.barHeight + 10 + belowHeight,
+      // Collapsed, the band ends with the bar.
+      height: padding.top + HomeTabTop.barHeight + belowHeight,
       // While searching it comes as soon as something is under the bar;
       // otherwise as the large title goes under it.
       band: (context, under) => PushAway(

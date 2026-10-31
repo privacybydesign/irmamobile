@@ -1,4 +1,5 @@
 import "dart:async";
+import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:flutter/cupertino.dart" show CupertinoIcons;
@@ -524,8 +525,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         16,
         top,
         16,
-        // Clear of the "Show results" button.
-        padding.bottom + bottomBarSpace(context) + 72,
+        // Clear of the keyboard or the tab bar, and of "Show results".
+        max(
+              MediaQuery.viewInsetsOf(context).bottom + 12,
+              padding.bottom + bottomBarSpace(context),
+            ) +
+            72,
       ),
       children: [
         for (final (title, items) in groups)
@@ -856,7 +861,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       final header = <Widget>[
         PushAway(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: HomeTabTop.fieldGap,
@@ -889,6 +894,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       ];
       return Scaffold(
         backgroundColor: palette.background,
+        // The keyboard covers the tab; the list and "Show results" keep
+        // clear of it themselves.
+        resizeToAvoidBottomInset: false,
         body: _withResultsButton(
           HomeTabTop(
             title: FlutterI18n.translate(context, "home.nav_bar.activity"),
@@ -993,6 +1001,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     return Scaffold(
       backgroundColor: palette.background,
+      resizeToAvoidBottomInset: false,
       body: useHomePanes(context)
           ? _withDetailPane(_withResultsButton(list))
           : _withResultsButton(list),
