@@ -13,14 +13,15 @@ import "../../../widgets/glass/floating_bar_placement.dart";
 import "qr_overlay.dart";
 import "scan_status.dart";
 
-/// The camera with the scan window, and the panel with what the scanner
-/// says and the torch: under the camera upright (and in a tablet's sheet),
-/// in a column at the left sideways ([side]). The panel is on the sheet
-/// itself, not over the picture.
+/// The camera with the scan window and, under the window, what the scanner
+/// says in a pill; the torch in the middle of a panel on the sheet itself:
+/// under the camera upright (and in a tablet's sheet), in a column at the
+/// left sideways ([side]).
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
 
-  /// Laid out sideways: the panel at the left, the camera at the right.
+  /// Laid out sideways: the torch's column at the left, the camera at the
+  /// right.
   final bool side;
 
   const QRScanner({super.key, required this.onFound, this.side = false});
@@ -53,19 +54,26 @@ class QRScannerState extends State<QRScanner>
     super.dispose();
   }
 
-  /// The width of the sideways panel.
-  static const sideColumn = 300.0;
+  /// The width of the sideways torch column.
+  static const sideColumn = 140.0;
 
-  /// Where the window is in a camera of [size]: in the middle, at most 264
-  /// square, and at least 32 from its edges.
+  /// The room under the window for the pill: its gap and its height.
+  static const pillRoom = 24.0 + 40;
+
+  /// Where the window is in a camera of [size]: at most 264 square, at
+  /// least 32 from the edges, and with the pill under it the two in the
+  /// middle.
   static Rect windowFor(Size size) {
-    final s = math
-        .min(264.0, math.min(size.width, size.height) - 64)
-        .clamp(120.0, 264.0);
-    return Rect.fromCenter(
-      center: size.center(Offset.zero),
-      width: s,
-      height: s,
+    final s = [
+      264.0,
+      size.width - 64,
+      size.height - 64 - pillRoom,
+    ].reduce(math.min).clamp(120.0, 264.0);
+    return Rect.fromLTWH(
+      (size.width - s) / 2,
+      math.max(16, (size.height - s - pillRoom) / 2),
+      s,
+      s,
     );
   }
 
@@ -119,6 +127,12 @@ class QRScannerState extends State<QRScanner>
                         : const SizedBox.shrink(),
                   ),
                 ),
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  top: window.bottom + 24,
+                  child: Center(child: ScanPill(state: state)),
+                ),
               ],
             );
           },
@@ -126,15 +140,22 @@ class QRScannerState extends State<QRScanner>
       ),
     );
     final bottom = FloatingBarPlacement.buttonBottom(context);
+    final torch = TorchButton(torch: _torch);
     if (widget.side) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            width: sideColumn,
+          // No torch, no column: the camera takes the width. The row stays,
+          // so the camera is not built again.
+          ListenableBuilder(
+            listenable: _torch,
+            builder: (context, child) => SizedBox(
+              width: _torch.available ? sideColumn : 0,
+              child: child,
+            ),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 12, 20, bottom),
-              child: ScanPanel(state: state, torch: _torch, side: true),
+              padding: EdgeInsets.only(bottom: bottom),
+              child: Center(child: torch),
             ),
           ),
           Expanded(child: camera),
@@ -146,8 +167,8 @@ class QRScannerState extends State<QRScanner>
       children: [
         Expanded(child: camera),
         Padding(
-          padding: EdgeInsets.fromLTRB(20, 14, 16, bottom),
-          child: ScanPanel(state: state, torch: _torch),
+          padding: EdgeInsets.only(top: 14, bottom: bottom),
+          child: Center(child: torch),
         ),
       ],
     );

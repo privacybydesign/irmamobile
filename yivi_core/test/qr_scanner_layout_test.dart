@@ -61,17 +61,17 @@ const _yiviCode =
 
 void main() {
   group("the window", () {
-    test("264 square, in the middle of the camera", () {
+    test("264 square; with the pill under it, in the middle", () {
       expect(
         QRScannerState.windowFor(const Size(390, 600)),
-        const Rect.fromLTWH(63, 168, 264, 264),
+        const Rect.fromLTWH(63, 136, 264, 264),
       );
     });
 
-    test("a short camera: smaller, and inside it", () {
-      final window = QRScannerState.windowFor(const Size(390, 200));
-      expect(window.top, greaterThanOrEqualTo(32));
-      expect(window.bottom, lessThanOrEqualTo(168));
+    test("a short camera: smaller, and the pill still inside", () {
+      final window = QRScannerState.windowFor(const Size(390, 260));
+      expect(window.top, greaterThanOrEqualTo(16));
+      expect(window.bottom + QRScannerState.pillRoom, lessThanOrEqualTo(260));
       expect(window.width, window.height);
     });
   });
@@ -111,34 +111,49 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
-    testWidgets("upright: the bar on top, the camera, and the panel under "
-        "it with the instruction", (tester) async {
+    testWidgets("upright: the bar on top, the instruction in a pill under "
+        "the window, the torch in the middle under the camera", (tester) async {
       await pump(tester, permission: _FakePermission(CameraAccess.granted));
+      camera.torch!.report(available: true);
+      await tester.pump();
       final bar = tester.getRect(find.byKey(const Key("glass_sheet_title")));
-      final camera = tester.getRect(find.byKey(const Key("camera")));
-      final status = tester.getRect(find.byKey(const Key("qr_scanner_status")));
+      final cam = tester.getRect(find.byKey(const Key("camera")));
+      final window = QRScannerState.windowFor(cam.size).shift(cam.topLeft);
+      final pill = tester.getRect(find.byKey(const Key("qr_scanner_status")));
+      final torch = tester.getRect(find.byKey(const Key("qr_scanner_torch")));
       expect(find.text("Scan QR code"), findsOneWidget);
-      expect(camera.width, 390);
-      expect(camera.top, greaterThan(bar.bottom));
-      expect(status.top, greaterThanOrEqualTo(camera.bottom));
+      expect(cam.width, 390);
+      expect(cam.top, greaterThan(bar.bottom));
+      expect(pill.top, closeTo(window.bottom + 24, 0.5));
+      expect(pill.bottom, lessThan(cam.bottom));
+      expect(pill.center.dx, closeTo(195, 0.5));
+      expect(torch.top, greaterThanOrEqualTo(cam.bottom));
+      expect(torch.center.dx, closeTo(195, 0.5));
       expect(find.text("Point your camera at a Yivi QR code"), findsOneWidget);
       expect(find.byType(IrmaCloseButton), findsOneWidget);
     });
 
-    testWidgets("sideways: the panel at the left, the camera at the right", (
-      tester,
-    ) async {
+    testWidgets("sideways: the torch in a column at the left, the camera "
+        "with the pill at the right", (tester) async {
       await pump(
         tester,
         size: const Size(750, 392),
         permission: _FakePermission(CameraAccess.granted),
       );
+      // No torch: no column.
+      expect(tester.getRect(find.byKey(const Key("camera"))).left, 0);
+
+      camera.torch!.report(available: true);
+      await tester.pump();
+      final cam = tester.getRect(find.byKey(const Key("camera")));
+      final pill = tester.getRect(find.byKey(const Key("qr_scanner_status")));
+      final torch = tester.getRect(find.byKey(const Key("qr_scanner_torch")));
       expect(find.text("Scan QR code"), findsOneWidget);
-      final camera = tester.getRect(find.byKey(const Key("camera")));
-      final status = tester.getRect(find.byKey(const Key("qr_scanner_status")));
-      expect(camera.left, QRScannerState.sideColumn);
-      expect(camera.right, 750);
-      expect(status.right, lessThanOrEqualTo(QRScannerState.sideColumn));
+      expect(cam.left, QRScannerState.sideColumn);
+      expect(cam.right, 750);
+      expect(pill.left, greaterThan(cam.left));
+      expect(pill.bottom, lessThan(cam.bottom));
+      expect(torch.right, lessThanOrEqualTo(QRScannerState.sideColumn));
       expect(find.byType(IrmaCloseButton), findsOneWidget);
     });
 
