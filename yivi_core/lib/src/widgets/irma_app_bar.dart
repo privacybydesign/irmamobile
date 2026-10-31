@@ -7,6 +7,7 @@ import "../theme/yivi_palette.dart";
 import "glass/pill_buttons.dart";
 import "glass/round_icon_button.dart";
 import "glass/scroll_edge.dart";
+import "route_fixed_bar.dart";
 import "translated_text.dart";
 
 class YiviAppBarQrCodeButton extends StatelessWidget {
@@ -57,10 +58,18 @@ class YiviBackButton extends StatelessWidget {
 /// Unlike Material's AppBar it does not clip, so the glass buttons keep their
 /// soft shadow.
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  /// 16 above the 44 pt buttons and 4 below them: the band under the bar
-  /// (once content scrolls under it) ends close under the bare icons, as
-  /// in the sheets and on the home tabs.
-  static const double toolbarHeight = 64;
+  /// Every page's bar, the home tabs' too: its 44 pt buttons [buttonTop]
+  /// under the status bar and 4 above its bottom, where the band (once
+  /// content scrolls under it) ends. One place for them on every page, so a
+  /// button can stay where it is while the page under it changes.
+  static const double toolbarHeight = 52;
+
+  /// Where a bar's buttons start, under the status bar.
+  static const double buttonTop = 4;
+
+  /// Where a detail page's content starts, under the status bar: under the
+  /// bar, with 12 to spare.
+  static const double contentTop = toolbarHeight + 12;
 
   /// How far a close button in a free corner ([edgeActions]) is from the top
   /// and the side of the screen: clear of an iPhone's rounded corner.
@@ -120,7 +129,6 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
 
     final Widget plainTitle = Semantics(
       header: true,
@@ -161,12 +169,49 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     // In a free corner (landscape) the close button keeps clear of the
     // screen's rounded corner: further in than the 16 elsewhere.
     final corner = edgeActions && cornerIsFree(context);
+
+    // While its page is pushed or covered by a push the bar stays where it
+    // is: its buttons hand over in place, its title slides and fades.
+    return RouteFixedBar(
+      builder: (context, role) {
+        Widget fade(double opacity, Widget child) =>
+            opacity >= 1 ? child : Opacity(opacity: opacity, child: child);
+        Widget title(Widget child) => fade(
+          role.titleOpacity,
+          role.titleShift == 0
+              ? child
+              : Transform.translate(
+                  offset: Offset(role.titleShift, 0),
+                  child: child,
+                ),
+        );
+        return _bar(
+          context,
+          corner: corner,
+          titleWidget: title(titleWidget),
+          startBar: startBar == null ? null : title(startBar!),
+          leading: leading == null ? null : fade(role.buttons, leading!),
+          actions: [for (final a in actions) fade(role.buttons, a)],
+        );
+      },
+    );
+  }
+
+  Widget _bar(
+    BuildContext context, {
+    required bool corner,
+    required Widget titleWidget,
+    required Widget? startBar,
+    required Widget? leading,
+    required List<Widget> actions,
+  }) {
+    final padding = MediaQuery.paddingOf(context);
     final toolbar = SizedBox(
       height: toolbarHeight,
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           16 + padding.left,
-          corner ? cornerInset : 16,
+          corner ? cornerInset : buttonTop,
           corner ? cornerInset : 16 + padding.right,
           corner ? 0 : 4,
         ),

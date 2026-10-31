@@ -1,7 +1,6 @@
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_motion.dart";
 import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/pane_handoff.dart";
@@ -18,25 +17,32 @@ import "../../../widgets/slot_registry.dart";
 class WalletTransition {
   WalletTransition._();
 
-  static const duration = Duration(milliseconds: 460);
+  /// The same time both ways.
+  static const duration = Duration(milliseconds: 500);
+  static const reverseDuration = duration;
 
-  /// Closing takes a little longer, for the settle at the end.
-  static const reverseDuration = Duration(milliseconds: 560);
-  static const curve = YiviMotion.ease;
+  /// One curve for everything that moves (the card, the other cards, the
+  /// bar): gentle at both ends, so it reads as one movement.
+  static const curve = Curves.fastOutSlowIn;
 
-  /// The curve of closing: a spring that runs a few percent past the end
-  /// and settles back, so the card lands in the stack with a slight bounce
-  /// and the other cards bounce back into place.
-  static const closeCurve = Cubic(0.34, 1.3, 0.64, 1);
+  /// What moves (the card, the other cards) settles with a little bounce:
+  /// it runs a few percent past its place and back ([moved]).
+  static const settleCurve = Cubic(0.3, 1.25, 0.5, 1);
+
+  /// At most this far past its place, however far it flew.
+  static const maxOvershoot = 10.0;
 
   /// Whether the open card is closing (its detail route runs in reverse).
   static bool closing = false;
 
   /// Progress of the open transition (0 closed, 1 open) at [value] of the
-  /// route animation, eased: [curve] while opening, [closeCurve] played from
-  /// the open end while closing (so the overshoot happens on landing).
-  static double eased(double value) =>
-      closing ? 1 - closeCurve.transform(1 - value) : curve.transform(value);
+  /// route animation: [curve] from where it starts, both ways, so closing
+  /// also leaves quickly and settles gently (not the opening played back,
+  /// which starts slowly).
+  static double eased(double value) {
+    final v = value.clamp(0.0, 1.0);
+    return closing ? 1 - curve.transform(1 - v) : curve.transform(v);
+  }
 
   /// Key of what is open (or opening/closing): a card's hash, or an
   /// activity entry's key.
@@ -48,11 +54,53 @@ class WalletTransition {
 
   static String heroTag(String hash) => "card-art-$hash";
 
+  /// Whether the page below has a + in its bar that turns into the
+  /// detail's close button ([WalletBar.plusTurnsIntoClose]); otherwise the
+  /// close button turns in by itself.
+  static bool closeFromPlus = false;
+
   /// Call when a card is tapped, just before pushing its detail route.
   static void begin(BuildContext cardContext, String hash) {
     final box = cardContext.findRenderObject() as RenderBox?;
     anchorY = box?.localToGlobal(Offset.zero).dy ?? 0;
+    closeFromPlus = WalletBar.maybeOf(cardContext)?.plusTurnsIntoClose ?? false;
     openKey.value = hash;
+  }
+
+  /// How far what moves has gone (0 closed, 1 open) at [value] of the
+  /// route animation: as [eased], with the bounce of [settleCurve] (below 0
+  /// or above 1 near the end). See [overshoot] for how far that may go.
+  static double moved(double value) {
+    final v = value.clamp(0.0, 1.0);
+    return closing
+        ? 1 - settleCurve.transform(1 - v)
+        : settleCurve.transform(v);
+  }
+
+  /// [distance] × [t], but past either end by at most [maxOvershoot].
+  static double overshoot(double t, double distance) {
+    final past = switch (t) {
+      > 1 => (t - 1) * distance,
+      < 0 => t * distance,
+      _ => 0.0,
+    };
+    final within = t.clamp(0.0, 1.0) * distance;
+    return within + past.clamp(-maxOvershoot, maxOvershoot);
+  }
+
+  /// How far the bars have handed over (0 to 1) at [value] of the route
+  /// animation: as everything else ([eased]).
+  static double barProgress(double value) => eased(value);
+
+  /// The close button of a detail page at [value] of its route animation:
+  /// its opacity and its turn in degrees. It takes over from a + that turned
+  /// into it ([closeFromPlus]) at the end; otherwise it turns in from -45°
+  /// as the bar's buttons go.
+  static (double opacity, double turn) closeButton(double value) {
+    final p = barProgress(value);
+    double iv(double a, double b) => ((p - a) / (b - a)).clamp(0.0, 1.0);
+    if (closeFromPlus) return (iv(0.85, 1), 0);
+    return (iv(0.35, 0.8), -45 * (1 - iv(0.3, 0.9)));
   }
 
   /// Hero rect tween that follows [curve] in a straight line, instead of the
@@ -63,14 +111,11 @@ class WalletTransition {
   /// How far the [index]th of several cards that fly together is from its
   /// closed place (0) to its open place (1), at [value] of the route
   /// animation. Each starts a little later (about 30 ms each), so they fan
-  /// out one by one; [curve] while opening, [closeCurve] while closing (so
-  /// the overshoot happens on landing).
+  /// out one by one; closing, they come back together, [curve] from where
+  /// they start.
   static double staggered(double value, int index) {
+    if (closing) return eased(value);
     final start = (index * 0.065).clamp(0.0, 0.3);
-    if (closing) {
-      final delayed = Interval(start, 1).transform(1 - value);
-      return 1 - closeCurve.transform(delayed);
-    }
     return curve.transform(Interval(start, 1).transform(value));
   }
 }
@@ -78,14 +123,22 @@ class WalletTransition {
 class _CurvedRectTween extends RectTween {
   _CurvedRectTween({super.begin, super.end});
 
-  // A popping hero flies from the detail (t = 0) to the card in the list
-  // (t = 1), so closing uses [WalletTransition.closeCurve] forwards.
+  // Both ways from where it starts, with the bounce of
+  // [WalletTransition.settleCurve], at most [WalletTransition.maxOvershoot]
+  // past where it lands (a popping hero flies from the detail, t = 0, to
+  // the list, t = 1).
   @override
-  Rect? lerp(double t) => super.lerp(
-    WalletTransition.closing
-        ? WalletTransition.closeCurve.transform(t)
-        : WalletTransition.curve.transform(t),
-  );
+  Rect? lerp(double t) {
+    final b = begin, e = end;
+    if (b == null || e == null) return super.lerp(t);
+    final s = WalletTransition.settleCurve.transform(t);
+    return Rect.fromLTWH(
+      b.left + WalletTransition.overshoot(s, e.left - b.left),
+      b.top + WalletTransition.overshoot(s, e.top - b.top),
+      b.width + WalletTransition.overshoot(s, e.width - b.width),
+      b.height + WalletTransition.overshoot(s, e.height - b.height),
+    );
+  }
 }
 
 enum PushAwayDirection {
@@ -135,13 +188,19 @@ class PushAway extends StatelessWidget {
             child: child,
           );
         }
+        final bar = WalletBar.maybeOf(context);
         return AnimatedBuilder(
           animation: secondary,
           builder: (context, child) {
             final t = WalletTransition.eased(secondary.value);
             if (t == 0) return child!;
+            final moved = WalletTransition.moved(secondary.value);
+            if (bar != null) return _underBar(context, t, moved, child!);
             return Transform.translate(
-              offset: Offset(0, t * _distance(context)),
+              offset: Offset(
+                0,
+                WalletTransition.overshoot(moved, _distance(context)),
+              ),
               child: child,
             );
           },
@@ -152,6 +211,40 @@ class PushAway extends StatelessWidget {
     );
   }
 
+  /// Under a home tab's bar ([WalletBar]), as Wallet: only the tapped item
+  /// goes up. The header ([PushAwayDirection.up]) fades where it is; every
+  /// other item, above the tapped one or below it, goes down off the screen,
+  /// all by the same distance, so the list drops as one (what was above
+  /// passes behind the flying item).
+  Widget _underBar(BuildContext context, double t, double moved, Widget child) {
+    if (direction == PushAwayDirection.up ||
+        !(WalletBar.maybeOf(context)?.othersDrop ?? true)) {
+      // Gone in the first third of opening; closing, back while the
+      // details fade out (the first fifth), so the screen is never empty.
+      final opacity = WalletTransition.closing
+          ? 1 - ((t - 0.8) / 0.17).clamp(0.0, 1.0)
+          : 1 - (t / 0.35).clamp(0.0, 1.0);
+      return Opacity(opacity: opacity, child: child);
+    }
+    // Far enough that even an item at the very top ends below the screen.
+    // One scrolled off the top stays hidden: dropping by the same distance
+    // would bring it into view.
+    final box = context.findRenderObject() as RenderBox?;
+    final height = box != null && box.hasSize ? box.size.height : 0.0;
+    if (box != null &&
+        box.hasSize &&
+        box.localToGlobal(Offset(0, height)).dy <= 0) {
+      // Kept (with its state), only not drawn.
+      return Opacity(opacity: 0, child: child);
+    }
+    final drop = MediaQuery.sizeOf(context).height + 32 + height;
+    return Transform.translate(
+      offset: Offset(0, WalletTransition.overshoot(moved, drop)),
+      child: child,
+    );
+  }
+
+  /// How far it goes: off the screen, up or down.
   double _distance(BuildContext context) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return 0;
@@ -165,6 +258,35 @@ class PushAway extends StatelessWidget {
     };
     return up ? -(bottom + 32) : (screen - top + 32);
   }
+}
+
+/// The bar of a home tab (`HomeTabTop`), for what opens from under it: it
+/// stays while a card or an entry opens; the header under it fades and the
+/// rest of the list drops away ([PushAway]).
+class WalletBar extends InheritedWidget {
+  /// Whether the bar's last button is a + that turns into the detail's
+  /// close button ([WalletTransition.closeFromPlus]).
+  final bool plusTurnsIntoClose;
+
+  /// Whether the other items drop away together (cards, which lie over each
+  /// other, as in Wallet); otherwise they fade where they are (rows: one
+  /// dropping through another would show its text over it).
+  final bool othersDrop;
+
+  const WalletBar({
+    super.key,
+    required this.plusTurnsIntoClose,
+    this.othersDrop = true,
+    required super.child,
+  });
+
+  static WalletBar? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<WalletBar>();
+
+  @override
+  bool updateShouldNotify(WalletBar oldWidget) =>
+      oldWidget.plusTurnsIntoClose != plusTurnsIntoClose ||
+      oldWidget.othersDrop != othersDrop;
 }
 
 /// The page of the card detail route. It draws no transition of its own: the

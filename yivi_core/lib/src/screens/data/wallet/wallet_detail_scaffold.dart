@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
@@ -140,7 +142,6 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 
   void _onRouteStatus(AnimationStatus status) {
-    // Closing bounces into place (WalletTransition.closeCurve).
     WalletTransition.closing = status == AnimationStatus.reverse;
     if (status == AnimationStatus.dismissed) {
       WalletTransition.openKey.value = null;
@@ -190,7 +191,13 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
               builder: (context, _) => ColoredBox(
                 color: palette.background.withValues(
                   alpha:
-                      const Interval(0.6, 1).transform(animation.value) *
+                      // Closing: clears once the details have gone
+                      // (WalletReveal), so they never lie over the cards
+                      // coming back.
+                      (WalletTransition.closing
+                              ? const Interval(0.55, 0.85)
+                              : const Interval(0.6, 1))
+                          .transform(animation.value) *
                       (1 - _pullProgress * 0.5),
                 ),
               ),
@@ -211,7 +218,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                 // Inside the safe area: clear of the Dynamic Island or an
                 // unfolded phone's side panel.
                 Positioned(
-                  top: padding.top + 16,
+                  top: padding.top + IrmaAppBar.buttonTop,
                   left: 16 + padding.left,
                   right: 16 + padding.right,
                   // Faded by the surface itself (GlassSurface.opacity).
@@ -228,10 +235,24 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                               const SizedBox.shrink(),
                         ),
                         const SizedBox(width: 8),
-                        IrmaCloseButton(
-                          key: widget.closeKey,
-                          onTap: _close,
-                          opacity: chromeOpacity(),
+                        Builder(
+                          builder: (context) {
+                            // Takes over from the bar's buttons below,
+                            // where they were (WalletTransition.closeButton).
+                            final (opacity, turn) =
+                                WalletTransition.closeButton(animation.value);
+                            final still = MediaQuery.disableAnimationsOf(
+                              context,
+                            );
+                            return Transform.rotate(
+                              angle: still ? 0 : turn * pi / 180,
+                              child: IrmaCloseButton(
+                                key: widget.closeKey,
+                                onTap: _close,
+                                opacity: opacity * (1 - _pullProgress),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -262,7 +283,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 }
 
-/// Fades its child in and moves it up from below as the route opens.
+/// Fades its child in as the route opens, where it is.
 class WalletReveal extends StatelessWidget {
   final Animation<double> animation;
   final Widget child;
@@ -271,24 +292,19 @@ class WalletReveal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final opening = animation.status != AnimationStatus.reverse;
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
         final t = opening
-            ? const Interval(
-                0.25,
-                1,
-                curve: WalletTransition.curve,
-              ).transform(animation.value)
-            : const Interval(0.5, 1).transform(animation.value);
+            ? const Interval(0.35, 1).transform(animation.value)
+            // Closing: gone in the first fifth, before the other cards
+            // come back up under it.
+            : const Interval(0.8, 1).transform(animation.value);
         return Opacity(
           opacity: t,
-          child: Transform.translate(
-            offset: Offset(0, reduceMotion ? 0 : (1 - t) * 56),
-            child: child,
-          ),
+          // Only fades, where it is: what flies starts and ends there.
+          child: child,
         );
       },
       child: child,

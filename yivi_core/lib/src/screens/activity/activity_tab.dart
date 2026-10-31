@@ -859,7 +859,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     // right, as on the Data tab.
     if (!useHomePanes(context)) {
       final header = <Widget>[
+        // The header: it fades where it is while an entry opens.
         PushAway(
+          direction: PushAwayDirection.up,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Column(
@@ -946,6 +948,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             ),
             onSearch: _startSearchingInBar,
             trailing: filterButton,
+            // Entries are rows: the others fade where they are.
+            othersDrop: false,
             child: _searching
                 ? _suggestionList(
                     HomeTabTop.listTop(

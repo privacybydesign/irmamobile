@@ -165,9 +165,8 @@ void main() {
     });
   }
 
-  testWidgets("the app bar insets its buttons 16 and does not clip", (
-    tester,
-  ) async {
+  testWidgets("the app bar insets its buttons 16 from the side, 4 from "
+      "the top (as the home tabs), and does not clip", (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
@@ -185,7 +184,7 @@ void main() {
     final back = tester.getRect(find.byKey(const Key("irma_app_bar_leading")));
     expect(back.left, 16);
     expect(back.size, const Size(44, 44));
-    expect(back.top, 16);
+    expect(back.top, IrmaAppBar.buttonTop);
     expect(
       find.descendant(
         of: find.byKey(const Key("irma_app_bar")),
@@ -194,4 +193,46 @@ void main() {
       findsNothing,
     );
   });
+
+  testWidgets("a pushed page's bar stays where it is: its back button "
+      "does not slide with the page", (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    await pumpHome(
+      tester,
+      repo: repo,
+      home: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: IrmaAppBar(titleString: "One"),
+        body: const SizedBox.expand(),
+      ),
+    );
+    await settle(tester);
+    final back = find.byKey(const Key("irma_app_bar_leading"));
+    final rest = tester.getRect(back);
+
+    Navigator.of(tester.element(back)).push(
+      MaterialPageRoute<void>(
+        builder: (context) => Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: IrmaAppBar(titleString: "Two"),
+          body: const ColoredBox(color: Colors.white),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+    // Halfway: the page is on its way in, its back button already in place.
+    final page = tester.getTopLeft(find.byType(ColoredBox).last);
+    expect(page.dx, greaterThan(0));
+    expect(tester.getRect(back.last), rest);
+    // The title comes from the right.
+    final title = tester.getCenter(find.text("Two"));
+    expect(title.dx, greaterThan(195));
+
+    await tester.pumpAndSettle();
+    expect(tester.getRect(back.last), rest);
+    expect(tester.getCenter(find.text("Two")).dx, 195);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 }

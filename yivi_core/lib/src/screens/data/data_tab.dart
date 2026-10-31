@@ -247,6 +247,8 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
             ),
             onSearch: _startSearching,
             leading: const _ViewMenuButton(),
+            // The + turns into the close button of a card that opens.
+            trailingTurnsIntoClose: true,
             trailing: RoundIconButton(
               key: const Key("data_tab_add_data"),
               icon: CupertinoIcons.add,

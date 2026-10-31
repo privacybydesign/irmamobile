@@ -27,6 +27,11 @@ class CardHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return Hero(
       tag: WalletTransition.heroTag(credential.hash),
+      // The rect tween eases (WalletTransition.rectTween), as everything
+      // else that moves with the card: no second curve on top, or the card
+      // starts late and the cards above it run ahead.
+      curve: Curves.linear,
+      reverseCurve: Curves.linear,
       createRectTween: WalletTransition.rectTween,
       // Its place is empty only while the card is open (or flying): Flutter
       // keeps the place of a hero that flew away empty until a flight back

@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
@@ -5,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../screens/data/wallet/wallet_transition.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../irma_app_bar.dart";
 import "../two_pane.dart";
 import "round_icon_button.dart";
 import "scroll_edge.dart";
@@ -32,6 +35,15 @@ class HomeTabTop extends StatefulWidget {
   final Widget? leading;
   final Widget? trailing;
 
+  /// Whether [trailing] is a + that turns into the close button of what
+  /// opens from the list (Data's add button); otherwise it turns away and
+  /// fades as the close button turns in (Activity's filter).
+  final bool trailingTurnsIntoClose;
+
+  /// Whether the list's other items drop away when one opens (cards), or
+  /// fade where they are (rows) ([WalletBar.othersDrop]).
+  final bool othersDrop;
+
   /// The bar's search button: its key, what a screen reader says, and what
   /// a tap does (start searching).
   final Key? searchButtonKey;
@@ -53,10 +65,12 @@ class HomeTabTop extends StatefulWidget {
     this.belowHeight = 0,
     this.leading,
     this.trailing,
+    this.trailingTurnsIntoClose = false,
+    this.othersDrop = true,
   });
 
   /// The bar's height under the status bar.
-  static const double barHeight = 52;
+  static const double barHeight = IrmaAppBar.toolbarHeight;
 
   /// From the top of the screen to the list while searching: under the bar
   /// and, [below] high, what is pinned under it.
@@ -127,62 +141,114 @@ class _HomeTabTopState extends State<HomeTabTop> {
     final belowHeight = below == null
         ? 0.0
         : widget.belowHeight + HomeTabTop.belowGap;
-    return ScrollEdge(
-      // Collapsed, the band ends with the bar.
-      height: padding.top + HomeTabTop.barHeight + belowHeight,
-      // While searching it comes as soon as something is under the bar;
-      // otherwise as the large title goes under it.
-      band: (context, under) => PushAway(
-        direction: PushAwayDirection.up,
-        child: searching
-            ? ScrollEdgeBand(under: under)
-            : ValueListenableBuilder<double>(
-                valueListenable: _scrolled,
-                builder: (context, px, _) => ScrollEdgeBand(
-                  under: AlwaysStoppedAnimation(HomeTabTop._titleGone(px)),
-                ),
-              ),
-      ),
-      bar: [
-        Positioned(
-          left: 16 + padding.left,
-          right: 16 + padding.right,
-          top: padding.top,
-          height: HomeTabTop.barHeight,
-          child: PushAway(
-            direction: PushAwayDirection.up,
-            child: searching
-                ? widget.searchRow
-                : _Bar(scrolled: _scrolled, top: widget),
-          ),
+    // While a card or an entry opens from the list, the bar stays: what is
+    // above the tapped item fades and the rest drops away, and the bar's
+    // buttons hand over in place to the details' close button.
+    return WalletBar(
+      plusTurnsIntoClose: widget.trailingTurnsIntoClose && !searching,
+      othersDrop: widget.othersDrop && !searching,
+      child: ScrollEdge(
+        // Collapsed, the band ends with the bar.
+        height: padding.top + HomeTabTop.barHeight + belowHeight,
+        // While searching it comes as soon as something is under the bar;
+        // otherwise as the large title goes under it. While something opens
+        // it stays as it was, and goes at the end if the details have
+        // nothing under their bar.
+        band: (context, under) => _OpenHandoff(
+          builder: (context, open) {
+            double band(double v) => v * (1 - _iv(open, 0.6, 1));
+            return searching
+                ? AnimatedBuilder(
+                    animation: under,
+                    builder: (context, _) => ScrollEdgeBand(
+                      under: AlwaysStoppedAnimation(band(under.value)),
+                    ),
+                  )
+                : ValueListenableBuilder<double>(
+                    valueListenable: _scrolled,
+                    builder: (context, px, _) => ScrollEdgeBand(
+                      under: AlwaysStoppedAnimation(
+                        band(HomeTabTop._titleGone(px)),
+                      ),
+                    ),
+                  );
+          },
         ),
-        if (below != null)
+        bar: [
           Positioned(
-            left: padding.left,
-            right: padding.right,
-            top: padding.top + HomeTabTop.barHeight + HomeTabTop.belowGap,
-            height: widget.belowHeight,
-            child: PushAway(direction: PushAwayDirection.up, child: below),
+            left: 16 + padding.left,
+            right: 16 + padding.right,
+            top: padding.top,
+            height: HomeTabTop.barHeight,
+            child: _OpenHandoff(
+              builder: (context, open) => searching
+                  ? Opacity(
+                      opacity: 1 - _iv(open, 0, 0.4),
+                      child: widget.searchRow,
+                    )
+                  : _Bar(scrolled: _scrolled, top: widget, open: open),
+            ),
           ),
-      ],
-      // Scrolling, and a new list (the log back after searching) laid out
-      // where it was.
-      child: NotificationListener<Notification>(
-        onNotification: (n) {
-          final (depth, metrics) = switch (n) {
-            ScrollNotification() => (n.depth, n.metrics),
-            ScrollMetricsNotification() => (n.depth, n.metrics),
-            _ => (-1, null),
-          };
-          if (depth == 0 && metrics != null && metrics.axis == Axis.vertical) {
-            _scrolled.value = metrics.pixels;
-            final pinned = metrics.pixels >= HomeTabTop._belowUnderBar;
-            if (pinned != _belowPinned) setState(() => _belowPinned = pinned);
-          }
-          return false;
-        },
-        child: widget.child,
+          if (below != null)
+            Positioned(
+              left: padding.left,
+              right: padding.right,
+              top: padding.top + HomeTabTop.barHeight + HomeTabTop.belowGap,
+              height: widget.belowHeight,
+              child: PushAway(direction: PushAwayDirection.up, child: below),
+            ),
+        ],
+        // Scrolling, and a new list (the log back after searching) laid out
+        // where it was.
+        child: NotificationListener<Notification>(
+          onNotification: (n) {
+            final (depth, metrics) = switch (n) {
+              ScrollNotification() => (n.depth, n.metrics),
+              ScrollMetricsNotification() => (n.depth, n.metrics),
+              _ => (-1, null),
+            };
+            if (depth == 0 &&
+                metrics != null &&
+                metrics.axis == Axis.vertical) {
+              _scrolled.value = metrics.pixels;
+              final pinned = metrics.pixels >= HomeTabTop._belowUnderBar;
+              if (pinned != _belowPinned) setState(() => _belowPinned = pinned);
+            }
+            return false;
+          },
+          child: widget.child,
+        ),
       ),
+    );
+  }
+}
+
+/// [value] from [a] to [b], as 0 to 1.
+double _iv(double value, double a, double b) =>
+    ((value - a) / (b - a)).clamp(0.0, 1.0);
+
+/// Builds with how far a card or an entry opening from this tab is (0 to
+/// 1, [WalletTransition.barProgress]); 0 when nothing opens.
+class _OpenHandoff extends StatelessWidget {
+  final Widget Function(BuildContext context, double open) builder;
+
+  const _OpenHandoff({required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    final secondary = ModalRoute.of(context)?.secondaryAnimation;
+    if (secondary == null) return builder(context, 0);
+    return ValueListenableBuilder<String?>(
+      valueListenable: WalletTransition.openKey,
+      builder: (context, openKey, _) => openKey == null
+          ? builder(context, 0)
+          : AnimatedBuilder(
+              animation: secondary,
+              builder: (context, _) => builder(
+                context,
+                WalletTransition.barProgress(secondary.value),
+              ),
+            ),
     );
   }
 }
@@ -191,7 +257,12 @@ class _Bar extends StatelessWidget {
   final ValueListenable<double> scrolled;
   final HomeTabTop top;
 
-  const _Bar({required this.scrolled, required this.top});
+  /// How far something opening from the list is: the buttons and the small
+  /// title go, the trailing button turns (see
+  /// [HomeTabTop.trailingTurnsIntoClose]).
+  final double open;
+
+  const _Bar({required this.scrolled, required this.top, this.open = 0});
 
   /// Two buttons and the gap between them on either side: the small title
   /// stays centred.
@@ -203,18 +274,30 @@ class _Bar extends StatelessWidget {
     return ValueListenableBuilder<double>(
       valueListenable: scrolled,
       builder: (context, px, _) {
-        final title = HomeTabTop._titleGone(px);
-        final search = ((px - HomeTabTop._fieldUnderBar + 10) / 30).clamp(
-          0.0,
-          1.0,
-        );
+        final going = 1 - _iv(open, 0, 0.4);
+        final title = HomeTabTop._titleGone(px) * going;
+        final search =
+            ((px - HomeTabTop._fieldUnderBar + 10) / 30).clamp(0.0, 1.0) *
+            going;
+        final turnsIntoClose = top.trailingTurnsIntoClose;
+        final reduceMotion = MediaQuery.disableAnimationsOf(context);
+        // The + turns 45° into the close button and gives way to it at the
+        // end; another button turns away and fades as the close turns in.
+        final trailingTurn =
+            (turnsIntoClose ? open : _iv(open, 0, 0.6)) *
+            (reduceMotion ? 0 : 1);
+        final trailingOpacity = turnsIntoClose
+            ? 1 - _iv(open, 0.85, 1)
+            : 1 - _iv(open, 0.2, 0.6);
         return Row(
           children: [
             SizedBox(
               width: _side,
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: top.leading,
+                child: top.leading == null || open == 0
+                    ? top.leading
+                    : Opacity(opacity: going, child: top.leading),
               ),
             ),
             Expanded(
@@ -262,7 +345,16 @@ class _Bar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  ?top.trailing,
+                  if (top.trailing case final trailing?)
+                    open == 0
+                        ? trailing
+                        : Opacity(
+                            opacity: trailingOpacity,
+                            child: Transform.rotate(
+                              angle: trailingTurn * pi / 4,
+                              child: trailing,
+                            ),
+                          ),
                 ],
               ),
             ),

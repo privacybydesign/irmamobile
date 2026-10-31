@@ -23,6 +23,7 @@ import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
@@ -118,7 +119,7 @@ class _CredentialDetailScreenState
                 physics: physics,
                 padding: EdgeInsets.fromLTRB(
                   16,
-                  padding.top + 76,
+                  padding.top + IrmaAppBar.contentTop,
                   16,
                   padding.bottom + 32,
                 ),

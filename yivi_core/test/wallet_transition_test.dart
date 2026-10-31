@@ -120,8 +120,8 @@ void main() {
       expect(at("below").dy, greaterThanOrEqualTo(844));
       expect(at("tapped"), tapped);
 
-      // And back again when the detail closes, with a slight bounce: the
-      // card below runs a little past its place before settling.
+      // And back again when the detail closes, with a little bounce: the
+      // card below runs past its place, by at most maxOvershoot.
       router.pop();
       WalletTransition.openKey.value = "tapped";
       WalletTransition.closing = true;
@@ -131,11 +131,127 @@ void main() {
         highest = at("below").dy < highest ? at("below").dy : highest;
       }
       expect(highest, lessThan(below.dy - 2));
+      expect(
+        highest,
+        greaterThanOrEqualTo(below.dy - WalletTransition.maxOvershoot),
+      );
       WalletTransition.closing = false;
       await tester.pumpAndSettle();
       expect(at("search"), search);
       expect(at("below"), below);
     });
+  });
+
+  testWidgets("under a home tab's bar, as Wallet: the header fades where it "
+      "is, the other cards drop away, above ones too", (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    WalletTransition.openKey.value = null;
+    late BuildContext tappedCard;
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: "/",
+          pageBuilder: (context, state) => MaterialPage(
+            child: Scaffold(
+              body: WalletBar(
+                plusTurnsIntoClose: true,
+                child: Stack(
+                  children: [
+                    const Positioned(
+                      top: 120,
+                      left: 0,
+                      right: 0,
+                      height: 48,
+                      child: PushAway(
+                        direction: PushAwayDirection.up,
+                        child: SizedBox(key: Key("field"), height: 48),
+                      ),
+                    ),
+                    const Positioned(
+                      top: 190,
+                      left: 0,
+                      right: 0,
+                      height: 100,
+                      child: PushAway(
+                        hash: "above",
+                        child: SizedBox(key: Key("above"), height: 100),
+                      ),
+                    ),
+                    Positioned(
+                      top: 300,
+                      left: 0,
+                      right: 0,
+                      height: 100,
+                      child: PushAway(
+                        hash: "tapped",
+                        child: Builder(
+                          builder: (context) {
+                            tappedCard = context;
+                            return const SizedBox(height: 100);
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          routes: [
+            GoRoute(
+              path: "detail",
+              pageBuilder: (context, state) =>
+                  const WalletDetailPage(child: SizedBox.expand()),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+
+    WalletTransition.begin(tappedCard, "tapped");
+    // The + of the bar turns into the close button.
+    expect(WalletTransition.closeFromPlus, isTrue);
+    router.push("/detail");
+    await tester.pumpAndSettle();
+
+    // The header: where it was, faded out.
+    final field = tester.getRect(find.byKey(const Key("field")));
+    expect(field.top, 120);
+    expect(
+      tester
+          .widget<Opacity>(
+            find
+                .ancestor(
+                  of: find.byKey(const Key("field")),
+                  matching: find.byType(Opacity),
+                )
+                .first,
+          )
+          .opacity,
+      0,
+    );
+    // The card above the tapped one went down, off the screen (by the
+    // screen and its own height, so even the top one leaves).
+    expect(
+      tester.getTopLeft(find.byKey(const Key("above"))).dy,
+      190 + 844 + 32 + 100,
+    );
+    WalletTransition.openKey.value = null;
+  });
+
+  test("the close button takes over from a + at the end, or turns in", () {
+    WalletTransition.closeFromPlus = true;
+    expect(WalletTransition.closeButton(0.1).$1, 0);
+    expect(WalletTransition.closeButton(1), (1.0, 0.0));
+    WalletTransition.closeFromPlus = false;
+    final (opacity, turn) = WalletTransition.closeButton(0.4);
+    expect(opacity, greaterThan(0));
+    expect(turn, lessThan(0));
+    expect(WalletTransition.closeButton(1), (1.0, 0.0));
   });
 
   group("card images", () {

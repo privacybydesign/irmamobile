@@ -14,6 +14,7 @@ import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/glass/round_icon_button.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/surface_card.dart";
 import "../../activity/activity_entry.dart";
@@ -303,7 +304,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
             key: const Key("card_activity_entry"),
             padding: EdgeInsets.fromLTRB(
               16,
-              padding.top + 76,
+              padding.top + IrmaAppBar.contentTop,
               16,
               padding.bottom + 32,
             ),
@@ -315,7 +316,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
             ],
           ),
           Positioned(
-            top: padding.top + 16,
+            top: padding.top + IrmaAppBar.buttonTop,
             left: 16 + padding.left,
             right: 16 + padding.right,
             child: Row(

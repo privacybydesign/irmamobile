@@ -138,13 +138,18 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/home",
         pageBuilder: (context, state) {
-          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(
-            context,
-          )) {
+          final instant =
+              TransitionStyleProvider.shouldPerformInstantTransitionToHome(
+                context,
+              );
+          if (instant) {
             TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
-            return NoTransitionPage(name: "/home", child: HomeScreen());
           }
-          return MaterialPage(name: "/home", child: HomeScreen());
+          return _HomePage(
+            key: state.pageKey,
+            instant: instant,
+            child: HomeScreen(),
+          );
         },
         routes: [
           GoRoute(
@@ -582,4 +587,28 @@ Stream<bool> _displayDeviceIsRootedWarning(
     }
   });
   return streamController.stream;
+}
+
+/// The home page: comes in at once ([instant], after unlocking) or pushed.
+/// One kind of page either way, so that building it again (a card opened
+/// over it) updates the route home is in instead of replacing it, which
+/// would build home anew with its lists back at the top.
+class _HomePage extends MaterialPage<void> {
+  final bool instant;
+
+  const _HomePage({
+    required super.key,
+    required this.instant,
+    required super.child,
+  }) : super(name: "/home");
+
+  @override
+  Route<void> createRoute(BuildContext context) => instant
+      ? PageRouteBuilder<void>(
+          settings: this,
+          pageBuilder: (_, _, _) => child,
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        )
+      : super.createRoute(context);
 }

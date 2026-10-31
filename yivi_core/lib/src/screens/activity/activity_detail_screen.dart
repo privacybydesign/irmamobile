@@ -6,6 +6,7 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/compact_bar.dart";
+import "../../widgets/irma_app_bar.dart";
 import "../../widgets/two_pane.dart";
 import "../data/wallet/wallet_detail_scaffold.dart";
 import "activity_entry.dart";
@@ -112,7 +113,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
         physics: physics,
         padding: EdgeInsets.fromLTRB(
           16,
-          padding.top + 76,
+          padding.top + IrmaAppBar.contentTop,
           16,
           padding.bottom + 32,
         ),
