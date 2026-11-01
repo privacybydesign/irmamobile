@@ -65,11 +65,11 @@ class ActivityDetailPage extends ConsumerStatefulWidget {
 class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
   final _scroll = ScrollController();
 
-  /// Whether the party's name has scrolled under the bar: the bar then
-  /// shows it, with its band.
+  /// Whether half the header's picture has scrolled under the bar: the bar
+  /// then shows the party, with its band.
   final _nameUnderBar = ValueNotifier(false);
 
-  final _nameKey = GlobalKey();
+  final _pictureKey = GlobalKey();
 
   @override
   void initState() {
@@ -83,7 +83,7 @@ class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
 
   void _checkName() {
     if (!mounted) return;
-    final under = headerUnderBar(context, _nameKey);
+    final under = headerUnderBar(context, _pictureKey, part: 0.5);
     if (under != null) _nameUnderBar.value = under;
   }
 
@@ -123,7 +123,7 @@ class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
           ActivityDetailBody(
             entry: entry,
             top: padding.top + IrmaAppBar.contentTop,
-            nameKey: _nameKey,
+            pictureKey: _pictureKey,
             onAsk: widget.onAsk,
           ),
         ],

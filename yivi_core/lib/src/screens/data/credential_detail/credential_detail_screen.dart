@@ -125,14 +125,12 @@ class _CredentialDetailScreenState
           ? null
           : (context, opacity) => CompactBarDropIn(
               shown: _scrolledPast,
-              bar: (t) => Center(
-                child: CompactBar(
-                  key: const Key("credential_compact_bar"),
-                  opacity: opacity * t,
-                  leading: CredentialCardArt(credential: credential, width: 44),
-                  title: credential.name,
-                  subtitle: TextSpan(text: credential.issuer.name),
-                ),
+              bar: (t) => CompactBar(
+                key: const Key("credential_compact_bar"),
+                opacity: opacity * t,
+                leading: CredentialCardArt(credential: credential, width: 44),
+                title: credential.name,
+                subtitle: TextSpan(text: credential.issuer.name),
               ),
             ),
       builder: (context, physics, animation) {

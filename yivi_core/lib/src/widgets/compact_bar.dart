@@ -57,8 +57,7 @@ class CompactBarDropIn extends StatelessWidget {
 /// What a detail page is about, in its top bar once its header has
 /// scrolled away: a 32 pt [leading] picture, the [title] and a [subtitle]
 /// line, each on one line. Straight on the bar's band (see
-/// [HeaderEdgeBand]), as a sheet's title: no pill of its own. As wide as it
-/// is given; put in a [Center], only as wide as it needs.
+/// [HeaderEdgeBand]), as a sheet's title: no pill of its own.
 class CompactBar extends StatelessWidget {
   final Widget leading;
   final String title;
@@ -81,11 +80,10 @@ class CompactBar extends StatelessWidget {
       child: SizedBox(
         height: 44,
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           spacing: 8,
           children: [
             leading,
-            Flexible(
+            Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,

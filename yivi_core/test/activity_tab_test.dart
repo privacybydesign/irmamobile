@@ -306,6 +306,19 @@ void main() {
     expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
   });
 
+  testWidgets("a typed kind and its relation ask for that kind", (
+    tester,
+  ) async {
+    await pump(tester);
+    await startSearch(tester);
+    await tester.enterText(field, "signed for gemeente");
+    await _settle(tester);
+    expect(queries().last.filter.types, [LogType.signature]);
+    expect(queries().last.filter.text, "gemeente");
+    expect(find.text("Gemeente"), findsWidgets);
+    expect(find.text("Shop 0"), findsNothing);
+  });
+
   testWidgets("the search key searches the typed words: the field stays "
       "with them, and the filter takes Cancel's place", (tester) async {
     await pump(tester);

@@ -35,6 +35,7 @@ import "../../widgets/two_pane.dart";
 import "activity_detail_screen.dart";
 import "activity_entry.dart";
 import "activity_filter_sheet.dart";
+import "activity_kind_words.dart";
 import "activity_query.dart";
 import "activity_query_labels.dart";
 import "widgets/activity_card.dart";
@@ -228,11 +229,26 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   /// The draft with what is still typed as words to search.
   ActivityQuery _withTyped(ActivityQuery q, String typed) {
-    final words = typed.trim();
+    // "gedeeld met" asks for shared entries; the rest is searched.
+    final (kinds, rest) = readKindWords(typed, _kindPhrases());
+    if (kinds.isNotEmpty) q = q.copyWith(kinds: {...q.kinds, ...kinds});
+    final words = rest.trim();
     if (words.isEmpty) return q;
     final text = q.text.trim();
     return q.copyWith(text: text.isEmpty ? words : "$text $words");
   }
+
+  /// Each kind's ways of saying it, in the app's language: its relation
+  /// ("Gedeeld met"), its label with the relation's last word ("Ondertekend
+  /// voor", where the relation says more), and its label ("Gedeeld").
+  Map<LogType, List<String>> _kindPhrases() => {
+    for (final kind in activityKindOrder)
+      logTypeOf(kind): () {
+        final label = FlutterI18n.translate(context, kind.labelKey);
+        final relation = FlutterI18n.translate(context, kind.relationKey);
+        return [relation, "$label ${relation.split(" ").last}", label];
+      }(),
+  };
 
   /// The draft with the typed words to find in the data alone.
   ActivityQuery _withValue(ActivityQuery q, String typed) {

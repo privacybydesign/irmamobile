@@ -176,15 +176,15 @@ class ActivityHeroHeader extends StatelessWidget {
   /// status bar.
   final double top;
 
-  /// On the party's name, so the page can tell when it has gone under the
-  /// bar (and show it there).
-  final Key? nameKey;
+  /// On the picture (the pile), so the page can tell when it has gone
+  /// under the bar (and show the party there).
+  final Key? pictureKey;
 
   const ActivityHeroHeader({
     super.key,
     required this.entry,
     required this.top,
-    this.nameKey,
+    this.pictureKey,
   });
 
   @override
@@ -212,7 +212,7 @@ class ActivityHeroHeader extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(16, top, 16, 28),
         child: Column(
           children: [
-            ActivityHeroPile(entry: entry),
+            ActivityHeroPile(key: pictureKey, entry: entry),
             const SizedBox(height: 22),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -241,7 +241,6 @@ class ActivityHeroHeader extends StatelessWidget {
               header: true,
               child: Text(
                 party.name,
-                key: nameKey,
                 textAlign: TextAlign.center,
                 style: palette
                     .display(24, weight: FontWeight.w700)
@@ -638,8 +637,8 @@ class ActivityDetailBody extends StatelessWidget {
   /// The room above the hero's pile (it runs up under the bar).
   final double top;
 
-  /// On the party's name in the header ([ActivityHeroHeader.nameKey]).
-  final Key? nameKey;
+  /// On the header's picture ([ActivityHeroHeader.pictureKey]).
+  final Key? pictureKey;
 
   /// The compact bar as the only header, instead of the hero: in the low
   /// detail pane of a phone held sideways.
@@ -654,7 +653,7 @@ class ActivityDetailBody extends StatelessWidget {
     super.key,
     required this.entry,
     this.top = 24,
-    this.nameKey,
+    this.pictureKey,
     this.compactHeader = false,
     this.maxWidth = 460,
     this.onAsk,
@@ -677,7 +676,7 @@ class ActivityDetailBody extends StatelessWidget {
             ),
           )
         else
-          ActivityHeroHeader(entry: entry, top: top, nameKey: nameKey),
+          ActivityHeroHeader(entry: entry, top: top, pictureKey: pictureKey),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CentredMaxWidth(
