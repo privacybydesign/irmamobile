@@ -531,6 +531,44 @@ void main() {
     );
   });
 
+  testWidgets("a month's header takes on the band as soon as its first row "
+      "goes under it", (tester) async {
+    await pump(tester);
+    final row = find.byKey(
+      tester.widget<ActivityCard>(find.byType(ActivityCard).first).key!,
+    );
+    final header = find.ancestor(
+      of: find.text("October"),
+      matching: find.byType(DecoratedBox),
+    );
+    final scroll = tester.state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byType(CustomScrollView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    final palette = YiviPalette.of(tester.element(header.first));
+    Color? color() =>
+        (tester.widget<DecoratedBox>(header.first).decoration as BoxDecoration)
+            .color;
+    var checked = 0;
+    for (var px = 0.0; px < 200; px += 2) {
+      scroll.position.jumpTo(px);
+      await tester.pump();
+      final under =
+          tester.getTopLeft(row).dy < tester.getBottomLeft(header.first).dy;
+      expect(
+        color(),
+        under ? ScrollEdgeBand.fill(palette) : palette.background,
+        reason: "at $px",
+      );
+      if (under) checked++;
+    }
+    expect(checked, greaterThan(0));
+  });
+
   testWidgets("the filter sheet is up at once; its cards have their own page", (
     tester,
   ) async {

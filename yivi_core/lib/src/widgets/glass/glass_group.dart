@@ -114,10 +114,14 @@ class SliverGlassGroup extends StatelessWidget {
                 ),
           sliver: SliverList.separated(
             itemCount: itemCount,
-            // The first and last rows take the group's corners, so a
-            // pressed row lights up inside the group, not square over it.
+            // Each row on a Material of its own over the group's surface:
+            // a pressed row lights up on top of it, not hidden under it.
+            // In a rounded group the first and last rows take its corners.
             itemBuilder: (context, i) => fullWidth
-                ? itemBuilder(context, i)
+                ? Material(
+                    type: MaterialType.transparency,
+                    child: itemBuilder(context, i),
+                  )
                 : Material(
                     type: MaterialType.transparency,
                     shape: RoundedRectangleBorder(

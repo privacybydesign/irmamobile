@@ -1,4 +1,3 @@
-import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
@@ -25,7 +24,6 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/round_icon_button.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../session/widgets/issue_flow.dart";
 
@@ -272,21 +270,16 @@ class _AddDataListPage extends ConsumerStatefulWidget {
 }
 
 /// The search: a field at the top of the list, as on the Data tab, that
-/// scrolls away and leaves a search button at the start of the bar. A tap on
-/// either puts the field in the bar to type in; it goes back once it is
-/// empty and left.
+/// scrolls away with it. A tap puts the field in the bar to type in; it goes
+/// back once it is empty and left.
 class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
   TextEditingController get _search => widget.search;
   final _focus = FocusNode();
 
-  /// The list's field has scrolled away under the bar.
-  bool _pastField = false;
-
   /// The field is in the bar.
   late bool _inBar = _search.text.isNotEmpty;
 
-  /// How far the list scrolls before its field is gone: the field and the
-  /// gap under it, half of it.
+  /// The gap under the list's field.
   static const _fieldGap = 12.0;
 
   @override
@@ -299,15 +292,6 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
   void dispose() {
     _focus.dispose();
     super.dispose();
-  }
-
-  bool _onScroll(ScrollNotification n) {
-    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    final past =
-        n.metrics.pixels - n.metrics.minScrollExtent >
-        HomeTabSearchField.height / 2 + _fieldGap;
-    if (past != _pastField) setState(() => _pastField = past);
-    return false;
   }
 
   void _toBar() {
@@ -476,16 +460,6 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
               onChanged: (_) => setState(() {}),
             )
           : null,
-      // Once the list's field has gone under the bar, a button brings it
-      // back there.
-      leading: _pastField && !_inBar
-          ? RoundIconButton(
-              key: const Key("add_data_search_button"),
-              icon: CupertinoIcons.search,
-              label: context.tr("data.add.search"),
-              onTap: _toBar,
-            )
-          : null,
       // The close button at the top right on a phone held upright, as in
       // other sheets; on a tablet and a phone held sideways at the top left,
       // where the pages after this one keep the top right for the way on.
@@ -550,10 +524,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         ...body,
       ],
     );
-    return NotificationListener<ScrollNotification>(
-      onNotification: _onScroll,
-      child: page,
-    );
+    return page;
   }
 
   /// [sliver] 16 from the sides, as all but the list's bands.

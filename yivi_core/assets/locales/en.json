@@ -81,7 +81,8 @@
       "years-2": "{count} years ago"
     },
     "chip_new": "New",
-    "not_checked": "{host} · not checked by Yivi",
+    "not_checked": "Unknown party · {host}",
+    "unknown_party": "Unknown party",
     "all_with_party": "All activity with {name}",
     "filter_label": "Show activity",
     "filter_empty": {

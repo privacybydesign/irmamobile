@@ -856,13 +856,18 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         mainAxisSize: MainAxisSize.min,
         children: [...previous, ?current],
       ),
+      // Its width grows and shrinks unclipped: the filter's count stands
+      // out over its corner.
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
-        child: SizeTransition(
-          axis: Axis.horizontal,
-          sizeFactor: animation,
-          fixedCrossAxisSizeFactor: 1,
+        child: AnimatedBuilder(
+          animation: animation,
           child: child,
+          builder: (context, child) => Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: animation.value.clamp(0.0, 1.0),
+            child: child,
+          ),
         ),
       ),
       child: _typing ? cancel : filterButton,
@@ -1105,8 +1110,10 @@ class _MonthHeader extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
-    // A row under it, from its first point.
-    final under = joinsBar && shrinkOffset > 0;
+    // A row under it, from its first point: held under the bar
+    // ([overlaps]) is when its first row starts to go under it. In a month's
+    // group [shrinkOffset] only grows once that row has gone all the way.
+    final under = joinsBar && (overlaps || shrinkOffset > 0);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: under ? ScrollEdgeBand.fill(palette) : palette.background,

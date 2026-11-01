@@ -98,23 +98,10 @@ class ActivityPartyLogo extends StatelessWidget {
   }
 }
 
-/// The tint of the band at the top of an entry's details, by what
-/// happened.
-Color activityKindTint(YiviPalette palette, ActivityKind kind) =>
-    switch (kind) {
-      ActivityKind.shared => palette.infoSurface,
-      ActivityKind.received => palette.successSurface,
-      // The page's own tint is the page colour in light mode.
-      ActivityKind.signed =>
-        palette.isDark ? palette.tint : const Color(0xFFE0E8EE),
-      ActivityKind.deleted => palette.errorSurface,
-    };
-
-/// The top of an entry's details: a band in the colour of what happened,
-/// from edge to edge, with the entry's cards as a large pile and the other
+/// The top of an entry's details, on the page colour: the entry's cards as a large pile and the other
 /// party's logo on its corner; under it what happened ("Shared with", after
-/// its icon), the party, the date and time, and its website (with a shield
-/// when Yivi knows the party). Each fact once.
+/// its icon), the party, the date and time, and whether Yivi knows the
+/// party (with its website). Each fact once.
 class ActivityHeroHeader extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -145,16 +132,15 @@ class ActivityHeroHeader extends StatelessWidget {
     final website = party.verified
         ? (host ?? FlutterI18n.translate(context, "missing_data.known_party"))
         : host == null
-        ? null
+        ? FlutterI18n.translate(context, "activity.unknown_party")
         : FlutterI18n.translate(
             context,
             "activity.not_checked",
             translationParams: {"host": host},
           );
 
-    return ColoredBox(
+    return KeyedSubtree(
       key: const Key("activity_hero"),
-      color: activityKindTint(palette, kind),
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, top, 16, 28),
         child: Column(
@@ -203,38 +189,43 @@ class ActivityHeroHeader extends StatelessWidget {
               textAlign: TextAlign.center,
               style: palette.body(14).copyWith(color: palette.heading),
             ),
-            if (website != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 4,
-                  children: [
-                    if (party.verified)
-                      Icon(
-                        Icons.verified_user_rounded,
-                        size: 14,
-                        color: palette.successText,
-                        semanticLabel: host == null
-                            ? null
-                            : FlutterI18n.translate(
-                                context,
-                                "missing_data.known_party",
-                              ),
-                      ),
-                    Flexible(
-                      child: Text(
-                        website,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .body(13)
-                            .copyWith(color: palette.secondaryText),
-                      ),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  if (party.verified)
+                    Icon(
+                      Icons.verified_user_rounded,
+                      size: 14,
+                      color: palette.successText,
+                      semanticLabel: host == null
+                          ? null
+                          : FlutterI18n.translate(
+                              context,
+                              "missing_data.known_party",
+                            ),
+                    )
+                  else
+                    Icon(
+                      Icons.shield_outlined,
+                      size: 14,
+                      color: palette.secondaryText,
                     ),
-                  ],
-                ),
+                  Flexible(
+                    child: Text(
+                      website,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette
+                          .body(13)
+                          .copyWith(color: palette.secondaryText),
+                    ),
+                  ),
+                ],
               ),
+            ),
           ],
         ),
       ),

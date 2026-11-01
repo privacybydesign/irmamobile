@@ -81,7 +81,8 @@
       "years-2": "{count} jaar geleden"
     },
     "chip_new": "Nieuw",
-    "not_checked": "{host} · niet gecontroleerd door Yivi",
+    "not_checked": "Onbekende partij · {host}",
+    "unknown_party": "Onbekende partij",
     "all_with_party": "Alle activiteit met {name}",
     "filter_label": "Toon activiteit",
     "filter_empty": {

@@ -81,7 +81,8 @@
       "years-2": "vor {count} Jahren"
     },
     "chip_new": "Neu",
-    "not_checked": "{host} · nicht von Yivi geprüft",
+    "not_checked": "Unbekannte Partei · {host}",
+    "unknown_party": "Unbekannte Partei",
     "all_with_party": "Alle Aktivitäten mit {name}",
     "filter_label": "Aktivität anzeigen",
     "filter_empty": {

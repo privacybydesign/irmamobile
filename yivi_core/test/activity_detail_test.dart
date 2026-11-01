@@ -148,15 +148,29 @@ void main() {
     );
   });
 
-  testWidgets("a party Yivi does not know: its website, not checked", (
+  testWidgets("a party Yivi does not know: unknown, with its website", (
     tester,
   ) async {
     await pump(
       tester,
       _log(LogType.disclosure, verified: false, url: "https://shop.example"),
     );
-    expect(find.text("shop.example · not checked by Yivi"), findsOneWidget);
+    expect(find.text("Unknown party · shop.example"), findsOneWidget);
     expect(find.byIcon(Icons.verified_user_rounded), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("activity_hero")),
+        matching: find.byIcon(Icons.shield_outlined),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("a party Yivi does not know, without a website: unknown", (
+    tester,
+  ) async {
+    await pump(tester, _log(LogType.disclosure, verified: false));
+    expect(find.text("Unknown party"), findsOneWidget);
   });
 
   testWidgets("signed: the message above the data, without a footer", (

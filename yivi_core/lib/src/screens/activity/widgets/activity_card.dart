@@ -226,15 +226,15 @@ class ActivityCard extends ConsumerWidget {
   }
 }
 
-/// The pictures of an entry's cards in a row, each a little over the one
-/// before it; past four, a "+n".
+/// The pictures of an entry's cards in a row, a little apart; past four,
+/// a "+n".
 class ActivityCardThumbs extends StatelessWidget {
   final ActivityEntry entry;
 
   const ActivityCardThumbs({super.key, required this.entry});
 
   static const double cardWidth = 34;
-  static const double _overlap = 6;
+  static const double _gap = 4;
   static const int _max = 4;
 
   @override
@@ -242,30 +242,21 @@ class ActivityCardThumbs extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final cards = entry.cards;
     final shown = cards.take(_max).toList();
+    // Side by side, a little apart: each card reads on its own.
     return ExcludeSemantics(
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        spacing: _gap,
         children: [
-          for (final (i, card) in shown.indexed)
-            Transform.translate(
-              offset: Offset(-_overlap * i, 0),
-              child: DecoratedBox(
-                // A ring in the band's colour sets each apart from the one
-                // under it.
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: palette.surface, width: 1.5),
-                ),
-                child: CredentialCardArt(
-                  credential: card.art,
-                  width: cardWidth,
-                  greyedOut: card.deleted,
-                ),
-              ),
+          for (final card in shown)
+            CredentialCardArt(
+              credential: card.art,
+              width: cardWidth,
+              greyedOut: card.deleted,
             ),
           if (cards.length > _max)
-            Transform.translate(
-              offset: Offset(-_overlap * (_max - 1) + 4, 0),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 2),
               child: Text(
                 "+${cards.length - _max}",
                 style: palette

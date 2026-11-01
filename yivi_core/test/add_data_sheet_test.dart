@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -296,7 +297,7 @@ void main() {
       expect(find.byKey(const Key("add_data_no_results")), findsOneWidget);
     });
 
-    testWidgets("scrolled away, the field leaves a search button", (
+    testWidgets("scrolled away, the field leaves no button in the bar", (
       tester,
     ) async {
       await _pump(
@@ -311,13 +312,15 @@ void main() {
           ),
         ],
       );
-      expect(find.byKey(const Key("add_data_search_button")), findsNothing);
       await tester.drag(_row("irma-demo.x.card3"), const Offset(0, -300));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key("add_data_search_button")));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key("add_data_search_bar")), findsOneWidget);
-      expect(find.byKey(const Key("add_data_search_button")), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("glass_sheet")),
+          matching: find.byIcon(CupertinoIcons.search),
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets("a long list builds only the rows on screen", (tester) async {
