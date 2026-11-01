@@ -576,16 +576,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             width: 26,
             greyedOut: card.removed,
           ),
-          label: card.name,
+          // With the fields asked about: which card each comes from.
+          label: q.fields.isEmpty
+              ? card.name
+              : "${card.name} › "
+                    "${q.fields.map((t) => claimTokenLabel(context, t)).join(", ")}",
           // Its fields go with it.
           onRemove: () => change(q.withCard(null)),
-        ),
-      // Each field asked about, a tag of its own.
-      for (final t in q.fields)
-        ActivityFacetChip(
-          key: Key("activity_chip_field_${t.key}"),
-          label: claimTokenLabel(context, t),
-          onRemove: () => change(q.copyWith(fields: [...q.fields]..remove(t))),
         ),
       if (q.party != null)
         ActivityFacetChip(

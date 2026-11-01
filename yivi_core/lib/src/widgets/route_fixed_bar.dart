@@ -8,9 +8,12 @@ import "../util/adaptive_layout.dart";
 /// title slides a little and fades ([RouteFixedBar]).
 @immutable
 class BarRole {
-  /// The bar's buttons: in during the first half of the page's push, out
-  /// during the second half of the next page's. A button on both pages (a
-  /// back button) so stays solid all the way.
+  /// The bar's buttons, on the transition's time (not its curve, which is
+  /// most of the way in its first frames): in over the first 70 % of the
+  /// page's push, out over the last 70 % of the next page's. A button that
+  /// goes (popping to a page without it) so fades all along and is gone
+  /// just as the page is; one on both pages (back to back) overlaps and
+  /// stays nearly solid.
   final double buttons;
 
   /// The title: it comes 90 pt from the right as its page comes in, and
@@ -35,8 +38,10 @@ class BarRole {
     final b = Curves.fastEaseInToSlowEaseOut.transform(
       route.secondaryAnimation!.value,
     );
+    final aTime = pushed ? route.animation!.value : 1.0;
+    final bTime = route.secondaryAnimation!.value;
     return BarRole(
-      buttons: iv(a, 0, 0.5) * (1 - iv(b, 0.5, 1)),
+      buttons: iv(aTime, 0, 0.7) * (1 - iv(bTime, 0.3, 1)),
       titleOpacity: iv(a, 0.35, 1) * (1 - iv(b, 0, 0.5)),
       titleShift: 90 * (1 - a) - 90 * b,
     );

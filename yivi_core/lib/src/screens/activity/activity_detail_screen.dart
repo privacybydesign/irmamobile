@@ -88,7 +88,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
-        titleString: entry.party.name,
+        title: ActivityBarTitle(entry: entry),
         titleVisibility: _nameUnderBar,
         edgeShown: _nameUnderBar,
       ),

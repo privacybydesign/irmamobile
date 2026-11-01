@@ -469,8 +469,8 @@ void main() {
     },
   );
 
-  testWidgets("typing suggests a card's fields; a pick is a tag of its own, "
-      "next to the card's", (tester) async {
+  testWidgets("typing suggests a card's fields; a pick joins the card's tag, "
+      "which goes as a whole", (tester) async {
     final address = testCredential(
       type: "pbdf.sidn-pbdf.address",
       hash: "address",
@@ -491,22 +491,16 @@ void main() {
     expect(suggestion, findsOneWidget);
     await tester.tap(suggestion);
     await _settle(tester);
-    expect(find.byKey(const Key("activity_chip_card")), findsOneWidget);
-    final fieldTag = find.byWidgetPredicate(
-      (w) =>
-          w.key is ValueKey<String> &&
-          (w.key! as ValueKey<String>).value.startsWith("activity_chip_field_"),
-    );
-    expect(fieldTag, findsOneWidget);
+    final tag = find.byKey(const Key("activity_chip_card"));
+    expect(tag, findsOneWidget);
     expect(
-      find.descendant(of: fieldTag, matching: find.text("Postal code")),
+      find.descendant(of: tag, matching: find.text("Address › Postal code")),
       findsOneWidget,
     );
-    // Taking off the field leaves the card.
-    await tester.tap(fieldTag);
+    expect(queries().last.filter.claimPaths, isNotEmpty);
+    await tester.tap(tag);
     await _settle(tester);
-    expect(fieldTag, findsNothing);
-    expect(find.byKey(const Key("activity_chip_card")), findsOneWidget);
+    expect(tag, findsNothing);
   });
 
   testWidgets("scrolled, a month's header sticks right under the bar and "

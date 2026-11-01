@@ -208,9 +208,8 @@ void main() {
     expect(find.text("You shared to receive it"), findsOneWidget);
   });
 
-  testWidgets("the bar shows the name once it has scrolled under it", (
-    tester,
-  ) async {
+  testWidgets("the bar shows the name, what happened and when once the name "
+      "has scrolled under it", (tester) async {
     await pump(
       tester,
       _log(LogType.signature, message: List.filled(600, "word").join(" ")),
@@ -222,6 +221,15 @@ void main() {
     await tester.drag(find.byType(ListView), const Offset(0, -500));
     await tester.pumpAndSettle();
     expect(title(), 1);
+    final bar = find.byKey(const Key("activity_bar_title"));
+    expect(
+      find.descendant(of: bar, matching: find.text("Webshop Noord")),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: bar, matching: find.textContaining("Signed · ")),
+      findsOneWidget,
+    );
     await tester.drag(find.byType(ListView), const Offset(0, 500));
     await tester.pumpAndSettle();
     expect(title(), 0);

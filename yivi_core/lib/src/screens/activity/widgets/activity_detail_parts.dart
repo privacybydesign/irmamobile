@@ -98,6 +98,73 @@ class ActivityPartyLogo extends StatelessWidget {
   }
 }
 
+/// The bar's title on an entry's details once the header has gone under
+/// it: the party's logo and name, and under them what happened and when
+/// ("↓ Received · 1 Nov").
+class ActivityBarTitle extends StatelessWidget {
+  final ActivityEntry entry;
+
+  const ActivityBarTitle({super.key, required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final kind = entry.kind;
+    final party = entry.party;
+    final when = DateFormat.MMMd(_lang(context)).format(entry.localTime);
+    return Semantics(
+      label: party.name,
+      excludeSemantics: true,
+      child: Column(
+        key: const Key("activity_bar_title"),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 6,
+            children: [
+              ActivityPartyLogo(party: party, size: 20),
+              Flexible(
+                child: Text(
+                  party.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: palette
+                      .display(15)
+                      .copyWith(color: palette.text, height: 20 / 15),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 1),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: [
+              CornerBadge(
+                icon: kind.icon,
+                fill: kind.badge,
+                size: 14,
+                iconSize: 9,
+              ),
+              Flexible(
+                child: Text(
+                  "${FlutterI18n.translate(context, kind.labelKey)} · $when",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: palette
+                      .body(12)
+                      .copyWith(color: palette.secondaryText, height: 16 / 12),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// The top of an entry's details, on the page colour: the entry's cards as a large pile and the other
 /// party's logo on its corner; under it what happened ("Shared with", after
 /// its icon), the party, the date and time, and whether Yivi knows the
