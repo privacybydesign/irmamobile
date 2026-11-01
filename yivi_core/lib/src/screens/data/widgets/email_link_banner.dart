@@ -12,7 +12,7 @@ import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
 
-/// Banner at the top of the Gegevens tab that asks the user to link an e-mail
+/// Banner at the top of the Data tab that asks the user to link an e-mail
 /// address, so the app can be blocked remotely.
 class EmailLinkBanner extends ConsumerWidget {
   const EmailLinkBanner({super.key});

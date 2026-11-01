@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <title>
-        menu
-    </title>
-    <path d="M42.67,42.67H469.33a42.67,42.67,0,1,1,0,85.33H42.67a42.67,42.67,0,1,1,0-85.33Z" style="fill-rule:evenodd"/>
-    <path d="M42.67,213.33H384a42.67,42.67,0,1,1,0,85.34H42.67a42.67,42.67,0,0,1,0-85.34Z" style="fill-rule:evenodd"/>
-    <path d="M42.67,384H469.33a42.67,42.67,0,1,1,0,85.33H42.67a42.67,42.67,0,1,1,0-85.33Z" style="fill-rule:evenodd"/>
-</svg>

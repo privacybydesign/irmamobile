@@ -11,7 +11,6 @@ import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
 import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
-import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
 import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
@@ -34,23 +33,17 @@ import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/home/pane_handoffs.dart";
-import "src/screens/issue_wizard/issue_wizard.dart";
-import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
 import "src/screens/loading/loading_screen.dart";
 import "src/screens/name_changed/name_changed_screen.dart";
-import "src/screens/notifications/notifications_tab.dart";
-import "src/screens/pin/pin_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
 import "src/screens/rooted_warning/rooted_device_detector.dart";
 import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
-import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
 import "src/util/navigation.dart";
 import "src/widgets/adaptive_page.dart";
-import "src/widgets/irma_app_bar.dart";
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -103,21 +96,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       _adaptive(
         mode: PresentationMode.full,
-        phone: PhoneTransition.fade,
-        path: "/modal_pin",
-        builder: (context, state) {
-          return PinScreen(
-            onAuthenticated: () => context.pop(true),
-            leading: YiviBackButton(onTap: () => context.pop(false)),
-          );
-        },
-      ),
-      _adaptive(
-        mode: PresentationMode.full,
         path: "/reset_pin",
         builder: (context, state) => ResetPinScreen(),
       ),
-      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
+      // Not under /home/settings: the screen has a navigator of its own.
       _adaptive(
         mode: PresentationMode.sheet,
         path: "/change_pin",
@@ -228,10 +210,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               ),
             ],
           ),
-          GoRoute(
-            path: "notifications",
-            builder: (context, state) => NotificationsTab(),
-          ),
         ],
       ),
       _adaptive(
@@ -245,39 +223,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           return SessionScreen(
             sessionId: args.sessionId,
             hasUnderlyingSession: args.hasUnderlyingSession,
-          );
-        },
-      ),
-      _adaptive(
-        mode: PresentationMode.sheet,
-        path: "/unknown_session",
-        builder: (context, state) {
-          final args = SessionRouteParams.fromQueryParams(
-            state.uri.queryParameters,
-          );
-          return UnknownSessionScreen(arguments: args);
-        },
-      ),
-      GoRoute(
-        path: "/issue_wizard",
-        builder: (context, state) {
-          final args = IssueWizardRouteParams.fromQueryParams(
-            state.uri.queryParameters,
-          );
-          return IssueWizardScreen(arguments: args);
-        },
-      ),
-      GoRoute(
-        path: "/issue_wizard_success",
-        builder: (context, state) {
-          final (successHeader, successContent) =
-              state.extra as (TranslatedValue?, TranslatedValue?);
-          return IssueWizardSuccessScreen(
-            onDismiss: context.goHomeScreenWithoutTransition,
-            args: IssueWizardSuccessScreenArgs(
-              headerTranslation: successHeader,
-              contentTranslation: successContent,
-            ),
           );
         },
       ),
@@ -580,10 +525,11 @@ Stream<bool> _displayDeviceIsRootedWarning(
   return streamController.stream;
 }
 
-/// The home page: comes in at once ([instant], after unlocking) or pushed.
-/// One kind of page either way, so that building it again (a card opened
-/// over it) updates the route home is in instead of replacing it, which
-/// would build home anew with its lists back at the top.
+/// The home page: comes in at once ([instant], after loading, a PIN
+/// change or an issuance) or pushed. One kind of page either way, so that
+/// building it again (a card opened over it) updates the route home is in
+/// instead of replacing it, which would build home anew with its lists back
+/// at the top.
 class _HomePage extends MaterialPage<void> {
   final bool instant;
 

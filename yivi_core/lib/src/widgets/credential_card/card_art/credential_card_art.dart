@@ -1,44 +1,13 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_edges.dart";
-import "../../../util/date_formatter.dart";
-import "../../../util/i18n.dart";
-import "../../../util/instance_hint.dart";
 import "../../base64_image.dart";
 import "builtin_card_svgs.dart";
 import "builtin_card_templates.dart";
 import "card_art_support.dart";
-
-/// The text form of an [InstanceHint], e.g. an email address or
-/// "Added 12-03-2025".
-String instanceHintText(BuildContext context, InstanceHint hint) {
-  return switch (hint) {
-    ValueHint(:final text) => text,
-    AddedHint(:final date) => FlutterI18n.translate(
-      context,
-      "credential_card.added_on",
-      translationParams: {"date": _date(context, date)},
-    ),
-    NoHint() => "",
-  };
-}
-
-/// [instanceHintText] of each of [cards], by hash.
-Map<String, String> instanceHintTexts(
-  BuildContext context,
-  Iterable<schemaless.Credential> cards,
-  Map<String, InstanceHint> hints,
-) => {
-  for (final c in cards)
-    c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
-};
-
-String _date(BuildContext context, DateTime date) =>
-    printableDate(date, context.lang);
 
 /// The picture of a credential as a card, at any width (the height follows
 /// the ID-1 card ratio). It is decorative: screen readers get the same
@@ -214,10 +183,8 @@ class CredentialCardArt extends StatelessWidget {
     final yiviCard = _YiviCard(credential: credential, hintText: hintText);
     if (template == null) return yiviCard;
 
-    final yes = FlutterI18n.translate(context, "credential.boolean_yes");
-    final no = FlutterI18n.translate(context, "credential.boolean_no");
     String text(schemaless.Attribute a) =>
-        imageDataUri(a.value) ?? attributeText(a.value, yes: yes, no: no) ?? "";
+        imageDataUri(a.value) ?? localizedAttributeText(context, a.value) ?? "";
     final values = !builtin
         // An issuer template names its slots with `svg_id`.
         ? {
@@ -236,7 +203,6 @@ class CredentialCardArt extends StatelessWidget {
   }
 }
 
-/// The card Yivi draws for credentials without an issuer template.
 /// The card Yivi draws for a credential without a design of its own, in
 /// the frame of the built-in cards: the issuer's logo on a white tile, the
 /// credential's name and main value next to it, the issuer and the Yivi
@@ -351,14 +317,7 @@ class _YiviCard extends StatelessWidget {
 class _FacetsPainter extends CustomPainter {
   _FacetsPainter(this.colours);
 
-  final ({
-    Color top,
-    Color bottom,
-    List<Color> facets,
-    Color text,
-    Color accent,
-  })
-  colours;
+  final YiviCardColours colours;
 
   @override
   void paint(Canvas canvas, Size size) {

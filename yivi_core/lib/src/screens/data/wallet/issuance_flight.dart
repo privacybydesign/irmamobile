@@ -10,7 +10,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_flight.dart";
 import "../../home/home_screen.dart";
-import "../../home/widgets/irma_nav_bar.dart";
+import "../../home/widgets/home_tab.dart";
 import "wallet_transition.dart";
 
 /// Where the incoming card is while it flies from the issuance success
@@ -92,7 +92,7 @@ class IssuanceFlight {
       hash: card.hash,
       inserted: reduceMotion || cards.length == 1,
     );
-    tabs.add(IrmaNavBarTab.data);
+    tabs.add(HomeTab.data);
 
     return CardFlight.start(
       context,

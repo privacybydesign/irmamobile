@@ -2,19 +2,18 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/activity_query.dart";
 import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
-import "../../providers/irma_repository_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/sheet_action_row.dart";
+import "../../widgets/glass/sheet_actions.dart";
+import "../../widgets/loading_indicator.dart";
 import "activity_entry.dart";
-import "activity_query.dart";
 import "activity_query_labels.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
@@ -108,15 +107,8 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     final generation = ++_generation;
     final tries = <String, ActivityQuery>{"total": _q, ..._options()};
     final keys = tries.keys.toList();
-    List<int> counts;
-    try {
-      counts = await ref.read(irmaRepositoryProvider).countLogs([
-        for (final k in keys) tries[k]!.toLogFilter(),
-      ]);
-    } catch (_) {
-      return;
-    }
-    if (!mounted || generation != _generation) return;
+    final counts = await countActivity(ref, [for (final k in keys) tries[k]!]);
+    if (counts == null || !mounted || generation != _generation) return;
     setState(() {
       _counts.clear();
       for (final (i, k) in keys.indexed) {
@@ -126,17 +118,14 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     });
   }
 
-  List<ActivityCardRef> get _cards => [
-    for (final c in ref.read(walletCardsProvider)) ActivityCardRef.of(c),
-    ...?ref.read(removedCardTypesProvider).value,
-  ];
+  List<ActivityCardRef> get _cards => activityCardRefs(ref);
 
   /// Every option, as the question it would make.
   Map<String, ActivityQuery> _options() {
     final card = _q.card;
     return {
-      for (final kind in activityKindOrder)
-        "kind:${kind.name}": _q.copyWith(kinds: {logTypeOf(kind)}),
+      for (final kind in ActivityKind.ordered)
+        "kind:${kind.name}": _q.copyWith(kinds: {kind.logType}),
       for (final c in _cards) "card:${c.key}": _q.withCard(c),
       if (card != null)
         for (final g in claimTokenGroups(card.art.attributes))
@@ -195,10 +184,10 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             : null,
       ),
       child: !ready
-          ? const SizedBox(
-              key: Key("activity_filter_loading"),
+          ? SizedBox(
+              key: const Key("activity_filter_loading"),
               height: 240,
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: LoadingIndicator()),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -274,10 +263,10 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     spacing: 8,
     runSpacing: 8,
     children: [
-      for (final kind in activityKindOrder)
+      for (final kind in ActivityKind.ordered)
         Builder(
           builder: (context) {
-            final type = logTypeOf(kind);
+            final type = kind.logType;
             final on = _q.kinds.contains(type);
             final faded = !on && !_fits("kind:${kind.name}");
             return ActivityToggleTag(

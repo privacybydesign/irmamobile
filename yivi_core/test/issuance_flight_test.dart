@@ -8,7 +8,7 @@ import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/wallet/issuance_flight.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/home/widgets/irma_nav_bar.dart";
+import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
@@ -118,7 +118,7 @@ void main() {
     tester,
   ) async {
     await pump(tester, wallet: [_received, ..._older]);
-    tabs.add(IrmaNavBarTab.activity);
+    tabs.add(HomeTab.activity);
 
     final firstSlot = tester.getTopLeft(tile(_received));
     final secondSlot = tester.getTopLeft(tile(_older.first));
@@ -131,7 +131,7 @@ void main() {
       isTrue,
     );
     await tester.pump();
-    expect(tabs.state, IrmaNavBarTab.data);
+    expect(tabs.state, HomeTab.data);
 
     // It starts on the success card, and the list has not made room yet.
     expect(tester.getTopLeft(flyingCard), const Offset(40, 700));

@@ -18,15 +18,15 @@ import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/data/card_transition/card_transition.dart";
+import "src/screens/home/widgets/system_navigation_bar.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
+import "src/screens/pin/lock_gate.dart";
+import "src/screens/review/store_review_gate.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
-import "src/widgets/glass/system_navigation_bar.dart";
 import "src/widgets/legacy_material_bridge.dart";
-import "src/widgets/lock_gate.dart";
 import "src/widgets/scroll_to_top.dart";
 import "src/widgets/side_panel_inset.dart";
-import "src/widgets/store_review_gate.dart";
 import "src/widgets/unfocus_on_tap_outside.dart";
 
 const schemeUpdateIntervalHours = 3;

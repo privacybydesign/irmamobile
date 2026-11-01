@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/activity_query.dart";
 import "../../../models/log_entry.dart";
 import "../../../providers/activity_providers.dart";
 import "../../../theme/yivi_palette.dart";
@@ -20,7 +21,6 @@ import "../../../widgets/party_avatar.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../activity_entry.dart";
-import "../activity_query.dart";
 
 /// The text colour of [kind] on a surface, in both themes.
 Color activityKindInk(YiviPalette palette, ActivityKind kind) => switch (kind) {
@@ -30,23 +30,27 @@ Color activityKindInk(YiviPalette palette, ActivityKind kind) => switch (kind) {
   ActivityKind.deleted => palette.danger,
 };
 
-String _lang(BuildContext context) => context.lang;
-
 /// "Sun 11 Oct", the date on the pass header and the compact bar.
 String activityShortDate(BuildContext context, DateTime time) =>
-    DateFormat("EEE d MMM", _lang(context)).format(time);
+    DateFormat("EEE d MMM", context.lang).format(time);
 
+/// The time of day ("14:05").
 String activityTime(BuildContext context, DateTime time) =>
-    DateFormat.jm(_lang(context)).format(time);
+    DateFormat.jm(context.lang).format(time);
 
-/// "Today", "Yesterday", "6 days ago", "3 weeks ago" …
-String activityAgo(BuildContext context, DateTime time) {
+/// How many days before today [time] was (0 today, 1 yesterday).
+int activityDaysAgo(DateTime time) {
   final n = DateTime.now();
-  final days = DateTime(
+  return DateTime(
     n.year,
     n.month,
     n.day,
   ).difference(DateTime(time.year, time.month, time.day)).inDays;
+}
+
+/// "Today", "Yesterday", "6 days ago", "3 weeks ago" …
+String activityAgo(BuildContext context, DateTime time) {
+  final days = activityDaysAgo(time);
   if (days <= 0) return FlutterI18n.translate(context, "activity.ago.today");
   if (days == 1) return FlutterI18n.translate(context, "activity.yesterday");
   if (days < 7) return FlutterI18n.plural(context, "activity.ago.days", days);
@@ -64,11 +68,8 @@ class ActivityPartyLogo extends StatelessWidget {
   final ActivityParty party;
   final double size;
 
-  /// Its size as the badge on a row's pile.
-  static const double pileSize = 30;
-
   /// A 2 pt ring around the logo, drawn inside [size], that sets it apart
-  /// from the cards under it, e.g. as the badge on a row's pile.
+  /// from the cards under it (on the hero's pile).
   final Color? ring;
 
   const ActivityPartyLogo({
@@ -111,7 +112,7 @@ class ActivityBarTitle extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final kind = entry.kind;
     final party = entry.party;
-    final when = DateFormat.MMMd(_lang(context)).format(entry.localTime);
+    final when = DateFormat.MMMd(context.lang).format(entry.localTime);
     return Semantics(
       label: party.name,
       excludeSemantics: true,
@@ -165,10 +166,10 @@ class ActivityBarTitle extends StatelessWidget {
   }
 }
 
-/// The top of an entry's details, on the page colour: the entry's cards as a large pile and the other
-/// party's logo on its corner; under it what happened ("Shared with", after
-/// its icon), the party, the date and time, and whether Yivi knows the
-/// party (with its website). Each fact once.
+/// The top of an entry's details, on the page colour: the entry's cards as
+/// a large pile and the other party's logo on its corner; under it what
+/// happened ("Shared with", after its icon), the party, the date and time,
+/// and whether Yivi knows the party (with its website). Each fact once.
 class ActivityHeroHeader extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -190,7 +191,7 @@ class ActivityHeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final lang = _lang(context);
+    final lang = context.lang;
     final kind = entry.kind;
     final party = entry.party;
     final time = entry.localTime;
@@ -354,24 +355,18 @@ class ActivityHeroPile extends StatelessWidget {
   }
 }
 
-/// The entry in one line, for the glass bar once the header has scrolled
-/// away: logo, name, and "Shared · Sun 11 Oct · 14:32".
+/// The entry in one line, as the header of the low detail pane of a phone
+/// held sideways: logo, name, and "Shared · Sun 11 Oct · 14:32".
 class ActivityCompactBar extends StatelessWidget {
   final ActivityEntry entry;
-  final double opacity;
 
-  const ActivityCompactBar({
-    super.key,
-    required this.entry,
-    required this.opacity,
-  });
+  const ActivityCompactBar({super.key, required this.entry});
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final time = entry.localTime;
     return CompactBar(
-      opacity: opacity,
       leading: ActivityPartyLogo(party: entry.party, size: 32),
       title: entry.party.name,
       subtitle: TextSpan(
@@ -424,10 +419,7 @@ class ActivityCredentialTile extends StatelessWidget {
   final LogCredential credential;
   final ActivityEntryCard card;
 
-  /// The card's art.
-  final Widget art;
-
-  ActivityCredentialTile({super.key, required this.card, required this.art})
+  ActivityCredentialTile({super.key, required this.card})
     : credential = card.credential;
 
   @override
@@ -444,7 +436,11 @@ class ActivityCredentialTile extends StatelessWidget {
       _ => null,
     };
     return CardTile(
-      art: art,
+      art: CredentialCardArt(
+        credential: card.art,
+        width: CardTile.miniWidth,
+        greyedOut: card.deleted,
+      ),
       title: credential.name,
       subtitle: credential.issuer.name,
       chip: chip,
@@ -646,22 +642,21 @@ class ActivityDetailBody extends StatelessWidget {
 
   final double maxWidth;
 
-  /// Asks the Activity tab about the party; without it, no such row.
-  final void Function(ActivityQuery query)? onAsk;
+  /// Asks the Activity tab about the party.
+  final void Function(ActivityQuery query) onAsk;
 
   const ActivityDetailBody({
     super.key,
     required this.entry,
-    this.top = 24,
+    required this.top,
     this.pictureKey,
     this.compactHeader = false,
     this.maxWidth = 460,
-    this.onAsk,
+    required this.onAsk,
   });
 
   @override
   Widget build(BuildContext context) {
-    final onAsk = this.onAsk;
     final sections = entry.sections;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -672,7 +667,6 @@ class ActivityDetailBody extends StatelessWidget {
             child: ActivityCompactBar(
               key: const Key("activity_detail_compact_header"),
               entry: entry,
-              opacity: 1,
             ),
           )
         else
@@ -698,19 +692,11 @@ class ActivityDetailBody extends StatelessWidget {
                     const SizedBox(height: 20),
                   for (final (i, card) in section.cards.indexed) ...[
                     if (i > 0) const SizedBox(height: 12),
-                    ActivityCredentialTile(
-                      card: card,
-                      art: CredentialCardArt(
-                        credential: card.art,
-                        width: CardTile.miniWidth,
-                        greyedOut: card.deleted,
-                      ),
-                    ),
+                    ActivityCredentialTile(card: card),
                   ],
                 ],
                 ActivityFootnote(entry: entry),
-                if (onAsk != null)
-                  ActivityAllWithParty(entry: entry, onAsk: onAsk),
+                ActivityAllWithParty(entry: entry, onAsk: onAsk),
               ],
             ),
           ),

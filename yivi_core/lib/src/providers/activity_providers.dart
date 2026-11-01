@@ -4,9 +4,9 @@ import "package:collection/collection.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_repository.dart";
+import "../models/activity_query.dart";
 import "../models/log_entry.dart";
 import "../screens/activity/activity_entry.dart";
-import "../screens/activity/activity_query.dart";
 import "irma_repository_provider.dart";
 import "schemaless_credentials_list_provider.dart";
 
@@ -254,3 +254,25 @@ final removedCardTypesProvider =
               ),
       ];
     });
+
+/// How many entries each of [queries] finds, in one question to irmago;
+/// null when that fails.
+Future<List<int>?> countActivity(
+  WidgetRef ref,
+  List<ActivityQuery> queries,
+) async {
+  try {
+    return await ref.read(irmaRepositoryProvider).countLogs([
+      for (final q in queries) q.toLogFilter(),
+    ]);
+  } catch (_) {
+    return null;
+  }
+}
+
+/// Every card a question can be about: those in the wallet, then the types
+/// of removed ones ([removedCardTypesProvider]), as they are now.
+List<ActivityCardRef> activityCardRefs(WidgetRef ref) => [
+  for (final c in ref.read(walletCardsProvider)) ActivityCardRef.of(c),
+  ...?ref.read(removedCardTypesProvider).value,
+];

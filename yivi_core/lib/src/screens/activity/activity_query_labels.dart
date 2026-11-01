@@ -2,34 +2,18 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../util/i18n.dart";
 import "activity_entry.dart";
-import "activity_query.dart";
-
-/// The kinds of what happened, in the order the app lists them.
-const activityKindOrder = [
-  ActivityKind.received,
-  ActivityKind.shared,
-  ActivityKind.signed,
-  ActivityKind.deleted,
-];
-
-/// The log type of [kind].
-LogType logTypeOf(ActivityKind kind) => switch (kind) {
-  ActivityKind.shared => LogType.disclosure,
-  ActivityKind.received => LogType.issuance,
-  ActivityKind.signed => LogType.signature,
-  ActivityKind.deleted => LogType.removal,
-};
 
 String _or(BuildContext context) =>
     " ${FlutterI18n.translate(context, "activity.query.or")} ";
 
-/// "Gedeeld of Ondertekend".
+/// "Shared or Signed".
 String activityKindsLabel(BuildContext context, Set<LogType> kinds) => [
-  for (final kind in activityKindOrder)
-    if (kinds.contains(logTypeOf(kind)))
+  for (final kind in ActivityKind.ordered)
+    if (kinds.contains(kind.logType))
       FlutterI18n.translate(context, kind.labelKey),
 ].join(_or(context));
 
@@ -48,11 +32,19 @@ String claimTokenShortLabel(BuildContext context, ClaimToken token) =>
     ? FlutterI18n.translate(context, "activity.kind.all")
     : token.shortLabel;
 
-/// "Straat of Nationaliteiten".
-String activityFieldsLabel(BuildContext context, List<ClaimToken> fields) =>
-    fields.map((t) => claimTokenLabel(context, t)).join(_or(context));
+/// A card with the fields asked about, as its tag and the filter sheet say
+/// it: "Demo Address › Street, Number" (which card each comes from), or the
+/// card's name alone.
+String activityCardFieldsLabel(
+  BuildContext context,
+  ActivityCardRef card,
+  List<ClaimToken> fields,
+) => fields.isEmpty
+    ? card.name
+    : "${card.name} › "
+          "${fields.map((t) => claimTokenLabel(context, t)).join(", ")}";
 
-/// "Deze maand", or a custom range: "12 sep – 20 okt", with the year when
+/// "This month", or a custom range: "12 Sep – 20 Oct", with the year when
 /// it is not this one.
 String activityPeriodLabel(BuildContext context, ActivityQuery query) {
   if (query.period != ActivityPeriod.custom) {
@@ -69,13 +61,12 @@ String activityPeriodLabel(BuildContext context, ActivityQuery query) {
       " – ${day(to, to != null && to.year != thisYear)}";
 }
 
-/// "7 resultaten".
+/// "7 results".
 String activityResults(BuildContext context, int count) =>
     FlutterI18n.plural(context, "activity.query.results", count);
 
 /// The whole question in one line, so it is clear what is asked:
-/// "Gedeeld · BSN uit Demo Personal data · Afgelopen 3 maanden — 4
-/// resultaten".
+/// "Shared · Demo Personal data › BSN · Last 3 months — 4 results".
 String activityQuerySentence(
   BuildContext context,
   ActivityQuery query,
@@ -88,10 +79,7 @@ String activityQuerySentence(
   final card = query.card;
   return [
         if (query.kinds.isNotEmpty) activityKindsLabel(context, query.kinds),
-        if (card != null && query.fields.isNotEmpty)
-          "${activityFieldsLabel(context, query.fields)} · ${card.name}"
-        else if (card != null)
-          card.name,
+        if (card != null) activityCardFieldsLabel(context, card, query.fields),
         if (query.party != null) query.party!.party.name,
         if (query.period != ActivityPeriod.all)
           activityPeriodLabel(context, query),

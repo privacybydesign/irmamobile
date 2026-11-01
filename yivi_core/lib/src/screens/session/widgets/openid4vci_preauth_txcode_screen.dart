@@ -8,7 +8,7 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";

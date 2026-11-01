@@ -1,17 +1,16 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "session_requestor_header.dart";
+import "requestor_card.dart";
 
 /// What the tag of an [IssueSheetProgress] names: the request a card is
-/// added for ("For {requestor}"), or, with no request behind the sheet, the
-/// card being added.
+/// added for ("For {requestor}"), or, with no request behind the sheet,
+/// nothing.
 sealed class IssueSheetSubject {
   const IssueSheetSubject();
 
@@ -21,7 +20,7 @@ sealed class IssueSheetSubject {
     TrustedParty requestor, {
     ({int n, int total})? ofSet,
   }) = _ForRequest;
-  const factory IssueSheetSubject.card(CredentialDescriptor card) = _ForCard;
+  const factory IssueSheetSubject.none() = _NoSubject;
 }
 
 class _ForRequest extends IssueSheetSubject {
@@ -46,9 +45,8 @@ class _ForRequest extends IssueSheetSubject {
   }
 }
 
-class _ForCard extends IssueSheetSubject {
-  final CredentialDescriptor card;
-  const _ForCard(this.card);
+class _NoSubject extends IssueSheetSubject {
+  const _NoSubject();
 }
 
 /// Where adding a card stands, right under the bar of the sheet it is added

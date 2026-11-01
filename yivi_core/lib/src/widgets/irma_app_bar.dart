@@ -6,8 +6,9 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_palette.dart";
 import "glass/pill_buttons.dart";
 import "glass/round_icon_button.dart";
-import "glass/scroll_edge.dart";
 import "route_fixed_bar.dart";
+import "scroll_edge.dart";
+import "title_scroll_edge.dart";
 import "translated_text.dart";
 
 class YiviAppBarQrCodeButton extends StatelessWidget {
@@ -50,13 +51,12 @@ class YiviBackButton extends StatelessWidget {
   }
 }
 
-/// The bar at the top of a screen, as in the design: no bar of its own, but
-/// the title and round glass buttons floating over the page, 16 from the
-/// edges, with the page colour fading out below them so the content can
-/// scroll underneath (see [BarInsets] and `extendBodyBehindAppBar`).
+/// The bar at the top of a screen: no bar of its own, but the title and
+/// round buttons ([RoundIconButton]) over the page, 16 from the edges, with
+/// a hard scroll edge behind them once content scrolls underneath (see
+/// [BarInsets] and `extendBodyBehindAppBar`).
 ///
-/// Unlike Material's AppBar it does not clip, so the glass buttons keep their
-/// soft shadow.
+/// Unlike Material's AppBar it does not clip what reaches past it.
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Every page's bar, the home tabs' too: its 44 pt buttons [buttonTop]
   /// under the status bar and 4 above its bottom, where the band (once
@@ -141,7 +141,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
             title ??
             TranslatedText(
               titleTranslationKey ?? (titleString ?? ""),
-              style: palette.display(18).copyWith(color: palette.text),
+              style: palette.display(17).copyWith(color: palette.text),
               textAlign: TextAlign.center,
             ),
       ),
@@ -149,20 +149,12 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     final visibility = titleVisibility;
     final titleWidget = visibility == null
         ? plainTitle
-        : ValueListenableBuilder<bool>(
-            valueListenable: visibility,
-            builder: (context, visible, child) => ExcludeSemantics(
-              // The large title on the page says the same while this one
-              // is hidden.
-              excluding: !visible,
-              child: AnimatedOpacity(
-                key: const Key("irma_app_bar_title"),
-                opacity: visible ? 1 : 0,
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOut,
-                child: child,
-              ),
-            ),
+        : BarTitleFade(
+            shown: visibility,
+            fadeKey: const Key("irma_app_bar_title"),
+            // The large title on the page says the same while this one is
+            // hidden.
+            hiddenFromSemantics: true,
             child: plainTitle,
           );
 

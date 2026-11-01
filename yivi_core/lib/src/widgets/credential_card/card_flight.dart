@@ -43,7 +43,7 @@ class CardFlight {
   ///
   /// [total] is how long the overlay stays, at least [flight] (the flight
   /// itself). With [curtain] a cover in the page colour fades out over
-  /// [curtainDuration] under the card, hiding a switch of screens. [wrap]
+  /// [CardFlight.curtain] under the card, hiding a switch of screens. [wrap]
   /// wraps the flying card, e.g. to tuck it under the card below its place.
   /// [onTick] is told how far the flight is on every frame; [onDone] runs
   /// once the overlay is gone.
@@ -56,7 +56,6 @@ class CardFlight {
     required schemaless.Credential card,
     Duration? total,
     bool curtain = false,
-    Duration curtainDuration = CardFlight.curtain,
     Widget Function(Widget card, Animation<double> clock)? wrap,
     void Function(Duration elapsed)? onTick,
     VoidCallback? onDone,
@@ -79,10 +78,9 @@ class CardFlight {
         target: target,
         duration: flight,
         total: reduceMotion
-            ? (curtain ? curtainDuration : Duration.zero)
+            ? (curtain ? CardFlight.curtain : Duration.zero)
             : (total == null || total < flight ? flight : total),
         curtain: curtain,
-        curtainDuration: curtainDuration,
         reduceMotion: reduceMotion,
         wrap: wrap,
         onTick: onTick,
@@ -142,7 +140,6 @@ class _FlightOverlay extends StatefulWidget {
   final Duration duration;
   final Duration total;
   final bool curtain;
-  final Duration curtainDuration;
   final bool reduceMotion;
   final Widget Function(Widget card, Animation<double> clock)? wrap;
   final void Function(Duration elapsed)? onTick;
@@ -156,7 +153,6 @@ class _FlightOverlay extends StatefulWidget {
     required this.duration,
     required this.total,
     required this.curtain,
-    required this.curtainDuration,
     required this.reduceMotion,
     required this.wrap,
     required this.onTick,
@@ -249,7 +245,7 @@ class _FlightOverlayState extends State<_FlightOverlay>
                 Positioned.fill(
                   child: ColoredBox(
                     color: palette.background.withValues(
-                      alpha: 1 - _progress(widget.curtainDuration),
+                      alpha: 1 - _progress(CardFlight.curtain),
                     ),
                   ),
                 ),

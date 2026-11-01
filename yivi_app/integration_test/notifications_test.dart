@@ -10,8 +10,8 @@ import "package:yivi_core/src/screens/notifications/widgets/notification_card.da
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/title_scroll_edge.dart";
 
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";
@@ -280,7 +280,7 @@ Future<void> testReadAllNotifications(
     read: false,
   );
 
-  // Leaving the tab fires MarkAllNotificationsAsRead in dispose.
+  // Leaving the tab fires MarkAllNotificationsAsRead (HomeScreen's listener).
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await tester.pumpAndSettle();
 
@@ -596,7 +596,8 @@ Future<void> testTypeTransitionExpiringSoonToExpired(
     read: false,
   );
 
-  // Leave the tab → MarkAllNotificationsAsRead fires; the existing
+  // Leave the tab → MarkAllNotificationsAsRead fires (HomeScreen's
+  // listener); the existing
   // (hash, expiringSoon) record now has read=true.
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await tester.pumpAndSettle();

@@ -4,7 +4,7 @@ import "../theme/theme.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
 
-enum IrmaCardStyle { normal, outlined, highlighted, danger }
+enum IrmaCardStyle { normal, highlighted, danger }
 
 /// Variant of Material's Card that uses IRMA styling: a rounded group on the
 /// surface colour, flat, as in the glass redesign.
@@ -37,16 +37,6 @@ class IrmaCard extends StatelessWidget {
         boxDecoration = BoxDecoration(
           borderRadius: radius,
           border: Border.fromBorderSide(YiviEdges.block(context)),
-          color: theme.light,
-        );
-        break;
-      case IrmaCardStyle.outlined:
-        boxDecoration = BoxDecoration(
-          borderRadius: radius,
-          border: Border.all(
-            color: theme.themeData.colorScheme.secondary,
-            width: 1,
-          ),
           color: theme.light,
         );
         break;

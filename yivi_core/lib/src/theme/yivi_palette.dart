@@ -15,7 +15,7 @@ class YiviPalette {
   /// In the dark variant every layer is lighter than the one it lies on:
   /// [background] < [surface] = [sheet] < [raised], [surface] < [tint],
   /// [raised] < [raisedTint]. A sheet's content gets the raised levels
-  /// through [YiviPaletteScope] (see [onSheet]). In the light variant the
+  /// through [YiviPaletteScope] ([darkOnSheet]). In the light variant the
   /// sheet is the page colour, white cards on both, so nothing needs a
   /// shadow to stand out; on a sheet [tint] is a step deeper, so a fill
   /// right on the sheet still shows ([lightOnSheet]).
@@ -36,11 +36,6 @@ class YiviPalette {
 
   /// [tint] on a [raised] card.
   final Color raisedTint;
-
-  /// Whether this is the palette for a sheet's content (dark variant only):
-  /// [background] is the sheet, [surface] and [tint] are the raised levels,
-  /// and what floats on it is a solid [surface].
-  final bool onSheet;
 
   /// Body text.
   final Color text;
@@ -74,7 +69,6 @@ class YiviPalette {
   final Color noteText;
   final Color successSurface;
   final Color successText;
-  final Color successTint;
   final Color successOutline;
   final Color warningSurface;
   final Color warningText;
@@ -113,7 +107,6 @@ class YiviPalette {
     required this.sheet,
     required this.raised,
     required this.raisedTint,
-    this.onSheet = false,
     required this.text,
     required this.heading,
     required this.secondaryText,
@@ -126,7 +119,6 @@ class YiviPalette {
     required this.noteText,
     required this.successSurface,
     required this.successText,
-    required this.successTint,
     required this.successOutline,
     required this.warningSurface,
     required this.warningText,
@@ -160,7 +152,6 @@ class YiviPalette {
     noteText: Color(0xFF123254),
     successSurface: Color(0xFFD7EFE0),
     successText: Color(0xFF00602A),
-    successTint: Color(0xFFE6F5EC),
     successOutline: Color(0xFFBFE5CC),
     warningSurface: Color(0xFFFBEFD8),
     warningText: Color(0xFF7A4F00),
@@ -194,7 +185,6 @@ class YiviPalette {
     noteText: Color(0xFFCFE4FF),
     successSurface: Color(0xFF133324),
     successText: Color(0xFF7EDBA4),
-    successTint: Color(0xFF10261B),
     successOutline: Color(0xFF1F4A32),
     warningSurface: Color(0xFF33270F),
     warningText: Color(0xFFF2C46B),
@@ -207,21 +197,21 @@ class YiviPalette {
     searchMark: Color(0xFF6B5300),
   );
 
-  /// [light] for a sheet's content: the same, but [tint] a step deeper
-  /// than the sheet (1.12:1, as white on the sheet), so a soft fill right on
-  /// the sheet doesn't vanish into it.
+  /// [light] for a sheet's content: the sheet as [background], and [tint]
+  /// and [raisedTint] a step deeper than the sheet (1.12:1, as white on the
+  /// sheet), so a soft fill right on the sheet doesn't vanish into it.
   static final lightOnSheet = light._with(
     background: light.sheet,
     tint: const Color(0xFFD9E7F2),
     raisedTint: const Color(0xFFD9E7F2),
   );
 
-  /// [dark] for a sheet's content; see [onSheet].
+  /// [dark] for a sheet's content: [background] is the sheet, [surface]
+  /// and [tint] are the raised levels.
   static final darkOnSheet = dark._with(
     background: dark.sheet,
     tint: dark.raisedTint,
     surface: dark.raised,
-    onSheet: true,
   );
 
   /// This palette with the levels given changed; everything else the same.
@@ -230,7 +220,6 @@ class YiviPalette {
     Color? tint,
     Color? surface,
     Color? raisedTint,
-    bool? onSheet,
   }) => YiviPalette._(
     brightness: brightness,
     background: background ?? this.background,
@@ -239,7 +228,6 @@ class YiviPalette {
     sheet: sheet,
     raised: raised,
     raisedTint: raisedTint ?? this.raisedTint,
-    onSheet: onSheet ?? this.onSheet,
     text: text,
     heading: heading,
     secondaryText: secondaryText,
@@ -252,7 +240,6 @@ class YiviPalette {
     noteText: noteText,
     successSurface: successSurface,
     successText: successText,
-    successTint: successTint,
     successOutline: successOutline,
     warningSurface: warningSurface,
     warningText: warningText,

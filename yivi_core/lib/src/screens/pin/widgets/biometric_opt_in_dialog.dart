@@ -34,19 +34,14 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
 
   Future<void> _enable() async {
     setState(() => _busy = true);
-    final service = ref.read(biometricServiceProvider);
-    final ok = await service.authenticate(
-      localizedReason: FlutterI18n.translate(
-        context,
-        "pin.biometric_confirm_reason",
-      ),
-    );
-    if (ok) {
-      // Persist in the background (the pref's in-memory value updates
-      // synchronously); closing the dialog shouldn't block on disk I/O.
-      unawaited(service.setEnabled(true));
-      unawaited(service.dismissPrompt());
-    }
+    await ref
+        .read(biometricServiceProvider)
+        .confirmAndEnable(
+          localizedReason: FlutterI18n.translate(
+            context,
+            "pin.biometric_confirm_reason",
+          ),
+        );
     // Success or failure, the question is answered for now: close. On failure
     // `dismissed` stays unset, so the prompt can re-appear at the next lock.
     if (mounted) Navigator.of(context).pop();

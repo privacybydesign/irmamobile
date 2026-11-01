@@ -14,8 +14,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// among the requested ones is not a candidate at all, so the share screen
 /// shows an empty spot that cannot be added, "Close" instead of Share, and
 /// no way to share. irmago prerequisite: the unobtainable
-/// mdoc descriptor carries the display name and requested value
-/// (docs/mdoc-integration-plan.md, irmago prerequisite 2).
+/// mdoc descriptor carries the display name and requested value.
 Future<void> ageRequestedValueNoMatchTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

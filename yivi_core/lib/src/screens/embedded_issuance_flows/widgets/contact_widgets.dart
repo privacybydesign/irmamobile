@@ -1,20 +1,24 @@
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../../routing.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/keyboard_animation_listener.dart";
 import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 
 /// A full-screen e-mail or phone step: [before], the [field] and [after] in
@@ -234,16 +238,13 @@ class ContactFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     return Padding(
       // Sideways it starts the right column, level with the explanation.
       padding: EdgeInsets.fromLTRB(4, useSheetColumns(context) ? 2 : 28, 4, 8),
       child: TranslatedText(
         labelKey,
         textAlign: textAlign,
-        style: palette
-            .body(14, weight: FontWeight.w600)
-            .copyWith(height: 20 / 14, color: palette.heading),
+        style: fieldLabelStyle(context),
       ),
     );
   }
@@ -380,13 +381,22 @@ class ContactTextLink extends StatelessWidget {
 
 /// The error under the code boxes, centred.
 class ContactCodeError extends StatelessWidget {
-  final String textKey;
+  final String _text;
+  final bool _translated;
 
-  const ContactCodeError(this.textKey, {super.key});
+  /// The error with the text of [textKey].
+  const ContactCodeError(String textKey, {super.key})
+    : _text = textKey,
+      _translated = false;
+
+  /// The error saying [text], already in the user's language.
+  const ContactCodeError.text(String text, {super.key})
+    : _text = text,
+      _translated = true;
 
   @override
   Widget build(BuildContext context) => FieldError(
-    FlutterI18n.translate(context, textKey),
+    _translated ? _text : FlutterI18n.translate(context, _text),
     align: TextAlign.center,
   );
 }
@@ -433,3 +443,191 @@ Future<bool> confirmContactStep(BuildContext context, String keys) =>
       confirmKey: "$keys.confirm",
       cancelKey: "$keys.cancel",
     );
+
+/// What the e-mail and phone code screens share: the code field's focus and
+/// text, the flow started over ([resetFlow]) when the screen is shown again
+/// after the one above it closed, and a question before going back or
+/// sending again ([confirmThen]).
+mixin VerifyCodeScreen<W extends ConsumerStatefulWidget> on ConsumerState<W>
+    implements RouteAware {
+  final codeFocus = FocusNode();
+  final codeController = TextEditingController();
+
+  /// The flow from the start, as the screen is shown again.
+  void resetFlow();
+
+  @override
+  void didPush() {}
+
+  @override
+  void didPop() {}
+
+  @override
+  void didPushNext() {}
+
+  @override
+  void didPopNext() => Future.microtask(resetFlow);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) routeObserver.subscribe(this, route);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    codeFocus.dispose();
+    codeController.dispose();
+    super.dispose();
+  }
+
+  /// Asks the question of [keys] ([confirmContactStep]) and, when confirmed
+  /// while the screen is still there, does [action].
+  Future<void> confirmThen(String keys, VoidCallback action) async {
+    if (await confirmContactStep(context, keys) && mounted) action();
+  }
+}
+
+/// Where the code went, folded into one row, with "Change". Also the
+/// enrollment's e-mail step.
+class ContactSentTo extends StatelessWidget {
+  final String label;
+  final String target;
+  final bool email;
+  final String changeLabel;
+  final VoidCallback onChange;
+
+  const ContactSentTo({
+    required this.label,
+    required this.target,
+    required this.email,
+    required this.changeLabel,
+    required this.onChange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final (fill, ink) = ToneDisc.colors(
+      palette,
+      email ? DialogTone.warning : DialogTone.success,
+    );
+    return SurfaceCard(
+      key: const Key("contact_sheet_sent_to"),
+      padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
+      child: Row(
+        spacing: 12,
+        children: [
+          ExcludeSemantics(
+            child: IconSquare(
+              icon: email ? Icons.mail_rounded : Icons.smartphone_rounded,
+              fill: fill,
+              ink: ink,
+            ),
+          ),
+          Expanded(
+            child: MergeSemantics(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: palette
+                        .body(12.5)
+                        .copyWith(color: palette.secondaryText),
+                  ),
+                  Text(
+                    target,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette
+                        .body(15, weight: FontWeight.w600)
+                        .copyWith(color: palette.text),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Semantics(
+            button: true,
+            child: Material(
+              color: palette.tint,
+              shape: const StadiumBorder(),
+              child: InkWell(
+                highlightColor: Colors.transparent,
+                key: const Key("contact_sheet_change"),
+                customBorder: const StadiumBorder(),
+                onTap: onChange,
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minHeight: 32,
+                    minWidth: 44,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  alignment: Alignment.center,
+                  child: Text(
+                    changeLabel,
+                    style: palette
+                        .body(13, weight: FontWeight.w600)
+                        .copyWith(color: palette.link),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A hint under the code ("Not there? Check your spam.") and "Send again".
+class ContactResendRow extends StatelessWidget {
+  final String hint;
+  final String label;
+
+  /// Null while a code cannot be sent again yet ("Send again in 0:42"):
+  /// dimmed, without an action.
+  final VoidCallback? onTap;
+
+  const ContactResendRow({
+    required this.hint,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final inline = useSheetColumns(context) && !SheetSplit.isIn(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
+      child: Row(
+        // Sideways, outside the split's narrow column, on one line: the link
+        // right after the hint.
+        spacing: inline ? 16 : 0,
+        children: [
+          Flexible(
+            fit: inline ? FlexFit.loose : FlexFit.tight,
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                hint,
+                style: palette
+                    .body(13.5)
+                    .copyWith(color: palette.secondaryText),
+              ),
+            ),
+          ),
+          TextLink(
+            key: const Key("contact_sheet_send_again"),
+            label: label,
+            onPressed: onTap,
+          ),
+        ],
+      ),
+    );
+  }
+}

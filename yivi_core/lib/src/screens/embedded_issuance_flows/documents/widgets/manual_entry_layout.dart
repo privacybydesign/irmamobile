@@ -1,13 +1,14 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
-import "../../../../widgets/document_flow_footer.dart";
-import "../../../../widgets/glass/sheet_action_row.dart";
+import "../../../../widgets/glass/sheet_layout.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/surface_card.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_instruction_screen.dart";
 import "../document_step_in_sheet.dart";
+import "document_flow_footer.dart";
 
 /// A manual entry board: its [ManualEntryLayout] in a [Form] with
 /// Continue (enabled with [onContinue]) and Cancel, full-screen or as a
@@ -48,6 +49,7 @@ class ManualEntryScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final split = documentStepSplit(context);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       // In a sheet its bar has the title, back and close.
@@ -62,13 +64,13 @@ class ManualEntryScaffold extends StatelessWidget {
               onChanged: onChanged,
               child: SafeArea(
                 // Sideways the sheet's columns keep clear of the bottom.
-                bottom: !documentStepSplit(context),
+                bottom: !split,
                 child: Padding(
-                  padding: documentStepSplit(context)
+                  padding: split
                       ? EdgeInsets.zero
                       : const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   child: ManualEntryLayout(
-                    actions: documentStepSplit(context)
+                    actions: split
                         ? DocumentFlowFooter.sheetActions(
                             context,
                             _sheetButtons,
@@ -85,16 +87,16 @@ class ManualEntryScaffold extends StatelessWidget {
           ),
         ),
         // In a sheet, the sheet's own buttons; its close button is the way out.
-        bottomBar: documentStepSplit(context)
-            ? null
-            : DocumentStepInSheet.of(context)
-            ? DocumentFlowFooter(buttons: _sheetButtons)
-            : IrmaBottomBar(
-                primaryButtonLabel: "ui.continue",
-                onPrimaryPressed: onContinue,
-                secondaryButtonLabel: "ui.cancel",
-                onSecondaryPressed: onCancel,
-              ),
+        bottomBar: switch ((split, DocumentStepInSheet.of(context))) {
+          (true, _) => null,
+          (_, true) => DocumentFlowFooter(buttons: _sheetButtons),
+          _ => IrmaBottomBar(
+            primaryButtonLabel: "ui.continue",
+            onPrimaryPressed: onContinue,
+            secondaryButtonLabel: "ui.cancel",
+            onSecondaryPressed: onCancel,
+          ),
+        },
       ),
     );
   }
@@ -221,18 +223,12 @@ class DocumentField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
-          child: Text(
-            label,
-            style: palette
-                .body(14, weight: FontWeight.w600)
-                .copyWith(height: 20 / 14, color: palette.heading),
-          ),
+          child: Text(label, style: fieldLabelStyle(context)),
         ),
         field,
       ],

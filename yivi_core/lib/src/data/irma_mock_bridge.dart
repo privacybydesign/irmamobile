@@ -44,10 +44,6 @@ class IrmaMockBridge extends IrmaBridge {
           requestId: event.requestId,
           page: const LogPage(entries: []),
         ),
-        CredentialActivityEvent() => CredentialActivityResultEvent(
-          requestId: event.requestId,
-          activity: const {},
-        ),
         CountLogsEvent() => LogCountsEvent(
           requestId: event.requestId,
           counts: [for (final _ in event.filters) 0],
@@ -56,7 +52,9 @@ class IrmaMockBridge extends IrmaBridge {
           requestId: event.requestId,
           parties: const [],
         ),
-        _ => LogEntryEvent(requestId: event.requestId),
+        _ => throw UnsupportedError(
+          "No mocked behaviour implemented for ${event.runtimeType}",
+        ),
       });
     } else if (event is SessionEvent) {
       _sessionEventsSubject.add(event);

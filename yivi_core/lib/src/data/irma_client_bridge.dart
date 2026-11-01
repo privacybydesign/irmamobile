@@ -38,9 +38,6 @@ class IrmaClientBridge extends IrmaBridge {
     SessionPreviewEvent: (j) => SessionPreviewEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     LogPageEvent: (j) => LogPageEvent.fromJson(j),
-    LogEntryEvent: (j) => LogEntryEvent.fromJson(j),
-    CredentialActivityResultEvent: (j) =>
-        CredentialActivityResultEvent.fromJson(j),
     PartiesEvent: (j) => PartiesEvent.fromJson(j),
     LogCountsEvent: (j) => LogCountsEvent.fromJson(j),
 
@@ -105,13 +102,14 @@ class IrmaClientBridge extends IrmaBridge {
       }
 
       if (debugLogging) {
-        // the irma config event has so much data in its payload it bloats all logs,
-        // therefore we explicitly don't print the payload
+        // These payloads are large (the configuration, the credentials, a page
+        // of activity) and bloat the log, so only their name is printed.
         const nonPrinting = {
           "IrmaConfigurationEvent",
           "SchemalessCredentialsEvent",
           "SchemalessCredentialStoreEvent",
-          "LogsEvent",
+          "LogPageEvent",
+          "PartiesEvent",
         };
         if (nonPrinting.contains(call.method)) {
           if (kDebugMode) {

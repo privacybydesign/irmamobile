@@ -6,7 +6,7 @@ import "../../../package_name.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/centred_max_width.dart";
-import "../../widgets/glass/floating_bar_placement.dart";
+import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";

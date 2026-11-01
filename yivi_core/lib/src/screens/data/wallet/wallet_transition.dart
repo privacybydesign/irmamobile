@@ -1,19 +1,16 @@
-import "dart:math";
-
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/pane_handoff.dart";
 import "../../../widgets/slot_registry.dart";
 import "../card_transition/card_transition.dart";
 
-/// State shared between the data tab and the card detail route while a card
-/// opens or closes, for the Wallet-style transition: the tapped card glides
-/// to the top while everything above it is pushed up and away and everything
-/// below it is pushed down.
+/// State shared between a home tab and the detail route of what opens from
+/// it (a card from the list or grid, an activity entry): the tapped item
+/// flies to the top while the rest of the list moves away ([PushAway]).
+/// Cards in the stack move in place instead ([CardTransitions]).
 ///
 /// The home route's `secondaryAnimation` runs for every route pushed on top of
 /// it, so [PushAway] only moves while [openKey] is set: from the moment a
@@ -23,7 +20,6 @@ class WalletTransition {
 
   /// The same time both ways.
   static const duration = Duration(milliseconds: 500);
-  static const reverseDuration = duration;
 
   /// One curve for everything that moves (the card, the other cards, the
   /// bar): gentle at both ends, so it reads as one movement.
@@ -61,106 +57,12 @@ class WalletTransition {
     final box = cardContext.findRenderObject() as RenderBox?;
     anchorY = box?.localToGlobal(Offset.zero).dy ?? 0;
     closeFromPlus = WalletBar.maybeOf(cardContext)?.plusTurnsIntoClose ?? false;
-    stack = StackOpen.of(cardContext, box);
-    reverseFrom = 1;
-    pullAtClose = 0;
     openKey.value = hash;
-  }
-
-  // ------------------------------------------- Wallet depth (the card stack)
-
-  /// How a card opening from the stack moves; adjustable in the debug
-  /// settings.
-  static final motion = ValueNotifier<CardMotion>(CardMotion.defaults);
-
-  /// The card opening from (or closing into) the stack, or null when what
-  /// opens is not in the stack (Activity, a row, a grid card).
-  static StackOpen? stack;
-
-  /// How long the detail route runs: until the stack's spring has settled.
-  static Duration get routeDuration {
-    final open = stack;
-    if (open == null) return duration;
-    final m = motion.value;
-    final w = 2 * pi / m.response;
-    final settle = min(2600.0, 4600 / (max(m.damping, 0.3) * w) + 120);
-    final delays = min(900.0, open.count * max(m.fallStagger, m.sinkStagger));
-    return Duration(milliseconds: (settle + delays).round());
-  }
-
-  /// A damped spring from 0 to 1, [ms] after it started ([motion]).
-  static double spring(double ms) {
-    if (ms <= 0) return 0;
-    final m = motion.value;
-    final t = ms / 1000, z = m.damping, w = 2 * pi / m.response;
-    if (z >= 1) return 1 - exp(-w * t) * (1 + w * t);
-    final wd = w * sqrt(1 - z * z);
-    return 1 - exp(-z * w * t) * (cos(wd * t) + (z * w / wd) * sin(wd * t));
-  }
-
-  /// Where the route animation was when it started closing: a close that
-  /// interrupts the opening goes on from where everything is then.
-  static double reverseFrom = 1;
-
-  /// How far the details page was pulled down when it started closing:
-  /// the card flies back from there.
-  static double pullAtClose = 0;
-
-  /// How open (0 closed, 1 open) something is at [value] of the route
-  /// animation. The one place every part of the transition asks (the card,
-  /// its details, the cards above and below, the bar), so they never drift
-  /// apart. Opening, it starts [openDelay] ms after the tap, on the spring
-  /// (with its bounce); closing, [closeDelay] ms after the close, from
-  /// wherever it was then, and without running past where it lands.
-  static double stackOpen(
-    double value, {
-    double openDelay = 0,
-    double closeDelay = 0,
-  }) {
-    final total = routeDuration.inMilliseconds.toDouble();
-    if (!closing) return spring(value * total - openDelay);
-    final v0 = reverseFrom;
-    final from = v0 >= 1 ? 1.0 : spring(v0 * total - openDelay).clamp(0.0, 1.2);
-    final f = v0 <= 0 ? 1.0 : ((v0 - value) / v0).clamp(0.0, 1.0);
-    final back = spring(f * total - closeDelay).clamp(0.0, 1.0);
-    return from * (1 - back);
-  }
-
-  /// How far a close has got (0 just started, 1 done) at [value] of the
-  /// route animation, also when it interrupted the opening.
-  static double closeFraction(double value) {
-    final v0 = reverseFrom;
-    return v0 <= 0 ? 1 : ((v0 - value) / v0).clamp(0.0, 1.0);
-  }
-
-  /// Where the opening card's top edge is now, from the top of the screen.
-  static double stackCardTop(double value) {
-    final open = stack!;
-    final top = open.targetTop + pullAtClose;
-    return anchorY + (top - anchorY) * stackOpen(value);
-  }
-
-  /// How far the card just below the opening one is on its way down.
-  static double _nextDown(double value) {
-    final open = stack!;
-    final m = motion.value;
-    final next = open.index + 1;
-    return stackOpen(value, openDelay: (open.count - 1 - next) * m.fallStagger);
-  }
-
-  /// The line (from the top of the screen) above which the details show:
-  /// the top of the card just below the opening one, as it slides away.
-  static double stackRevealLine(double value, double screenHeight) {
-    final open = stack!;
-    final next = open.nextTop;
-    if (next == null) return screenHeight;
-    return next + (screenHeight - next + 32) * _nextDown(value);
   }
 
   /// How far the bars have handed over (0 to 1) at [value] of the route
   /// animation: as everything else ([eased]).
-  static double barProgress(double value) =>
-      stack == null ? eased(value) : stackOpen(value).clamp(0.0, 1.0);
+  static double barProgress(double value) => eased(value);
 
   /// The close button of a detail page at [value] of its route animation:
   /// its opacity and its turn in degrees. It takes over from a + that turned
@@ -177,17 +79,6 @@ class WalletTransition {
   /// default Material arc.
   static RectTween rectTween(Rect? begin, Rect? end) =>
       _CurvedRectTween(begin: begin, end: end);
-
-  /// How far the [index]th of several cards that fly together is from its
-  /// closed place (0) to its open place (1), at [value] of the route
-  /// animation. Each starts a little later (about 30 ms each), so they fan
-  /// out one by one; closing, they come back together, [curve] from where
-  /// they start.
-  static double staggered(double value, int index) {
-    if (closing) return eased(value);
-    final start = (index * 0.065).clamp(0.0, 0.3);
-    return curve.transform(Interval(start, 1).transform(value));
-  }
 }
 
 class _CurvedRectTween extends RectTween {
@@ -200,17 +91,6 @@ class _CurvedRectTween extends RectTween {
   Rect? lerp(double t) {
     final b = begin, e = end;
     if (b == null || e == null) return super.lerp(t);
-    // From the stack: where everything else says the card is
-    // (WalletTransition.stackOpen). The tween from the list (opening, or an
-    // opening turned into a close) runs with the route; the one from the
-    // details (closing) against it.
-    if (WalletTransition.stack != null) {
-      final anchor = WalletTransition.anchorY;
-      final fromList = (b.top - anchor).abs() <= (e.top - anchor).abs();
-      return fromList
-          ? Rect.lerp(b, e, WalletTransition.stackOpen(t))
-          : Rect.lerp(e, b, WalletTransition.stackOpen(1 - t));
-    }
     return Rect.lerp(b, e, WalletTransition.curve.transform(t));
   }
 }
@@ -235,22 +115,16 @@ class PushAway extends StatelessWidget {
   /// row fades out instead of staying put.
   final bool fadeWhenOpening;
 
-  /// Its place in the card stack, for Wallet depth ([StackOpen]): above the
-  /// opening card it sinks into the screen, below it it falls away.
-  final int? stackIndex;
-
   const PushAway({
     super.key,
     required this.child,
     this.direction = PushAwayDirection.auto,
     this.hash,
     this.fadeWhenOpening = false,
-    this.stackIndex,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (stackIndex case final i?) StackOpen._slots[i] = context;
     final secondary = ModalRoute.of(context)?.secondaryAnimation;
     if (secondary == null || MediaQuery.disableAnimationsOf(context)) {
       return child;
@@ -272,10 +146,6 @@ class PushAway extends StatelessWidget {
         return AnimatedBuilder(
           animation: secondary,
           builder: (context, child) {
-            final stack = WalletTransition.stack;
-            if (stack != null) {
-              return _inStack(context, stack, secondary.value, child!);
-            }
             final t = WalletTransition.eased(secondary.value);
             if (t == 0) return child!;
             if (bar != null) return _underBar(context, t, child!);
@@ -319,83 +189,6 @@ class PushAway extends StatelessWidget {
     }
     final drop = MediaQuery.sizeOf(context).height + 32 + height;
     return Transform.translate(offset: Offset(0, t * drop), child: child);
-  }
-
-  /// While a card opens from the stack (Wallet depth): the cards above it
-  /// sink into the screen one after another, the uppermost first, never
-  /// showing below the opening card; the cards below fall away, the bottom
-  /// one first. The header fades where it is, and comes back with the
-  /// uppermost card. The rest (the tab bar) goes down with the spring.
-  Widget _inStack(
-    BuildContext context,
-    StackOpen open,
-    double value,
-    Widget child,
-  ) {
-    final m = WalletTransition.motion.value;
-    final closing = WalletTransition.closing;
-    final i = stackIndex;
-    final box = context.findRenderObject() as RenderBox?;
-    final top = box != null && box.hasSize
-        ? box.localToGlobal(Offset.zero).dy
-        : 0.0;
-    if (i != null && i < open.index) {
-      final s = WalletTransition.stackOpen(
-        value,
-        openDelay: (i - open.firstSeen) * m.sinkStagger,
-        closeDelay: (open.index - 1 - i) * m.sinkStagger,
-      ).clamp(0.0, 1.2);
-      if (s == 0) return child;
-      final k = 1 - 0.14 * s;
-      final cut =
-          WalletTransition.stackCardTop(value) + open.cardHeight - top - 60 * s;
-      return Opacity(
-        opacity: (1 - s).clamp(0.0, 1.0),
-        child: Transform(
-          alignment: Alignment.topCenter,
-          transform: Matrix4.translationValues(0, 60 * s, 0)
-            ..scaleByDouble(k, k, 1, 1),
-          child: ClipRect(
-            clipper: ClipAboveY(cut / k),
-            child: ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                Colors.black.withValues(alpha: 0.35 * s.clamp(0.0, 1.0)),
-                BlendMode.srcATop,
-              ),
-              child: child,
-            ),
-          ),
-        ),
-      );
-    }
-    final screen = MediaQuery.sizeOf(context).height;
-    if (i != null && i > open.index) {
-      final p = WalletTransition.stackOpen(
-        value,
-        openDelay: (open.count - 1 - i) * m.fallStagger,
-        closeDelay: (i - open.index - 1) * m.fallStagger,
-      );
-      final from = open.nextTop ?? top;
-      return Transform.translate(
-        offset: Offset(0, (screen - from + 32) * p),
-        child: child,
-      );
-    }
-    if (direction == PushAwayDirection.up) {
-      final back = closing && open.index > open.firstSeen
-          ? 1 -
-                WalletTransition.stackOpen(
-                  value,
-                  closeDelay: (open.index - 1 - open.firstSeen) * m.sinkStagger,
-                ).clamp(0.0, 1.0)
-          : 1 - (WalletTransition.barProgress(value) / 0.35).clamp(0.0, 1.0);
-      return Opacity(opacity: back, child: child);
-    }
-    final p = WalletTransition.stackOpen(value);
-    return Transform.translate(
-      offset: Offset(0, (screen - top + 32) * p),
-      child: child,
-    );
   }
 
   /// How far it goes: off the screen, up or down.
@@ -477,20 +270,11 @@ class _WalletDetailRoute<T> extends PageRoute<T> with InstantRouteMixin<T> {
   @override
   bool get maintainState => true;
 
-  /// Opened by a card transition ([CardTransitions]): it has drawn the
-  /// way here (and draws the way back), so the page comes and goes at once,
-  /// without heroes.
-  bool get _byCardTransition =>
-      navigator != null &&
-      (CardTransitionScope.maybeOf(navigator!.context)?.busy ?? false);
+  @override
+  Duration get transitionDuration => WalletTransition.duration;
 
   @override
-  Duration get transitionDuration =>
-      _byCardTransition ? Duration.zero : WalletTransition.routeDuration;
-
-  @override
-  Duration get reverseTransitionDuration =>
-      _byCardTransition ? Duration.zero : WalletTransition.routeDuration;
+  Duration get reverseTransitionDuration => WalletTransition.duration;
 
   @override
   DelegatedTransitionBuilder? get delegatedTransition => _stayInPlace;
@@ -508,7 +292,7 @@ class _WalletDetailRoute<T> extends PageRoute<T> with InstantRouteMixin<T> {
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  ) => HeroMode(enabled: !_byCardTransition, child: _page.child);
+  ) => _page.child;
 
   @override
   Widget buildTransitions(
@@ -520,8 +304,8 @@ class _WalletDetailRoute<T> extends PageRoute<T> with InstantRouteMixin<T> {
 }
 
 /// A card's place in the Stack view of the data tab. Cards lower in the
-/// stack are drawn over the ones above them; a card flying into or out of
-/// its place ([CoveredByStack]) uses this to slide under the card below it.
+/// stack are drawn over the ones above them; a received card flying into
+/// the stack ([CoveredByStack]) uses this to slide under the card below.
 class WalletStackSlot extends StatefulWidget {
   final String hash;
   final int index;
@@ -585,9 +369,8 @@ class _WalletStackSlotState extends State<WalletStackSlot> {
 }
 
 /// Hides the part of a flying card that the cards below its place in the
-/// stack cover, every frame ([repaint]), so it slides under the card below it
-/// and over the one above it instead of flying over all of them and jumping
-/// under at the end.
+/// stack cover, every frame ([repaint]), so it slides under them instead of
+/// flying over all of them and jumping under at the end.
 class CoveredByStack extends SingleChildRenderObjectWidget {
   final String hash;
 
@@ -676,162 +459,6 @@ class RenderCoveredByStack extends RenderProxyBox {
       (Offset.zero & size).inflate(48),
       visible,
       super.paint,
-    );
-  }
-}
-
-/// Clips to what is above [y] (in the child's coordinates).
-class ClipAboveY extends CustomClipper<Rect> {
-  final double y;
-
-  const ClipAboveY(this.y);
-
-  @override
-  Rect getClip(Size size) => Rect.fromLTRB(-1e5, -1e5, 1e5, y);
-
-  @override
-  bool shouldReclip(ClipAboveY oldClipper) => oldClipper.y != y;
-}
-
-/// How a card opening from the stack moves (Wallet depth).
-@immutable
-class CardMotion {
-  /// Of the spring, as iOS sets it: seconds it takes (the card and the
-  /// cards below).
-  final double duration;
-
-  /// Of the spring: 0 settles without a bounce, more bounces more.
-  final double bounce;
-
-  /// Seconds the cards above take: slower, the pile settles behind the
-  /// card.
-  final double aboveDuration;
-
-  /// Milliseconds between the cards below falling away (the bottom first).
-  final double fallStagger;
-
-  /// Milliseconds between the cards above sinking (the uppermost first).
-  final double sinkStagger;
-
-  const CardMotion({
-    required this.duration,
-    required this.bounce,
-    required this.aboveDuration,
-    required this.fallStagger,
-    required this.sinkStagger,
-  });
-
-  /// "Wallet", as picked on the prototype (2026-10-31).
-  static const defaults = CardMotion(
-    duration: 0.35,
-    bounce: 0.3,
-    aboveDuration: 0.4,
-    fallStagger: 0,
-    sinkStagger: 0,
-  );
-
-  /// The spring's damping ratio (1 settles without a bounce).
-  double get damping => 1 - bounce;
-
-  /// Seconds for one swing of the spring.
-  double get response => duration;
-
-  CardMotion copyWith({
-    double? duration,
-    double? bounce,
-    double? aboveDuration,
-    double? fallStagger,
-    double? sinkStagger,
-  }) => CardMotion(
-    duration: duration ?? this.duration,
-    bounce: bounce ?? this.bounce,
-    aboveDuration: aboveDuration ?? this.aboveDuration,
-    fallStagger: fallStagger ?? this.fallStagger,
-    sinkStagger: sinkStagger ?? this.sinkStagger,
-  );
-
-  /// For the preferences: "duration,bounce,above,fall,sink".
-  String encode() =>
-      "$duration,$bounce,$aboveDuration,$fallStagger,$sinkStagger";
-
-  /// Settings saved in another form (before "Wallet") give the defaults.
-  static CardMotion decode(String text) {
-    final v = text.split(",").map(double.tryParse).toList();
-    if (v.length != 5 || v.contains(null)) return defaults;
-    return CardMotion(
-      duration: v[0]!,
-      bounce: v[1]!,
-      aboveDuration: v[2]!,
-      fallStagger: v[3]!,
-      sinkStagger: v[4]!,
-    );
-  }
-}
-
-/// A card opening from the stack: its place in it, and where the others
-/// are, measured when it is tapped.
-class StackOpen {
-  /// Where each card of the stack is built ([PushAway.stackIndex]).
-  static final _slots = <int, BuildContext>{};
-
-  final int index;
-  final int count;
-
-  /// The first card whose strip is on screen: the sinking counts from it.
-  final int firstSeen;
-  final double cardHeight;
-
-  /// Where the card's top lands on the details page.
-  final double targetTop;
-
-  /// The top of the card just below it, or null for the last card.
-  final double? nextTop;
-
-  const StackOpen({
-    required this.index,
-    required this.count,
-    required this.firstSeen,
-    required this.cardHeight,
-    required this.targetTop,
-    required this.nextTop,
-  });
-
-  /// For the card at [cardContext] ([box] its card), when it is in the
-  /// stack.
-  static StackOpen? of(BuildContext cardContext, RenderBox? box) {
-    final index = cardContext
-        .findAncestorWidgetOfExactType<PushAway>()
-        ?.stackIndex;
-    if (index == null || box == null || !box.hasSize) return null;
-    double? topOf(int i) {
-      final c = _slots[i];
-      if (c == null || !c.mounted) return null;
-      final b = c.findRenderObject();
-      if (b is! RenderBox || !b.hasSize || !b.attached) return null;
-      return b.localToGlobal(Offset.zero).dy;
-    }
-
-    // Only the cards there now (a card deleted or the list rebuilt leaves
-    // old entries behind).
-    _slots.removeWhere((_, c) => !c.mounted);
-    final count = _slots.keys.fold(0, (n, i) => max(n, i + 1));
-    final strip = (topOf(index + 1) ?? 0) - (topOf(index) ?? 0);
-    var firstSeen = 0;
-    for (var i = 0; i < index; i++) {
-      final t = topOf(i);
-      if (t != null && t + max(strip, 1) > 0) {
-        firstSeen = i;
-        break;
-      }
-      firstSeen = i + 1;
-    }
-    return StackOpen(
-      index: index,
-      count: count,
-      firstSeen: min(firstSeen, index),
-      cardHeight: box.size.height,
-      targetTop: MediaQuery.paddingOf(cardContext).top + IrmaAppBar.contentTop,
-      nextTop: index + 1 < count ? topOf(index + 1) : null,
     );
   }
 }

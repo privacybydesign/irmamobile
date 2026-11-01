@@ -23,8 +23,7 @@ class WaitingRequest {
 }
 
 /// What is waiting behind the lock screen, and as much as is known about it
-/// before the PIN (docs/waiting-request-pin-plan.md, 4.1). Null when nothing
-/// waits.
+/// before the PIN. Null when nothing waits.
 final waitingRequestProvider = StreamProvider<WaitingRequest?>((ref) {
   final repo = ref.watch(irmaRepositoryProvider);
   final pointer = ref.watch(pendingPointerProvider);

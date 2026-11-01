@@ -8,8 +8,6 @@ import "../widgets/contact_widgets.dart";
 import "widgets/enter_email_screen.dart";
 import "widgets/verify_email_screen.dart";
 
-// ==========================================================
-
 class EmailIssuanceScreen extends ConsumerStatefulWidget {
   final EmailIssuancePurpose purpose;
 

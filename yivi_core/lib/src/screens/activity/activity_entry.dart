@@ -10,7 +10,6 @@ import "../../util/string.dart";
 enum ActivityKind {
   shared(
     labelKey: "activity.kind.shared",
-    subtitleKey: "activity.data_shared",
     semanticsKey: "activity.data_shared_semantics",
     relationKey: "activity.shared_with",
     noteKey: "activity.note.shared",
@@ -19,7 +18,6 @@ enum ActivityKind {
   ),
   received(
     labelKey: "activity.kind.received",
-    subtitleKey: "activity.data_received",
     semanticsKey: "activity.data_received_semantics",
     relationKey: "activity.received_from",
     noteKey: "activity.note.received",
@@ -28,7 +26,6 @@ enum ActivityKind {
   ),
   signed(
     labelKey: "activity.kind.signed",
-    subtitleKey: "activity.message_signed",
     semanticsKey: "activity.signed_message_semantics",
     relationKey: "activity.signed_for",
     noteKey: "activity.note.signed",
@@ -37,7 +34,6 @@ enum ActivityKind {
   ),
   deleted(
     labelKey: "activity.kind.deleted",
-    subtitleKey: "activity.data_deleted",
     semanticsKey: "activity.data_deleted_semantics",
     relationKey: "activity.deleted_from",
     noteKey: "activity.note.deleted",
@@ -47,7 +43,6 @@ enum ActivityKind {
 
   /// The short label: on the tags and the detail header ("Shared").
   final String labelKey;
-  final String subtitleKey;
   final String semanticsKey;
 
   /// "Shared with", above the other party's name.
@@ -60,7 +55,6 @@ enum ActivityKind {
 
   const ActivityKind({
     required this.labelKey,
-    required this.subtitleKey,
     required this.semanticsKey,
     required this.relationKey,
     required this.noteKey,
@@ -68,11 +62,22 @@ enum ActivityKind {
     required this.badge,
   });
 
+  /// The kinds, in the order the app lists them.
+  static const ordered = [received, shared, signed, deleted];
+
   static ActivityKind of(LogType type) => switch (type) {
     LogType.disclosure => shared,
     LogType.issuance => received,
     LogType.removal => deleted,
     LogType.signature => signed,
+  };
+
+  /// The log type of this kind ([of] the other way).
+  LogType get logType => switch (this) {
+    shared => LogType.disclosure,
+    received => LogType.issuance,
+    signed => LogType.signature,
+    deleted => LogType.removal,
   };
 }
 
@@ -124,7 +129,7 @@ class ActivityParty {
     final uri = Uri.tryParse(url.contains("://") ? url : "https://$url");
     final host = uri?.host ?? "";
     if (host.isEmpty) return null;
-    return host.startsWith("www.") ? host.substring(4) : host;
+    return host.withoutWww();
   }
 }
 
@@ -187,7 +192,7 @@ class ActivityEntry {
     List<schemaless.Credential> wallet = const [],
   }) {
     ActivityEntryCard card(LogCredential c, ActivityRole role) =>
-        ActivityEntryCard(credential: c, role: role, art: _art(c, wallet));
+        ActivityEntryCard(credential: c, role: role, art: artFor(c, wallet));
     List<ActivityEntrySection> sections(
       List<(ActivityRole, List<LogCredential>)> parts,
     ) => [
@@ -262,11 +267,6 @@ class ActivityEntry {
       logo: party?.image ?? first?.issuer.image,
     );
   }
-
-  static schemaless.Credential _art(
-    LogCredential credential,
-    List<schemaless.Credential> wallet,
-  ) => artFor(credential, wallet);
 
   /// What to draw a logged card as: the card in the wallet of the same type,
   /// else one made from what the log kept.

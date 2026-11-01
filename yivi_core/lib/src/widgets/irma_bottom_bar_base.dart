@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
-import "glass/floating_bar_placement.dart";
+import "floating_bar_placement.dart";
 
 class IrmaBottomBarBase extends StatelessWidget {
   final Widget child;

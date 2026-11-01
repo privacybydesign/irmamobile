@@ -16,9 +16,9 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/progress.dart";
 import "../../error/error_screen.dart";
-import "../cert_management/widgets/cert_manager_tile.dart";
-import "../cert_management/widgets/provide_cert_dialog.dart";
 import "../util/snackbar.dart";
+import "widgets/cert_manager_tile.dart";
+import "widgets/provide_cert_dialog.dart";
 
 class CertificateManagementScreen extends StatefulWidget {
   @override

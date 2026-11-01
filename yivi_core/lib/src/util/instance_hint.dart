@@ -1,6 +1,11 @@
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
+
 import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../widgets/credential_card/card_art/builtin_card_templates.dart";
 import "../widgets/credential_card/card_art/card_art_support.dart";
+import "date_formatter.dart";
+import "i18n.dart";
 
 /// The one value shown next to a credential's name so you can tell two
 /// instances of the same type apart (two email addresses, two bank accounts).
@@ -45,10 +50,8 @@ bool _allowed(schemaless.Attribute a) {
     return false;
   }
   if (attributeText(value) == null) return false;
-  final name = a.claimPath.lastWhere(
-    (seg) => seg is String,
-    orElse: () => "",
-  ) as String;
+  final name =
+      a.claimPath.lastWhere((seg) => seg is String, orElse: () => "") as String;
   return !_denyList.contains(name.toLowerCase());
 }
 
@@ -71,8 +74,7 @@ InstanceHint instanceHintFor(
 ) {
   final allowed = credential.attributes.where(_allowed).toList();
 
-  final hasTemplate =
-      credential.display?.svgTemplates.isNotEmpty ?? false;
+  final hasTemplate = credential.display?.svgTemplates.isNotEmpty ?? false;
   if (hasTemplate) {
     final shown = allowed.where((a) => a.svgId != null);
     if (shown.isNotEmpty) return ValueHint(attributeText(shown.first.value)!);
@@ -92,7 +94,9 @@ InstanceHint instanceHintFor(
   }
 
   if (siblings.isEmpty) {
-    if (allowed.isNotEmpty) return ValueHint(attributeText(allowed.first.value)!);
+    if (allowed.isNotEmpty) {
+      return ValueHint(attributeText(allowed.first.value)!);
+    }
   } else {
     for (final a in allowed) {
       final key = schemaless.Attribute.pathKey(a.claimPath);
@@ -124,3 +128,30 @@ String? _headerText(schemaless.Credential credential) {
       .join(" ");
   return text.isEmpty ? null : text;
 }
+
+/// The text form of an [InstanceHint], e.g. an email address or
+/// "Added 12-03-2025".
+String instanceHintText(BuildContext context, InstanceHint hint) {
+  return switch (hint) {
+    ValueHint(:final text) => text,
+    AddedHint(:final date) => FlutterI18n.translate(
+      context,
+      "credential_card.added_on",
+      translationParams: {"date": _date(context, date)},
+    ),
+    NoHint() => "",
+  };
+}
+
+/// [instanceHintText] of each of [cards], by hash.
+Map<String, String> instanceHintTexts(
+  BuildContext context,
+  Iterable<schemaless.Credential> cards,
+  Map<String, InstanceHint> hints,
+) => {
+  for (final c in cards)
+    c.hash: instanceHintText(context, hints[c.hash] ?? const NoHint()),
+};
+
+String _date(BuildContext context, DateTime date) =>
+    printableDate(date, context.lang);

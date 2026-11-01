@@ -3,7 +3,7 @@ import "package:flutter/scheduler.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
+import "package:yivi_core/src/screens/add_data/add_data_row.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 
 import "helpers/helpers.dart";

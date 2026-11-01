@@ -46,7 +46,7 @@ Future<void> returnUrlHttpsInAppTest(
   await tester.pumpAndSettle();
 
   // The done screen first: what was shared, and "Back to {host}" at the
-  // top and as its button. Nothing opens before she taps it.
+  // top and as its button. Nothing opens before the user taps it.
   await tester.waitFor(find.byKey(const Key("share_done_next")));
   expect(externalLaunches, isEmpty);
   expect(inAppLaunches, isEmpty);

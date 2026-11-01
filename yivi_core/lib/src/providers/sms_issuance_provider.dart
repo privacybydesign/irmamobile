@@ -7,7 +7,7 @@ import "package:pinput/pinput.dart";
 
 import "../models/session.dart";
 import "../util/altcha_solver.dart";
-import "./provider_helpers.dart" as helpers;
+import "provider_helpers.dart" as helpers;
 import "resend_wait.dart";
 
 /// The number of digits in the code the SMS issuer sends.

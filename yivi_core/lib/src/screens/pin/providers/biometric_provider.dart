@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:local_auth/local_auth.dart";
 
@@ -117,6 +119,21 @@ class BiometricService {
       repo.unlockAppLocally();
     }
     return didAuthenticate;
+  }
+
+  /// Turns biometric unlock on once the user confirmed it with a biometric
+  /// check ([localizedReason]); true when that succeeded. Either way the
+  /// opt-in question is answered for now; only a success stops it coming
+  /// back at a later lock.
+  Future<bool> confirmAndEnable({required String localizedReason}) async {
+    final ok = await authenticate(localizedReason: localizedReason);
+    if (ok) {
+      // In the background (the preference's in-memory value updates at
+      // once): the caller moves on without waiting for the disk.
+      unawaited(setEnabled(true));
+      unawaited(dismissPrompt());
+    }
+    return ok;
   }
 
   Future<void> setEnabled(bool value) =>

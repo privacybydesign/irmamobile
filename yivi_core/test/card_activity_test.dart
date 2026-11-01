@@ -11,7 +11,7 @@ import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/card_activity_section.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/home/widgets/irma_nav_bar.dart";
+import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -173,7 +173,7 @@ void main() {
     await pump(tester);
     await tester.tap(find.byKey(const Key("card_activity_see_all")));
     await settle(tester);
-    expect(tabs.state, IrmaNavBarTab.activity);
+    expect(tabs.state, HomeTab.activity);
 
     final last = bridge.dispatched.whereType<QueryLogsEvent>().last.query;
     expect(last.filter.credentialHash, "email-card");

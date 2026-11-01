@@ -1,6 +1,7 @@
 import "dart:math" as math;
 
 import "package:material_ui/material_ui.dart";
+import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../../theme/yivi_motion.dart";
 import "../../../../theme/yivi_palette.dart";
@@ -23,16 +24,13 @@ enum NfcDocumentPicture {
   final Color? cardFill;
 
   const NfcDocumentPicture(this.cardFill);
-}
 
-/// A phone that settles on the back of a closed passport, with two rings
-/// pulsing out from where it touches.
-class NfcPhoneOnPassport extends StatelessWidget {
-  const NfcPhoneOnPassport({super.key});
-
-  @override
-  Widget build(BuildContext context) =>
-      const NfcPhoneOnDocument(document: NfcDocumentPicture.passport);
+  /// The picture of a document of [type].
+  static NfcDocumentPicture of(DocumentType type) => switch (type) {
+    .passport => passport,
+    .identityCard => identityCard,
+    .drivingLicence => drivingLicence,
+  };
 }
 
 /// The wait for the chip: a phone settling on [document] with two rings

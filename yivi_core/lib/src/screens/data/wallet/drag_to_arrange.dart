@@ -5,7 +5,7 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../util/i18n.dart";
-import "../../../widgets/two_pane.dart";
+import "../../../widgets/tab_layout.dart";
 
 /// Cards at fixed places (the stack's strips, the grid's cells) that can be
 /// picked up and dragged to another place: press and hold a card, it lifts,
@@ -274,7 +274,7 @@ class _DragToArrangeState extends State<DragToArrange> {
     );
     if (widget.enabled) {
       card = GestureDetector(
-        onLongPressStart: (d) => _start(indexOf(key), d),
+        onLongPressStart: (d) => _start(_indexOf(key), d),
         onLongPressMoveUpdate: _move,
         onLongPressEnd: (_) => _end(),
         onLongPressCancel: _end,
@@ -297,7 +297,7 @@ class _DragToArrangeState extends State<DragToArrange> {
     );
   }
 
-  int indexOf(String key) => widget.keys.indexOf(key);
+  int _indexOf(String key) => widget.keys.indexOf(key);
 }
 
 /// The screen reader's way to move a card: "Move earlier" and "Move later",

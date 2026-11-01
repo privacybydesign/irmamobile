@@ -7,7 +7,7 @@ import "../../../models/mrz.dart";
 import "../../../providers/ocr_processor_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/glass/sheet_actions.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "document_flow_steps.dart";
 import "document_step_in_sheet.dart";

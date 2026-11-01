@@ -4,6 +4,7 @@ import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:cupertino_ui/cupertino_ui.dart";
+
 // ignore: depend_on_referenced_packages
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -28,6 +29,7 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/loading/loading_screen.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
+import "package:yivi_core/src/screens/pin/lock_gate.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
@@ -48,7 +50,6 @@ import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/lock_gate.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
@@ -502,7 +503,7 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
     find.byWidgetPredicate(
       (w) =>
           w is YiviCredentialCard ||
-          (w is SharedCardTile && !w.ghost) ||
+          w is SharedCardTile ||
           w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
     );
@@ -556,7 +557,7 @@ Element _cardRoot(Finder finder) {
         matching: find.byWidgetPredicate(
           (w) =>
               w is YiviCredentialCard ||
-              (w is SharedCardTile && !w.ghost) ||
+              w is SharedCardTile ||
               w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
         ),
@@ -769,7 +770,7 @@ Future<void> evaluateCredentialCard(
         switch (style) {
           case IrmaCardStyle.danger:
             expect(status.isExpired || status.revoked, isTrue);
-          case IrmaCardStyle.normal || IrmaCardStyle.outlined:
+          case IrmaCardStyle.normal:
             expect(status.isExpired || status.revoked, isFalse);
           case IrmaCardStyle.highlighted:
             throw ArgumentError(

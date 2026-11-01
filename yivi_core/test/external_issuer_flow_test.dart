@@ -8,16 +8,15 @@ import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/providers/external_issuer_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
 import "support/pump_translated.dart";
 
 const _websiteCredential = "pbdf.gemeente.personalData";
@@ -35,18 +34,6 @@ TrustedParty _issuer() => TrustedParty(
   url: null,
   parent: null,
   verified: true,
-);
-
-CredentialDescriptor _descriptor({
-  String credentialId = _websiteCredential,
-  String? issueUrl = _issueUrl,
-}) => CredentialDescriptor(
-  credentialId: credentialId,
-  name: "Persoonsgegevens",
-  issuer: _issuer(),
-  category: null,
-  attributes: const [],
-  issueURL: issueUrl,
 );
 
 class _Env {
@@ -101,94 +88,8 @@ Future<void> _pumpApp(
   await tester.pumpAndSettle();
 }
 
-ExternalIssuerStatus _status(
-  ProviderContainer container,
-  CredentialDescriptor descriptor,
-) => container.read(
-  externalIssuerStatusProvider((
-    credentialId: descriptor.credentialId,
-    issueUrl: descriptor.issueURL,
-  )),
-);
-
-Future<ProviderContainer> _container(_Env env) async {
-  final container = ProviderContainer(overrides: [...env.overrides].cast());
-  addTearDown(container.dispose);
-  // Let the launched-credentials stream deliver its first value.
-  container.listen(websiteLaunchedCredentialsProvider, (_, _) {});
-  await Future<void>.delayed(Duration.zero);
-  return container;
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  group("externalIssuerStatusProvider", () {
-    test("is ready for a credential issued on a website", () async {
-      final container = await _container(await _env());
-
-      expect(_status(container, _descriptor()), ExternalIssuerStatus.ready);
-    });
-
-    test("is notExternal without an issue URL", () async {
-      final container = await _container(await _env());
-
-      expect(
-        _status(container, _descriptor(issueUrl: null)),
-        ExternalIssuerStatus.notExternal,
-      );
-      expect(
-        _status(container, _descriptor(issueUrl: "")),
-        ExternalIssuerStatus.notExternal,
-      );
-    });
-
-    test("is notExternal for credentials with an embedded flow", () async {
-      final container = await _container(await _env());
-
-      for (final id in [
-        "pbdf.pbdf.passport",
-        "pbdf.sidn-pbdf.email",
-        "pbdf-staging.sidn-pbdf.mobilenumber",
-      ]) {
-        expect(
-          _status(container, _descriptor(credentialId: id)),
-          ExternalIssuerStatus.notExternal,
-          reason: id,
-        );
-      }
-    });
-
-    test(
-      "is waiting once the website was opened, until it is cleared",
-      () async {
-        final env = await _env();
-        final container = await _container(env);
-        final descriptor = _descriptor();
-
-        env.repo.markInAppLaunched([_websiteCredential]);
-        await Future<void>.delayed(Duration.zero);
-        expect(_status(container, descriptor), ExternalIssuerStatus.waiting);
-
-        env.repo.clearInAppLaunches();
-        await Future<void>.delayed(Duration.zero);
-        expect(_status(container, descriptor), ExternalIssuerStatus.ready);
-      },
-    );
-
-    test("only the credential whose website was opened is waiting", () async {
-      final env = await _env();
-      final container = await _container(env);
-
-      env.repo.markInAppLaunched([_websiteCredential]);
-      await Future<void>.delayed(Duration.zero);
-
-      expect(
-        _status(container, _descriptor(credentialId: "pbdf.other.credential")),
-        ExternalIssuerStatus.ready,
-      );
-    });
-  });
 
   group("IssuancePermission", () {
     Future<void> pump(WidgetTester tester, {String? returnedFromIssuer}) async {

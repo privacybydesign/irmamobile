@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
+import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";

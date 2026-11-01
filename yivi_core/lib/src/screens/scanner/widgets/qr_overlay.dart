@@ -1,5 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../widgets/corner_brackets.dart";
+
 /// The dimmed camera around the scan window and the window's corner
 /// brackets: dimmed in dark grey, or green after a Yivi QR code and red
 /// after another code, with the window itself lightly tinted to match.
@@ -35,19 +37,19 @@ class QROverlay extends CustomPainter {
       const Radius.circular(radius),
     );
 
-    final (overlayColor, tint, cornerColor) = error
-        ? (
-            const Color(0x9E300808),
-            const Color(0x29BD1919),
-            const Color(0xFFFF6B6B),
-          )
-        : found
-        ? (
-            const Color(0x9E062816),
-            const Color(0x3821915A),
-            const Color(0xFF3DD07A),
-          )
-        : (const Color(0x940A0C0E), null, Colors.white);
+    final (overlayColor, tint, cornerColor) = switch ((error, found)) {
+      (true, _) => (
+        const Color(0x9E300808),
+        const Color(0x29BD1919),
+        const Color(0xFFFF6B6B),
+      ),
+      (_, true) => (
+        const Color(0x9E062816),
+        const Color(0x3821915A),
+        const Color(0xFF3DD07A),
+      ),
+      _ => (const Color(0x940A0C0E), null, Colors.white),
+    };
 
     // Punch the scan window out of the dimming overlay using BlendMode.clear.
     // This must happen inside its own offscreen layer: BlendMode.clear writes
@@ -70,27 +72,11 @@ class QROverlay extends CustomPainter {
 
     // Corner brackets just outside the window, round its corners.
     final frame = window.inflate(_stroke / 2).shift(Offset(shake, 0));
-    final r = radius + _stroke / 2;
-    final rr = Radius.circular(r);
-    final left = frame.left, top = frame.top;
-    final right = frame.right, bottom = frame.bottom;
-    final corners = Path()
-      ..moveTo(left, top + _bracket)
-      ..lineTo(left, top + r)
-      ..arcToPoint(Offset(left + r, top), radius: rr)
-      ..lineTo(left + _bracket, top)
-      ..moveTo(right - _bracket, top)
-      ..lineTo(right - r, top)
-      ..arcToPoint(Offset(right, top + r), radius: rr)
-      ..lineTo(right, top + _bracket)
-      ..moveTo(right, bottom - _bracket)
-      ..lineTo(right, bottom - r)
-      ..arcToPoint(Offset(right - r, bottom), radius: rr)
-      ..lineTo(right - _bracket, bottom)
-      ..moveTo(left + _bracket, bottom)
-      ..lineTo(left + r, bottom)
-      ..arcToPoint(Offset(left, bottom - r), radius: rr)
-      ..lineTo(left, bottom - _bracket);
+    final corners = cornerBrackets(
+      frame,
+      arm: _bracket,
+      radius: radius + _stroke / 2,
+    );
     canvas.drawPath(
       corners,
       Paint()

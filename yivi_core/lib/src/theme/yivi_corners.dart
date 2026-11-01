@@ -22,9 +22,6 @@ class YiviCorners {
   /// Large icon tiles (about 90 to 100 points).
   static const iconTile = 20.0;
 
-  /// Small card pictures in a list.
-  static const thumbnail = 6.0;
-
   /// Chips and tags: status chips, the activity query's tags and
   /// suggestions, the filter sheet's toggles.
   static const chip = 8.0;

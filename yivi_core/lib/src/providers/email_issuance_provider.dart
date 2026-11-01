@@ -5,8 +5,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
 import "../models/session.dart";
-import "./provider_helpers.dart" as helpers;
 import "local_backends_provider.dart";
+import "provider_helpers.dart" as helpers;
 import "resend_wait.dart";
 
 final emailIssuerUrlProvider = NotifierProvider(

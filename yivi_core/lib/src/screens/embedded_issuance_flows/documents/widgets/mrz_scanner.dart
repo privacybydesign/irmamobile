@@ -12,15 +12,14 @@ import "mrz_camera_feed.dart";
 
 class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   const MrzScanner({
-    Key? controller,
+    super.key,
     required this.onSuccess,
     required this.mrzParser,
-  }) : super(key: controller);
+  });
   final void Function(MrzResult mrzResult) onSuccess;
   final Parser mrzParser;
 
   @override
-  // ignore: library_private_types_in_public_api
   MrzScannerState createState() => MrzScannerState();
 }
 

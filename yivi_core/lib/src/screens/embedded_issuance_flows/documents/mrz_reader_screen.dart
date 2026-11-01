@@ -6,25 +6,22 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:permission_handler/permission_handler.dart";
 
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/test_detection.dart";
-import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/round_icon_button.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
-import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/glass/sheet_actions.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/translated_text.dart";
 import "document_instruction_screen.dart" show DocumentTipBox;
 import "document_step_in_sheet.dart";
 import "widgets/dark_glass.dart";
 import "widgets/document_camera_frame.dart";
 import "widgets/mrz_scanner.dart";
-
-typedef MrzController = GlobalKey<MrzScannerState>;
 
 class MrzReaderTranslationKeys {
   final String title;
@@ -36,7 +33,7 @@ class MrzReaderTranslationKeys {
   });
 }
 
-/// Mzr reading is the process of obtaining mrz data via the camera
+/// Reads the MRZ of a document with the camera.
 class MrzReaderScreen<Parser extends MrzParser> extends ConsumerStatefulWidget {
   final void Function(MrzResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
@@ -62,21 +59,24 @@ class MrzReaderScreen<Parser extends MrzParser> extends ConsumerStatefulWidget {
 }
 
 class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
-  final MrzController controller = MrzController();
+  // One scanner across the portrait and landscape layouts: the key keeps its
+  // state (and the camera) when the device turns.
+  final _scannerKey = GlobalKey<MrzScannerState>();
   late PermissionStatus _cameraPermissionStatus = .denied;
 
   @override
   void initState() {
     super.initState();
-    initCameraPermission();
+    _initCameraPermission();
   }
 
-  void initCameraPermission() {
+  void _initCameraPermission() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (TestContext.isRunningIntegrationTest(context)) {
         return;
       }
       final status = await Permission.camera.request();
+      if (!mounted) return;
       setState(() {
         _cameraPermissionStatus = status;
       });
@@ -85,11 +85,9 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final body = _cameraPermissionStatus == .granted
         ? MrzScanner(
-            controller: controller,
+            key: _scannerKey,
             onSuccess: widget.onSuccess,
             mrzParser: widget.mrzParser,
           )
@@ -106,50 +104,22 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
       );
     }
 
-    return OrientationBuilder(
-      builder: (context, orientation) {
-        // The redesign's camera: the picture fills the screen under a
-        // floating title and a dark glass panel with the buttons.
-        if (orientation == .portrait) {
-          return _CameraScaffold(
-            title: widget.translationKeys.title,
-            body: body,
-            manualLabel: widget.translationKeys.manualEntryButton,
-            onManual: widget.onManualAdd,
-            onCancel: widget.onCancel,
-          );
-        }
-
-        return Scaffold(
-          backgroundColor: theme.backgroundTertiary,
-          appBar: IrmaAppBar(
-            titleTranslationKey: widget.translationKeys.title,
-            leading: YiviBackButton(
-              key: const Key("bottom_bar_secondary"),
-              onTap: widget.onCancel,
-            ),
-          ),
-          body: body,
-          floatingActionButton: FancyRoundButton(
-            key: const Key("bottom_bar_primary"),
-            icon: Icons.edit,
-            size: 72,
-            iconSize: 42,
-            label: FlutterI18n.translate(
-              context,
-              widget.translationKeys.manualEntryButton,
-            ),
-            onPressed: widget.onManualAdd,
-          ),
-        );
-      },
+    // The picture fills the screen under a floating title and a dark glass
+    // panel with the buttons: at the bottom, or at the right held sideways.
+    return _CameraScaffold(
+      title: widget.translationKeys.title,
+      body: body,
+      manualLabel: widget.translationKeys.manualEntryButton,
+      onManual: widget.onManualAdd,
+      onCancel: widget.onCancel,
     );
   }
 }
 
-/// The camera screen of the redesign: the camera behind everything, the
-/// title and a dark glass back button floating over it at the top, and the
-/// buttons on a dark glass panel at the bottom.
+/// The camera screen: the camera behind everything, the title and a dark
+/// glass back button floating over it at the top, and the buttons on a dark
+/// glass panel at the bottom; held sideways, [_sideWidth] wide at the bottom
+/// right, with the window beside it ([CameraSidePanel]).
 class _CameraScaffold extends StatelessWidget {
   final String title;
   final Widget body;
@@ -165,10 +135,14 @@ class _CameraScaffold extends StatelessWidget {
     required this.onCancel,
   });
 
+  static const _sideWidth = 220.0;
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
+    final size = MediaQuery.sizeOf(context);
+    final sideways = size.width > size.height;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Light status bar icons over the dark camera.
@@ -178,7 +152,10 @@ class _CameraScaffold extends StatelessWidget {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            body,
+            CameraSidePanel(
+              width: sideways ? 16 + padding.right + _sideWidth + 16 : 0,
+              child: body,
+            ),
             Positioned(
               left: 16 + padding.left,
               right: 16 + padding.right,
@@ -224,13 +201,12 @@ class _CameraScaffold extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: 16 + padding.left,
+              left: sideways ? null : 16 + padding.left,
               right: 16 + padding.right,
-              bottom: 24 + padding.bottom,
+              bottom: (sideways ? 16 : 24) + padding.bottom,
+              width: sideways ? _sideWidth : null,
               child: DarkGlass(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: YiviCorners.cardRadius,
-                ),
+                borderRadius: YiviCorners.cardRadius,
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -371,13 +347,15 @@ class _DarkPermissionFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
+    // Clear of the buttons: under it, or beside it held sideways.
+    final beside = CameraSidePanel.widthOf(context);
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           32,
           padding.top + 84,
-          32,
-          padding.bottom + 180,
+          beside > 0 ? beside : 32,
+          padding.bottom + (beside > 0 ? 16 : 180),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

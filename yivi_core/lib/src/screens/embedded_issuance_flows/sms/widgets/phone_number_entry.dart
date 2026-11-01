@@ -2,6 +2,7 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
+
 // The package's field opens its own bottom sheet for the country, which
 // cannot be changed; its data, validation and formatting are used here
 // under the app's own field and sheet.
@@ -17,8 +18,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../widgets/glass/glass_surface.dart";
 import "../../../../widgets/pill_text_field.dart";
+import "../../../../widgets/press_scale.dart";
 import "country_picker_sheet.dart";
 
 /// Alpha-2 codes of countries excluded from the phone number input. Most are

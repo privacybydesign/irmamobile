@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "glass/floating_bar_placement.dart";
+import "floating_bar_placement.dart";
 
 /// The button at the bottom of a result screen on a phone held sideways:
 /// at the right, [width] wide, as low as on every other screen, without the

@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/corner_badge.dart";
-import "../../../widgets/glass/glass_surface.dart";
+import "../../../widgets/press_scale.dart";
 import "../activity_entry.dart";
 
 /// The height of the rows of tags and suggestions under the activity

@@ -24,17 +24,17 @@ import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dar
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
+import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
-import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
-import "package:yivi_core/src/widgets/document_flow_footer.dart";
-import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
+import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
@@ -2155,7 +2155,7 @@ void main() {
         const Key("share_scroll_view"),
         skipOffstage: false,
       );
-      // The page (under the sheet) as she left it: scrolled to the top.
+      // The page (under the sheet) as they left it: scrolled to the top.
       tester
           .state<ScrollableState>(
             find

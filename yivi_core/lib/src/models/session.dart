@@ -151,10 +151,6 @@ class IssueWizardPointer implements Pointer {
     required IrmaRepository irmaRepository,
     RequestorInfo? requestor,
   }) async {
-    if (await irmaRepository.getIssueWizardActive().first) {
-      throw UnsupportedError("cannot start wizard within a wizard");
-    }
-
     final scheme = wizard.contains(".") ? wizard.split(".").first : null;
 
     final irmaConfiguration = await irmaRepository.getIrmaConfiguration().first;

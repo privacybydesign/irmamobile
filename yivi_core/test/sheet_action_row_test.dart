@@ -7,7 +7,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
+import "package:yivi_core/src/widgets/glass/sheet_actions.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";

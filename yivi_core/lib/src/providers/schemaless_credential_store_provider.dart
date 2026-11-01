@@ -1,7 +1,6 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/schemaless/credential_store.dart";
-
 import "irma_repository_provider.dart";
 
 final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
@@ -54,7 +53,7 @@ final groupedCredentialStoreProvider =
 
       final categorized = <String, List<CredentialStoreItem>>{};
       for (final item in all) {
-        if (credentialSourceOf(item.credential.credentialId) !=
+        if (_credentialSourceOf(item.credential.credentialId) !=
             CredentialStoreSource.production) {
           continue;
         }
@@ -87,7 +86,7 @@ final groupedCredentialStoreProvider =
             category: "",
             items: [
               for (final item in all)
-                if (credentialSourceOf(item.credential.credentialId) == source)
+                if (_credentialSourceOf(item.credential.credentialId) == source)
                   item,
             ]..sort(_byName),
             source: source,
@@ -100,7 +99,7 @@ final groupedCredentialStoreProvider =
 /// The environment of the scheme [credentialId] belongs to, the first part of
 /// the id. The attribute index names its staging and demo schemes
 /// `pbdf-staging` and `irma-demo`.
-CredentialStoreSource credentialSourceOf(String credentialId) {
+CredentialStoreSource _credentialSourceOf(String credentialId) {
   final scheme = credentialId.split(".").first;
   if (scheme.endsWith("-staging")) return CredentialStoreSource.staging;
   if (scheme.endsWith("-demo")) return CredentialStoreSource.demo;

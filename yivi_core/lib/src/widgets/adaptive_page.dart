@@ -1,9 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
-import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
+import "glass/glass_sheet.dart";
 import "pane_handoff.dart";
 
 /// How a screen is presented at tablet widths (from
@@ -100,11 +100,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
 
   /// The eased [animation] of the transitions, made once: a new one on every
   /// frame would add a status listener to [animation] each time.
-  late final CurvedAnimation _curved = CurvedAnimation(
-    parent: animation!,
-    curve: YiviMotion.ease,
-    reverseCurve: Curves.easeIn,
-  );
+  late final CurvedAnimation _curved = formSheetCurve(animation!);
 
   @override
   void dispose() {
@@ -184,8 +180,9 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       );
     }
 
-    final width = sheetSize.width.clamp(0.0, safeWidth - 48);
-    final height = sheetSize.height.clamp(0.0, size.height - 60);
+    // The size of every sheet on a tablet ([showGlassSheet]).
+    final width = tabletSheetWidth(safeWidth).clamp(0.0, safeWidth);
+    final height = tabletSheetHeight(size.height);
     return Stack(
       children: [
         if (!_stacked)
@@ -281,24 +278,11 @@ class _AdaptiveRoute<T> extends PageRoute<T>
             child: IgnorePointer(
               child: FadeTransition(
                 opacity: animation,
-                child: const ColoredBox(color: Color(0x61000000)),
+                child: const ColoredBox(color: sheetDim),
               ),
             ),
           ),
-          FadeTransition(
-            opacity: curved,
-            child: AnimatedBuilder(
-              animation: curved,
-              child: child,
-              builder: (context, child) => Transform.translate(
-                offset: Offset(0, 48 * (1 - curved.value)),
-                child: Transform.scale(
-                  scale: 0.97 + 0.03 * curved.value,
-                  child: child,
-                ),
-              ),
-            ),
-          ),
+          formSheetTransition(curved, child),
         ],
       );
     }
@@ -323,9 +307,6 @@ class _AdaptiveRoute<T> extends PageRoute<T>
 
   @override
   String get debugLabel => "${super.debugLabel}(${_page.name})";
-
-  /// Size of a form sheet on a tablet.
-  static const sheetSize = Size(540, 760);
 
   /// Width of the centred column of a full-screen state on a tablet.
   static const fullColumnWidth = 560.0;

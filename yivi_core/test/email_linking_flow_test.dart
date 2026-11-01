@@ -10,6 +10,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -161,6 +162,8 @@ void main() {
 
     router = GoRouter(
       initialLocation: "/home",
+      // The code screen starts over when a page above it closes.
+      observers: [routeObserver],
       routes: [
         GoRoute(
           path: "/home",
@@ -314,6 +317,45 @@ void main() {
       expect(find.text("Email address"), findsOneWidget);
       expect(field.decoration!.labelText, isNull);
       expect(field.decoration!.hintText, "Enter your email address...");
+    });
+
+    testWidgets("back from the code asks first, then shows the address", (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      router.push("/issue_email");
+      await tester.pumpAndSettle();
+      await sendEmailTo(tester, "jan@example.com");
+      expect(find.byKey(const Key("email_input_field")), findsNothing);
+
+      await tester.tap(find.byKey(const Key("irma_app_bar_leading")).last);
+      await settle(tester);
+      await tester.tap(find.byKey(const Key("dialog_cancel_button")));
+      await settle(tester);
+      expect(find.byKey(const Key("email_input_field")), findsNothing);
+
+      await tester.tap(find.byKey(const Key("irma_app_bar_leading")).last);
+      await settle(tester);
+      await tester.tap(find.byKey(const Key("dialog_confirm_button")));
+      await settle(tester);
+      expect(find.byKey(const Key("email_input_field")), findsOneWidget);
+    });
+
+    testWidgets("the code screen starts over when a page above it closes", (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      router.push("/issue_email");
+      await tester.pumpAndSettle();
+      await sendEmailTo(tester, "jan@example.com");
+      expect(find.byKey(const Key("email_input_field")), findsNothing);
+
+      router.push("/error", extra: "over it");
+      await settle(tester);
+      router.pop();
+      await settle(tester);
+
+      expect(find.byKey(const Key("email_input_field")), findsOneWidget);
     });
 
     testWidgets("sending the address opens the code screen", (tester) async {

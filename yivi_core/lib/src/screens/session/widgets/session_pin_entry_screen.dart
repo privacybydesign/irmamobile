@@ -127,9 +127,10 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     final paddingSize = theme.screenPadding;
     final blockedLeft = _blockedLeft;
     final blocked = blockedLeft > Duration.zero;
-    final line = pinAttemptLine(
+    final attempts = PinAttempts.of(
       context,
       blockedFor: blockedLeft,
+      blocked: blocked,
       wrong: _wrong,
       left: widget.remainingAttempts,
     );
@@ -148,21 +149,16 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             ),
             // A lock, not the logo: this PIN confirms a request.
             lockIcon: true,
-            detail: line ?? widget.detail,
-            detailKind: line == null ? PinDetailKind.info : PinDetailKind.error,
+            detail: attempts.line ?? widget.detail,
+            detailKind: attempts.detailKind,
             detailClock: blocked,
-            pinError: line != null && !blocked,
+            pinError: attempts.pinError,
             maxPinSize: widget.maxPinSize,
             enabled: !widget.submitting && !blocked,
             submitLabel: "session_pin.submit",
             onSubmit: _submit,
             onForgotPin: context.pushResetPinScreen,
-            listener: (context, state) {
-              if (widget.maxPinSize == shortPinSize &&
-                  state.pin.length == widget.maxPinSize) {
-                _submit(state.toString());
-              }
-            },
+            listener: submitWhenFull(widget.maxPinSize, _submit),
           ),
         if (widget.submitting)
           Padding(

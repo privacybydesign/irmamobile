@@ -13,11 +13,13 @@ import "../../models/session.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/external_issuer_provider.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/preferences_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/after_frame.dart";
 import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
+import "../../util/string.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -69,8 +71,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// success it is "Back to {requestor}" even if the request is gone.
   SessionState? _underlying;
 
-  bool _hasLongPin = false;
-
   /// True after the OID4VCI pre-auth auto-grant has fired for the current
   /// session, so we don't fire it again on rebuilds.
   bool _autoTriggeredForOpenID4VCI = false;
@@ -111,9 +111,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
-    _repo.preferences.getLongPin().first.then((value) {
-      if (mounted) setState(() => _hasLongPin = value);
-    });
   }
 
   @override
@@ -189,13 +186,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         // in-app launch doesn't leak into the next session.
         if (session.status == .dismissed) {
           _repo.clearInAppLaunches();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              if (widget.hasUnderlyingSession) {
-                context.popToUnderlyingSession();
-              } else {
-                Navigator.of(context).pop();
-              }
+          afterFrame(() {
+            if (widget.hasUnderlyingSession) {
+              context.popToUnderlyingSession();
+            } else {
+              Navigator.of(context).pop();
             }
           });
           return _buildLoadingScreen(session);
@@ -228,7 +223,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
             submitting: isAwaiting,
-            maxPinSize: _hasLongPin ? 16 : 5,
+            maxPinSize: (ref.watch(longPinProvider).value ?? false) ? 16 : 5,
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
           ),
@@ -468,7 +463,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     // Same-device session with a browser return URL (external / in-app): hand
-    // the user back to where they started by opening it. After sharing, she
+    // the user back to where they started by opening it. After sharing, they
     // first sees what was shared, with "Back to {host}" to go there.
     if (returnUrl != null) {
       if (_returnUrlError != null) {
@@ -476,7 +471,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       }
       if (session.type != .issuance) {
         return shared(
-          returnHost: _hostOf(returnUrl),
+          returnHost: returnUrl.uri.host.withoutWww(),
           onReturn: () => _goToReturnUrl(returnUrl),
         );
       }
@@ -497,15 +492,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (Platform.isIOS && session.type != .issuance) {
       return shared(goBackYourself: true);
     }
-    if (Platform.isIOS) {
-      return ArrowBack(
-        type: session.type == .issuance
-            ? .issuance
-            : session.type == .signature
-            ? .signature
-            : .disclosure,
-      );
-    }
+    if (Platform.isIOS) return const ArrowBack(type: .issuance);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
       _popToUnderlyingOrHome();
@@ -594,10 +581,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   /// The host of [url] without "www.", for "Back to {host}".
-  static String _hostOf(ReturnURL url) {
-    final host = url.uri.host;
-    return host.startsWith("www.") ? host.substring(4) : host;
-  }
 
   /// Opens the return URL: in the in-app browser over home (popped first),
   /// or outside the app, popping once it opened so a failure can show the

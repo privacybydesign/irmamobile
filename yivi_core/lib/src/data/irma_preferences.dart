@@ -118,7 +118,7 @@ class IrmaPreferences {
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
     preferences.remove(_developerModePrefVisibleKey);
-    _retiredDataTabKeys.forEach(preferences.remove);
+    _retiredKeys.forEach(preferences.remove);
   }
 
   static Future<IrmaPreferences> fromInstance({
@@ -223,12 +223,15 @@ class IrmaPreferences {
   static const String _appearanceKey = "preference.appearance";
   final Preference<String> _appearance;
 
-  /// Retired: the pins of the old type-based data tab, and its feature flags.
-  static const List<String> _retiredDataTabKeys = [
+  /// Retired: the pins of the old type-based data tab, its feature flags,
+  /// and the old disclosure screen's dialog and intro.
+  static const List<String> _retiredKeys = [
     "preference.favourite_credentials",
     "preference.feature_flag.dataTabV2",
     "preference.feature_flag.dataTabCategories",
     "preference.feature_flag.formFieldsV2",
+    "preference.show_disclosure_dialog",
+    "preference.completed_disclosure_permission_intro",
   ];
 
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
@@ -275,7 +278,7 @@ class IrmaPreferences {
   final Preference<bool> _emailBannerDismissed;
 
   /// Wall-clock time (ms since epoch) before which the banner stays hidden,
-  /// set by "Vraag het me later".
+  /// set by "Ask me later".
   static const String _emailBannerSnoozedUntilMsKey =
       "preference.email_banner_snoozed_until_ms";
   final Preference<int> _emailBannerSnoozedUntilMs;

@@ -5,10 +5,6 @@ import "page_transitions.dart";
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
-  @Deprecated(
-    "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications",
-  )
-  final double spacing = _spaceBase;
   final double tinySpacing = _spaceBase / 4; // 4
   final double smallSpacing = _spaceBase / 2; // 8
   final double defaultSpacing = _spaceBase; // 16
@@ -68,8 +64,7 @@ class IrmaThemeData {
   // Borders
   final BorderRadius borderRadius = BorderRadius.circular(8);
 
-  //TODO: The values below are marked late and have to be initialized in the constructor body.
-  //In the future these values should be phased out and be move into ThemeData.colorScheme.
+  // Set in the constructor body, as they depend on each other.
 
   // Spacing etc.
   late final double screenPadding;
@@ -79,11 +74,7 @@ class IrmaThemeData {
   late final ThemeData themeData;
 
   // Other textstyles that cannot be included in TextTheme
-  late final TextStyle textButtonTextStyle;
   late final TextStyle hyperlinkTextStyle;
-  late final TextStyle mrzLabel;
-  late final TextStyle boldBody;
-  late final TextStyle highlightedTextStyle;
 
   // A heading above body text, on screens that have no app bar title for it.
   TextStyle? get bodyHeading => textTheme.bodyLarge?.copyWith(fontSize: 20);
@@ -258,12 +249,6 @@ class IrmaThemeData {
     );
 
     //Init extra textstyles
-    textButtonTextStyle = TextStyle(
-      fontSize: 16.0,
-      height: 19.0 / 16.0,
-      fontWeight: FontWeight.w600,
-      color: secondary,
-    );
     hyperlinkTextStyle = TextStyle(
       fontFamily: secondaryFontFamily,
       fontSize: 16.0,
@@ -271,27 +256,6 @@ class IrmaThemeData {
       fontWeight: FontWeight.w700,
       color: link,
       decoration: TextDecoration.underline,
-    );
-
-    mrzLabel = TextStyle(
-      fontFamily: "monospace",
-      fontSize: 14,
-      color: onPrimary,
-      letterSpacing: 2,
-    );
-
-    boldBody = TextStyle(
-      fontSize: 16.0,
-      height: 24.0 / 16.0,
-      fontWeight: FontWeight.w600,
-      color: dark,
-    );
-
-    highlightedTextStyle = TextStyle(
-      fontSize: 16.0,
-      height: 19.0 / 16.0,
-      fontWeight: FontWeight.w600,
-      color: primary,
     );
 
     // Init final ThemeData composed of all theme components.

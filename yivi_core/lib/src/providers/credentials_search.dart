@@ -42,7 +42,7 @@ List<SearchEntry> searchCredentials(
   final normalised = normaliseForSearch(query);
 
   return candidates
-      .map((c) => MapEntry(c, scoreSearchEntry(c, normalised)))
+      .map((c) => MapEntry(c, _scoreSearchEntry(c, normalised)))
       // Floor sits at 0.25 — high enough to filter low-confidence fuzzy hits
       // (`yvi` ↔ `yivi` weighted to 0.21) but low enough that an issuer-only
       // substring match (0.9 × 0.3 = 0.27) still surfaces.
@@ -54,7 +54,7 @@ List<SearchEntry> searchCredentials(
 
 /// Score [entry] against [query] (already normalised). Combines credential
 /// type and issuer name with 0.7 / 0.3 weighting.
-double scoreSearchEntry(SearchEntry entry, String query) {
+double _scoreSearchEntry(SearchEntry entry, String query) {
   final credentialScore = maxTokenScore(query, entry.credentialType);
   final issuerScore = maxTokenScore(query, entry.issuerName);
   return credentialScore * 0.7 + issuerScore * 0.3;

@@ -152,9 +152,6 @@ flutter:
           weight: 700
         - asset: fonts/open-sans/OpenSans-ExtraBold.ttf
           weight: 800
-    - family: IrmaIcons
-      fonts:
-        - asset: fonts/irma-icons/IrmaIcons.ttf
     # The typefaces of the built-in card templates (builtin_card_svgs.dart),
     # subset to Latin. Licences: assets/card_font_licenses.txt.
     - family: Archivo

@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../data/wallet/wallet_transition.dart";
+import "../../data/card_transition/choreography.dart";
 
 /// Debug sliders for how a card opens from the stack (Wallet depth). Saved
 /// in the preferences; used from the next card opened.
@@ -14,10 +14,10 @@ class CardMotionSliders extends StatefulWidget {
 }
 
 class _CardMotionSlidersState extends State<CardMotionSliders> {
-  CardMotion get _m => WalletTransition.motion.value;
+  CardMotion get _m => CardMotion.current.value;
 
   void _set(CardMotion m) {
-    setState(() => WalletTransition.motion.value = m);
+    setState(() => CardMotion.current.value = m);
     IrmaRepositoryProvider.of(context).preferences.setCardMotion(m.encode());
   }
 

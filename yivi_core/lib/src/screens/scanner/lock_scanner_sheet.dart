@@ -21,7 +21,7 @@ import "scanner_screen.dart";
 final lockScannerSheetHolds = ValueNotifier<bool>(false);
 
 /// The QR scanner of the lock screen, as a sheet that goes on after the
-/// scan (docs/waiting-request-pin-plan.md, design 4b):
+/// scan:
 /// 1. the scanner;
 /// 2. "Unlock Yivi": who the request is from, as far as Yivi knows before
 ///    the PIN, and the PIN pad;

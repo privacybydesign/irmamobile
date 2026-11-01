@@ -12,19 +12,20 @@ import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/title_scroll_edge.dart";
-import "../../widgets/lock_gate.dart";
+import "../../widgets/tab_layout.dart";
+import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../help/help_screen.dart";
-import "../home/widgets/irma_nav_bar.dart";
+import "../home/widgets/home_tab.dart";
+import "../pin/lock_gate.dart";
 import "../settings/settings_screen.dart";
 import "widgets/tiles.dart";
 import "widgets/tiles_card.dart";
 import "widgets/version_button.dart";
 
 class MoreTab extends ConsumerStatefulWidget {
-  final Function(IrmaNavBarTab tab) onChangeTab;
+  final Function(HomeTab tab) onChangeTab;
 
   const MoreTab({required this.onChangeTab});
 
@@ -166,7 +167,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
                   // userInitiated: skip the "scan on launch" auto-biometric on
                   // the lock screen that follows an explicit logout.
                   IrmaRepositoryProvider.of(context).lock(userInitiated: true);
-                  widget.onChangeTab(IrmaNavBarTab.data);
+                  widget.onChangeTab(HomeTab.data);
                 },
               ),
               const SizedBox(height: 16),

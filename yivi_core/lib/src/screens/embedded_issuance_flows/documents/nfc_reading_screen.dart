@@ -18,22 +18,25 @@ import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
-import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
+import "widgets/document_flow_footer.dart";
 import "widgets/nfc_error_dialog.dart";
 import "widgets/nfc_stage_pictures.dart";
 import "widgets/nfc_stage_view.dart";
+
+part "nfc_error_view.dart";
 
 class NfcReadingTranslationKeys {
   final String cancelDialogTitle;
@@ -96,9 +99,9 @@ enum _NfcStage { waiting, reading, done, nfcOff }
 
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware, WidgetsBindingObserver {
-  String? issuanceError;
+  String? _issuanceError;
 
-  /// True when the current [issuanceError] is the issuer rejecting the face
+  /// True when the current [_issuanceError] is the issuer rejecting the face
   /// match (HTTP 400 during a face-verification issuance), so the error screen
   /// can show the dedicated failed-face illustration.
   bool _issuanceErrorIsFaceMatch = false;
@@ -112,7 +115,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   // first, because that opens Apple's own NFC sheet.
   bool get _listensAtOnce => defaultTargetPlatform == .android;
 
-  void cancel() async {
+  void _cancel() async {
     final userWantsCancel = await showConfirmDialog(
       context,
       titleKey: widget.translationKeys.cancelDialogTitle,
@@ -187,7 +190,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   void _startScanning() async {
     setState(() {
-      issuanceError = null;
+      _issuanceError = null;
       _issuanceErrorIsFaceMatch = false;
       _preparingIssuance = false;
     });
@@ -237,7 +240,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       );
 
       if (result != null) {
-        // G6: the check draws itself and stays a moment before the flow moves
+        // The check draws itself and stays a moment before the flow moves
         // on to the face check or issuance.
         if (mounted) {
           await Future<void>.delayed(ref.read(nfcDoneHoldProvider));
@@ -300,7 +303,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     } catch (e) {
       if (mounted) {
         setState(() {
-          issuanceError = e.toString();
+          _issuanceError = e.toString();
         });
       } else if (livenessStarted && navContext.mounted) {
         // The liveness UI tore this screen down, so there is no State left to
@@ -352,7 +355,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       }
       if (mounted) {
         setState(() {
-          issuanceError = e.toString();
+          _issuanceError = e.toString();
           // A rejected face match surfaces as an HTTP 400 from the issuer
           // (vcmrtd: `Exception('Store failed: 400 …')`); flag it so the error
           // screen shows the dedicated failed-face illustration.
@@ -375,7 +378,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     }
   }
 
-  void retry() {
+  void _retry() {
     ref.read(_reader.notifier).cancel();
     _startScanning();
   }
@@ -390,21 +393,19 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         _preparingIssuance && (ModalRoute.isCurrentOf(context) ?? true);
     if (preparing != null && preparing.value != shown) {
       final value = shown;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Still here, so the sheet step around it is too.
-        if (mounted) preparing.value = value;
-      });
+      // Still here then, so the sheet step around it is too.
+      afterFrame(() => preparing.value = value);
     }
 
     // an issuance error is different from a passport nfc scanning error
-    if (issuanceError != null) {
+    if (_issuanceError != null) {
       return _buildError(
         context,
         _UiState(
           stateKey: widget.translationKeys.error,
           tipKey: widget.translationKeys.errorGeneric,
         ),
-        issuanceError!,
+        _issuanceError!,
         illustrationAsset: _issuanceErrorIsFaceMatch
             ? "error/failed_face_verification.svg"
             : "error/general_error_illustration.svg",
@@ -467,7 +468,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     final inSheet = DocumentStepInSheet.of(context);
     final cancelAction = NfcStageAction.secondary(
       labelKey: "document_flow.cancel",
-      onPressed: cancel,
+      onPressed: _cancel,
     );
     const keys = "document_flow.nfc";
     // On a tablet (an Android one: an iPad has no NFC) it says tablet.
@@ -561,11 +562,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               },
             ),
       child: NfcPhoneOnDocument(
-        document: switch (widget.mrz.documentType) {
-          .passport => NfcDocumentPicture.passport,
-          .identityCard => NfcDocumentPicture.identityCard,
-          .drivingLicence => NfcDocumentPicture.drivingLicence,
-        },
+        document: NfcDocumentPicture.of(widget.mrz.documentType),
       ),
     );
   }
@@ -617,39 +614,24 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     String illustrationAsset = "error/general_error_illustration.svg",
   }) {
     final theme = IrmaTheme.of(context);
-    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
 
     return _NfcScaffold(
       titleTranslationKey: widget.translationKeys.title,
-      instruction: Column(
-        crossAxisAlignment: isPortrait ? .center : .start,
-        mainAxisAlignment: .center,
-        mainAxisSize: .min,
-        children: [
-          _OrientationAwareTranslatedText(
-            uiState.stateKey,
-            style: theme.bodyHeading,
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          _OrientationAwareTranslatedText(uiState.tipKey),
-          SizedBox(height: theme.defaultSpacing),
-          GestureDetector(
-            onTap: () {
-              _showLogsDialog(
-                context,
-                logs: logs,
-                sensitiveLogs: sensitiveLogs,
-              );
-            },
-            child: _OrientationAwareTranslatedText(
-              "error.button_show_error",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                decoration: .underline,
-                color: theme.link,
-              ),
+      instruction: _TitleAndBody(
+        titleKey: uiState.stateKey,
+        bodyKey: uiState.tipKey,
+        trailing: GestureDetector(
+          onTap: () {
+            _showLogsDialog(context, logs: logs, sensitiveLogs: sensitiveLogs);
+          },
+          child: _OrientationAwareTranslatedText(
+            "error.button_show_error",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              decoration: .underline,
+              color: theme.link,
             ),
           ),
-        ],
+        ),
       ),
       illustration: Padding(
         padding: .all(theme.defaultSpacing),
@@ -667,15 +649,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             DocumentFlowButton(
               key: DocumentFlowButton.primaryKey,
               labelKey: "ui.retry",
-              onPressed: retry,
+              onPressed: _retry,
             ),
           ],
         )
       : IrmaBottomBar(
           primaryButtonLabel: "ui.retry",
-          onPrimaryPressed: retry,
+          onPrimaryPressed: _retry,
           secondaryButtonLabel: "ui.cancel",
-          onSecondaryPressed: cancel,
+          onSecondaryPressed: _cancel,
         );
 
   Widget _buildCancelled(BuildContext context, _UiState uiState) {
@@ -732,7 +714,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   /// The text on Apple's NFC sheet, in step with the on-screen stage, e.g.
-  /// "Niet bewegen · 62%" while reading.
+  /// "Don't move · 62%" while reading.
   IosNfcMessageMapper _createStageNfcMessageMapper() {
     const keys = "document_flow.nfc";
 
@@ -767,139 +749,4 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       .invalidatedByUser => "",
     };
   }
-}
-
-Future _showLogsDialog(
-  BuildContext context, {
-  required String logs,
-  String? sensitiveLogs,
-}) async {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return NfcErrorDialog(logs: logs, sensitiveLogs: sensitiveLogs);
-    },
-  );
-}
-
-class _TitleAndBody extends StatelessWidget {
-  const _TitleAndBody({required this.titleKey, required this.bodyKey});
-
-  final String titleKey;
-  final String bodyKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
-    return Column(
-      crossAxisAlignment: isPortrait ? .center : .start,
-      mainAxisAlignment: .center,
-      mainAxisSize: .min,
-      children: [
-        _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
-        SizedBox(height: theme.defaultSpacing),
-        _OrientationAwareTranslatedText(bodyKey),
-      ],
-    );
-  }
-}
-
-class _NfcScaffold extends StatelessWidget {
-  const _NfcScaffold({
-    required this.titleTranslationKey,
-    required this.instruction,
-    required this.illustration,
-    required this.bottomNavigationBar,
-  });
-
-  final String titleTranslationKey;
-  final Widget instruction;
-  final Widget illustration;
-  final Widget bottomNavigationBar;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    // In a sheet held sideways: what went wrong and the button at the left,
-    // the illustration on a card at the right.
-    final footer = bottomNavigationBar;
-    if (documentStepSplit(context)) {
-      return DocumentStepScaffold.split(
-        SheetSplit(
-          endFills: true,
-          start: [instruction],
-          end: SheetPictureCard(
-            child: SizedBox(width: 280, height: 240, child: illustration),
-          ),
-          actions: footer is DocumentFlowFooter
-              ? DocumentFlowFooter.sheetActions(context, footer.buttons)
-              : null,
-        ),
-      );
-    }
-    return DocumentStepScaffold(
-      titleKey: titleTranslationKey,
-      body: SafeArea(
-        child: Center(
-          child: OrientationBuilder(
-            builder: (context, orientation) {
-              if (orientation == .landscape) {
-                return Row(
-                  mainAxisAlignment: .spaceEvenly,
-                  crossAxisAlignment: .center,
-                  children: [
-                    Flexible(child: instruction),
-                    Flexible(child: illustration),
-                  ],
-                );
-              }
-              return Column(
-                crossAxisAlignment: .center,
-                mainAxisAlignment: .center,
-                mainAxisSize: .max,
-                children: [
-                  Flexible(child: illustration),
-                  SizedBox(height: theme.largeSpacing),
-                  Flexible(child: instruction),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-      bottomBar: bottomNavigationBar,
-    );
-  }
-}
-
-class _OrientationAwareTranslatedText extends StatelessWidget {
-  const _OrientationAwareTranslatedText(this.translationKey, {this.style});
-
-  final String translationKey;
-  final TextStyle? style;
-
-  @override
-  Widget build(BuildContext context) {
-    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
-    final theme = IrmaTheme.of(context);
-
-    return Padding(
-      padding: isPortrait
-          ? .symmetric(horizontal: theme.defaultSpacing)
-          : .zero,
-      child: TranslatedText(
-        translationKey,
-        textAlign: isPortrait ? .center : .start,
-        style: style,
-      ),
-    );
-  }
-}
-
-class _UiState {
-  final String tipKey;
-  final String stateKey;
-
-  _UiState({required this.tipKey, required this.stateKey});
 }

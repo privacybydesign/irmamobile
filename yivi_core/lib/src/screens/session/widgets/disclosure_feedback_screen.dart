@@ -5,12 +5,12 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/action_feedback.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
+import "action_feedback.dart";
 import "issuance_permission.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
@@ -43,7 +43,7 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   final String? returnHost;
   final VoidCallback? onReturn;
 
-  /// The same phone without a link back, on iOS: she goes back herself, with
+  /// The same phone without a link back, on iOS: the user goes back themselves, with
   /// ◀ at the top left.
   final bool goBackYourself;
 
@@ -93,7 +93,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
     }
 
     return ActionFeedback(
-      success: widget.feedbackType == DisclosureFeedbackType.success,
+      success: false,
       titleTranslationKey:
           "disclosure.feedback.header.${widget._translationKey}",
       titleTranslationParams: otherPartyTranslationParam,
@@ -319,8 +319,8 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
 }
 
 /// What to do now, at the top of the done screen: a head and a line, and on
-/// iOS without a link back a small status bar with ◀ lit, where she taps to
-/// go back. The bar shows no app name: she may have come from a browser,
+/// iOS without a link back a small status bar with ◀ lit, where they tap to
+/// go back. The bar shows no app name: they may have come from a browser,
 /// mail or another app.
 class _NextBox extends StatelessWidget {
   final String head;

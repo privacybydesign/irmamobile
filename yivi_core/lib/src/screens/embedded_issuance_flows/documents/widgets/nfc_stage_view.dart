@@ -4,11 +4,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../widgets/document_flow_footer.dart";
-import "../../../../widgets/glass/sheet_action_row.dart";
+import "../../../../widgets/glass/sheet_actions.dart";
+import "../../../../widgets/glass/sheet_layout.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_step_in_sheet.dart";
+import "document_flow_footer.dart";
 
 /// A button in the bar below an NFC stage.
 class NfcStageAction {
@@ -186,46 +187,30 @@ class _ActionBar extends StatelessWidget {
 
   /// The buttons for the left column of a sheet held sideways; hidden but
   /// keeping their room when there are none, as the bar does.
-  Widget sheetActions(BuildContext context) {
-    // Upright, the page's bottom bar keeps its room itself.
+  Widget sheetActions(BuildContext context) =>
+      _shown(context, (b) => DocumentFlowFooter.sheetActions(context, b));
+
+  @override
+  Widget build(BuildContext context) =>
+      _shown(context, (b) => DocumentFlowFooter(style: .flat, buttons: b));
+
+  /// [layout] around the buttons. Hidden rather than removed when there are
+  /// none (a Cancel keeps their room): a stage without an action keeps the
+  /// bar's height, so the area above it does not resize. Upright in a sheet
+  /// the page's bottom bar does that itself.
+  Widget _shown(BuildContext context, Widget Function(List<Widget>) layout) {
     if (actions.isEmpty && SheetSlotAction.atBottom(context)) {
       return const SheetSlotAction(action: null);
     }
-    final buttons = actions.isEmpty
-        ? [_button(null)]
-        : [for (final action in actions) _button(action)];
-    final row = DocumentFlowFooter.sheetActions(context, buttons);
-    if (actions.isNotEmpty) return row;
+    if (actions.isNotEmpty) {
+      return layout([for (final action in actions) _button(action)]);
+    }
     return Visibility(
       visible: false,
       maintainSize: true,
       maintainAnimation: true,
       maintainState: true,
-      child: row,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Hidden rather than removed: a stage without an action keeps the bar's
-    // height, so the area above it does not resize (upright in a sheet the
-    // page's bottom bar does that).
-    if (actions.isEmpty && SheetSlotAction.atBottom(context)) {
-      return const SheetSlotAction(action: null);
-    }
-    if (actions.isEmpty) {
-      return Visibility(
-        visible: false,
-        maintainSize: true,
-        maintainAnimation: true,
-        maintainState: true,
-        child: DocumentFlowFooter(style: .flat, buttons: [_button(null)]),
-      );
-    }
-
-    return DocumentFlowFooter(
-      style: .flat,
-      buttons: [for (final action in actions) _button(action)],
+      child: layout([_button(null)]),
     );
   }
 

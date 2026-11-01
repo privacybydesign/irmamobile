@@ -9,7 +9,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/centred_max_width.dart";
-import "../../widgets/glass/floating_bar_placement.dart";
+import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/scroll_to_top.dart";
 import "../activity/activity_tab.dart";
 import "../data/card_transition/card_transition.dart";
@@ -20,18 +20,18 @@ import "../more/more_tab.dart";
 import "../notifications/bloc/notifications_bloc.dart";
 import "../notifications/notifications_tab.dart";
 import "widgets/home_navigation.dart";
-import "widgets/irma_nav_bar.dart";
+import "widgets/home_tab.dart";
 import "widgets/pending_pointer_listener.dart";
 import "widgets/scan_tip.dart";
 
 /// Having different transition types causes separate instances of the HomeScreen to be created.
 /// In order to keep the selected tab state across these instances, we move
 /// the state outside of the HomeScreen widget and into this Bloc.
-class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
+class HomeTabState extends Bloc<HomeTab, HomeTab> {
   HomeTabState() : super(.data);
 
   @override
-  Stream<IrmaNavBarTab> mapEventToState(IrmaNavBarTab event) async* {
+  Stream<HomeTab> mapEventToState(HomeTab event) async* {
     yield event;
   }
 }
@@ -46,11 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final _keptTabs = GlobalKey();
 
   /// Each tab, to scroll its lists up when its button is tapped again.
-  final _tabKeys = {for (final tab in IrmaNavBarTab.values) tab: GlobalKey()};
+  final _tabKeys = {for (final tab in HomeTab.values) tab: GlobalKey()};
 
   /// Another tab, or, on the tab already selected, its lists back to the
   /// top, as on iOS.
-  void _changeTab(IrmaNavBarTab tab) {
+  void _changeTab(HomeTab tab) {
     final tabs = context.read<HomeTabState>();
     if (tab == tabs.state) {
       final shown = _tabKeys[tab]!.currentContext;
@@ -66,12 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // The tabs are kept alive, so leaving Notifications is no dispose of it:
     // what it showed counts as read once another tab is picked.
-    return BlocListener<HomeTabState, IrmaNavBarTab>(
+    return BlocListener<HomeTabState, HomeTab>(
       listenWhen: (previous, next) =>
           previous == .notifications && next != .notifications,
       listener: (context, _) =>
           context.read<NotificationsBloc>().add(MarkAllNotificationsAsRead()),
-      child: BlocBuilder<HomeTabState, IrmaNavBarTab>(
+      child: BlocBuilder<HomeTabState, HomeTab>(
         builder: (context, tabState) {
           // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
           // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// A phone held upright: the tab bar at the bottom, floating over the tab
   /// on iOS (with the content fading out under it), docked under it on
   /// Android, down under the system's buttons or gesture handle.
-  Widget _withTabBar(BuildContext context, IrmaNavBarTab tab) {
+  Widget _withTabBar(BuildContext context, HomeTab tab) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final docked = HomeNavigation.docked(context);
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The selected tab, with the ones visited before kept alive out of
   /// sight, so going back to a tab finds it as it was left.
-  Widget _tab(IrmaNavBarTab tab) => _KeptTabs(
+  Widget _tab(HomeTab tab) => _KeptTabs(
     key: _keptTabs,
     selected: tab,
     tabKeys: _tabKeys,
@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// on the left instead of the tab bar, with the tab (a list and the picked
   /// item's details) beside it. On iOS the rail floats in the safe area, on
   /// Android it is docked to the edge.
-  Widget _withRail(BuildContext context, IrmaNavBarTab tab) {
+  Widget _withRail(BuildContext context, HomeTab tab) {
     final padding = MediaQuery.paddingOf(context);
     final docked = HomeNavigation.docked(context);
     // Floating: in the safe area on the notch side; 16 from the edge without
@@ -298,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The tablet layout: the sidebar on the left instead of the tab bar,
   /// floating with a margin on iOS, docked to the edge on Android.
-  Widget _withSidebar(BuildContext context, IrmaNavBarTab tab) {
+  Widget _withSidebar(BuildContext context, HomeTab tab) {
     final padding = MediaQuery.paddingOf(context);
     final docked = HomeNavigation.docked(context);
     final sidebar = HomeSidebar(
@@ -336,9 +336,9 @@ class _HomeScreenState extends State<HomeScreen> {
 /// The tabs visited so far, built once and kept; only [selected] is in
 /// sight, the others take no taps, focus, tickers or hero flights.
 class _KeptTabs extends StatefulWidget {
-  final IrmaNavBarTab selected;
-  final Map<IrmaNavBarTab, GlobalKey> tabKeys;
-  final Widget Function(IrmaNavBarTab tab) builder;
+  final HomeTab selected;
+  final Map<HomeTab, GlobalKey> tabKeys;
+  final Widget Function(HomeTab tab) builder;
 
   const _KeptTabs({
     super.key,
@@ -352,7 +352,7 @@ class _KeptTabs extends StatefulWidget {
 }
 
 class _KeptTabsState extends State<_KeptTabs> {
-  final _visited = <IrmaNavBarTab>{};
+  final _visited = <HomeTab>{};
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +360,7 @@ class _KeptTabsState extends State<_KeptTabs> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        for (final tab in IrmaNavBarTab.values)
+        for (final tab in HomeTab.values)
           if (_visited.contains(tab))
             KeyedSubtree(
               key: ValueKey(tab),
@@ -370,7 +370,7 @@ class _KeptTabsState extends State<_KeptTabs> {
     );
   }
 
-  Widget _kept(IrmaNavBarTab tab, {required bool shown}) => Offstage(
+  Widget _kept(HomeTab tab, {required bool shown}) => Offstage(
     offstage: !shown,
     child: TickerMode(
       enabled: shown,

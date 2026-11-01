@@ -7,8 +7,6 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
-import "../change_pin/widgets/confirm_pin.dart";
-import "../change_pin/widgets/enter_pin.dart";
 import "../enrollment/choose_pin/choose_pin_screen.dart";
 import "../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "../error/session_error_screen.dart";
@@ -16,6 +14,8 @@ import "models/change_pin_state.dart";
 import "models/old_pin_verification_state.dart";
 import "models/validation_state.dart";
 import "providers/change_pin_providers.dart";
+import "widgets/confirm_pin.dart";
+import "widgets/enter_pin.dart";
 
 class ChangePinScreen extends ConsumerStatefulWidget {
   const ChangePinScreen({super.key});

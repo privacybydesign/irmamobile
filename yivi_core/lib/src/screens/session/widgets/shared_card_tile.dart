@@ -34,8 +34,8 @@ class SharedCardTileInFlight extends InheritedWidget {
 /// cards that go together) as small card art, its name and issuer, and only
 /// the values that are shared.
 ///
-/// [trailing] sits at the end of the header: a "Change" pill, a remove
-/// button for optional data, or nothing. A card with a [CardProblem] gets
+/// [trailing] sits at the end of the header (the Change sheet's radio), or
+/// nothing. A card with a [CardProblem] gets
 /// its chip, its values greyed, and a calm line that says it can't be used
 /// any more; the fix is the share button's, not the card's. In the Change
 /// sheet [onFix] ("Add a new passport") sits under that line.
@@ -65,10 +65,6 @@ class SharedCardTile extends ConsumerWidget {
   /// The card was added during this request: a green "New" chip.
   final bool isNew;
 
-  /// Optional data that is not included: the card at half strength inside a
-  /// dashed edge.
-  final bool ghost;
-
   const SharedCardTile({
     super.key,
     required this.bundle,
@@ -80,12 +76,7 @@ class SharedCardTile extends ConsumerWidget {
     this.footer,
     this.problemStrip = false,
     this.isNew = false,
-    this.ghost = false,
   }) : assert((fixLabel == null) == (onFix == null));
-
-  /// The chip label of [problem] ("Revoked", "Expired").
-  static String problemLabel(BuildContext context, CardProblem problem) =>
-      FlutterI18n.translate(context, _problemKey(problem));
 
   /// The art, marked as a landing spot. Not the copy in a hero flight: the
   /// flight builds the tile a second time, and a key can be in the tree once.
@@ -148,9 +139,7 @@ class SharedCardTile extends ConsumerWidget {
                 child: Text(
                   note!,
                   key: const Key("shared_card_note"),
-                  style: palette
-                      .body(13.5)
-                      .copyWith(height: 19 / 13.5, color: palette.heading),
+                  style: CardTileStrip.textStyle(context),
                 ),
               ),
             ],
@@ -161,8 +150,6 @@ class SharedCardTile extends ConsumerWidget {
     return CardTile(
       key: const Key("shared_card_tile"),
       footer: bottom,
-      dashed: ghost,
-      faded: ghost,
       art: _landing(
         context,
         CardTileMiniCards(cards: [for (final c in cards) _cardFor(c, wallet)]),

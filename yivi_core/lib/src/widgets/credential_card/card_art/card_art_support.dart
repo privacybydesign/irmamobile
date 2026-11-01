@@ -96,6 +96,17 @@ Color? svgTopColour(String svg) => _topColours.putIfAbsent(svg, () {
 
 final _topColours = <String, Color?>{};
 
+/// The colours of the Yivi card ([yiviCardColors]): its gradient from [top]
+/// to [bottom], the [facets] down its right side, and its [text] and
+/// [accent].
+typedef YiviCardColours = ({
+  Color top,
+  Color bottom,
+  List<Color> facets,
+  Color text,
+  Color accent,
+});
+
 /// The colours of the Yivi card, the card a credential gets when it has no
 /// design of its own: a deep gradient in the hue of the issuer's logo (grey
 /// when the logo has none), the Yivi facets down the right side in darker
@@ -105,8 +116,7 @@ final _topColours = <String, Color?>{};
 /// [background] is the issuer's own card colour (SD-JWT VC `simple`
 /// rendering), which takes the place of the logo's hue; a light one gets
 /// dark text.
-({Color top, Color bottom, List<Color> facets, Color text, Color accent})
-yiviCardColors(Color? tint, {Color? background}) {
+YiviCardColours yiviCardColors(Color? tint, {Color? background}) {
   if (background != null) {
     final hsl = HSLColor.fromColor(background);
     final light = background.computeLuminance() > 0.45;

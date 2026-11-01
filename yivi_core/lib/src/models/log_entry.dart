@@ -45,7 +45,7 @@ class LogInfo {
     required this.removalLog,
   });
 
-  /// Identifies the entry, to open it again with [GetLogEvent].
+  /// Identifies the entry.
   final String id;
 
   final LogType type;
@@ -349,40 +349,6 @@ class LogCounts {
       _$LogCountsFromJson(json);
 }
 
-/// The activity of one card.
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
-class CredentialActivity {
-  const CredentialActivity({
-    required this.hash,
-    this.lastUsed,
-    this.lastReceived,
-    this.shareCount = 0,
-    this.inferredShareCount = 0,
-    this.eventCount = 0,
-  });
-
-  final String hash;
-
-  /// When the card was last disclosed.
-  final DateTime? lastUsed;
-
-  final DateTime? lastReceived;
-
-  /// Shares recorded with the card; [inferredShareCount] those matched to it
-  /// afterwards.
-  @JsonKey(defaultValue: 0)
-  final int shareCount;
-
-  @JsonKey(defaultValue: 0)
-  final int inferredShareCount;
-
-  @JsonKey(defaultValue: 0)
-  final int eventCount;
-
-  factory CredentialActivity.fromJson(Map<String, dynamic> json) =>
-      _$CredentialActivityFromJson(json);
-}
-
 /// The entries with one party.
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class PartySummary {
@@ -440,24 +406,6 @@ class QueryLogsEvent extends LogRequest {
   };
 }
 
-class GetLogEvent extends LogRequest {
-  GetLogEvent(super.requestId, this.id);
-
-  final String id;
-
-  @override
-  Map<String, dynamic> toJson() => {"request_id": requestId, "id": id};
-}
-
-class CredentialActivityEvent extends LogRequest {
-  CredentialActivityEvent(super.requestId, this.hashes);
-
-  final List<String> hashes;
-
-  @override
-  Map<String, dynamic> toJson() => {"request_id": requestId, "hashes": hashes};
-}
-
 /// How many entries each of [filters] matches, in order.
 class CountLogsEvent extends LogRequest {
   CountLogsEvent(super.requestId, this.filters);
@@ -472,18 +420,16 @@ class CountLogsEvent extends LogRequest {
 }
 
 class ListPartiesEvent extends LogRequest {
-  ListPartiesEvent(super.requestId, this.filter, {this.limit = 0});
+  ListPartiesEvent(super.requestId, this.filter);
 
   final LogFilter filter;
-
-  /// Zero or less: every party.
-  final int limit;
 
   @override
   Map<String, dynamic> toJson() => {
     "request_id": requestId,
     "filter": filter.toJson(),
-    "limit": limit,
+    // Every party.
+    "limit": 0,
   };
 }
 
@@ -501,44 +447,6 @@ class LogPageEvent extends LogAnswer {
 
   factory LogPageEvent.fromJson(Map<String, dynamic> json) =>
       _$LogPageEventFromJson(json);
-}
-
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
-class LogEntryEvent extends LogAnswer {
-  LogEntryEvent({required this.requestId, this.entry, this.error});
-
-  @override
-  final String requestId;
-
-  /// Null when there is no entry with that id.
-  final LogInfo? entry;
-
-  @override
-  final String? error;
-
-  factory LogEntryEvent.fromJson(Map<String, dynamic> json) =>
-      _$LogEntryEventFromJson(json);
-}
-
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
-class CredentialActivityResultEvent extends LogAnswer {
-  CredentialActivityResultEvent({
-    required this.requestId,
-    required this.activity,
-    this.error,
-  });
-
-  @override
-  final String requestId;
-
-  @JsonKey(defaultValue: {})
-  final Map<String, CredentialActivity> activity;
-
-  @override
-  final String? error;
-
-  factory CredentialActivityResultEvent.fromJson(Map<String, dynamic> json) =>
-      _$CredentialActivityResultEventFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)

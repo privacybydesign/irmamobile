@@ -1,7 +1,7 @@
 part of "yivi_credential_card_attribute_list.dart";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Nested claims (design option C, canvas page "Nested claims").
+// Nested claims.
 //
 // A top-level object or list is a row that folds it in place; the items of a
 // list are cards in one column, each folding on its own. Everything starts
@@ -271,7 +271,6 @@ class _FoldState extends State<_Fold> {
   Widget build(BuildContext context) {
     final g = widget.group;
     final ctx = widget.ctx;
-    final palette = YiviPalette.of(context);
     final label = _labelOf(g);
     final list = _isList(g);
     final open = _open || !ctx.foldable;
@@ -318,8 +317,9 @@ class _FoldState extends State<_Fold> {
                     ],
             ),
           )
+        // The list's own line, as under every other row.
         else if (widget.divider)
-          Container(height: 1, color: palette.divider),
+          Container(height: 1, color: AttributeColors.of(context).divider),
       ],
     );
   }

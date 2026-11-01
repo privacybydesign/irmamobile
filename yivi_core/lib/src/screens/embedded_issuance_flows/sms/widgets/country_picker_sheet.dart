@@ -1,11 +1,10 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/credentials_search.dart";
-import "../../../../theme/yivi_corners.dart";
-import "../../../../theme/yivi_edges.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../widgets/glass/glass_group.dart";
@@ -150,16 +149,7 @@ class _CountryPickerState extends State<_CountryPicker> {
     // A phone held sideways: three countries side by side, each a card.
     Widget grid(String? header, List<Country> list) => SliverMainAxisGroup(
       slivers: [
-        if (header != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
-              child: Semantics(
-                header: true,
-                child: Text(header, style: palette.display(15)),
-              ),
-            ),
-          ),
+        if (header != null) SliverToBoxAdapter(child: GlassTileHeader(header)),
         SliverPadding(
           padding: const EdgeInsets.only(bottom: 12),
           sliver: SliverGrid.builder(
@@ -171,15 +161,7 @@ class _CountryPickerState extends State<_CountryPicker> {
                   52 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 2),
             ),
             itemCount: list.length,
-            itemBuilder: (context, i) => Material(
-              color: palette.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: YiviCorners.cardRadius,
-                side: YiviEdges.block(context),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Center(child: row(list[i])),
-            ),
+            itemBuilder: (context, i) => GlassTile(child: row(list[i])),
           ),
         ),
       ],

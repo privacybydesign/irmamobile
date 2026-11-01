@@ -11,7 +11,6 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -19,6 +18,7 @@ import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
+import "../../embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 import "issuance_permission.dart";
 
 /// The permission screen for a document read from its chip, as on the

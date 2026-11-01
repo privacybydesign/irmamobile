@@ -53,9 +53,10 @@ class PassportMrzManualEntryData {
   });
 }
 
-/// This screen is for when the camera doesn't work(?)
+/// Typing the MRZ in by hand, for when the camera cannot read it ("Enter
+/// manually" on the camera screen).
 class PassportMrzManualEntryScreen extends StatefulWidget {
-  /// Now receives the collected data from the 3 fields.
+  /// Receives what was typed in the three fields.
   final void Function(PassportMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
   final PassportMrzManualEntryTranslationKeys translationKeys;

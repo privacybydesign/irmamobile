@@ -55,8 +55,8 @@ final _previewProviderContainer = ProviderContainer();
 /// the unqualified names here.
 ///
 /// The font files are accessible at runtime via these `packages/yivi_core/...`
-/// paths because yivi_core's pubspec declares `fonts/alexandria/`,
-/// `fonts/open-sans/`, and `fonts/irma-icons/` in its `assets:` section.
+/// paths because yivi_core's pubspec declares `fonts/alexandria/` and
+/// `fonts/open-sans/` in its `assets:` section.
 /// Result of the font registration pass. Reported on-screen so we don't have
 /// to chase terminal output.
 class _FontLoadReport {
@@ -69,10 +69,6 @@ class _FontLoadReport {
 /// family names, which is exactly what `IrmaTheme` looks up. The bundled-font
 /// path under `flutter widget-preview` doesn't reliably resolve, so we go via
 /// the CDN here.
-///
-/// IrmaIcons is bundled-only — no Google Fonts equivalent — so icon glyphs in
-/// the preview will fall back to system rendering. None of the credential-card
-/// previews actually use IrmaIcons glyphs, so this is fine.
 Future<_FontLoadReport> _loadYiviFonts() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = true;

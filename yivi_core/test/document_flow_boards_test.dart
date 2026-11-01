@@ -15,6 +15,7 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_pictures.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_view.dart";
@@ -24,7 +25,6 @@ import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/widgets/done_check.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
@@ -83,9 +83,8 @@ Finder _secondary() => find.byKey(const Key("bottom_bar_secondary"));
 TextStyle _styleOf(WidgetTester tester, String text) =>
     tester.widget<Text>(find.text(text)).style!;
 
-/// The footers of the redesign: a 56 high main pill and text pills of the
-/// same height (one size per role, docs/button-consistency-plan.md),
-/// 4 apart, 16 on the sides. On this phone (no home indicator) the lowest
+/// The footers: a 56 high main pill and text pills of the same height (one
+/// size per role), 4 apart, 16 on the sides. On this phone (no home indicator) the lowest
 /// button ends 8 from the bottom when it is a text pill, 16 when it is the
 /// main one (FloatingBarPlacement.buttonBottom).
 void _expectFooterButton(
@@ -265,7 +264,9 @@ void main() {
       await _pump(
         tester,
         stage(
-          picture: const NfcPhoneOnPassport(),
+          picture: const NfcPhoneOnDocument(
+            document: NfcDocumentPicture.passport,
+          ),
           title: "document_flow.nfc.waiting_title",
           body: "document_flow.nfc.waiting_body_passport",
           actions: [cancel()],
@@ -283,7 +284,7 @@ void main() {
         Rect.fromLTWH(0, IrmaAppBar.toolbarHeight + 16, _phone.width, 360),
       );
       expect(
-        tester.getSize(find.byType(NfcPhoneOnPassport)),
+        tester.getSize(find.byType(NfcPhoneOnDocument)),
         const Size(300, 300),
       );
 
@@ -407,7 +408,7 @@ void main() {
       tester,
     ) async {
       for (final picture in [
-        const NfcPhoneOnPassport(),
+        const NfcPhoneOnDocument(document: NfcDocumentPicture.passport),
         const NfcProgressRing(progress: 0.5, label: "x"),
         const DoneCheck(),
         const NfcOffIllustration(),
@@ -492,7 +493,11 @@ void main() {
         "less motion", (tester) async {
       Future<void> pumpPhone() => _pump(
         tester,
-        const Scaffold(body: Center(child: NfcPhoneOnPassport())),
+        const Scaffold(
+          body: Center(
+            child: NfcPhoneOnDocument(document: NfcDocumentPicture.passport),
+          ),
+        ),
         ticker: .running,
       );
 

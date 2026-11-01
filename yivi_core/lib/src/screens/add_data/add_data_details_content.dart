@@ -12,7 +12,7 @@ import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
-import "../../widgets/glass/sheet_action_row.dart";
+import "../../widgets/glass/sheet_layout.dart";
 import "../../widgets/irma_markdown.dart";
 import "../../widgets/step_number_disc.dart";
 
@@ -174,7 +174,6 @@ class AddDataDetailsContent extends StatelessWidget {
     // issuer under it; what it is and what you get at the right.
     if (useSheetColumns(context)) {
       return SheetColumns(
-        startWidth: 250,
         start: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -182,7 +181,7 @@ class AddDataDetailsContent extends StatelessWidget {
               padding: const EdgeInsets.only(top: 24, bottom: 12),
               child: CredentialTypeThumbnail(
                 descriptor: credential,
-                width: 250,
+                width: SheetColumns.defaultStartWidth,
               ),
             ),
             ...name,

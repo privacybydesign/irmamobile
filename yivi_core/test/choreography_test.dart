@@ -2,8 +2,6 @@ import "dart:ui";
 
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/data/card_transition/choreography.dart";
-import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart"
-    show CardMotion;
 
 void main() {
   // Twelve cards, 56 apart, the list scrolled so the first two are off the
@@ -98,11 +96,6 @@ void main() {
     expect(next, greaterThanOrEqualTo(844));
     // All by the same distance: they keep their spacing.
     expect(c.pose(9, 1).dy, c.pose(5, 1).dy);
-  });
-
-  test("the details show down to the card below as it falls", () {
-    expect(c.revealLine(0), cards[5].top);
-    expect(c.revealLine(1), greaterThanOrEqualTo(844));
   });
 
   test("the cards above take their own, slower time", () {

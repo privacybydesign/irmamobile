@@ -2,7 +2,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../util/i18n.dart";
@@ -18,46 +17,22 @@ class VerifyPhoneScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return _VerifyCodeScreenState();
+    return _VerifyPhoneScreenState();
   }
 }
 
-class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
-    with RouteAware {
-  final _focusNode = FocusNode();
-  final _textController = TextEditingController();
-
+class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
+    with VerifyCodeScreen {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      codeFocus.requestFocus();
     });
   }
 
   @override
-  void didPopNext() {
-    Future.microtask(() {
-      ref.read(smsIssuanceProvider.notifier).reset();
-    });
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    _focusNode.dispose();
-    _textController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      routeObserver.subscribe(this, route);
-    }
-  }
+  void resetFlow() => ref.read(smsIssuanceProvider.notifier).reset();
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +40,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
     ref.listen(smsIssuanceProvider, (prev, next) {
       if (next.error is SmsIssuanceInvalidCodeError &&
           (prev?.error != next.error)) {
-        _textController.text = "";
-        _focusNode.requestFocus();
+        codeController.text = "";
+        codeFocus.requestFocus();
       }
     });
 
@@ -100,7 +75,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
           titleTranslationKey: "sms_issuance.verify_code.title",
           leading: YiviBackButton(onTap: _goBack),
         ),
-        focusNode: _focusNode,
+        focusNode: codeFocus,
         fieldAlignment: 0.2,
         before: [
           ContactIntro(
@@ -113,8 +88,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
         ],
         field: ContactCodeField(
           fieldKey: const Key("sms_verification_code_input_field"),
-          controller: _textController,
-          focusNode: _focusNode,
+          controller: codeController,
+          focusNode: codeFocus,
           smsRetriever: smsRetriever,
           length: smsCodeLength,
           invalid: codeInvalid,
@@ -136,7 +111,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                   ? null
                   : context.tr("contact_sheet.send_again_in", {"time": left}),
               onTap: left == null
-                  ? () => showResendSmsDialog(state.phoneNumber)
+                  ? () => _showResendDialog(state.phoneNumber)
                   : null,
             ),
           ),
@@ -159,28 +134,15 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
     }
   }
 
-  Future<void> _goBack() async {
-    final result = await confirmContactStep(
-      context,
-      "sms_issuance.verify_code.back_dialog",
-    );
-    if (result) {
-      ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
-    }
-  }
+  Future<void> _goBack() => confirmThen(
+    "sms_issuance.verify_code.back_dialog",
+    ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone,
+  );
 
-  Future<void> showResendSmsDialog(String phoneNumber) async {
-    final resend = await confirmContactStep(
-      context,
-      "sms_issuance.verify_code.resend_dialog",
-    );
-
-    if (!resend || !mounted) {
-      return;
-    }
-
-    ref
+  Future<void> _showResendDialog(String phoneNumber) => confirmThen(
+    "sms_issuance.verify_code.resend_dialog",
+    () => ref
         .read(smsIssuanceProvider.notifier)
-        .sendSms(phoneNumber: phoneNumber, language: context.lang);
-  }
+        .sendSms(phoneNumber: phoneNumber, language: context.lang),
+  );
 }

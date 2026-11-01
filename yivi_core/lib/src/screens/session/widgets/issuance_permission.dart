@@ -12,7 +12,7 @@ import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -24,6 +24,16 @@ import "../models/disclosure_view_model.dart";
 import "document_issuance_permission.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
+
+/// The question above an offer of [count] cards.
+String issuanceQuestion(BuildContext context, int count) => count > 1
+    ? context.tr("issuance.question_many", {"count": "$count"})
+    : context.tr("issuance.description");
+
+/// The button that adds an offer of [count] cards.
+String issuanceAddLabel(BuildContext context, int count) => count > 1
+    ? context.tr("issuance.add_many", {"count": "$count"})
+    : context.tr("issuance.add");
 
 /// "Do you want to add this data to your Yivi app?": the card an issuer
 /// offers, or a pile of them, with every value it holds.
@@ -87,10 +97,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       );
     }
 
-    final many = _cards.length > 1;
-    final title = many
-        ? context.tr("issuance.question_many", {"count": "${_cards.length}"})
-        : context.tr("issuance.description");
+    final title = issuanceQuestion(context, _cards.length);
     final offer = _offer;
 
     // A phone held sideways: the card or pile at the left with its chips,
@@ -189,9 +196,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     }
     return FancyPillButton(
       key: const Key("bottom_bar_primary"),
-      label: _cards.length > 1
-          ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
-          : context.tr("issuance.add"),
+      label: issuanceAddLabel(context, _cards.length),
       size: PillSize.regular,
       onPressed: () => widget.onGivePermission?.call(),
     );
@@ -205,9 +210,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       );
     }
     return IrmaBottomBar(
-      primaryButtonLabel: _cards.length > 1
-          ? context.tr("issuance.add_many", {"count": "${_cards.length}"})
-          : context.tr("issuance.add"),
+      primaryButtonLabel: issuanceAddLabel(context, _cards.length),
       onPrimaryPressed: () => widget.onGivePermission?.call(),
     );
   }
@@ -280,7 +283,9 @@ class IssuanceOffer {
           label: context.tr("credential_card.source.issuer_design"),
           tone: DialogTone.info,
         ),
-      if (showRequestChip ? _context(context, steps) : _returnedChip(context)
+      if (showRequestChip
+              ? _contextChip(context, steps)
+              : _returnedChip(context)
           case final label?)
         StatusChip(
           key: const Key("issuance_context"),
@@ -347,7 +352,7 @@ class IssuanceOffer {
 
   /// "For {requestor} · step n of m" inside a request, "Back from the
   /// website of {issuer}" after the user went there from the app.
-  String? _context(BuildContext context, List<IssuanceStep> steps) {
+  String? _contextChip(BuildContext context, List<IssuanceStep> steps) {
     final request = forRequest;
     if (request != null) {
       final step = stepNumberFor(cards, steps);

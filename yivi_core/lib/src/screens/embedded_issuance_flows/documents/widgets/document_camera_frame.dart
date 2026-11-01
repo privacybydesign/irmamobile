@@ -4,8 +4,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../widgets/corner_brackets.dart";
 import "../document_step_in_sheet.dart";
-import "corner_brackets.dart";
 import "dark_glass.dart";
 
 /// Behind and around the document camera: the darkest stop of its frame.
@@ -47,9 +47,27 @@ class DocumentCameraFrame extends StatelessWidget {
   /// Where the window goes on a screen of [size] under a status bar of
   /// [top]: the design's place on a phone (236 on the 844 high board, a
   /// little above the middle), always below the hint card.
-  static Rect windowFor(Size size, double top, {double hint = hintTop}) {
+  ///
+  /// Held sideways ([CameraSidePanel]) the buttons are in a panel at the
+  /// right: the window is as large as fits under the hint, in the middle
+  /// of the room [beside] it leaves, between the [inset]s of the screen.
+  static Rect windowFor(
+    Size size,
+    double top, {
+    double hint = hintTop,
+    double beside = 0,
+    EdgeInsets inset = EdgeInsets.zero,
+  }) {
     var width = math.min(windowWidth, size.width - 48);
     var height = width * windowHeight / windowWidth;
+    if (beside > 0) {
+      final y = top + hint + 52;
+      final room = size.width - beside - inset.left;
+      height = math.min(height, size.height - y - 16 - inset.bottom);
+      width = math.min(height * windowWidth / windowHeight, room - 48);
+      height = width * windowHeight / windowWidth;
+      return Rect.fromLTWH(inset.left + (room - width) / 2, y, width, height);
+    }
     // A short card (the camera beside its explanation in a sheet held
     // sideways): right under the hint, as large as fits above the bottom.
     if (size.height < 360) {
@@ -67,9 +85,16 @@ class DocumentCameraFrame extends StatelessWidget {
     final padding = MediaQuery.paddingOf(context);
     // In a sheet's card there is no floating title above the hint.
     final hint = DocumentStepInSheet.of(context) ? 16.0 : hintTop;
+    final beside = CameraSidePanel.widthOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final window = windowFor(constraints.biggest, padding.top, hint: hint);
+        final window = windowFor(
+          constraints.biggest,
+          padding.top,
+          hint: hint,
+          beside: beside,
+          inset: padding,
+        );
         final rrect = RRect.fromRectAndRadius(
           window,
           const Radius.circular(_radius),
@@ -104,7 +129,7 @@ class DocumentCameraFrame extends StatelessWidget {
             ),
             Positioned(
               left: 16 + padding.left,
-              right: 16 + padding.right,
+              right: 16 + (beside > 0 ? beside : padding.right),
               top: padding.top + hint,
               child: _Hint(found: found, glare: glare),
             ),
@@ -126,30 +151,20 @@ class _Hint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final key = found
-        ? "mrz_scanner.found"
-        : glare
-        ? "mrz_scanner.glare_hint"
-        : "mrz_scanner.looking";
+    final (key, icon) = switch ((found, glare)) {
+      (true, _) => ("mrz_scanner.found", Icons.check_circle_rounded),
+      (_, true) => ("mrz_scanner.glare_hint", Icons.wb_sunny_outlined),
+      _ => ("mrz_scanner.looking", Icons.center_focus_weak_rounded),
+    };
     return Semantics(
       liveRegion: true,
       child: DarkGlass(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           spacing: 10,
           children: [
-            Icon(
-              found
-                  ? Icons.check_circle_rounded
-                  : glare
-                  ? Icons.wb_sunny_outlined
-                  : Icons.center_focus_weak_rounded,
-              size: 20,
-              color: found ? _found : Colors.white,
-            ),
+            Icon(icon, size: 20, color: found ? _found : Colors.white),
             Expanded(
               child: Text(
                 FlutterI18n.translate(context, key),
@@ -185,7 +200,7 @@ class _DimPainter extends CustomPainter {
 }
 
 /// The four rounded corner brackets of the window: 4 pt, round caps, arms
-/// reaching 38 pt from the corner.
+/// reaching 36 pt from the corner.
 class _BracketsPainter extends CustomPainter {
   final Color color;
 
@@ -211,4 +226,20 @@ class _BracketsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BracketsPainter old) => old.color != color;
+}
+
+/// Tells the camera frame that its buttons are in a panel at the right (the
+/// camera screen held sideways): the room that panel takes from the right
+/// edge of the screen, its gap included.
+class CameraSidePanel extends InheritedWidget {
+  final double width;
+
+  const CameraSidePanel({super.key, required this.width, required super.child});
+
+  /// The room taken at the right; 0 without a side panel.
+  static double widthOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<CameraSidePanel>()?.width ?? 0;
+
+  @override
+  bool updateShouldNotify(CameraSidePanel old) => old.width != width;
 }

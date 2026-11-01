@@ -5,7 +5,6 @@ import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/log_entry.dart";
 import "../models/mrz.dart";
-import "../models/translated_value.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 
@@ -26,10 +25,6 @@ extension RoutingHelpers on BuildContext {
     pushReplacement("/error", extra: message);
   }
 
-  Future<bool?> pushModalPin() async {
-    return await push("/modal_pin");
-  }
-
   void pushResetPinScreen() {
     push("/reset_pin");
   }
@@ -42,10 +37,6 @@ extension RoutingHelpers on BuildContext {
     EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
   }) {
     push("/issue_email", extra: purpose);
-  }
-
-  void popToWizardScreen() {
-    Navigator.of(this).popUntil(ModalRoute.withName("/issue_wizard"));
   }
 
   /// Pops back to the nearest session screen below the current one.
@@ -102,23 +93,12 @@ extension RoutingHelpers on BuildContext {
     go("/home/debug");
   }
 
-  void goNotificationsScreen() {
-    go("/home/notifications");
-  }
-
   void goEnrollmentScreen() {
     go("/enrollment");
   }
 
   void pushBackToWebsiteScreen() {
     push("/back_to_website");
-  }
-
-  void goIssueWizardSuccessScreen({
-    TranslatedValue? headerTranslation,
-    TranslatedValue? contentTranslation,
-  }) {
-    go("/issue_wizard_success", extra: (headerTranslation, contentTranslation));
   }
 
   void pushLanguageSettingsScreen() {
@@ -161,30 +141,6 @@ extension RoutingHelpers on BuildContext {
   void pushSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
     push(uri.toString());
-  }
-
-  void pushReplacementUnknownSessionScreen(SessionRouteParams args) {
-    final uri = Uri(
-      path: "/unknown_session",
-      queryParameters: args.toQueryParams(),
-    );
-    pushReplacement(uri.toString());
-  }
-
-  void pushUnknownSessionScreen(SessionRouteParams args) {
-    final uri = Uri(
-      path: "/unknown_session",
-      queryParameters: args.toQueryParams(),
-    );
-    push(uri.toString());
-  }
-
-  void pushReplacementIssueWizardScreen(IssueWizardRouteParams params) {
-    final uri = Uri(
-      path: "/issue_wizard",
-      queryParameters: params.toQueryParams(),
-    );
-    pushReplacement(uri.toString());
   }
 
   void pushDocumentInstructionScreen(DocumentType documentType) {
@@ -252,14 +208,6 @@ extension RoutingHelpers on BuildContext {
         );
     }
   }
-
-  Future<void> pushIssueWizardScreen(IssueWizardRouteParams params) async {
-    final uri = Uri(
-      path: "/issue_wizard",
-      queryParameters: params.toQueryParams(),
-    );
-    await push(uri.toString());
-  }
 }
 
 // =============================================================================================
@@ -278,31 +226,6 @@ class CredentialsDetailsRouteParams {
   ) {
     return CredentialsDetailsRouteParams(
       credentialTypeId: params["credential_type_id"]!,
-    );
-  }
-}
-
-// =============================================================================================
-
-class IssueWizardRouteParams {
-  final String wizardID;
-  final int? sessionID;
-
-  IssueWizardRouteParams({required this.wizardID, required this.sessionID});
-
-  Map<String, String> toQueryParams() {
-    return {
-      "wizard_id": wizardID,
-      if (sessionID != null) "session_id": "$sessionID",
-    };
-  }
-
-  static IssueWizardRouteParams fromQueryParams(Map<String, String> params) {
-    return IssueWizardRouteParams(
-      wizardID: params["wizard_id"]!,
-      sessionID: params.containsKey("session_id")
-          ? int.parse(params["session_id"]!)
-          : null,
     );
   }
 }
@@ -428,7 +351,8 @@ class TransitionStyleProvider extends StatefulWidget {
   const TransitionStyleProvider({required this.child});
 
   static void performInstantTransitionToHomeScreen(BuildContext context) {
-    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
+    final state = context
+        .findAncestorStateOfType<TransitionStyleProviderState>();
     // Without the provider (e.g. in a test) home opens as usual.
     state?._shouldPerformInstantTransitionToHomeScreen = true;
     context.goHomeScreen();
@@ -437,12 +361,13 @@ class TransitionStyleProvider extends StatefulWidget {
   static bool shouldPerformInstantTransitionToHome(BuildContext context) {
     final state = context
         .findAncestorStateOfType<TransitionStyleProviderState>();
-    return state!._shouldPerformInstantTransitionToHomeScreen;
+    return state?._shouldPerformInstantTransitionToHomeScreen ?? false;
   }
 
   static void resetInstantTransitionToHomeMark(BuildContext context) {
-    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToHomeScreen = false;
+    final state = context
+        .findAncestorStateOfType<TransitionStyleProviderState>();
+    state?._shouldPerformInstantTransitionToHomeScreen = false;
   }
 
   @override

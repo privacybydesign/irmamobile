@@ -28,7 +28,6 @@ import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
-import "../models/issue_wizard.dart";
 import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/schemaless/credential_store.dart";
@@ -42,7 +41,6 @@ import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
-import "../screens/data/wallet/wallet_transition.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "app_language.dart";
@@ -75,29 +73,12 @@ class IrmaRepository {
     required this.preferences,
     this.defaultKeyshareScheme = "pbdf",
   }) : _bridge = client {
-    // How a card opens from the stack, as set in the debug settings.
-    final motion = preferences.getCardMotionNow();
-    if (motion.isNotEmpty) {
-      WalletTransition.motion.value = CardMotion.decode(motion);
-    }
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
       eventStream: _eventSubject.stream,
     );
-    _credentialsSubject.forEach((creds) async {
-      final event = await _issueWizardSubject.first;
-      if (event != null) {
-        _issueWizardSubject.add(
-          await processIssueWizard(
-            event.wizardData.id,
-            event.wizardContents,
-            creds,
-          ),
-        );
-      }
-    });
     // Listen for bridge events and send them to our event subject.
     _bridgeEventSubscription = _bridge.events.listen(
       (event) => _eventSubject.add(event),
@@ -151,8 +132,6 @@ class IrmaRepository {
   // so the lock screen holds off its cold-start biometric auto-scan until the
   // launch URL (if any) is known — see the AppReadyAckEvent handler.
   final _startupUrlResolvedSubject = BehaviorSubject<bool>.seeded(false);
-  final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
-  final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
   late final AppLanguage _appLanguage = AppLanguage(preferences);
@@ -198,8 +177,6 @@ class IrmaRepository {
       _resumedWithURLSubject.close(),
       _resumedFromBrowserSubject.close(),
       _startupUrlResolvedSubject.close(),
-      _issueWizardSubject.close(),
-      _issueWizardActiveSubject.close(),
       _sessionRepository.close(),
       _fatalErrorSubject.close(),
       _logsChangedSubject.close(),
@@ -725,17 +702,6 @@ class IrmaRepository {
   Future<LogPage> queryLogs(LogQuery query) async =>
       (await _askLog<LogPageEvent>((id) => QueryLogsEvent(id, query))).page;
 
-  /// One log entry by its id; null when there is none.
-  Future<LogInfo?> getLog(String id) async =>
-      (await _askLog<LogEntryEvent>((rid) => GetLogEvent(rid, id))).entry;
-
-  /// The activity of the cards with these hashes, by hash.
-  Future<Map<String, CredentialActivity>> credentialActivity(
-    List<String> hashes,
-  ) async => (await _askLog<CredentialActivityResultEvent>(
-    (id) => CredentialActivityEvent(id, hashes),
-  )).activity;
-
   /// How many entries each of [filters] matches, in order.
   Future<List<int>> countLogs(List<LogFilter> filters) async => filters.isEmpty
       ? const []
@@ -744,12 +710,10 @@ class IrmaRepository {
         )).counts;
 
   /// The parties of the entries matching [filter], the most recent first.
-  Future<List<PartySummary>> listParties(
-    LogFilter filter, {
-    int limit = 0,
-  }) async => (await _askLog<PartiesEvent>(
-    (id) => ListPartiesEvent(id, filter, limit: limit),
-  )).parties;
+  Future<List<PartySummary>> listParties(LogFilter filter) async =>
+      (await _askLog<PartiesEvent>(
+        (id) => ListPartiesEvent(id, filter),
+      )).parties;
 
   /// Previews asked of irmago, by pointer URL.
   final _previews = <String, BehaviorSubject<SessionPreview>>{};
@@ -831,47 +795,6 @@ class IrmaRepository {
   Stream<bool> getDeveloperMode() {
     return _preferencesSubject.stream.map(
       (pref) => pref.clientPreferences.developerMode,
-    );
-  }
-
-  BehaviorSubject<IssueWizardEvent?> getIssueWizard() {
-    return _issueWizardSubject;
-  }
-
-  BehaviorSubject<bool> getIssueWizardActive() {
-    return _issueWizardActiveSubject;
-  }
-
-  Future<IssueWizardEvent> processIssueWizard(
-    String id,
-    List<IssueWizardItem> contents,
-    Credentials credentials,
-  ) async {
-    final conf = await _irmaConfigurationSubject.first;
-    if (!conf.issueWizards.containsKey(id)) {
-      throw UnsupportedError("Wizard id $id could not been found");
-    }
-    final wizardData = conf.issueWizards[id]!;
-    final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
-    return IssueWizardEvent(
-      haveCredential:
-          wizardData.issues != null && creds.contains(wizardData.issues),
-      wizardData: wizardData,
-      wizardContents: contents.map((item) {
-        // The credential field may be non-nil for any wizard item type
-        final haveCredential =
-            item.credential != null && creds.contains(item.credential);
-        if (item.type != "credential") {
-          return item.copyWith(completed: haveCredential || item.completed);
-        }
-        // irmago does not allow wizard items with non-existing credentials, so we can safely ignore null values here.
-        final credtype = conf.credentialTypes[item.credential]!;
-        return item.copyWith(
-          completed: haveCredential,
-          header: item.header.isNotEmpty ? item.header : credtype.name,
-          text: item.text.isNotEmpty ? item.text : credtype.faqSummary,
-        );
-      }).toList(),
     );
   }
 

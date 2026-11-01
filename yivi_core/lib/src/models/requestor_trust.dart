@@ -11,7 +11,7 @@ import "schemaless/schemaless_events.dart";
 /// - [unevaluated]: the ladder was not evaluated: no colour, no claim.
 ///
 /// Medium and high both clear the bar, for every session type; the colour
-/// says who vouches (docs/share-recipient-plan.md, Q2).
+/// says who vouches.
 enum RequestorTrust { yivi, elsewhere, unknown, unevaluated }
 
 /// The one mapping from what irmago sends to the tier. An irmago with the
@@ -51,7 +51,7 @@ extension RequestorTrustX on RequestorTrust {
 }
 
 /// Where the trust in an [RequestorTrust.elsewhere] party comes from, for
-/// its label (docs/share-recipient-plan.md, Q3): "Verified in the EU" only
+/// its label: "Verified in the EU" only
 /// when it really is an EU trusted list, "Verified by {anchor}" for another
 /// named anchor, and "Identity confirmed" when irmago does not say.
 enum ElsewhereSource { euTrustedList, namedAnchor, unspecified }

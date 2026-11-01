@@ -6,8 +6,6 @@ import "../widgets/contact_widgets.dart";
 import "widgets/enter_phonenumber_screen.dart";
 import "widgets/verify_phonenumber_screen.dart";
 
-// ==========================================================
-
 class SmsIssuanceScreen extends ConsumerWidget {
   const SmsIssuanceScreen({super.key});
 

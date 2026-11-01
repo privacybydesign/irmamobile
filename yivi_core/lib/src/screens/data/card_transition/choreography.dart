@@ -1,7 +1,7 @@
 import "dart:math";
 import "dart:ui";
 
-import "../wallet/wallet_transition.dart" show CardMotion;
+import "package:flutter/foundation.dart";
 
 /// What is measured once, when a card in the stack is tapped: everything the
 /// transition needs, so nothing is measured again while it runs.
@@ -17,15 +17,11 @@ class TransitionSnapshot {
 
   final double screenHeight;
 
-  /// Whether the bar's last button is a + that turns into the details' ✕.
-  final bool plusTurnsIntoClose;
-
   const TransitionSnapshot({
     required this.picked,
     required this.cards,
     required this.target,
     required this.screenHeight,
-    this.plusTurnsIntoClose = true,
   });
 
   int get count => cards.length;
@@ -160,14 +156,6 @@ class Choreography {
     return snapshot.screenHeight - snapshot.cards[next].top + 32;
   }
 
-  /// The line above which the details show, at the progress [next] of the
-  /// card just below the picked one: its top as it falls away.
-  double revealLine(double next) {
-    final i = _picked + 1;
-    if (i >= snapshot.count) return snapshot.screenHeight;
-    return snapshot.cards[i].top + _drop * next;
-  }
-
   /// The search field and title: they go and come with the uppermost card
   /// in sight ([top], its progress), both ways, so there is never a hole
   /// above the stack; with no card above the picked one, in the first third
@@ -175,5 +163,81 @@ class Choreography {
   double headerOpacity({required double picked, required double top}) {
     if (snapshot.firstSeen < _picked) return 1 - top.clamp(0.0, 1.0);
     return 1 - (picked / 0.35).clamp(0.0, 1.0);
+  }
+}
+
+/// How a card opening from the stack moves (Wallet depth).
+@immutable
+class CardMotion {
+  /// How a card opening from the stack moves now ([CardTransitions]): set
+  /// from the preferences at app start, adjustable in the debug settings.
+  static final current = ValueNotifier<CardMotion>(CardMotion.defaults);
+
+  /// Of the spring, as iOS sets it: seconds it takes (the card and the
+  /// cards below).
+  final double duration;
+
+  /// Of the spring: 0 settles without a bounce, more bounces more.
+  final double bounce;
+
+  /// Seconds the cards above take: slower, the pile settles behind the
+  /// card.
+  final double aboveDuration;
+
+  /// Milliseconds between the cards below falling away (the bottom first).
+  final double fallStagger;
+
+  /// Milliseconds between the cards above sinking (the uppermost first).
+  final double sinkStagger;
+
+  const CardMotion({
+    required this.duration,
+    required this.bounce,
+    required this.aboveDuration,
+    required this.fallStagger,
+    required this.sinkStagger,
+  });
+
+  /// "Wallet", as picked on the prototype (2026-10-31).
+  static const defaults = CardMotion(
+    duration: 0.35,
+    bounce: 0.3,
+    aboveDuration: 0.4,
+    fallStagger: 0,
+    sinkStagger: 0,
+  );
+
+  /// The spring's damping ratio (1 settles without a bounce).
+  double get damping => 1 - bounce;
+
+  CardMotion copyWith({
+    double? duration,
+    double? bounce,
+    double? aboveDuration,
+    double? fallStagger,
+    double? sinkStagger,
+  }) => CardMotion(
+    duration: duration ?? this.duration,
+    bounce: bounce ?? this.bounce,
+    aboveDuration: aboveDuration ?? this.aboveDuration,
+    fallStagger: fallStagger ?? this.fallStagger,
+    sinkStagger: sinkStagger ?? this.sinkStagger,
+  );
+
+  /// For the preferences: "duration,bounce,above,fall,sink".
+  String encode() =>
+      "$duration,$bounce,$aboveDuration,$fallStagger,$sinkStagger";
+
+  /// Settings saved in another form (before "Wallet") give the defaults.
+  static CardMotion decode(String text) {
+    final v = text.split(",").map(double.tryParse).toList();
+    if (v.length != 5 || v.contains(null)) return defaults;
+    return CardMotion(
+      duration: v[0]!,
+      bounce: v[1]!,
+      aboveDuration: v[2]!,
+      fallStagger: v[3]!,
+      sinkStagger: v[4]!,
+    );
   }
 }

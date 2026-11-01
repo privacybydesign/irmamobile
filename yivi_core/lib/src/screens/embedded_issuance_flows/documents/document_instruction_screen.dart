@@ -5,12 +5,12 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/document_flow_footer.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
+import "widgets/document_flow_footer.dart";
 import "widgets/document_instruction_illustration.dart";
 import "widgets/document_scan_scene.dart";
 

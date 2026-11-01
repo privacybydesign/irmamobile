@@ -18,6 +18,7 @@ import "src/providers/regula_face_service_provider.dart";
 import "src/providers/schemaless_credentials_list_provider.dart";
 import "src/providers/sms_issuance_provider.dart";
 import "src/providers/store_review_provider.dart";
+import "src/screens/data/card_transition/choreography.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
@@ -88,6 +89,9 @@ Future<void> runYiviApp({
     );
 
     await initSentry(preferences: preferences);
+    // How a card opens from the stack, as set in the debug settings.
+    final motion = preferences.getCardMotionNow();
+    if (motion.isNotEmpty) CardMotion.current.value = CardMotion.decode(motion);
     SecurityContextBinding.ensureInitialized();
 
     const passportIssuanceError = String.fromEnvironment(

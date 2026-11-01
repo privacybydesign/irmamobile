@@ -9,9 +9,10 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/session.dart";
 import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_motion.dart";
-import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/floating_bar_placement.dart";
 import "qr_overlay.dart";
 import "scan_status.dart";
+import "torch_button.dart";
 
 /// The camera with the scan window and, under the window, what the scanner
 /// says in a pill; the torch in the middle of a panel on the sheet itself:
@@ -32,8 +33,8 @@ class QRScanner extends StatefulWidget {
 
 class QRScannerState extends State<QRScanner>
     with SingleTickerProviderStateMixin {
-  bool found = false;
-  bool error = false;
+  bool _found = false;
+  bool _error = false;
   Timer? _errorTimer;
 
   final _torch = ScannerTorch();
@@ -75,11 +76,11 @@ class QRScannerState extends State<QRScanner>
     );
   }
 
-  ScanState get _state => found
-      ? ScanState.found
-      : error
-      ? ScanState.error
-      : ScanState.scanning;
+  ScanState get _state => switch ((_found, _error)) {
+    (true, _) => ScanState.found,
+    (_, true) => ScanState.error,
+    _ => ScanState.scanning,
+  };
 
   /// The brackets' sideways offset during the shake: a few swings that die
   /// out.
@@ -111,8 +112,8 @@ class QRScannerState extends State<QRScanner>
                   builder: (context, _) => CustomPaint(
                     painter: QROverlay(
                       window: window,
-                      found: found,
-                      error: error,
+                      found: _found,
+                      error: _error,
                       shake: _shakeOffset,
                     ),
                   ),
@@ -120,8 +121,8 @@ class QRScannerState extends State<QRScanner>
                 Positioned.fromRect(
                   rect: window,
                   child: IgnorePointer(
-                    child: found || error
-                        ? _ResultDisc(success: found)
+                    child: _found || _error
+                        ? _ResultDisc(success: _found)
                         : const SizedBox.shrink(),
                   ),
                 ),
@@ -177,7 +178,7 @@ class QRScannerState extends State<QRScanner>
     _errorTimer?.cancel();
 
     // Don't continue if this screen has already been 'used'
-    if (found) {
+    if (_found) {
       return;
     }
 
@@ -193,16 +194,16 @@ class QRScannerState extends State<QRScanner>
       );
       // The brackets shake once as the code is rejected, not again while
       // the same code stays in view.
-      if (!error && !MediaQuery.disableAnimationsOf(context)) {
+      if (!_error && !MediaQuery.disableAnimationsOf(context)) {
         _shake.forward(from: 0);
       }
       setState(() {
-        error = true;
+        _error = true;
       });
       _errorTimer = Timer(const Duration(milliseconds: 2000), () {
         if (mounted) {
           setState(() {
-            error = false;
+            _error = false;
           });
         }
       });
@@ -216,8 +217,8 @@ class QRScannerState extends State<QRScanner>
       TextDirection.ltr,
     );
     setState(() {
-      found = true;
-      error = false;
+      _found = true;
+      _error = false;
     });
 
     Future.delayed(const Duration(milliseconds: 500), () {

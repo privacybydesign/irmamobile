@@ -55,6 +55,7 @@ class _ScannerState extends State<_Scanner> {
 
   @override
   void dispose() {
+    widget.torch.connect(null);
     _controller.removeListener(_reportTorch);
     unawaited(_controller.dispose());
     super.dispose();

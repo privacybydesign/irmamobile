@@ -21,7 +21,7 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
-import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
+import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -327,7 +327,7 @@ void main() {
 
       expect(find.text("Go back to the website"), findsOneWidget);
       expect(find.textContaining("Tap ◀"), findsOneWidget);
-      // No browser named: she may have come from any app.
+      // No browser named: they may have come from any app.
       expect(find.textContaining("Safari"), findsNothing);
     });
 

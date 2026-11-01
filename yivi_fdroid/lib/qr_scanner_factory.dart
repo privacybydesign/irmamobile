@@ -37,6 +37,12 @@ class _ScannerState extends State<_Scanner> {
     widget.torch.connect(_toggle);
   }
 
+  @override
+  void dispose() {
+    widget.torch.connect(null);
+    super.dispose();
+  }
+
   void _onCamera(CameraController? camera, Exception? error) {
     _camera = camera;
     _on = false;

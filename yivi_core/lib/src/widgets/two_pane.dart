@@ -131,39 +131,8 @@ EdgeInsets _clear(BuildContext context, EdgeInsets base) {
   );
 }
 
-/// Space the bottom of a tab's list keeps free, above the bottom safe area:
-/// room for the tab bar on phones (floating on iOS, docked on Android, see
-/// HomeNavigation), a plain margin where the tabs are a sidebar or a rail.
-double bottomBarSpace(BuildContext context) {
-  if (useHomePanes(context)) return 24;
-  // Docked: the bar's 66 above the inset, and 12 to spare.
-  return Theme.of(context).platform == TargetPlatform.iOS ? 112 : 78;
-}
-
-/// Where the large title of a home tab (Data, Notifications, More) starts,
-/// below the status bar: under the bar's row (52, the Data tab's buttons are
-/// in it) and 2 more.
-const double tabTitleTop = 52 + 2;
-
-/// Where it ends ([TabLargeTitle] is 44 high), for its `TitleScrollEdge`.
-const double tabTitleBottom = tabTitleTop + 44;
-
-/// The padding of a tab page's scrolling content: 16 at the sides, the large
-/// title at [tabTitleTop] below the status bar, and above the bottom bar.
-/// Held sideways the title starts level with the search field of the other
-/// tabs (12 from the top).
-EdgeInsets tabPagePadding(BuildContext context) {
-  final padding = MediaQuery.paddingOf(context);
-  return EdgeInsets.fromLTRB(
-    16,
-    padding.top + (usePhoneLandscape(context) ? 4 : tabTitleTop),
-    16,
-    padding.bottom + bottomBarSpace(context),
-  );
-}
-
-/// The title at the top of a page shown in a detail pane (Instellingen,
-/// Veelgestelde vragen) instead of its app bar.
+/// The title at the top of a page shown in a detail pane (Settings, the
+/// FAQ) instead of its app bar.
 class PaneTitle extends StatelessWidget {
   final String translationKey;
 

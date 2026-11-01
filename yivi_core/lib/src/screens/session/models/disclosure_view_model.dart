@@ -4,6 +4,7 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../util/string.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 
 // What the disclosure screens show, worked out from the session state irmago
@@ -47,7 +48,7 @@ String? hostOf(String? url) {
   if (url == null || url.isEmpty) return null;
   final host = Uri.tryParse(url)?.host;
   if (host == null || host.isEmpty) return null;
-  return host.startsWith("www.") ? host.substring(4) : host;
+  return host.withoutWww();
 }
 
 /// [name] for use inside a sentence ("Which email address?"): the first
@@ -281,6 +282,11 @@ bool canChange(DisclosurePickOne pickOne) =>
     (pickOne.ownedOptions ?? const []).length + addableOptions(pickOne).length >
     1;
 
+/// Whether adding [fix] for [bundle] replaces a card (one the app holds only
+/// once), rather than adding one next to it.
+bool replacesCard(CredentialDescriptor fix, DisclosureBundle bundle) =>
+    fix.isSingleton || bundle.credentials.any((c) => c.isSingleton);
+
 /// The type to add to replace [bundle] when it has a problem: an addable
 /// option of the same credential type, or else the problem card's own
 /// issuer (irmago offers no other option for a type the user can hold only
@@ -325,7 +331,7 @@ enum NextKind {
   /// one replaces it.
   fetchAgain,
 
-  /// "Kies wat je toevoegt": several kinds to choose from.
+  /// "Choose what to add": several kinds to choose from.
   pick,
 
   /// "Allebei toevoegen": a set of cards only accepted together.
@@ -373,7 +379,7 @@ WalletMismatch? walletMismatch(
   List<Credential> wallet,
 ) {
   if (!isEmptySpot(pickOne)) return null;
-  // Only a kind she can get again in Yivi: otherwise the spot says where to
+  // Only a kind the user can get again in Yivi: otherwise the spot says where to
   // get it.
   for (final d in addableOptions(pickOne)) {
     for (final card in wallet) {
@@ -540,7 +546,7 @@ ShareButtonState shareButton(
         ? NextStep(i, NextKind.pick)
         : NextStep(
             i,
-            fix!.isSingleton || bundle.credentials.any((c) => c.isSingleton)
+            replacesCard(fix!, bundle)
                 ? NextKind.fetchAgain
                 : NextKind.addAgain,
             fix,

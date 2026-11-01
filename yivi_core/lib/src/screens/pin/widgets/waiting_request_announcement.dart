@@ -8,7 +8,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_dialog.dart";
-import "../../session/widgets/session_requestor_header.dart";
+import "../../session/widgets/requestor_card.dart";
 
 /// The request waiting behind the lock screen, above the PIN, as one
 /// sentence: who it is from and what they want, as far as Yivi knows that
@@ -95,13 +95,7 @@ class _Parts {
       );
     }
 
-    final requestor = preview.requestor;
-    final named =
-        requestor != null &&
-        (request.inFlight ||
-            preview.knowledge == SessionPreviewKnowledge.registered ||
-            preview.knowledge == SessionPreviewKnowledge.unregistered);
-    if (named) {
+    if (_knownRequestor(request) case final requestor?) {
       final params = {"name": requestor.name};
       return _Parts(
         sentence: request.inFlight
@@ -122,12 +116,7 @@ class _Parts {
     return _Parts(
       sentence: context.tr("waiting_request.generic.${kind ?? "unknown"}"),
       party: null,
-      icon: switch (badge) {
-        _Badge.share => Icons.arrow_upward_rounded,
-        _Badge.add => Icons.add_rounded,
-        _Badge.sign => Icons.edit_rounded,
-        null => Icons.question_mark_rounded,
-      },
+      icon: badge == null ? Icons.question_mark_rounded : _badgeIcon(badge),
       badge: null,
     );
   }
@@ -173,11 +162,7 @@ class _Avatar extends StatelessWidget {
               bottom: 0,
               child: CornerBadge(
                 key: ValueKey(("waiting_request_badge", badge.name)),
-                icon: switch (badge) {
-                  _Badge.share => Icons.arrow_upward_rounded,
-                  _Badge.add => Icons.add_rounded,
-                  _Badge.sign => Icons.edit_rounded,
-                },
+                icon: _badgeIcon(badge),
                 fill: switch (badge) {
                   _Badge.share => palette.link,
                   _Badge.add => palette.successText,
@@ -203,12 +188,9 @@ String waitingLineKey(WaitingRequest request) {
   final preview = request.preview;
   if (request.inFlight) return "waiting_request.line.continue";
   if (preview.email != null) return "waiting_request.line.see";
-  return switch (preview.knowledge) {
-    SessionPreviewKnowledge.registered || SessionPreviewKnowledge.unregistered
-        when preview.requestor != null =>
-      "waiting_request.line.see",
-    _ => "waiting_request.line.who",
-  };
+  return _knownRequestor(request) != null
+      ? "waiting_request.line.see"
+      : "waiting_request.line.who";
 }
 
 /// "Stop this request?" before the waiting [request] is dropped; true when
@@ -219,13 +201,7 @@ Future<bool> confirmStopWaitingRequest(
 ) async {
   final preview = request?.preview;
   final email = preview?.email != null;
-  // A host (OpenID4VP/VCI) isn't who asks: no name then.
-  final name =
-      request?.inFlight == true ||
-          preview?.knowledge == SessionPreviewKnowledge.registered ||
-          preview?.knowledge == SessionPreviewKnowledge.unregistered
-      ? preview?.requestor?.name
-      : null;
+  final name = request == null ? null : _knownRequestor(request)?.name;
   return showConfirmDialog(
     context,
     titleKey: email
@@ -242,3 +218,21 @@ Future<bool> confirmStopWaitingRequest(
     destructive: true,
   );
 }
+
+/// Who asks, when that is known before the PIN: once the session runs, or
+/// for an IRMA request (registered or not). A host (OpenID4VP/VCI) isn't
+/// who asks: null then.
+TrustedParty? _knownRequestor(WaitingRequest request) {
+  final preview = request.preview;
+  final known =
+      request.inFlight ||
+      preview.knowledge == SessionPreviewKnowledge.registered ||
+      preview.knowledge == SessionPreviewKnowledge.unregistered;
+  return known ? preview.requestor : null;
+}
+
+IconData _badgeIcon(_Badge badge) => switch (badge) {
+  _Badge.share => Icons.arrow_upward_rounded,
+  _Badge.add => Icons.add_rounded,
+  _Badge.sign => Icons.edit_rounded,
+};

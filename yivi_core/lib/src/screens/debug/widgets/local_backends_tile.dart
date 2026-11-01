@@ -15,7 +15,7 @@ import "../../more/widgets/tiles.dart";
 class LocalBackendsTile extends ConsumerWidget {
   const LocalBackendsTile({super.key});
 
-  static String backendsSummary(WidgetRef ref) {
+  static String _backendsSummary(WidgetRef ref) {
     final backends = ref.read(localBackendsProvider);
     return backends == null
         ? "Off"
@@ -31,7 +31,7 @@ class LocalBackendsTile extends ConsumerWidget {
       context: context,
       builder: (context) => GlassDialog(
         title: "Local backends",
-        message: LocalBackendsTile.backendsSummary(ref),
+        message: LocalBackendsTile._backendsSummary(ref),
         body: PillTextField(
           fieldKey: const Key("local_backend_host_field"),
           controller: controller,

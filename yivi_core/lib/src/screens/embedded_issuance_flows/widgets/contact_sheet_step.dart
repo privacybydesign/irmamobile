@@ -10,14 +10,11 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
-import "../../../widgets/icon_square.dart";
+import "../../../widgets/glass/sheet_actions.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/resend_countdown.dart";
-import "../../../widgets/surface_card.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
@@ -74,13 +71,8 @@ class ContactSheetStep extends ConsumerStatefulWidget {
       _stageOf(ref, kind, watch: watch) == _Stage.code;
 
   /// Back from the code to the address, filled in, to change it.
-  static void backToAddress(WidgetRef ref, ContactKind kind) {
-    if (kind == ContactKind.email) {
-      ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
-    } else {
-      ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
-    }
-  }
+  static void backToAddress(WidgetRef ref, ContactKind kind) =>
+      _Flow.of(kind).back(ref);
 
   @override
   ConsumerState<ContactSheetStep> createState() => _ContactSheetStepState();
@@ -90,26 +82,119 @@ class ContactSheetStep extends ConsumerStatefulWidget {
 enum _Stage { entering, sending, code }
 
 /// [kind]'s stage: watched from a build, or read once ([watch] false).
-_Stage _stageOf(WidgetRef ref, ContactKind kind, {required bool watch}) {
-  if (kind == ContactKind.email) {
-    final p = emailIssuanceProvider;
-    return _emailStage((watch ? ref.watch(p) : ref.read(p)).stage);
-  }
-  final p = smsIssuanceProvider;
-  return _smsStage((watch ? ref.watch(p) : ref.read(p)).stage);
+_Stage _stageOf(WidgetRef ref, ContactKind kind, {required bool watch}) =>
+    _Flow.of(kind).state(ref, watch: watch).stage;
+
+/// What a flow's provider holds, in the terms of this step.
+typedef _FlowState = ({_Stage stage, String target, Object error});
+
+/// The e-mail or the SMS flow, through its provider: the one place the two
+/// differ in what they call.
+sealed class _Flow {
+  const _Flow();
+
+  factory _Flow.of(ContactKind kind) =>
+      kind == ContactKind.email ? const _EmailFlow() : const _PhoneFlow();
+
+  /// The flow's state: watched from a build, or read once ([watch] false).
+  _FlowState state(WidgetRef ref, {required bool watch});
+
+  int get codeLength;
+
+  void send(WidgetRef ref, String target, String language);
+
+  Future<SessionPointer?> verify(WidgetRef ref, String code);
+
+  void resetError(WidgetRef ref);
+
+  /// Back from the code to the address.
+  void back(WidgetRef ref);
+
+  /// When a new code can be sent to [target].
+  DateTime? resendAt(WidgetRef ref, String target);
 }
 
-_Stage _emailStage(EmailIssuanceStage s) => switch (s) {
-  EmailIssuanceStage.enteringEmail => _Stage.entering,
-  EmailIssuanceStage.waiting => _Stage.sending,
-  EmailIssuanceStage.enteringVerificationCode => _Stage.code,
-};
+class _EmailFlow extends _Flow {
+  const _EmailFlow();
 
-_Stage _smsStage(SmsIssuanceStage s) => switch (s) {
-  SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
-  SmsIssuanceStage.waiting => _Stage.sending,
-  SmsIssuanceStage.enteringVerificationCode => _Stage.code,
-};
+  static final _p = emailIssuanceProvider;
+
+  @override
+  _FlowState state(WidgetRef ref, {required bool watch}) {
+    final s = watch ? ref.watch(_p) : ref.read(_p);
+    return (
+      stage: switch (s.stage) {
+        EmailIssuanceStage.enteringEmail => _Stage.entering,
+        EmailIssuanceStage.waiting => _Stage.sending,
+        EmailIssuanceStage.enteringVerificationCode => _Stage.code,
+      },
+      target: s.email,
+      error: s.error,
+    );
+  }
+
+  @override
+  int get codeLength => emailCodeLength;
+
+  @override
+  void send(WidgetRef ref, String target, String language) =>
+      ref.read(_p.notifier).sendEmail(email: target, language: language);
+
+  @override
+  Future<SessionPointer?> verify(WidgetRef ref, String code) =>
+      ref.read(_p.notifier).verifyCode(code: code);
+
+  @override
+  void resetError(WidgetRef ref) => ref.read(_p.notifier).resetError();
+
+  @override
+  void back(WidgetRef ref) => ref.read(_p.notifier).goBackToEnteringEmail();
+
+  @override
+  DateTime? resendAt(WidgetRef ref, String target) =>
+      ref.read(_p.notifier).resendAt(target);
+}
+
+class _PhoneFlow extends _Flow {
+  const _PhoneFlow();
+
+  static final _p = smsIssuanceProvider;
+
+  @override
+  _FlowState state(WidgetRef ref, {required bool watch}) {
+    final s = watch ? ref.watch(_p) : ref.read(_p);
+    return (
+      stage: switch (s.stage) {
+        SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
+        SmsIssuanceStage.waiting => _Stage.sending,
+        SmsIssuanceStage.enteringVerificationCode => _Stage.code,
+      },
+      target: s.phoneNumber,
+      error: s.error,
+    );
+  }
+
+  @override
+  int get codeLength => smsCodeLength;
+
+  @override
+  void send(WidgetRef ref, String target, String language) =>
+      ref.read(_p.notifier).sendSms(phoneNumber: target, language: language);
+
+  @override
+  Future<SessionPointer?> verify(WidgetRef ref, String code) =>
+      ref.read(_p.notifier).verifyCode(code: code);
+
+  @override
+  void resetError(WidgetRef ref) => ref.read(_p.notifier).resetError();
+
+  @override
+  void back(WidgetRef ref) => ref.read(_p.notifier).goBackToEnterPhone();
+
+  @override
+  DateTime? resendAt(WidgetRef ref, String target) =>
+      ref.read(_p.notifier).resendAt(target);
+}
 
 class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   final _focusNode = FocusNode();
@@ -125,6 +210,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   var _sentAgain = false;
 
   bool get _email => widget.kind == ContactKind.email;
+
+  _Flow get _flow => _Flow.of(widget.kind);
 
   /// The `contact_sheet.<part>_email` or `_phone` text.
   String _k(String part) =>
@@ -155,23 +242,10 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   // ---------- the two flows, through their providers ----------
 
-  ({_Stage stage, String target, Object error}) _read() {
-    if (_email) {
-      final s = ref.watch(emailIssuanceProvider);
-      return (stage: _emailStage(s.stage), target: s.email, error: s.error);
-    }
-    final s = ref.watch(smsIssuanceProvider);
-    return (stage: _smsStage(s.stage), target: s.phoneNumber, error: s.error);
-  }
-
   /// The stage outside build, where watching is not allowed.
   _Stage _stageNow() => _stageOf(ref, widget.kind, watch: false);
 
-  bool _errorNow() => !_none(
-    _email
-        ? ref.read(emailIssuanceProvider).error
-        : ref.read(smsIssuanceProvider).error,
-  );
+  bool _errorNow() => !_none(_flow.state(ref, watch: false).error);
 
   static bool _none(Object error) =>
       error is EmailIssuanceNoError || error is SmsIssuanceNoError;
@@ -180,17 +254,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       error is EmailIssuanceInvalidCodeError ||
       error is SmsIssuanceInvalidCodeError;
 
-  void _send(String target) {
-    if (_email) {
-      ref
-          .read(emailIssuanceProvider.notifier)
-          .sendEmail(email: target, language: _language);
-    } else {
-      ref
-          .read(smsIssuanceProvider.notifier)
-          .sendSms(phoneNumber: target, language: _language);
-    }
-  }
+  void _send(String target) => _flow.send(ref, target, _language);
 
   void _submitTarget() {
     final target = _email
@@ -204,13 +268,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   Future<void> _verify(String code) async {
     if (_verifying) return;
     setState(() => _verifying = true);
-    final SessionPointer? session = _email
-        ? await ref
-              .read(emailIssuanceProvider.notifier)
-              .verifyCode(code: code.toUpperCase())
-        : await ref
-              .read(smsIssuanceProvider.notifier)
-              .verifyCode(code: code.toUpperCase());
+    final session = await _flow.verify(ref, code.toUpperCase());
     if (!mounted) return;
     setState(() => _verifying = false);
     if (session == null) {
@@ -223,13 +281,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     await handlePointer(context, session);
   }
 
-  void _resetError() {
-    if (_email) {
-      ref.read(emailIssuanceProvider.notifier).resetError();
-    } else {
-      ref.read(smsIssuanceProvider.notifier).resetError();
-    }
-  }
+  void _resetError() => _flow.resetError(ref);
 
   /// Back on the address, filled in, to change it: the code page slides
   /// away (the address page under it focuses its field as it comes back).
@@ -288,7 +340,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   @override
   Widget build(BuildContext context) {
-    final state = _read();
+    final state = _flow.state(ref, watch: true);
     final code = widget.code;
     final atCode = state.stage == _Stage.code;
     final sending = state.stage == _Stage.sending;
@@ -306,9 +358,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     final Widget body;
     final SheetAction action;
     if (code) {
-      final complete =
-          _codeController.text.length ==
-          (_email ? emailCodeLength : smsCodeLength);
+      final complete = _codeController.text.length == _flow.codeLength;
       action = SheetAction(
         key: const Key("contact_sheet_verify"),
         label: context.tr("contact_sheet.check_code"),
@@ -317,9 +367,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       );
       final sideways = useSheetColumns(context);
       final resend = ResendCountdown(
-        until: _email
-            ? ref.read(emailIssuanceProvider.notifier).resendAt(state.target)
-            : ref.read(smsIssuanceProvider.notifier).resendAt(state.target),
+        until: _flow.resendAt(ref, state.target),
         builder: (context, left) => ContactResendRow(
           hint: _sentAgain
               ? context.tr("contact_sheet.sent_again")
@@ -354,7 +402,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             labelKey: "contact_sheet.code_label_${_email ? "email" : "phone"}",
             controller: _codeController,
             focusNode: _codeFocus,
-            length: _email ? emailCodeLength : smsCodeLength,
+            length: _flow.codeLength,
             invalid: errorText != null,
             smsRetriever: _email ? null : ref.watch(smsRetrieverProvider),
             onChanged: (text) {
@@ -368,7 +416,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
           if (errorText != null)
             KeyedSubtree(
               key: const Key("contact_sheet_error"),
-              child: FieldError(errorText, align: TextAlign.center),
+              child: ContactCodeError.text(errorText),
             )
           else if (!sideways)
             resend,
@@ -445,148 +493,6 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       child: landscape
           ? body
           : Padding(padding: const EdgeInsets.only(top: 8), child: body),
-    );
-  }
-}
-
-/// Where the code went, folded into one row, with "Change". Also the
-/// enrollment's e-mail step.
-class ContactSentTo extends StatelessWidget {
-  final String label;
-  final String target;
-  final bool email;
-  final String changeLabel;
-  final VoidCallback onChange;
-
-  const ContactSentTo({
-    required this.label,
-    required this.target,
-    required this.email,
-    required this.changeLabel,
-    required this.onChange,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final (fill, ink) = ToneDisc.colors(
-      palette,
-      email ? DialogTone.warning : DialogTone.success,
-    );
-    return SurfaceCard(
-      key: const Key("contact_sheet_sent_to"),
-      padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
-      child: Row(
-        spacing: 12,
-        children: [
-          ExcludeSemantics(
-            child: IconSquare(
-              icon: email ? Icons.mail_rounded : Icons.smartphone_rounded,
-              fill: fill,
-              ink: ink,
-            ),
-          ),
-          Expanded(
-            child: MergeSemantics(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: palette
-                        .body(12.5)
-                        .copyWith(color: palette.secondaryText),
-                  ),
-                  Text(
-                    target,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .body(15, weight: FontWeight.w600)
-                        .copyWith(color: palette.text),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Semantics(
-            button: true,
-            child: Material(
-              color: palette.tint,
-              shape: const StadiumBorder(),
-              child: InkWell(
-                highlightColor: Colors.transparent,
-                key: const Key("contact_sheet_change"),
-                customBorder: const StadiumBorder(),
-                onTap: onChange,
-                child: Container(
-                  constraints: const BoxConstraints(
-                    minHeight: 32,
-                    minWidth: 44,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  alignment: Alignment.center,
-                  child: Text(
-                    changeLabel,
-                    style: palette
-                        .body(13, weight: FontWeight.w600)
-                        .copyWith(color: palette.link),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A hint under the code ("Not there? Check your spam.") and "Send again".
-class ContactResendRow extends StatelessWidget {
-  final String hint;
-  final String label;
-
-  /// Null while a code cannot be sent again yet ("Send again in 0:42"):
-  /// dimmed, without an action.
-  final VoidCallback? onTap;
-
-  const ContactResendRow({
-    required this.hint,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final inline = useSheetColumns(context) && !SheetSplit.isIn(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
-      child: Row(
-        // Sideways, outside the split's narrow column, on one line: the link
-        // right after the hint.
-        spacing: inline ? 16 : 0,
-        children: [
-          Flexible(
-            fit: inline ? FlexFit.loose : FlexFit.tight,
-            child: Semantics(
-              liveRegion: true,
-              child: Text(
-                hint,
-                style: palette
-                    .body(13.5)
-                    .copyWith(color: palette.secondaryText),
-              ),
-            ),
-          ),
-          TextLink(
-            key: const Key("contact_sheet_send_again"),
-            label: label,
-            onPressed: onTap,
-          ),
-        ],
-      ),
     );
   }
 }

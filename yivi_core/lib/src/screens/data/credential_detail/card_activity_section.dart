@@ -4,6 +4,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/activity_query.dart";
 import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/activity_providers.dart";
@@ -16,11 +17,10 @@ import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/surface_card.dart";
 import "../../activity/activity_detail_screen.dart";
 import "../../activity/activity_entry.dart";
-import "../../activity/activity_query.dart";
 import "../../activity/widgets/activity_card.dart";
 import "../../activity/widgets/activity_detail_parts.dart";
 import "../../home/home_screen.dart";
-import "../../home/widgets/irma_nav_bar.dart";
+import "../../home/widgets/home_tab.dart";
 
 /// The Activity section of a card's details: how often it was shared, then
 /// its newest entries as the Activity tab's rows (which of its fields went
@@ -188,7 +188,7 @@ class _AddedRow extends StatelessWidget {
 /// Asks the Activity tab [query] and switches to it.
 void _askActivityTab(BuildContext context, WidgetRef ref, ActivityQuery query) {
   ref.read(activityLogProvider.notifier).setFilter(query);
-  context.read<HomeTabState>().add(IrmaNavBarTab.activity);
+  context.read<HomeTabState>().add(HomeTab.activity);
 }
 
 /// Opens [log] as a page over the card: it slides in from the side, with

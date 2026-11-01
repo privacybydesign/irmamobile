@@ -124,13 +124,11 @@ class _PinIndicator extends StatelessWidget {
     final circleFilledDecoration = BoxDecoration(
       color: isPinVisible ? Colors.transparent : palette.text,
       shape: BoxShape.circle,
-
-      // prevent unnecessary resize
       border: Border.all(color: Colors.transparent, width: 2.0),
     );
 
     final circleOutlinedDecoration = BoxDecoration(
-      color: Colors.transparent, // border color
+      color: Colors.transparent,
       shape: BoxShape.circle,
       border: Border.all(color: ring ?? palette.text, width: 2.0),
     );
@@ -213,8 +211,8 @@ class _PinIndicator extends StatelessWidget {
             ),
       child: ExcludeSemantics(
         // Long PIN can hold up to 16 entries: scale the row down to fit the
-        // field width instead of overflowing. Short PIN's fixed 5 dots already
-        // fill the width (spaceEvenly), so it isn't fitted.
+        // field width instead of overflowing. Short PIN's five rings always
+        // fit, so it isn't fitted.
         child: isMaxPin5 ? row : FittedBox(fit: BoxFit.scaleDown, child: row),
       ),
     );

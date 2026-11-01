@@ -33,22 +33,28 @@ enum AgeDisplay {
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
   final List<schemaless.Attribute>? compareTo;
-  // When true, each leaf/primarray row draws a 1px horizontal divider at
-  // its bottom (suppressed on the last row of any parent group).
+
+  /// When true, each leaf/primarray row draws a 1px horizontal divider at
+  /// its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
-  // Credential type id; selects the attribute group renderers.
+
+  /// Credential type id; selects the attribute group renderers.
   final String? credentialId;
-  // Overrides the registry lookup for [credentialId] (tests).
+
+  /// Overrides the registry lookup for [credentialId] (tests).
   final List<AttributeGroupRenderer>? renderers;
-  // The attributes are being shared (a disclosure), not the whole credential.
+
+  /// The attributes are being shared (a disclosure), not the whole credential.
   final bool disclosure;
   final AgeDisplay ageDisplay;
   final CredentialCardLayout layout;
-  // Claim paths (see [claimPathKey]) whose value does not match what is
-  // needed: they are shown in the error colour.
+
+  /// Claim paths (see [claimPathKey]) whose value does not match what is
+  /// needed: they are shown in the error colour.
   final Set<String> mismatched;
-  // Claim paths whose value is exactly what is asked for: shown in the
-  // success colour.
+
+  /// Claim paths whose value is exactly what is asked for: shown in the
+  /// success colour.
   final Set<String> matched;
 
   /// A tag beside a [matched] value ("✓ Exactly what they ask"), and beside
@@ -59,9 +65,10 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   /// A single value whose label is this (the card's name, "Email address"
   /// on the card "Email address") is shown without its label.
   final String? hideLabel;
-  // The field a search found the card by (a claim path key): its row is lit,
-  // with the searched text ([foundQuery]) marked, and carries [foundKey] so
-  // the screen can bring it into view.
+
+  /// The field a search found the card by (a claim path key): its row is lit,
+  /// with the searched text ([foundQuery]) marked, and carries [foundKey] so
+  /// the screen can bring it into view.
   final String? found;
   final String foundQuery;
   final GlobalKey? foundKey;
@@ -547,7 +554,7 @@ void _insertGroups(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flat row — one value, list of plain values, ages or attribute group, with
-// its padding. The divider below it is drawn by the list (see _EntriesView).
+// its padding. The divider below it is drawn by the list (see `_NestedList`).
 // ─────────────────────────────────────────────────────────────────────────────
 
 bool _rowDrawsBorder(_Node node) => switch (node) {
@@ -844,7 +851,6 @@ class _AgeContentState extends State<_AgeContent> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final layout = widget.layout;
     // Nothing to expand into when there is only one age.
     final canExpand = widget.node.ages.length > 1;
@@ -859,7 +865,12 @@ class _AgeContentState extends State<_AgeContent> {
         ),
         Text(
           _summary(context),
-          style: attributeValueStyle(context, theme.dark, layout: layout),
+          // The list's value colour, as every other value: light in dark mode.
+          style: attributeValueStyle(
+            context,
+            AttributeColors.of(context).value,
+            layout: layout,
+          ),
         ),
         if (_expanded) ...[
           Padding(

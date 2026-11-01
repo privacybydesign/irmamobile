@@ -10,6 +10,7 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/search_query_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
@@ -35,8 +36,9 @@ import "../wallet/wallet_detail_scaffold.dart";
 import "card_activity_section.dart";
 
 /// The widest the card and its details are: any wider, on a tablet or a
-/// phone held sideways, and they would stretch.
-const _maxWidth = 460.0;
+/// phone held sideways, and they would stretch. The card transition lands
+/// the card at this width too.
+const _maxWidth = OpenCardLayer.detailsMaxWidth;
 
 /// Full-screen detail of one card (credential instance).
 ///
@@ -84,8 +86,7 @@ class _CredentialDetailScreenState
   /// Measured after the frame: during the scroll notification the card
   /// still has the position of the previous frame.
   bool _onScroll(ScrollNotification _) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       // Once half the card is under the bar.
       final under = headerUnderBar(context, _headerKey, part: 0.5);
       if (under != null) _scrolledPast.value = under;
@@ -93,10 +94,7 @@ class _CredentialDetailScreenState
     return false;
   }
 
-  void _close() {
-    if (widget.transition case final t?) return t.close();
-    Navigator.of(context).maybePop();
-  }
+  void _close() => closeCardDetails(context, widget.transition);
 
   @override
   Widget build(BuildContext context) {
@@ -708,9 +706,11 @@ String _sourceLabel(BuildContext context, schemaless.Credential c) {
   return FlutterI18n.translate(context, key);
 }
 
-/// Brings the field a search found the card by into view: once the card
-/// has flown open, or right away in the detail pane. A field an attribute
-/// group shows has no row of its own, so nothing scrolls then.
+/// Brings the field a search found the card by into view: once its route
+/// has opened (a card from the list or grid), or right away in the detail
+/// pane and for a card from the stack, which opens in place on a route that
+/// is already open. A field an attribute group shows has no row of its own,
+/// so nothing scrolls then.
 class _FoundField extends StatefulWidget {
   final String? found;
   final Widget Function(GlobalKey key) builder;
@@ -738,8 +738,7 @@ class _FoundFieldState extends State<_FoundField> {
 
   void _revealAfterOpening() {
     if (widget.found == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       final opening = ModalRoute.of(context)?.animation;
       if (opening == null || opening.isCompleted) return _reveal();
       void done(AnimationStatus status) {

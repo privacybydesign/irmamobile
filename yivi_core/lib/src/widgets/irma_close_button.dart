@@ -11,19 +11,10 @@ class IrmaCloseButton extends StatelessWidget {
   /// Fades the button with its page.
   final double opacity;
 
-  /// Dark with a white cross, over a photo or a camera picture.
-  final bool dark;
-
   /// The cross's colour without a disc (white over a photo's dark band).
   final Color? color;
 
-  const IrmaCloseButton({
-    super.key,
-    this.onTap,
-    this.opacity = 1,
-    this.dark = false,
-    this.color,
-  });
+  const IrmaCloseButton({super.key, this.onTap, this.opacity = 1, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +22,6 @@ class IrmaCloseButton extends StatelessWidget {
       label: FlutterI18n.translate(context, "accessibility.close"),
       onTap: onTap ?? Navigator.of(context).pop,
       opacity: opacity,
-      dark: dark,
       iconColor: color,
       icon: CupertinoIcons.xmark,
     );

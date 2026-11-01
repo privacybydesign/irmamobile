@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
-import "corner_brackets.dart";
+import "../../../../widgets/corner_brackets.dart";
 
 const _grid = 200.0;
 

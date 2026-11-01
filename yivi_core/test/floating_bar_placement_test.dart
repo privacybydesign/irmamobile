@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/glass/floating_bar_placement.dart";
+import "package:yivi_core/src/widgets/floating_bar_placement.dart";
 
 /// Measures [FloatingBarPlacement] on [platform] with the given insets.
 Future<T> _measure<T>(

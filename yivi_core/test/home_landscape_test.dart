@@ -18,7 +18,7 @@ import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/pane_handoffs.dart";
 import "package:yivi_core/src/screens/home/widgets/home_navigation.dart";
-import "package:yivi_core/src/screens/home/widgets/irma_nav_bar.dart";
+import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -216,7 +216,7 @@ void main() {
 
       await tester.tap(find.byKey(const Key("nav_button_more")));
       await tester.pumpAndSettle();
-      expect(tabs.state, IrmaNavBarTab.more);
+      expect(tabs.state, HomeTab.more);
     });
 
     androidTest("sideways on Android: the rail docked to the edge", (
@@ -329,10 +329,10 @@ void main() {
         await tester.pump();
       }
       // Nothing changes until the finger lets go.
-      expect(tabs.state, IrmaNavBarTab.data);
+      expect(tabs.state, HomeTab.data);
       await finger.up();
       await tester.pump();
-      expect(tabs.state, IrmaNavBarTab.more);
+      expect(tabs.state, HomeTab.more);
       expect(ticks, hasLength(3));
       await tester.pump(const Duration(milliseconds: 400));
 
@@ -346,7 +346,7 @@ void main() {
       expect(ticks, hasLength(4));
       await again.up();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(tabs.state, IrmaNavBarTab.activity);
+      expect(tabs.state, HomeTab.activity);
     });
 
     iosTest("upright: the selected Activity tab has a filled icon", (
@@ -542,7 +542,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(location(router), "/home");
       expect(container(tester).read(selectedCardProvider), "address");
-      expect(tabs.state, IrmaNavBarTab.data);
+      expect(tabs.state, HomeTab.data);
       expect(
         find.byKey(const Key("credential_detail_pane_address")),
         findsOneWidget,
@@ -576,7 +576,7 @@ void main() {
       await tester.pump();
       await tester.pumpAndSettle();
       expect(location(router), "/home");
-      expect(tabs.state, IrmaNavBarTab.more);
+      expect(tabs.state, HomeTab.more);
       expect(find.byKey(const Key("more_pane_settings")), findsOneWidget);
     });
   });

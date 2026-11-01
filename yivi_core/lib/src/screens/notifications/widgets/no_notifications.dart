@@ -4,6 +4,8 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/translated_text.dart";
+import "../models/credential_status_notification.dart";
+import "notification_card.dart";
 
 /// The Notifications tab before there is anything in it: three faded
 /// notifications of the kinds that can come (a card that expires soon, has
@@ -58,10 +60,13 @@ class _Picture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    const kinds = [
-      (Icons.block, DialogTone.danger),
-      (Icons.warning_amber_rounded, DialogTone.warning),
-      (Icons.schedule, DialogTone.info),
+    final kinds = [
+      for (final type in [
+        CredentialStatusNotificationType.revoked,
+        CredentialStatusNotificationType.expired,
+        CredentialStatusNotificationType.expiringSoon,
+      ])
+        type.look,
     ];
     return SizedBox(
       width: _width + 24,

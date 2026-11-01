@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/surface_card.dart";
 

@@ -10,6 +10,7 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../data/wallet/card_hero.dart";
 import "../models/credential_status_notification.dart";
@@ -70,20 +71,9 @@ class NotificationCard extends ConsumerWidget {
           "issuerName": notification.issuerName,
         },
       );
-      (icon, iconColor) = switch (notification.type) {
-        CredentialStatusNotificationType.expiringSoon => (
-          Icons.schedule,
-          palette.warningText,
-        ),
-        CredentialStatusNotificationType.expired => (
-          Icons.warning_amber_rounded,
-          palette.danger,
-        ),
-        CredentialStatusNotificationType.revoked => (
-          Icons.block,
-          palette.danger,
-        ),
-      };
+      final (kindIcon, tone) = notification.type.look;
+      icon = kindIcon;
+      iconColor = ToneDisc.colors(palette, tone).$2;
 
       final card = (ref.watch(
         walletCardsProvider,
@@ -191,4 +181,23 @@ class NotificationCard extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The icon and tone of each kind of notification: on its card and in the
+/// picture of the empty Notifications tab.
+extension NotificationLook on CredentialStatusNotificationType {
+  (IconData, DialogTone) get look => switch (this) {
+    CredentialStatusNotificationType.expiringSoon => (
+      Icons.schedule,
+      DialogTone.warning,
+    ),
+    CredentialStatusNotificationType.expired => (
+      Icons.warning_amber_rounded,
+      DialogTone.danger,
+    ),
+    CredentialStatusNotificationType.revoked => (
+      Icons.block,
+      DialogTone.danger,
+    ),
+  };
 }

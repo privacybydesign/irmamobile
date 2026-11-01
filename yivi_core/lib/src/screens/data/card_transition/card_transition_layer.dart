@@ -19,7 +19,8 @@ import "choreography.dart";
 /// shown as they are, and take touches. Nothing is built again per frame:
 /// only where they are painted changes ([_RenderOpenCard]).
 class OpenCardLayer extends StatelessWidget {
-  /// Same as the details page's column.
+  /// The widest the open card and its details are, here and on the details
+  /// page, so the card lands where the page draws it.
   static const double detailsMaxWidth = 460;
 
   const OpenCardLayer({super.key});
@@ -475,13 +476,11 @@ class _FollowRender extends SingleChildRenderObjectWidget {
   });
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderFollow(transition, opacity, offset, turn)
-        ..scaleOf = scale
-        ..darkenOf = darken
-        ..fadeTo = fadeTo
-        ..corner = corner
-        ..scaleOrigin = scaleOrigin;
+  RenderObject createRenderObject(BuildContext context) {
+    final render = _RenderFollow(transition);
+    updateRenderObject(context, render);
+    return render;
+  }
 
   @override
   void updateRenderObject(BuildContext context, _RenderFollow render) => render
@@ -497,7 +496,7 @@ class _FollowRender extends SingleChildRenderObjectWidget {
 }
 
 class _RenderFollow extends RenderProxyBox {
-  _RenderFollow(this._transition, this.opacityOf, this.offsetOf, this.turnOf);
+  _RenderFollow(this._transition);
 
   double Function(CardTransition t)? opacityOf;
   Offset Function(CardTransition t)? offsetOf;

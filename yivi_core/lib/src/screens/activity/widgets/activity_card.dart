@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/activity_query.dart";
 import "../../../models/log_entry.dart";
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
@@ -14,7 +15,6 @@ import "../../../util/navigation.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../activity_entry.dart";
-import "../activity_query.dart";
 import "activity_detail_parts.dart";
 
 /// One log entry as a row of the Activity tab: the other party's logo with
@@ -36,9 +36,9 @@ class ActivityCard extends ConsumerWidget {
   /// row of a band.
   final bool divider;
 
-  /// Instead of opening the entry on the Activity tab (a card's activity
-  /// opens it over the card).
-  final VoidCallback? onTap;
+  /// Opens the entry: on the Activity tab, or over the card for a card's
+  /// activity.
+  final VoidCallback onTap;
 
   const ActivityCard({
     super.key,
@@ -46,7 +46,7 @@ class ActivityCard extends ConsumerWidget {
     this.selected = false,
     this.focusCard,
     this.divider = false,
-    this.onTap,
+    required this.onTap,
   });
 
   /// The other party's logo at the start of the row.
@@ -101,7 +101,7 @@ class ActivityCard extends ConsumerWidget {
             ? palette.primary.withValues(alpha: palette.isDark ? 0.22 : 0.12)
             : Colors.transparent,
         child: InkWell(
-          onTap: onTap ?? () => openActivity(context, logEntry),
+          onTap: onTap,
           child: Stack(
             children: [
               Padding(
@@ -273,15 +273,13 @@ class ActivityCardThumbs extends StatelessWidget {
 /// When an entry happened, for its row: the time today, "Yesterday", or
 /// else the day and month ("11 Oct").
 String formatActivityTimestamp(BuildContext context, DateTime time) {
-  final lang = context.lang;
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  final entryDay = DateTime(time.year, time.month, time.day);
-  final daysAgo = today.difference(entryDay).inDays;
-
-  if (daysAgo == 0) return DateFormat.jm(lang).format(time);
+  final daysAgo = activityDaysAgo(time);
+  if (daysAgo == 0) return activityTime(context, time);
   if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
-  if (time.year == now.year) return DateFormat.MMMd(lang).format(time);
+  final lang = context.lang;
+  if (time.year == DateTime.now().year) {
+    return DateFormat.MMMd(lang).format(time);
+  }
   return DateFormat.yMMMd(lang).format(time);
 }
 

@@ -1,6 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
@@ -10,7 +11,6 @@ import "../../widgets/compact_bar.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/two_pane.dart";
 import "activity_entry.dart";
-import "activity_query.dart";
 import "widgets/activity_detail_parts.dart";
 
 class ActivityDetailsScreenArgs {

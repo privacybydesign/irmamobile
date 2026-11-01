@@ -28,6 +28,12 @@ class _HelpScreenState extends State<HelpScreen> {
   final ScrollController _controller = ScrollController();
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
 

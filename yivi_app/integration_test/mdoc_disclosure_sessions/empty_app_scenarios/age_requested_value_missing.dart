@@ -17,7 +17,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// be Yes"; the empty spot does not show requested values yet.) irmago
 /// prerequisite: the
 /// unobtainable mdoc descriptor carries the claim's display name and the
-/// requested value (docs/mdoc-integration-plan.md, irmago prerequisite 2).
+/// requested value.
 Future<void> ageRequestedValueMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

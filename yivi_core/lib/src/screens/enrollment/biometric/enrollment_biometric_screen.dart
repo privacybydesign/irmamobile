@@ -3,17 +3,16 @@ import "dart:io";
 
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/flutter_svg.dart";
 import "package:local_auth/local_auth.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../package_name.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
 import "../../pin/providers/biometric_provider.dart";
+import "../../pin/widgets/biometric_glyph.dart";
 import "../widgets/enrollment_page.dart";
 
 /// The enrollment step that offers Face ID, Touch ID or the fingerprint to
@@ -42,17 +41,14 @@ class _EnrollmentBiometricScreenState
 
   Future<void> _use() async {
     setState(() => _busy = true);
-    final service = ref.read(biometricServiceProvider);
-    final ok = await service.authenticate(
-      localizedReason: FlutterI18n.translate(
-        context,
-        "pin.biometric_confirm_reason",
-      ),
-    );
-    if (ok) {
-      unawaited(service.setEnabled(true));
-      unawaited(service.dismissPrompt());
-    }
+    await ref
+        .read(biometricServiceProvider)
+        .confirmAndEnable(
+          localizedReason: FlutterI18n.translate(
+            context,
+            "pin.biometric_confirm_reason",
+          ),
+        );
     if (mounted) widget.onDone();
   }
 
@@ -83,18 +79,7 @@ class _EnrollmentBiometricScreenState
           size: tile,
           radius: YiviCorners.iconTile,
           side: YiviEdges.block(context),
-          child: kind == "face_id"
-              ? SvgPicture.asset(
-                  yiviAsset("ui/face_id.svg"),
-                  width: glyph,
-                  height: glyph,
-                  colorFilter: ColorFilter.mode(palette.link, BlendMode.srcIn),
-                )
-              : Icon(
-                  kind == "face" ? Icons.face : Icons.fingerprint,
-                  size: glyph,
-                  color: palette.link,
-                ),
+          child: BiometricGlyph(type: type, color: palette.link, size: glyph),
         ),
       ),
     );

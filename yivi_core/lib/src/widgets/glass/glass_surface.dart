@@ -3,7 +3,6 @@ import "dart:math";
 import "package:flutter/foundation.dart" show listEquals;
 import "package:material_ui/material_ui.dart";
 
-import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 
 /// The surface of what floats over the page (the tab bar, a menu, a toast,
@@ -21,14 +20,6 @@ class GlassSurface extends StatelessWidget {
   /// Fades the surface in or out: its fill, edge and shadow, and [child].
   final double opacity;
 
-  /// Over a camera picture or a photo: dark, in either theme. Give its
-  /// content white.
-  final bool dark;
-
-  /// The thin edge round it; off for content that fills it edge to edge in
-  /// a dark colour.
-  final bool rim;
-
   const GlassSurface({
     super.key,
     required this.child,
@@ -36,21 +27,15 @@ class GlassSurface extends StatelessWidget {
     this.padding,
     this.fill,
     this.opacity = 1,
-    this.dark = false,
-    this.rim = true,
   });
-
-  /// The fill and edge of a [dark] surface.
-  static const darkFill = Color(0xFF282C32);
-  static const darkRim = Color(0x29FFFFFF);
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final a = opacity.clamp(0.0, 1.0);
     Color fade(Color c) => a == 1 ? c : c.withValues(alpha: c.a * a);
-    final surface = fill ?? (dark ? darkFill : palette.surface);
-    final edge = dark ? darkRim : palette.divider;
+    final surface = fill ?? palette.surface;
+    final edge = palette.divider;
     final padded = Padding(
       padding: padding ?? EdgeInsets.zero,
       child: a == 1 ? child : Opacity(opacity: a, child: child),
@@ -79,9 +64,7 @@ class GlassSurface extends StatelessWidget {
           decoration: ShapeDecoration(shape: shape, color: fade(surface)),
           child: DecoratedBox(
             // The edge in front, so content under it keeps a crisp line.
-            decoration: ShapeDecoration(
-              shape: rim ? _withSide(shape, fade(edge)) : shape,
-            ),
+            decoration: ShapeDecoration(shape: _withSide(shape, fade(edge))),
             position: DecorationPosition.foreground,
             child: padded,
           ),
@@ -173,71 +156,4 @@ class _OuterShadowPainter extends CustomPainter {
       old.shape != shape ||
       old.under != under ||
       !listEquals(old.shadows, shadows);
-}
-
-/// Grows (or shrinks) its child slightly while pressed.
-class _PressScale extends StatefulWidget {
-  final Widget child;
-  final double scale;
-
-  const _PressScale({required this.child, required this.scale});
-
-  @override
-  State<_PressScale> createState() => _PressScaleState();
-}
-
-class _PressScaleState extends State<_PressScale> {
-  bool _down = false;
-
-  // The pointer can lift after the button is gone, e.g. when a pull on the
-  // card closes the sheet it is in.
-  void _press(bool down) {
-    if (mounted && down != _down) setState(() => _down = down);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    return Listener(
-      onPointerDown: (_) => _press(true),
-      onPointerUp: (_) => _press(false),
-      onPointerCancel: (_) => _press(false),
-      child: AnimatedScale(
-        scale: _down && !reduceMotion ? widget.scale : 1,
-        duration: const Duration(milliseconds: 220),
-        curve: YiviMotion.ease,
-        child: widget.child,
-      ),
-    );
-  }
-}
-
-/// How a button answers a press, for buttons outside this file: glass grows
-/// ([glass]), a button gives way ([button]), a card a little less ([card]).
-class PressScale extends StatelessWidget {
-  /// Glass buttons, glass pills and tags, as on iOS.
-  static const glass = 1.08;
-
-  /// Pills, links, plain icons, tabs.
-  static const button = 0.97;
-
-  /// Cards and card-sized spots.
-  static const card = 0.98;
-
-  final Widget child;
-  final double scale;
-
-  /// A disabled button does not move.
-  final bool enabled;
-
-  const PressScale({
-    super.key,
-    required this.child,
-    this.scale = button,
-    this.enabled = true,
-  });
-
-  @override
-  Widget build(BuildContext context) =>
-      enabled ? _PressScale(scale: scale, child: child) : child;
 }

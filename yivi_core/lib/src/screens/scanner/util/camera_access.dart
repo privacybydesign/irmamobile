@@ -30,12 +30,13 @@ final cameraPermissionProvider = Provider<CameraPermission>(
 class _SystemCameraPermission implements CameraPermission {
   const _SystemCameraPermission();
 
-  static CameraAccess _access(PermissionStatus status) =>
-      status.isGranted || status.isLimited
-      ? CameraAccess.granted
-      : status.isPermanentlyDenied || status.isRestricted
-      ? CameraAccess.denied
-      : CameraAccess.askable;
+  static CameraAccess _access(PermissionStatus status) {
+    if (status.isGranted || status.isLimited) return CameraAccess.granted;
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      return CameraAccess.denied;
+    }
+    return CameraAccess.askable;
+  }
 
   @override
   Future<CameraAccess> status() async =>

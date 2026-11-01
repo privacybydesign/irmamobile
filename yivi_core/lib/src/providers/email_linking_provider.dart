@@ -7,13 +7,13 @@ import "package:http/http.dart" as http;
 
 import "../models/email_code_pointer.dart";
 import "../models/session.dart";
-import "./provider_helpers.dart" as helpers;
 import "email_issuance_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
+import "provider_helpers.dart" as helpers;
 import "schemaless_credentials_provider.dart";
 
-/// How long "Vraag het me later" hides the banner.
+/// How long "Ask me later" hides the banner.
 const emailBannerSnoozeDuration = Duration(days: 7);
 
 /// Endpoint of the keyshare server that starts the disclosure linking the
@@ -97,7 +97,7 @@ final emailLinkAvailableProvider = Provider<bool>((ref) {
   return offered && !linked;
 });
 
-/// Whether the banner on the Gegevens tab shows. It stays hidden until every
+/// Whether the banner on the Data tab shows. It stays hidden until every
 /// preference has loaded, so it never flashes up for a user who dismissed it.
 /// It also waits for the first credential: right after enrollment the tab is
 /// empty, and the banner should not be the first thing a new user sees.

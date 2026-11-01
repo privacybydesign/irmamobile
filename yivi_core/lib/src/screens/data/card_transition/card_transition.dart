@@ -3,7 +3,6 @@ import "dart:math";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../wallet/wallet_transition.dart" show WalletTransition;
 import "choreography.dart";
 
 enum TransitionPhase { opening, open, closing }
@@ -144,7 +143,6 @@ class CardTransition extends ChangeNotifier {
 
   TransitionSnapshot get snapshot => choreography.snapshot;
   TransitionPhase get phase => _phase;
-  bool get closing => _phase == TransitionPhase.closing;
   bool get held => _held != null;
 
   /// Called by the layer once it has drawn its first frame (the details
@@ -242,11 +240,7 @@ class CardTransition extends ChangeNotifier {
 
   /// The top of the card just below the picked one, as it falls: the
   /// picked card and its details show above it, never over it.
-  double get revealLine {
-    final next = snapshot.picked + 1;
-    if (next >= snapshot.count) return snapshot.screenHeight;
-    return _slot(next).top + fall(next);
-  }
+  double get revealLine => nextCard?.top ?? snapshot.screenHeight;
 
   double get headerOpacity => choreography.headerOpacity(
     picked: progress(snapshot.picked),
@@ -430,7 +424,7 @@ class CardTransitionsState extends State<CardTransitions>
     if (busy) return false;
     late final CardTransition transition;
     transition = CardTransition(
-      choreography: Choreography(snapshot, WalletTransition.motion.value),
+      choreography: Choreography(snapshot, CardMotion.current.value),
       details: details,
       vsync: this,
       list: list,

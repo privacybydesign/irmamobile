@@ -171,20 +171,6 @@ LogCounts _$LogCountsFromJson(Map<String, dynamic> json) => LogCounts(
       {},
 );
 
-CredentialActivity _$CredentialActivityFromJson(Map<String, dynamic> json) =>
-    CredentialActivity(
-      hash: json['hash'] as String,
-      lastUsed: json['last_used'] == null
-          ? null
-          : DateTime.parse(json['last_used'] as String),
-      lastReceived: json['last_received'] == null
-          ? null
-          : DateTime.parse(json['last_received'] as String),
-      shareCount: (json['share_count'] as num?)?.toInt() ?? 0,
-      inferredShareCount: (json['inferred_share_count'] as num?)?.toInt() ?? 0,
-      eventCount: (json['event_count'] as num?)?.toInt() ?? 0,
-    );
-
 PartySummary _$PartySummaryFromJson(Map<String, dynamic> json) => PartySummary(
   key: json['key'] as String,
   party: TrustedParty.fromJson(json['party'] as Map<String, dynamic>),
@@ -201,28 +187,6 @@ PartySummary _$PartySummaryFromJson(Map<String, dynamic> json) => PartySummary(
 LogPageEvent _$LogPageEventFromJson(Map<String, dynamic> json) => LogPageEvent(
   requestId: json['request_id'] as String,
   page: LogPage.fromJson(json['page'] as Map<String, dynamic>),
-  error: json['error'] as String?,
-);
-
-LogEntryEvent _$LogEntryEventFromJson(Map<String, dynamic> json) =>
-    LogEntryEvent(
-      requestId: json['request_id'] as String,
-      entry: json['entry'] == null
-          ? null
-          : LogInfo.fromJson(json['entry'] as Map<String, dynamic>),
-      error: json['error'] as String?,
-    );
-
-CredentialActivityResultEvent _$CredentialActivityResultEventFromJson(
-  Map<String, dynamic> json,
-) => CredentialActivityResultEvent(
-  requestId: json['request_id'] as String,
-  activity:
-      (json['activity'] as Map<String, dynamic>?)?.map(
-        (k, e) =>
-            MapEntry(k, CredentialActivity.fromJson(e as Map<String, dynamic>)),
-      ) ??
-      {},
   error: json['error'] as String?,
 );
 

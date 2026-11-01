@@ -11,9 +11,10 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
-import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/irma_dismissible.dart";
 import "../../widgets/loading_indicator.dart";
+import "../../widgets/tab_layout.dart";
+import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../data/credential_detail/credential_detail_screen.dart";
@@ -39,17 +40,6 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
     _notificationsBloc = BlocProvider.of<NotificationsBloc>(context);
   }
 
-  /// A notification's card is being opened: the tab goes, but she comes
-  /// back to it, so the others stay unread.
-  bool _toCard = false;
-
-  @override
-  void dispose() {
-    // Left: everything here has been seen.
-    if (!_toCard) _notificationsBloc.add(MarkAllNotificationsAsRead());
-    super.dispose();
-  }
-
   void _onNotificationTap(
     Notification notification,
     BuildContext pictureContext,
@@ -70,13 +60,11 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
         return;
       }
       if (card != null) {
-        _toCard = true;
         WalletTransition.begin(pictureContext, card.hash);
         pictureContext.pushCredentialDetailScreen(card.hash);
         return;
       }
     }
-    _toCard = true;
     context.pushCredentialsDetailsScreen(
       CredentialsDetailsRouteParams(credentialTypeId: action.credentialTypeId),
     );
@@ -245,7 +233,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
             }
 
             throw Exception(
-              "NotificationsScreen does not support this state: $state",
+              "NotificationsTab does not support this state: $state",
             );
           },
         ),

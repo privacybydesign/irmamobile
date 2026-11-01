@@ -6,7 +6,8 @@ import "document_translation_keys.dart";
 import "widgets/driving_licence_mrz_field.dart";
 import "widgets/manual_entry_layout.dart";
 
-/// This screen is for when the camera doesn't work(?)
+/// Typing the MRZ in by hand, for when the camera cannot read it ("Enter
+/// manually" on the camera screen).
 class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
   /// Receives the parsed MRZ.
   final void Function(DrivingLicenceMrzResult result) onContinue;
@@ -20,10 +21,10 @@ class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
 
   @override
   State<DrivingLicenceMrzManualEntryScreen> createState() =>
-      _DrivingLicencetMrzManualEntryScreenState();
+      _DrivingLicenceMrzManualEntryScreenState();
 }
 
-class _DrivingLicencetMrzManualEntryScreenState
+class _DrivingLicenceMrzManualEntryScreenState
     extends State<DrivingLicenceMrzManualEntryScreen> {
   final _manualEntryFormKey = GlobalKey<FormState>();
   final _documentNrCtrl = TextEditingController();

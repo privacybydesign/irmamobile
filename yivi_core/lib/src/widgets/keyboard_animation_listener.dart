@@ -14,24 +14,13 @@ class KeyboardAnimationListener extends StatefulWidget {
     super.key,
     required this.child,
     this.onKeyboardSettled,
-    this.onKeyboardChanged,
-    this.stableFrameCount = 1,
-    this.epsilon = 0.5,
   });
 
   final Widget child;
 
-  /// Called when the keyboard is "settled" (viewInsets.bottom stable for N frames).
+  /// Called when the keyboard is "settled": viewInsets.bottom stayed within
+  /// half a pixel from one frame to the next.
   final KeyboardSettledCallback? onKeyboardSettled;
-
-  /// Called whenever metrics change (keyboard animating / insets changing).
-  final ValueChanged<double>? onKeyboardChanged;
-
-  /// How many consecutive frames the inset must be stable.
-  final int stableFrameCount;
-
-  /// Allowed difference in pixels between frames to consider "stable".
-  final double epsilon;
 
   @override
   State<KeyboardAnimationListener> createState() =>
@@ -74,17 +63,15 @@ class _KeyboardAnimationListenerState extends State<KeyboardAnimationListener>
   void _watchInsetStability() {
     afterFrame(() {
       final inset = MediaQuery.of(context).viewInsets.bottom;
-      widget.onKeyboardChanged?.call(inset);
-
       final delta = (inset - _lastInset).abs();
-      if (delta <= widget.epsilon) {
+      if (delta <= 0.5) {
         _stableFrames++;
       } else {
         _stableFrames = 0;
         _lastInset = inset;
       }
 
-      if (_stableFrames >= widget.stableFrameCount) {
+      if (_stableFrames >= 1) {
         _watching = false;
 
         final visible = inset > 0;

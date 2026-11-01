@@ -1,7 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-import "./provider_helpers.dart" as helpers;
+import "provider_helpers.dart" as helpers;
 
 final passportIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://passport-issuer.staging.yivi.app"),

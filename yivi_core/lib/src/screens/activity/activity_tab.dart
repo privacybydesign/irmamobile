@@ -8,12 +8,11 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
-import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
@@ -22,25 +21,27 @@ import "../../widgets/corner_badge.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/empty_list_message.dart";
 import "../../widgets/end_of_list_indicator.dart";
-import "../../widgets/glass/floating_bar_placement.dart";
+import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
-import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/round_icon_button.dart";
-import "../../widgets/glass/scroll_edge.dart";
-import "../../widgets/glass/search_scroll_edge.dart";
-import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/loading_indicator.dart";
+import "../../widgets/scroll_edge.dart";
+import "../../widgets/tab_layout.dart";
+import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/two_pane.dart";
+import "../home/widgets/home_tab_top.dart";
+import "../home/widgets/search_scroll_edge.dart";
 import "activity_detail_screen.dart";
 import "activity_entry.dart";
 import "activity_filter_sheet.dart";
 import "activity_kind_words.dart";
-import "activity_query.dart";
 import "activity_query_labels.dart";
 import "widgets/activity_card.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
+
+part "activity_month_header.dart";
 
 /// The Activity tab: the log, newest first, a white band of rows per month
 /// under a header that sticks under the bar. irmago does the asking.
@@ -242,8 +243,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// ("Gedeeld met"), its label with the relation's last word ("Ondertekend
   /// voor", where the relation says more), and its label ("Gedeeld").
   Map<LogType, List<String>> _kindPhrases() => {
-    for (final kind in activityKindOrder)
-      logTypeOf(kind): () {
+    for (final kind in ActivityKind.ordered)
+      kind.logType: () {
         final label = FlutterI18n.translate(context, kind.labelKey);
         final relation = FlutterI18n.translate(context, kind.relationKey);
         return [relation, "$label ${relation.split(" ").last}", label];
@@ -319,9 +320,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   void _addPostFrameCallback() {
     // After list is initially rendered, there might not be enough logs to trigger the scroll controller.
     // In that case, load more logs to fully fill the screen.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted ||
-          !_scrollController.hasClients ||
+    afterFrame(() {
+      if (!_scrollController.hasClients ||
           !_scrollController.position.haveDimensions) {
         return;
       }
@@ -345,10 +345,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   // ---------------------------------------------------------------- suggestions
 
-  List<ActivityCardRef> get _cards => [
-    for (final c in ref.read(walletCardsProvider)) ActivityCardRef.of(c),
-    ...?ref.read(removedCardTypesProvider).value,
-  ];
+  List<ActivityCardRef> get _cards => activityCardRefs(ref);
 
   /// Everything that could be suggested, by group in the order shown, before
   /// the counts weed out and sort. Only what narrows the question: no kinds
@@ -365,7 +362,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     final kinds = [
       if (q.kinds.isEmpty)
-        for (final kind in activityKindOrder)
+        for (final kind in ActivityKind.ordered)
           if (hit(FlutterI18n.translate(context, kind.labelKey)))
             _Suggestion(
               key: "kind:${kind.name}",
@@ -376,7 +373,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 iconSize: 12,
               ),
               title: FlutterI18n.translate(context, kind.labelKey),
-              query: q.copyWith(kinds: {logTypeOf(kind)}),
+              query: q.copyWith(kinds: {kind.logType}),
             ),
     ];
     final cards = [
@@ -435,14 +432,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final words = _typed.trim();
     return [
       kinds,
-      if (card == null) ...[
-        cards,
-        partyHits,
-        fields,
-      ] else ...[
-        partyHits,
-        fields,
-      ],
+      // Empty once a card is picked.
+      cards,
+      partyHits,
+      fields,
       if (words.isNotEmpty)
         [
           _Suggestion(
@@ -494,15 +487,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       final all = _candidates(
         ref.read(activityPartiesProvider).value ?? const [],
       ).flattened.toList();
-      List<int> counts;
-      try {
-        counts = await ref.read(irmaRepositoryProvider).countLogs([
-          for (final s in all) s.query.toLogFilter(),
-        ]);
-      } catch (_) {
+      final counts = await countActivity(ref, [for (final s in all) s.query]);
+      if (counts == null || !mounted || generation != _countGeneration) {
         return;
       }
-      if (!mounted || generation != _countGeneration) return;
       setState(() {
         _counts.clear();
         for (final (i, s) in all.indexed) {
@@ -570,8 +558,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             mainAxisSize: MainAxisSize.min,
             spacing: 2,
             children: [
-              for (final kind in activityKindOrder)
-                if (q.kinds.contains(logTypeOf(kind)))
+              for (final kind in ActivityKind.ordered)
+                if (q.kinds.contains(kind.logType))
                   CornerBadge(
                     icon: kind.icon,
                     fill: kind.badge,
@@ -592,10 +580,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             greyedOut: card.removed,
           ),
           // With the fields asked about: which card each comes from.
-          label: q.fields.isEmpty
-              ? card.name
-              : "${card.name} › "
-                    "${q.fields.map((t) => claimTokenLabel(context, t)).join(", ")}",
+          label: activityCardFieldsLabel(context, card, q.fields),
           // Its fields go with it.
           onRemove: () => change(q.withCard(null)),
         ),
@@ -1073,85 +1058,4 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           : ActivityDetailPane(key: ValueKey(logKey(entry)), logEntry: entry),
     );
   }
-}
-
-/// The space above the log: [top] high, and scrolled, [pinned] of it stays
-/// (under the bar), so the month headers stick under it.
-class _TopSpace extends SliverPersistentHeaderDelegate {
-  final double top;
-  final double pinned;
-
-  const _TopSpace({required this.top, required this.pinned});
-
-  @override
-  double get maxExtent => top;
-
-  @override
-  double get minExtent => pinned;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlaps) =>
-      const SizedBox.expand();
-
-  @override
-  bool shouldRebuild(_TopSpace old) => old.top != top || old.pinned != pinned;
-}
-
-/// A month's header, on the page colour: it sticks under the bar while
-/// its rows scroll, and the next month's pushes it away. With [joinsBar],
-/// as soon as a row goes under it, it takes the colour of the bar's band
-/// and a line of its own, under the bar's line.
-class _MonthHeader extends SliverPersistentHeaderDelegate {
-  final String title;
-  final YiviPalette palette;
-  final TextScaler textScaler;
-  final bool joinsBar;
-
-  const _MonthHeader({
-    required this.title,
-    required this.palette,
-    required this.textScaler,
-    this.joinsBar = false,
-  });
-
-  double get _height => 18 + textScaler.scale(24) + 8;
-
-  @override
-  double get maxExtent => _height;
-
-  @override
-  double get minExtent => _height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
-    // A row under it, from its first point: held under the bar
-    // ([overlaps]) is when its first row starts to go under it. In a month's
-    // group [shrinkOffset] only grows once that row has gone all the way.
-    final under = joinsBar && (overlaps || shrinkOffset > 0);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: under ? ScrollEdgeBand.fill(palette) : palette.background,
-        border: under ? Border(bottom: ScrollEdgeBand.lineSide(context)) : null,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
-        child: Semantics(
-          header: true,
-          child: Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: palette.display(18).copyWith(height: 24 / 18),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(_MonthHeader old) =>
-      old.title != title ||
-      old.palette != palette ||
-      old.textScaler != textScaler ||
-      old.joinsBar != joinsBar;
 }

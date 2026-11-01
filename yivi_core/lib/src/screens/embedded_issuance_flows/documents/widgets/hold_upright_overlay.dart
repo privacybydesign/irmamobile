@@ -157,8 +157,7 @@ class _HoldUprightPrompt extends StatelessWidget {
 enum _Motion { animated, still }
 
 /// A phone turning upright the way the user has to turn theirs, then holding
-/// still for a moment. Drawn like the phone in the face-verification intro
-/// animation.
+/// still for a moment.
 class _TurnUprightAnimation extends StatefulWidget {
   const _TurnUprightAnimation({
     required this.motion,

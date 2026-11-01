@@ -4,7 +4,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
-import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
+import "package:yivi_core/src/widgets/title_scroll_edge.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";

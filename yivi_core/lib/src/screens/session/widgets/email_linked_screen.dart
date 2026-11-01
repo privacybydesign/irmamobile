@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/action_feedback.dart";
+import "action_feedback.dart";
 
 class EmailLinkedScreen extends StatelessWidget {
   final Function(BuildContext) onDismiss;

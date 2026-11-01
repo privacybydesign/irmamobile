@@ -72,7 +72,6 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       ? EnrollmentEmail(step: EnrollmentStepNumber(_stepCount, _stepCount))
       : Enrolling();
 
-  /// After the last step: the home screen once the account is there.
   /// Goes to [next], creating the account first when that is [Enrolling].
   Stream<EnrollmentState> _goTo(EnrollmentState next) async* {
     if (next is Enrolling) {
@@ -82,6 +81,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     }
   }
 
+  /// After the last step: the home screen once the account is there.
   Stream<EnrollmentState> _finish() async* {
     yield Enrolling();
     final error = await account;

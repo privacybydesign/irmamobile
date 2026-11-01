@@ -12,4 +12,7 @@ extension StringFormattingExtension on String {
 
     return replaceAll(breakingHyphen, nonBreakingHyphen);
   }
+
+  /// A host name as people say it: without "www.".
+  String withoutWww() => startsWith("www.") ? substring(4) : this;
 }

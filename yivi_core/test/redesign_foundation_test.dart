@@ -228,7 +228,8 @@ void main() {
       await tester.pumpAndSettle();
 
       final sheet = tester.getRect(_sheetFrame.last);
-      expect(sheet.size, const Size(540, 760));
+      // As every sheet on a tablet: 540 wide, at most 85% of the window.
+      expect(sheet.size, const Size(540, 820 * 0.85));
       expect(sheet.center, const Offset(590, 410));
       // The app stays visible behind the sheet.
       expect(find.text("home"), findsOneWidget);

@@ -1,8 +1,7 @@
 /// mdoc (`mso_mdoc`) issuance over OpenID4VCI, against the staging EUDI stack
 /// from `openid4vc-poc-ops`: the EU reference Python issuer mints an
 /// age-verification mdoc, a PID mdoc and an mDL through the pre-authorized
-/// code flow with a transaction code. See `docs/mdoc-integration-plan.md`,
-/// tests 1 to 10.
+/// code flow with a transaction code.
 ///
 /// Prerequisites:
 /// - The staging EUDI issuer at `eudi-issuer.openid4vc.staging.yivi.app` is

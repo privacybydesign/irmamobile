@@ -1,31 +1,26 @@
-import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
 
-/// A text field in the glass style: a label above it, a rounded field on the
-/// surface colour, an outline that turns link blue on focus and red with an
-/// error, and the error below it as an alert.
+/// The label above a field, here and on the document and contact screens.
+TextStyle fieldLabelStyle(BuildContext context) {
+  final palette = YiviPalette.of(context);
+  return palette
+      .body(14, weight: FontWeight.w600)
+      .copyWith(height: 20 / 14, color: palette.heading);
+}
+
+/// A text field: a label above it, a rounded field on the surface colour,
+/// and an outline that turns link blue on focus.
 class PillTextField extends StatelessWidget {
   final String? label;
   final String? hint;
-  final String? errorText;
   final TextEditingController? controller;
-  final FocusNode? focusNode;
-  final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
-  final List<TextInputFormatter>? inputFormatters;
-  final Iterable<String>? autofillHints;
   final bool autofocus;
-  final bool obscureText;
-  final bool enabled;
   final int? minLines;
   final int maxLines;
-
-  /// Shown in front of the text, e.g. a country code.
-  final Widget? prefix;
 
   /// The key of the inner [TextField], for tests.
   final Key? fieldKey;
@@ -34,21 +29,12 @@ class PillTextField extends StatelessWidget {
     super.key,
     this.label,
     this.hint,
-    this.errorText,
     this.controller,
-    this.focusNode,
-    this.onChanged,
     this.onSubmitted,
     this.keyboardType,
-    this.textInputAction,
-    this.inputFormatters,
-    this.autofillHints,
     this.autofocus = false,
-    this.obscureText = false,
-    this.enabled = true,
     this.minLines,
     this.maxLines = 1,
-    this.prefix,
     this.fieldKey,
   });
 
@@ -57,7 +43,6 @@ class PillTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final hasError = (errorText ?? "").isNotEmpty;
 
     OutlineInputBorder border(Color color) => OutlineInputBorder(
       borderRadius: _radius,
@@ -67,16 +52,9 @@ class PillTextField extends StatelessWidget {
     final field = TextField(
       key: fieldKey,
       controller: controller,
-      focusNode: focusNode,
-      onChanged: onChanged,
       onSubmitted: onSubmitted,
       keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      inputFormatters: inputFormatters,
-      autofillHints: autofillHints,
       autofocus: autofocus,
-      obscureText: obscureText,
-      enabled: enabled,
       minLines: minLines,
       maxLines: maxLines,
       cursorColor: palette.link,
@@ -87,22 +65,12 @@ class PillTextField extends StatelessWidget {
         fillColor: palette.surface,
         hintText: hint,
         hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
-        prefixIcon: prefix == null
-            ? null
-            : Padding(
-                padding: const EdgeInsets.only(left: 18, right: 8),
-                child: prefix,
-              ),
-        prefixIconConstraints: const BoxConstraints(minHeight: 56),
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: prefix == null ? 20 : 0,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
           vertical: 17,
         ),
-        enabledBorder: border(hasError ? palette.danger : palette.outline),
-        disabledBorder: border(palette.divider),
-        focusedBorder: border(hasError ? palette.danger : palette.link),
-        // The error is shown below as an alert, not by the decoration.
-        errorText: null,
+        enabledBorder: border(palette.outline),
+        focusedBorder: border(palette.link),
       ),
     );
 
@@ -113,15 +81,9 @@ class PillTextField extends StatelessWidget {
         if (label != null)
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-            child: Text(
-              label!,
-              style: palette
-                  .body(14, weight: FontWeight.w600)
-                  .copyWith(height: 20 / 14, color: palette.heading),
-            ),
+            child: Text(label!, style: fieldLabelStyle(context)),
           ),
         Semantics(label: label, textField: true, child: field),
-        if (hasError) FieldError(errorText!),
       ],
     );
   }

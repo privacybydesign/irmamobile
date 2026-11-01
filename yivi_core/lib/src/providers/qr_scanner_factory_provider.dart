@@ -15,7 +15,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 ///     are owned by that widget.
 ///   - The widget connects [torch] to its camera ([ScannerTorch.connect])
 ///     and reports whether it has one and whether it is on. The torch goes
-///     out with the widget.
+///     out with the widget, which then disconnects it (`connect(null)`).
 abstract class QrScannerFactory {
   Widget build({
     required void Function(String code) onCodeFound,
@@ -23,7 +23,7 @@ abstract class QrScannerFactory {
   });
 }
 
-/// The camera's torch, as the scanner shows it (the Zaklamp button): whether
+/// The camera's torch, as the scanner shows it (the Flashlight button): whether
 /// the camera has one, whether it is on, and a way to switch it.
 class ScannerTorch extends ChangeNotifier {
   bool _available = false;
@@ -35,8 +35,9 @@ class ScannerTorch extends ChangeNotifier {
 
   bool get on => _on;
 
-  /// Called by the camera widget once its camera is ready.
-  void connect(VoidCallback toggle) => _toggle = toggle;
+  /// Called by the camera widget once its camera is ready, and with null
+  /// when it goes.
+  void connect(VoidCallback? toggle) => _toggle = toggle;
 
   /// Called by the camera widget whenever the torch changes.
   void report({required bool available, bool on = false}) {

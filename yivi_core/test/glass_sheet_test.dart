@@ -3,8 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
-import "package:yivi_core/src/widgets/glass/glass_surface.dart";
-import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
+import "package:yivi_core/src/widgets/glass/sheet_actions.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -440,33 +439,6 @@ void main() {
       expect(_asked, 2);
       expect(find.text("Sheet"), findsOneWidget);
     });
-  });
-
-  testWidgets("content can hide the sheet's rim while it is there", (
-    tester,
-  ) async {
-    await tester.pumpWidget(_app());
-    await tester.pumpAndSettle();
-    late StateSetter set;
-    var dark = true;
-    showGlassSheet<void>(
-      context: _page,
-      builder: (_) => StatefulBuilder(
-        builder: (context, setState) {
-          set = setState;
-          return dark
-              ? const GlassSheetNoRim(child: Text("camera"))
-              : const Text("light");
-        },
-      ),
-    );
-    await tester.pumpAndSettle();
-    bool rim() =>
-        tester.widget<GlassSurface>(find.byKey(const Key("glass_sheet"))).rim;
-    expect(rim(), isFalse);
-    set(() => dark = false);
-    await tester.pumpAndSettle();
-    expect(rim(), isTrue);
   });
 
   group("pages in the sheet", () {

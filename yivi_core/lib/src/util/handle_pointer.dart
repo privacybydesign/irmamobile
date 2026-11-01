@@ -10,11 +10,11 @@ import "../providers/irma_repository_provider.dart";
 import "../providers/nested_issuance_host_provider.dart";
 import "navigation.dart";
 
-/// First handles the issue wizard if one is present, and subsequently the session is handled.
-/// If no wizard is specified, only the session will be performed.
-/// If no session is specified, the user will be returned to the HomeScreen after completing the wizard.
-/// If pushReplacement is true, then the current screen is being replaced with the handler screen.
-/// Returns the id of the session that was started, if any.
+/// Handles a scanned or opened [pointer]: the link in a verification e-mail
+/// opens the e-mail linking screens, a session pointer starts its session.
+/// Other pointers (an issue wizard's) are validated and then ignored.
+/// With [pushReplacement] the session or error screen replaces the current
+/// one. Returns the id of the session that was started, if any.
 Future<int?> handlePointer(
   BuildContext context,
   Pointer pointer, {

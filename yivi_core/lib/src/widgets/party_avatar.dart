@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../package_name.dart";
 import "../models/schemaless/schemaless_events.dart" show LogoImage;
 import "../theme/yivi_palette.dart";
 import "base64_image.dart";
@@ -36,6 +37,7 @@ class PartyInitial extends StatelessWidget {
     return Text(
       trimmed.isEmpty ? "?" : trimmed.characters.first.toUpperCase(),
       style: TextStyle(
+        package: packageName,
         fontFamily: "Alexandria",
         fontWeight: FontWeight.w700,
         fontSize: size * 0.44,

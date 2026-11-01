@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "ios_back_gesture.dart";
+import "back_swipe_transitions.dart";
 
 /// Wraps the platform's page transitions so that "Reduce motion" turns every
 /// push into a cross-fade.

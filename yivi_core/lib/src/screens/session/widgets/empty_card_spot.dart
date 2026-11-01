@@ -11,8 +11,8 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/dashed_outline_painter.dart";
-import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/press_scale.dart";
 import "shared_card_tile.dart";
 
 /// The rows of an [EmptyCardSpot] for [card]: each field the request asks
@@ -43,12 +43,12 @@ List<(String, String)> emptySpotRows(
   ];
 }
 
-/// A card that is not in the app yet: a dashed spot in the shape of the card
-/// it will be, with a dashed card where that card lands, its name, and what
-/// it will share, still empty ("Not in your app yet", or the value it must
-/// have). When it can be added, a strip at its foot says to add it first,
-/// with an "Add" pill: the same strip a card with a choice has, with
-/// "Change choice".
+/// A card that is not in the app yet: a dashed [CardTile] with a dashed
+/// outline where the card will land (or the types to choose from, [kinds]),
+/// its name, and what it will share, still empty ("Not in your app yet", or
+/// the value it must have). When it can be added, a strip at its foot says
+/// to add it first, with an "Add" pill: the same strip a card with a choice
+/// has, with "Change choice".
 ///
 /// The one widget for this: on the share screen for a required card, and in
 /// the Change sheet for each type that can be added.
@@ -68,18 +68,11 @@ class EmptyCardSpot extends StatelessWidget {
   /// Null when it cannot be added from Yivi.
   final VoidCallback? onTap;
 
-  /// A finger came down on the spot, and went away without a tap (a
-  /// scroll): the Change sheet moves its outline along.
-  final VoidCallback? onTapDown;
-  final VoidCallback? onTapCancel;
-
-  /// Drawn with the outline of the chosen card.
-  final bool selected;
-
   /// The types to choose from when there is more than one, shown as their
   /// own small cards in place of the dashed one (two side by side, or three
-  /// and "+n"), and the title on up to three lines. The share screen only;
-  /// the Change sheet shows one spot per type.
+  /// and "+n"), and the title on up to three lines. The Change sheet passes
+  /// them only for a set of cards that go together ([together]); otherwise
+  /// it shows one spot per type.
   final List<CredentialDescriptor>? kinds;
 
   /// Cards only accepted together: the subtitle (what to do) on up to three
@@ -97,9 +90,6 @@ class EmptyCardSpot extends StatelessWidget {
     this.rows = const [],
     this.requirements = const [],
     this.onTap,
-    this.onTapDown,
-    this.onTapCancel,
-    this.selected = false,
     this.kinds,
     this.together = false,
     this.addLabel,
@@ -150,9 +140,7 @@ class EmptyCardSpot extends StatelessWidget {
                 Expanded(
                   child: Text(
                     FlutterI18n.translate(context, "share.spot.add_first"),
-                    style: palette
-                        .body(13.5)
-                        .copyWith(height: 19 / 13.5, color: palette.heading),
+                    style: CardTileStrip.textStyle(context),
                   ),
                 ),
                 // Says what a tap does; the whole spot is the button.
@@ -201,15 +189,12 @@ class EmptyCardSpot extends StatelessWidget {
           ),
       ],
     );
-    final spot = CardTileOutline(shown: selected, child: tile);
     return Semantics(
       button: canAdd,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        onTapDown: onTapDown == null ? null : (_) => onTapDown!(),
-        onTapCancel: onTapCancel,
-        child: canAdd ? PressScale(scale: PressScale.card, child: spot) : spot,
+        child: PressScale(scale: PressScale.card, enabled: canAdd, child: tile),
       ),
     );
   }

@@ -4,35 +4,28 @@ import "package:material_ui/material_ui.dart";
 /// readable over any camera picture.
 class DarkGlass extends StatelessWidget {
   final Widget child;
-  final ShapeBorder shape;
+  final BorderRadius borderRadius;
   final EdgeInsetsGeometry padding;
-
-  /// A colour instead of the smoke, e.g. green or red for a result.
-  final Color? tint;
 
   const DarkGlass({
     super.key,
     required this.child,
-    this.shape = const StadiumBorder(),
+    required this.borderRadius,
     this.padding = EdgeInsets.zero,
-    this.tint,
   });
 
-  static const fill = Color(0xFF1C1C1E);
-  static const edge = Color(0x38FFFFFF);
+  static const _fill = Color(0xFF1C1C1E);
+  static const _edge = Color(0x38FFFFFF);
 
   @override
   Widget build(BuildContext context) {
-    final edged = switch (shape) {
-      RoundedRectangleBorder(:final borderRadius) => RoundedRectangleBorder(
-        borderRadius: borderRadius,
-        side: const BorderSide(color: edge),
-      ),
-      CircleBorder() => const CircleBorder(side: BorderSide(color: edge)),
-      _ => const StadiumBorder(side: BorderSide(color: edge)),
-    };
+    final shape = RoundedRectangleBorder(borderRadius: borderRadius);
+    final edged = RoundedRectangleBorder(
+      borderRadius: borderRadius,
+      side: const BorderSide(color: _edge),
+    );
     final glass = DecoratedBox(
-      decoration: ShapeDecoration(color: tint ?? fill, shape: edged),
+      decoration: ShapeDecoration(color: _fill, shape: edged),
       child: Padding(padding: padding, child: child),
     );
     return DecoratedBox(

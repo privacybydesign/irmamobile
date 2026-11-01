@@ -6,8 +6,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/tablet.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/fill_scroll_view.dart";
-import "../../../widgets/glass/floating_bar_placement.dart";
+import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_surface.dart";
+import "../../../widgets/press_scale.dart";
 import "../../../widgets/translated_text.dart";
 
 /// Whether an enrollment page uses the tablet sizes: bigger titles, cards

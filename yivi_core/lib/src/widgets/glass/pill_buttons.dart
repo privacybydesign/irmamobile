@@ -7,7 +7,7 @@ import "../../../package_name.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
-import "glass_surface.dart";
+import "../press_scale.dart";
 
 /// The two heights of the pill buttons: [large] at the bottom of a full
 /// screen, [regular] in sheets, dialogs, button rows and content. A button
@@ -171,9 +171,6 @@ class FancyRoundButton extends StatelessWidget {
   /// Under the button, e.g. to stand off the cards scrolling behind it.
   final List<BoxShadow>? shadows;
 
-  /// How far it shrinks (or grows) under the finger.
-  final double pressScale;
-
   const FancyRoundButton({
     super.key,
     required this.icon,
@@ -182,7 +179,6 @@ class FancyRoundButton extends StatelessWidget {
     required this.label,
     this.iconSize,
     this.shadows,
-    this.pressScale = PressScale.button,
   });
 
   @override
@@ -195,7 +191,7 @@ class FancyRoundButton extends StatelessWidget {
       label: label,
       excludeSemantics: true,
       child: PressScale(
-        scale: pressScale,
+        scale: PressScale.button,
         enabled: enabled,
         child: DecoratedBox(
           decoration: ShapeDecoration(
@@ -411,15 +407,7 @@ class PillButton extends StatelessWidget {
   }
 }
 
-enum SmallPillTone {
-  tint,
-  primary,
-  warning,
-  surface,
-
-  /// White with red text, on a red banner.
-  onDanger,
-}
+enum SmallPillTone { tint, primary, surface }
 
 /// A small action inside content: "Change", "Add", "Add a new …", "Why?".
 /// 32 high and at least 44 wide, Open Sans 13 semibold. It takes no more
@@ -447,13 +435,11 @@ class SmallPill extends StatelessWidget {
     final (Color fill, Color fg) = switch (tone) {
       SmallPillTone.tint => (palette.tint, palette.link),
       SmallPillTone.primary => (palette.primary, Colors.white),
-      SmallPillTone.warning => (palette.warningSurface, palette.warningText),
       // In dark a step above the card it lies on, not the card's colour.
       SmallPillTone.surface => (
         palette.isDark ? palette.tint : palette.surface,
         palette.link,
       ),
-      SmallPillTone.onDanger => (Colors.white, palette.dangerFill),
     };
     final pill = Material(
       color: fill,

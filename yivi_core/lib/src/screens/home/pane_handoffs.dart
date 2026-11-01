@@ -8,17 +8,17 @@ import "../../util/adaptive_layout.dart";
 import "../../widgets/pane_handoff.dart";
 import "../data/wallet/wallet_transition.dart";
 import "home_screen.dart";
-import "widgets/irma_nav_bar.dart";
+import "widgets/home_tab.dart";
 
 // What the home tabs' pages hand to a detail pane when the phone turns
 // sideways (PaneHandoff). Turned upright the home screen just shows the
 // list: a pane's pick never opens a page of its own.
 
-/// A card on its own screen, opened from Gegevens or Notificaties: in the
+/// A card on its own screen, opened from Data or Notifications: in the
 /// pane of the tab it was opened from.
 Widget cardHandoff(BuildContext context, String hash, Widget child) {
   final tabs = context.read<HomeTabState>();
-  final fromNotifications = tabs.state == IrmaNavBarTab.notifications;
+  final fromNotifications = tabs.state == HomeTab.notifications;
   return PaneHandoff(
     paneAvailable: useHomePanes,
     onHandoff: (container) {
@@ -30,7 +30,7 @@ Widget cardHandoff(BuildContext context, String hash, Widget child) {
         container.read(selectedNotificationCardProvider.notifier).select(shown);
         container.read(selectedNotificationProvider.notifier).select(null);
       } else {
-        tabs.add(IrmaNavBarTab.data);
+        tabs.add(HomeTab.data);
         container.read(selectedCardProvider.notifier).select(shown);
       }
     },
@@ -44,7 +44,7 @@ Widget activityHandoff(BuildContext context, LogInfo log, Widget child) {
   return PaneHandoff(
     paneAvailable: useHomePanes,
     onHandoff: (container) {
-      tabs.add(IrmaNavBarTab.activity);
+      tabs.add(HomeTab.activity);
       container.read(selectedActivityProvider.notifier).select(log);
     },
     child: child,
@@ -58,7 +58,7 @@ Widget morePageHandoff(BuildContext context, MorePage page, Widget child) {
   return PaneHandoff(
     paneAvailable: useHomePanes,
     onHandoff: (container) {
-      tabs.add(IrmaNavBarTab.more);
+      tabs.add(HomeTab.more);
       container.read(selectedMorePageProvider.notifier).select(page);
     },
     child: child,

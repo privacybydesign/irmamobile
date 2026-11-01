@@ -25,6 +25,8 @@ import "package:yivi_core/src/providers/resend_wait.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/providers/sms_issuance_provider.dart";
+import "package:yivi_core/src/screens/add_data/add_data_row.dart";
 import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
@@ -32,7 +34,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/glass/sheet_action_row.dart";
+import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
@@ -1016,6 +1018,74 @@ void main() {
     expect(find.byKey(const Key("issue_sheet_for_requestor")), findsNothing);
   });
 
+  testWidgets("a phone number: number, code, checked, all in the sheet", (
+    tester,
+  ) async {
+    final api = _FakeSmsApi();
+    await _pump(
+      tester,
+      store: [
+        CredentialStoreCategory(
+          category: "Personal",
+          items: [
+            _item(
+              "pbdf.sidn-pbdf.mobilenumber",
+              "Mobile number",
+              issueURL: "https://sms-issuer.example/issue",
+              issuer: "Yivi",
+            ),
+          ],
+        ),
+      ],
+      overrides: [smsIssuerApiProvider.overrideWithValue(api)],
+    );
+    await tester.tap(find.byKey(const Key("pbdf.sidn-pbdf.mobilenumber_tile")));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("sheet_go_button")));
+    await _pumpFor(tester);
+    expect(
+      find.byKey(const ValueKey(("issue_sheet_progress", 2, 4))),
+      findsOneWidget,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key("phone_number_input_field")),
+      "612345678",
+    );
+    await _pumpFor(tester);
+    await tester.tap(find.byKey(const Key("contact_sheet_send")));
+    await _pumpFor(tester);
+    expect(api.sent, ["+31612345678"]);
+    expect(find.byKey(const Key("contact_sheet_code")), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey(("issue_sheet_progress", 3, 4))),
+      findsOneWidget,
+    );
+
+    // A wrong code: said under the boxes, gone once typing again.
+    api.failCodes = true;
+    await tester.enterText(
+      find.byKey(const Key("sms_verification_code_input_field")),
+      "111111",
+    );
+    await _pumpFor(tester);
+    expect(find.byKey(const Key("contact_sheet_error")), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key("sms_verification_code_input_field")),
+      "1",
+    );
+    await _pumpFor(tester);
+    expect(find.byKey(const Key("contact_sheet_error")), findsNothing);
+
+    api.failCodes = false;
+    await tester.enterText(
+      find.byKey(const Key("sms_verification_code_input_field")),
+      "123456",
+    );
+    await _pumpFor(tester);
+    expect(api.verified, ["111111", "123456"]);
+  });
+
   testWidgets("Send again waits a minute, counting down, then sends", (
     tester,
   ) async {
@@ -1237,6 +1307,33 @@ void main() {
 }
 
 /// The e-mail issuer, faked: sending always works; any code gives a session.
+class _FakeSmsApi implements SmsIssuerApi {
+  final sent = <String>[];
+  final verified = <String>[];
+  var failCodes = false;
+
+  @override
+  Future<void> sendSms({
+    required String phoneNumber,
+    required String language,
+  }) async => sent.add(phoneNumber);
+
+  @override
+  Future<SessionPointer> verifyCode({
+    required String phoneNumber,
+    required String verificationCode,
+  }) async {
+    verified.add(verificationCode);
+    if (failCodes) throw Exception("not this code");
+    return SessionPointer(
+      u: "https://irma.example/session/abc",
+      irmaqr: "issuing",
+      protocol: Protocol.irma,
+      continueOnSecondDevice: true,
+    );
+  }
+}
+
 class _FakeEmailApi implements EmailIssuerApi {
   final sent = <String>[];
 

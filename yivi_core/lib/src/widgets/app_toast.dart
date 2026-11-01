@@ -3,9 +3,10 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_palette.dart";
 import "centred_max_width.dart";
 import "glass/glass_surface.dart";
-import "two_pane.dart";
+import "press_scale.dart";
+import "tab_layout.dart";
 
-/// Shows [message] as a glass pill for 2.6 seconds, like "You have been
+/// Shows [message] as a pill for 2.6 seconds, like "You have been
 /// logged out": just above the bottom of the screen, or above the tab bar
 /// when it lands on a tab ([overTabBar]). Uses the nearest
 /// [ScaffoldMessenger], so it queues with other toasts and is announced by
@@ -66,29 +67,14 @@ void Function(String message, {Key? key, ToastAction? action}) appToastFor(
       margin: EdgeInsets.fromLTRB(24, 0, 24, bottom),
       content: CentredMaxWidth(
         maxWidth: 440,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            color: palette.surface,
-            shape: StadiumBorder(side: BorderSide(color: palette.divider)),
-            shadows: [
-              BoxShadow(
-                color: palette.glassShadow,
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: ClipPath(
-            clipper: const ShapeBorderClipper(shape: StadiumBorder()),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: _Message(
-                message: message,
-                action: action,
-                messenger: messenger,
-                palette: palette,
-              ),
-            ),
+        // What floats over the page, as the tab bar and the menus.
+        child: GlassSurface(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: _Message(
+            message: message,
+            action: action,
+            messenger: messenger,
+            palette: palette,
           ),
         ),
       ),

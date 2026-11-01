@@ -1,13 +1,8 @@
-import "dart:io";
-
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/flutter_svg.dart";
-import "package:local_auth/local_auth.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../package_name.dart";
 import "../../models/session.dart";
 import "../../providers/has_in_flight_session_provider.dart";
 import "../../providers/irma_repository_provider.dart";
@@ -24,26 +19,9 @@ import "../../widgets/irma_close_button.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
+import "widgets/biometric_glyph.dart";
 import "widgets/waiting_request_announcement.dart";
 import "yivi_pin_screen.dart";
-
-/// Builds the biometric button glyph for [type], tinted to the keypad colour:
-/// the Face ID asset for face unlock on iOS, the Material face icon for face
-/// unlock on Android, and the Material fingerprint icon otherwise (Touch ID,
-/// fingerprint sensors, unknown/null).
-Widget _biometricGlyph(BuildContext context, BiometricType? type) {
-  final color = IrmaTheme.of(context).secondary;
-  if (type == BiometricType.face) {
-    // Face ID's branded glyph is Apple-specific — only use it on iOS.
-    return Platform.isIOS
-        ? SvgPicture.asset(
-            yiviAsset("ui/face_id.svg"),
-            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-          )
-        : Icon(Icons.face, color: color);
-  }
-  return Icon(Icons.fingerprint, color: color);
-}
 
 class PinScreen extends ConsumerStatefulWidget {
   final Function() onAuthenticated;
@@ -283,7 +261,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
         onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
         onBiometricUnlock: showBiometric ? _biometricUnlock : null,
         biometricGlyph: showBiometric
-            ? _biometricGlyph(context, biometricType)
+            // Tinted as the keypad.
+            ? BiometricGlyph(
+                type: biometricType,
+                color: IrmaTheme.of(context).secondary,
+              )
             : null,
       ),
     );
@@ -330,9 +312,10 @@ class UnlockPinEntry extends ConsumerWidget {
     final blocked = blockedFor.inSeconds > 0;
     final enabled = !blocked && !busy;
     // A wrong PIN or a block, said in the line under the title.
-    final line = pinAttemptLine(
+    final attempts = PinAttempts.of(
       context,
       blockedFor: blockedFor,
+      blocked: blocked,
       wrong: state.pinInvalid,
       left: state.remainingAttempts,
     );
@@ -363,12 +346,10 @@ class UnlockPinEntry extends ConsumerWidget {
                   : PinInstructionStyle.line,
               upperGap: waiting == null ? 40 : 48,
               centreUpper: centreUpper,
-              detail: line,
-              detailKind: line == null
-                  ? PinDetailKind.info
-                  : PinDetailKind.error,
+              detail: attempts.line,
+              detailKind: attempts.detailKind,
               detailClock: blocked,
-              pinError: line != null && !blocked,
+              pinError: attempts.pinError,
               maxPinSize: maxPinSize,
               submitLabel: "pin.unlock",
               onSubmit: enabled ? submit : (_) {},
@@ -376,13 +357,7 @@ class UnlockPinEntry extends ConsumerWidget {
               onForgotPin: onForgotPin,
               onBiometricUnlock: onBiometricUnlock,
               biometricGlyph: biometricGlyph,
-              listener: (context, pinState) {
-                if (maxPinSize == shortPinSize &&
-                    pinState.pin.length == maxPinSize &&
-                    enabled) {
-                  submit(pinState.toString());
-                }
-              },
+              listener: submitWhenFull(maxPinSize, submit, enabled: enabled),
             ),
           ),
         if (busy) const CircularProgressIndicator(),

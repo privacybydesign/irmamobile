@@ -3,9 +3,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
-import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
-import "package:yivi_core/src/widgets/glass/title_scroll_edge.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/scroll_edge.dart";
+import "package:yivi_core/src/widgets/title_scroll_edge.dart";
 
 import "helpers/test_translation_loader.dart";
 

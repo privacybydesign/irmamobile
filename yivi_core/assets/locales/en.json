@@ -2,21 +2,13 @@
   "accessibility": {
     "irma_logo": "Yivi Logo",
     "slideshow": "Slide {i} of {n}: {description}",
-    "menu": "Menu",
-    "back": "Back",
     "close": "Close",
-    "next": "Next",
     "alert": "Alert",
-    "previous": "Previous",
     "expanded": "Expanded",
     "collapsed": "Collapsed",
-    "unfold": "Expand",
-    "update": "Update",
     "remove": "Remove",
-    "expand": "Expand",
     "expand_hint": "Double tap to expand",
-    "collapse_hint": "Double tap to collapse",
-    "refresh": "Refresh"
+    "collapse_hint": "Double tap to collapse"
   },
   "new_terms_and_conditions": {
     "title": "New terms and conditions",
@@ -28,21 +20,15 @@
     "ok": "OK"
   },
   "activity": {
-    "data_deleted": "Data deleted",
     "data_deleted_semantics": "Data deleted from {issuerName} on {date}",
-    "data_received": "Data received",
     "data_received_semantics": "Data received from {otherParty} on {date}",
-    "data_shared": "Data shared",
     "data_shared_semantics": "Data shared with {otherParty} on {date}",
     "signed_message": "Signed message",
-    "message_signed": "Message signed",
     "signed_message_semantics": "Message signed from {otherParty} on {date}",
     "shared_with": "Shared with",
     "received_from": "Received from",
     "empty_placeholder": "There are no logged activities yet",
     "yesterday": "Yesterday",
-    "search_placeholder": "Search activity",
-    "no_results": "No activity matches your search",
     "deleted_from": "Data deleted from",
     "signed_for": "Message signed for",
     "note": {
@@ -84,13 +70,6 @@
     "not_checked": "Unknown party · {host}",
     "unknown_party": "Unknown party",
     "all_with_party": "All activity with {name}",
-    "filter_label": "Show activity",
-    "filter_empty": {
-      "shared": "Nothing shared yet",
-      "received": "Nothing received yet",
-      "signed": "Nothing signed yet",
-      "deleted": "Nothing deleted yet"
-    },
     "query": {
       "search_hint": "Search by card, party or data",
       "cancel": "Cancel",
@@ -101,26 +80,9 @@
       "or": "or",
       "group_all": "{group} (all)",
       "suggest": {
-        "kinds": "What happened",
-        "recent": "Recent",
-        "cards": "Cards",
-        "parties": "Parties",
-        "fields": "Data",
-        "search_for": "Search for \"{text}\"",
-        "search_where": "In names, data and messages",
-        "value_for": "Data with \"{text}\"",
-        "value_where": "Only in the data itself, across all cards",
-        "from_card": "From {card}",
-        "last": "{times}, last on {date}"
+        "value_for": "Data with \"{text}\""
       },
       "value_chip": "Data: {text}",
-      "fits-0": "Doesn't fit your filters",
-      "fits-1": "1 fits your filters",
-      "fits-2": "{count} fit your filters",
-      "show_results": "Show results",
-      "show_results_count-0": "No results",
-      "show_results_count-1": "Show 1 result",
-      "show_results_count-2": "Show {count} results",
       "clear": "Clear filters",
       "none": "No activity matches.",
       "everything": "All activity",
@@ -163,9 +125,6 @@
         "fits-1": "1 fits your choices",
         "fits-2": "{count} fit your choices"
       },
-      "times-0": "{count} times",
-      "times-1": "once",
-      "times-2": "{count} times",
       "results-0": "{count} results",
       "results-1": "1 result",
       "results-2": "{count} results"
@@ -188,7 +147,6 @@
     "toast": "Success! Your new PIN has been saved",
     "enter_pin": {
       "instruction": "Enter your current PIN",
-      "error_title": "PIN incorrect",
       "error": "Enter your current PIN"
     },
     "confirm_pin": {
@@ -267,25 +225,16 @@
     }
   },
   "data": {
-    "tab": {
-      "title": "My data"
-    },
-    "detail": {
-      "title": "Contact information"
-    },
     "add": {
       "search": "Search data to add",
       "no_results": "No data found for “{query}”",
       "demo": "Demo (example data)",
       "staging": "Staging (test environment)",
       "title": "Adding data",
-      "hint": "Double tap to add",
-      "choose": "Choose the data you wish to add",
       "details": {
         "title": "Adding data",
         "purpose_question": "What can I do with this data?",
         "howto_question": "How does it work?",
-        "back_button": "Cancel",
         "get_button": "Next",
         "obtain": "This card goes into your Yivi app.",
         "disclosure_info_requestor": "{requestor} only gets what they ask from this.",
@@ -303,16 +252,12 @@
         "body": "This device does not support NFC, so it is not able to load this credential. NFC is required to read your document.",
         "hint": "Requires NFC, which this device does not support. This credential cannot be loaded."
       },
-      "example": "Example",
-      "by": "by {issuer}",
       "stop_text": "What you entered so far is lost and nothing is added.",
       "add_more": "Add more",
-      "done": "Done",
       "added_more": "{name} added. Add something else?",
       "in_your_app": "In your app",
       "website": {
         "heading": "Continue on the website",
-        "body": "{issuer} asks you to confirm who you are on its website. You come back here by yourself afterwards.",
         "open": "To {host}",
         "caption": "The website opens in your browser; this request waits here for you.",
         "step_open": "Your browser opens {host}",
@@ -325,11 +270,6 @@
         "other": "Choose something else"
       }
     },
-    "search": {
-      "no_results": "No data found for '{query}'."
-    },
-    "category_other": "Other",
-    "category_personal": "Personal",
     "problematic": {
       "title": "Couldn't load this data",
       "explanation": "This stored data is damaged and can't be shown. You can delete it."
@@ -355,14 +295,6 @@
     }
   },
   "disclosure_permission": {
-    "overview": {
-      "requestor_verification": {
-        "explanation": "What does this mean?",
-        "bottom_sheet": {
-          "title": "Known and unknown organizations"
-        }
-      }
-    },
     "confirm_close_dialog": {
       "title": "Cancel sharing data?",
       "explanation": "Are you sure you don't want to share your data?",
@@ -379,11 +311,7 @@
         "email": "Email address",
         "personal": "Personal data",
         "phone": "Mobile number",
-        "municipality": "Your municipality",
-        "share_only": "You share only",
-        "over_18": "Over 18",
-        "date_of_birth": "Date of birth",
-        "added": "Added 02-03-2024"
+        "municipality": "Your municipality"
       }
     },
     "confirm_pin": {
@@ -515,16 +443,9 @@
       "notifications": "Notifications",
       "more": "More",
       "scan_qr": "Scan QR"
-    },
-    "nav_bar_hints": {
-      "data": "tab 1 out of 4",
-      "activity": "tab 2 out of 4",
-      "notifications": "tab 3 out of 4",
-      "more": "tab 4 out of 4"
     }
   },
   "data_tab": {
-    "expired_label": "{name}, expired",
     "start": {
       "title": "No data yet",
       "website_text": "Tap “Open Yivi app” there",
@@ -595,9 +516,7 @@
     "for_request": "For {requestor}",
     "for_request_step": "For {requestor} · step {step} of {total}",
     "returned_from": "Back from the website of {issuer}",
-    "all_together": "All cards are added together",
-    "mismatch": "{requestor} needs {attribute} {value}. This card has {offered}, so it won't count for this request. You can still add it.",
-    "mismatch_none": "{requestor} needs {attribute} {value}. This card doesn't have it, so it won't count for this request. You can still add it."
+    "all_together": "All cards are added together"
   },
   "email_issuance": {
     "enter_email": {
@@ -616,7 +535,6 @@
       "title": "Verify email address",
       "header": "We've sent you an email",
       "body": "We've sent an email with a verification code to {email}.\n\nEnter the verification code from the email to continue.",
-      "next_button": "Verify code",
       "back_button": "Cancel",
       "no_email_received": "No email received?",
       "error": "Something went wrong while verifying the verification code.",
@@ -688,7 +606,6 @@
       "title": "Verify phone number",
       "header": "We've sent you an sms",
       "body": "We've sent an sms with a verification code to {phone}.\n\nEnter the verification code from the sms to continue.",
-      "next_button": "Verify code",
       "back_button": "Cancel",
       "no_sms_received": "No sms received?",
       "error": "Something went wrong while verifying the verification code.",
@@ -712,17 +629,6 @@
   },
   "external_issuer": {
     "returned": "You're back from the website of {issuer}"
-  },
-  "issue_wizard": {
-    "back": "Cancel",
-    "done": "OK",
-    "add": "Add",
-    "add_cards": "Add cards",
-    "add_credential": "Add {credential}",
-    "success": {
-      "header": "Success",
-      "content": "You have successfully completed all steps"
-    }
   },
   "more_tab": {
     "app_management": "App management",
@@ -748,7 +654,6 @@
     "subtitle": "Enter your PIN",
     "unlock": "Unlock",
     "button_forgot": "I forgot my PIN",
-    "button_block": "Block Yivi",
     "biometric_button": "Unlock with biometrics",
     "biometric_reason": "Unlock the Yivi app",
     "biometric_confirm_reason": "Confirm to enable biometric unlock",
@@ -784,16 +689,12 @@
       "time-0": "{time} days",
       "time-1": "{time} day",
       "time-2": "{time} days"
-    },
-    "done": "Continue",
-    "view": "Show PIN",
-    "hide": "Hide PIN"
+    }
   },
   "qr_scanner": {
     "title": "Scan QR code",
     "instruction": {
-      "message": "Point your camera at a Yivi QR code",
-      "semantic": "Point your camera at a Yivi QR code."
+      "message": "Point your camera at a Yivi QR code"
     },
     "success": {
       "message": "Done, the QR code is scanned",
@@ -835,9 +736,6 @@
   },
   "session": {
     "navigation_bar": {
-      "more": "More",
-      "yes": "Yes",
-      "no": "No",
       "back": "Back",
       "cancel": "Cancel"
     },
@@ -847,10 +745,6 @@
       "waiting": "Waiting for the website…",
       "heading": "Enter this code on the website",
       "explanation": "{requestor} shows a field for it. It links this phone to that screen, so nobody else can use your QR code."
-    },
-    "unknown_session_type": {
-      "title": "Cancelled",
-      "explanation": "The Yivi session that you started is not supported by the app."
     }
   },
   "session_pin": {
@@ -892,15 +786,11 @@
   },
   "ui": {
     "loading": "Loading…",
-    "step_of_steps": "Step {i} of {n}",
-    "step": "Step",
     "done": "Done",
-    "next": "Next",
     "previous": "Previous",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "delete": "Delete",
-    "skip": "Skip",
     "continue": "Continue",
     "retry": "Try again",
     "error": "Something went wrong",
@@ -1038,10 +928,7 @@
   "driving_licence": {
     "scan": {
       "title": "Scan driving licence",
-      "success": "Success",
-      "success_explanation": "The driving licence has been successfully scanned.",
-      "manual": "Enter manually",
-      "error": "Could not read driving licence. Please try again."
+      "manual": "Enter manually"
     },
     "manual": {
       "title": "Enter driving licence details",
@@ -1053,17 +940,9 @@
       }
     },
     "nfc": {
-      "introduction": "You'll now scan the data inside your driving licence.\n\nHold the back of your phone against your driving licence. Press start to start the scanning process.",
       "title": "Read driving licence",
-      "reading": "Reading...",
       "error": "Could not read driving licence. Please try again.",
-      "success": "Success",
-      "success_explanation": "Driving licence reading completed successfully",
-      "idle": "Ready to start reading driving licence",
-      "cancelling": "Cancelling...",
       "cancelled": "Cancelled",
-      "finished": "Finished",
-      "authenticating": "Authenticating with driving licence...",
       "error_generic": "An error has occurred while reading driving licence.",
       "timeout_waiting_for_tag": "Timeout while waiting for driving licence tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
@@ -1079,10 +958,7 @@
   "id_card": {
     "scan": {
       "title": "Scan ID-card",
-      "success": "Success",
-      "success_explanation": "The ID-card has been successfully scanned.",
-      "manual": "Enter manually",
-      "error": "Could not read ID-card. Please try again."
+      "manual": "Enter manually"
     },
     "manual": {
       "title": "Enter ID-card details",
@@ -1099,17 +975,9 @@
       }
     },
     "nfc": {
-      "introduction": "You'll now scan the data inside your ID-card.\n\nHold the back of your phone against your ID-card. Press start to start the scanning process.",
       "title": "Read ID-card",
-      "reading": "Reading...",
       "error": "Could not read ID-card. Please try again.",
-      "success": "Success",
-      "success_explanation": "Reading ID-card completed successfully",
-      "idle": "Ready to start reading ID-card",
-      "cancelling": "Cancelling...",
       "cancelled": "Cancelled",
-      "finished": "Finished",
-      "authenticating": "Authenticating with ID-card...",
       "error_generic": "An error has occurred while reading ID-card.",
       "timeout_waiting_for_tag": "Timeout while waiting for ID-card tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
@@ -1125,10 +993,7 @@
   "passport": {
     "scan": {
       "title": "Scan passport",
-      "success": "Success",
-      "success_explanation": "The passport has been successfully scanned.",
-      "manual": "Enter manually",
-      "error": "Could not read passport. Please try again."
+      "manual": "Enter manually"
     },
     "manual": {
       "title": "Enter passport details",
@@ -1145,17 +1010,9 @@
       }
     },
     "nfc": {
-      "introduction": "You'll now scan the data inside your passport.\n\nHold the back of your phone against your passport. Press start to start the scanning process.",
       "title": "Read passport",
-      "reading": "Reading...",
       "error": "Could not read passport. Please try again.",
-      "success": "Success",
-      "success_explanation": "Passport reading completed successfully",
-      "idle": "Ready to start passport reading",
-      "cancelling": "Cancelling...",
       "cancelled": "Cancelled",
-      "finished": "Finished",
-      "authenticating": "Authenticating with passport...",
       "error_generic": "An error has occurred while reading passport.",
       "timeout_waiting_for_tag": "Timeout while waiting for passport tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
@@ -1253,7 +1110,6 @@
     }
   },
   "credential_card": {
-    "issued_by": "Issued by",
     "added_on": "Added {date}",
     "source": {
       "issuer_design": "Card designed by issuer",
@@ -1374,14 +1230,8 @@
       "pick_card": "Which card do you share?",
       "subtitle_one": "{requestor} only needs one. Tap the card you want to share.",
       "subtitle_one_add": "{requestor} only needs one. Choose one.",
-      "already_in_app": "Already in your app",
       "for_requestor": "For {requestor}",
       "for_requestor_set": "For {requestor} · card {n} of {total}",
-      "progress_short": "{step} of {total}",
-      "progress_done": "Done",
-      "progress_done_label": "All steps done",
-      "opened_note": "{host} is open. Come back here when you're done there: this request waits for you.",
-      "open_again": "Open again",
       "stop_title": "Stop adding {name}?",
       "stop_text": "What you did so far is lost and nothing is added. {requestor} still asks for it.",
       "stop_confirm": "Stop adding",
@@ -1569,7 +1419,6 @@
     "new_chip": "New",
     "together": "These go together. {requestor} gets both, or neither.",
     "also_share": "Share too",
-    "dont_share": "Don't share",
     "lead_side": "{requestor} only gets what is next to this, and only when you press the share button. Everything else stays on your phone.",
     "lead_side_sign": "{requestor} only gets what is next to this, and only when you press the sign button. Everything else stays on your phone.",
     "lead_side_receive": "You only share what is next to this and get a card in return, only when you press the share button. Everything else stays on your phone.",
@@ -1675,9 +1524,6 @@
       "body_email": "Nothing is added. You can open the link in the email again later.",
       "confirm": "Stop",
       "keep": "Keep it"
-    },
-    "semantics": {
-      "stop": "Stop this request"
     }
   },
   "scan_tip": {

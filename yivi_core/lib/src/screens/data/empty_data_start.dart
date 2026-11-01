@@ -13,7 +13,7 @@ import "../../widgets/caps_label.dart";
 import "../../widgets/icon_square.dart";
 import "../../widgets/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
-import "../home/widgets/irma_qr_scan_button.dart";
+import "../home/widgets/open_qr_scanner.dart";
 
 /// The empty Data tab, held upright: "No data yet" and the three ways to get
 /// the first data.
@@ -196,10 +196,9 @@ class _Option extends StatelessWidget {
           side: YiviEdges.block(context),
         ),
         clipBehavior: Clip.antiAlias,
+        // The theme's grey press highlight, as every other row.
         child: InkWell(
           onTap: onTap,
-          splashFactory: NoSplash.splashFactory,
-          highlightColor: palette.divider,
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(

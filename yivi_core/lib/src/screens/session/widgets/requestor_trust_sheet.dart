@@ -9,11 +9,11 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/sheet_action_row.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/technical_details.dart";
-import "session_requestor_header.dart";
+import "requestor_card.dart";
 import "technical_details_sheet.dart";
 
 const _portalOrganisations = "https://portal.yivi.app/organizations";
@@ -22,7 +22,7 @@ const _euTrustedList =
     "https://eidas.ec.europa.eu/efda/trust-services/browse/eidas/tls";
 
 /// What it means that [requestor] is (or is not) vouched for: the trust
-/// sheet, opened from the requestor card and from the warning banner.
+/// sheet, opened from the requestor card ([RequestorCard]).
 ///
 /// [onDontShare] is "Don't share" for a party nobody vouches for: it closes
 /// the request. With [technicalDetails] the sheet ends with a row that opens
@@ -350,7 +350,7 @@ class _Do {
   });
 }
 
-/// White rounded group of rows, with lines between them.
+/// A rounded group of rows on a surface card, with lines between them.
 class _Group extends StatelessWidget {
   final List<Widget> children;
 
@@ -361,8 +361,8 @@ class _Group extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
       decoration: SurfaceCard.decoration(context),
-      // A row's press highlight paints here, over the white card and within
-      // its corners.
+      // A row's press highlight paints here, over the card and within its
+      // corners.
       child: Material(
         type: MaterialType.transparency,
         shape: const RoundedRectangleBorder(

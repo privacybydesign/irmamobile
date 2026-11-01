@@ -8,10 +8,10 @@ import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/screens/home/widgets/home_tab_top.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
-import "package:yivi_core/src/widgets/glass/home_tab_top.dart";
-import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
+import "package:yivi_core/src/widgets/scroll_edge.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";

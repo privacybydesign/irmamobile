@@ -11,21 +11,20 @@ import "../../providers/pane_selection_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_corners.dart";
-import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/nfc_credentials.dart";
-import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../data/wallet/issuance_flight.dart";
+import "../home/widgets/home_tab_top.dart";
 import "../session/widgets/issue_flow.dart";
+import "add_data_row.dart";
 
 /// Opens Add data: a sheet over the Data tab with every type of card the
 /// user can add, and the whole of adding one inside it ([AddDataSheet]).
@@ -394,18 +393,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                 SliverMainAxisGroup(
                   slivers: [
                     if (title(group).isNotEmpty)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
-                          child: Semantics(
-                            header: true,
-                            child: Text(
-                              title(group),
-                              style: palette.display(15),
-                            ),
-                          ),
-                        ),
-                      ),
+                      SliverToBoxAdapter(child: GlassTileHeader(title(group))),
                     SliverPadding(
                       padding: const EdgeInsets.only(bottom: 12),
                       sliver: SliverList.builder(
@@ -420,7 +408,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                                 for (final i in [2 * r, 2 * r + 1])
                                   Expanded(
                                     child: i < items.length
-                                        ? _card(row(items[i]))
+                                        ? GlassTile(child: row(items[i]))
                                         : const SizedBox.shrink(),
                                   ),
                               ],
@@ -532,110 +520,4 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     padding: const EdgeInsets.symmetric(horizontal: 16),
     sliver: sliver,
   );
-
-  /// A row of the list as a card of its own (the list sideways).
-  Widget _card(Widget row) {
-    final palette = YiviPalette.of(context);
-    return Material(
-      color: palette.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: YiviCorners.cardRadius,
-        side: YiviEdges.block(context),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Center(child: row),
-    );
-  }
-}
-
-/// One credential type to add: its card, small (with a check when the user
-/// has one already, [owned]), its name, and the issuer, after "Needs NFC"
-/// for documents. Greyed out when it needs NFC the device lacks.
-class AddDataRow extends StatelessWidget {
-  final CredentialStoreItem item;
-
-  /// Needs NFC the device does not have: greyed out, with the reason under
-  /// the name and as a screen-reader hint.
-  final bool nfcBlocked;
-
-  /// The user has a card of this type already.
-  final bool owned;
-  final VoidCallback onTap;
-
-  const AddDataRow({
-    super.key,
-    required this.item,
-    required this.nfcBlocked,
-    this.owned = false,
-    required this.onTap,
-  });
-
-  /// Where a divider between rows starts: past the card.
-  static const dividerIndent = 16.0 + 56 + 14;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final credential = item.credential;
-    final subtitle = nfcBlocked
-        ? context.tr("data.add.nfc_unsupported.hint")
-        : credential.issuer.name;
-
-    return Semantics(
-      button: true,
-      excludeSemantics: true,
-      label: [
-        credential.name,
-        subtitle,
-        if (owned && !nfcBlocked) context.tr("data.add.in_your_app"),
-      ].join(", "),
-      onTap: onTap,
-      child: Opacity(
-        opacity: nfcBlocked ? 0.5 : 1,
-        child: InkWell(
-          key: Key("${credential.credentialId}_tile"),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 64),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-              child: Row(
-                spacing: 14,
-                children: [
-                  CredentialTypeThumbnail(
-                    descriptor: credential,
-                    owned: owned && !nfcBlocked,
-                    greyedOut: nfcBlocked,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          credential.name,
-                          style: palette
-                              .display(15.5)
-                              .copyWith(height: 21 / 15.5, color: palette.text),
-                        ),
-                        Text(
-                          subtitle,
-                          key: Key("${credential.credentialId}_subtitle"),
-                          maxLines: nfcBlocked ? 3 : 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .body(13)
-                              .copyWith(color: palette.secondaryText),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.chevron_right, size: 20, color: palette.faint),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

@@ -1,48 +1,8 @@
-import "package:collection/collection.dart";
 import "package:json_annotation/json_annotation.dart";
 
-import "event.dart";
 import "translated_value.dart";
 
 part "issue_wizard.g.dart";
-
-// TODO: remove issue wizard support
-
-class IssueWizardEvent extends Event {
-  IssueWizardEvent({
-    required this.wizardData,
-    required this.wizardContents,
-    this.haveCredential = false,
-  });
-
-  final IssueWizard wizardData;
-  final List<IssueWizardItem> wizardContents;
-  final bool haveCredential;
-
-  bool get showSuccess =>
-      wizardData.successHeader.isNotEmpty && wizardData.successText.isNotEmpty;
-  bool get completed =>
-      haveCredential || wizardContents.every((item) => item.completed);
-  IssueWizardItem? get activeItem =>
-      wizardContents.firstWhereOrNull((item) => !item.completed);
-  int get activeItemIndex =>
-      wizardContents.indexWhere((item) => !item.completed);
-
-  /// A copy of the event with the currently active item marked completed.
-  IssueWizardEvent get nextEvent => IssueWizardEvent(
-    wizardData: wizardData,
-    haveCredential: haveCredential,
-    wizardContents: wizardContents
-        .asMap()
-        .entries
-        .map(
-          (e) => e.value.copyWith(
-            completed: e.key == activeItemIndex || e.value.completed,
-          ),
-        )
-        .toList(),
-  );
-}
 
 // Go's IssueWizard has camelCase json tags.
 @JsonSerializable(fieldRename: FieldRename.none)
@@ -152,30 +112,6 @@ class IssueWizardItem {
   final bool inApp;
 
   final bool completed;
-
-  IssueWizardItem copyWith({
-    String? type,
-    String? credential,
-    TranslatedValue? header,
-    TranslatedValue? text,
-    TranslatedValue? label,
-    String? sessionURL,
-    TranslatedValue? url,
-    bool? inApp,
-    bool? completed,
-  }) {
-    return IssueWizardItem(
-      type: type ?? this.type,
-      credential: credential ?? this.credential,
-      header: header ?? this.header,
-      text: text ?? this.text,
-      label: label ?? this.label,
-      sessionURL: sessionURL ?? this.sessionURL,
-      url: url ?? this.url,
-      inApp: inApp ?? this.inApp,
-      completed: completed ?? this.completed,
-    );
-  }
 
   factory IssueWizardItem.fromJson(Map<String, dynamic> json) =>
       _$IssueWizardItemFromJson(json);

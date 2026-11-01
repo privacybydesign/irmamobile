@@ -590,7 +590,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         onTap: widget.onTogglePinSize ?? widget.onForgotPin ?? () {},
         label: FlutterI18n.translate(
           context,
-          isToggle ? _getTogglePinSizeSemanticKey() : "pin.button_forgot",
+          isToggle ? _pinSizeToggleKey() : "pin.button_forgot",
         ),
       ),
     );
@@ -887,7 +887,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  String _getTogglePinSizeSemanticKey() {
+  String _pinSizeToggleKey() {
     return 'choose_pin.switch_pin_size.${widget.maxPinSize > shortPinSize ? 'short' : 'long'}';
   }
 }
@@ -926,3 +926,41 @@ String? pinAttemptLine(
   }
   return null;
 }
+
+/// What the PIN screen shows about the attempts: the line under the title
+/// ([pinAttemptLine]) as an error, with a clock while [blocked], and the
+/// dots red after a wrong PIN.
+class PinAttempts {
+  final String? line;
+  final bool blocked;
+
+  PinAttempts.of(
+    BuildContext context, {
+    required Duration blockedFor,
+    required this.blocked,
+    required bool wrong,
+    int? left,
+  }) : line = pinAttemptLine(
+         context,
+         blockedFor: blockedFor,
+         wrong: wrong,
+         left: left,
+       );
+
+  PinDetailKind get detailKind =>
+      line == null ? PinDetailKind.info : PinDetailKind.error;
+
+  bool get pinError => line != null && !blocked;
+}
+
+/// A [YiviPinScreen.listener] that submits a short PIN as soon as all its
+/// digits are in (a long one has a button), while [enabled].
+void Function(BuildContext, EnterPinState) submitWhenFull(
+  int maxPinSize,
+  void Function(String pin) submit, {
+  bool enabled = true,
+}) => (context, state) {
+  if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
+    submit(state.toString());
+  }
+};

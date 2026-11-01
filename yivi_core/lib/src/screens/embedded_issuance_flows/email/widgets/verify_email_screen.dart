@@ -2,7 +2,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../../routing.dart";
 import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
@@ -24,15 +23,12 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return _VerifyCodeScreenState();
+    return _VerifyEmailScreenState();
   }
 }
 
-class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
-    with RouteAware {
-  final _focusNode = FocusNode();
-  final _textController = TextEditingController();
-
+class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
+    with VerifyCodeScreen {
   var _codeComplete = false;
   var _codeFromLink = false;
 
@@ -47,28 +43,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   }
 
   @override
-  void didPopNext() {
-    Future.microtask(() {
-      ref.read(emailIssuanceProvider.notifier).reset();
-    });
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    _focusNode.dispose();
-    _textController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      routeObserver.subscribe(this, route);
-    }
-  }
+  void resetFlow() => ref.read(emailIssuanceProvider.notifier).reset();
 
   void _codeChanged(String code) {
     final complete = code.length == emailCodeLength;
@@ -89,7 +64,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     if (link.email case final email?) {
       ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
     }
-    _textController.text = link.code;
+    codeController.text = link.code;
     setState(() {
       _codeComplete = true;
       _codeFromLink = true;
@@ -107,12 +82,12 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     ref.listen(emailIssuanceProvider, (prev, next) {
       if (next.error is EmailIssuanceInvalidCodeError &&
           (prev?.error != next.error)) {
-        _textController.text = "";
+        codeController.text = "";
         setState(() {
           _codeComplete = false;
           _codeFromLink = false;
         });
-        _focusNode.requestFocus();
+        codeFocus.requestFocus();
       }
     });
 
@@ -151,7 +126,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
           titleTranslationKey: titleKey,
           leading: YiviBackButton(onTap: _goBack),
         ),
-        focusNode: _focusNode,
+        focusNode: codeFocus,
         fieldAlignment: 0.2,
         before: [
           ContactIntro(
@@ -168,8 +143,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
         ],
         field: ContactCodeField(
           fieldKey: const Key("email_verification_code_input_field"),
-          controller: _textController,
-          focusNode: _focusNode,
+          controller: codeController,
+          focusNode: codeFocus,
           length: emailCodeLength,
           invalid: codeInvalid,
           onChanged: _linking ? _codeChanged : null,
@@ -207,7 +182,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                     ? null
                     : context.tr("contact_sheet.send_again_in", {"time": left}),
                 onTap: left == null
-                    ? () => showResendSmsDialog(state.email)
+                    ? () => _showResendDialog(state.email)
                     : null,
               ),
             ),
@@ -220,14 +195,14 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                 builder: (context, left) => IrmaBottomBar(
                   primaryButtonLabel: "email_linking.verify_code.next_button",
                   onPrimaryPressed: _codeComplete
-                      ? () => _handleCode(_textController.text)
+                      ? () => _handleCode(codeController.text)
                       : null,
                   secondaryButtonLabel: left == null
                       ? "email_linking.verify_code.resend_button"
                       : "email_linking.verify_code.resend_button_in",
                   secondaryButtonParams: left == null ? null : {"time": left},
                   onSecondaryPressed: left == null
-                      ? () => showResendSmsDialog(state.email)
+                      ? () => _showResendDialog(state.email)
                       : null,
                 ),
               )
@@ -252,28 +227,15 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     }
   }
 
-  Future<void> _goBack() async {
-    final result = await confirmContactStep(
-      context,
-      "email_issuance.verify_code.back_dialog",
-    );
-    if (result) {
-      ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
-    }
-  }
+  Future<void> _goBack() => confirmThen(
+    "email_issuance.verify_code.back_dialog",
+    ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail,
+  );
 
-  Future<void> showResendSmsDialog(String email) async {
-    final resend = await confirmContactStep(
-      context,
-      "email_issuance.verify_code.resend_dialog",
-    );
-
-    if (!resend || !mounted) {
-      return;
-    }
-
-    ref
+  Future<void> _showResendDialog(String email) => confirmThen(
+    "email_issuance.verify_code.resend_dialog",
+    () => ref
         .read(emailIssuanceProvider.notifier)
-        .sendEmail(email: email, language: context.lang);
-  }
+        .sendEmail(email: email, language: context.lang),
+  );
 }

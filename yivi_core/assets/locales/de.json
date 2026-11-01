@@ -2,21 +2,13 @@
   "accessibility": {
     "irma_logo": "Yivi Logo",
     "slideshow": "Folie {i} von {n}: {description}",
-    "menu": "Menü",
-    "back": "Zurück",
     "close": "Schließen",
-    "next": "Weiter",
     "alert": "Hinweis",
-    "previous": "Vorherige",
     "expanded": "Ausgeklappt",
     "collapsed": "Eingeklappt",
-    "unfold": "Aufklappen",
-    "update": "Aktualisieren",
     "remove": "Entfernen",
-    "expand": "Erweitern",
     "expand_hint": "Doppeltippen zum Erweitern",
-    "collapse_hint": "Doppeltippen zum Einklappen",
-    "refresh": "Aktualisieren"
+    "collapse_hint": "Doppeltippen zum Einklappen"
   },
   "new_terms_and_conditions": {
     "title": "Neue Nutzungsbedingungen",
@@ -28,21 +20,15 @@
     "ok": "OK"
   },
   "activity": {
-    "data_deleted": "Daten gelöscht",
     "data_deleted_semantics": "Daten von {issuerName} am {date} gelöscht",
-    "data_received": "Daten empfangen",
     "data_received_semantics": "Daten von {otherParty} am {date} empfangen",
-    "data_shared": "Daten geteilt",
     "data_shared_semantics": "Daten mit {otherParty} am {date} geteilt",
     "signed_message": "Signierte Nachricht",
-    "message_signed": "Nachricht signiert",
     "signed_message_semantics": "Nachricht von {otherParty} am {date} signiert",
     "shared_with": "Geteilt mit",
     "received_from": "Empfangen von",
     "empty_placeholder": "Es gibt noch keine gespeicherten Aktivitäten",
     "yesterday": "Gestern",
-    "search_placeholder": "Aktivität durchsuchen",
-    "no_results": "Keine Aktivität passt zu deiner Suche",
     "deleted_from": "Daten gelöscht von",
     "signed_for": "Nachricht signiert für",
     "note": {
@@ -84,13 +70,6 @@
     "not_checked": "Unbekannte Partei · {host}",
     "unknown_party": "Unbekannte Partei",
     "all_with_party": "Alle Aktivitäten mit {name}",
-    "filter_label": "Aktivität anzeigen",
-    "filter_empty": {
-      "shared": "Noch nichts geteilt",
-      "received": "Noch nichts erhalten",
-      "signed": "Noch nichts signiert",
-      "deleted": "Noch nichts gelöscht"
-    },
     "query": {
       "search_hint": "Nach Karte, Partei oder Daten suchen",
       "cancel": "Abbrechen",
@@ -101,26 +80,9 @@
       "or": "oder",
       "group_all": "{group} (alle)",
       "suggest": {
-        "kinds": "Was passiert ist",
-        "recent": "Zuletzt",
-        "cards": "Karten",
-        "parties": "Parteien",
-        "fields": "Daten",
-        "search_for": "Nach \"{text}\" suchen",
-        "search_where": "In Namen, Daten und Nachrichten",
-        "value_for": "Daten mit \"{text}\"",
-        "value_where": "Nur in den Daten selbst, über alle Karten",
-        "from_card": "Aus {card}",
-        "last": "{times}, zuletzt am {date}"
+        "value_for": "Daten mit \"{text}\""
       },
       "value_chip": "Daten: {text}",
-      "fits-0": "Passt nicht zu deinen Filtern",
-      "fits-1": "1 passt zu deinen Filtern",
-      "fits-2": "{count} passen zu deinen Filtern",
-      "show_results": "Ergebnisse anzeigen",
-      "show_results_count-0": "Keine Ergebnisse",
-      "show_results_count-1": "1 Ergebnis anzeigen",
-      "show_results_count-2": "{count} Ergebnisse anzeigen",
       "clear": "Filter löschen",
       "none": "Keine passende Aktivität.",
       "everything": "Alle Aktivitäten",
@@ -163,9 +125,6 @@
         "fits-1": "1 passt zu deiner Auswahl",
         "fits-2": "{count} passen zu deiner Auswahl"
       },
-      "times-0": "{count}-mal",
-      "times-1": "einmal",
-      "times-2": "{count}-mal",
       "results-0": "{count} Ergebnisse",
       "results-1": "1 Ergebnis",
       "results-2": "{count} Ergebnisse"
@@ -188,7 +147,6 @@
     "toast": "Erfolgreich! Ihre neue PIN wurde gespeichert",
     "enter_pin": {
       "instruction": "Geben Sie Ihre aktuelle PIN ein",
-      "error_title": "PIN falsch",
       "error": "Geben Sie Ihre aktuelle PIN ein"
     },
     "confirm_pin": {
@@ -267,25 +225,16 @@
     }
   },
   "data": {
-    "tab": {
-      "title": "Meine Daten"
-    },
-    "detail": {
-      "title": "Kontaktinformationen"
-    },
     "add": {
       "search": "Daten zum Hinzufügen suchen",
       "no_results": "Keine Daten gefunden für „{query}“",
       "demo": "Demo (Beispieldaten)",
       "staging": "Staging (Testumgebung)",
       "title": "Daten hinzufügen",
-      "hint": "Doppeltippen zum Hinzufügen",
-      "choose": "Wählen Sie die Daten, die Sie hinzufügen möchten",
       "details": {
         "title": "Daten hinzufügen",
         "purpose_question": "Was kann ich mit diesen Daten machen?",
         "howto_question": "Wie funktioniert es?",
-        "back_button": "Abbrechen",
         "get_button": "Weiter",
         "obtain": "Diese Karte kommt in deine Yivi-App.",
         "disclosure_info_requestor": "{requestor} bekommt davon nur, was sie fragen.",
@@ -303,16 +252,12 @@
         "body": "Dieses Gerät unterstützt kein NFC und kann diese Karte daher nicht laden. NFC wird benötigt, um Ihr Dokument zu lesen.",
         "hint": "Erfordert NFC, das dieses Gerät nicht unterstützt. Diese Karte kann nicht geladen werden."
       },
-      "example": "Beispiel",
-      "by": "von {issuer}",
       "stop_text": "Was du bisher eingegeben hast, geht verloren, und es wird nichts hinzugefügt.",
       "add_more": "Weitere hinzufügen",
-      "done": "Fertig",
       "added_more": "{name} hinzugefügt. Noch etwas anderes hinzufügen?",
       "in_your_app": "In deiner App",
       "website": {
         "heading": "Weiter auf der Website",
-        "body": "{issuer} bittet Sie, auf der Website zu bestätigen, wer Sie sind. Danach kommen Sie von selbst hierher zurück.",
         "open": "Zu {host}",
         "caption": "Die Website öffnet sich in Ihrem Browser; diese Anfrage wartet hier auf Sie.",
         "step_open": "Dein Browser öffnet {host}",
@@ -325,11 +270,6 @@
         "other": "Etwas anderes wählen"
       }
     },
-    "search": {
-      "no_results": "Keine Daten gefunden für '{query}'."
-    },
-    "category_other": "Sonstiges",
-    "category_personal": "Persönlich",
     "problematic": {
       "title": "Diese Daten konnten nicht geladen werden",
       "explanation": "Diese gespeicherten Daten sind beschädigt und können nicht angezeigt werden. Sie können sie löschen."
@@ -355,14 +295,6 @@
     }
   },
   "disclosure_permission": {
-    "overview": {
-      "requestor_verification": {
-        "explanation": "Was bedeutet das?",
-        "bottom_sheet": {
-          "title": "Bekannte und unbekannte Organisationen"
-        }
-      }
-    },
     "confirm_close_dialog": {
       "title": "Datenfreigabe abbrechen?",
       "explanation": "Sind Sie sicher, dass Sie Ihre Daten nicht teilen möchten?",
@@ -382,11 +314,7 @@
         "email": "E-Mail-Adresse",
         "personal": "Persönliche Daten",
         "phone": "Handynummer",
-        "municipality": "Ihre Gemeinde",
-        "share_only": "Sie teilen nur",
-        "over_18": "Über 18",
-        "date_of_birth": "Geburtsdatum",
-        "added": "Hinzugefügt 02-03-2024"
+        "municipality": "Ihre Gemeinde"
       }
     },
     "confirm_pin": {
@@ -518,16 +446,9 @@
       "notifications": "Mitteilungen",
       "more": "Mehr",
       "scan_qr": "QR scannen"
-    },
-    "nav_bar_hints": {
-      "data": "Tab 1 von 4",
-      "activity": "Tab 2 von 4",
-      "notifications": "Tab 3 von 4",
-      "more": "Tab 4 von 4"
     }
   },
   "data_tab": {
-    "expired_label": "{name}, abgelaufen",
     "start": {
       "title": "Noch keine Daten",
       "website_text": "Tippen Sie dort auf „Yivi-App öffnen“",
@@ -598,9 +519,7 @@
     "for_request": "Für {requestor}",
     "for_request_step": "Für {requestor} · Schritt {step} von {total}",
     "returned_from": "Zurück von der Website von {issuer}",
-    "all_together": "Alle Karten werden zusammen hinzugefügt",
-    "mismatch": "{requestor} benötigt {attribute} {value}. Diese Karte hat {offered} und zählt daher nicht für diese Anfrage. Du kannst sie trotzdem hinzufügen.",
-    "mismatch_none": "{requestor} benötigt {attribute} {value}. Diese Karte hat das nicht und zählt daher nicht für diese Anfrage. Du kannst sie trotzdem hinzufügen."
+    "all_together": "Alle Karten werden zusammen hinzugefügt"
   },
   "email_issuance": {
     "enter_email": {
@@ -619,7 +538,6 @@
       "title": "E-Mail-Adresse verifizieren",
       "header": "Wir haben Ihnen eine E-Mail gesendet",
       "body": "Wir haben eine E-Mail mit einem Bestätigungscode an {email} gesendet.\n\nGeben Sie den Bestätigungscode aus der E-Mail ein, um fortzufahren.",
-      "next_button": "Code verifizieren",
       "back_button": "Abbrechen",
       "no_email_received": "Keine E-Mail erhalten?",
       "error": "Beim Verifizieren des Bestätigungscodes ist etwas schiefgelaufen.",
@@ -691,7 +609,6 @@
       "title": "Telefonnummer verifizieren",
       "header": "Wir haben Ihnen eine SMS gesendet",
       "body": "Wir haben eine SMS mit einem Bestätigungscode an {phone} gesendet.\n\nGeben Sie den Bestätigungscode aus der SMS ein, um fortzufahren.",
-      "next_button": "Code verifizieren",
       "back_button": "Abbrechen",
       "no_sms_received": "Keine SMS erhalten?",
       "error": "Beim Verifizieren des Bestätigungscodes ist etwas schiefgelaufen.",
@@ -715,17 +632,6 @@
   },
   "external_issuer": {
     "returned": "Sie sind zurück von der Website von {issuer}"
-  },
-  "issue_wizard": {
-    "back": "Abbrechen",
-    "done": "OK",
-    "add": "Hinzufügen",
-    "add_cards": "Karten hinzufügen",
-    "add_credential": "{credential} hinzufügen",
-    "success": {
-      "header": "Erfolg",
-      "content": "Sie haben alle Schritte erfolgreich abgeschlossen"
-    }
   },
   "more_tab": {
     "app_management": "App-Verwaltung",
@@ -751,7 +657,6 @@
     "subtitle": "Geben Sie Ihre PIN ein",
     "unlock": "Entsperren",
     "button_forgot": "PIN vergessen",
-    "button_block": "Yivi sperren",
     "biometric_button": "Mit Biometrie entsperren",
     "biometric_reason": "Yivi-App entsperren",
     "biometric_confirm_reason": "Bestätigen Sie, um die biometrische Entsperrung zu aktivieren",
@@ -787,16 +692,12 @@
       "time-0": "{time} Tage",
       "time-1": "{time} Tag",
       "time-2": "{time} Tage"
-    },
-    "done": "Weiter",
-    "view": "PIN anzeigen",
-    "hide": "PIN verbergen"
+    }
   },
   "qr_scanner": {
     "title": "QR-Code scannen",
     "instruction": {
-      "message": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code",
-      "semantic": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code."
+      "message": "Richten Sie Ihre Kamera auf einen Yivi-QR-Code"
     },
     "success": {
       "message": "Erledigt, der QR-Code ist gescannt",
@@ -838,9 +739,6 @@
   },
   "session": {
     "navigation_bar": {
-      "more": "Mehr",
-      "yes": "Ja",
-      "no": "Nein",
       "back": "Zurück",
       "cancel": "Abbrechen"
     },
@@ -850,10 +748,6 @@
       "waiting": "Warten auf die Website…",
       "heading": "Gib diesen Code auf der Website ein",
       "explanation": "{requestor} zeigt dafür ein Feld an. So wird dieses Telefon mit dem Bildschirm verbunden und niemand sonst kann deinen QR-Code verwenden."
-    },
-    "unknown_session_type": {
-      "title": "Abgebrochen",
-      "explanation": "Die Yivi-Sitzung, die Sie gestartet haben, wird von der App nicht unterstützt."
     }
   },
   "session_pin": {
@@ -895,15 +789,11 @@
   },
   "ui": {
     "loading": "Laden…",
-    "step_of_steps": "Schritt {i} von {n}",
-    "step": "Schritt",
     "done": "Fertig",
-    "next": "Weiter",
     "previous": "Zurück",
     "cancel": "Abbrechen",
     "confirm": "Bestätigen",
     "delete": "Löschen",
-    "skip": "Überspringen",
     "continue": "Fortfahren",
     "retry": "Erneut versuchen",
     "error": "Etwas ist schiefgelaufen",
@@ -1041,10 +931,7 @@
   "driving_licence": {
     "scan": {
       "title": "Führerschein scannen",
-      "success": "Erfolg",
-      "success_explanation": "Der Führerschein wurde erfolgreich gescannt.",
-      "manual": "Manuell eingeben",
-      "error": "Führerschein konnte nicht gelesen werden. Bitte versuchen Sie es erneut."
+      "manual": "Manuell eingeben"
     },
     "manual": {
       "title": "Führerscheindaten eingeben",
@@ -1056,17 +943,9 @@
       }
     },
     "nfc": {
-      "introduction": "Sie scannen jetzt die Daten in Ihrem Führerschein.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Führerschein. Drücken Sie Start, um den Scanvorgang zu starten.",
       "title": "Führerschein lesen",
-      "reading": "Lesen...",
       "error": "Führerschein konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
-      "success": "Erfolg",
-      "success_explanation": "Führerschein erfolgreich gelesen",
-      "idle": "Bereit zum Starten des Lesens des Führerscheins",
-      "cancelling": "Abbrechen...",
       "cancelled": "Abgebrochen",
-      "finished": "Fertig",
-      "authenticating": "Authentifizierung mit Führerschein...",
       "error_generic": "Beim Lesen des Führerscheins ist ein Fehler aufgetreten.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Führerschein-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
@@ -1082,10 +961,7 @@
   "id_card": {
     "scan": {
       "title": "Personalausweis scannen",
-      "success": "Erfolg",
-      "success_explanation": "Der Personalausweis wurde erfolgreich gescannt.",
-      "manual": "Manuell eingeben",
-      "error": "Personalausweis konnte nicht gelesen werden. Bitte versuchen Sie es erneut."
+      "manual": "Manuell eingeben"
     },
     "manual": {
       "title": "Personalausweisdaten eingeben",
@@ -1102,17 +978,9 @@
       }
     },
     "nfc": {
-      "introduction": "Sie scannen jetzt die Daten in Ihrem Personalausweis.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Personalausweis. Drücken Sie Start, um den Scanvorgang zu starten.",
       "title": "Personalausweis lesen",
-      "reading": "Lesen...",
       "error": "Personalausweis konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
-      "success": "Erfolg",
-      "success_explanation": "Personalausweis erfolgreich gelesen",
-      "idle": "Bereit zum Starten des Lesens des Personalausweises",
-      "cancelling": "Abbrechen...",
       "cancelled": "Abgebrochen",
-      "finished": "Fertig",
-      "authenticating": "Authentifizierung mit Personalausweis...",
       "error_generic": "Beim Lesen des Personalausweises ist ein Fehler aufgetreten.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Personalausweis-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
@@ -1128,10 +996,7 @@
   "passport": {
     "scan": {
       "title": "Reisepass scannen",
-      "success": "Erfolg",
-      "success_explanation": "Der Reisepass wurde erfolgreich gescannt.",
-      "manual": "Manuell eingeben",
-      "error": "Reisepass konnte nicht gelesen werden. Bitte versuchen Sie es erneut."
+      "manual": "Manuell eingeben"
     },
     "manual": {
       "title": "Reisepassdaten eingeben",
@@ -1148,17 +1013,9 @@
       }
     },
     "nfc": {
-      "introduction": "Sie scannen jetzt die Daten in Ihrem Reisepass.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Reisepass. Drücken Sie Start, um den Scanvorgang zu starten.",
       "title": "Reisepass lesen",
-      "reading": "Lesen...",
       "error": "Reisepass konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
-      "success": "Erfolg",
-      "success_explanation": "Reisepass erfolgreich gelesen",
-      "idle": "Bereit zum Starten des Lesens des Reisepasses",
-      "cancelling": "Abbrechen...",
       "cancelled": "Abgebrochen",
-      "finished": "Fertig",
-      "authenticating": "Authentifizierung mit Reisepass...",
       "error_generic": "Beim Lesen des Reisepasses ist ein Fehler aufgetreten.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Reisepass-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
@@ -1256,7 +1113,6 @@
     }
   },
   "credential_card": {
-    "issued_by": "Ausgestellt von",
     "added_on": "Hinzugefügt {date}",
     "source": {
       "issuer_design": "Karte vom Aussteller gestaltet",
@@ -1374,14 +1230,8 @@
       "pick_card": "Welche Karte teilst du?",
       "subtitle_one": "{requestor} braucht nur eine. Tippe auf die Karte, die du teilen möchtest.",
       "subtitle_one_add": "{requestor} braucht nur eine. Wähle eine.",
-      "already_in_app": "Schon in deiner App",
       "for_requestor": "Für {requestor}",
       "for_requestor_set": "Für {requestor} · Karte {n} von {total}",
-      "progress_short": "{step} von {total}",
-      "progress_done": "Fertig",
-      "progress_done_label": "Alle Schritte erledigt",
-      "opened_note": "{host} ist geöffnet. Komm hierher zurück, wenn du dort fertig bist: diese Anfrage wartet auf dich.",
-      "open_again": "Erneut öffnen",
       "stop_title": "Hinzufügen von {name} abbrechen?",
       "stop_text": "Was du bisher getan hast, geht verloren, und es wird nichts hinzugefügt. {requestor} fragt weiterhin danach.",
       "stop_confirm": "Abbrechen",
@@ -1569,7 +1419,6 @@
     "new_chip": "Neu",
     "together": "Diese gehören zusammen. {requestor} bekommt beide oder keine.",
     "also_share": "Auch teilen",
-    "dont_share": "Nicht teilen",
     "lead_side": "{requestor} bekommt nur, was daneben steht, und erst, wenn du auf die Schaltfläche zum Teilen tippst. Alles andere bleibt auf deinem Telefon.",
     "lead_side_sign": "{requestor} bekommt nur, was daneben steht, und erst, wenn du auf die Schaltfläche zum Unterschreiben tippst. Alles andere bleibt auf deinem Telefon.",
     "lead_side_receive": "Du teilst nur, was daneben steht, und bekommst eine Karte zurück, erst wenn du auf die Schaltfläche zum Teilen tippst. Alles andere bleibt auf deinem Telefon.",
@@ -1675,9 +1524,6 @@
       "body_email": "Es wird nichts hinzugefügt. Du kannst den Link in der E-Mail später erneut öffnen.",
       "confirm": "Beenden",
       "keep": "Weiter"
-    },
-    "semantics": {
-      "stop": "Diese Anfrage beenden"
     }
   },
   "scan_tip": {

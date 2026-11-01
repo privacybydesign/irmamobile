@@ -7,8 +7,8 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
-import "session_requestor_header.dart";
 import "session_scaffold.dart";
 
 /// The pairing code to type on the website: who asks for it (or a shield

@@ -2,21 +2,13 @@
   "accessibility": {
     "irma_logo": "Yivi Logo",
     "slideshow": "Slide {i} van {n}: {description}",
-    "menu": "Menu",
-    "back": "Terug",
     "close": "Sluiten",
-    "next": "Volgende",
     "alert": "Melding",
-    "previous": "Vorige",
     "expanded": "Uitgevouwen",
     "collapsed": "Ingeklapt",
-    "unfold": "Uitvouwen",
-    "update": "Bijwerken",
     "remove": "Verwijderen",
-    "expand": "Uitklappen",
     "expand_hint": "Klik dubbel om open te vouwen",
-    "collapse_hint": "Klik dubbel om dicht te vouwen",
-    "refresh": "Verversen"
+    "collapse_hint": "Klik dubbel om dicht te vouwen"
   },
   "new_terms_and_conditions": {
     "title": "Nieuwe voorwaarden",
@@ -28,21 +20,15 @@
     "ok": "OK"
   },
   "activity": {
-    "data_deleted": "Gegevens verwijderd",
     "data_deleted_semantics": "Gegevens verwijderd van {issuerName} op {date}",
-    "data_received": "Gegevens ontvangen",
     "data_received_semantics": "Gegevens ontvangen van {otherParty} op {date}",
-    "data_shared": "Gegevens gedeeld",
     "data_shared_semantics": "Gegevens gedeeld met {otherParty} op {date}",
     "signed_message": "Getekend bericht",
-    "message_signed": "Bericht getekend",
     "signed_message_semantics": "Bericht getekend van {otherParty} op {date}",
     "shared_with": "Gedeeld met",
     "received_from": "Ontvangen van",
     "empty_placeholder": "Er zijn momenteel geen activiteiten",
     "yesterday": "Gisteren",
-    "search_placeholder": "Zoek in activiteit",
-    "no_results": "Geen activiteit gevonden voor je zoekopdracht",
     "deleted_from": "Gegevens verwijderd van",
     "signed_for": "Bericht ondertekend voor",
     "note": {
@@ -84,13 +70,6 @@
     "not_checked": "Onbekende partij · {host}",
     "unknown_party": "Onbekende partij",
     "all_with_party": "Alle activiteit met {name}",
-    "filter_label": "Toon activiteit",
-    "filter_empty": {
-      "shared": "Nog niets gedeeld",
-      "received": "Nog niets ontvangen",
-      "signed": "Nog niets ondertekend",
-      "deleted": "Nog niets verwijderd"
-    },
     "query": {
       "search_hint": "Zoek op kaartje, partij of gegeven",
       "cancel": "Annuleer",
@@ -101,26 +80,9 @@
       "or": "of",
       "group_all": "{group} (alles)",
       "suggest": {
-        "kinds": "Wat er gebeurde",
-        "recent": "Recent",
-        "cards": "Kaartjes",
-        "parties": "Partijen",
-        "fields": "Gegevens",
-        "search_for": "Zoek naar \"{text}\"",
-        "search_where": "In namen, gegevens en berichten",
-        "value_for": "Gegevens met \"{text}\"",
-        "value_where": "Alleen in de gegevens zelf, in alle kaarten",
-        "from_card": "Uit {card}",
-        "last": "{times}, het laatst {date}"
+        "value_for": "Gegevens met \"{text}\""
       },
       "value_chip": "Gegevens: {text}",
-      "fits-0": "Past niet bij je filters",
-      "fits-1": "1 past bij je filters",
-      "fits-2": "{count} passen bij je filters",
-      "show_results": "Toon resultaten",
-      "show_results_count-0": "Geen resultaten",
-      "show_results_count-1": "Toon 1 resultaat",
-      "show_results_count-2": "Toon {count} resultaten",
       "clear": "Wis filters",
       "none": "Geen activiteit die hierbij past.",
       "everything": "Alle activiteit",
@@ -163,9 +125,6 @@
         "fits-1": "1 past bij je keuzes",
         "fits-2": "{count} passen bij je keuzes"
       },
-      "times-0": "{count} keer",
-      "times-1": "1 keer",
-      "times-2": "{count} keer",
       "results-0": "{count} resultaten",
       "results-1": "1 resultaat",
       "results-2": "{count} resultaten"
@@ -188,7 +147,6 @@
     "toast": "Gelukt! De nieuwe pincode is opgeslagen",
     "enter_pin": {
       "instruction": "Vul eerst je huidige pincode in",
-      "error_title": "Verkeerde pincode",
       "error": "Vul je huidige pincode in"
     },
     "confirm_pin": {
@@ -267,25 +225,16 @@
     }
   },
   "data": {
-    "tab": {
-      "title": "Mijn gegevens"
-    },
-    "detail": {
-      "title": "Contactgegevens"
-    },
     "add": {
       "search": "Zoek gegevens om toe te voegen",
       "no_results": "Geen gegevens gevonden voor “{query}”",
       "demo": "Demo (voorbeeldgegevens)",
       "staging": "Staging (testomgeving)",
       "title": "Gegevens toevoegen",
-      "hint": "Dubbel klik om toevoegen te starten",
-      "choose": "Kies de gegevens die je wilt toevoegen.",
       "details": {
         "title": "Gegevens toevoegen",
         "purpose_question": "Wat kan ik met deze gegevens?",
         "howto_question": "Hoe werkt het?",
-        "back_button": "Annuleer",
         "get_button": "Volgende",
         "obtain": "Dit kaartje komt in je Yivi-app.",
         "disclosure_info_requestor": "{requestor} krijgt hiervan alleen wat ze vragen.",
@@ -303,16 +252,12 @@
         "body": "Dit apparaat ondersteunt geen NFC en kan deze kaart daarom niet laden. NFC is nodig om je document te lezen.",
         "hint": "Vereist NFC, wat dit apparaat niet ondersteunt. Deze kaart kan niet worden geladen."
       },
-      "example": "Voorbeeld",
-      "by": "van {issuer}",
       "stop_text": "Wat je tot nu toe hebt ingevuld gaat verloren en er wordt niets toegevoegd.",
       "add_more": "Meer toevoegen",
-      "done": "Klaar",
       "added_more": "{name} toegevoegd. Nog iets anders toevoegen?",
       "in_your_app": "In je app",
       "website": {
         "heading": "Ga verder op de website",
-        "body": "{issuer} vraagt je om op de website te bevestigen wie je bent. Daarna kom je vanzelf hier terug.",
         "open": "Naar {host}",
         "caption": "De website opent in je browser; dit verzoek wacht hier op je.",
         "step_open": "Je browser opent {host}",
@@ -325,11 +270,6 @@
         "other": "Iets anders kiezen"
       }
     },
-    "search": {
-      "no_results": "Geen gegevens gevonden voor '{query}'."
-    },
-    "category_other": "Overig",
-    "category_personal": "Persoonlijk",
     "problematic": {
       "title": "Kan deze gegevens niet laden",
       "explanation": "Deze opgeslagen gegevens zijn beschadigd en kunnen niet worden getoond. Je kunt ze verwijderen."
@@ -355,14 +295,6 @@
     }
   },
   "disclosure_permission": {
-    "overview": {
-      "requestor_verification": {
-        "explanation": "Wat betekent dit?",
-        "bottom_sheet": {
-          "title": "Bekende en onbekende organisaties"
-        }
-      }
-    },
     "confirm_close_dialog": {
       "title": "Delen stoppen?",
       "explanation": "Weet je zeker dat je je gegevens niet wilt delen?",
@@ -382,11 +314,7 @@
         "email": "E-mailadres",
         "personal": "Persoonsgegevens",
         "phone": "Mobiel nummer",
-        "municipality": "Je gemeente",
-        "share_only": "Je deelt alleen",
-        "over_18": "Ouder dan 18",
-        "date_of_birth": "Geboortedatum",
-        "added": "Toegevoegd 02-03-2024"
+        "municipality": "Je gemeente"
       }
     },
     "confirm_pin": {
@@ -518,16 +446,9 @@
       "notifications": "Notificaties",
       "more": "Meer",
       "scan_qr": "Scan QR"
-    },
-    "nav_bar_hints": {
-      "data": "tab 1 van 4",
-      "activity": "tab 2 van 4",
-      "notifications": "tab 3 van 4",
-      "more": "tab 4 van 4"
     }
   },
   "data_tab": {
-    "expired_label": "{name}, verlopen",
     "start": {
       "title": "Nog geen gegevens",
       "website_text": "Tik daar op ‘Open Yivi-app’",
@@ -598,9 +519,7 @@
     "for_request": "Voor {requestor}",
     "for_request_step": "Voor {requestor} · stap {step} van {total}",
     "returned_from": "Terug van de website van {issuer}",
-    "all_together": "Alle kaarten worden samen toegevoegd",
-    "mismatch": "{requestor} heeft {attribute} {value} nodig. Deze kaart heeft {offered}, dus telt niet mee voor dit verzoek. Je kunt hem wel toevoegen.",
-    "mismatch_none": "{requestor} heeft {attribute} {value} nodig. Deze kaart heeft dat niet, dus telt niet mee voor dit verzoek. Je kunt hem wel toevoegen."
+    "all_together": "Alle kaarten worden samen toegevoegd"
   },
   "email_issuance": {
     "enter_email": {
@@ -622,7 +541,6 @@
       "error": "Er is iets misgegaan.",
       "invalid_code_error": "Code onjuist, probeer het opnieuw...",
       "no_email_received": "Code niet ontvangen?",
-      "next_button": "Code verifiëren",
       "back_button": "Annuleer",
       "back_dialog": {
         "title": "Weet je het zeker?",
@@ -694,7 +612,6 @@
       "error": "Er is iets misgegaan.",
       "invalid_code_error": "Code onjuist, probeer het opnieuw...",
       "no_sms_received": "Code niet ontvangen?",
-      "next_button": "Code verifiëren",
       "back_button": "Annuleer",
       "back_dialog": {
         "title": "Weet je het zeker?",
@@ -715,17 +632,6 @@
   },
   "external_issuer": {
     "returned": "Je bent terug van de website van {issuer}"
-  },
-  "issue_wizard": {
-    "back": "Annuleer",
-    "done": "OK",
-    "add": "Ophalen",
-    "add_cards": "Gegevens ophalen",
-    "add_credential": "Haal {credential} op",
-    "success": {
-      "header": "Gelukt",
-      "content": "Je hebt alle stappen succesvol doorlopen"
-    }
   },
   "more_tab": {
     "app_management": "App-beheer",
@@ -751,7 +657,6 @@
     "subtitle": "Voer je pincode in",
     "unlock": "Ontgrendelen",
     "button_forgot": "Pincode vergeten",
-    "button_block": "Yivi blokkeren",
     "biometric_button": "Ontgrendelen met biometrie",
     "biometric_reason": "Ontgrendel de Yivi-app",
     "biometric_confirm_reason": "Bevestig om biometrische ontgrendeling in te schakelen",
@@ -787,16 +692,12 @@
       "time-0": "{time} dagen",
       "time-1": "{time} dag",
       "time-2": "{time} dagen"
-    },
-    "done": "Doorgaan",
-    "view": "Pincode tonen",
-    "hide": "Pincode verbergen"
+    }
   },
   "qr_scanner": {
     "title": "QR-code scannen",
     "instruction": {
-      "message": "Richt je camera op een Yivi QR-code",
-      "semantic": "Richt je camera op een Yivi QR-code."
+      "message": "Richt je camera op een Yivi QR-code"
     },
     "success": {
       "message": "Gelukt, de QR-code is gescand",
@@ -838,9 +739,6 @@
   },
   "session": {
     "navigation_bar": {
-      "more": "Meer",
-      "yes": "Ja",
-      "no": "Nee",
       "back": "Terug",
       "cancel": "Annuleer"
     },
@@ -850,10 +748,6 @@
       "waiting": "Wachten op de website…",
       "heading": "Vul deze code in op de website",
       "explanation": "{requestor} toont er een veld voor. Zo wordt deze telefoon aan dat scherm gekoppeld en kan niemand anders je QR-code gebruiken."
-    },
-    "unknown_session_type": {
-      "title": "Afgebroken",
-      "explanation": "De Yivi-sessie die je probeerde te starten wordt niet ondersteund door de app."
     }
   },
   "session_pin": {
@@ -895,15 +789,11 @@
   },
   "ui": {
     "loading": "Laden…",
-    "step_of_steps": "Stap {i} van {n}",
-    "step": "Stap",
     "done": "Gereed",
-    "next": "Volgende",
     "previous": "Vorige",
     "cancel": "Annuleren",
     "confirm": "Bevestigen",
     "delete": "Verwijderen",
-    "skip": "Overslaan",
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
     "error": "Er is iets misgegaan",
@@ -1041,10 +931,7 @@
   "driving_licence": {
     "scan": {
       "title": "Rijbewijs scannen",
-      "success": "Succes",
-      "success_explanation": "Het rijbewijs is succesvol gescand.",
-      "manual": "Voer handmatig in",
-      "error": "Kon rijbewijs niet lezen.\nProbeer het opnieuw."
+      "manual": "Voer handmatig in"
     },
     "manual": {
       "title": "Voer rijbewijs code in",
@@ -1056,17 +943,9 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je rijbewijs lezen.\n\nHoud de achterkant van je telefoon tegen je rijbewijs aan. Druk vervolgens op start om het uitlezen te starten.",
       "title": "Lees rijbewijs",
-      "reading": "Lezen...",
       "error": "Kon rijbewijs niet lezen.\nProbeer het opnieuw.",
-      "success": "Succes",
-      "success_explanation": "rijbewijs succesvol uitgelezen.",
-      "idle": "Klaar om rijbewijs te lezen",
-      "cancelling": "Bezig met annuleren...",
       "cancelled": "Geannuleerd",
-      "finished": "Voltooid",
-      "authenticating": "Authenticatie met rijbewijs...",
       "error_generic": "Er is een fout opgetreden bij het lezen van het rijbewijs.",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op rijbewijstag",
       "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
@@ -1082,10 +961,7 @@
   "id_card": {
     "scan": {
       "title": "Identiteitskaart scannen",
-      "success": "Succes",
-      "success_explanation": "De identiteitskaart is succesvol gescand.",
-      "manual": "Voer handmatig in",
-      "error": "Kon identiteitskaart niet lezen.\nProbeer het opnieuw."
+      "manual": "Voer handmatig in"
     },
     "manual": {
       "title": "Voer ID-kaartgegevens in",
@@ -1102,17 +978,9 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je identiteitskaart lezen.\n\nHoud de achterkant van je telefoon tegen je identiteitskaart aan. Druk vervolgens op start om het uitlezen te starten.",
       "title": "Lees identiteitskaart",
-      "reading": "Lezen...",
       "error": "Kon identiteitskaart niet lezen.\nProbeer het opnieuw.",
-      "success": "Succes",
-      "success_explanation": "Identiteitskaart succesvol uitgelezen.",
-      "idle": "Klaar om identiteitskaart te lezen",
-      "cancelling": "Bezig met annuleren...",
       "cancelled": "Geannuleerd",
-      "finished": "Voltooid",
-      "authenticating": "Authenticatie met identiteitskaart...",
       "error_generic": "Er is een fout opgetreden bij het lezen van de identiteitskaart.",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op tag",
       "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
@@ -1128,10 +996,7 @@
   "passport": {
     "scan": {
       "title": "Paspoort scannen",
-      "success": "Succes",
-      "success_explanation": "Het paspoort is succesvol gescand.",
-      "manual": "Voer handmatig in",
-      "error": "Kon paspoort niet lezen.\nProbeer het opnieuw."
+      "manual": "Voer handmatig in"
     },
     "manual": {
       "title": "Voer paspoortgegevens in",
@@ -1148,17 +1013,9 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nHoud de achterkant van je telefoon tegen je paspoort aan. Druk vervolgens op start om het uitlezen te starten.",
       "title": "Lees paspoort",
-      "reading": "Lezen...",
       "error": "Kon paspoort niet lezen.\nProbeer het opnieuw.",
-      "success": "Succes",
-      "success_explanation": "Paspoort succesvol uitgelezen.",
-      "idle": "Klaar om paspoort te lezen",
-      "cancelling": "Bezig met annuleren...",
       "cancelled": "Geannuleerd",
-      "finished": "Voltooid",
-      "authenticating": "Authenticatie met paspoort...",
       "error_generic": "Er is een fout opgetreden bij het lezen van het paspoort.",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op paspoorttag",
       "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
@@ -1256,7 +1113,6 @@
     }
   },
   "credential_card": {
-    "issued_by": "Uitgegeven door",
     "added_on": "Toegevoegd {date}",
     "source": {
       "issuer_design": "Kaart ontworpen door uitgever",
@@ -1374,14 +1230,8 @@
       "pick_card": "Welk kaartje deel je?",
       "subtitle_one": "{requestor} heeft er maar één nodig. Tik op het kaartje dat je wil delen.",
       "subtitle_one_add": "{requestor} heeft er maar één nodig. Kies er één.",
-      "already_in_app": "Al in je app",
       "for_requestor": "Voor {requestor}",
       "for_requestor_set": "Voor {requestor} · kaart {n} van {total}",
-      "progress_short": "{step} van {total}",
-      "progress_done": "Klaar",
-      "progress_done_label": "Alle stappen klaar",
-      "opened_note": "{host} is geopend. Kom hier terug als je daar klaar bent: dit verzoek wacht op je.",
-      "open_again": "Opnieuw openen",
       "stop_title": "Stoppen met {name} toevoegen?",
       "stop_text": "Wat je tot nu toe deed gaat verloren en er wordt niets toegevoegd. {requestor} vraagt er nog steeds om.",
       "stop_confirm": "Stoppen",
@@ -1569,7 +1419,6 @@
     "new_chip": "Nieuw",
     "together": "Deze horen bij elkaar. {requestor} krijgt ze allebei, of geen van beide.",
     "also_share": "Ook delen",
-    "dont_share": "Niet delen",
     "lead_side": "{requestor} krijgt alleen wat hiernaast staat, en pas als je op de knop om te delen drukt. Al het andere blijft op je telefoon.",
     "lead_side_sign": "{requestor} krijgt alleen wat hiernaast staat, en pas als je op de knop om te ondertekenen drukt. Al het andere blijft op je telefoon.",
     "lead_side_receive": "Je deelt alleen wat hiernaast staat en krijgt een kaartje terug, pas als je op de knop om te delen drukt. Al het andere blijft op je telefoon.",
@@ -1675,9 +1524,6 @@
       "body_email": "Er wordt niets toegevoegd. Je kunt de link in de e-mail later opnieuw openen.",
       "confirm": "Stoppen",
       "keep": "Doorgaan"
-    },
-    "semantics": {
-      "stop": "Stop dit verzoek"
     }
   },
   "scan_tip": {

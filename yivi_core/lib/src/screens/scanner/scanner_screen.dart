@@ -41,8 +41,6 @@ class ScannerScreen extends ConsumerStatefulWidget {
 
 class ScannerScreenState extends ConsumerState<ScannerScreen>
     with WidgetsBindingObserver {
-  final _qrKey = GlobalKey<QRScannerState>(debugLabel: "qr_scanner_key");
-
   /// Null while it is being looked up.
   CameraAccess? _access;
 
@@ -132,11 +130,7 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
     }
     return switch (_access) {
       null => const SizedBox.shrink(),
-      CameraAccess.granted => QRScanner(
-        key: _qrKey,
-        side: side,
-        onFound: onQrScanned,
-      ),
+      CameraAccess.granted => QRScanner(side: side, onFound: onQrScanned),
       _ => _NoCamera(
         side: side,
         onOpenSettings: () => ref.read(cameraPermissionProvider).openSettings(),

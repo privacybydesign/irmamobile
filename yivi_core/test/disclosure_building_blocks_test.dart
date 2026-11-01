@@ -7,7 +7,7 @@ import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
-import "package:yivi_core/src/screens/session/widgets/session_requestor_header.dart";
+import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
 import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/theme/theme.dart";

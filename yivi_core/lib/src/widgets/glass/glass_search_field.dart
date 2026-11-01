@@ -4,11 +4,30 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 
-/// The pill-shaped glass search field at the top of the Data and Activity
-/// tabs. You can type in it straight away; a clear button appears once there
-/// is text, and clearing puts the cursor back in the field. A tap anywhere on the pill focuses it, not only on the line of
-/// text; a tap anywhere outside it puts the keyboard away.
+/// The pill-shaped search field: in the Data and Activity tabs, the add-data
+/// and filter sheets and the country picker. You can type in it straight
+/// away; a clear button appears once there is text, and clearing puts the
+/// cursor back in the field. A tap anywhere on the pill focuses it, not only
+/// on the line of text; a tap anywhere outside it puts the keyboard away.
 class GlassSearchField extends StatefulWidget {
+  /// The field's surface, also of the search field that opens a search
+  /// ([HomeTabSearchField]): the surface colour with a thin edge.
+  static ShapeDecoration decoration(YiviPalette palette) => ShapeDecoration(
+    color: palette.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: YiviCorners.cardRadius,
+      side: BorderSide(color: palette.divider),
+    ),
+  );
+
+  /// The magnifier at the field's start.
+  static Icon icon(YiviPalette palette) =>
+      Icon(Icons.search, size: 22, color: palette.heading);
+
+  /// The hint's style.
+  static TextStyle hintStyle(YiviPalette palette) =>
+      palette.body(16).copyWith(color: palette.secondaryText);
+
   final String hintKey;
   final ValueChanged<String> onChanged;
 
@@ -111,19 +130,9 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     final palette = YiviPalette.of(context);
     final hint = FlutterI18n.translate(context, widget.hintKey);
     // The clear button is part of the field: tapping it keeps the keyboard.
-    // Solid, as every search field: the surface colour with a thin edge.
-    Widget surface({required Widget child}) => DecoratedBox(
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-          side: BorderSide(color: palette.divider),
-        ),
-      ),
-      child: child,
-    );
     return TextFieldTapRegion(
-      child: surface(
+      child: DecoratedBox(
+        decoration: GlassSearchField.decoration(palette),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: _focusField,
@@ -132,7 +141,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
             child: Row(
               children: [
                 const SizedBox(width: 16),
-                Icon(Icons.search, size: 22, color: palette.heading),
+                GlassSearchField.icon(palette),
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
@@ -150,9 +159,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       hintText: hint,
-                      hintStyle: palette
-                          .body(16)
-                          .copyWith(color: palette.secondaryText),
+                      hintStyle: GlassSearchField.hintStyle(palette),
                     ),
                   ),
                 ),

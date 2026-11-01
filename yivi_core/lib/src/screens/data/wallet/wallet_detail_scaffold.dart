@@ -7,10 +7,10 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/after_frame.dart";
 import "../../../widgets/glass/round_icon_button.dart";
-import "../../../widgets/glass/scroll_edge.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
+import "../../../widgets/scroll_edge.dart";
 import "../card_transition/card_transition.dart";
 import "wallet_transition.dart";
 
@@ -22,6 +22,13 @@ typedef WalletDetailBuilder =
       ScrollPhysics physics,
       Animation<double> animation,
     );
+
+/// Closes a card's details: through the card [transition] they are part of
+/// (it takes the card back from where it is), else by popping their route.
+void closeCardDetails(BuildContext context, CardTransition? transition) {
+  if (transition != null) return transition.close();
+  Navigator.of(context).maybePop();
+}
 
 /// The page of a detail route opened with the Wallet-style transition
 /// ([WalletDetailPage]): a background that fades in once the other content
@@ -87,8 +94,6 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     }
     return false;
   }
-
-  /// A pull this far, or a flick down this fast, closes the page.
 
   late final _physics = PullToDismissPhysics(
     pull: _pull,
@@ -166,14 +171,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
 
   void _onRouteStatus(AnimationStatus status) {
     WalletTransition.closing = status == AnimationStatus.reverse;
-    // A close goes on from where everything is now (also halfway through
-    // opening), and from where the page was pulled to.
-    if (status == AnimationStatus.reverse) {
-      WalletTransition.reverseFrom = _routeAnimation?.value ?? 1;
-      WalletTransition.pullAtClose = _pull.value;
-    }
     if (status == AnimationStatus.dismissed) {
-      WalletTransition.stack = null;
       WalletTransition.openKey.value = null;
     }
   }
@@ -193,11 +191,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     super.dispose();
   }
 
-  void _close() {
-    // In a card transition: it takes the card back from where it is.
-    if (widget.transition case final t?) return t.close();
-    Navigator.of(context).maybePop();
-  }
+  void _close() => closeCardDetails(context, widget.transition);
 
   /// 0 at rest, 1 at twice the dismiss distance.
   double get _pullProgress =>
@@ -230,35 +224,29 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
       child: Stack(
         children: [
           // Transparent while the page below moves away, opaque once open.
-          // From the stack (Wallet depth) only the band of the details is
-          // filled while it moves: from the card's bottom to where the card
-          // below it has slid away.
           Positioned.fill(
             child: AnimatedBuilder(
               animation: chrome,
-              builder: (context, _) =>
-                  WalletTransition.stack != null && !animation.isCompleted
-                  ? _StackBand(value: animation.value)
-                  : ColoredBox(
-                      color: palette.background.withValues(
-                        alpha:
-                            // Closing: clears once the details have gone
-                            // (WalletReveal), so they never lie over the cards
-                            // coming back.
-                            // In a card transition only once it is open: the
-                            // transition paints the band under the card while
-                            // it moves.
-                            (transition != null
-                                ? (transition.phase == TransitionPhase.open
-                                      ? 1.0
-                                      : 0.0)
-                                : (WalletTransition.closing
-                                          ? const Interval(0.55, 0.85)
-                                          : const Interval(0.6, 1))
-                                      .transform(animation.value)) *
-                            (1 - _pullProgress * 0.5),
-                      ),
-                    ),
+              builder: (context, _) => ColoredBox(
+                color: palette.background.withValues(
+                  alpha:
+                      // Closing: clears once the details have gone
+                      // (WalletReveal), so they never lie over the cards
+                      // coming back.
+                      // In a card transition only once it is open: the
+                      // transition paints the band under the card while
+                      // it moves.
+                      (transition != null
+                          ? (transition.phase == TransitionPhase.open
+                                ? 1.0
+                                : 0.0)
+                          : (WalletTransition.closing
+                                    ? const Interval(0.55, 0.85)
+                                    : const Interval(0.6, 1))
+                                .transform(animation.value)) *
+                      (1 - _pullProgress * 0.5),
+                ),
+              ),
             ),
           ),
           // The content scrolls under the bar. Only the close button (and
@@ -368,49 +356,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 }
 
-/// The page's background while a card opens from the stack: only between
-/// the card's bottom and the card below it.
-class _StackBand extends StatelessWidget {
-  final double value;
-
-  const _StackBand({required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final open = WalletTransition.stack!;
-    final top = WalletTransition.stackCardTop(value) + open.cardHeight;
-    final bottom = WalletTransition.stackRevealLine(
-      value,
-      MediaQuery.sizeOf(context).height,
-    );
-    return Stack(
-      children: [
-        if (bottom > top)
-          Positioned(
-            left: 0,
-            right: 0,
-            top: top,
-            height: bottom - top,
-            child: ColoredBox(
-              color: YiviPalette.of(context).background.withValues(
-                alpha: WalletTransition.closing
-                    ? 1 -
-                          (WalletTransition.closeFraction(value) / 0.3).clamp(
-                            0.0,
-                            1.0,
-                          )
-                    : 1,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-/// Fades its child in as the route opens, where it is. From the stack
-/// (Wallet depth) it hangs under the card instead, comes up with it, and
-/// shows only above the card below as that slides away.
+/// Fades its child in as the route opens, where it is.
 class WalletReveal extends StatelessWidget {
   final Animation<double> animation;
   final Widget child;
@@ -423,40 +369,6 @@ class WalletReveal extends StatelessWidget {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
-        if (WalletTransition.stack case final _? when !animation.isCompleted) {
-          final value = animation.value;
-          // The page is pulled down by pullAtClose already.
-          final dy =
-              WalletTransition.stackCardTop(value) -
-              WalletTransition.stack!.targetTop -
-              WalletTransition.pullAtClose;
-          final box = context.findRenderObject() as RenderBox?;
-          final restTop = box != null && box.hasSize && box.attached
-              ? box.localToGlobal(Offset.zero).dy
-              : 0.0;
-          final line = WalletTransition.stackRevealLine(
-            value,
-            MediaQuery.sizeOf(context).height,
-          );
-          // Closing they also fade, in the first part: with no card below
-          // to cover them (the last card) they would stay in sight.
-          return Opacity(
-            opacity: WalletTransition.closing
-                ? 1 -
-                      (WalletTransition.closeFraction(value) / 0.3).clamp(
-                        0.0,
-                        1.0,
-                      )
-                : 1,
-            child: Transform.translate(
-              offset: Offset(0, dy),
-              child: ClipRect(
-                clipper: ClipAboveY(line - restTop - dy),
-                child: child,
-              ),
-            ),
-          );
-        }
         final t = opening
             ? const Interval(0.35, 1).transform(animation.value)
             // Closing: gone in the first fifth, before the other cards

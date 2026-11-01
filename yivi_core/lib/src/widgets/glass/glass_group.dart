@@ -40,7 +40,7 @@ class GlassGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     // The fill is a Material, so rows that paint ink (ListTile, InkWell)
-    // show their splashes on it.
+    // show their grey press highlight on it.
     final group = Material(
       color: palette.surface,
       shape: _shape(context),
@@ -159,6 +159,39 @@ class _GroupHeader extends StatelessWidget {
     child: Semantics(
       header: true,
       child: Text(text, style: YiviPalette.of(context).display(16)),
+    ),
+  );
+}
+
+/// A row of a list held sideways as a card of its own, in a grid of them
+/// (Add data, the country picker): the group's surface and outline, and its
+/// corners.
+class GlassTile extends StatelessWidget {
+  final Widget child;
+
+  const GlassTile({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: YiviPalette.of(context).surface,
+    shape: GlassGroup._shape(context),
+    clipBehavior: Clip.antiAlias,
+    child: Center(child: child),
+  );
+}
+
+/// The name above a grid of [GlassTile]s.
+class GlassTileHeader extends StatelessWidget {
+  final String text;
+
+  const GlassTileHeader(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+    child: Semantics(
+      header: true,
+      child: Text(text, style: YiviPalette.of(context).display(15)),
     ),
   );
 }
