@@ -321,6 +321,29 @@ class CardTransition extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Held while opening, and the finger pushes up: it is open from now on,
+  /// so the details can scroll with that finger. Only when the card is
+  /// nearly at its place in the details (it goes the rest at once, a few
+  /// points); further away, or pulled down first, the card stays held.
+  bool handOver() {
+    if (_phase != TransitionPhase.opening || !held || _drag > 0) return false;
+    final a = _heldRect, b = _detailsCard;
+    if ((a.top - b.top).abs() > _handOverPoints ||
+        (a.width - b.width).abs() > _handOverPoints) {
+      return false;
+    }
+    _held = null;
+    _drag = 0;
+    _ticker.stop();
+    _setPhase(TransitionPhase.open);
+    notifyListeners();
+    return true;
+  }
+
+  /// How near the card must be for [handOver]: a tenth of its way, about
+  /// 150 ms after the tap.
+  static const double _handOverPoints = 48;
+
   /// The finger moved [dy] down (up when negative).
   void drag(double dy) {
     if (!held) return;

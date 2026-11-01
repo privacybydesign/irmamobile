@@ -1,3 +1,4 @@
+import "package:flutter/gestures.dart" show Drag;
 import "package:flutter/rendering.dart";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
@@ -46,6 +47,9 @@ class _OpenCard extends StatefulWidget {
 }
 
 class _OpenCardState extends State<_OpenCard> {
+  /// A drag up that took over from the opening: it scrolls the details.
+  Drag? _scroll;
+
   @override
   void initState() {
     super.initState();
@@ -66,8 +70,9 @@ class _OpenCardState extends State<_OpenCard> {
     );
     // While it moves, a finger anywhere takes hold of it (nothing under it
     // scrolls or is tapped): the card stops and follows the finger down,
-    // and let go it closes or opens again. Open, the details take touches
-    // themselves (their pull down closes).
+    // and let go it closes or opens again. Pushed up as it opens, it is
+    // open at once and the finger scrolls the details. Open, the details
+    // take touches themselves (their pull down closes).
     return ValueListenableBuilder<TransitionPhase>(
       valueListenable: t.phaseListenable,
       child: card,
@@ -75,21 +80,62 @@ class _OpenCardState extends State<_OpenCard> {
         fit: StackFit.expand,
         children: [
           card!,
-          if (phase != TransitionPhase.open)
+          // Kept while a drag that took over scrolls the details.
+          if (phase != TransitionPhase.open || _scroll != null)
             _TouchGate(
               transition: t,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onVerticalDragDown: (_) => t.grab(),
-                onVerticalDragUpdate: (d) => t.drag(d.delta.dy),
-                onVerticalDragEnd: (d) =>
-                    t.letGo(d.velocity.pixelsPerSecond.dy),
-                onVerticalDragCancel: () => t.letGo(0),
+                onVerticalDragUpdate: _update,
+                onVerticalDragEnd: _end,
+                onVerticalDragCancel: _cancel,
               ),
             ),
         ],
       ),
     );
+  }
+
+  void _update(DragUpdateDetails d) {
+    final t = widget.transition;
+    if (_scroll case final scroll?) return scroll.update(d);
+    if (d.delta.dy < 0) {
+      final details = t.cardKey.currentContext;
+      final position = details == null
+          ? null
+          : Scrollable.maybeOf(details)?.position;
+      if (position != null && t.handOver()) {
+        setState(() {
+          _scroll = position.drag(
+            DragStartDetails(
+              globalPosition: d.globalPosition,
+              localPosition: d.localPosition,
+              sourceTimeStamp: d.sourceTimeStamp,
+            ),
+            () => _scroll = null,
+          );
+        });
+        return _scroll!.update(d);
+      }
+    }
+    t.drag(d.delta.dy);
+  }
+
+  void _end(DragEndDetails d) {
+    if (_scroll case final scroll?) {
+      scroll.end(d);
+      return setState(() => _scroll = null);
+    }
+    widget.transition.letGo(d.velocity.pixelsPerSecond.dy);
+  }
+
+  void _cancel() {
+    if (_scroll case final scroll?) {
+      scroll.cancel();
+      return setState(() => _scroll = null);
+    }
+    widget.transition.letGo(0);
   }
 }
 
