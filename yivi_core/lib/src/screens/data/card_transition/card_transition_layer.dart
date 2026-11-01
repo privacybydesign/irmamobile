@@ -203,19 +203,24 @@ class _RenderOpenCard extends RenderProxyBox {
       offset.dx + size.width,
       reveal,
     );
+    // Closing, what is under the card fades into the page as the card goes
+    // back, instead of staying until the cards below have risen past it:
+    // only the card lands. (The page's colour laid over it: the details
+    // are one layer, drawn once.)
+    final under = t.phase == TransitionPhase.closing
+        ? t.progress(t.snapshot.picked).clamp(0.0, 1.0)
+        : 1.0;
     void draw(PaintingContext context, Offset _) {
       // A little past the card below's top: behind its rounded corners.
       final bandEnd = reveal + 40;
+      final below = Rect.fromLTRB(
+        offset.dx,
+        picked.bottom - 1,
+        offset.dx + size.width,
+        bandEnd,
+      );
       if (bandEnd > picked.bottom) {
-        context.canvas.drawRect(
-          Rect.fromLTRB(
-            offset.dx,
-            picked.bottom - 1,
-            offset.dx + size.width,
-            bandEnd,
-          ),
-          Paint()..color = background,
-        );
+        context.canvas.drawRect(below, Paint()..color = background);
       }
       context.pushTransform(
         needsCompositing,
@@ -223,6 +228,13 @@ class _RenderOpenCard extends RenderProxyBox {
         move,
         (context, _) => context.paintChild(child, offset),
       );
+      // From the card's edge, not over it.
+      if (under < 1 && bandEnd > picked.bottom) {
+        context.canvas.drawRect(
+          Rect.fromLTRB(below.left, picked.bottom, below.right, bandEnd),
+          Paint()..color = background.withValues(alpha: 1 - under),
+        );
+      }
     }
 
     // The card below is rounded at its top: beside its corners the card

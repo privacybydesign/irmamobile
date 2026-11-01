@@ -124,6 +124,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Stack(
       children: [
         Positioned.fill(child: _tab(tab)),
+        if (tab == .data) _scanTipOverBar(context),
+        // A card opened from the stack, over the tab.
+        const Positioned.fill(child: OpenCardLayer()),
+        // The tab bar over that: it goes down off the screen as a card
+        // opens, and comes back up as the card closes over the details
+        // still on their way out (under them it stayed hidden until the
+        // cards below the closing one had risen past it, after the rest).
         if (docked)
           Positioned(
             left: 0,
@@ -174,9 +181,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-        if (tab == .data) _scanTipOverBar(context),
-        // A card opened from the stack, over all of it.
-        const Positioned.fill(child: OpenCardLayer()),
       ],
     );
   }
