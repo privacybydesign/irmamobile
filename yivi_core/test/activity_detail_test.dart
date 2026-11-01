@@ -84,6 +84,12 @@ LogInfo _log(
   );
 }
 
+/// The hero's line under the name: when, and whether Yivi knows the party.
+String heroLine(WidgetTester tester) => tester
+    .widget<Text>(find.byKey(const Key("activity_hero_date")))
+    .textSpan!
+    .toPlainText();
+
 void main() {
   late IrmaRepository repo;
 
@@ -120,14 +126,12 @@ void main() {
     expect(find.text("Shared with"), findsOneWidget);
     // The name in the hero; the bar's title waits until it scrolls away.
     expect(find.text("Webshop Noord"), findsWidgets);
-    expect(find.text("Known party"), findsOneWidget);
-    // When, once: the date and the time on one line.
+    // When, once, and whether Yivi knows the party, on one line.
     final time = DateTime.utc(2026, 10, 11, 14, 32).toLocal();
     expect(
-      find.text(
-        "${DateFormat.yMMMMd("en").format(time)} · ${DateFormat.jm("en").format(time)}",
-      ),
-      findsOneWidget,
+      heroLine(tester),
+      "${DateFormat.yMMMd("en").format(time)}, "
+      "${DateFormat.jm("en").format(time)}  ·  \uFFFCKnown party",
     );
     expect(find.textContaining("ago"), findsNothing);
     // One kind of card: no section heading, the header says it.
@@ -155,7 +159,7 @@ void main() {
       tester,
       _log(LogType.disclosure, verified: false, url: "https://shop.example"),
     );
-    expect(find.text("Unknown party · shop.example"), findsOneWidget);
+    expect(heroLine(tester), endsWith("\uFFFCUnknown party · shop.example"));
     expect(find.byIcon(Icons.verified_user_rounded), findsNothing);
     expect(
       find.descendant(
@@ -170,7 +174,7 @@ void main() {
     tester,
   ) async {
     await pump(tester, _log(LogType.disclosure, verified: false));
-    expect(find.text("Unknown party"), findsOneWidget);
+    expect(heroLine(tester), endsWith("\uFFFCUnknown party"));
   });
 
   testWidgets("signed: the message above the data, without a footer", (

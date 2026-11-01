@@ -874,11 +874,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     // right, as on the Data tab.
     if (!panes) {
       final header = <Widget>[
-        const TabLargeTitle("home.nav_bar.activity"),
-        HomeTabSearchField(
-          key: const Key("activity_search_field"),
-          hint: FlutterI18n.translate(context, "activity.query.search_hint"),
-          onTap: _startSearchingInBar,
+        HomeTabHeader(
+          title: const TabLargeTitle("home.nav_bar.activity"),
+          field: HomeTabSearchField(
+            key: const Key("activity_search_field"),
+            hint: FlutterI18n.translate(context, "activity.query.search_hint"),
+            onTap: _startSearchingInBar,
+          ),
         ),
         if (chips.isNotEmpty) _tagRow(chips),
       ];

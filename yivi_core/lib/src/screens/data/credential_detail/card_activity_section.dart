@@ -7,15 +7,14 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/activity_providers.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/round_icon_button.dart";
-import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/surface_card.dart";
+import "../../activity/activity_detail_screen.dart";
 import "../../activity/activity_entry.dart";
 import "../../activity/activity_query.dart";
 import "../../activity/widgets/activity_card.dart";
@@ -208,60 +207,31 @@ class _CardActivityEntryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
-    final wallet = ref.watch(walletCardsProvider);
-    final entry = ActivityEntry.fromLog(log, wallet: wallet);
     final navigator = Navigator.of(context);
-    return Scaffold(
-      backgroundColor: palette.background,
-      body: Stack(
-        children: [
-          ListView(
-            key: const Key("card_activity_entry"),
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: padding.bottom + 32),
-            children: [
-              ActivityDetailBody(
-                entry: entry,
-                top: padding.top + IrmaAppBar.contentTop,
-                // Closes the entry and the card, and asks the Activity tab.
-                onAsk: (query) {
-                  _askActivityTab(context, ref, query);
-                  navigator.pop();
-                  if (!useHomePanes(context)) navigator.maybePop();
-                },
-              ),
-            ],
-          ),
-          Positioned(
-            top: padding.top + IrmaAppBar.buttonTop,
-            left: 16 + padding.left,
-            right: 16 + padding.right,
-            child: Row(
-              children: [
-                RoundIconButton(
-                  key: const Key("card_activity_entry_back"),
-                  label: FlutterI18n.translate(
-                    context,
-                    "wallet.detail.back_to_card",
-                  ),
-                  onTap: navigator.pop,
-                  icon: CupertinoIcons.arrow_left,
-                ),
-                const Spacer(),
-                IrmaCloseButton(
-                  key: const Key("card_activity_entry_close"),
-                  // Closes the card under it too.
-                  onTap: () => navigator
-                    ..pop()
-                    ..maybePop(),
-                ),
-              ],
-            ),
-          ),
-        ],
+    return ActivityDetailPage(
+      key: const Key("card_activity_entry"),
+      log: log,
+      // Closes the entry and the card, and asks the Activity tab.
+      onAsk: (query) {
+        _askActivityTab(context, ref, query);
+        navigator.pop();
+        if (!useHomePanes(context)) navigator.maybePop();
+      },
+      leading: RoundIconButton(
+        key: const Key("card_activity_entry_back"),
+        label: FlutterI18n.translate(context, "wallet.detail.back_to_card"),
+        onTap: navigator.pop,
+        icon: CupertinoIcons.arrow_left,
       ),
+      actions: [
+        IrmaCloseButton(
+          key: const Key("card_activity_entry_close"),
+          // Closes the card under it too.
+          onTap: () => navigator
+            ..pop()
+            ..maybePop(),
+        ),
+      ],
     );
   }
 }

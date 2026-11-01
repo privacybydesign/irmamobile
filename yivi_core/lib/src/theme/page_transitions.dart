@@ -40,13 +40,14 @@ class YiviPageTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
-/// The platform's own transitions (on iOS with a back swipe that finishes
-/// smoothly, [YiviCupertinoPageTransitionsBuilder]), each wrapped in
-/// [YiviPageTransitionsBuilder].
+/// The iOS page transitions on iOS and Android, with a back swipe (or
+/// Android's back gesture) that finishes smoothly
+/// ([YiviCupertinoPageTransitionsBuilder]); elsewhere the platform's own.
+/// Each wrapped in [YiviPageTransitionsBuilder].
 const yiviPageTransitionsTheme = PageTransitionsTheme(
   builders: {
     TargetPlatform.android: YiviPageTransitionsBuilder(
-      PredictiveBackPageTransitionsBuilder(),
+      YiviCupertinoPageTransitionsBuilder(),
     ),
     TargetPlatform.iOS: YiviPageTransitionsBuilder(
       YiviCupertinoPageTransitionsBuilder(),

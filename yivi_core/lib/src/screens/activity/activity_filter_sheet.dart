@@ -3,12 +3,14 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/activity_providers.dart";
+import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
+import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/sheet_action_row.dart";
 import "activity_entry.dart";
@@ -47,6 +49,9 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   /// The cards to pick from are on a page of their own: a wallet can have
   /// many.
   bool _pickingCard = false;
+
+  /// What is typed in the card page's search.
+  String _cardSearch = "";
 
   /// Whether the sheet is all the way up. Until then, and until the lists
   /// the options come from are in, it shows a spinner: drawing every option
@@ -440,53 +445,92 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   /// Every card, to pick one: the one picked has a check, "Any card" on
   /// top takes it away. Picking goes back to the filter.
   Widget _cardPage(YiviPalette palette) {
-    final cards = _cards;
-    void pick(ActivityCardRef? c) => setState(() {
+    // Searched by the card's name or who issued it; "Any card" only
+    // without a search.
+    final typed = normaliseForSearch(_cardSearch.trim());
+    final searching = typed.isNotEmpty;
+    final cards = [
+      for (final c in _cards)
+        if (!searching ||
+            normaliseForSearch(c.name).contains(typed) ||
+            normaliseForSearch(c.art.issuer.name).contains(typed))
+          c,
+    ];
+    final any = searching ? 0 : 1;
+    void leave() {
       _pickingCard = false;
+      _cardSearch = "";
+    }
+
+    void pick(ActivityCardRef? c) => setState(() {
+      leave();
       _set(_q.withCard(c));
     });
     return GlassSheetPage(
       key: const Key("activity_filter_cards"),
       title: _t("sheet.card"),
-      onBack: () => setState(() => _pickingCard = false),
+      onBack: () => setState(leave),
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-          sliver: SliverGlassGroup(
-            dividerIndent: 14 + 46 + 12,
-            itemCount: cards.length + 1,
-            itemBuilder: (context, i) {
-              if (i == 0) {
-                return _pickRow(
-                  key: const Key("activity_filter_card_any"),
-                  leading: _anyCard(palette),
-                  title: _t("sheet.any_card"),
-                  subtitle: "",
-                  selected: _q.card == null,
-                  faded: false,
-                  onTap: () => pick(null),
-                );
-              }
-              final c = cards[i - 1];
-              final key = "card:${c.key}";
-              final on = _q.card == c;
-              final fit = _fitText(key, others: !_q.withCard(null).isEmpty);
-              return _pickRow(
-                key: Key("activity_filter_card_${c.key}"),
-                leading: CredentialCardArt(
-                  credential: c.art,
-                  width: 46,
-                  greyedOut: c.removed,
-                ),
-                title: c.name,
-                subtitle: c.removed ? "${_t("sheet.removed")} · $fit" : fit,
-                selected: on,
-                faded: !on && !_fits(key),
-                onTap: () => pick(on ? null : c),
-              );
-            },
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+          sliver: SliverToBoxAdapter(
+            child: GlassSearchField(
+              fieldKey: const Key("activity_filter_card_search"),
+              hintKey: "activity.query.sheet.search_cards",
+              onChanged: (text) => setState(() => _cardSearch = text),
+            ),
           ),
         ),
+        if (cards.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                _t("sheet.no_cards"),
+                key: const Key("activity_filter_card_none"),
+                textAlign: TextAlign.center,
+                style: palette.body(15).copyWith(color: palette.secondaryText),
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            sliver: SliverGlassGroup(
+              dividerIndent: 14 + 46 + 12,
+              itemCount: cards.length + any,
+              itemBuilder: (context, i) {
+                if (i < any) {
+                  return _pickRow(
+                    key: const Key("activity_filter_card_any"),
+                    leading: _anyCard(palette),
+                    title: _t("sheet.any_card"),
+                    subtitle: "",
+                    selected: _q.card == null,
+                    faded: false,
+                    onTap: () => pick(null),
+                  );
+                }
+                final c = cards[i - any];
+                final key = "card:${c.key}";
+                final on = _q.card == c;
+                final fit = _fitText(key, others: !_q.withCard(null).isEmpty);
+                return _pickRow(
+                  key: Key("activity_filter_card_${c.key}"),
+                  leading: CredentialCardArt(
+                    credential: c.art,
+                    width: 46,
+                    greyedOut: c.removed,
+                  ),
+                  title: c.name,
+                  subtitle: c.removed ? "${_t("sheet.removed")} · $fit" : fit,
+                  selected: on,
+                  faded: !on && !_fits(key),
+                  onTap: () => pick(on ? null : c),
+                );
+              },
+            ),
+          ),
       ],
     );
   }

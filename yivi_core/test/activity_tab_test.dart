@@ -605,6 +605,23 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await _settle(tester);
     expect(find.byKey(const Key("activity_filter_cards")), findsOneWidget);
+    // The cards can be searched.
+    await tester.enterText(
+      find.byKey(const Key("activity_filter_card_search")),
+      "zzz",
+    );
+    await tester.pump();
+    expect(find.byKey(const Key("activity_filter_card_none")), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key("activity_filter_card_search")),
+      "pass",
+    );
+    await tester.pump();
+    expect(find.byKey(const Key("activity_filter_card_any")), findsNothing);
+    expect(
+      find.byKey(const Key("activity_filter_card_passport")),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const Key("activity_filter_card_passport")));
     await tester.pump(const Duration(milliseconds: 500));
     await _settle(tester);

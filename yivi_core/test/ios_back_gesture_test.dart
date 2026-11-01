@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/page_transitions.dart";
@@ -5,8 +6,9 @@ import "package:yivi_core/src/theme/page_transitions.dart";
 void main() {
   /// Two pages on iOS: the first under the second. Returns where each is.
   Future<(double Function(), double Function())> pumpPages(
-    WidgetTester tester,
-  ) async {
+    WidgetTester tester, {
+    TargetPlatform platform = TargetPlatform.iOS,
+  }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(400, 800);
     addTearDown(tester.view.reset);
@@ -15,7 +17,7 @@ void main() {
       MaterialApp(
         navigatorKey: navigator,
         theme: ThemeData(
-          platform: TargetPlatform.iOS,
+          platform: platform,
           pageTransitionsTheme: yiviPageTransitionsTheme,
         ),
         home: const Scaffold(body: Text("first", key: Key("first"))),
@@ -87,5 +89,52 @@ void main() {
     expect(find.byKey(const Key("second")), findsOneWidget);
     // Covered again: the page under it is offstage.
     expect(find.byKey(const Key("first")), findsNothing);
+  });
+
+  testWidgets("Android: the back gesture moves the page, and let go it "
+      "finishes without a jump", (tester) async {
+    final (under, top) = await pumpPages(
+      tester,
+      platform: TargetPlatform.android,
+    );
+    Future<void> send(String method, [double progress = 0]) =>
+        tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+          "flutter/backgesture",
+          const StandardMethodCodec().encodeMethodCall(
+            MethodCall(method, <String, Object?>{
+              "touchOffset": <double>[5, 400],
+              "progress": progress,
+              "swipeEdge": 0,
+            }),
+          ),
+          (_) {},
+        );
+    await send("startBackGesture");
+    for (var p = 0.05; p <= 0.6; p += 0.05) {
+      await send("updateBackGestureProgress", p);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    // The page has followed the gesture.
+    expect(top(), closeTo(0.6 * 400, 25));
+    var last = top();
+    await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+      "flutter/backgesture",
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall("commitBackGesture"),
+      ),
+      (_) {},
+    );
+    var frames = 0;
+    while (find.byKey(const Key("second")).evaluate().isNotEmpty) {
+      await tester.pump(const Duration(milliseconds: 16));
+      if (find.byKey(const Key("second")).evaluate().isEmpty) break;
+      expect(top() - last, lessThan(24), reason: "frame $frames");
+      expect(top(), greaterThanOrEqualTo(last), reason: "frame $frames");
+      last = top();
+      frames++;
+    }
+    expect(frames, greaterThan(4));
+    await tester.pump();
+    expect(under(), 0);
   });
 }

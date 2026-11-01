@@ -138,6 +138,8 @@
         "one": "Eén",
         "card": "Kaartje",
         "any_card": "Elk kaartje",
+        "search_cards": "Zoek een kaart",
+        "no_cards": "Geen kaarten gevonden",
         "pick_card": "Kies uit {count}",
         "fields": "Gegevens uit {card}",
         "party": "Met wie",

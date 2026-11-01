@@ -207,11 +207,10 @@ class _HomeTabBarState extends State<HomeTabBar> {
     final padding = MediaQuery.viewPaddingOf(context);
     return Container(
       height: HomeTabBar.dockedHeight + padding.bottom,
+      // The Scan button 16 in from the edge, as the page's content.
       padding: EdgeInsets.only(
         left: padding.left + 4,
-        right:
-            padding.right +
-            (HomeTabBar.dockedHeight - 1 - HomeScanButton.size) / 2,
+        right: padding.right + 16,
         bottom: padding.bottom,
       ),
       decoration: BoxDecoration(

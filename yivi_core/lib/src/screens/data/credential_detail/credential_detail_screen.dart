@@ -86,7 +86,8 @@ class _CredentialDetailScreenState
   bool _onScroll(ScrollNotification _) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final under = headerUnderBar(context, _headerKey);
+      // Once half the card is under the bar.
+      final under = headerUnderBar(context, _headerKey, part: 0.5);
       if (under != null) _scrolledPast.value = under;
     });
     return false;
@@ -124,12 +125,14 @@ class _CredentialDetailScreenState
           ? null
           : (context, opacity) => CompactBarDropIn(
               shown: _scrolledPast,
-              bar: (t) => CompactBar(
-                key: const Key("credential_compact_bar"),
-                opacity: opacity * t,
-                leading: CredentialCardArt(credential: credential, width: 44),
-                title: credential.name,
-                subtitle: TextSpan(text: credential.issuer.name),
+              bar: (t) => Center(
+                child: CompactBar(
+                  key: const Key("credential_compact_bar"),
+                  opacity: opacity * t,
+                  leading: CredentialCardArt(credential: credential, width: 44),
+                  title: credential.name,
+                  subtitle: TextSpan(text: credential.issuer.name),
+                ),
               ),
             ),
       builder: (context, physics, animation) {

@@ -14,11 +14,15 @@ class IrmaCloseButton extends StatelessWidget {
   /// Dark with a white cross, over a photo or a camera picture.
   final bool dark;
 
+  /// The cross's colour without a disc (white over a photo's dark band).
+  final Color? color;
+
   const IrmaCloseButton({
     super.key,
     this.onTap,
     this.opacity = 1,
     this.dark = false,
+    this.color,
   });
 
   @override
@@ -28,6 +32,7 @@ class IrmaCloseButton extends StatelessWidget {
       onTap: onTap ?? Navigator.of(context).pop,
       opacity: opacity,
       dark: dark,
+      iconColor: color,
       icon: CupertinoIcons.xmark,
     );
   }

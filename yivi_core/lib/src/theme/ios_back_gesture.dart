@@ -7,6 +7,7 @@ import "package:cupertino_ui/cupertino_ui.dart"
         CupertinoPageTransitionsBuilder;
 import "package:flutter/gestures.dart" show HorizontalDragGestureRecognizer;
 import "package:flutter/physics.dart";
+import "package:flutter/services.dart" show PredictiveBackEvent;
 import "package:material_ui/material_ui.dart";
 
 /// The iOS page transition ([CupertinoPageTransition]) with a back swipe
@@ -22,6 +23,9 @@ import "package:material_ui/material_ui.dart";
 /// Here the page goes on from the finger's position at the finger's speed
 /// and slows down to its end on a spring that does not bounce, and the page
 /// under it follows that, linearly, until the swipe is done.
+///
+/// On Android too: there the system's back gesture (predictive back) moves
+/// the page instead of a swipe from the screen's edge.
 class YiviCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   const YiviCupertinoPageTransitionsBuilder();
 
@@ -68,9 +72,77 @@ class YiviCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       primaryRouteAnimation: animation,
       secondaryRouteAnimation: secondaryAnimation,
       linearTransition: linear,
-      child: _BackSwipeDetector(route: route, child: child),
+      child: switch (Theme.of(context).platform) {
+        TargetPlatform.android => _PredictiveBack(route: route, child: child),
+        _ => _BackSwipeDetector(route: route, child: child),
+      },
     );
   }
+}
+
+/// Android's back gesture on the page on top: the page follows it as it
+/// goes, and finishes on the swipe's spring when it is let go (or goes back
+/// when it is called off). Not on a page that cannot be swiped away (the
+/// first one, or one that asks first): Android then handles the back as
+/// usual.
+class _PredictiveBack extends StatefulWidget {
+  final PageRoute<dynamic> route;
+  final Widget child;
+
+  const _PredictiveBack({required this.route, required this.child});
+
+  @override
+  State<_PredictiveBack> createState() => _PredictiveBackState();
+}
+
+class _PredictiveBackState extends State<_PredictiveBack>
+    with WidgetsBindingObserver {
+  _BackSwipe? _swipe;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    final swipe = _swipe;
+    if (swipe != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (swipe.navigator.mounted) swipe.navigator.didStopUserGesture();
+      });
+    }
+    super.dispose();
+  }
+
+  @override
+  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
+    final route = widget.route;
+    if (!route.isCurrent || !route.popGestureEnabled) return false;
+    _swipe = _BackSwipe.start(route);
+    return true;
+  }
+
+  @override
+  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) =>
+      _swipe?.moveTo(1 - backEvent.progress);
+
+  @override
+  void handleCommitBackGesture() {
+    _swipe?.finish(close: true);
+    _swipe = null;
+  }
+
+  @override
+  void handleCancelBackGesture() {
+    _swipe?.finish(close: false);
+    _swipe = null;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// The page under a pushed page, slid a third of the way to the left as
@@ -223,6 +295,11 @@ class _BackSwipe {
   /// Under the finger: the page follows it exactly.
   void update(double delta) => controller.value -= delta;
 
+  /// The page at [value] (1 is open), as Android's back gesture says.
+  void moveTo(double value) {
+    if (route.isCurrent) controller.value = value;
+  }
+
   /// A fling of at least a screen width a second decides; slower, whether
   /// the page is more than half gone.
   static const double _flingVelocity = 1;
@@ -239,13 +316,19 @@ class _BackSwipe {
   /// towards closing).
   void end(double velocity) {
     final bool close;
-    if (!route.isCurrent) {
-      // Popped already (or something was pushed over it) during the swipe.
-      close = !route.isActive;
-    } else if (velocity.abs() >= _flingVelocity) {
+    if (velocity.abs() >= _flingVelocity) {
       close = velocity > 0;
     } else {
       close = controller.value < 0.5;
+    }
+    finish(close: close, velocity: velocity);
+  }
+
+  /// Closes the page, or takes it back to open, from where it is.
+  void finish({required bool close, double velocity = 0}) {
+    if (!route.isCurrent) {
+      // Popped already (or something was pushed over it) during the swipe.
+      close = !route.isActive;
     }
     // The page goes on as fast as the finger moved it, in the controller's
     // terms (1 is open).

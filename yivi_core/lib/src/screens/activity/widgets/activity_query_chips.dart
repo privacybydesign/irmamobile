@@ -190,10 +190,16 @@ class ActivityToggleTag extends StatelessWidget {
           onTap: faded ? null : onTap,
           child: PressScale(
             scale: faded ? 1 : PressScale.glass,
-            child: GlassSurface(
-              fill: fill,
-              shape: const RoundedRectangleBorder(
-                borderRadius: YiviCorners.chipRadius,
+            // Flat, on the sheet: a thin edge, no shadow.
+            child: Container(
+              decoration: ShapeDecoration(
+                color: fill ?? palette.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: YiviCorners.chipRadius,
+                  side: fill == null
+                      ? BorderSide(color: palette.divider)
+                      : BorderSide.none,
+                ),
               ),
               padding: EdgeInsets.fromLTRB(kind == null ? 14 : 9, 0, 14, 0),
               child: SizedBox(

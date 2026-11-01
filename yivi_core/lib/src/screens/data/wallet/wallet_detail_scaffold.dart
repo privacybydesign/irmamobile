@@ -284,6 +284,9 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                     animation: chrome,
                     builder: (context, _) => Row(
                       children: [
+                        // As wide as the close button and its gap: what
+                        // is between them is centred on the screen.
+                        const SizedBox(width: RoundIconButton.size + 8),
                         Expanded(
                           child:
                               widget.barBuilder?.call(

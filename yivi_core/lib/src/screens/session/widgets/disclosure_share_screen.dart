@@ -1226,14 +1226,19 @@ class _Footnote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    // Centred under the cards, also when it fits on one line.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Text(
-        text,
-        key: const Key("share_footnote"),
-        style: palette
-            .body(13.5)
-            .copyWith(height: 19 / 13.5, color: palette.secondaryText),
+      child: SizedBox(
+        width: double.infinity,
+        child: Text(
+          text,
+          key: const Key("share_footnote"),
+          textAlign: TextAlign.center,
+          style: palette
+              .body(13.5)
+              .copyWith(height: 19 / 13.5, color: palette.secondaryText),
+        ),
       ),
     );
   }

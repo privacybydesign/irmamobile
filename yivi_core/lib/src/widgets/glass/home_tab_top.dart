@@ -99,28 +99,24 @@ class HomeTabTop extends StatefulWidget {
   /// The space between the large title and the search field under it.
   static const double fieldGap = 8;
 
-  /// How far the list scrolls before the middle of the search field under
-  /// the large title is under the bar: then the bar's search button takes
-  /// over.
-  static const double _fieldUnderBar =
-      tabTitleTop +
-      TabLargeTitle.height +
-      fieldGap +
-      HomeTabSearchField.height / 2 -
-      barHeight;
+  /// How far the list scrolls while the search field collapses under the
+  /// large title, which holds still meanwhile ([HomeTabHeader]), as on iOS.
+  static const double fieldCollapse = HomeTabSearchField.height + fieldGap;
+
+  /// How far the list scrolls before the search field has mostly gone:
+  /// then the bar's search button takes over.
+  static const double _fieldUnderBar = HomeTabSearchField.height * 0.6;
 
   /// How far the large title has gone under the bar (0 to 1) at [px] of
-  /// scrolling: the bar, its line and the small title come in with it.
-  static double _titleGone(double px) => ((px - 8) / 30).clamp(0.0, 1.0);
+  /// scrolling, once the field has collapsed: the bar, its line and the
+  /// small title come in with it.
+  static double _titleGone(double px) =>
+      ((px - fieldCollapse - 8) / 30).clamp(0.0, 1.0);
 
   /// The scrolling over which [_titleGone] and the bar's search button
   /// change; outside it neither does.
-  static const double _scrollReadFrom = _fieldUnderBar - 10 < 8
-      ? _fieldUnderBar - 10
-      : 8;
-  static const double _scrollReadTo = _fieldUnderBar + 20 > 38
-      ? _fieldUnderBar + 20
-      : 38;
+  static const double _scrollReadFrom = _fieldUnderBar - 10;
+  static const double _scrollReadTo = fieldCollapse + 38;
 
   /// How far the list scrolls before [below], under the field, reaches its
   /// pinned place under the bar.
@@ -461,6 +457,80 @@ class _Bar extends StatelessWidget {
       },
     );
   }
+}
+
+/// A home tab's large [title] and the search [field] under it, at the top
+/// of its list, as on iOS: scrolled, the field collapses first (from its
+/// bottom, fading) while the title holds still; then the title scrolls on
+/// under the bar. The list's own layout does not change: only where these
+/// two are drawn.
+class HomeTabHeader extends StatelessWidget {
+  final Widget title;
+  final Widget field;
+
+  const HomeTabHeader({super.key, required this.title, required this.field});
+
+  @override
+  Widget build(BuildContext context) {
+    final position = Scrollable.maybeOf(context)?.position;
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: HomeTabTop.fieldGap,
+      children: [title, field],
+    );
+    if (position == null || MediaQuery.disableAnimationsOf(context)) {
+      return column;
+    }
+    return AnimatedBuilder(
+      animation: position,
+      builder: (context, _) {
+        final px = position.hasPixels && position.hasContentDimensions
+            ? (position.pixels - position.minScrollExtent).clamp(
+                0.0,
+                HomeTabTop.fieldCollapse,
+              )
+            : 0.0;
+        if (px == 0) return column;
+        const height = HomeTabSearchField.height;
+        final shown = (height - px).clamp(0.0, height);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: HomeTabTop.fieldGap,
+          children: [
+            // Held where it was.
+            Transform.translate(offset: Offset(0, px), child: title),
+            // Its top under the title; its bottom goes up with the list.
+            SizedBox(
+              height: height,
+              child: Transform.translate(
+                offset: Offset(0, px),
+                child: ClipRect(
+                  clipper: _TopPart(shown),
+                  child: Opacity(
+                    opacity: (1 - px / (height * 0.7)).clamp(0.0, 1.0),
+                    child: field,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// The top [height] of what it clips.
+class _TopPart extends CustomClipper<Rect> {
+  final double height;
+
+  const _TopPart(this.height);
+
+  @override
+  Rect getClip(Size size) => Rect.fromLTWH(-8, -8, size.width + 16, height + 8);
+
+  @override
+  bool shouldReclip(_TopPart old) => old.height != height;
 }
 
 /// The search field under a home tab's large title, as a button: a tap

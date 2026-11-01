@@ -27,6 +27,10 @@ class RoundIconButton extends StatelessWidget {
   /// Over a camera picture or a photo: dark, with a white icon.
   final bool dark;
 
+  /// The icon's colour on a bare button, instead of the page's text colour
+  /// (white over a photo's dark band).
+  final Color? iconColor;
+
   /// Fades the button with what it sits on (a page's chrome).
   final double opacity;
 
@@ -39,6 +43,7 @@ class RoundIconButton extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.dark = false,
+    this.iconColor,
     this.opacity = 1,
     this.count = 0,
   });
@@ -61,7 +66,7 @@ class RoundIconButton extends StatelessWidget {
       edge = BorderSide.none;
     } else {
       fill = Colors.transparent;
-      ink = palette.text;
+      ink = iconColor ?? palette.text;
       edge = BorderSide.none;
     }
     final button = Stack(

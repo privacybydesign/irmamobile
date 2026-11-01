@@ -138,6 +138,8 @@
         "one": "One",
         "card": "Card",
         "any_card": "Any card",
+        "search_cards": "Search cards",
+        "no_cards": "No cards found",
         "pick_card": "Choose from {count}",
         "fields": "Data from {card}",
         "party": "With whom",

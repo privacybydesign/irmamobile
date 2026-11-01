@@ -138,6 +138,8 @@
         "one": "Eine",
         "card": "Karte",
         "any_card": "Jede Karte",
+        "search_cards": "Karte suchen",
+        "no_cards": "Keine Karten gefunden",
         "pick_card": "Aus {count} wählen",
         "fields": "Daten aus {card}",
         "party": "Mit wem",

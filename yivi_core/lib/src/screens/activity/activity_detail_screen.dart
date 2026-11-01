@@ -20,21 +20,49 @@ class ActivityDetailsScreenArgs {
 }
 
 /// The details of one log entry, as an ordinary page: it slides in from
-/// the side with a back button, and the back swipe closes it. The hero
-/// header runs up under the bar; once the party's name has scrolled under
-/// the bar, the bar shows it.
-class ActivityDetailsScreen extends ConsumerStatefulWidget {
+/// the side with a back button, and the back swipe closes it.
+class ActivityDetailsScreen extends ConsumerWidget {
   final LogInfo logEntry;
 
   ActivityDetailsScreen({required ActivityDetailsScreenArgs args})
     : logEntry = args.logEntry;
 
   @override
-  ConsumerState<ActivityDetailsScreen> createState() =>
-      _ActivityDetailsScreenState();
+  Widget build(BuildContext context, WidgetRef ref) => ActivityDetailPage(
+    key: const Key("activity_detail_screen"),
+    log: logEntry,
+    // "All activity with …": back to the Activity tab, asking about the
+    // party.
+    onAsk: (query) {
+      ref.read(activityLogProvider.notifier).setFilter(query);
+      Navigator.of(context).maybePop();
+    },
+  );
 }
 
-class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
+/// A log entry's details on a page of their own (from the Activity tab, or
+/// from a card's details). The hero header runs up under the bar; once the
+/// party's name has scrolled under the bar, the bar shows the party, what
+/// happened and when, with its band.
+class ActivityDetailPage extends ConsumerStatefulWidget {
+  final LogInfo log;
+  final ValueChanged<ActivityQuery> onAsk;
+  final Widget leading;
+  final List<Widget> actions;
+
+  const ActivityDetailPage({
+    super.key,
+    required this.log,
+    required this.onAsk,
+    this.leading = const YiviBackButton(),
+    this.actions = const [],
+  });
+
+  @override
+  ConsumerState<ActivityDetailPage> createState() => _ActivityDetailPageState();
+}
+
+class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
   final _scroll = ScrollController();
 
   /// Whether the party's name has scrolled under the bar: the bar then
@@ -66,31 +94,25 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
     super.dispose();
   }
 
-  /// "All activity with …": back to the Activity tab, asking about the
-  /// party.
-  void _ask(ActivityQuery query) {
-    ref.read(activityLogProvider.notifier).setFilter(query);
-    Navigator.of(context).maybePop();
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     final wallet = ref.watch(walletCardsProvider);
-    final entry = ActivityEntry.fromLog(widget.logEntry, wallet: wallet);
+    final entry = ActivityEntry.fromLog(widget.log, wallet: wallet);
     // The name can move (rotation, text size): check again after this
     // layout.
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkName());
 
     return Scaffold(
-      key: const Key("activity_detail_screen"),
       extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
       appBar: IrmaAppBar(
         title: ActivityBarTitle(entry: entry),
         titleVisibility: _nameUnderBar,
         edgeShown: _nameUnderBar,
+        leading: widget.leading,
+        actions: widget.actions,
       ),
       body: ListView(
         controller: _scroll,
@@ -102,7 +124,7 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
             entry: entry,
             top: padding.top + IrmaAppBar.contentTop,
             nameKey: _nameKey,
-            onAsk: _ask,
+            onAsk: widget.onAsk,
           ),
         ],
       ),

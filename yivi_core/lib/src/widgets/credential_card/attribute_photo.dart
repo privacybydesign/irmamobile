@@ -4,6 +4,8 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../glass/round_icon_button.dart";
+import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
 
@@ -391,43 +393,48 @@ class _PhotoViewerState extends State<_PhotoViewer>
                           ),
                         ),
                         child: Padding(
-                          // At the height of the card details' close
-                          // button, 16 under the safe area.
+                          // The title beside the close button, where every
+                          // page's bar has its buttons.
                           padding: EdgeInsets.fromLTRB(
                             16 + padding.left,
-                            padding.top + 16,
+                            padding.top + IrmaAppBar.buttonTop,
                             16 + padding.right,
                             24,
                           ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Semantics(
-                                  header: true,
-                                  child: Text(
-                                    widget.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: YiviPalette.of(
-                                      context,
-                                    ).display(17).copyWith(color: Colors.white),
+                          // As high as the close button: the title in
+                          // line with it.
+                          child: SizedBox(
+                            height: RoundIconButton.size,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Semantics(
+                                    header: true,
+                                    child: Text(
+                                      widget.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: YiviPalette.of(context)
+                                          .display(17)
+                                          .copyWith(color: Colors.white),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              // Room for the close button, drawn above the bar.
-                              const SizedBox(width: 52),
-                            ],
+                                // Room for the close button, drawn above the bar.
+                                const SizedBox(width: 52),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-                // The app's close button, as on every other page. Above the
-                // bar, not in it: the bar fades through an Opacity, which
-                // would turn the glass dark (see GlassSurface.opacity).
+                // The app's close button, where it is on every other page,
+                // bare, in white on the photo's dark band. Above the bar,
+                // not in it: the bar fades through an Opacity.
                 Positioned(
-                  top: padding.top + 16,
+                  top: padding.top + IrmaAppBar.buttonTop,
                   right: 16 + padding.right,
                   child: TweenAnimationBuilder<double>(
                     tween: Tween(
@@ -443,7 +450,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                       key: const Key("photo_viewer_close"),
                       onTap: _close,
                       opacity: opacity,
-                      dark: true,
+                      color: Colors.white,
                     ),
                   ),
                 ),

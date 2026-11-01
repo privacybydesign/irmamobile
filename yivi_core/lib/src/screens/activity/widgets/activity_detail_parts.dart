@@ -249,49 +249,49 @@ class ActivityHeroHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              "${DateFormat.yMMMMd(lang).format(time)}"
-              " · ${activityTime(context, time)}",
+            // When, and whether Yivi knows the party, on one line (two when
+            // it does not fit).
+            Text.rich(
               key: const Key("activity_hero_date"),
-              textAlign: TextAlign.center,
-              style: palette.body(14).copyWith(color: palette.heading),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 4,
+              TextSpan(
                 children: [
-                  if (party.verified)
-                    Icon(
-                      Icons.verified_user_rounded,
-                      size: 14,
-                      color: palette.successText,
-                      semanticLabel: host == null
-                          ? null
-                          : FlutterI18n.translate(
-                              context,
-                              "missing_data.known_party",
+                  TextSpan(
+                    text:
+                        "${DateFormat.yMMMd(lang).format(time)}, "
+                        "${activityTime(context, time)}",
+                    style: palette.body(14).copyWith(color: palette.heading),
+                  ),
+                  const TextSpan(text: "  ·  "),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 4),
+                      child: party.verified
+                          ? Icon(
+                              Icons.verified_user_rounded,
+                              size: 14,
+                              color: palette.successText,
+                              semanticLabel: host == null
+                                  ? null
+                                  : FlutterI18n.translate(
+                                      context,
+                                      "missing_data.known_party",
+                                    ),
+                            )
+                          : Icon(
+                              Icons.shield_outlined,
+                              size: 14,
+                              color: palette.secondaryText,
                             ),
-                    )
-                  else
-                    Icon(
-                      Icons.shield_outlined,
-                      size: 14,
-                      color: palette.secondaryText,
-                    ),
-                  Flexible(
-                    child: Text(
-                      website,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette
-                          .body(13)
-                          .copyWith(color: palette.secondaryText),
                     ),
                   ),
+                  TextSpan(text: website),
                 ],
               ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: palette.body(13).copyWith(color: palette.secondaryText),
             ),
           ],
         ),

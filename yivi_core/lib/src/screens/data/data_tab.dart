@@ -567,17 +567,13 @@ class _CardList extends ConsumerWidget {
                   child: CardTransitionFade(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: HomeTabTop.fieldGap,
-                        children: [
-                          const TabLargeTitle("wallet.title"),
-                          HomeTabSearchField(
-                            key: const Key("search_field"),
-                            hint: context.tr("wallet.search_placeholder"),
-                            onTap: onStartSearch!,
-                          ),
-                        ],
+                      child: HomeTabHeader(
+                        title: const TabLargeTitle("wallet.title"),
+                        field: HomeTabSearchField(
+                          key: const Key("search_field"),
+                          hint: context.tr("wallet.search_placeholder"),
+                          onTap: onStartSearch!,
+                        ),
                       ),
                     ),
                   ),

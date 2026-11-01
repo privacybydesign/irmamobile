@@ -12,10 +12,17 @@ const double _barButtonsBottom = 16 + 44;
 /// Whether the bottom of the header at [headerKey] has scrolled up under
 /// the top bar; null while the header is not laid out. Measured from the
 /// header itself, not a fixed offset: it grows when a long name wraps.
-bool? headerUnderBar(BuildContext context, GlobalKey headerKey) {
+///
+/// With [part] less than 1: whether that part of the header has (a big
+/// picture, whose bar version is wanted before all of it is gone).
+bool? headerUnderBar(
+  BuildContext context,
+  GlobalKey headerKey, {
+  double part = 1,
+}) {
   final box = headerKey.currentContext.laidOutBox;
   if (box == null) return null;
-  final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+  final bottom = box.localToGlobal(Offset(0, box.size.height * part)).dy;
   return bottom < MediaQuery.paddingOf(context).top + _barButtonsBottom;
 }
 
@@ -50,7 +57,8 @@ class CompactBarDropIn extends StatelessWidget {
 /// What a detail page is about, in its top bar once its header has
 /// scrolled away: a 32 pt [leading] picture, the [title] and a [subtitle]
 /// line, each on one line. Straight on the bar's band (see
-/// [HeaderEdgeBand]), as a sheet's title: no pill of its own.
+/// [HeaderEdgeBand]), as a sheet's title: no pill of its own. As wide as it
+/// is given; put in a [Center], only as wide as it needs.
 class CompactBar extends StatelessWidget {
   final Widget leading;
   final String title;
@@ -73,10 +81,11 @@ class CompactBar extends StatelessWidget {
       child: SizedBox(
         height: 44,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           spacing: 8,
           children: [
             leading,
-            Expanded(
+            Flexible(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
