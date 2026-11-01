@@ -7,21 +7,21 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/log_entry.dart";
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
-import "../../../widgets/count_badge.dart";
+import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../activity_entry.dart";
 import "../activity_query.dart";
 import "activity_detail_parts.dart";
 
-/// One log entry as a row of the Activity tab: a small stack of its cards
-/// with the other party's logo on it, the party and when, what happened (in
-/// its colour) and to which cards, and a chevron. Rows sit edge to edge on a
-/// white band, a divider between them; pressed, a row turns grey.
+/// One log entry as a row of the Activity tab: the other party's logo with
+/// a badge for what happened, the party and when, what happened (in its
+/// colour) and to which cards, the cards' pictures under that, and a
+/// chevron. Rows sit edge to edge on a white band, a divider between them;
+/// pressed, a row turns grey.
 class ActivityCard extends ConsumerWidget {
   final LogInfo logEntry;
 
@@ -49,8 +49,11 @@ class ActivityCard extends ConsumerWidget {
     this.onTap,
   });
 
-  /// Where the divider starts: under the text, past the pile.
-  static const double dividerIndent = 16 + ActivityCardStack.width + 12;
+  /// The other party's logo at the start of the row.
+  static const double logoSize = 44;
+
+  /// Where the divider starts: under the text, past the logo.
+  static const double dividerIndent = 16 + logoSize + 12;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,11 +105,37 @@ class ActivityCard extends ConsumerWidget {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 40, 12),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 12,
                   children: [
-                    ActivityCardStack(entry: entry),
+                    ExcludeSemantics(
+                      child: SizedBox.square(
+                        dimension: logoSize,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            ActivityPartyLogo(
+                              party: entry.party,
+                              size: logoSize,
+                            ),
+                            PositionedDirectional(
+                              end: -3,
+                              bottom: -3,
+                              child: CornerBadge(
+                                icon: kind.icon,
+                                fill: kind.badge,
+                                size: 20,
+                                iconSize: 12,
+                                ring: palette.surface,
+                                ringWidth: 2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,15 +187,28 @@ class ActivityCard extends ConsumerWidget {
                                 .body(14)
                                 .copyWith(color: palette.heading),
                           ),
+                          if (entry.cards.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: ActivityCardThumbs(entry: entry),
+                            ),
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 22,
-                      color: palette.faint,
-                    ),
                   ],
+                ),
+              ),
+              // The chevron, centred on the row.
+              PositionedDirectional(
+                end: 12,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    size: 22,
+                    color: palette.faint,
+                  ),
                 ),
               ),
               if (divider)
@@ -184,90 +226,54 @@ class ActivityCard extends ConsumerWidget {
   }
 }
 
-/// Up to three of an entry's cards as a small pile, like the wallet seen
-/// from the front: each card behind sits a little higher and smaller. More
-/// than three get a "+n"; the other party's logo sits on the corner.
-class ActivityCardStack extends StatelessWidget {
+/// The pictures of an entry's cards in a row, each a little over the one
+/// before it; past four, a "+n".
+class ActivityCardThumbs extends StatelessWidget {
   final ActivityEntry entry;
 
-  const ActivityCardStack({super.key, required this.entry});
+  const ActivityCardThumbs({super.key, required this.entry});
 
-  static const double width = 64;
-  static const double height = 56;
-  static const double cardWidth = 52;
-  static const double _cardHeight =
-      cardWidth *
-      CredentialCardArt.designHeight /
-      CredentialCardArt.designWidth;
+  static const double cardWidth = 34;
+  static const double _overlap = 6;
+  static const int _max = 4;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final cards = entry.cards;
-    final shown = cards.length.clamp(0, 3);
+    final shown = cards.take(_max).toList();
     return ExcludeSemantics(
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            if (cards.isEmpty)
-              Positioned(
-                left: (width - cardWidth) / 2,
-                top: 38 - _cardHeight / 2,
-                child: Container(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (i, card) in shown.indexed)
+            Transform.translate(
+              offset: Offset(-_overlap * i, 0),
+              child: DecoratedBox(
+                // A ring in the band's colour sets each apart from the one
+                // under it.
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: palette.surface, width: 1.5),
+                ),
+                child: CredentialCardArt(
+                  credential: card.art,
                   width: cardWidth,
-                  height: _cardHeight,
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(YiviCorners.thumbnail),
-                      ),
-                      side: BorderSide(color: palette.outline, width: 1.5),
-                    ),
-                  ),
+                  greyedOut: card.deleted,
                 ),
-              ),
-            // Back to front: the first card is on top.
-            for (var i = shown - 1; i >= 0; i--)
-              Positioned(
-                left: (width - cardWidth) / 2,
-                top: 38 - 8.0 * i - _cardHeight / 2,
-                child: Transform.scale(
-                  scale: 1 - 0.12 * i,
-                  child: CredentialCardArt(
-                    credential: cards[i].art,
-                    width: cardWidth,
-                    greyedOut: cards[i].deleted,
-                  ),
-                ),
-              ),
-            if (cards.length > 3)
-              Positioned(
-                left: -6,
-                top: 0,
-                child: CountBadge(
-                  count: cards.length - 3,
-                  fill: palette.heading,
-                  ink: palette.surface,
-                  size: 18,
-                  fontSize: 10,
-                ),
-              ),
-            // Who it was with, on the corner of the pile. What happened is
-            // the coloured word in the row's subtitle.
-            Positioned(
-              right: -8,
-              bottom: -4,
-              child: ActivityPartyLogo(
-                party: entry.party,
-                size: ActivityPartyLogo.pileSize,
-                ring: palette.surface,
               ),
             ),
-          ],
-        ),
+          if (cards.length > _max)
+            Transform.translate(
+              offset: Offset(-_overlap * (_max - 1) + 4, 0),
+              child: Text(
+                "+${cards.length - _max}",
+                style: palette
+                    .body(12, weight: FontWeight.w600)
+                    .copyWith(color: palette.secondaryText),
+              ),
+            ),
+        ],
       ),
     );
   }

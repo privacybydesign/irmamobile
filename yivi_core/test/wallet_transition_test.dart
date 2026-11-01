@@ -120,8 +120,8 @@ void main() {
       expect(at("below").dy, greaterThanOrEqualTo(844));
       expect(at("tapped"), tapped);
 
-      // And back again when the detail closes, with a little bounce: the
-      // card below runs past its place, by at most maxOvershoot.
+      // And back again when the detail closes, without a bounce: the card
+      // below never runs past its place.
       router.pop();
       WalletTransition.openKey.value = "tapped";
       WalletTransition.closing = true;
@@ -130,11 +130,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 16));
         highest = at("below").dy < highest ? at("below").dy : highest;
       }
-      expect(highest, lessThan(below.dy - 2));
-      expect(
-        highest,
-        greaterThanOrEqualTo(below.dy - WalletTransition.maxOvershoot),
-      );
+      expect(highest, greaterThanOrEqualTo(below.dy));
       WalletTransition.closing = false;
       await tester.pumpAndSettle();
       expect(at("search"), search);

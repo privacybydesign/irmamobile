@@ -46,6 +46,10 @@ class HomeTabTop extends StatefulWidget {
   /// fade where they are (rows) ([WalletBar.othersDrop]).
   final bool othersDrop;
 
+  /// True while something pinned under the band (a list's section header)
+  /// continues it: the band then leaves its line to that.
+  final ValueListenable<bool>? bandContinues;
+
   /// The bar's search button: its key, what a screen reader says, and what
   /// a tap does (start searching).
   final Key? searchButtonKey;
@@ -69,6 +73,7 @@ class HomeTabTop extends StatefulWidget {
     this.trailing,
     this.trailingTurnsIntoClose = false,
     this.othersDrop = true,
+    this.bandContinues,
   });
 
   /// The bar's height under the status bar.
@@ -80,6 +85,13 @@ class HomeTabTop extends StatefulWidget {
       MediaQuery.paddingOf(context).top +
       barHeight +
       2 +
+      (below > 0 ? below + belowGap : 0);
+
+  /// From the top of the screen to the bottom of the band, with [below]
+  /// pinned under the bar: where a list's section headers stick.
+  static double bandBottom(BuildContext context, {double below = 0}) =>
+      MediaQuery.paddingOf(context).top +
+      barHeight +
       (below > 0 ? below + belowGap : 0);
 
   /// The space between the search field and what is pinned under it.
@@ -180,15 +192,23 @@ class _HomeTabTopState extends State<HomeTabTop> {
                           min(1.0, t.headerOpacity * 4),
                         )) *
                   (1 - _iv(open, 0.6, 1));
-              return searching
-                  ? ScrollEdgeBand(under: under, opacity: keep)
+              Widget band(bool line) => searching
+                  ? ScrollEdgeBand(under: under, opacity: keep, line: line)
                   : ValueListenableBuilder<double>(
                       valueListenable: _scrolled,
                       builder: (context, px, _) => ScrollEdgeBand(
                         under: AlwaysStoppedAnimation(
                           HomeTabTop._titleGone(px) * keep,
                         ),
+                        line: line,
                       ),
+                    );
+              final continues = widget.bandContinues;
+              return continues == null
+                  ? band(true)
+                  : ValueListenableBuilder<bool>(
+                      valueListenable: continues,
+                      builder: (context, on, _) => band(!on),
                     );
             },
           ),

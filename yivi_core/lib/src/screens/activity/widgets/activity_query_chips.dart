@@ -34,11 +34,8 @@ class ActivityFacetChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final leading = this.leading;
-    // The tint and ink of the filter button while a filter is on.
-    final fill = palette.primary.withValues(
-      alpha: palette.isDark ? 0.22 : 0.12,
-    );
-    final ink = palette.selectedTab;
+    final fill = palette.link;
+    final ink = palette.onLink;
     return Semantics(
       button: true,
       label: FlutterI18n.translate(

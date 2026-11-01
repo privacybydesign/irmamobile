@@ -370,10 +370,12 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         ),
       ],
       AsyncError(error: final error) => [
-        SliverToBoxAdapter(
-          child: Text(
-            error.toString(),
-            style: palette.body(14).copyWith(color: palette.danger),
+        _inset(
+          SliverToBoxAdapter(
+            child: Text(
+              error.toString(),
+              style: palette.body(14).copyWith(color: palette.danger),
+            ),
           ),
         ),
       ],
@@ -385,16 +387,18 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         ].where((g) => g.$2.isNotEmpty).toList();
         return [
           if (groups.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Text(
-                  context.tr("data.add.no_results", {
-                    "query": _search.text.trim(),
-                  }),
-                  key: const Key("add_data_no_results"),
-                  textAlign: TextAlign.center,
-                  style: palette.body(16).copyWith(color: palette.heading),
+            _inset(
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: Text(
+                    context.tr("data.add.no_results", {
+                      "query": _search.text.trim(),
+                    }),
+                    key: const Key("add_data_no_results"),
+                    textAlign: TextAlign.center,
+                    style: palette.body(16).copyWith(color: palette.heading),
+                  ),
                 ),
               ),
             ),
@@ -402,42 +406,47 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
           // side, under the category's name.
           if (landscape)
             for (final (group, items) in groups)
-              SliverMainAxisGroup(
-                slivers: [
-                  if (title(group).isNotEmpty)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
-                        child: Semantics(
-                          header: true,
-                          child: Text(title(group), style: palette.display(15)),
+              _inset(
+                SliverMainAxisGroup(
+                  slivers: [
+                    if (title(group).isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+                          child: Semantics(
+                            header: true,
+                            child: Text(
+                              title(group),
+                              style: palette.display(15),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  SliverPadding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    sliver: SliverList.builder(
-                      itemCount: (items.length + 1) ~/ 2,
-                      itemBuilder: (context, r) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            spacing: 8,
-                            children: [
-                              for (final i in [2 * r, 2 * r + 1])
-                                Expanded(
-                                  child: i < items.length
-                                      ? _card(row(items[i]))
-                                      : const SizedBox.shrink(),
-                                ),
-                            ],
+                    SliverPadding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      sliver: SliverList.builder(
+                        itemCount: (items.length + 1) ~/ 2,
+                        itemBuilder: (context, r) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              spacing: 8,
+                              children: [
+                                for (final i in [2 * r, 2 * r + 1])
+                                  Expanded(
+                                    child: i < items.length
+                                        ? _card(row(items[i]))
+                                        : const SizedBox.shrink(),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
           else
             for (final (group, items) in groups)
@@ -445,6 +454,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                 // A credential without a category (irmago marshals it
                 // `omitempty`) gets no header.
                 header: title(group).isEmpty ? null : title(group),
+                fullWidth: true,
                 dividerIndent: AddDataRow.dividerIndent,
                 itemCount: items.length,
                 itemBuilder: (context, i) => row(items[i]),
@@ -480,12 +490,13 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       // other sheets; on a tablet and a phone held sideways at the top left,
       // where the pages after this one keep the top right for the way on.
       closeAtStart: useFormSheet(context) || usePhoneLandscape(context),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      // The list's bands run from edge to edge; the rest keeps 16 from it
+      // ([_inset]).
       slivers: [
         // In the bar while searching, as the Data tab's: then not here.
         if (!_inBar)
           SliverPadding(
-            padding: const EdgeInsets.only(bottom: _fieldGap),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, _fieldGap),
             sliver: SliverToBoxAdapter(
               child: HomeTabSearchField(
                 key: const Key("add_data_search"),
@@ -496,7 +507,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
           ),
         if (justAdded != null)
           SliverPadding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             sliver: SliverToBoxAdapter(
               child: Semantics(
                 liveRegion: true,
@@ -545,6 +556,12 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     );
   }
 
+  /// [sliver] 16 from the sides, as all but the list's bands.
+  Widget _inset(Widget sliver) => SliverPadding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    sliver: sliver,
+  );
+
   /// A row of the list as a card of its own (the list sideways).
   Widget _card(Widget row) {
     final palette = YiviPalette.of(context);
@@ -583,7 +600,7 @@ class AddDataRow extends StatelessWidget {
   });
 
   /// Where a divider between rows starts: past the card.
-  static const dividerIndent = 14.0 + 56 + 14;
+  static const dividerIndent = 16.0 + 56 + 14;
 
   @override
   Widget build(BuildContext context) {
@@ -610,7 +627,7 @@ class AddDataRow extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 64),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
               child: Row(
                 spacing: 14,
                 children: [

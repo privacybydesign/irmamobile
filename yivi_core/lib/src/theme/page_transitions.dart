@@ -1,6 +1,6 @@
-import "package:cupertino_ui/cupertino_ui.dart"
-    show CupertinoPageTransitionsBuilder;
 import "package:material_ui/material_ui.dart";
+
+import "ios_back_gesture.dart";
 
 /// Wraps the platform's page transitions so that "Reduce motion" turns every
 /// push into a cross-fade.
@@ -40,7 +40,8 @@ class YiviPageTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
-/// The platform's own transitions, each wrapped in
+/// The platform's own transitions (on iOS with a back swipe that finishes
+/// smoothly, [YiviCupertinoPageTransitionsBuilder]), each wrapped in
 /// [YiviPageTransitionsBuilder].
 const yiviPageTransitionsTheme = PageTransitionsTheme(
   builders: {
@@ -48,10 +49,10 @@ const yiviPageTransitionsTheme = PageTransitionsTheme(
       PredictiveBackPageTransitionsBuilder(),
     ),
     TargetPlatform.iOS: YiviPageTransitionsBuilder(
-      CupertinoPageTransitionsBuilder(),
+      YiviCupertinoPageTransitionsBuilder(),
     ),
     TargetPlatform.macOS: YiviPageTransitionsBuilder(
-      CupertinoPageTransitionsBuilder(),
+      YiviCupertinoPageTransitionsBuilder(),
     ),
     TargetPlatform.linux: YiviPageTransitionsBuilder(
       ZoomPageTransitionsBuilder(),

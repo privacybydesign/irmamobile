@@ -73,12 +73,19 @@ class SliverGlassGroup extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
   final double dividerIndent;
 
+  /// A band from edge to edge instead of a rounded group (as the Activity
+  /// tab's months): square, a hairline above and below it in light mode.
+  /// For a list with no side padding; the header then keeps 16 from the
+  /// edge.
+  final bool fullWidth;
+
   const SliverGlassGroup({
     super.key,
     this.header,
     required this.itemCount,
     required this.itemBuilder,
     this.dividerIndent = 16,
+    this.fullWidth = false,
   });
 
   @override
@@ -87,29 +94,43 @@ class SliverGlassGroup extends StatelessWidget {
     final header = this.header;
     return SliverMainAxisGroup(
       slivers: [
-        if (header != null) SliverToBoxAdapter(child: _GroupHeader(header)),
-        DecoratedSliver(
-          decoration: ShapeDecoration(
-            color: palette.surface,
-            shape: GlassGroup._shape(context),
+        if (header != null)
+          SliverToBoxAdapter(
+            child: _GroupHeader(header, inset: fullWidth ? 16 : 4),
           ),
+        DecoratedSliver(
+          decoration: fullWidth
+              ? BoxDecoration(
+                  color: palette.surface,
+                  border: palette.isDark
+                      ? null
+                      : Border.symmetric(
+                          horizontal: BorderSide(color: palette.divider),
+                        ),
+                )
+              : ShapeDecoration(
+                  color: palette.surface,
+                  shape: GlassGroup._shape(context),
+                ),
           sliver: SliverList.separated(
             itemCount: itemCount,
             // The first and last rows take the group's corners, so a
             // pressed row lights up inside the group, not square over it.
-            itemBuilder: (context, i) => Material(
-              type: MaterialType.transparency,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  top: i == 0 ? GlassGroup.radius.topLeft : Radius.zero,
-                  bottom: i == itemCount - 1
-                      ? GlassGroup.radius.bottomLeft
-                      : Radius.zero,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: itemBuilder(context, i),
-            ),
+            itemBuilder: (context, i) => fullWidth
+                ? itemBuilder(context, i)
+                : Material(
+                    type: MaterialType.transparency,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: i == 0 ? GlassGroup.radius.topLeft : Radius.zero,
+                        bottom: i == itemCount - 1
+                            ? GlassGroup.radius.bottomLeft
+                            : Radius.zero,
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: itemBuilder(context, i),
+                  ),
             separatorBuilder: (_, _) =>
                 GlassGroup._divider(palette, dividerIndent),
           ),
@@ -123,11 +144,14 @@ class SliverGlassGroup extends StatelessWidget {
 class _GroupHeader extends StatelessWidget {
   final String text;
 
-  const _GroupHeader(this.text);
+  /// From the side of the group (or the screen, for a band).
+  final double inset;
+
+  const _GroupHeader(this.text, {this.inset = 4});
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(4, 24, 4, 8),
+    padding: EdgeInsets.fromLTRB(inset, 24, inset, 8),
     child: Semantics(
       header: true,
       child: Text(text, style: YiviPalette.of(context).display(16)),

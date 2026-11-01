@@ -68,6 +68,11 @@ class ScrollEdgeListener extends StatelessWidget {
 class ScrollEdgeBand extends StatelessWidget {
   final ValueListenable<double> under;
 
+  /// Whether the band draws its line. Off while something pinned under it
+  /// (a list's section header) continues the band and draws the line under
+  /// itself.
+  final bool line;
+
   /// The colour the content fades to: the screen's background by default,
   /// the sheet's for a sheet.
   final Color? color;
@@ -78,7 +83,27 @@ class ScrollEdgeBand extends StatelessWidget {
     required this.under,
     this.color,
     this.opacity = 1,
+    this.line = true,
   });
+
+  /// The band's fill once content is fully under it, over [base] (the
+  /// screen's background by default).
+  static Color fill(YiviPalette palette, {Color? base}) => Color.lerp(
+    base ?? palette.background,
+    Colors.white,
+    palette.isDark ? 0.09 : 0.6,
+  )!;
+
+  /// The band's line, one device pixel thick.
+  static BorderSide lineSide(BuildContext context, {double opacity = 1}) {
+    final color = YiviPalette.of(context).isDark
+        ? const Color(0x21FFFFFF)
+        : const Color(0x1A000000);
+    return BorderSide(
+      color: color.withValues(alpha: color.a * opacity),
+      width: 1 / MediaQuery.devicePixelRatioOf(context),
+    );
+  }
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
@@ -92,24 +117,14 @@ class ScrollEdgeBand extends StatelessWidget {
     if (t <= 0) return const SizedBox.expand();
     final palette = YiviPalette.of(context);
     final base = color ?? palette.background;
-    final fill = Color.lerp(
-      base,
-      Colors.white,
-      (palette.isDark ? 0.09 : 0.6) * t,
-    )!;
-    final line = palette.isDark
-        ? const Color(0x21FFFFFF)
-        : const Color(0x1A000000);
+    final fill = Color.lerp(base, ScrollEdgeBand.fill(palette, base: base), t)!;
     final band = DecoratedBox(
       key: const Key("scroll_edge_band"),
       decoration: BoxDecoration(
         color: fill.withValues(alpha: fill.a * t),
-        border: Border(
-          bottom: BorderSide(
-            color: line.withValues(alpha: line.a * t),
-            width: 1 / MediaQuery.devicePixelRatioOf(context),
-          ),
-        ),
+        border: line
+            ? Border(bottom: ScrollEdgeBand.lineSide(context, opacity: t))
+            : null,
       ),
       child: const SizedBox.expand(),
     );

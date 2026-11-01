@@ -1,4 +1,4 @@
-import "package:flutter/cupertino.dart" show CupertinoIcons, CupertinoPageRoute;
+import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -196,7 +196,8 @@ void _askActivityTab(BuildContext context, WidgetRef ref, ActivityQuery query) {
 /// back (to the card) at the left and close (the card too) at the right.
 void pushCardActivityEntry(BuildContext context, LogInfo log) {
   Navigator.of(context).push(
-    CupertinoPageRoute<void>(builder: (_) => _CardActivityEntryPage(log: log)),
+    // The platform's push (on iOS with the app's back swipe).
+    MaterialPageRoute<void>(builder: (_) => _CardActivityEntryPage(log: log)),
   );
 }
 
@@ -218,6 +219,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
         children: [
           ListView(
             key: const Key("card_activity_entry"),
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.only(bottom: padding.bottom + 32),
             children: [
               ActivityDetailBody(

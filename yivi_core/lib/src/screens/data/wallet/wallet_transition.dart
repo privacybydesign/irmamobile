@@ -29,13 +29,6 @@ class WalletTransition {
   /// bar): gentle at both ends, so it reads as one movement.
   static const curve = Curves.fastOutSlowIn;
 
-  /// What moves (the card, the other cards) settles with a little bounce:
-  /// it runs a few percent past its place and back ([moved]).
-  static const settleCurve = Cubic(0.3, 1.25, 0.5, 1);
-
-  /// At most this far past its place, however far it flew.
-  static const maxOvershoot = 10.0;
-
   /// Whether the open card is closing (its detail route runs in reverse).
   static bool closing = false;
 
@@ -164,27 +157,6 @@ class WalletTransition {
     return next + (screenHeight - next + 32) * _nextDown(value);
   }
 
-  /// How far what moves has gone (0 closed, 1 open) at [value] of the
-  /// route animation: as [eased], with the bounce of [settleCurve] (below 0
-  /// or above 1 near the end). See [overshoot] for how far that may go.
-  static double moved(double value) {
-    final v = value.clamp(0.0, 1.0);
-    return closing
-        ? 1 - settleCurve.transform(1 - v)
-        : settleCurve.transform(v);
-  }
-
-  /// [distance] × [t], but past either end by at most [maxOvershoot].
-  static double overshoot(double t, double distance) {
-    final past = switch (t) {
-      > 1 => (t - 1) * distance,
-      < 0 => t * distance,
-      _ => 0.0,
-    };
-    final within = t.clamp(0.0, 1.0) * distance;
-    return within + past.clamp(-maxOvershoot, maxOvershoot);
-  }
-
   /// How far the bars have handed over (0 to 1) at [value] of the route
   /// animation: as everything else ([eased]).
   static double barProgress(double value) =>
@@ -221,10 +193,9 @@ class WalletTransition {
 class _CurvedRectTween extends RectTween {
   _CurvedRectTween({super.begin, super.end});
 
-  // Both ways from where it starts, with the bounce of
-  // [WalletTransition.settleCurve], at most [WalletTransition.maxOvershoot]
-  // past where it lands (a popping hero flies from the detail, t = 0, to
-  // the list, t = 1).
+  // Both ways from where it starts, [WalletTransition.curve] without a
+  // bounce (a popping hero flies from the detail, t = 0, to the list,
+  // t = 1).
   @override
   Rect? lerp(double t) {
     final b = begin, e = end;
@@ -240,13 +211,7 @@ class _CurvedRectTween extends RectTween {
           ? Rect.lerp(b, e, WalletTransition.stackOpen(t))
           : Rect.lerp(e, b, WalletTransition.stackOpen(1 - t));
     }
-    final s = WalletTransition.settleCurve.transform(t);
-    return Rect.fromLTWH(
-      b.left + WalletTransition.overshoot(s, e.left - b.left),
-      b.top + WalletTransition.overshoot(s, e.top - b.top),
-      b.width + WalletTransition.overshoot(s, e.width - b.width),
-      b.height + WalletTransition.overshoot(s, e.height - b.height),
-    );
+    return Rect.lerp(b, e, WalletTransition.curve.transform(t));
   }
 }
 
@@ -313,13 +278,9 @@ class PushAway extends StatelessWidget {
             }
             final t = WalletTransition.eased(secondary.value);
             if (t == 0) return child!;
-            final moved = WalletTransition.moved(secondary.value);
-            if (bar != null) return _underBar(context, t, moved, child!);
+            if (bar != null) return _underBar(context, t, child!);
             return Transform.translate(
-              offset: Offset(
-                0,
-                WalletTransition.overshoot(moved, _distance(context)),
-              ),
+              offset: Offset(0, t * _distance(context)),
               child: child,
             );
           },
@@ -335,7 +296,7 @@ class PushAway extends StatelessWidget {
   /// other item, above the tapped one or below it, goes down off the screen,
   /// all by the same distance, so the list drops as one (what was above
   /// passes behind the flying item).
-  Widget _underBar(BuildContext context, double t, double moved, Widget child) {
+  Widget _underBar(BuildContext context, double t, Widget child) {
     if (direction == PushAwayDirection.up ||
         !(WalletBar.maybeOf(context)?.othersDrop ?? true)) {
       // Gone in the first third of opening; closing, back while the
@@ -357,10 +318,7 @@ class PushAway extends StatelessWidget {
       return Opacity(opacity: 0, child: child);
     }
     final drop = MediaQuery.sizeOf(context).height + 32 + height;
-    return Transform.translate(
-      offset: Offset(0, WalletTransition.overshoot(moved, drop)),
-      child: child,
-    );
+    return Transform.translate(offset: Offset(0, t * drop), child: child);
   }
 
   /// While a card opens from the stack (Wallet depth): the cards above it

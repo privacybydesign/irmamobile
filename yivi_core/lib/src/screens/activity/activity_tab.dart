@@ -27,6 +27,7 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/home_tab_top.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/round_icon_button.dart";
+import "../../widgets/glass/scroll_edge.dart";
 import "../../widgets/glass/search_scroll_edge.dart";
 import "../../widgets/glass/title_scroll_edge.dart";
 import "../../widgets/loading_indicator.dart";
@@ -101,6 +102,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   Timer? _countDelay;
   var _countGeneration = 0;
 
+  /// The months whose header is pinned under the bar with rows under it:
+  /// while there is one, it continues the bar's band and has its line.
+  final _pinnedMonths = <String>{};
+  final _monthPinned = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -117,6 +123,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _search.dispose();
     _focus.dispose();
     _scrollController.dispose();
+    _monthPinned.dispose();
     super.dispose();
   }
 
@@ -125,8 +132,22 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// What the suggestions build on: the draft while searching.
   ActivityQuery get _asked => _draft ?? _query;
 
+  /// A month's header pinned under the bar with rows under it, or not.
+  /// Reported while the list builds: the bar follows after the frame.
+  void _monthHeaderPinned(String month, bool pinned) {
+    final changed = pinned
+        ? _pinnedMonths.add(month)
+        : _pinnedMonths.remove(month);
+    if (!changed) return;
+    afterFrame(() {
+      if (mounted) _monthPinned.value = _pinnedMonths.isNotEmpty;
+    });
+  }
+
   void _ask(ActivityQuery query) {
     ref.read(activityLogProvider.notifier).setFilter(query);
+    _pinnedMonths.clear();
+    _monthPinned.value = false;
     if (_scrollController.hasClients) _scrollController.jumpTo(0);
   }
 
@@ -333,22 +354,42 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               query: q.copyWith(party: () => p),
             ),
     ];
-    // The fields of the card asked about: picked fields join (either one).
+    // The fields of the card asked about (picked fields join: either one);
+    // while typing with no card asked, those of every card that match,
+    // each asking about its card too.
+    final fieldCards = card != null
+        ? [card]
+        : typed.isEmpty
+        ? const <ActivityCardRef>[]
+        : _cards;
     final fields = <_Suggestion>[
-      if (card != null && !card.removed)
-        for (final g in claimTokenGroups(card.art.attributes))
-          for (final t in g.tokens)
-            if (!q.fields.contains(t) && hit(claimTokenLabel(context, t)))
-              _Suggestion(
-                key: "field:${card.key}:${t.key}",
-                title: claimTokenLabel(context, t),
-                query: q.copyWith(fields: {...q.fields, t}.toList()),
-              ),
+      for (final c in fieldCards)
+        if (!c.removed)
+          for (final g in claimTokenGroups(c.art.attributes))
+            for (final t in g.tokens)
+              if (!q.fields.contains(t) && hit(claimTokenLabel(context, t)))
+                _Suggestion(
+                  key: "field:${c.key}:${t.key}",
+                  leading: card == null
+                      ? CredentialCardArt(credential: c.art, width: 30)
+                      : null,
+                  title: claimTokenLabel(context, t),
+                  query: card == null
+                      ? q.withCard(c).copyWith(fields: [t])
+                      : q.copyWith(fields: {...q.fields, t}.toList()),
+                ),
     ];
     final words = _typed.trim();
     return [
       kinds,
-      if (card == null) ...[cards, partyHits] else ...[partyHits, fields],
+      if (card == null) ...[
+        cards,
+        partyHits,
+        fields,
+      ] else ...[
+        partyHits,
+        fields,
+      ],
       if (words.isNotEmpty)
         [
           _Suggestion(
@@ -482,10 +523,16 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             width: 26,
             greyedOut: card.removed,
           ),
-          label: q.fields.isEmpty
-              ? card.name
-              : "${activityFieldsLabel(context, q.fields)} · ${card.name}",
+          label: card.name,
+          // Its fields go with it.
           onRemove: () => change(q.withCard(null)),
+        ),
+      // Each field asked about, a tag of its own.
+      for (final t in q.fields)
+        ActivityFacetChip(
+          key: Key("activity_chip_field_${t.key}"),
+          label: claimTokenLabel(context, t),
+          onRemove: () => change(q.copyWith(fields: [...q.fields]..remove(t))),
         ),
       if (q.party != null)
         ActivityFacetChip(
@@ -536,6 +583,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     double top, {
     required double pinTop,
     List<Widget> header = const [],
+    bool joinBar = false,
   }) {
     final logEntries = state.entries;
     final moreLogsAvailable = state.moreAvailable;
@@ -654,6 +702,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                     ).format(group.first.time.toLocal()).toCapitalized(),
                     palette: palette,
                     textScaler: MediaQuery.textScalerOf(context),
+                    onPinned: joinBar ? _monthHeaderPinned : null,
                   ),
                 ),
                 DecoratedSliver(
@@ -777,6 +826,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         context,
         below: below == null ? 0 : belowHeight,
       );
+      // The months stick right under the band, and continue it.
+      final searchPinTop = HomeTabTop.bandBottom(
+        context,
+        below: below == null ? 0 : belowHeight,
+      );
       return Scaffold(
         backgroundColor: palette.background,
         // The keyboard covers the tab; the list keeps clear of it itself.
@@ -813,20 +867,28 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           onSearch: _startSearchingInBar,
           trailing: filterButton,
           othersDrop: false,
+          bandContinues: _monthPinned,
           child: !state.loaded
               ? Center(child: LoadingIndicator())
               : _searching
-              ? _buildLogEntries(context, state, listTop, pinTop: listTop)
+              ? _buildLogEntries(
+                  context,
+                  state,
+                  listTop,
+                  pinTop: searchPinTop,
+                  joinBar: true,
+                )
               : _buildLogEntries(
                   context,
                   state,
                   HomeTabTop.titleTop(context),
                   // Under the bar, and under the tags once they pin there.
-                  pinTop: HomeTabTop.listTop(
+                  pinTop: HomeTabTop.bandBottom(
                     context,
                     below: chips.isEmpty ? 0 : activityChipHeight,
                   ),
                   header: header,
+                  joinBar: true,
                 ),
         ),
       );
@@ -933,16 +995,20 @@ class _TopSpace extends SliverPersistentHeaderDelegate {
 }
 
 /// A month's header, on the page colour: it sticks under the bar while
-/// its rows scroll, and the next month's pushes it away.
+/// its rows scroll, and the next month's pushes it away. With [onPinned],
+/// once rows go under it, it takes the colour of the bar's band and its
+/// line, so the two read as one.
 class _MonthHeader extends SliverPersistentHeaderDelegate {
   final String title;
   final YiviPalette palette;
   final TextScaler textScaler;
+  final void Function(String month, bool pinned)? onPinned;
 
   const _MonthHeader({
     required this.title,
     required this.palette,
     required this.textScaler,
+    this.onPinned,
   });
 
   double get _height => 18 + textScaler.scale(24) + 8;
@@ -954,26 +1020,37 @@ class _MonthHeader extends SliverPersistentHeaderDelegate {
   double get minExtent => _height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlaps) =>
-      ColoredBox(
-        color: palette.background,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
-          child: Semantics(
-            header: true,
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: palette.display(18).copyWith(height: 24 / 18),
-            ),
+  Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
+    final onPinned = this.onPinned;
+    // How far rows have gone under it, over its first few points.
+    final t = onPinned == null ? 0.0 : (shrinkOffset / 8).clamp(0.0, 1.0);
+    onPinned?.call(title, shrinkOffset > 0);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Color.lerp(palette.background, ScrollEdgeBand.fill(palette), t),
+        border: t == 0
+            ? null
+            : Border(bottom: ScrollEdgeBand.lineSide(context, opacity: t)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+        child: Semantics(
+          header: true,
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: palette.display(18).copyWith(height: 24 / 18),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   @override
   bool shouldRebuild(_MonthHeader old) =>
       old.title != title ||
       old.palette != palette ||
-      old.textScaler != textScaler;
+      old.textScaler != textScaler ||
+      (old.onPinned == null) != (onPinned == null);
 }

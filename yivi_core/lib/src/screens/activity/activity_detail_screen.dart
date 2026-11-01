@@ -94,6 +94,8 @@ class _ActivityDetailsScreenState extends ConsumerState<ActivityDetailsScreen> {
       ),
       body: ListView(
         controller: _scroll,
+        // Short or long, it scrolls (and bounces), as any page.
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.only(bottom: padding.bottom + 32),
         children: [
           ActivityDetailBody(
@@ -122,6 +124,7 @@ class ActivityDetailPane extends ConsumerWidget {
     final padding = paneContentPadding(context);
     return ListView(
       key: Key("activity_detail_pane_${entry.key}"),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.only(bottom: padding.bottom),
       children: [
         ActivityDetailBody(

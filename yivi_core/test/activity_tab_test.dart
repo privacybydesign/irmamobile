@@ -8,7 +8,9 @@ import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/home_tab_top.dart";
+import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -441,6 +443,68 @@ void main() {
       expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
     },
   );
+
+  testWidgets("typing suggests a card's fields; a pick is a tag of its own, "
+      "next to the card's", (tester) async {
+    final address = testCredential(
+      type: "pbdf.sidn-pbdf.address",
+      hash: "address",
+      name: "Address",
+      attributes: [stringAttr("Postal code", "1234AB")],
+    );
+    await pump(tester, cards: [address]);
+    await startSearch(tester);
+    await tester.enterText(field, "postal");
+    await _settle(tester);
+    final suggestion = find.byWidgetPredicate(
+      (w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith(
+            "activity_suggestion_field:",
+          ),
+    );
+    expect(suggestion, findsOneWidget);
+    await tester.tap(suggestion);
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_chip_card")), findsOneWidget);
+    final fieldTag = find.byWidgetPredicate(
+      (w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith("activity_chip_field_"),
+    );
+    expect(fieldTag, findsOneWidget);
+    expect(
+      find.descendant(of: fieldTag, matching: find.text("Postal code")),
+      findsOneWidget,
+    );
+    // Taking off the field leaves the card.
+    await tester.tap(fieldTag);
+    await _settle(tester);
+    expect(fieldTag, findsNothing);
+    expect(find.byKey(const Key("activity_chip_card")), findsOneWidget);
+  });
+
+  testWidgets("scrolled, a month's header sticks right under the bar and "
+      "takes on its band", (tester) async {
+    await pump(tester);
+    await tester.drag(
+      find.byType(CustomScrollView).first,
+      const Offset(0, -500),
+    );
+    await _settle(tester);
+    final header = find.ancestor(
+      of: find.text("October"),
+      matching: find.byType(DecoratedBox),
+    );
+    // No safe area in the test: the bar ends at its own height.
+    expect(tester.getTopLeft(header.first).dy, HomeTabTop.barHeight);
+    final palette = YiviPalette.of(tester.element(header.first));
+    expect(
+      (tester.widget<DecoratedBox>(header.first).decoration as BoxDecoration)
+          .color,
+      ScrollEdgeBand.fill(palette),
+    );
+  });
 
   testWidgets("the filter sheet is up at once; its cards have their own page", (
     tester,
