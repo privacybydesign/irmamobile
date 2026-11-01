@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -94,49 +96,46 @@ Color? svgTopColour(String svg) => _topColours.putIfAbsent(svg, () {
 
 final _topColours = <String, Color?>{};
 
-/// Background and text colour of the Yivi card template for a credential
-/// without its own colours: a pale wash of the logo colour with dark text in
-/// the same hue, or a neutral white card when there is no tint.
+/// The colours of the Yivi card, the card a credential gets when it has no
+/// design of its own: a deep gradient in the hue of the issuer's logo (grey
+/// when the logo has none), the Yivi facets down the right side in darker
+/// shades of it, white text and a pale accent for the name, labels and
+/// issuer. The same in light and dark mode, like the built-in cards.
 ///
-/// In dark mode the card turns dark instead: the logo's hue at 27% lightness
-/// with light text in the same hue, or a graphite card when there is no tint.
-({Color background, Color foreground}) yiviCardColors(
-  Color? tint, {
-  Brightness brightness = Brightness.light,
-}) {
-  if (brightness == Brightness.dark) return _darkYiviCardColors(tint);
-  if (tint == null) {
+/// [background] is the issuer's own card colour (SD-JWT VC `simple`
+/// rendering), which takes the place of the logo's hue; a light one gets
+/// dark text.
+({Color top, Color bottom, List<Color> facets, Color text, Color accent})
+yiviCardColors(Color? tint, {Color? background}) {
+  if (background != null) {
+    final hsl = HSLColor.fromColor(background);
+    final light = background.computeLuminance() > 0.45;
+    Color darker(double by) =>
+        hsl.withLightness((hsl.lightness - by).clamp(0.0, 1.0)).toColor();
+    final text = light ? const Color(0xFF1C1C1E) : Colors.white;
     return (
-      background: const Color(0xFFFFFFFF),
-      foreground: const Color(0xFF484747),
+      top: background,
+      bottom: darker(0.06),
+      facets: [darker(0.05), darker(0.08), darker(0.12)],
+      text: text,
+      accent: text.withValues(alpha: 0.72),
     );
   }
-  final hsl = HSLColor.fromColor(tint);
-  final saturation = hsl.saturation.clamp(0.0, 0.85);
+  final hsl = tint == null ? null : HSLColor.fromColor(tint);
+  final hue = hsl?.hue ?? 220;
+  final saturation = hsl == null ? 0.08 : hsl.saturation.clamp(0.35, 0.62);
+  Color shade(double s, double l) =>
+      HSLColor.fromAHSL(1, hue, s.clamp(0.0, 1.0), l).toColor();
   return (
-    background: hsl
-        .withSaturation(saturation * 0.75)
-        .withLightness(0.93)
-        .toColor(),
-    foreground: hsl
-        .withSaturation((saturation * 0.6).clamp(0.0, 0.5))
-        .withLightness(0.18)
-        .toColor(),
-  );
-}
-
-({Color background, Color foreground}) _darkYiviCardColors(Color? tint) {
-  if (tint == null) {
-    return (
-      background: const HSLColor.fromAHSL(1, 216, 0.13, 0.18).toColor(),
-      foreground: const Color(0xFFE6E8EC),
-    );
-  }
-  final hsl = HSLColor.fromColor(tint);
-  final saturation = hsl.saturation.clamp(0.0, 0.45);
-  return (
-    background: hsl.withSaturation(saturation).withLightness(0.27).toColor(),
-    foreground: hsl.withSaturation(saturation).withLightness(0.90).toColor(),
+    top: shade(saturation, 0.37),
+    bottom: shade(saturation, 0.28),
+    facets: [
+      shade(saturation * 0.92, 0.32),
+      shade(saturation * 0.90, 0.29),
+      shade(saturation * 0.88, 0.25),
+    ],
+    text: Colors.white,
+    accent: shade(min(saturation, 0.5) * 0.6, 0.84),
   );
 }
 

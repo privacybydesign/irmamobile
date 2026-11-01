@@ -223,7 +223,13 @@ void main() {
           _text("email", "Email address", "demo@example.com"),
         ]),
       );
-      expect(find.byType(SvgPicture), findsNothing);
+      // No template: the only SVG is the Yivi mark, not a whole card.
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is SvgPicture && w.width == CredentialCardArt.designWidth,
+        ),
+        findsNothing,
+      );
       expect(find.text("Card irma-demo.RU.studentCard"), findsOneWidget);
     });
   });

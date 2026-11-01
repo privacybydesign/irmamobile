@@ -9,6 +9,7 @@ import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/instance_hint.dart";
 import "../../base64_image.dart";
+import "builtin_card_svgs.dart";
 import "builtin_card_templates.dart";
 import "card_art_support.dart";
 
@@ -189,10 +190,7 @@ class CredentialCardArt extends StatelessWidget {
     if (template != null) return svgTopColour(template.svg);
     final display = credential.display;
     return parseCssColor(display?.backgroundColor) ??
-        yiviCardColors(
-          parseCssColor(display?.logoTint),
-          brightness: Theme.of(context).brightness,
-        ).background;
+        yiviCardColors(parseCssColor(display?.logoTint)).top;
   }
 
   /// The SVG template the card is drawn from, and whether it is one of
@@ -239,6 +237,11 @@ class CredentialCardArt extends StatelessWidget {
 }
 
 /// The card Yivi draws for credentials without an issuer template.
+/// The card Yivi draws for a credential without a design of its own, in
+/// the frame of the built-in cards: the issuer's logo on a white tile, the
+/// credential's name and main value next to it, the issuer and the Yivi
+/// mark at the bottom, on a deep gradient in the logo's
+/// hue with the Yivi facets down the right side (see [yiviCardColors]).
 class _YiviCard extends StatelessWidget {
   final schemaless.Credential credential;
   final String? hintText;
@@ -248,246 +251,215 @@ class _YiviCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final display = credential.display;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final tinted = yiviCardColors(
+    final colours = yiviCardColors(
       parseCssColor(display?.logoTint),
-      brightness: Theme.of(context).brightness,
+      background: parseCssColor(display?.backgroundColor),
     );
-    final issuerBackground = parseCssColor(display?.backgroundColor);
-    final background = issuerBackground ?? tinted.background;
-    final foreground =
-        parseCssColor(display?.textColor) ??
-        (issuerBackground == null
-            ? tinted.foreground
-            : (background.computeLuminance() > 0.45
-                  ? const Color(0xFF1C1C1E)
-                  : Colors.white));
-
+    final text = parseCssColor(display?.textColor) ?? colours.text;
+    final accent = display?.textColor == null
+        ? colours.accent
+        : text.withValues(alpha: 0.72);
     final image = display?.backgroundImage;
-    final footer = _footerText(context);
+    final hint = hintText ?? "";
 
-    TextStyle text(double size, FontWeight weight, {double alpha = 1}) =>
-        TextStyle(
-          package: weight.value >= 600 && size >= 16 ? packageName : null,
-          fontFamily: weight.value >= 600 && size >= 16
-              ? "Alexandria"
-              : "Open Sans",
-          fontSize: size,
-          height: 1.3,
-          fontWeight: weight,
-          color: foreground.withValues(alpha: alpha),
-        );
+    TextStyle style(
+      double size,
+      FontWeight weight,
+      Color color, {
+      bool display = false,
+      double spacing = 0,
+    }) => TextStyle(
+      package: display ? packageName : null,
+      fontFamily: display ? "Alexandria" : "Open Sans",
+      fontSize: size,
+      height: 1.2,
+      fontWeight: weight,
+      letterSpacing: spacing,
+      color: color,
+    );
+    Widget line(String value, TextStyle style) =>
+        Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
 
-    return ColoredBox(
-      color: background,
-      child: Stack(
-        children: [
-          if (image != null)
-            Positioned.fill(
-              child: Image(
-                // Decoded once, so a rebuilt card finds it in the cache.
-                image: MemoryImage(decodeBase64Cached(image.base64)),
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (image != null)
+          Image(
+            // Decoded once, so a rebuilt card finds it in the cache.
+            image: MemoryImage(decodeBase64Cached(image.base64)),
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+          )
+        else
+          CustomPaint(painter: _FacetsPainter(colours)),
+        Positioned(
+          left: 18.5,
+          top: 16.5,
+          child: _Logo(credential: credential, colour: colours.top),
+        ),
+        Positioned(
+          left: 62,
+          top: 17,
+          right: 20,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              line(
+                credential.name,
+                style(10.5, FontWeight.w700, accent, spacing: 0.4),
               ),
-            ),
-          Positioned(
-            right: -64,
-            bottom: -88,
-            child: _Ring(color: foreground, size: 240),
+              if (hint.isNotEmpty)
+                line(hint, style(19, FontWeight.w600, text, display: true)),
+            ],
           ),
-          Positioned(
-            right: -8,
-            bottom: -32,
-            child: _Ring(color: foreground, size: 128),
+        ),
+        Positioned(
+          left: 20,
+          right: 60,
+          bottom: 9,
+          child: line(
+            credential.issuer.name,
+            style(10, FontWeight.w600, accent),
           ),
-          Positioned(
-            left: 20,
-            top: 16,
-            right: 20,
-            child: Row(
-              spacing: 16,
-              children: [
-                _Logo(
-                  credential: credential,
-                  background: background,
-                  foreground: foreground,
-                  onTile: dark && issuerBackground == null,
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        credential.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text(16, FontWeight.w600),
-                      ),
-                      if ((hintText ?? "").isNotEmpty)
-                        Text(
-                          hintText!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: text(14, FontWeight.w400, alpha: 0.85),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        ),
+        Positioned(
+          left: 318.5,
+          top: 205.5,
+          child: SvgPicture.string(
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'viewBox="212.686 199.928 765.355 425.197">'
+            '<g fill="${_hex(text)}" fill-opacity="0.8">$builtinYiviMark</g>'
+            "</svg>",
+            width: 765.355 * _markScale,
+            height: 425.197 * _markScale,
           ),
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: 18,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              spacing: 16,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        FlutterI18n.translate(
-                          context,
-                          "credential_card.issued_by",
-                        ),
-                        style: text(12, FontWeight.w400, alpha: 0.7),
-                      ),
-                      Text(
-                        credential.issuer.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text(12, FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                ),
-                if (footer != null)
-                  // Long translations and large text shrink the date, not
-                  // the issuer: it gives way with an ellipsis.
-                  Flexible(
-                    child: Text(
-                      footer,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end,
-                      style: text(12, FontWeight.w400, alpha: 0.7),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  String? _footerText(BuildContext context) {
-    final expiry = credential.expiryDate;
-    if (expiry != null && expiry > 0) {
-      return "${FlutterI18n.translate(context, "credential.valid_until")} "
-          "${_date(context, DateTime.fromMillisecondsSinceEpoch(expiry * 1000))}";
-    }
-    final issued = credential.issuanceDate;
-    if (issued != null) {
-      return FlutterI18n.translate(
-        context,
-        "credential_card.added_on",
-        translationParams: {
-          "date": _date(
-            context,
-            DateTime.fromMillisecondsSinceEpoch(issued * 1000),
-          ),
-        },
-      );
-    }
-    return null;
-  }
+  /// The Yivi mark at the size the built-in cards draw it.
+  static const _markScale = 0.0233;
+
+  static String _hex(Color c) =>
+      "#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, "0")}";
 }
 
-class _Ring extends StatelessWidget {
-  final Color color;
-  final double size;
+/// The ground of the Yivi card: a vertical gradient, and the faceted shards
+/// of the Yivi buttons (`assets/ui/btn-bg.svg`) down the right side.
+class _FacetsPainter extends CustomPainter {
+  _FacetsPainter(this.colours);
 
-  const _Ring({required this.color, required this.size});
+  final ({
+    Color top,
+    Color bottom,
+    List<Color> facets,
+    Color text,
+    Color accent,
+  })
+  colours;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: size,
-    height: size,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: color.withValues(alpha: 0.05),
-    ),
-  );
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [colours.top, colours.bottom],
+        ).createShader(rect),
+    );
+    // btn-bg.svg's shards (343 × 124), scaled onto the card's right side.
+    final sx = size.width / CredentialCardArt.designWidth;
+    final sy = size.height / CredentialCardArt.designHeight;
+    double x(double v) => (358 - (343 - v) * 0.62) * sx;
+    double y(double v) => v * 226 / 124 * sy;
+    Path shard(List<(double, double)> points) =>
+        Path()..addPolygon([for (final (a, b) in points) Offset(a, b)], true);
+    final f = colours.facets;
+    final shards = [
+      (
+        shard([
+          (x(253.6), y(124)),
+          (x(240.7), y(124)),
+          (x(195), 0),
+          (x(299.3), 0),
+        ]),
+        f[0],
+      ),
+      (shard([(x(299.3), y(124)), (x(253.6), y(124)), (x(299.3), 0)]), f[1]),
+      (
+        shard([
+          (x(305.3), y(124)),
+          (x(299.3), y(124)),
+          (x(299.3), 0),
+          (size.width, 0),
+          (size.width, y(21.7)),
+        ]),
+        f[2],
+      ),
+      (
+        shard([
+          (x(305.3), y(124)),
+          (size.width, y(124)),
+          (size.width, y(21.7)),
+        ]),
+        f[1],
+      ),
+    ];
+    for (final (path, colour) in shards) {
+      canvas.drawPath(path, Paint()..color = colour);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_FacetsPainter old) => old.colours != colours;
 }
 
+/// The issuer's logo, fitted whole into a white tile; the issuer's initial
+/// when there is no logo.
 class _Logo extends StatelessWidget {
   final schemaless.Credential credential;
-  final Color background;
-  final Color foreground;
 
-  /// Puts the issuer's logo on a white tile: logos are drawn for light
-  /// backgrounds and can vanish on a dark card.
-  final bool onTile;
+  /// The card's colour, for the initial.
+  final Color colour;
 
-  const _Logo({
-    required this.credential,
-    required this.background,
-    required this.foreground,
-    this.onTile = false,
-  });
+  const _Logo({required this.credential, required this.colour});
 
   @override
   Widget build(BuildContext context) {
     final logo = credential.image;
-    if (logo != null) {
-      // Decoded at the size it is laid out at (the card scales down from
-      // there, so a thumbnail needs no more).
-      final image = Base64Image(
-        base64: logo.base64,
-        mimeType: logo.mimeType,
-        size: 40,
-      );
-      if (!onTile) return SizedBox.square(dimension: 40, child: image);
-      return Container(
-        width: 40,
-        height: 40,
-        padding: const EdgeInsets.all(5),
-        decoration: const ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-          ),
-        ),
-        child: image,
-      );
-    }
     final source = credential.issuer.name.isNotEmpty
         ? credential.issuer.name
         : credential.name;
     return Container(
-      width: 40,
-      height: 40,
+      width: 31,
+      height: 31,
+      padding: const EdgeInsets.all(3),
       alignment: Alignment.center,
-      decoration: ShapeDecoration(
-        color: foreground,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: Text(
-        source.isEmpty ? "?" : source.characters.first.toUpperCase(),
-        style: TextStyle(
-          package: packageName,
-          fontFamily: "Alexandria",
-          fontWeight: FontWeight.w800,
-          fontSize: 22,
-          color: background,
+      decoration: const ShapeDecoration(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
       ),
+      child: logo != null
+          // Decoded at the size it is laid out at (the card scales down
+          // from there, so a thumbnail needs no more).
+          ? Base64Image(base64: logo.base64, mimeType: logo.mimeType, size: 25)
+          : Text(
+              source.isEmpty ? "?" : source.characters.first.toUpperCase(),
+              style: TextStyle(
+                package: packageName,
+                fontFamily: "Alexandria",
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                color: colour,
+              ),
+            ),
     );
   }
 }

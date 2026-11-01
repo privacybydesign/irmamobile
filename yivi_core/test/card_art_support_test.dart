@@ -83,33 +83,41 @@ void main() {
     });
   });
 
-  test("yiviCardColors gives a pale background and dark text", () {
-    final c = yiviCardColors(const Color(0xFFE12747));
-    expect(c.background.computeLuminance(), greaterThan(0.7));
-    expect(c.foreground.computeLuminance(), lessThan(0.1));
-    expect(yiviCardColors(null).background, const Color(0xFFFFFFFF));
-  });
-
-  test("in dark mode yiviCardColors gives a dark card in the logo's hue", () {
+  test("yiviCardColors gives a deep card in the logo's hue, white text", () {
     const tint = Color(0xFFE12747);
-    final c = yiviCardColors(tint, brightness: Brightness.dark);
-    final background = HSLColor.fromColor(c.background);
-    final foreground = HSLColor.fromColor(c.foreground);
+    final c = yiviCardColors(tint);
+    final top = HSLColor.fromColor(c.top);
 
-    expect(background.lightness, closeTo(0.27, 0.01));
-    expect(background.saturation, lessThanOrEqualTo(0.451));
-    expect(background.hue, closeTo(HSLColor.fromColor(tint).hue, 1));
-    expect(foreground.lightness, closeTo(0.90, 0.01));
-    // Readable: at least 4.5:1.
-    final ratio =
-        (c.foreground.computeLuminance() + 0.05) /
-        (c.background.computeLuminance() + 0.05);
-    expect(ratio, greaterThanOrEqualTo(4.5));
-
-    final untinted = yiviCardColors(null, brightness: Brightness.dark);
-    expect(untinted.background.computeLuminance(), lessThan(0.05));
-    expect(untinted.foreground, const Color(0xFFE6E8EC));
+    expect(top.hue, closeTo(HSLColor.fromColor(tint).hue, 1));
+    expect(top.lightness, closeTo(0.37, 0.01));
+    expect(HSLColor.fromColor(c.bottom).lightness, closeTo(0.28, 0.01));
+    expect(c.facets, hasLength(3));
+    expect(c.text, Colors.white);
+    // Readable on the darkest part of the card: at least 4.5:1.
+    double ratio(Color a, Color b) =>
+        (a.computeLuminance() + 0.05) / (b.computeLuminance() + 0.05);
+    expect(ratio(c.text, c.top), greaterThanOrEqualTo(4.5));
+    expect(ratio(c.accent, c.top), greaterThanOrEqualTo(4.5));
   });
+
+  test("yiviCardColors is grey without a tint", () {
+    final c = yiviCardColors(null);
+    expect(HSLColor.fromColor(c.top).saturation, lessThan(0.1));
+  });
+
+  test(
+    "yiviCardColors takes the issuer's colour, dark text on a light one",
+    () {
+      const light = Color(0xFFF2E6C8);
+      final c = yiviCardColors(const Color(0xFFE12747), background: light);
+      expect(c.top, light);
+      expect(c.text, const Color(0xFF1C1C1E));
+      expect(
+        yiviCardColors(null, background: const Color(0xFF103060)).text,
+        Colors.white,
+      );
+    },
+  );
 
   group("svgTopColour", () {
     test("a plain fill", () {

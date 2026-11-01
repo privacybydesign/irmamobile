@@ -395,7 +395,7 @@ void main() {
         ),
       );
       expect(image.image, isA<ResizeImage>());
-      expect((image.image as ResizeImage).width, 40);
+      expect((image.image as ResizeImage).width, 25);
     });
 
     testWidgets("a type already in the app says so", (tester) async {
