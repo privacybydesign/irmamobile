@@ -1,3 +1,6 @@
+import "dart:math";
+
+import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -51,29 +54,68 @@ abstract final class HomeNavigation {
       YiviMotion.duration(context, const Duration(milliseconds: 240));
 }
 
-/// The tabs: the selected icon, the other one, and the label's key.
+/// The tabs: the label's key, the selected icon and the other one.
 const homeTabs = [
-  (IrmaNavBarTab.data, "home.nav_bar.data", Icons.person, Icons.person_outline),
+  (
+    IrmaNavBarTab.data,
+    "home.nav_bar.data",
+    TabGlyph.icon(Icons.person),
+    TabGlyph.icon(Icons.person_outline),
+  ),
   (
     IrmaNavBarTab.activity,
     "home.nav_bar.activity",
-    Icons.history,
-    Icons.history,
+    TabGlyph.filledHistory,
+    TabGlyph.icon(Icons.history),
   ),
   (
     IrmaNavBarTab.notifications,
     "home.nav_bar.notifications",
-    Icons.notifications,
-    Icons.notifications_outlined,
+    TabGlyph.icon(Icons.notifications),
+    TabGlyph.icon(Icons.notifications_outlined),
   ),
   // Three lines, not the … of the Data tab's menu.
   (
     IrmaNavBarTab.more,
     "home.nav_bar.more",
-    Icons.menu_rounded,
-    Icons.menu_rounded,
+    TabGlyph.icon(Icons.menu_rounded),
+    TabGlyph.icon(Icons.menu_rounded),
   ),
 ];
+
+/// A tab's icon: a Material [icon], or a drawn [path] (24 × 24) for one
+/// Material lacks.
+class TabGlyph {
+  final IconData? icon;
+  final String? path;
+
+  const TabGlyph.icon(IconData this.icon) : path = null;
+
+  const TabGlyph._path(String this.path) : icon = null;
+
+  /// Activity, selected: the history arrow around a solid clock face with
+  /// its hands cut out, as filled as the other selected icons.
+  static const filledHistory = TabGlyph._path(
+    "M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 "
+    "3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 "
+    "10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"
+    "M13 6.3a5.7 5.7 0 1 1 0 11.4a5.7 5.7 0 1 1 0-11.4z"
+    "M12.1 8.6v4.6l3.75 2.23.62-1.04-3.07-1.83V8.6h-1.3z",
+  );
+
+  Widget build(Color color, double size) {
+    final path = this.path;
+    if (path == null) return Icon(icon, size: size, color: color);
+    return SvgPicture.string(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+      '<path fill-rule="evenodd" d="$path"/></svg>',
+      width: size,
+      height: size,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      excludeFromSemantics: true,
+    );
+  }
+}
 
 /// The tab bar of a phone held upright: on iOS a capsule floating over the
 /// content, on Android a bar docked to the bottom, under the system's
@@ -183,7 +225,14 @@ class _HomeTabBarState extends State<HomeTabBar> {
 
 /// The four tabs side by side, with the selected one's line on the bar's top
 /// edge, sliding to the tab picked.
-class _TabRow extends StatelessWidget {
+///
+/// A finger on the tabs picks the tab it is on when it lets go, so it can
+/// slide to another one first. While it is down a lifted lens sits under it:
+/// the icon under the lens grows and turns rose, and past the first or last
+/// tab the lens stretches after the finger. The finger may leave the bar
+/// (up over the page, or over Scan): the tab under it, straight below, still
+/// counts, and over Scan that is the last tab.
+class _TabRow extends StatefulWidget {
   final IrmaNavBarTab selectedTab;
   final ValueChanged<IrmaNavBarTab> onChangeTab;
   final double labelSize;
@@ -197,42 +246,266 @@ class _TabRow extends StatelessWidget {
   });
 
   @override
+  State<_TabRow> createState() => _TabRowState();
+}
+
+class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
+  /// How far the finger goes past the first or last tab's middle before the
+  /// lens stops stretching, and how much it grows the icon under it.
+  static const _maxStretch = 22.0;
+  static const _grow = 0.12;
+
+  /// How quickly the lens catches up with the finger.
+  static const _catchUp = Duration(milliseconds: 38);
+
+  /// The lens growing in (forward) and settling away (reverse).
+  late final _shown = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+    reverseDuration: const Duration(milliseconds: 260),
+  );
+  late final _shownCurve = CurvedAnimation(
+    parent: _shown,
+    curve: YiviMotion.ease,
+  );
+
+  /// Where the lens is: eased after the finger once a frame (an animation
+  /// restarted on every pointer event would stutter), in the row's own
+  /// coordinates, left to right.
+  final _x = ValueNotifier(0.0);
+  late final _follow = createTicker(_tick);
+  double _target = 0;
+  Duration? _last;
+
+  int? _pointer;
+
+  /// The place (0 at the left) under the finger, and whether it has been on
+  /// another tab than where it went down.
+  var _place = 0;
+  var _moved = false;
+
+  var _width = 0.0;
+  var _height = 0.0;
+
+  @override
+  void dispose() {
+    _follow.dispose();
+    _shownCurve.dispose();
+    _shown.dispose();
+    _x.dispose();
+    super.dispose();
+  }
+
+  int get _count => homeTabs.length;
+
+  double get _tabWidth => _width / _count;
+
+  bool get _rtl => Directionality.of(context) == TextDirection.rtl;
+
+  /// The tab at [place], counted from the left.
+  int _tabAt(int place) => _rtl ? _count - 1 - place : place;
+
+  int _placeAt(double dx) =>
+      (dx / _tabWidth).floor().clamp(0, _count - 1).toInt();
+
+  double _middleOf(int place) => _tabWidth * (place + 0.5);
+
+  bool get _reduceMotion => MediaQuery.disableAnimationsOf(context);
+
+  void _aim(double dx, {bool jump = false}) {
+    // Not clamped to the tabs: past them the lens stretches.
+    _target = dx.clamp(-_tabWidth, _width + 2 * _tabWidth).toDouble();
+    if (jump || _reduceMotion) {
+      _follow.stop();
+      _x.value = _target;
+    } else if (!_follow.isActive) {
+      _last = null;
+      _follow.start();
+    }
+  }
+
+  void _tick(Duration elapsed) {
+    final last = _last;
+    _last = elapsed;
+    final ms = last == null
+        ? 16.0
+        : min(48.0, (elapsed - last).inMicroseconds / 1000);
+    final step = 1 - exp(-ms / _catchUp.inMilliseconds);
+    final x = _x.value + (_target - _x.value) * step;
+    if ((_target - x).abs() < 0.25) {
+      _x.value = _target;
+      _follow.stop();
+    } else {
+      _x.value = x;
+    }
+  }
+
+  void _down(PointerDownEvent event) {
+    if (_pointer != null) return;
+    _pointer = event.pointer;
+    _moved = false;
+    _place = _placeAt(event.localPosition.dx);
+    _aim(event.localPosition.dx, jump: true);
+    if (!_reduceMotion) _shown.forward();
+    setState(() {});
+  }
+
+  void _move(PointerMoveEvent event) {
+    if (event.pointer != _pointer) return;
+    final place = _placeAt(event.localPosition.dx);
+    _aim(event.localPosition.dx);
+    if (place == _place) return;
+    HapticFeedback.selectionClick();
+    _moved = true;
+    setState(() => _place = place);
+  }
+
+  void _up(PointerUpEvent event) {
+    if (event.pointer != _pointer) return;
+    _pointer = null;
+    _shown.reverse();
+    // The lens settles on the tab picked as it goes.
+    _aim(_middleOf(_place));
+    setState(() {});
+    final tab = homeTabs[_tabAt(_place)].$1;
+    // Back on the tab it started on after trying others: nothing, rather
+    // than the scroll to the top that a tap on the open tab does.
+    if (tab != widget.selectedTab || !_moved) widget.onChangeTab(tab);
+  }
+
+  void _lost(PointerCancelEvent event) {
+    if (event.pointer != _pointer) return;
+    _pointer = null;
+    _shown.reverse();
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final index = homeTabs.indexWhere((t) => t.$1 == selectedTab);
+    final palette = YiviPalette.of(context);
+    final dark = palette.brightness == Brightness.dark;
+    final index = homeTabs.indexWhere((t) => t.$1 == widget.selectedTab);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final tabWidth = constraints.maxWidth / homeTabs.length;
-        final rtl = Directionality.of(context) == TextDirection.rtl;
-        final place = rtl ? homeTabs.length - 1 - index : index;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Row(
-              children: [
-                for (final (tab, labelKey, activeIcon, icon) in homeTabs)
-                  Expanded(
-                    child: _Tab(
-                      key: Key("nav_button_${tab.name}"),
-                      label: FlutterI18n.translate(context, labelKey),
-                      icon: tab == selectedTab ? activeIcon : icon,
-                      selected: tab == selectedTab,
-                      showDot: tab == IrmaNavBarTab.notifications,
-                      labelSize: labelSize,
-                      onTap: () => onChangeTab(tab),
+        _width = constraints.maxWidth;
+        _height = constraints.maxHeight;
+        final tabWidth = _tabWidth;
+        final place = _rtl ? _count - 1 - index : index;
+        final pressing = _pointer != null;
+        return Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: _down,
+          onPointerMove: _move,
+          onPointerUp: _up,
+          onPointerCancel: _lost,
+          child: AnimatedBuilder(
+            animation: Listenable.merge([_shownCurve, _x]),
+            builder: (context, _) {
+              final shown = _shownCurve.value;
+              final raw = _x.value;
+              final x = raw.clamp(tabWidth / 2, _width - tabWidth / 2);
+              final over = raw - x;
+              final stretch =
+                  _maxStretch * (1 - 1 / (over.abs() * 0.55 / _maxStretch + 1));
+              final squash = 2 * stretch / _maxStretch;
+              final lensWidth = tabWidth + 6;
+              // While a finger is down the tab under the lens is the one
+              // marked; without motion, the one under the finger.
+              final marked = !pressing
+                  ? index
+                  : _tabAt(_reduceMotion ? _place : _placeAt(x.toDouble()));
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (shown > 0)
+                    Positioned(
+                      left: x - lensWidth / 2 - (over < 0 ? stretch : 0),
+                      top: -4 + squash,
+                      width: lensWidth + stretch,
+                      height: _height + 8 - 2 * squash,
+                      child: IgnorePointer(
+                        child: Opacity(
+                          opacity: shown,
+                          child: Transform.scale(
+                            scale: 0.88 + 0.12 * shown,
+                            child: DecoratedBox(
+                              decoration: ShapeDecoration(
+                                color: dark ? palette.raisedTint : palette.tint,
+                                shape: StadiumBorder(
+                                  side: BorderSide(
+                                    color: dark
+                                        ? palette.handle
+                                        : palette.outline,
+                                  ),
+                                ),
+                                shadows: [
+                                  BoxShadow(
+                                    color: palette.glassShadow,
+                                    blurRadius: 18,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                  BoxShadow(
+                                    color: palette.glassShadow,
+                                    blurRadius: 3,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
+                  Row(
+                    children: [
+                      for (final (i, (tab, labelKey, activeIcon, icon))
+                          in homeTabs.indexed)
+                        Expanded(
+                          child: _Tab(
+                            key: Key("nav_button_${tab.name}"),
+                            label: FlutterI18n.translate(context, labelKey),
+                            icon: i == marked ? activeIcon : icon,
+                            selected: tab == widget.selectedTab,
+                            marked: i == marked,
+                            showDot: tab == IrmaNavBarTab.notifications,
+                            labelSize: widget.labelSize,
+                            // The icon under the lens grows with how near
+                            // the lens's middle is, so it moves with it.
+                            scale:
+                                1 +
+                                _grow *
+                                    shown *
+                                    max(
+                                      0.0,
+                                      1 -
+                                          (_middleOf(
+                                                        _rtl
+                                                            ? _count - 1 - i
+                                                            : i,
+                                                      ) -
+                                                      x)
+                                                  .abs() /
+                                              tabWidth,
+                                    ),
+                            handlesTaps: false,
+                            onTap: () => widget.onChangeTab(tab),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            ),
-            AnimatedPositioned(
-              duration: HomeNavigation._slide(context),
-              curve: YiviMotion.ease,
-              top: 0,
-              left: tabWidth * place + (tabWidth - lineWidth) / 2,
-              width: lineWidth,
-              height: HomeNavigation.lineThickness,
-              child: const _Line(edge: AxisDirection.up),
-            ),
-          ],
+                  AnimatedPositioned(
+                    duration: HomeNavigation._slide(context),
+                    curve: YiviMotion.ease,
+                    top: 0,
+                    left: tabWidth * place + (tabWidth - widget.lineWidth) / 2,
+                    width: widget.lineWidth,
+                    height: HomeNavigation.lineThickness,
+                    child: const _Line(edge: AxisDirection.up),
+                  ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
@@ -264,13 +537,20 @@ class _Line extends StatelessWidget {
   }
 }
 
-/// One tab: its icon over its label, rose when selected.
+/// One tab: its icon over its label, rose when selected (or [marked], while
+/// a finger on the tab bar is on it).
 class _Tab extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final TabGlyph icon;
   final bool selected;
+  final bool? marked;
   final bool showDot;
   final double labelSize;
+  final double scale;
+
+  /// Whether the tab takes taps itself; the tab bar's tabs leave them to
+  /// the row ([_TabRow]) and only offer [onTap] to assistive technology.
+  final bool handlesTaps;
   final VoidCallback onTap;
 
   const _Tab({
@@ -278,44 +558,52 @@ class _Tab extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.selected,
+    this.marked,
     required this.showDot,
     required this.labelSize,
+    this.scale = 1,
+    this.handlesTaps = true,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final color = selected ? palette.selectedTab : palette.heading;
+    final on = marked ?? selected;
+    final color = on ? palette.selectedTab : palette.heading;
+    final content = Transform.scale(
+      scale: scale,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 2,
+        children: [
+          TabIcon(icon: icon, color: color, showDot: showDot),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: palette
+                .body(labelSize, weight: on ? FontWeight.w600 : FontWeight.w500)
+                .copyWith(color: color, height: 14 / labelSize),
+          ),
+        ],
+      ),
+    );
     return Semantics(
       button: true,
       selected: selected,
       label: label,
       excludeSemantics: true,
-      child: PressScale(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 2,
-            children: [
-              TabIcon(icon: icon, color: color, showDot: showDot),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: palette
-                    .body(
-                      labelSize,
-                      weight: selected ? FontWeight.w600 : FontWeight.w500,
-                    )
-                    .copyWith(color: color, height: 14 / labelSize),
+      onTap: handlesTaps ? null : onTap,
+      child: handlesTaps
+          ? PressScale(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTap,
+                child: content,
               ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : content,
     );
   }
 }
@@ -533,7 +821,7 @@ class HomeSidebar extends StatelessWidget {
 
 class _SidebarItem extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final TabGlyph icon;
   final bool selected;
   final bool showUnread;
   final VoidCallback onTap;
@@ -570,7 +858,7 @@ class _SidebarItem extends StatelessWidget {
                   child: Row(
                     spacing: 12,
                     children: [
-                      Icon(icon, size: 24, color: color),
+                      icon.build(color, 24),
                       Expanded(
                         child: Text(
                           label,
@@ -663,7 +951,7 @@ class HomeScanButton extends StatelessWidget {
 /// A tab's icon, 26 pt; with [showDot] (the bell) a small primary dot at its
 /// top right while there are unread notifications.
 class TabIcon extends StatelessWidget {
-  final IconData icon;
+  final TabGlyph icon;
   final Color color;
   final bool showDot;
 
@@ -676,7 +964,7 @@ class TabIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!showDot) return Icon(icon, size: 26, color: color);
+    if (!showDot) return icon.build(color, 26);
     final palette = YiviPalette.of(context);
     return BlocBuilder<NotificationsBloc, NotificationsState>(
       builder: (context, state) {
@@ -685,7 +973,7 @@ class TabIcon extends StatelessWidget {
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            Icon(icon, size: 26, color: color),
+            icon.build(color, 26),
             if (unread)
               Positioned(
                 top: 1,

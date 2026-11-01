@@ -1,6 +1,7 @@
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -280,6 +281,87 @@ void main() {
           1,
         ),
       );
+    });
+
+    iosTest("upright: the tab bar stays the same bar to and from Data, so "
+        "its line slides there", (tester) async {
+      await pump(tester, view: _upright, insets: _uprightInsets);
+      final bar = tester.state(find.byType(HomeTabBar));
+      final line = find.byKey(const Key("nav_selected_line"));
+      double middle(String tab) =>
+          tester.getCenter(find.byKey(Key("nav_button_$tab"))).dx;
+
+      await tester.tap(find.byKey(const Key("nav_button_activity")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(tester.state(find.byType(HomeTabBar)), same(bar));
+      // On its way, not there at once.
+      final x = tester.getCenter(line).dx;
+      expect(x, greaterThan(middle("data") + 1));
+      expect(x, lessThan(middle("activity") - 1));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await tester.tap(find.byKey(const Key("nav_button_data")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(tester.state(find.byType(HomeTabBar)), same(bar));
+      expect(tester.getCenter(line).dx, greaterThan(middle("data") + 1));
+    });
+
+    iosTest("upright: sliding a finger along the tabs picks the one it lets "
+        "go on, with a tick per tab, also from above the bar", (tester) async {
+      await pump(tester, view: _upright, insets: _uprightInsets);
+      final ticks = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == "HapticFeedback.vibrate") ticks.add(call);
+          return null;
+        },
+      );
+      Offset at(String tab) =>
+          tester.getCenter(find.byKey(Key("nav_button_$tab")));
+
+      final finger = await tester.startGesture(at("data"));
+      await tester.pump();
+      for (final tab in ["activity", "notifications", "more"]) {
+        await finger.moveTo(at(tab));
+        await tester.pump();
+      }
+      // Nothing changes until the finger lets go.
+      expect(tabs.state, IrmaNavBarTab.data);
+      await finger.up();
+      await tester.pump();
+      expect(tabs.state, IrmaNavBarTab.more);
+      expect(ticks, hasLength(3));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Up over the page the finger still picks the tab below it.
+      final again = await tester.startGesture(at("more"));
+      await tester.pump();
+      await again.moveTo(at("more") - const Offset(0, 160));
+      await tester.pump();
+      await again.moveTo(at("activity") - const Offset(0, 160));
+      await tester.pump();
+      expect(ticks, hasLength(4));
+      await again.up();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tabs.state, IrmaNavBarTab.activity);
+    });
+
+    iosTest("upright: the selected Activity tab has a filled icon", (
+      tester,
+    ) async {
+      await pump(tester, view: _upright, insets: _uprightInsets);
+      final drawn = find.descendant(
+        of: find.byKey(const Key("nav_button_activity")),
+        matching: find.byType(SvgPicture),
+      );
+      expect(drawn, findsNothing);
+      await tester.tap(find.byKey(const Key("nav_button_activity")));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(drawn, findsOneWidget);
     });
 
     iosTest("upright: the tab bar, no rail", (tester) async {

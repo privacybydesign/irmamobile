@@ -263,6 +263,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final docked = HomeNavigation.docked(context);
     final available = width - 32 - padding.left - padding.right;
     return Positioned(
+      // Only on the Data tab: keyed, so the children after it (the tab bar
+      // among them) keep their state when it comes or goes, rather than
+      // being matched to the child before them and built anew.
+      key: const ValueKey("scan_tip_over_bar"),
       right: docked
           ? padding.right + 10
           : 16 +
