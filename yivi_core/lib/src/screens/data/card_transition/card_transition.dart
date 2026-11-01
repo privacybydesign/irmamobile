@@ -286,13 +286,28 @@ class CardTransition extends ChangeNotifier {
     if (card is! RenderBox || !card.attached || !card.hasSize) {
       return dismiss();
     }
+    ScrollPosition? scroll;
+    var scrolled = 0.0;
     if (_phase == TransitionPhase.open) {
       _detailsCard = MatrixUtils.transformRect(
         card.getTransformTo(null),
         Offset.zero & card.size,
       );
+      scroll = Scrollable.maybeOf(cardKey.currentContext!)?.position;
+      if (scroll != null && scroll.hasPixels) {
+        scrolled = scroll.pixels - scroll.minScrollExtent;
+      }
     }
+    // From where the card is on screen.
     _go(TransitionPhase.closing, velocity: velocity);
+    if (scrolled > 0) {
+      // Scrolled down, the details cut off the card where it leaves the
+      // screen: it would land in the stack cut. Back at the top, the whole
+      // card is there; the card is drawn from there, so nothing on screen
+      // moves.
+      scroll!.jumpTo(scroll.minScrollExtent);
+      _detailsCard = _detailsCard.translate(0, scrolled);
+    }
   }
 
   /// A finger takes hold while it moves: everything stops where it is.

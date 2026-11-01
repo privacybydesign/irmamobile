@@ -203,12 +203,14 @@ class _RenderOpenCard extends RenderProxyBox {
       offset.dx + size.width,
       reveal,
     );
-    // Closing, what is under the card fades into the page as the card goes
-    // back, instead of staying until the cards below have risen past it:
-    // only the card lands. (The page's colour laid over it: the details
-    // are one layer, drawn once.)
+    // Closing, what is under the card fades into the page in the first
+    // half of the card's way back, instead of staying until the cards
+    // below have risen past it: the card lands alone. Quick, as the details
+    // move with their card (scrolled, they come down from above with it).
+    // (The page's colour laid over them: the details are one layer, drawn
+    // once.)
     final under = t.phase == TransitionPhase.closing
-        ? t.progress(t.snapshot.picked).clamp(0.0, 1.0)
+        ? ((t.progress(t.snapshot.picked) - 0.5) / 0.5).clamp(0.0, 1.0)
         : 1.0;
     void draw(PaintingContext context, Offset _) {
       // A little past the card below's top: behind its rounded corners.
