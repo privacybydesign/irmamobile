@@ -10,7 +10,8 @@ import "builtin_card_svgs.dart";
 /// with a small illustration on the right: that is what a card shows in the
 /// stack. The card is one colour from the top down, with no band behind the
 /// header, so the corners of the next card in the stack show the same colour.
-/// Each card has a typeface of its own, bundled under `fonts/cards/`.
+/// Each card has a typeface of its own, bundled under `fonts/cards/`, and
+/// the Yivi mark at the right end of its issuer line.
 ///
 /// Placeholders, filled by `CredentialCardArt`:
 /// - `{{<attribute id>}}`: the attribute's value (`{{email}}`, `{{photo}}`);
@@ -54,7 +55,7 @@ final _svgs = <String, String>{};
 
 String _svg(String body) =>
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 358 226" width="358" height="226">'
-    '${body.replaceAll("§", "packages/$packageName/")}</svg>';
+    '${body.replaceAll("§", "packages/$packageName/").replaceAll("¶", builtinYiviMark)}</svg>';
 
 /// The template of [credentialId], if Yivi has one. Staging credentials
 /// (`pbdf-staging.`) share their production template.
