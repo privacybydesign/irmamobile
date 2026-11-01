@@ -19,7 +19,8 @@ const double activityTagHeight = 32;
 class ActivityFacetChip extends StatelessWidget {
   final String label;
 
-  /// Before the label: the card's art for a card filter.
+  /// Before the label: the card's art, the party's logo, the kinds' badges,
+  /// a calendar for a period.
   final Widget? leading;
   final VoidCallback onRemove;
 

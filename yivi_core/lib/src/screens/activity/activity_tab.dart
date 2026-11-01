@@ -84,8 +84,14 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   final _focus = FocusNode();
 
   /// Whether a search is on. It starts when the field gets focus and ends
-  /// on Enter or Cancel, not when the field loses focus.
+  /// on Cancel, or once nothing is typed or tagged any more after Enter;
+  /// not when the field loses focus.
   bool _searching = false;
+
+  /// Enter pressed: the field stays up in the bar with the typed words, the
+  /// keyboard and the suggestions go, and the filter takes Cancel's place.
+  /// Back in the field, it is typing again.
+  bool _submitted = false;
   String _typed = "";
 
   /// The question asked before searching: Cancel goes back to it.
@@ -102,17 +108,18 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   Timer? _countDelay;
   var _countGeneration = 0;
 
-  /// The months whose header is pinned under the bar with rows under it:
-  /// while there is one, it continues the bar's band and has its line.
-  final _pinnedMonths = <String>{};
-  final _monthPinned = ValueNotifier(false);
-
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_listenToScroll);
     _focus.addListener(() {
-      if (_focus.hasFocus && !_searching) _startSearching();
+      if (!_focus.hasFocus) return;
+      if (!_searching) {
+        _startSearching();
+      } else if (_submitted) {
+        setState(() => _submitted = false);
+        _scheduleCounts();
+      }
     });
   }
 
@@ -123,37 +130,27 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _search.dispose();
     _focus.dispose();
     _scrollController.dispose();
-    _monthPinned.dispose();
     super.dispose();
   }
 
   ActivityQuery get _query => ref.read(activityLogProvider).filter;
 
+  /// Searching and not yet past Enter: Cancel, the suggestions, the live
+  /// count.
+  bool get _typing => _searching && !_submitted;
+
   /// What the suggestions build on: the draft while searching.
   ActivityQuery get _asked => _draft ?? _query;
 
-  /// A month's header pinned under the bar with rows under it, or not.
-  /// Reported while the list builds: the bar follows after the frame.
-  void _monthHeaderPinned(String month, bool pinned) {
-    final changed = pinned
-        ? _pinnedMonths.add(month)
-        : _pinnedMonths.remove(month);
-    if (!changed) return;
-    afterFrame(() {
-      if (mounted) _monthPinned.value = _pinnedMonths.isNotEmpty;
-    });
-  }
-
   void _ask(ActivityQuery query) {
     ref.read(activityLogProvider.notifier).setFilter(query);
-    _pinnedMonths.clear();
-    _monthPinned.value = false;
     if (_scrollController.hasClients) _scrollController.jumpTo(0);
   }
 
   void _startSearching() {
     setState(() {
       _searching = true;
+      _submitted = false;
       _before = _query;
       _draft = _query;
     });
@@ -178,6 +175,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final before = _before;
     setState(() {
       _searching = false;
+      _submitted = false;
       _typed = "";
       _draft = null;
     });
@@ -214,8 +212,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   }
 
   /// A tag's cross while searching: the draft without it. The keyboard
-  /// stays if it was up.
+  /// stays if it was up. After Enter, with nothing left asked, the search
+  /// ends.
   void _changeDraft(ActivityQuery query) {
+    if (_submitted && query.isEmpty && _typed.trim().isEmpty) {
+      _endSearching(keep: ActivityQuery.empty);
+      return;
+    }
     final typing = _focus.hasFocus;
     setState(() => _draft = query);
     if (typing) _focus.requestFocus();
@@ -238,9 +241,31 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return q.copyWith(value: value.isEmpty ? words : "$value $words");
   }
 
-  /// Enter: the draft is kept, with the typed words as a text search.
-  void _searchText(String text) =>
-      _endSearching(keep: _withTyped(_asked, text));
+  /// Enter: the log shows what the draft and the typed words find, and the
+  /// field stays with them; with nothing asked, the search ends.
+  void _searchText(String text) {
+    if (_asked.isEmpty && text.trim().isEmpty) {
+      _endSearching(keep: ActivityQuery.empty);
+      return;
+    }
+    _countDelay?.cancel();
+    setState(() {
+      _typed = text;
+      _submitted = true;
+    });
+    _focus.unfocus();
+    _showLive(now: true);
+  }
+
+  /// The field's clear button: after Enter, with no tags either, the search
+  /// ends; otherwise it is typing again.
+  void _cleared() {
+    if (_submitted && _asked.isEmpty) {
+      _endSearching(keep: ActivityQuery.empty);
+    } else {
+      _focus.requestFocus();
+    }
+  }
 
   void _onTyped(String text) {
     setState(() => _typed = text);
@@ -250,8 +275,21 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   Future<void> _openFilter() async {
     final next = await showActivityFilterSheet(context, _query);
-    if (next != null && mounted) _ask(next);
+    if (next == null || !mounted) return;
+    if (!_searching) return _ask(next);
+    // The typed words stay in the field, not in the draft.
+    final draft = next.copyWith(text: _asked.text);
+    if (draft.isEmpty && _typed.trim().isEmpty) {
+      return _endSearching(keep: ActivityQuery.empty);
+    }
+    setState(() => _draft = draft);
+    _showLive(now: true);
   }
+
+  /// "Clear": nothing asked, and no search any more.
+  void _clearAll() => _searching
+      ? _endSearching(keep: ActivityQuery.empty)
+      : _ask(ActivityQuery.empty);
 
   /// A row: its details. While searching the keyboard goes first, and
   /// stays down when coming back.
@@ -512,6 +550,21 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       if (q.kinds.isNotEmpty)
         ActivityFacetChip(
           key: const Key("activity_chip_kinds"),
+          // The badge of each kind, as on the rows.
+          leading: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              for (final kind in activityKindOrder)
+                if (q.kinds.contains(logTypeOf(kind)))
+                  CornerBadge(
+                    icon: kind.icon,
+                    fill: kind.badge,
+                    size: 24,
+                    iconSize: 14,
+                  ),
+            ],
+          ),
           label: activityKindsLabel(context, q.kinds),
           onRemove: () => change(q.copyWith(kinds: {})),
         ),
@@ -537,12 +590,21 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       if (q.party != null)
         ActivityFacetChip(
           key: const Key("activity_chip_party"),
+          leading: ActivityPartyLogo(
+            party: ActivityParty.of(q.party!.party),
+            size: 24,
+          ),
           label: q.party!.party.name,
           onRemove: () => change(q.copyWith(party: () => null)),
         ),
       if (q.period != ActivityPeriod.all)
         ActivityFacetChip(
           key: const Key("activity_chip_period"),
+          leading: Icon(
+            CupertinoIcons.calendar,
+            size: 18,
+            color: YiviPalette.of(context).onLink,
+          ),
           label: activityPeriodLabel(context, q),
           onRemove: () => change(
             q.copyWith(
@@ -613,7 +675,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final clear = TextLink(
       key: const Key("activity_clear_filters"),
       label: FlutterI18n.translate(context, "activity.query.clear"),
-      onPressed: () => _ask(ActivityQuery.empty),
+      onPressed: _clearAll,
     );
     final count = state.counts?.total ?? logEntries.length;
     final bandEdge = palette.isDark
@@ -651,7 +713,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               ),
             ),
           ),
-        if (_searching)
+        if (_typing)
           padded(
             SizedBox(
               height: _liveCountHeight,
@@ -684,7 +746,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           ),
         if (logEntries.isEmpty && !query.isEmpty) ...[
           padded(const EmptyListMessage("activity.query.none")),
-          if (!_searching) padded(Center(child: clear)),
+          if (!_typing) padded(Center(child: clear)),
         ] else if (logEntries.isEmpty)
           padded(const EmptyListMessage("activity.empty_placeholder"))
         else ...[
@@ -702,7 +764,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                     ).format(group.first.time.toLocal()).toCapitalized(),
                     palette: palette,
                     textScaler: MediaQuery.textScalerOf(context),
-                    onPinned: joinBar ? _monthHeaderPinned : null,
+                    joinsBar: joinBar,
                   ),
                 ),
                 DecoratedSliver(
@@ -757,7 +819,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final query = state.filter;
     final chips = _chips(_searching ? _asked : query);
     final panes = useHomePanes(context);
-    final suggestionRow = _searching ? _suggestionRow(inset: !panes) : null;
+    final suggestionRow = _typing ? _suggestionRow(inset: !panes) : null;
     // A phone held sideways has little height: there the tags scroll with
     // the log, and only stay at the top while searching.
     final chipsScroll = usePhoneLandscape(context) && !_searching;
@@ -783,6 +845,27 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       style: TextButton.styleFrom(foregroundColor: palette.link),
       onPressed: _endSearching,
       child: Text(FlutterI18n.translate(context, "activity.query.cancel")),
+    );
+    // Next to the field: Cancel while typing; after Enter the filter, as
+    // Cancel makes room for it.
+    final fieldAction = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      layoutBuilder: (current, previous) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [...previous, ?current],
+      ),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          axis: Axis.horizontal,
+          sizeFactor: animation,
+          fixedCrossAxisSizeFactor: 1,
+          child: child,
+        ),
+      ),
+      child: _typing ? cancel : filterButton,
     );
 
     // A phone held upright: the large title, the field and the tags at the
@@ -849,10 +932,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                   focusNode: _focus,
                   onChanged: _onTyped,
                   onSubmitted: _searchText,
+                  onCleared: _cleared,
                   height: 44,
                 ),
               ),
-              cancel,
+              fieldAction,
             ],
           ),
           // The tags pin under the bar as they scroll up to it; while
@@ -867,7 +951,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           onSearch: _startSearchingInBar,
           trailing: filterButton,
           othersDrop: false,
-          bandContinues: _monthPinned,
           child: !state.loaded
               ? Center(child: LoadingIndicator())
               : _searching
@@ -910,9 +993,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 focusNode: _focus,
                 onChanged: _onTyped,
                 onSubmitted: _searchText,
+                onCleared: _cleared,
               ),
             ),
-            if (_searching) cancel else filterButton,
+            fieldAction,
           ],
         ),
         if (rowChips.isNotEmpty)
@@ -995,20 +1079,20 @@ class _TopSpace extends SliverPersistentHeaderDelegate {
 }
 
 /// A month's header, on the page colour: it sticks under the bar while
-/// its rows scroll, and the next month's pushes it away. With [onPinned],
-/// once rows go under it, it takes the colour of the bar's band and its
-/// line, so the two read as one.
+/// its rows scroll, and the next month's pushes it away. With [joinsBar],
+/// as soon as a row goes under it, it takes the colour of the bar's band
+/// and a line of its own, under the bar's line.
 class _MonthHeader extends SliverPersistentHeaderDelegate {
   final String title;
   final YiviPalette palette;
   final TextScaler textScaler;
-  final void Function(String month, bool pinned)? onPinned;
+  final bool joinsBar;
 
   const _MonthHeader({
     required this.title,
     required this.palette,
     required this.textScaler,
-    this.onPinned,
+    this.joinsBar = false,
   });
 
   double get _height => 18 + textScaler.scale(24) + 8;
@@ -1021,16 +1105,12 @@ class _MonthHeader extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
-    final onPinned = this.onPinned;
-    // How far rows have gone under it, over its first few points.
-    final t = onPinned == null ? 0.0 : (shrinkOffset / 8).clamp(0.0, 1.0);
-    onPinned?.call(title, shrinkOffset > 0);
+    // A row under it, from its first point.
+    final under = joinsBar && shrinkOffset > 0;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color.lerp(palette.background, ScrollEdgeBand.fill(palette), t),
-        border: t == 0
-            ? null
-            : Border(bottom: ScrollEdgeBand.lineSide(context, opacity: t)),
+        color: under ? ScrollEdgeBand.fill(palette) : palette.background,
+        border: under ? Border(bottom: ScrollEdgeBand.lineSide(context)) : null,
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
@@ -1052,5 +1132,5 @@ class _MonthHeader extends SliverPersistentHeaderDelegate {
       old.title != title ||
       old.palette != palette ||
       old.textScaler != textScaler ||
-      (old.onPinned == null) != (onPinned == null);
+      old.joinsBar != joinsBar;
 }

@@ -9,6 +9,7 @@ import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dar
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
+import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
 import "package:yivi_core/src/widgets/glass/home_tab_top.dart";
 import "package:yivi_core/src/widgets/glass/scroll_edge.dart";
 
@@ -305,16 +306,40 @@ void main() {
     expect(find.byKey(const Key("activity_chip_party")), findsOneWidget);
   });
 
-  testWidgets("the search key searches the typed words", (tester) async {
+  testWidgets("the search key searches the typed words: the field stays "
+      "with them, and the filter takes Cancel's place", (tester) async {
     await pump(tester);
     await startSearch(tester);
     await tester.enterText(field, "agree");
     await tester.testTextInput.receiveAction(TextInputAction.search);
     await _settle(tester);
     expect(queries().last.filter.text, "agree");
-    expect(find.byKey(const Key("activity_chip_text")), findsOneWidget);
+    expect(tester.widget<EditableText>(field).controller.text, "agree");
+    expect(find.byKey(const Key("activity_chip_text")), findsNothing);
+    expect(find.byKey(const Key("activity_search_cancel")), findsNothing);
+    expect(find.byKey(const Key("activity_filter_button")), findsOneWidget);
+    expect(find.byKey(const Key("activity_suggestions")), findsNothing);
     expect(find.text("Gemeente"), findsOneWidget);
     expect(find.byKey(const Key("activity_result_count")), findsOneWidget);
+
+    // Back in the field: typing again, with Cancel.
+    await tester.tap(field);
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_search_cancel")), findsOneWidget);
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await _settle(tester);
+
+    // Cleared, with no tags either: the search is over.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(GlassSearchField),
+        matching: find.byIcon(Icons.close),
+      ),
+    );
+    await _settle(tester);
+    expect(queries().last.filter.text, isNull);
+    expect(find.byType(GlassSearchField), findsNothing);
+    expect(find.byKey(const Key("activity_filter_button")), findsOneWidget);
   });
 
   testWidgets("typed words can be found in the data alone", (tester) async {

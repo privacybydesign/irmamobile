@@ -616,6 +616,65 @@ void main() {
       expect(shown(find.text("progress")), 1);
     });
 
+    testWidgets("the band of a scrolled bar goes with its page as the next "
+        "slides in, instead of going at the end", (tester) async {
+      late StateSetter setPages;
+      var two = false;
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            setPages = setState;
+            return GlassSheetPages(
+              onBack: () => setState(() => two = false),
+              pages: [
+                GlassSheetPage(
+                  key: const ValueKey("one"),
+                  title: "First",
+                  child: Column(
+                    children: [for (var i = 0; i < 60; i++) Text("row $i")],
+                  ),
+                ),
+                if (two)
+                  GlassSheetPage(
+                    key: const ValueKey("two"),
+                    title: "Second",
+                    onBack: () => setState(() => two = false),
+                    child: const Text("second page"),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.drag(find.text("row 10"), const Offset(0, -300));
+      await tester.pumpAndSettle();
+
+      final band = find.byKey(const Key("scroll_edge_band"));
+      expect(band, findsOneWidget);
+      final start = tester.getTopLeft(band).dx;
+
+      setPages(() => two = true);
+      await tester.pump();
+      var last = start;
+      var between = false;
+      for (var i = 0; i < 40 && band.evaluate().isNotEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        if (band.evaluate().isEmpty) break;
+        final x = tester.getTopLeft(band).dx;
+        expect(x, lessThanOrEqualTo(last), reason: "frame $i");
+        if (x < start - 20 && x > start - 300) between = true;
+        last = x;
+      }
+      expect(between, isTrue, reason: "it should slide, not switch");
+      await tester.pumpAndSettle();
+      // Under the second page's bar, nothing is under it: no band.
+      expect(band, findsNothing);
+    });
+
     group("pages with buttons", () {
       late StateSetter setPages;
       var two = false;

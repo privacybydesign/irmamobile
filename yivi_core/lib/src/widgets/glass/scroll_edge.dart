@@ -68,11 +68,6 @@ class ScrollEdgeListener extends StatelessWidget {
 class ScrollEdgeBand extends StatelessWidget {
   final ValueListenable<double> under;
 
-  /// Whether the band draws its line. Off while something pinned under it
-  /// (a list's section header) continues the band and draws the line under
-  /// itself.
-  final bool line;
-
   /// The colour the content fades to: the screen's background by default,
   /// the sheet's for a sheet.
   final Color? color;
@@ -83,7 +78,6 @@ class ScrollEdgeBand extends StatelessWidget {
     required this.under,
     this.color,
     this.opacity = 1,
-    this.line = true,
   });
 
   /// The band's fill once content is fully under it, over [base] (the
@@ -122,9 +116,7 @@ class ScrollEdgeBand extends StatelessWidget {
       key: const Key("scroll_edge_band"),
       decoration: BoxDecoration(
         color: fill.withValues(alpha: fill.a * t),
-        border: line
-            ? Border(bottom: ScrollEdgeBand.lineSide(context, opacity: t))
-            : null,
+        border: Border(bottom: ScrollEdgeBand.lineSide(context, opacity: t)),
       ),
       child: const SizedBox.expand(),
     );

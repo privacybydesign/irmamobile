@@ -46,10 +46,6 @@ class HomeTabTop extends StatefulWidget {
   /// fade where they are (rows) ([WalletBar.othersDrop]).
   final bool othersDrop;
 
-  /// True while something pinned under the band (a list's section header)
-  /// continues it: the band then leaves its line to that.
-  final ValueListenable<bool>? bandContinues;
-
   /// The bar's search button: its key, what a screen reader says, and what
   /// a tap does (start searching).
   final Key? searchButtonKey;
@@ -73,7 +69,6 @@ class HomeTabTop extends StatefulWidget {
     this.trailing,
     this.trailingTurnsIntoClose = false,
     this.othersDrop = true,
-    this.bandContinues,
   });
 
   /// The bar's height under the status bar.
@@ -192,23 +187,15 @@ class _HomeTabTopState extends State<HomeTabTop> {
                           min(1.0, t.headerOpacity * 4),
                         )) *
                   (1 - _iv(open, 0.6, 1));
-              Widget band(bool line) => searching
-                  ? ScrollEdgeBand(under: under, opacity: keep, line: line)
+              return searching
+                  ? ScrollEdgeBand(under: under, opacity: keep)
                   : ValueListenableBuilder<double>(
                       valueListenable: _scrolled,
                       builder: (context, px, _) => ScrollEdgeBand(
                         under: AlwaysStoppedAnimation(
                           HomeTabTop._titleGone(px) * keep,
                         ),
-                        line: line,
                       ),
-                    );
-              final continues = widget.bandContinues;
-              return continues == null
-                  ? band(true)
-                  : ValueListenableBuilder<bool>(
-                      valueListenable: continues,
-                      builder: (context, on, _) => band(!on),
                     );
             },
           ),
@@ -357,13 +344,15 @@ class _Bar extends StatelessWidget {
             going;
         final turnsIntoClose = top.trailingTurnsIntoClose;
         final reduceMotion = MediaQuery.disableAnimationsOf(context);
-        // The + turns 45° into the close button and gives way to it at the
-        // end; another button turns away and fades as the close turns in.
+        // The + turns 45° into the close button; another button turns away
+        // and fades as the close turns in.
         final trailingTurn =
             (turnsIntoClose ? open : _iv(open, 0, 0.6)) *
             (reduceMotion ? 0 : 1);
+        // The + goes at once: the details' close button is that same +,
+        // turning over it (with reduced motion it fades into the ✕).
         final trailingOpacity = turnsIntoClose
-            ? 1 - _iv(open, 0.85, 1)
+            ? (reduceMotion ? 1 - _iv(open, 0.85, 1) : 0.0)
             : 1 - _iv(open, 0.2, 0.6);
         return Row(
           children: [

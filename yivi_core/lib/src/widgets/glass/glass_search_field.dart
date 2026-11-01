@@ -14,6 +14,10 @@ class GlassSearchField extends StatefulWidget {
 
   /// The search key on the keyboard (Activity: search for the typed words).
   final ValueChanged<String>? onSubmitted;
+
+  /// After the clear button has emptied the field, instead of giving it the
+  /// keyboard (Activity: with nothing left asked, the search ends).
+  final VoidCallback? onCleared;
   final Key? fieldKey;
 
   /// Shared with another field for the same search (Add data's field in the
@@ -27,6 +31,7 @@ class GlassSearchField extends StatefulWidget {
     required this.hintKey,
     required this.onChanged,
     this.onSubmitted,
+    this.onCleared,
     this.fieldKey,
     this.controller,
     this.focusNode,
@@ -94,7 +99,11 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
   void _clear() {
     _controller.clear();
     widget.onChanged("");
-    _focus.requestFocus();
+    if (widget.onCleared case final cleared?) {
+      cleared();
+    } else {
+      _focus.requestFocus();
+    }
   }
 
   @override

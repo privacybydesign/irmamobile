@@ -1,7 +1,7 @@
 import "dart:math";
 
 import "package:flutter/cupertino.dart" show CupertinoIcons;
-
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
@@ -302,14 +302,28 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                             final still = MediaQuery.disableAnimationsOf(
                               context,
                             );
-                            // In a card transition: takes over from the
-                            // bar's turned + as that same +, then turns
-                            // into the ✕.
+                            // Opened from the bar's +: that + turned is the
+                            // close button, here where the bar's was.
                             if (transition != null) {
-                              return _CloseFromPlus(
+                              return _PlusAsClose(
                                 closeKey: widget.closeKey,
                                 onTap: _close,
                                 opacity: chromeOpacity(),
+                                still: still,
+                              );
+                            }
+                            // From the list: the bar's + is covered by this
+                            // page as it opens, so this one turns over it
+                            // from the start.
+                            if (WalletTransition.closeFromPlus) {
+                              return _PlusAsClose(
+                                closeKey: widget.closeKey,
+                                onTap: _close,
+                                opacity:
+                                    (still ? opacity : 1) * (1 - _pullProgress),
+                                turn: WalletTransition.barProgress(
+                                  animation.value,
+                                ),
                                 still: still,
                               );
                             }
@@ -457,58 +471,42 @@ class WalletReveal extends StatelessWidget {
   }
 }
 
-/// The close button of a page opened by a card transition. It is there
-/// only while the card is open ([opacity]); moving, the bar's + turns into
-/// it. As it comes it is that turned + ([RoundIconButton.plusAsClose]),
-/// where the bar's is, and cross-fades into the ✕ (a little larger and
-/// bolder): it never pops in.
-class _CloseFromPlus extends StatelessWidget {
+/// The close button of a page opened from a bar with a + (the Data tab):
+/// that + turned 45° ([RoundIconButton.plusAsClose]), the same button the
+/// bar's + has turned into, so taking over from it shows nothing; or, with
+/// [turn] less than 1, that + on its way (0 is the + as in the bar). With
+/// reduced motion the + does not turn: there it is the ✕.
+class _PlusAsClose extends StatelessWidget {
   final Key closeKey;
   final VoidCallback onTap;
   final double opacity;
+  final double turn;
   final bool still;
 
-  const _CloseFromPlus({
+  const _PlusAsClose({
     required this.closeKey,
     required this.onTap,
     required this.opacity,
     required this.still,
+    this.turn = 1,
   });
 
   @override
   Widget build(BuildContext context) {
-    final shown = opacity > 0;
-    return TweenAnimationBuilder<double>(
-      tween: Tween(end: shown ? 1 : 0),
-      duration: shown && !still
-          ? const Duration(milliseconds: 150)
-          : Duration.zero,
-      builder: (context, close, _) => Stack(
-        alignment: Alignment.center,
-        children: [
-          if (!still && close < 1)
-            IgnorePointer(
-              child: ExcludeSemantics(
-                child: Transform.rotate(
-                  angle: pi / 4,
-                  child: Transform.scale(
-                    scale: RoundIconButton.plusAsClose,
-                    child: RoundIconButton(
-                      icon: CupertinoIcons.add,
-                      label: "",
-                      onTap: () {},
-                      opacity: opacity * (1 - close),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          IrmaCloseButton(
-            key: closeKey,
-            onTap: onTap,
-            opacity: opacity * (still ? 1 : close),
-          ),
-        ],
+    if (still) {
+      return IrmaCloseButton(key: closeKey, onTap: onTap, opacity: opacity);
+    }
+    return Transform.rotate(
+      angle: pi / 4 * turn,
+      child: Transform.scale(
+        scale: 1 + (RoundIconButton.plusAsClose - 1) * turn,
+        child: RoundIconButton(
+          key: closeKey,
+          icon: CupertinoIcons.add,
+          label: FlutterI18n.translate(context, "accessibility.close"),
+          onTap: onTap,
+          opacity: opacity,
+        ),
       ),
     );
   }

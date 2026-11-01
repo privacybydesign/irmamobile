@@ -2218,7 +2218,14 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                 borderRadius: const BorderRadius.vertical(
                   top: _GlassSheet._radius,
                 ),
-                child: ScrollEdgeBand(under: _under, color: palette.sheet),
+                // The band is the edge of this page's content: it goes
+                // with it as pages change, so it never switches at the end,
+                // and the content under it never shows through the bar.
+                child: role == null
+                    ? ScrollEdgeBand(under: _under, color: palette.sheet)
+                    : role.slide(
+                        ScrollEdgeBand(under: _under, color: palette.sheet),
+                      ),
               ),
             ),
           Column(
