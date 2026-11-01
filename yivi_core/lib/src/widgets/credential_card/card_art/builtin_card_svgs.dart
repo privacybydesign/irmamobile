@@ -1,7 +1,8 @@
 // GENERATED from the "Yivi Built-in Card Templates" design canvas, with
-// the rules of the "Yivi card system" applied (one header, field type and
-// issuer line; one emblem slot top right; one-tone ornaments; the Yivi
-// mark on the issuer line). Keep to those rules when editing a card.
+// the rules of the "Yivi card system" applied (one header with a 16 pt
+// main value, one field type and issuer line; one emblem slot top right;
+// one-tone ornaments; the Yivi mark on the issuer line). Keep to those
+// rules when editing a card.
 //
 // Each entry is the inside of a 358 × 226 SVG. `§` stands for the
 // package prefix of a bundled font family and `¶` the Yivi mark (see
@@ -34,7 +35,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7 M6 9.5V20h12V9.5 M10 20v-5h4v5"/></g>
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#FFE2CF" font-family="§Nunito">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Nunito" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{street}}</tspan> <tspan>{{houseNumber}}</tspan></text>
+<text x="62" y="47.5" font-family="§Nunito" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{street}}</tspan> <tspan>{{houseNumber}}</tspan></text>
 <text x="20" y="108" font-family="§Nunito" font-size="20" font-weight="700" fill="#FFFFFF">{{zipcode}}</text>
 <text x="20" y="132" font-family="§Nunito" font-size="20" font-weight="700" fill="#FFFFFF">{{city}}</text>
 <text x="20" y="164" font-size="10.5" fill="#FFE2CF" font-family="§Nunito" font-weight="600" font-style="normal">{{label.municipality}}</text>
@@ -59,7 +60,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5 7 7v10 M10.5 9.5a2 2 0 1 1 4 0a2 2 0 1 1-4 0z M10 14.5a2.5 2.5 0 1 1 5 0a2.5 2.5 0 1 1-5 0z M19 10v4 M17 12h4"/></g>
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#E6DAFF" font-family="§Fredoka">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Fredoka" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{label.over18}}</tspan>: <tspan>{{over18}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Fredoka" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{label.over18}}</tspan>: <tspan>{{over18}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "ageverif": r'''
 <defs><linearGradient id="av6b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1FA8D8"/><stop offset="1" stop-color="#1378A8"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#av6b)"/>
@@ -83,7 +84,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L19.5 6 V11.5 C19.5 16 16.3 19.4 12 21 C7.7 19.4 4.5 16 4.5 11.5 V6 Z M8.6 12 l2.4 2.4 l4.4 -4.6"/></g>
 <text x="62" y="28" font-family="§Outfit" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#D2EFFA">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Outfit" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{label.age_over_18}}</tspan>: <tspan>{{age_over_18}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Outfit" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{label.age_over_18}}</tspan>: <tspan>{{age_over_18}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "appid": r'''
 <defs><linearGradient id="ap5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B2631"/><stop offset="1" stop-color="#16131A"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#ap5b)"/>
@@ -98,7 +99,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FF4F6E" fill-opacity="0.14" stroke="#FF4F6E" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 10a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z M10.2 11.3L19 4 M15.5 7l2.2 2.2 M13 9.2l1.8 1.8"/></g>
 <text x="62" y="28" font-family="§Space Grotesk" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#BCB2C8">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Space Mono" font-size="19" font-weight="700" fill="#FFFFFF">{{pseudonym}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.471) translate(-319 -31)"><g fill="#FFFFFF"><rect x="302" y="14" width="7" height="7" rx="1.5"/><rect x="311" y="14" width="7" height="7" rx="1.5"/><rect x="320" y="14" width="7" height="7" rx="1.5"/><rect x="329" y="14" width="7" height="7" rx="1.5"/><rect x="302" y="23" width="7" height="7" rx="1.5"/><rect x="311" y="23" width="7" height="7" rx="1.5"/><rect x="320" y="23" width="7" height="7" rx="1.5"/><rect x="329" y="23" width="7" height="7" rx="1.5"/><rect x="302" y="32" width="7" height="7" rx="1.5"/><rect x="311" y="32" width="7" height="7" rx="1.5"/><rect x="320" y="32" width="7" height="7" rx="1.5"/><rect x="329" y="32" width="7" height="7" rx="1.5"/><rect x="302" y="41" width="7" height="7" rx="1.5"/><rect x="311" y="41" width="7" height="7" rx="1.5"/><rect x="320" y="41" width="7" height="7" rx="1.5"/><rect x="329" y="41" width="7" height="7" rx="1.5"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Space Mono" font-size="16" font-weight="700" fill="#FFFFFF">{{pseudonym}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.471) translate(-319 -31)"><g fill="#FFFFFF"><rect x="302" y="14" width="7" height="7" rx="1.5"/><rect x="311" y="14" width="7" height="7" rx="1.5"/><rect x="320" y="14" width="7" height="7" rx="1.5"/><rect x="329" y="14" width="7" height="7" rx="1.5"/><rect x="302" y="23" width="7" height="7" rx="1.5"/><rect x="311" y="23" width="7" height="7" rx="1.5"/><rect x="320" y="23" width="7" height="7" rx="1.5"/><rect x="329" y="23" width="7" height="7" rx="1.5"/><rect x="302" y="32" width="7" height="7" rx="1.5"/><rect x="311" y="32" width="7" height="7" rx="1.5"/><rect x="320" y="32" width="7" height="7" rx="1.5"/><rect x="329" y="32" width="7" height="7" rx="1.5"/><rect x="302" y="41" width="7" height="7" rx="1.5"/><rect x="311" y="41" width="7" height="7" rx="1.5"/><rect x="320" y="41" width="7" height="7" rx="1.5"/><rect x="329" y="41" width="7" height="7" rx="1.5"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "av": r'''
 <defs><linearGradient id="d6av" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EE6E5C"/><stop offset="1" stop-color="#C24A3A"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6av)"/>
@@ -108,7 +109,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L19.5 6 V11.5 C19.5 16 16.3 19.4 12 21 C7.7 19.4 4.5 16 4.5 11.5 V6 Z"/></g>
 <text x="62" y="28" font-family="§Urbanist" font-size="10.5" font-weight="700" fill="#FFE0DA" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Urbanist" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{label.age_over_18}}</tspan>: <tspan>{{age_over_18}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.500) translate(-320 -32)"><g transform="translate(320 32)"><path d="M0 -16 L13 -11 V0 C13 8 7 13 0 16 C-7 13 -13 8 -13 0 V-11 Z" fill="#FFFFFF"/><path d="M-5.5 0 l4 4 l7.5 -8" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Urbanist" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{label.age_over_18}}</tspan>: <tspan>{{age_over_18}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.500) translate(-320 -32)"><g transform="translate(320 32)"><path d="M0 -16 L13 -11 V0 C13 8 7 13 0 16 C-7 13 -13 8 -13 0 V-11 Z" fill="#FFFFFF"/><path d="M-5.5 0 l4 4 l7.5 -8" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "big": r'''
 <defs><linearGradient id="bg5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAF7F1"/><stop offset="1" stop-color="#CBEADC"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#bg5b)"/>
@@ -123,7 +124,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#0B3D2E" fill-opacity="0.14" stroke="#0B3D2E" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#0B3D2E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v5a4 4 0 0 0 8 0V3 M10 12v3a5 5 0 0 0 10 0v-1.5 M20 9.5a2 2 0 1 1 0 4a2 2 0 1 1 0-4z"/></g>
 <text x="62" y="28" font-family="§Figtree" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#2C7A60">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Figtree" font-size="19" font-weight="700" fill="#0B3D2E">{{profession}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#2C7A60" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Figtree" font-size="16" font-weight="700" fill="#0B3D2E">{{profession}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#2C7A60" fill-opacity="0.75">¶</g>''',
   "diploma": r'''
 <defs><linearGradient id="dp6b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F5440"/><stop offset="1" stop-color="#113324"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#dp6b)"/>
@@ -143,7 +144,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#D9B861" fill-opacity="0.14" stroke="#D9B861" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#F6F0DC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z M6 11v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5 M22 9v6"/></g>
 <text x="62" y="28" font-family="§Cormorant Garamond" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#D9B861">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Cormorant Garamond" font-size="19" font-weight="700" fill="#F6F0DC">{{qualification}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.392) translate(-318 -33.067848205566406)"><g transform="translate(318 34)" fill="#FFFFFF">
+<text x="62" y="47.5" font-family="§Cormorant Garamond" font-size="16" font-weight="700" fill="#F6F0DC">{{qualification}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.392) translate(-318 -33.067848205566406)"><g transform="translate(318 34)" fill="#FFFFFF">
 <path d="M-10 12 C-17 6 -18 -4 -12 -13" fill="none" stroke="#FFFFFF" stroke-width="1.2"/><path d="M10 12 C17 6 18 -4 12 -13" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
 <ellipse cx="-15" cy="5" rx="2" ry="4.5" transform="rotate(-50 -15 5)"/><ellipse cx="-17" cy="-2" rx="2" ry="4.5" transform="rotate(-20 -17 -2)"/><ellipse cx="-15" cy="-9" rx="2" ry="4.5" transform="rotate(15 -15 -9)"/>
 <ellipse cx="15" cy="5" rx="2" ry="4.5" transform="rotate(50 15 5)"/><ellipse cx="17" cy="-2" rx="2" ry="4.5" transform="rotate(20 17 -2)"/><ellipse cx="15" cy="-9" rx="2" ry="4.5" transform="rotate(-15 15 -9)"/>
@@ -177,7 +178,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#9A3A60" fill-opacity="0.14" stroke="#9A3A60" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#3D0F24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17v-5.5l2-5h10l2 5V17 M3.5 11.5h17 M5 17h14 M6.5 17v2 M17.5 17v2 M8 14h.01 M16 14h.01"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#9A3A60">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#3D0F24"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#9A3A60" fill-opacity="0.15" stroke="#9A3A60" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.889) translate(-318 -32)"><circle cx="318" cy="32" r="9" fill="none" stroke="#9A3A60" stroke-dasharray="1.5 2"/></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#9A3A60" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#3D0F24"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#9A3A60" fill-opacity="0.15" stroke="#9A3A60" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.889) translate(-318 -32)"><circle cx="318" cy="32" r="9" fill="none" stroke="#9A3A60" stroke-dasharray="1.5 2"/></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#9A3A60" fill-opacity="0.75">¶</g>''',
   "email": r'''
 <defs><linearGradient id="r5em4b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D88A12"/><stop offset="1" stop-color="#A9620A"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#r5em4b)"/>
@@ -196,7 +197,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z M3.5 6.5 12 13l8.5-6.5"/></g>
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#FFEFD2" font-family="§Quicksand">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Quicksand" font-size="19" font-weight="700" fill="#FFFFFF">{{email}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.579) translate(-318.20751953125 -26.97814655303955)"><g transform="translate(318 26) rotate(-12)"><path d="M-12 0 L12 -9 L4 11 L0 3 Z" fill="#FFFFFF"/><path d="M0 3 L12 -9" stroke="#FFFFFF" stroke-width="1" fill="none"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Quicksand" font-size="16" font-weight="700" fill="#FFFFFF">{{email}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.579) translate(-318.20751953125 -26.97814655303955)"><g transform="translate(318 26) rotate(-12)"><path d="M-12 0 L12 -9 L4 11 L0 3 Z" fill="#FFFFFF"/><path d="M0 3 L12 -9" stroke="#FFFFFF" stroke-width="1" fill="none"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "enalimony": r'''
 <defs><linearGradient id="d6enalimony" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2EFF9"/><stop offset="1" stop-color="#DFD8F1"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enalimony)"/>
@@ -210,7 +211,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#7A5CC4" fill-opacity="0.14" stroke="#7A5CC4" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#624A9D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16 M6 20h12 M5 8h14 M5 8l-3 6c0 1.7 6 1.7 6 0z M19 8l-3 6c0 1.7 6 1.7 6 0z"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#5C4593" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{other}}</tspan> <tspan font-size="12" font-weight="600" fill="#5C4593">/ <tspan>{{label.other}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#5C4593" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{other}}</tspan> <tspan font-size="12" font-weight="600" fill="#5C4593">/ <tspan>{{label.other}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#5C4593" fill-opacity="0.75">¶</g>''',
   "enbankaccount": r'''
 <defs><linearGradient id="d6enbankaccount" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAF1F7"/><stop offset="1" stop-color="#CDDCEC"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enbankaccount)"/>
@@ -224,7 +225,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#2F6FB0" fill-opacity="0.14" stroke="#2F6FB0" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#26598D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5 M5 10v8 M9.5 10v8 M14.5 10v8 M19 10v8 M3 20.5h18"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#235384" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24"><tspan>{{iban}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#235384" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24"><tspan>{{iban}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#235384" fill-opacity="0.75">¶</g>''',
   "encash": r'''
 <defs><linearGradient id="d6encash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F4E9"/><stop offset="1" stop-color="#E0E3CA"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6encash)"/>
@@ -238,7 +239,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#7E8C24" fill-opacity="0.14" stroke="#7E8C24" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#65701D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12 M16 13h.01"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#5E691B" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{other}}</tspan> <tspan font-size="12" font-weight="600" fill="#5E691B">/ <tspan>{{label.other}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#5E691B" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{other}}</tspan> <tspan font-size="12" font-weight="600" fill="#5E691B">/ <tspan>{{label.other}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#5E691B" fill-opacity="0.75">¶</g>''',
   "enessential": r'''
 <defs><linearGradient id="d6enessential" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF2EA"/><stop offset="1" stop-color="#F6E1CC"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enessential)"/>
@@ -256,7 +257,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#D9822B" fill-opacity="0.14" stroke="#D9822B" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#AE6822" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11h10.2L20 7H6.2 M9 20a1 1 0 1 0 0-.01 M17 20a1 1 0 1 0 0-.01"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#A36220" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{groceries}}</tspan> <tspan font-size="12" font-weight="600" fill="#A36220">/ <tspan>{{label.groceries}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#A36220" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{groceries}}</tspan> <tspan font-size="12" font-weight="600" fill="#A36220">/ <tspan>{{label.groceries}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#A36220" fill-opacity="0.75">¶</g>''',
   "enexpense": r'''
 <defs><linearGradient id="d6enexpense" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9ECEC"/><stop offset="1" stop-color="#F0D2D1"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enexpense)"/>
@@ -272,7 +273,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#C2453F" fill-opacity="0.14" stroke="#C2453F" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#9B3732" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6 M9 16h3"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#92342F" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{other}}</tspan> <tspan font-size="12" font-weight="600" fill="#92342F">/ <tspan>{{label.other}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#92342F" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{other}}</tspan> <tspan font-size="12" font-weight="600" fill="#92342F">/ <tspan>{{label.other}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#92342F" fill-opacity="0.75">¶</g>''',
   "engambling": r'''
 <defs><linearGradient id="d6engambling" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5EAF0"/><stop offset="1" stop-color="#E7CDDC"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6engambling)"/>
@@ -288,7 +289,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#9C2F6E" fill-opacity="0.14" stroke="#9C2F6E" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#7D2658" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M8.5 8.5h.01 M15.5 8.5h.01 M12 12h.01 M8.5 15.5h.01 M15.5 15.5h.01"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#752352" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{lottery}}</tspan> <tspan font-size="12" font-weight="600" fill="#752352">/ <tspan>{{label.lottery}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#752352" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{lottery}}</tspan> <tspan font-size="12" font-weight="600" fill="#752352">/ <tspan>{{label.lottery}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#752352" fill-opacity="0.75">¶</g>''',
   "enhousing": r'''
 <defs><linearGradient id="d6enhousing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAF1F7"/><stop offset="1" stop-color="#CDDCEC"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enhousing)"/>
@@ -304,7 +305,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#2F6FB0" fill-opacity="0.14" stroke="#2F6FB0" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#26598D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7 M6 9.5V20h12V9.5 M10 20v-5h4v5"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#235384" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{rent}}</tspan> <tspan font-size="12" font-weight="600" fill="#235384">/ <tspan>{{label.rent}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#235384" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{rent}}</tspan> <tspan font-size="12" font-weight="600" fill="#235384">/ <tspan>{{label.rent}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#235384" fill-opacity="0.75">¶</g>''',
   "enincome": r'''
 <defs><linearGradient id="d6enincome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAF5F0"/><stop offset="1" stop-color="#CDE8DB"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enincome)"/>
@@ -322,7 +323,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#2E9E6A" fill-opacity="0.14" stroke="#2E9E6A" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#257E55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8 M15 7h6v6"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#227650" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{salary}}</tspan> <tspan font-size="12" font-weight="600" fill="#227650">/ <tspan>{{label.salary}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#227650" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{salary}}</tspan> <tspan font-size="12" font-weight="600" fill="#227650">/ <tspan>{{label.salary}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#227650" fill-opacity="0.75">¶</g>''',
   "eninsurance": r'''
 <defs><linearGradient id="d6eninsurance" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9F4F4"/><stop offset="1" stop-color="#C9E3E3"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6eninsurance)"/>
@@ -340,7 +341,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#1F8C8C" fill-opacity="0.14" stroke="#1F8C8C" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#197070" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L19.5 6 V11.5 C19.5 16 16.3 19.4 12 21 C7.7 19.4 4.5 16 4.5 11.5 V6 Z"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#176969" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{health}}</tspan> <tspan font-size="12" font-weight="600" fill="#176969">/ <tspan>{{label.health}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#176969" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{health}}</tspan> <tspan font-size="12" font-weight="600" fill="#176969">/ <tspan>{{label.health}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#176969" fill-opacity="0.75">¶</g>''',
   "eninvestment": r'''
 <defs><linearGradient id="d6eninvestment" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9F2EE"/><stop offset="1" stop-color="#C9DFD6"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6eninvestment)"/>
@@ -358,7 +359,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#1F7A54" fill-opacity="0.14" stroke="#1F7A54" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#196243" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11c0-3.3 3.1-6 7-6s7 2.7 7 6c0 1.7-.8 3.2-2 4.3V19h-3v-2h-4v2H7v-3.7C5.8 14.2 5 12.7 5 11z M19 10h2 M9 9.5h.01"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#175C3F" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{savings}}</tspan> <tspan font-size="12" font-weight="600" fill="#175C3F">/ <tspan>{{label.savings}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#175C3F" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{savings}}</tspan> <tspan font-size="12" font-weight="600" fill="#175C3F">/ <tspan>{{label.savings}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#175C3F" fill-opacity="0.75">¶</g>''',
   "enlifestyle": r'''
 <defs><linearGradient id="d6enlifestyle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBEDF2"/><stop offset="1" stop-color="#F6D4DF"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enlifestyle)"/>
@@ -376,7 +377,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#D94D78" fill-opacity="0.14" stroke="#D94D78" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#AE3E60" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z M16 9h2a2 2 0 0 1 0 4h-2 M8 3v2 M11 3v2"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#A33A5A" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{restaurantsbars}}</tspan> <tspan font-size="12" font-weight="600" fill="#A33A5A">/ <tspan>{{label.restaurantsbars}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#A33A5A" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{restaurantsbars}}</tspan> <tspan font-size="12" font-weight="600" fill="#A33A5A">/ <tspan>{{label.restaurantsbars}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#A33A5A" fill-opacity="0.75">¶</g>''',
   "enloan": r'''
 <defs><linearGradient id="d6enloan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8ECEA"/><stop offset="1" stop-color="#EDD2CD"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enloan)"/>
@@ -394,7 +395,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#B5452E" fill-opacity="0.14" stroke="#B5452E" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#913725" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16 M6 18V10 M10 18V10 M14 18V10 M18 18V10 M3 10l9-6 9 6z"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#883422" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{student}}</tspan> <tspan font-size="12" font-weight="600" fill="#883422">/ <tspan>{{label.student}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#883422" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{student}}</tspan> <tspan font-size="12" font-weight="600" fill="#883422">/ <tspan>{{label.student}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#883422" fill-opacity="0.75">¶</g>''',
   "enother": r'''
 <defs><linearGradient id="d6enother" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFF0F2"/><stop offset="1" stop-color="#D9DBDF"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6enother)"/>
@@ -410,7 +411,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#5F6B7A" fill-opacity="0.14" stroke="#5F6B7A" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#4C5662" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-3-3 M20 16H6l3 3"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#47505C" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{privatetransfer}}</tspan> <tspan font-size="12" font-weight="600" fill="#47505C">/ <tspan>{{label.privatetransfer}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#47505C" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{privatetransfer}}</tspan> <tspan font-size="12" font-weight="600" fill="#47505C">/ <tspan>{{label.privatetransfer}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#47505C" fill-opacity="0.75">¶</g>''',
   "ensubsidy": r'''
 <defs><linearGradient id="d6ensubsidy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ECF4FA"/><stop offset="1" stop-color="#D1E4F4"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6ensubsidy)"/>
@@ -428,7 +429,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#3E8ED0" fill-opacity="0.14" stroke="#3E8ED0" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#3272A6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16v4H4z M6 14h12v6H6z M12 10v10 M12 10c-2-4-6-3-5-1 M12 10c2-4 6-3 5-1"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#2E6A9C" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{family}}</tspan> <tspan font-size="12" font-weight="600" fill="#2E6A9C">/ <tspan>{{label.family}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#2E6A9C" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{family}}</tspan> <tspan font-size="12" font-weight="600" fill="#2E6A9C">/ <tspan>{{label.family}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#2E6A9C" fill-opacity="0.75">¶</g>''',
   "entax": r'''
 <defs><linearGradient id="d6entax" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDEEEF"/><stop offset="1" stop-color="#D4D6DA"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6entax)"/>
@@ -446,7 +447,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#4B5563" fill-opacity="0.14" stroke="#4B5563" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#3C444F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6 M9 16h3"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#38404A" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{income}}</tspan> <tspan font-size="12" font-weight="600" fill="#38404A">/ <tspan>{{label.income}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#38404A" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{income}}</tspan> <tspan font-size="12" font-weight="600" fill="#38404A">/ <tspan>{{label.income}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#38404A" fill-opacity="0.75">¶</g>''',
   "entra": r'''
 <defs><linearGradient id="en6b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F6FA"/><stop offset="1" stop-color="#DFE5EF"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#en6b)"/>
@@ -468,7 +469,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#3A63D8" fill-opacity="0.14" stroke="#3A63D8" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#1B2433" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M10 2v4h4V2 M12 10.5a2 2 0 1 1 0 4a2 2 0 1 1 0-4z M8.5 18.5c.6-1.6 1.9-2.4 3.5-2.4s2.9.8 3.5 2.4"/></g>
 <text x="62" y="28" font-family="§Plus Jakarta Sans" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#5A6A85">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Plus Jakarta Sans" font-size="19" font-weight="700" fill="#1B2433"><tspan>{{givenName}}</tspan> <tspan>{{surname}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#5A6A85" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Plus Jakarta Sans" font-size="16" font-weight="700" fill="#1B2433"><tspan>{{givenName}}</tspan> <tspan>{{surname}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#5A6A85" fill-opacity="0.75">¶</g>''',
   "entransport": r'''
 <defs><linearGradient id="d6entransport" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF4E8"/><stop offset="1" stop-color="#F6E5C8"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6entransport)"/>
@@ -486,7 +487,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#D8941A" fill-opacity="0.14" stroke="#D8941A" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#AD7615" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12a2 2 0 0 1 2 2v10H4V6a2 2 0 0 1 2-2z M4 11h16 M7 16v3 M17 16v3 M7.5 14h.01 M16.5 14h.01"/></g>
 <text x="62" y="28" font-family="§Instrument Sans" font-size="10.5" font-weight="700" fill="#A26F14" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Instrument Sans" font-size="19" font-weight="700" fill="#1C1F24">€ <tspan>{{publictransport}}</tspan> <tspan font-size="12" font-weight="600" fill="#A26F14">/ <tspan>{{label.publictransport}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#A26F14" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Instrument Sans" font-size="16" font-weight="700" fill="#1C1F24">€ <tspan>{{publictransport}}</tspan> <tspan font-size="12" font-weight="600" fill="#A26F14">/ <tspan>{{label.publictransport}}</tspan></tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#A26F14" fill-opacity="0.75">¶</g>''',
   "facebook": r'''
 <defs><linearGradient id="d6facebook" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3D5DAD"/><stop offset="1" stop-color="#283F7F"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6facebook)"/>
@@ -500,7 +501,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v10H9l-5 4z"/></g>
 <text x="62" y="28" font-family="§Poppins" font-size="10.5" font-weight="700" fill="#C9D5F2" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Poppins" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{fullname}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Poppins" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{fullname}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "iban": r'''
 <defs>
 <linearGradient id="r5ib4b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#28374A"/><stop offset="1" stop-color="#1A242F"/></linearGradient>
@@ -523,7 +524,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5 M5 10v8 M9.5 10v8 M14.5 10v8 M19 10v8 M3 20.5h18"/></g>
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#E6C98A" font-family="§Archivo">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Archivo" font-size="19" font-weight="700" fill="#FFFFFF">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Archivo" font-size="16" font-weight="700" fill="#FFFFFF">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "idcard": r'''
 <defs><linearGradient id="id7b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF2FB"/><stop offset="1" stop-color="#E2DEF3"/></linearGradient><linearGradient id="id7h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9C6E6"/><stop offset="0.35" stop-color="#C6E3FF"/><stop offset="0.7" stop-color="#CFF7E0"/><stop offset="1" stop-color="#FFF2B8"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#id7b)"/>
@@ -550,7 +551,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#22409A" fill-opacity="0.14" stroke="#22409A" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#16234F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5z M8 9.8a1.9 1.9 0 1 1 0 3.8a1.9 1.9 0 1 1 0-3.8z M4.8 16c.6-1.4 1.8-2.1 3.2-2.1s2.6.7 3.2 2.1 M13.5 10h5 M13.5 13h3.5"/></g>
 <text x="62" y="28" font-family="§IBM Plex Sans Condensed" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#4A5788">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§IBM Plex Sans Condensed" font-size="19" font-weight="700" fill="#16234F"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#4A5788" fill-opacity="0.15" stroke="#4A5788" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.889) translate(-318 -32)"><circle cx="318" cy="32" r="9" fill="none" stroke="#4A5788" stroke-dasharray="1.5 2"/></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#4A5788" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§IBM Plex Sans Condensed" font-size="16" font-weight="700" fill="#16234F"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#4A5788" fill-opacity="0.15" stroke="#4A5788" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.889) translate(-318 -32)"><circle cx="318" cy="32" r="9" fill="none" stroke="#4A5788" stroke-dasharray="1.5 2"/></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#4A5788" fill-opacity="0.75">¶</g>''',
   "idin": r'''
 <defs><linearGradient id="in5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#11596B"/><stop offset="1" stop-color="#0A3643"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#in5b)"/>
@@ -570,7 +571,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#E2B857" fill-opacity="0.14" stroke="#E2B857" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#F4EBD6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5 M5 10v8 M9.5 10v8 M14.5 10v8 M19 10v8 M3 20.5h18"/></g>
 <text x="62" y="28" font-family="§Manrope" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#93CCD5">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Manrope" font-size="19" font-weight="700" fill="#F4EBD6"><tspan>{{initials}}</tspan> <tspan>{{familyname}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Manrope" font-size="16" font-weight="700" fill="#F4EBD6"><tspan>{{initials}}</tspan> <tspan>{{familyname}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "ivido": r'''
 <defs><linearGradient id="d6ivido" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8F2FB"/><stop offset="1" stop-color="#CDE2F5"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6ivido)"/>
@@ -581,7 +582,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#12385E" fill-opacity="0.14" stroke="#12385E" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#E0567E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></g>
 <text x="62" y="28" font-family="§Mulish" font-size="10.5" font-weight="700" fill="#3A6F9E" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Mulish" font-size="19" font-weight="700" fill="#12385E"><tspan>{{yivi.issuer}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#3A6F9E" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Mulish" font-size="16" font-weight="700" fill="#12385E"><tspan>{{yivi.issuer}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#3A6F9E" fill-opacity="0.75">¶</g>''',
   "kvk": r'''
 <defs><linearGradient id="kv5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#253556"/><stop offset="1" stop-color="#141C30"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#kv5b)"/>
@@ -599,7 +600,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#C9B37E" fill-opacity="0.14" stroke="#C9B37E" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#F5EFE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l1.5-5h15L21 10 M4.5 10v10h15V10 M3 10h18 M9.5 20v-5h5v5"/></g>
 <text x="62" y="28" font-family="§Libre Baskerville" font-size="10.5" fill="#CDB884" font-weight="700" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Libre Baskerville" font-size="19" font-weight="700" fill="#F5EFE0">{{name}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Libre Baskerville" font-size="16" font-weight="700" fill="#F5EFE0">{{name}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "linkedin": r'''
 <defs><linearGradient id="li5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1166BA"/><stop offset="1" stop-color="#0A4682"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#li5b)"/>
@@ -617,7 +618,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2 M3 13h18"/></g>
 <text x="62" y="28" font-family="§Work Sans" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#AFCFF1">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Work Sans" font-size="19" font-weight="700" fill="#FFFFFF">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Work Sans" font-size="16" font-weight="700" fill="#FFFFFF">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "mdl": r'''
 <defs><linearGradient id="d6mdl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#108494"/><stop offset="1" stop-color="#0A5A66"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6mdl)"/>
@@ -633,7 +634,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14v-4l-2-5H7l-2 5z M3 12h18 M7.5 19v-3 M16.5 19v-3 M7.5 13.5h.01 M16.5 13.5h.01"/></g>
 <text x="62" y="28" font-family="§Titillium Web" font-size="10.5" font-weight="700" fill="#C2EEF2" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Titillium Web" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{given_name}}</tspan> <tspan>{{family_name}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Titillium Web" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{given_name}}</tspan> <tspan>{{family_name}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "moaddress": r'''
 <defs><linearGradient id="d6moaddress" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8473B"/><stop offset="1" stop-color="#7C2E26"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6moaddress)"/>
@@ -648,7 +649,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7 M6 9.5V20h12V9.5 M10 20v-5h4v5"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#F6D2C9" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{street}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.690) translate(-318 -26.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="16.0" r="1.6"/><circle cx="323.0" cy="17.3" r="1.6"/><circle cx="326.7" cy="21.0" r="1.6"/><circle cx="328.0" cy="26.0" r="1.6"/><circle cx="326.7" cy="31.0" r="1.6"/><circle cx="323.0" cy="34.7" r="1.6"/><circle cx="318.0" cy="36.0" r="1.6"/><circle cx="313.0" cy="34.7" r="1.6"/><circle cx="309.3" cy="31.0" r="1.6"/><circle cx="308.0" cy="26.0" r="1.6"/><circle cx="309.3" cy="21.0" r="1.6"/><circle cx="313.0" cy="17.3" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{street}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.690) translate(-318 -26.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="16.0" r="1.6"/><circle cx="323.0" cy="17.3" r="1.6"/><circle cx="326.7" cy="21.0" r="1.6"/><circle cx="328.0" cy="26.0" r="1.6"/><circle cx="326.7" cy="31.0" r="1.6"/><circle cx="323.0" cy="34.7" r="1.6"/><circle cx="318.0" cy="36.0" r="1.6"/><circle cx="313.0" cy="34.7" r="1.6"/><circle cx="309.3" cy="31.0" r="1.6"/><circle cx="308.0" cy="26.0" r="1.6"/><circle cx="309.3" cy="21.0" r="1.6"/><circle cx="313.0" cy="17.3" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "moagehigh": r'''
 <defs><linearGradient id="d6moagehigh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8E5E2E"/><stop offset="1" stop-color="#62401D"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6moagehigh)"/>
@@ -658,7 +659,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5 7 7v10 M10.5 9.5a2 2 0 1 1 4 0a2 2 0 1 1-4 0z M10 14.5a2.5 2.5 0 1 1 5 0a2.5 2.5 0 1 1-5 0z M19 10v4 M17 12h4"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#F1DCC2" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{label.over65}}</tspan>: <tspan>{{over65}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{label.over65}}</tspan>: <tspan>{{over65}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "moagelow": r'''
 <defs><linearGradient id="d6moagelow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F8C8A"/><stop offset="1" stop-color="#126462"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6moagelow)"/>
@@ -668,7 +669,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5 7 7v10 M10.5 9.5a2 2 0 1 1 4 0a2 2 0 1 1-4 0z M10 14.5a2.5 2.5 0 1 1 5 0a2.5 2.5 0 1 1-5 0z M19 10v4 M17 12h4"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#CDEDEA" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{label.over18}}</tspan>: <tspan>{{over18}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{label.over18}}</tspan>: <tspan>{{over18}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "mobile": r'''
 <defs><linearGradient id="mbb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17895C"/><stop offset="1" stop-color="#0C5236"/></linearGradient><radialGradient id="mbg" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#7CF2BE" stop-opacity="0.3"/><stop offset="1" stop-color="#7CF2BE" stop-opacity="0"/></radialGradient><linearGradient id="mbs" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#6FE0A9"/><stop offset="1" stop-color="#22A06A"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#mbb)"/>
@@ -693,7 +694,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5h5a2.5 2.5 0 0 1 2.5 2.5v14a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 7 19V5a2.5 2.5 0 0 1 2.5-2.5z M11 18.5h2"/></g>
 <text x="62" y="28" font-family="§Rubik" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#C9F2DD">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Rubik" font-size="19" font-weight="700" fill="#FFFFFF">{{mobilenumber}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.485) translate(-320.5 -31.5)"><g fill="#FFFFFF"><rect x="304" y="38" width="6" height="8" rx="1.5"/><rect x="313" y="31" width="6" height="15" rx="1.5"/><rect x="322" y="24" width="6" height="22" rx="1.5"/><rect x="331" y="17" width="6" height="29" rx="1.5"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Rubik" font-size="16" font-weight="700" fill="#FFFFFF">{{mobilenumber}}</text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.485) translate(-320.5 -31.5)"><g fill="#FFFFFF"><rect x="304" y="38" width="6" height="8" rx="1.5"/><rect x="313" y="31" width="6" height="15" rx="1.5"/><rect x="322" y="24" width="6" height="22" rx="1.5"/><rect x="331" y="17" width="6" height="29" rx="1.5"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "mobirth": r'''
 <defs><linearGradient id="d6mobirth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF4E8"/><stop offset="1" stop-color="#EEDFC4"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6mobirth)"/>
@@ -708,7 +709,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#3D2A1C" fill-opacity="0.14" stroke="#3D2A1C" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#3D2A1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z M4 15c2 1.5 4 1.5 6 0s4-1.5 6 0 3 1 4 .5 M12 11V7 M12 3.5c1 1 1 2 0 3c-1-1-1-2 0-3z"/></g>
 <text x="62" y="28" font-family="§Source Serif 4" font-size="10.5" font-weight="700" fill="#8A6A4C" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Serif 4" font-size="19" font-weight="700" fill="#3D2A1C"><tspan>{{dateofbirth}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#8A6A4C" fill-opacity="0.15" stroke="#8A6A4C" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-322 -32.000000953674316)"><g fill="#8A6A4C"><circle cx="322.0" cy="20.0" r="1.6"/><circle cx="328.0" cy="21.6" r="1.6"/><circle cx="332.4" cy="26.0" r="1.6"/><circle cx="334.0" cy="32.0" r="1.6"/><circle cx="332.4" cy="38.0" r="1.6"/><circle cx="328.0" cy="42.4" r="1.6"/><circle cx="322.0" cy="44.0" r="1.6"/><circle cx="316.0" cy="42.4" r="1.6"/><circle cx="311.6" cy="38.0" r="1.6"/><circle cx="310.0" cy="32.0" r="1.6"/><circle cx="311.6" cy="26.0" r="1.6"/><circle cx="316.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#8A6A4C" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Serif 4" font-size="16" font-weight="700" fill="#3D2A1C"><tspan>{{dateofbirth}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#8A6A4C" fill-opacity="0.15" stroke="#8A6A4C" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-322 -32.000000953674316)"><g fill="#8A6A4C"><circle cx="322.0" cy="20.0" r="1.6"/><circle cx="328.0" cy="21.6" r="1.6"/><circle cx="332.4" cy="26.0" r="1.6"/><circle cx="334.0" cy="32.0" r="1.6"/><circle cx="332.4" cy="38.0" r="1.6"/><circle cx="328.0" cy="42.4" r="1.6"/><circle cx="322.0" cy="44.0" r="1.6"/><circle cx="316.0" cy="42.4" r="1.6"/><circle cx="311.6" cy="38.0" r="1.6"/><circle cx="310.0" cy="32.0" r="1.6"/><circle cx="311.6" cy="26.0" r="1.6"/><circle cx="316.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#8A6A4C" fill-opacity="0.75">¶</g>''',
   "moiddoc": r'''
 <defs><linearGradient id="d6moiddoc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4B67A5"/><stop offset="1" stop-color="#2F497C"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6moiddoc)"/>
@@ -724,7 +725,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5z M8 9.8a1.9 1.9 0 1 1 0 3.8a1.9 1.9 0 1 1 0-3.8z M4.8 16c.6-1.4 1.8-2.1 3.2-2.1s2.6.7 3.2 2.1 M13.5 10h5 M13.5 13h3.5"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#D5DEEA" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{type}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-320 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="320.0" cy="20.0" r="1.6"/><circle cx="326.0" cy="21.6" r="1.6"/><circle cx="330.4" cy="26.0" r="1.6"/><circle cx="332.0" cy="32.0" r="1.6"/><circle cx="330.4" cy="38.0" r="1.6"/><circle cx="326.0" cy="42.4" r="1.6"/><circle cx="320.0" cy="44.0" r="1.6"/><circle cx="314.0" cy="42.4" r="1.6"/><circle cx="309.6" cy="38.0" r="1.6"/><circle cx="308.0" cy="32.0" r="1.6"/><circle cx="309.6" cy="26.0" r="1.6"/><circle cx="314.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{type}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-320 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="320.0" cy="20.0" r="1.6"/><circle cx="326.0" cy="21.6" r="1.6"/><circle cx="330.4" cy="26.0" r="1.6"/><circle cx="332.0" cy="32.0" r="1.6"/><circle cx="330.4" cy="38.0" r="1.6"/><circle cx="326.0" cy="42.4" r="1.6"/><circle cx="320.0" cy="44.0" r="1.6"/><circle cx="314.0" cy="42.4" r="1.6"/><circle cx="309.6" cy="38.0" r="1.6"/><circle cx="308.0" cy="32.0" r="1.6"/><circle cx="309.6" cy="26.0" r="1.6"/><circle cx="314.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "molicence": r'''
 <defs><linearGradient id="d6molicence" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C2557E"/><stop offset="1" stop-color="#973B5E"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6molicence)"/>
@@ -742,7 +743,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14v-4l-2-5H7l-2 5z M3 12h18 M7.5 19v-3 M16.5 19v-3 M7.5 13.5h.01 M16.5 13.5h.01"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#FAD9E5" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{firstnames}}</tspan> <tspan>{{familyname}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{firstnames}}</tspan> <tspan>{{familyname}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.588) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="20.0" r="1.6"/><circle cx="324.0" cy="21.6" r="1.6"/><circle cx="328.4" cy="26.0" r="1.6"/><circle cx="330.0" cy="32.0" r="1.6"/><circle cx="328.4" cy="38.0" r="1.6"/><circle cx="324.0" cy="42.4" r="1.6"/><circle cx="318.0" cy="44.0" r="1.6"/><circle cx="312.0" cy="42.4" r="1.6"/><circle cx="307.6" cy="38.0" r="1.6"/><circle cx="306.0" cy="32.0" r="1.6"/><circle cx="307.6" cy="26.0" r="1.6"/><circle cx="312.0" cy="21.6" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "moname": r'''
 <defs><linearGradient id="d6moname" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F5F8F"/><stop offset="1" stop-color="#1D3F66"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6moname)"/>
@@ -756,7 +757,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a4 4 0 1 1 0 8a4 4 0 1 1 0-8z M4.5 21c0-4.2 3.4-6.8 7.5-6.8s7.5 2.6 7.5 6.8"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#D5DEEA" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Sans 3" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{firstnames}}</tspan> <tspan>{{prefix}}</tspan> <tspan>{{familyname}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.548) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="19.0" r="1.6"/><circle cx="324.5" cy="20.7" r="1.6"/><circle cx="329.3" cy="25.5" r="1.6"/><circle cx="331.0" cy="32.0" r="1.6"/><circle cx="329.3" cy="38.5" r="1.6"/><circle cx="324.5" cy="43.3" r="1.6"/><circle cx="318.0" cy="45.0" r="1.6"/><circle cx="311.5" cy="43.3" r="1.6"/><circle cx="306.7" cy="38.5" r="1.6"/><circle cx="305.0" cy="32.0" r="1.6"/><circle cx="306.7" cy="25.5" r="1.6"/><circle cx="311.5" cy="20.7" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Sans 3" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{firstnames}}</tspan> <tspan>{{prefix}}</tspan> <tspan>{{familyname}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.548) translate(-318 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="318.0" cy="19.0" r="1.6"/><circle cx="324.5" cy="20.7" r="1.6"/><circle cx="329.3" cy="25.5" r="1.6"/><circle cx="331.0" cy="32.0" r="1.6"/><circle cx="329.3" cy="38.5" r="1.6"/><circle cx="324.5" cy="43.3" r="1.6"/><circle cx="318.0" cy="45.0" r="1.6"/><circle cx="311.5" cy="43.3" r="1.6"/><circle cx="306.7" cy="38.5" r="1.6"/><circle cx="305.0" cy="32.0" r="1.6"/><circle cx="306.7" cy="25.5" r="1.6"/><circle cx="311.5" cy="20.7" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "moroot": r'''
 <defs><linearGradient id="d6moroot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26272C"/><stop offset="1" stop-color="#111114"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6moroot)"/>
@@ -768,7 +769,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#E0B654" fill-opacity="0.14" stroke="#E0B654" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#F6E7BE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 10a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z M10.2 11.3L19 4 M15.5 7l2.2 2.2 M13 9.2l1.8 1.8"/></g>
 <text x="62" y="28" font-family="§Source Sans 3" font-size="10.5" font-weight="700" fill="#E0B654" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Source Code Pro" font-size="19" font-weight="700" fill="#F6E7BE"><tspan>{{BSN}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Source Code Pro" font-size="16" font-weight="700" fill="#F6E7BE"><tspan>{{BSN}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "nutsagb": r'''
 <defs><linearGradient id="d6nutsagb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F7075"/><stop offset="1" stop-color="#09484C"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6nutsagb)"/>
@@ -780,7 +781,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></g>
 <text x="62" y="28" font-family="§Karla" font-size="10.5" font-weight="700" fill="#B9E3E1" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Karla" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{agbcode}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Karla" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{agbcode}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "org": r'''
 <defs><linearGradient id="d6org" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2D3E8C"/><stop offset="1" stop-color="#1C2862"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6org)"/>
@@ -792,7 +793,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18 M5 21V10 M19 21V10 M2 10l10-6 10 6 M9 21v-6h6v6 M9 13h.01 M15 13h.01"/></g>
 <text x="62" y="28" font-family="§Red Hat Display" font-size="10.5" font-weight="700" fill="#C5CDF0" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Red Hat Display" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{name}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Red Hat Display" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{name}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "passport": r'''
 <defs>
 <linearGradient id="r5pp4b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6E1C30"/><stop offset="1" stop-color="#4E1222"/></linearGradient>
@@ -812,7 +813,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#D9B36A" fill-opacity="0.14" stroke="#D9B36A" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#E2C07E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5h10a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2z M12 7a3 3 0 1 1 0 6a3 3 0 1 1 0-6z M9 17h6"/></g>
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#E2C07E" font-family="§Cinzel">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Cinzel" font-size="19" font-weight="700" fill="#F7E9C8"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.468) translate(-318 -31.800000190734863)"><g fill="#FFFFFF"><polygon points="318.0,14.8 318.5,16.3 320.1,16.3 318.9,17.3 319.3,18.8 318.0,17.9 316.7,18.8 317.1,17.3 315.9,16.3 317.5,16.3"/><polygon points="325.5,16.8 326.0,18.3 327.6,18.3 326.4,19.3 326.8,20.8 325.5,19.9 324.2,20.8 324.6,19.3 323.4,18.3 325.0,18.3"/><polygon points="331.0,22.3 331.5,23.8 333.1,23.8 331.9,24.8 332.3,26.3 331.0,25.4 329.7,26.3 330.1,24.8 328.9,23.8 330.4,23.8"/><polygon points="333.0,29.8 333.5,31.3 335.1,31.3 333.9,32.3 334.3,33.8 333.0,32.9 331.7,33.8 332.1,32.3 330.9,31.3 332.5,31.3"/><polygon points="331.0,37.3 331.5,38.8 333.1,38.8 331.9,39.8 332.3,41.3 331.0,40.4 329.7,41.3 330.1,39.8 328.9,38.8 330.4,38.8"/><polygon points="325.5,42.8 326.0,44.2 327.6,44.3 326.4,45.3 326.8,46.8 325.5,45.9 324.2,46.8 324.6,45.3 323.4,44.3 325.0,44.2"/><polygon points="318.0,44.8 318.5,46.3 320.1,46.3 318.9,47.3 319.3,48.8 318.0,47.9 316.7,48.8 317.1,47.3 315.9,46.3 317.5,46.3"/><polygon points="310.5,42.8 311.0,44.2 312.6,44.3 311.4,45.3 311.8,46.8 310.5,45.9 309.2,46.8 309.6,45.3 308.4,44.3 310.0,44.2"/><polygon points="305.0,37.3 305.6,38.8 307.1,38.8 305.9,39.8 306.3,41.3 305.0,40.4 303.7,41.3 304.1,39.8 302.9,38.8 304.5,38.8"/><polygon points="303.0,29.8 303.5,31.3 305.1,31.3 303.9,32.3 304.3,33.8 303.0,32.9 301.7,33.8 302.1,32.3 300.9,31.3 302.5,31.3"/><polygon points="305.0,22.3 305.6,23.8 307.1,23.8 305.9,24.8 306.3,26.3 305.0,25.4 303.7,26.3 304.1,24.8 302.9,23.8 304.5,23.8"/><polygon points="310.5,16.8 311.0,18.3 312.6,18.3 311.4,19.3 311.8,20.8 310.5,19.9 309.2,20.8 309.6,19.3 308.4,18.3 310.0,18.3"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Cinzel" font-size="16" font-weight="700" fill="#F7E9C8"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.468) translate(-318 -31.800000190734863)"><g fill="#FFFFFF"><polygon points="318.0,14.8 318.5,16.3 320.1,16.3 318.9,17.3 319.3,18.8 318.0,17.9 316.7,18.8 317.1,17.3 315.9,16.3 317.5,16.3"/><polygon points="325.5,16.8 326.0,18.3 327.6,18.3 326.4,19.3 326.8,20.8 325.5,19.9 324.2,20.8 324.6,19.3 323.4,18.3 325.0,18.3"/><polygon points="331.0,22.3 331.5,23.8 333.1,23.8 331.9,24.8 332.3,26.3 331.0,25.4 329.7,26.3 330.1,24.8 328.9,23.8 330.4,23.8"/><polygon points="333.0,29.8 333.5,31.3 335.1,31.3 333.9,32.3 334.3,33.8 333.0,32.9 331.7,33.8 332.1,32.3 330.9,31.3 332.5,31.3"/><polygon points="331.0,37.3 331.5,38.8 333.1,38.8 331.9,39.8 332.3,41.3 331.0,40.4 329.7,41.3 330.1,39.8 328.9,38.8 330.4,38.8"/><polygon points="325.5,42.8 326.0,44.2 327.6,44.3 326.4,45.3 326.8,46.8 325.5,45.9 324.2,46.8 324.6,45.3 323.4,44.3 325.0,44.2"/><polygon points="318.0,44.8 318.5,46.3 320.1,46.3 318.9,47.3 319.3,48.8 318.0,47.9 316.7,48.8 317.1,47.3 315.9,46.3 317.5,46.3"/><polygon points="310.5,42.8 311.0,44.2 312.6,44.3 311.4,45.3 311.8,46.8 310.5,45.9 309.2,46.8 309.6,45.3 308.4,44.3 310.0,44.2"/><polygon points="305.0,37.3 305.6,38.8 307.1,38.8 305.9,39.8 306.3,41.3 305.0,40.4 303.7,41.3 304.1,39.8 302.9,38.8 304.5,38.8"/><polygon points="303.0,29.8 303.5,31.3 305.1,31.3 303.9,32.3 304.3,33.8 303.0,32.9 301.7,33.8 302.1,32.3 300.9,31.3 302.5,31.3"/><polygon points="305.0,22.3 305.6,23.8 307.1,23.8 305.9,24.8 306.3,26.3 305.0,25.4 303.7,26.3 304.1,24.8 302.9,23.8 304.5,23.8"/><polygon points="310.5,16.8 311.0,18.3 312.6,18.3 311.4,19.3 311.8,20.8 310.5,19.9 309.2,20.8 309.6,19.3 308.4,18.3 310.0,18.3"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "personal": r'''
 <defs><linearGradient id="r5p4b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22507E"/><stop offset="1" stop-color="#15375C"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#r5p4b)"/>
@@ -826,7 +827,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a4 4 0 1 1 0 8a4 4 0 1 1 0-8z M4.5 21c0-4.2 3.4-6.8 7.5-6.8s7.5 2.6 7.5 6.8"/></g>
 <text x="62" y="28" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#D9C08A" font-family="§Lexend">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Lexend" font-size="19" font-weight="700" fill="#FFFFFF">{{fullname}}</text>
+<text x="62" y="47.5" font-family="§Lexend" font-size="16" font-weight="700" fill="#FFFFFF">{{fullname}}</text>
 <g font-size="10.5" fill="#D9C08A" font-family="§Lexend"><text x="20" y="96" font-family="§Lexend" fill="#D9C08A" font-size="10.5" font-weight="600" font-style="normal">{{label.dateofbirth}}</text><text x="140" y="96" font-family="§Lexend" fill="#D9C08A" font-size="10.5" font-weight="600" font-style="normal">{{label.cityofbirth}}</text><text x="20" y="138" font-family="§Lexend" fill="#D9C08A" font-size="10.5" font-weight="600" font-style="normal">{{label.nationality}}</text><text x="140" y="138" font-family="§Lexend" fill="#D9C08A" font-size="10.5" font-weight="600" font-style="normal">{{label.gender}}</text></g>
 <g font-size="15" font-weight="600" fill="#EAF2FF" font-family="§Lexend"><text x="20" y="114" font-size="14.5" font-weight="700" fill="#FFFFFF" font-style="normal">{{dateofbirth}}</text><text x="140" y="114" font-size="14.5" font-weight="700" fill="#FFFFFF" font-style="normal">{{cityofbirth}}</text><text x="20" y="156" font-size="14.5" font-weight="700" fill="#FFFFFF" font-style="normal">{{nationality}}</text><text x="140" y="156" font-size="14.5" font-weight="700" fill="#FFFFFF" font-style="normal">{{gender}}</text></g>
 <text x="20" y="214" font-size="10" fill="#D9C08A" font-family="§Lexend" font-weight="600" font-style="normal">{{yivi.issuer}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
@@ -845,7 +846,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5z M8 9.8a1.9 1.9 0 1 1 0 3.8a1.9 1.9 0 1 1 0-3.8z M4.8 16c.6-1.4 1.8-2.1 3.2-2.1s2.6.7 3.2 2.1 M13.5 10h5 M13.5 13h3.5"/></g>
 <text x="62" y="28" font-family="§Noto Sans" font-size="10.5" font-weight="700" fill="#F2D27A" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Noto Sans" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{given_name}}</tspan> <tspan>{{family_name}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.548) translate(-320 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="320.0" cy="19.0" r="1.6"/><circle cx="326.5" cy="20.7" r="1.6"/><circle cx="331.3" cy="25.5" r="1.6"/><circle cx="333.0" cy="32.0" r="1.6"/><circle cx="331.3" cy="38.5" r="1.6"/><circle cx="326.5" cy="43.3" r="1.6"/><circle cx="320.0" cy="45.0" r="1.6"/><circle cx="313.5" cy="43.3" r="1.6"/><circle cx="308.7" cy="38.5" r="1.6"/><circle cx="307.0" cy="32.0" r="1.6"/><circle cx="308.7" cy="25.5" r="1.6"/><circle cx="313.5" cy="20.7" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Noto Sans" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{given_name}}</tspan> <tspan>{{family_name}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.548) translate(-320 -32.000000953674316)"><g fill="#FFFFFF"><circle cx="320.0" cy="19.0" r="1.6"/><circle cx="326.5" cy="20.7" r="1.6"/><circle cx="331.3" cy="25.5" r="1.6"/><circle cx="333.0" cy="32.0" r="1.6"/><circle cx="331.3" cy="38.5" r="1.6"/><circle cx="326.5" cy="43.3" r="1.6"/><circle cx="320.0" cy="45.0" r="1.6"/><circle cx="313.5" cy="43.3" r="1.6"/><circle cx="308.7" cy="38.5" r="1.6"/><circle cx="307.0" cy="32.0" r="1.6"/><circle cx="308.7" cy="25.5" r="1.6"/><circle cx="313.5" cy="20.7" r="1.6"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "residence": r'''
 <defs>
 <linearGradient id="rp6b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#83457F"/><stop offset="1" stop-color="#572A58"/></linearGradient>
@@ -865,7 +866,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5z M8 9.8a1.9 1.9 0 1 1 0 3.8a1.9 1.9 0 1 1 0-3.8z M4.8 16c.6-1.4 1.8-2.1 3.2-2.1s2.6.7 3.2 2.1 M14 12.5l1.8 1.8 3.4-3.6"/></g>
 <text x="62" y="28" font-family="§Barlow Semi Condensed" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#F1DDEF">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Barlow Semi Condensed" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.471) translate(-316 -32)"><g transform="translate(316 32)"><circle cx="-6" r="11" fill="url(#rp6h)" fill-opacity="0.65"/><circle cx="6" r="11" fill="url(#rp6h)" fill-opacity="0.55"/><circle cx="-6" r="11" fill="none" stroke="#FFFFFF"/><circle cx="6" r="11" fill="none" stroke="#FFFFFF"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Barlow Semi Condensed" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{firstName}}</tspan> <tspan>{{lastName}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.471) translate(-316 -32)"><g transform="translate(316 32)"><circle cx="-6" r="11" fill="url(#rp6h)" fill-opacity="0.65"/><circle cx="6" r="11" fill="url(#rp6h)" fill-opacity="0.55"/><circle cx="-6" r="11" fill="none" stroke="#FFFFFF"/><circle cx="6" r="11" fill="none" stroke="#FFFFFF"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "statuslist": r'''
 <defs><linearGradient id="d6statuslist" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A505E"/><stop offset="1" stop-color="#2C3039"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6statuslist)"/>
@@ -877,7 +878,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11 M9 12h11 M9 18h11 M4.5 6h.01 M4.5 12h.01 M4.5 18h.01"/></g>
 <text x="62" y="28" font-family="§Chivo" font-size="10.5" font-weight="700" fill="#C6CCD8" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Chivo" font-size="19" font-weight="700" fill="#FFFFFF"><tspan>{{given_name}}</tspan> <tspan>{{family_name}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Chivo" font-size="16" font-weight="700" fill="#FFFFFF"><tspan>{{given_name}}</tspan> <tspan>{{family_name}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "stempas": r'''
 <defs><linearGradient id="d6stempas" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5F0E4"/><stop offset="1" stop-color="#E6DBC4"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6stempas)"/>
@@ -893,7 +894,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#C8322A" fill-opacity="0.14" stroke="#C8322A" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#C8322A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v9H4z M8 11l2-7h7l-2 7 M10 15h4"/></g>
 <text x="62" y="28" font-family="§Oswald" font-size="10.5" font-weight="700" fill="#9A2A22" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Oswald" font-size="19" font-weight="700" fill="#1B1B1B"><tspan>{{election}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#9A2A22" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Oswald" font-size="16" font-weight="700" fill="#1B1B1B"><tspan>{{election}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#9A2A22" fill-opacity="0.75">¶</g>''',
   "surf": r'''
 <defs><linearGradient id="sf5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8F1E3"/><stop offset="1" stop-color="#E9DCC1"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#sf5b)"/>
@@ -907,7 +908,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#2B2140" fill-opacity="0.14" stroke="#2B2140" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#2B2140" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z M6 11v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5 M22 9v6"/></g>
 <text x="62" y="28" font-family="§Fraunces" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#8A7660">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Fraunces" font-size="19" font-weight="700" fill="#2B2140">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#8A7660" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Fraunces" font-size="16" font-weight="700" fill="#2B2140">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#8A7660" fill-opacity="0.75">¶</g>''',
   "twitter": r'''
 <defs><linearGradient id="d6twitter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D9BEF"/><stop offset="1" stop-color="#1274BA"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#d6twitter)"/>
@@ -921,7 +922,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 12a4 4 0 1 1-8 0a4 4 0 0 1 8 0z M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.6 7.2"/></g>
 <text x="62" y="28" font-family="§Hanken Grotesk" font-size="10.5" font-weight="700" fill="#D3ECFC" letter-spacing="0.4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Hanken Grotesk" font-size="19" font-weight="700" fill="#FFFFFF">@<tspan>{{username}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Hanken Grotesk" font-size="16" font-weight="700" fill="#FFFFFF">@<tspan>{{username}}</tspan></text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "uniqueid": r'''
 <defs><linearGradient id="ui6b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3C4048"/><stop offset="1" stop-color="#22252B"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#ui6b)"/>
@@ -937,7 +938,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#B8F05A" fill-opacity="0.14" stroke="#B8F05A" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4 M9 16l4-4-4-4 M13 12H3"/></g>
 <text x="62" y="28" font-family="§DM Sans" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#AEB6C4">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§DM Sans" font-size="19" font-weight="700" fill="#FFFFFF">{{organization}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§DM Sans" font-size="16" font-weight="700" fill="#FFFFFF">{{organization}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
   "vog": r'''
 <defs><linearGradient id="vg6b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5EC"/><stop offset="1" stop-color="#D9E3CD"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#vg6b)"/>
@@ -956,7 +957,7 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#2F6B4F" fill-opacity="0.14" stroke="#2F6B4F" stroke-opacity="0.45"/>
 <g transform="translate(22 20)" fill="none" stroke="#1E3A2F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M14 3v5h5 M9 13l2.2 2.2L15.5 11"/></g>
 <text x="62" y="28" font-family="§Public Sans" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#4E7059">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Public Sans" font-size="19" font-weight="700" fill="#1E3A2F"><tspan>{{givenNames}}</tspan> <tspan>{{prefix}}</tspan> <tspan>{{surname}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#4E7059" fill-opacity="0.15" stroke="#4E7059" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.500) translate(-320 -32)"><g transform="translate(320 32)"><path d="M0 -16 L13 -11 V0 C13 8 7 13 0 16 C-7 13 -13 8 -13 0 V-11 Z" fill="#4E7059"/><path d="M-5.5 0 l4 4 l7.5 -8" fill="none" stroke="#4E7059" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#4E7059" fill-opacity="0.75">¶</g>''',
+<text x="62" y="47.5" font-family="§Public Sans" font-size="16" font-weight="700" fill="#1E3A2F"><tspan>{{givenNames}}</tspan> <tspan>{{prefix}}</tspan> <tspan>{{surname}}</tspan></text><circle cx="322" cy="32" r="14.5" fill="#4E7059" fill-opacity="0.15" stroke="#4E7059" stroke-opacity="0.35"/><g transform="translate(322 32) scale(0.500) translate(-320 -32)"><g transform="translate(320 32)"><path d="M0 -16 L13 -11 V0 C13 8 7 13 0 16 C-7 13 -13 8 -13 0 V-11 Z" fill="#4E7059"/><path d="M-5.5 0 l4 4 l7.5 -8" fill="none" stroke="#4E7059" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></g><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#4E7059" fill-opacity="0.75">¶</g>''',
   "yivitube": r'''
 <defs><linearGradient id="yt5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2486C"/><stop offset="1" stop-color="#B3164A"/></linearGradient></defs>
 <rect width="358" height="226" fill="url(#yt5b)"/>
@@ -974,5 +975,5 @@ const builtinCardSvgs = <String, String>{
 <rect x="18.5" y="16.5" width="31" height="31" rx="10" fill="#FFFFFF" fill-opacity="0.14" stroke="#FFFFFF" stroke-opacity="0.32"/>
 <g transform="translate(22 20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z M10 9.5v5l4.5-2.5z"/></g>
 <text x="62" y="28" font-family="§Bricolage Grotesque" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#FFD6E0">{{yivi.name}}</text>
-<text x="62" y="49" font-family="§Bricolage Grotesque" font-size="19" font-weight="700" fill="#FFFFFF">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
+<text x="62" y="47.5" font-family="§Bricolage Grotesque" font-size="16" font-weight="700" fill="#FFFFFF">{{fullname}}</text><g transform="translate(318.5 205.5) scale(0.0233) translate(-212.686 -199.928)" fill="#FFFFFF" fill-opacity="0.8">¶</g>''',
 };

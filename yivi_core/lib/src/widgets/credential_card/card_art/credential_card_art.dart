@@ -253,7 +253,7 @@ class _YiviCard extends StatelessWidget {
                 style(10.5, FontWeight.w700, accent, spacing: 0.4),
               ),
               if (hint.isNotEmpty)
-                line(hint, style(19, FontWeight.w600, text, display: true)),
+                line(hint, style(16, FontWeight.w600, text, display: true)),
             ],
           ),
         ),
