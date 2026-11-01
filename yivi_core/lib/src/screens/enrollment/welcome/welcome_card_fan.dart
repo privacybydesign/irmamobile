@@ -10,18 +10,19 @@ import "../../../util/test_detection.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 
 /// The welcome page's picture: three example cards fanning out, in a band of
-/// their own so the tilted cards never reach the title. Decorative: the
+/// their own so the tilted cards never reach the title. The band holds the
+/// whole fan, the tilted corners too, so nothing is cut off. Decorative: the
 /// title says the same.
 class WelcomeCardFan extends StatelessWidget {
-  /// Width of the cards; the band is 1.25 times as wide and 1.5 cards high.
+  /// Width of the cards; the band is 1.6 times as wide and 1.55 cards high
+  /// (the fan reaches 1.56 cards across and 1.51 cards high, floating).
   final double width;
 
   const WelcomeCardFan({super.key, required this.width});
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: ClipRect(child: _Fan(width: width)),
-  );
+  Widget build(BuildContext context) =>
+      ExcludeSemantics(child: _Fan(width: width));
 }
 
 schemaless.Credential _card(
@@ -210,8 +211,8 @@ class _Fan extends StatelessWidget {
         CredentialCardArt(credential: credential, hintText: hint, width: width);
 
     return SizedBox(
-      width: width * 1.25,
-      height: height * 1.5,
+      width: width * 1.6,
+      height: height * 1.55,
       child: Stack(
         alignment: Alignment.center,
         children: [
