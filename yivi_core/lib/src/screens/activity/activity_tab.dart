@@ -408,10 +408,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               if (!q.fields.contains(t) && hit(claimTokenLabel(context, t)))
                 _Suggestion(
                   key: "field:${c.key}:${t.key}",
-                  leading: card == null
-                      ? CredentialCardArt(credential: c.art, width: 30)
-                      : null,
-                  title: claimTokenLabel(context, t),
+                  leading: CredentialCardArt(credential: c.art, width: 30),
+                  // The full path, as the tag it becomes.
+                  title: "${c.name} › ${claimTokenLabel(context, t)}",
                   query: card == null
                       ? q.withCard(c).copyWith(fields: [t])
                       : q.copyWith(fields: {...q.fields, t}.toList()),

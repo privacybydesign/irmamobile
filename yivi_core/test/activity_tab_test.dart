@@ -489,6 +489,13 @@ void main() {
           ),
     );
     expect(suggestion, findsOneWidget);
+    expect(
+      find.descendant(
+        of: suggestion,
+        matching: find.text("Address › Postal code"),
+      ),
+      findsOneWidget,
+    );
     await tester.tap(suggestion);
     await _settle(tester);
     final tag = find.byKey(const Key("activity_chip_card"));
