@@ -97,7 +97,6 @@ class _StackView extends ConsumerWidget {
                         credential: c,
                         width: width,
                         hintText: hintTexts[c.hash],
-                        edge: 1,
                       ),
                     ),
                   ),

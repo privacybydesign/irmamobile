@@ -38,19 +38,12 @@ class CredentialCardArt extends StatelessWidget {
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
 
-  /// How strongly the light top edge shows, 0 to 1: the thickness of the
-  /// card catching the light, so the cards in the stack read as stacked.
-  /// Light theme only: in dark the card's hairline sets it off (see
-  /// [_hairline]).
-  final double edge;
-
   const CredentialCardArt({
     super.key,
     required this.credential,
     required this.width,
     this.hintText,
     this.greyedOut = false,
-    this.edge = 0,
   });
 
   /// The corner shape of a card of [width]: plain round corners of
@@ -66,7 +59,6 @@ class CredentialCardArt extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = width / aspectRatio;
     final shape = shapeFor(width);
-    final dark = Theme.of(context).brightness == Brightness.dark;
     final (template, builtin) = _template(context);
 
     Widget art = ClipPath(
@@ -95,21 +87,11 @@ class CredentialCardArt extends StatelessWidget {
                     // With Increase Contrast the outline of any block.
                     side: MediaQuery.highContrastOf(context)
                         ? YiviEdges.block(context)
-                        : BorderSide(color: _hairline(context, dark, template)),
+                        : BorderSide(color: _hairline(context, template)),
                   ),
                 ),
               ),
             ),
-            // Light only: on a dark card the white edge reads as a shine.
-            if (edge > 0 && !dark)
-              IgnorePointer(
-                child: CustomPaint(
-                  painter: _EdgePainter(
-                    scale: width / designWidth,
-                    opacity: edge.clamp(0.0, 1.0),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -130,20 +112,15 @@ class CredentialCardArt extends StatelessWidget {
       );
     }
 
-    // No shadow: like a printed card, only the fine edge above sets it off.
+    // No shadow: like a printed card, only its hairline sets it off.
     return ExcludeSemantics(child: art);
   }
 
-  /// The fine line just inside the card's edge. Light: a faint dark line.
-  /// Dark: a light line, so the card stands off the black page and off the
-  /// card it overlaps in the stack; on a light card a dark one, where a light
-  /// line would vanish.
-  Color _hairline(
-    BuildContext context,
-    bool dark,
-    schemaless.SvgCardTemplate? template,
-  ) {
-    if (!dark) return const Color(0x1A000000);
+  /// The fine line just inside the card's edge, the same in light and dark
+  /// mode: a light line, so the card stands off the page and off the card it
+  /// overlaps in the stack; on a light card a dark one, where a light line
+  /// would vanish.
+  Color _hairline(BuildContext context, schemaless.SvgCardTemplate? template) {
     final top = _topColour(context, template);
     return top != null && top.computeLuminance() > 0.5
         ? const Color(0x33000000)
@@ -421,45 +398,4 @@ class _Logo extends StatelessWidget {
             ),
     );
   }
-}
-
-/// The light top edge of a card: a fine line just inside the outline, even
-/// along the top and round the corners, fading out down the sides. It fades
-/// only once the corner has turned: fading inside the curve made a plain
-/// corner look like a squircle.
-class _EdgePainter extends CustomPainter {
-  _EdgePainter({required this.scale, required this.opacity});
-
-  /// The card's width over the design width.
-  final double scale;
-  final double opacity;
-
-  /// In design points: the corner radius, and how far down the sides the
-  /// edge fades out after it.
-  static const _radius = CredentialCardArt.cornerRadius;
-  static const _fade = 24.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final inset = 0.5 * scale;
-    final radius = Radius.circular((_radius - 0.5) * scale);
-    final end = (_radius + _fade) * scale;
-    final colour = Colors.white.withValues(alpha: 0.3 * opacity);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius((Offset.zero & size).deflate(inset), radius),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = scale
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [colour, colour, colour.withValues(alpha: 0)],
-          stops: [0, _radius / (_radius + _fade), 1],
-        ).createShader(Rect.fromLTWH(0, 0, size.width, end)),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_EdgePainter old) =>
-      old.scale != scale || old.opacity != opacity;
 }
