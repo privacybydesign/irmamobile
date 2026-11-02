@@ -70,10 +70,14 @@ class IrmaClientBridge extends IrmaBridge {
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
 
-  static final _base64Pattern = RegExp(r'"base64"\s*:\s*"[^"]*"');
+  // Matches "base64" (logos) as well as "base64_image" (attribute values).
+  static final _base64Pattern = RegExp(r'"(base64\w*)"\s*:\s*"[^"]*"');
 
   void printLongString(String text) {
-    final sanitized = text.replaceAll(_base64Pattern, '"base64": "<omitted>"');
+    final sanitized = text.replaceAllMapped(
+      _base64Pattern,
+      (m) => '"${m[1]}": "<omitted>"',
+    );
     final RegExp pattern = RegExp(".{1,800}"); // 800 is the size of each chunk
     pattern
         .allMatches(sanitized)
