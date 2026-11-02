@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- A screen reader now announces the search and add data buttons in the top bar of the data tab as "Search your data" and "Obtain data" ("Zoek in je gegevens" and "Haal gegevens op" in Dutch), instead of only "button" ([#726](https://github.com/privacybydesign/irmamobile/issues/726))
+- A screen reader can now read the App ID and the version on the More tab, and activate the item that enables developer mode ([#727](https://github.com/privacybydesign/irmamobile/issues/727))
+- A screen reader no longer announces the progress bar on the collect data screen by its numeric value; the "Step 1 of 2" text stays ([#728](https://github.com/privacybydesign/irmamobile/issues/728))
+
 ### Internal
+- Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
 - Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.3.3] - 2026-10-16

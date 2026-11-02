@@ -64,8 +64,7 @@ class _VersionButtonState extends State<VersionButton> {
       }
     }
 
-    return Semantics(
-      excludeSemantics: true,
+    return MergeSemantics(
       child: Row(
         children: [
           Expanded(
