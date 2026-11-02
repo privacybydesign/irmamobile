@@ -1,5 +1,6 @@
 import "package:collection/collection.dart";
 
+import "../../../models/log_entry.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
@@ -104,6 +105,59 @@ int defaultSelection(DisclosurePickOne pickOne) {
   return usable < 0 ? 0 : usable;
 }
 
+/// The cards to start each pick-one on, by what the activity says was
+/// shared before: the cards last shared with [requestor] or, when none of
+/// the options was ever shared with them, the cards last shared with anyone.
+/// Only options that can be shared count; optional data starts left out
+/// as ever. [sharesOf] gives a card's disclosures, newest first (null while
+/// they are being looked up). By pick-one index, as credential hashes; a
+/// pick-one with nothing shared before has no entry (its [defaultSelection]
+/// holds).
+Map<int, Set<String>> lastSharedBundles(
+  List<DisclosurePickOne> pickOnes,
+  TrustedParty requestor,
+  List<LogInfo>? Function(String hash) sharesOf,
+) {
+  final out = <int, Set<String>>{};
+  for (final (i, pickOne) in pickOnes.indexed) {
+    if (pickOne.optional) continue;
+    DisclosureBundle? withThem, withAnyone;
+    DateTime? withThemAt, withAnyoneAt;
+    for (final bundle in pickOne.ownedOptions ?? const <DisclosureBundle>[]) {
+      if (problemOfBundle(bundle) != null) continue;
+      for (final card in bundle.credentials) {
+        final shares = sharesOf(card.hash) ?? const <LogInfo>[];
+        final last = shares.firstOrNull?.time;
+        if (last != null &&
+            (withAnyoneAt == null || last.isAfter(withAnyoneAt))) {
+          withAnyone = bundle;
+          withAnyoneAt = last;
+        }
+        final theirs = shares
+            .firstWhereOrNull((log) => sameParty(log.requestor, requestor))
+            ?.time;
+        if (theirs != null &&
+            (withThemAt == null || theirs.isAfter(withThemAt))) {
+          withThem = bundle;
+          withThemAt = theirs;
+        }
+      }
+    }
+    if ((withThem ?? withAnyone) case final bundle?) {
+      out[i] = bundle.credentialHashes;
+    }
+  }
+  return out;
+}
+
+/// Whether [a] and [b] are the same party: by id, or by name when neither
+/// has one (an OpenID4VP verifier without a registration).
+bool sameParty(TrustedParty? a, TrustedParty b) {
+  if (a == null) return false;
+  if (a.id.isNotEmpty || b.id.isNotEmpty) return a.id == b.id;
+  return a.name.trim().toLowerCase() == b.name.trim().toLowerCase();
+}
+
 /// The selected owned option of [pickOne]: [selected] when it is still a
 /// valid index (the plan can change under it), otherwise the default.
 int selectionOf(DisclosurePickOne pickOne, int? selected) {
@@ -117,14 +171,16 @@ int selectionOf(DisclosurePickOne pickOne, int? selected) {
 
 /// The owned option index per pick-one, from what the user picked
 /// ([chosen] holds a bundle per pick-one, [addedOptional] the optional ones
-/// they included). A bundle is matched by its set of credential hashes, so
-/// the choice survives the plan being sent again. Optional data that was
-/// not included is -1.
+/// they included), else what was shared before ([preferred], see
+/// [lastSharedBundles]), else the [defaultSelection]. A bundle is matched by
+/// its set of credential hashes, so the choice survives the plan being sent
+/// again. Optional data that was not included is -1.
 Map<int, int> selectionsFrom(
   List<DisclosurePickOne> pickOnes,
   Map<int, DisclosureBundle> chosen,
-  Set<int> addedOptional,
-) {
+  Set<int> addedOptional, {
+  Map<int, Set<String>> preferred = const {},
+}) {
   final out = <int, int>{};
   for (final (i, pickOne) in pickOnes.indexed) {
     final owned = pickOne.ownedOptions ?? const [];
@@ -132,14 +188,19 @@ Map<int, int> selectionsFrom(
       out[i] = -1;
       continue;
     }
-    final want = chosen[i]?.credentialHashes;
-    final k = want == null
+    int indexOf(Set<String>? want) => want == null
         ? -1
         : owned.indexWhere((b) {
             final have = b.credentialHashes;
             return have.length == want.length && have.containsAll(want);
           });
-    out[i] = k >= 0 ? k : defaultSelection(pickOne);
+    final k = indexOf(chosen[i]?.credentialHashes);
+    final before = indexOf(preferred[i]);
+    out[i] = k >= 0
+        ? k
+        : before >= 0
+        ? before
+        : defaultSelection(pickOne);
   }
   return out;
 }

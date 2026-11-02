@@ -16,7 +16,6 @@ import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
-import "../../util/string.dart";
 import "../../widgets/corner_badge.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/empty_list_message.dart";
@@ -41,9 +40,9 @@ import "widgets/activity_card.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
 
-part "activity_month_header.dart";
+part "activity_day_header.dart";
 
-/// The Activity tab: the log, newest first, a white band of rows per month
+/// The Activity tab: the log, newest first, a white band of rows per day
 /// under a header that sticks under the bar. irmago does the asking.
 ///
 /// Searching, the log itself shows what the question so far finds: its
@@ -633,7 +632,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   // --------------------------------------------------------------------- list
 
   /// The log: [header] (a phone's large title, field and tags) from [top],
-  /// then per month a header that sticks [pinTop] from the top of the
+  /// then per day a header that sticks [pinTop] from the top of the
   /// screen (under the bar and what is pinned under it) and its rows on a
   /// white band.
   Widget _buildLogEntries(
@@ -656,13 +655,11 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         ? ref.watch(selectedActivityProvider) ?? logEntries.firstOrNull
         : null;
 
-    // A header per month, then its rows.
+    // A header per day, then its rows.
     final groups = <List<LogInfo>>[];
     for (final entry in logEntries) {
       final last = groups.lastOrNull;
-      if (last == null ||
-          last.last.time.toLocal().month != entry.time.toLocal().month ||
-          last.last.time.toLocal().year != entry.time.toLocal().year) {
+      if (last == null || !_sameDay(last.last.time, entry.time)) {
         groups.add([entry]);
       } else {
         last.add(entry);
@@ -694,7 +691,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           : ScrollViewKeyboardDismissBehavior.manual,
       slivers: [
         // The space above the list; scrolled, what stays of it is where the
-        // months stick.
+        // days stick.
         SliverPersistentHeader(
           pinned: true,
           delegate: _TopSpace(top: top, pinned: min(pinTop, top)),
@@ -752,13 +749,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               slivers: [
                 SliverPersistentHeader(
                   pinned: true,
-                  delegate: _MonthHeader(
-                    title: DateFormat(
-                      group.first.time.toLocal().year == DateTime.now().year
-                          ? "MMMM"
-                          : "MMMM y",
-                      local,
-                    ).format(group.first.time.toLocal()).toCapitalized(),
+                  delegate: _DayHeader(
+                    title: _dayTitle(context, group.first.time, local),
                     palette: palette,
                     textScaler: MediaQuery.textScalerOf(context),
                     joinsBar: joinBar,
@@ -779,6 +771,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                         focusCard: query.card,
                         selected: open != null && sameLog(open, entry),
                         divider: i < group.length - 1,
+                        // The day is in the header.
+                        timeOnly: true,
                         onTap: () => _open(entry),
                       );
                     },
@@ -913,7 +907,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         context,
         below: below == null ? 0 : belowHeight,
       );
-      // The months stick right under the band, and continue it.
+      // The days stick right under the band, and continue it.
       final searchPinTop = HomeTabTop.bandBottom(
         context,
         below: below == null ? 0 : belowHeight,
@@ -1058,4 +1052,28 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           : ActivityDetailPane(key: ValueKey(logKey(entry)), logEntry: entry),
     );
   }
+}
+
+/// Whether [a] and [b] are on the same day, here.
+bool _sameDay(DateTime a, DateTime b) {
+  final x = a.toLocal(), y = b.toLocal();
+  return x.year == y.year && x.month == y.month && x.day == y.day;
+}
+
+/// The header of the day of [time]: "Today", "Yesterday", or the weekday
+/// and date ("Monday 26 October"), with the year when it is not this one.
+String _dayTitle(BuildContext context, DateTime time, String locale) {
+  final day = time.toLocal();
+  switch (activityDaysAgo(day)) {
+    case 0:
+      return FlutterI18n.translate(context, "activity.ago.today");
+    case 1:
+      return FlutterI18n.translate(context, "activity.yesterday");
+  }
+  final pattern = day.year == DateTime.now().year
+      ? "EEEE d MMMM"
+      : "EEEE d MMMM y";
+  final text = DateFormat(pattern, locale).format(day);
+  // "zaterdag 17 oktober": only the first letter up, the month as it is.
+  return text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
 }

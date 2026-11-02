@@ -36,6 +36,9 @@ class ActivityCard extends ConsumerWidget {
   /// row of a band.
   final bool divider;
 
+  /// Only the time, not the day: in a list with a header per day.
+  final bool timeOnly;
+
   /// Opens the entry: on the Activity tab, or over the card for a card's
   /// activity.
   final VoidCallback onTap;
@@ -46,6 +49,7 @@ class ActivityCard extends ConsumerWidget {
     this.selected = false,
     this.focusCard,
     this.divider = false,
+    this.timeOnly = false,
     required this.onTap,
   });
 
@@ -62,7 +66,9 @@ class ActivityCard extends ConsumerWidget {
     final entry = ActivityEntry.fromLog(logEntry, wallet: wallet);
     final kind = entry.kind;
     final time = entry.localTime;
-    final timestamp = formatActivityTimestamp(context, time);
+    final timestamp = timeOnly
+        ? activityTime(context, time)
+        : formatActivityTimestamp(context, time);
     final titles = [for (final c in entry.cards) c.credential.name];
     final focus = focusCard;
     final focused = focus == null

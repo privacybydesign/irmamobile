@@ -6,6 +6,7 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../providers/last_shared_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
@@ -551,6 +552,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       [pickOne],
       {0: ?choices.disclosureChoices[widget.index]},
       {if (choices.addedOptionalIndices.contains(widget.index)) 0},
+      preferred: {
+        0: ?ref.watch(
+          lastSharedBundlesProvider(widget.sessionId),
+        )[widget.index],
+      },
     );
     final selected =
         pickOne.optional && !choices.addedOptionalIndices.contains(widget.index)

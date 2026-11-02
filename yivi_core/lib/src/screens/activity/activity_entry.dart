@@ -152,6 +152,36 @@ class ActivityEntryCard {
 
   /// Only the shared values are in the log (a disclosure or signature).
   bool get disclosure => role != ActivityRole.received && !deleted;
+
+  /// The values of [heroArt] that were not shared, to obscure on it.
+  Set<String> get unshared {
+    if (!disclosure) return const {};
+    final shared = {
+      for (final a in credential.attributes)
+        schemaless.Attribute.pathKey(a.claimPath),
+    };
+    return {
+      for (final a in art.attributes)
+        if (!shared.contains(schemaless.Attribute.pathKey(a.claimPath)))
+          schemaless.Attribute.pathKey(a.claimPath),
+    };
+  }
+
+  /// The card as it was shared, for the large picture at the top of the
+  /// details: [art] with the values that went along as the log has them
+  /// (the card in the app may hold others by now, or be another one of the
+  /// type); the rest stays, for [unshared] to obscure.
+  schemaless.Credential get heroArt {
+    if (!disclosure) return art;
+    final logged = {
+      for (final a in credential.attributes)
+        schemaless.Attribute.pathKey(a.claimPath): a,
+    };
+    return art.withAttributes([
+      for (final a in art.attributes)
+        logged[schemaless.Attribute.pathKey(a.claimPath)] ?? a,
+    ]);
+  }
 }
 
 class ActivityEntrySection {
@@ -274,6 +304,10 @@ class ActivityEntry {
     LogCredential credential,
     List<schemaless.Credential> wallet,
   ) =>
+      // The card itself when it is still in the app, else one of its type.
+      wallet.firstWhereOrNull(
+        (c) => credential.hash.isNotEmpty && c.hash == credential.hash,
+      ) ??
       wallet.firstWhereOrNull(
         (c) => c.credentialId == credential.credentialId,
       ) ??

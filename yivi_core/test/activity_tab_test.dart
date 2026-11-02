@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/log_entry.dart";
@@ -523,7 +524,23 @@ void main() {
     expect(tag, findsNothing);
   });
 
-  testWidgets("scrolled, a month's header sticks right under the bar and "
+  testWidgets("a header per day; the rows under it say only the time", (
+    tester,
+  ) async {
+    await pump(tester);
+    // 2026-10-17 was a Saturday; the entries go back an hour each.
+    expect(find.textContaining("Saturday 17 October"), findsOneWidget);
+    final first = find.byType(ActivityCard).first;
+    final at = DateTime.utc(2026, 10, 17, 12).toLocal();
+    final time = DateFormat.jm("en_US").format(at);
+    expect(find.descendant(of: first, matching: find.text(time)), findsOne);
+    expect(
+      find.descendant(of: first, matching: find.textContaining("Oct")),
+      findsNothing,
+    );
+  });
+
+  testWidgets("scrolled, a day's header sticks right under the bar and "
       "takes on its band", (tester) async {
     await pump(tester);
     await tester.drag(
@@ -532,7 +549,7 @@ void main() {
     );
     await _settle(tester);
     final header = find.ancestor(
-      of: find.text("October"),
+      of: find.textContaining("17 October"),
       matching: find.byType(DecoratedBox),
     );
     // No safe area in the test: the bar ends at its own height.
@@ -545,14 +562,14 @@ void main() {
     );
   });
 
-  testWidgets("a month's header takes on the band as soon as its first row "
+  testWidgets("a day's header takes on the band as soon as its first row "
       "goes under it", (tester) async {
     await pump(tester);
     final row = find.byKey(
       tester.widget<ActivityCard>(find.byType(ActivityCard).first).key!,
     );
     final header = find.ancestor(
-      of: find.text("October"),
+      of: find.textContaining("17 October"),
       matching: find.byType(DecoratedBox),
     );
     final scroll = tester.state<ScrollableState>(

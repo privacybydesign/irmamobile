@@ -10,6 +10,7 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../providers/last_shared_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_motion.dart";
@@ -289,6 +290,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       pickOnes,
       choices.disclosureChoices,
       choices.addedOptionalIndices,
+      preferred: ref.watch(lastSharedBundlesProvider(_sessionId)),
     );
     final wallet = ref.watch(walletCardsProvider);
     final button = shareButton(session, selections, wallet: wallet);

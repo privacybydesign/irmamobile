@@ -18,6 +18,7 @@ import "package:yivi_core/src/models/schemaless/session_user_interaction.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/last_shared_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
@@ -380,6 +381,41 @@ void main() {
     expect(find.text("de Vries"), findsOneWidget);
     expect(find.text("Jansen"), findsNothing);
 
+    await tester.tap(_share);
+    expect(_hashes(calls.shared.single), [
+      ["hash-idcard-de Vries"],
+    ]);
+  });
+
+  testWidgets("starts on the card shared with this requestor last time", (
+    tester,
+  ) async {
+    LogInfo shared(String who) => LogInfo(
+      type: LogType.disclosure,
+      time: DateTime.utc(2026, 10, 1),
+      issuanceLog: null,
+      disclosureLog: DisclosureLog(
+        protocol: Protocol.irma,
+        credentials: const [],
+        verifier: _party(who),
+      ),
+      signedMessageLog: null,
+      removalLog: null,
+    );
+    final calls = await _pump(
+      tester,
+      session: _session([_passportOrIdCard()]),
+      overrides: [
+        cardSharesProvider.overrideWith(
+          (ref, hash) async => hash == "hash-idcard-de Vries"
+              ? [shared("Webshop Noord")]
+              : const <LogInfo>[],
+        ),
+      ],
+    );
+
+    expect(find.text("de Vries"), findsOneWidget);
+    expect(find.text("Jansen"), findsNothing);
     await tester.tap(_share);
     expect(_hashes(calls.shared.single), [
       ["hash-idcard-de Vries"],

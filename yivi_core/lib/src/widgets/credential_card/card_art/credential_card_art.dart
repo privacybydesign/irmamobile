@@ -38,12 +38,18 @@ class CredentialCardArt extends StatelessWidget {
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
 
+  /// The values not to show ([schemaless.Attribute.pathKey]s): drawn as a
+  /// blurred-looking smear in their place, e.g. what was not shared in an
+  /// activity entry.
+  final Set<String> obscured;
+
   const CredentialCardArt({
     super.key,
     required this.credential,
     required this.width,
     this.hintText,
     this.greyedOut = false,
+    this.obscured = const {},
   });
 
   /// The corner shape of a card of [width]: plain round corners of
@@ -160,8 +166,17 @@ class CredentialCardArt extends StatelessWidget {
     final yiviCard = _YiviCard(credential: credential, hintText: hintText);
     if (template == null) return yiviCard;
 
-    String text(schemaless.Attribute a) =>
-        imageDataUri(a.value) ?? localizedAttributeText(context, a.value) ?? "";
+    String text(schemaless.Attribute a) {
+      final shown =
+          imageDataUri(a.value) ??
+          localizedAttributeText(context, a.value) ??
+          "";
+      if (shown.isEmpty) return shown;
+      return obscured.contains(schemaless.Attribute.pathKey(a.claimPath))
+          ? hiddenValueMark(shown)
+          : shown;
+    }
+
     final values = !builtin
         // An issuer template names its slots with `svg_id`.
         ? {
@@ -170,8 +185,9 @@ class CredentialCardArt extends StatelessWidget {
           }
         // Ours use the attribute ids of the scheme, plus their names.
         : builtinTemplateValues(credential, text);
+    final filled = fillSvgTemplate(template.svg, values);
     return SvgPicture.string(
-      fillSvgTemplate(template.svg, values),
+      obscured.isEmpty ? filled : obscureHiddenValues(filled),
       width: designWidth,
       height: designHeight,
       fit: BoxFit.cover,

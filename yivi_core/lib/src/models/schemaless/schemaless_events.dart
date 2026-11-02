@@ -362,6 +362,25 @@ class Credential {
     this.isSingleton = false,
   });
 
+  /// The same card with [attributes] instead, e.g. the values a log kept.
+  Credential withAttributes(List<Attribute> attributes) => Credential(
+    credentialId: credentialId,
+    hash: hash,
+    name: name,
+    issuer: issuer,
+    credentialInstanceIds: credentialInstanceIds,
+    batchInstanceCountsRemaining: batchInstanceCountsRemaining,
+    attributes: attributes,
+    revoked: revoked,
+    revocationSupported: revocationSupported,
+    issueUrl: issueUrl,
+    image: image,
+    display: display,
+    issuanceDate: issuanceDate,
+    expiryDate: expiryDate,
+    isSingleton: isSingleton,
+  );
+
   factory Credential.fromJson(Map<String, dynamic> json) =>
       _$CredentialFromJson(json);
 

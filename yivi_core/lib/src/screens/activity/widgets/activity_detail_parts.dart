@@ -332,10 +332,12 @@ class ActivityHeroPile extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1 - 0.1 * i,
                   alignment: Alignment.topCenter,
+                  // As shared: what did not go along is a blur.
                   child: CredentialCardArt(
-                    credential: cards[i].art,
+                    credential: cards[i].heroArt,
                     width: cardWidth,
                     greyedOut: cards[i].deleted,
+                    obscured: cards[i].unshared,
                   ),
                 ),
               ),

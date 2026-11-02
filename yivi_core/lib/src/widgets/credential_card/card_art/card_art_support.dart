@@ -175,6 +175,67 @@ schemaless.SvgCardTemplate? pickSvgTemplate(
 
 final _placeholder = RegExp(r"\{\{\s*([A-Za-z0-9_.\-]+)\s*\}\}");
 
+const _hiddenStart = "\uE000", _hiddenEnd = "\uE001";
+final _hiddenMark = RegExp("$_hiddenStart(\\d+)$_hiddenEnd");
+
+/// What a template is filled with for a value that must not show: a mark
+/// that [obscureHiddenValues] turns into a smear about as long as [value].
+/// The value itself never goes into the picture.
+String hiddenValueMark(String value) =>
+    "$_hiddenStart${value.length.clamp(4, 14)}$_hiddenEnd";
+
+/// Draws each value of a filled template that was [hiddenValueMark]ed as a
+/// blurred-looking smear in its place: in text, a word of that length drawn
+/// only as a thick, faint, round stroke of the text's own colour, so it
+/// reads as a soft band; a photo becomes a faint block of its size.
+String obscureHiddenValues(String svg) {
+  // A photo: its <image> becomes a faint rounded block.
+  var out = svg.replaceAllMapped(
+    RegExp(
+      r"<image\b[^>]*?"
+      "$_hiddenStart"
+      r"\d+"
+      "$_hiddenEnd"
+      r"[^>]*>(\s*</image>)?",
+    ),
+    (m) {
+      final tag = m[0]!
+          .replaceFirst(RegExp(r"</image>$"), "")
+          .replaceAll(RegExp(r'\s(xlink:)?href="[^"]*"'), "")
+          .replaceFirst(RegExp(r"^<image"), "<rect")
+          .replaceFirst(RegExp(r"\s*/?>$"), "");
+      return '$tag rx="6" fill="#8A8F98" fill-opacity="0.35"/>';
+    },
+  );
+  // Text: per <text>, in its own colour and size.
+  out = out.replaceAllMapped(
+    RegExp(r"<text\b([^>]*)>(.*?)</text>", dotAll: true),
+    (m) {
+      final attributes = m[1]!, content = m[2]!;
+      if (!_hiddenMark.hasMatch(content)) return m[0]!;
+      final fill =
+          RegExp(r'\bfill="([^"]*)"').firstMatch(attributes)?[1] ?? "#808080";
+      final size =
+          double.tryParse(
+            RegExp(r'font-size="([\d.]+)').firstMatch(attributes)?[1] ?? "",
+          ) ??
+          14;
+      final smeared = content.replaceAllMapped(
+        _hiddenMark,
+        (h) =>
+            // Only the stroke, so thick that the letters run together into
+            // one soft band: no letter shapes left.
+            '<tspan fill-opacity="0" stroke="$fill" stroke-opacity="0.32" '
+            'stroke-width="${size * 0.8}" stroke-linejoin="round" '
+            'stroke-linecap="round">${"o" * int.parse(h[1]!)}</tspan>',
+      );
+      return "<text$attributes>$smeared</text>";
+    },
+  );
+  // Anywhere else (an attribute): nothing.
+  return out.replaceAll(_hiddenMark, "");
+}
+
 /// Replaces each `{{svg_id}}` placeholder with its XML-escaped value. Claims
 /// that are missing (or were not disclosed) become empty.
 String fillSvgTemplate(String svg, Map<String, String> values) =>
