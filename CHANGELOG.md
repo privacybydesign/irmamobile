@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 - Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
+- Upgrade irmago to v1.5.0
 
 ## [8.3.3] - 2026-10-16
 ### Added
