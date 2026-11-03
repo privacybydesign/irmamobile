@@ -16,7 +16,9 @@
     "expand": "Uitklappen",
     "expand_hint": "Klik dubbel om open te vouwen",
     "collapse_hint": "Klik dubbel om dicht te vouwen",
-    "refresh": "Verversen"
+    "refresh": "Verversen",
+    "search_data": "Zoek in je gegevens",
+    "obtain_data": "Haal gegevens op"
   },
   "new_terms_and_conditions": {
     "title": "Nieuwe voorwaarden",

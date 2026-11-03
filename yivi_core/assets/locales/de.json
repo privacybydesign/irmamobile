@@ -16,7 +16,9 @@
     "expand": "Erweitern",
     "expand_hint": "Doppeltippen zum Erweitern",
     "collapse_hint": "Doppeltippen zum Einklappen",
-    "refresh": "Aktualisieren"
+    "refresh": "Aktualisieren",
+    "search_data": "Ihre Daten durchsuchen",
+    "obtain_data": "Daten abrufen"
   },
   "new_terms_and_conditions": {
     "title": "Neue Nutzungsbedingungen",

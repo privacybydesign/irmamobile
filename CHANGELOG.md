@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The line at the bottom of a credential card says when the credential expires and how many shares are left, for example "Expires in 3 days" and "Only 2 shares left"
 - The driving licence categories start as tiles of the categories held, with a link to the full table, instead of a table that ends in a "+ 14 categories not held" row
 
+### Fixed
+- A screen reader now announces the search and add data buttons in the top bar of the data tab as "Search your data" and "Obtain data" ("Zoek in je gegevens" and "Haal gegevens op" in Dutch), instead of only "button" ([#726](https://github.com/privacybydesign/irmamobile/issues/726))
+- A screen reader can now read the App ID and the version on the More tab, and activate the item that enables developer mode ([#727](https://github.com/privacybydesign/irmamobile/issues/727))
+- A screen reader no longer announces the progress bar on the collect data screen by its numeric value; the "Step 1 of 2" text stays ([#728](https://github.com/privacybydesign/irmamobile/issues/728))
+
+### Internal
+- Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
+
 ## [8.3.3] - 2026-10-16
 ### Added
 - Amounts in attributes that use irmago's `currency:<code>` display hint (e.g. `displayHint="currency:EUR"`) are shown as currency in the app's language, e.g. "€ 12,50" in Dutch and "€12.50" in English. With an irmago that doesn't send display hints yet, or with an amount or code that can't be formatted, the raw value is shown as before ([privacybydesign/irmago#752](https://github.com/privacybydesign/irmago/issues/752))

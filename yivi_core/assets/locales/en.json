@@ -16,7 +16,9 @@
     "expand": "Expand",
     "expand_hint": "Double tap to expand",
     "collapse_hint": "Double tap to collapse",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "search_data": "Search your data",
+    "obtain_data": "Obtain data"
   },
   "new_terms_and_conditions": {
     "title": "New terms and conditions",
