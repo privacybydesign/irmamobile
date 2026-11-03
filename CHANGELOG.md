@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
   - Each level shows its values first, then its nested objects and lists, then its images. A value used to land between two headings when its key sorted between theirs, where it read as part of the heading above it.
   - A first key that every attribute on the card shares, such as a VCDM credential's `credentialSubject`, gets no heading of its own. Neither does an mdoc namespace, however many the card shows: an mDL with AAMVA fields shows its elements in one list, as before. This needs irmago to send the format of a credential the wallet does not hold yet, which it does from the version that adds `format` to credential descriptors.
+- A screen reader now announces the search and add data buttons in the top bar of the data tab as "Search your data" and "Obtain data" ("Zoek in je gegevens" and "Haal gegevens op" in Dutch), instead of only "button" ([#726](https://github.com/privacybydesign/irmamobile/issues/726))
+- A screen reader can now read the App ID and the version on the More tab, and activate the item that enables developer mode ([#727](https://github.com/privacybydesign/irmamobile/issues/727))
+- A screen reader no longer announces the progress bar on the collect data screen by its numeric value; the "Step 1 of 2" text stays ([#728](https://github.com/privacybydesign/irmamobile/issues/728))
+
+### Internal
+- Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
 
 ## [8.3.3] - 2026-10-16
 ### Added
