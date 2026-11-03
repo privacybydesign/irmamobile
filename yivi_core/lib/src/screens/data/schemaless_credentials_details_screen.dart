@@ -5,9 +5,11 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/preferences_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../widgets/base64_image.dart";
+import "../../widgets/credential_card/attribute_groups/sections/card_layout.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "../../widgets/credential_card/yivi_credential_card.dart";
@@ -129,6 +131,14 @@ class _CredentialsDetailsScreenState
 
   SizedBox _buildCredentialsList(List<schemaless.Credential> credentials) {
     final theme = IrmaTheme.of(context);
+    final rawList = ref
+        .watch(rawListCardTypesProvider)
+        .maybeWhen(
+          data: (types) => types.contains(widget.credentialTypeId),
+          orElse: () => false,
+        );
+    final hasLayout = cardLayouts.containsKey(widget.credentialTypeId);
+
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
@@ -149,11 +159,13 @@ class _CredentialsDetailsScreenState
                   child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     compact: false,
-                    headerTrailing: isDeletable || isReobtainable
+                    rawList: rawList,
+                    headerTrailing: isDeletable || isReobtainable || hasLayout
                         ? IconButton(
                             onPressed: () => _showCredentialOptionsBottomSheet(
                               context,
                               cred,
+                              rawList: rawList,
                             ),
                             icon: const Icon(Icons.more_horiz_sharp),
                             padding: EdgeInsets.zero,
@@ -174,15 +186,26 @@ class _CredentialsDetailsScreenState
 
   Future<void> _showCredentialOptionsBottomSheet(
     BuildContext context,
-    schemaless.Credential cred,
-  ) async {
+    schemaless.Credential cred, {
+    required bool rawList,
+  }) async {
     final isReobtainable = (cred.issueUrl ?? "").isNotEmpty;
+    final hasLayout = cardLayouts.containsKey(widget.credentialTypeId);
 
     showYiviBottomSheet(
       context: context,
       titleKey: "credential.options.title",
       minHeightFraction: 1 / 2,
       child: IrmaCredentialCardOptionsBottomSheet(
+        rawList: rawList,
+        onToggleRawList: !hasLayout
+            ? null
+            : () {
+                Navigator.of(context).pop();
+                ref
+                    .read(preferencesProvider)
+                    .setRawListCard(widget.credentialTypeId, !rawList);
+              },
         onDelete: cred.credentialInstanceIds.isEmpty
             ? null
             : () async {

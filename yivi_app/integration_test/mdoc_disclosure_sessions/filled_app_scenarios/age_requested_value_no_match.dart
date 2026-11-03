@@ -52,7 +52,7 @@ Future<void> ageRequestedValueNoMatchTest(
     tester,
     cardFinder,
     attributes: [(avLabel(65), booleanYes)],
-    attributesCompareTo: [(avLabel(65), booleanYes)],
+    requestedValueChips: [(avLabel(65), "Required")],
   );
 
   expect(find.text("Obtain data"), findsNothing);

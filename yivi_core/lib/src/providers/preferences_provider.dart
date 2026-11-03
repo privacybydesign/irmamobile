@@ -12,3 +12,8 @@ final preferencesProvider = Provider<IrmaPreferences>(
 final longPinProvider = StreamProvider<bool>(
   (ref) => ref.watch(preferencesProvider).getLongPin(),
 );
+
+/// Credential type ids whose card is shown as a plain attribute list.
+final rawListCardTypesProvider = StreamProvider<List<String>>(
+  (ref) => ref.watch(preferencesProvider).getRawListCardTypes(),
+);

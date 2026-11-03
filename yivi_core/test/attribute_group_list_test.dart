@@ -5,6 +5,7 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
     as schemaless;
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_renderer.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -127,13 +128,21 @@ void main() {
     ];
     const id = "pbdf-staging.pbdf.drivinglicence";
 
-    testWidgets("credential detail: Issued / Expires, no status", (
+    testWidgets("credential detail: tiles, then Issued / Expires, no status", (
       tester,
     ) async {
       await _pumpWithTranslations(
         tester,
         YiviCredentialCardAttributeList(held, credentialId: id),
       );
+      expect(
+        find.byKey(const Key("driving_licence_categories_tiles")),
+        findsOneWidget,
+      );
+      await tester.tap(
+        find.byKey(const Key("driving_licence_categories_toggle")),
+      );
+      await tester.pumpAndSettle();
       expect(find.text("ISSUED"), findsOneWidget);
       expect(find.text("STATUS"), findsNothing);
       expect(find.text("2015-03-01"), findsOneWidget);
@@ -171,7 +180,7 @@ void main() {
     });
   });
 
-  group("section divider", () {
+  group("category table divider (without a card layout)", () {
     schemaless.Attribute flag(String code) => schemaless.Attribute(
       claimPath: ["category$code"],
       displayName: "Category $code",
@@ -186,7 +195,10 @@ void main() {
     testWidgets("none when the categories are all there is", (tester) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList([flag("B")], credentialId: id),
+        YiviCredentialCardAttributeList(
+          [flag("B")],
+          renderers: const [DrivingLicenceCategoriesRenderer()],
+        ),
       );
       expect(
         find.byKey(const Key("attribute_group_driving_licence_categories")),
@@ -198,12 +210,26 @@ void main() {
     testWidgets("shown when attributes come before it", (tester) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList([
-          _attr("dateOfExpiry"),
-          flag("B"),
-        ], credentialId: id),
+        YiviCredentialCardAttributeList(
+          [_attr("dateOfExpiry"), flag("B")],
+          renderers: const [DrivingLicenceCategoriesRenderer()],
+        ),
       );
       expect(divider, findsOneWidget);
+    });
+
+    testWidgets("in a card section: no own divider or title", (tester) async {
+      await _pumpWithTranslations(
+        tester,
+        YiviCredentialCardAttributeList([
+          _attr("firstName"),
+          flag("B"),
+          _attr("dateOfExpiry"),
+        ], credentialId: id),
+      );
+      expect(divider, findsNothing);
+      expect(find.text("Driving licence categories"), findsNothing);
+      expect(find.text("DRIVING ENTITLEMENT"), findsOneWidget);
     });
   });
 
@@ -350,7 +376,7 @@ void main() {
     ]);
   });
 
-  testWidgets("driving licence categories render via the registry", (
+  testWidgets("driving licence categories render in their section", (
     tester,
   ) async {
     schemaless.Attribute flag(String code, bool held) => schemaless.Attribute(
@@ -378,10 +404,29 @@ void main() {
     expect(table, findsOneWidget);
     expect(find.text("Category B"), findsNothing);
     expect(find.text("B"), findsOneWidget);
-    // At the very end, below the photo.
+    // In the Rijbevoegdheid section, below the profile header (which holds
+    // the photo).
     expect(
-      tester.getTopLeft(find.text("label-photo")).dy,
-      lessThan(tester.getTopLeft(table).dy),
+      find.descendant(
+        of: find.byKey(
+          const Key("card_section_credential.sections.driving_entitlement"),
+        ),
+        matching: table,
+      ),
+      findsOneWidget,
+    );
+    final header = find.byKey(const Key("attribute_group_profile_header"));
+    expect(header, findsOneWidget);
+    expect(find.text("label-photo"), findsNothing);
+    expect(tester.getTopLeft(header).dy, lessThan(tester.getTopLeft(table).dy));
+    // An attribute no section names (here an over18 that is not a yes/no)
+    // still shows, in the untitled section at the end.
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("card_section_rest")),
+        matching: find.text("label-over18"),
+      ),
+      findsOneWidget,
     );
   });
 }

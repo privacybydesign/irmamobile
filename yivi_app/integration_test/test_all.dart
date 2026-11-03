@@ -31,6 +31,7 @@ import "openid4vci_authcode_issuance_test.dart"
     as openid4vci_authcode_issuance_test;
 import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
+import "raw_list_card_test.dart" as raw_list_card_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
 import "required_update_test.dart" as required_update_test;
 import "rooted_warning_test.dart" as rooted_warning_test;
@@ -63,6 +64,7 @@ void main() {
   issuance_test.main();
   more_tab_test.main();
   activity_test.main();
+  raw_list_card_test.main();
   driving_licence_card_test.main();
   store_review_test.main();
   disclosure_session.main();

@@ -134,6 +134,20 @@ Map<String, String> createMunicipalityPersonalDataAttributes(Locale locale) {
   throw "unsupported locale $locale";
 }
 
+/// Drawn by the card's profile header instead of as rows.
+const _municipalityInHeader = {
+  "fullname",
+  "firstnames",
+  "surname",
+  "gender",
+  "dateofbirth",
+  "nationality",
+  "cityofbirth",
+  "countryofbirth",
+};
+
+const _municipalityAges = {"over12", "over16", "over18", "over21", "over65"};
+
 Future<void> issueMunicipalityPersonalData(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
@@ -142,6 +156,13 @@ Future<void> issueMunicipalityPersonalData(
   int? sdJwtBatchSize,
 }) async {
   final attributes = createMunicipalityPersonalDataAttributes(locale);
+
+  // The age row only reads Yes/No, so the Dutch Ja/Nee flags stay rows.
+  final inGroups = {
+    ..._municipalityInHeader,
+    if (locale.languageCode == "en") ..._municipalityAges,
+  };
+
   await issueCredentials(
     tester,
     irmaBinding,
@@ -149,6 +170,10 @@ Future<void> issueMunicipalityPersonalData(
     locale: locale,
     continueOnSecondDevice: continueOnSecondDevice,
     sdJwtBatchSize: sdJwtBatchSize,
+    attributesInGroups: {
+      for (final id in attributes.keys)
+        if (inGroups.contains(id.split(".").last)) id,
+    },
   );
 }
 

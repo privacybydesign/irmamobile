@@ -65,26 +65,39 @@ void main() {
         activityCardFinder,
         credentialName: "Demo Personal data",
         issuerName: "Demo Municipality",
-        attributes: [
-          ("Full name", "W.L. de Bruijn"),
-          ("Initials", "W.L."),
-          ("First names", "Willeke Liselotte"),
-          ("Prefix", "de"),
-          ("Surname", "de Bruijn"),
-          ("Family name", "Bruijn"),
-          ("Gender", "V"),
-          ("Date of birth", "10-04-1965"),
-          ("Over 12", "Yes"),
-          ("Over 16", "Yes"),
-          ("Over 18", "Yes"),
-          ("Over 21", "Yes"),
-          ("Over 65", "No"),
-          ("Dutch nationality", "Yes"),
-          ("City of birth", "Arnhem"),
-          ("Country of birth", "Arnhem"),
-          ("BSN", "999999990"),
-          ("Assurance level", "Substantieel"),
+      );
+      // The municipality's personal data is drawn in card sections: the
+      // profile header with the age chips, then the name parts and the
+      // registration.
+      evaluateCardSections(
+        tester,
+        activityCardFinder,
+        titles: ["PERSON", "NAME", "REGISTRATION"],
+        // The header's name is First names + Surname; the full name is
+        // taken by the header and not shown.
+        texts: [
+          "Willeke Liselotte de Bruijn",
+          "10-04-1965",
+          "Arnhem, Arnhem",
+          "Dutch",
+          "V",
+          "Older than 21",
+          "Not older than 65",
         ],
+        fields: {
+          "initials": ("Initials", "W.L."),
+          "familyname": ("Family name", "Bruijn"),
+          "prefix": ("Prefix", "de"),
+          "bsn": ("BSN", "999999990"),
+          "digidlevel": ("Assurance level", "Substantieel"),
+        },
+      );
+      expect(
+        find.descendant(
+          of: activityCardFinder,
+          matching: find.text("W.L. de Bruijn"),
+        ),
+        findsNothing,
       );
     });
   });

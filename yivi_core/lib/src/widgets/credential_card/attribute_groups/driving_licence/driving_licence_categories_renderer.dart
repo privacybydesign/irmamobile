@@ -1,9 +1,8 @@
-import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 
 import "../../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../attribute_comparison.dart";
 import "../attribute_group.dart";
-import "../attribute_value_formatting.dart";
 import "driving_licence_categories_table.dart";
 
 /// Draws the driving licence category attributes (`categoryX`,
@@ -90,13 +89,14 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
           code: code,
           held: c.held == null
               ? null
-              : CompareValue(heldFlag, _compare(c.held!, compareTo)),
+              : CompareValue(heldFlag, compareAttribute(c.held!, compareTo)),
           issued: issued == null
               ? null
-              : CompareValue(issued, _compare(c.issued!, compareTo)),
+              : CompareValue(issued, compareAttribute(c.issued!, compareTo)),
           expires: expires == null
               ? null
-              : CompareValue(expires, _compare(c.expires!, compareTo)),
+              : CompareValue(expires, compareAttribute(c.expires!, compareTo)),
+          sources: [?c.held, ?c.issued, ?c.expires],
         ),
       );
     }
@@ -139,22 +139,6 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     final s = v?.string;
     return s == null || s.isEmpty ? null : s;
   }
-
-  /// When the card compares, an attribute absent from [compareTo] counts as a
-  /// mismatch, like ordinary string rows.
-  static AttributeComparison _compare(
-    schemaless.Attribute attribute,
-    List<schemaless.Attribute>? compareTo,
-  ) {
-    if (compareTo == null) return AttributeComparison.none;
-    final other = compareTo.firstWhereOrNull(
-      (c) => listEquals(c.claimPath, attribute.claimPath),
-    );
-    if (other == null) return AttributeComparison.mismatch;
-    return attributeValuesEqual(other.value, attribute.value)
-        ? AttributeComparison.match
-        : AttributeComparison.mismatch;
-  }
 }
 
 enum _Field { held, issued, expires }
@@ -174,8 +158,6 @@ class _CategoryAttributes {
       (v.boolValue == null && v.intValue == null && (v.string ?? "").isEmpty);
 }
 
-enum AttributeComparison { none, match, mismatch }
-
 class CompareValue<T> {
   final T value;
   final AttributeComparison comparison;
@@ -190,7 +172,16 @@ class CategoryRow {
   final CompareValue<String>? issued;
   final CompareValue<String>? expires;
 
-  const CategoryRow({required this.code, this.held, this.issued, this.expires});
+  /// The attributes behind the row, for requested-value chips.
+  final List<schemaless.Attribute> sources;
+
+  const CategoryRow({
+    required this.code,
+    this.held,
+    this.issued,
+    this.expires,
+    this.sources = const [],
+  });
 
   /// The licence says this category is not held: a "no" (or empty) held flag
   /// and no dates. Not the same as a row whose dates were simply not given.

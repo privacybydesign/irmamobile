@@ -13,6 +13,7 @@ import "../information_box.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
 import "../yivi_themed_button.dart";
+import "attribute_groups/requested_value.dart";
 import "models/credential_card_status.dart";
 import "yivi_credential_card_attribute_list.dart";
 import "yivi_credential_card_footer.dart";
@@ -39,6 +40,9 @@ class YiviCredentialCard extends ConsumerWidget {
   /// whole credential; attribute groups lay themselves out accordingly.
   final bool disclosure;
 
+  /// Show the attributes as a plain list instead of the card's layout.
+  final bool rawList;
+
   const YiviCredentialCard({
     super.key,
     required this.credentialName,
@@ -56,6 +60,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.hideFooter = false,
     this.hideNotObtainable = false,
     this.disclosure = false,
+    this.rawList = false,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -71,6 +76,8 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+    bool rawList = false,
+    List<Attribute>? requested,
   }) : this(
          key: key,
          credentialName: credential.name,
@@ -81,7 +88,11 @@ class YiviCredentialCard extends ConsumerWidget {
                  mimeType: credential.image!.mimeType,
                )
              : null,
-         attributes: credential.attributes,
+         // The requested values of [requested] go with the attributes, so
+         // each shows whether it is what was asked.
+         attributes: requested == null
+             ? credential.attributes
+             : withRequestedValues(credential.attributes, requested),
          status: CredentialCardStatus(
            expiryDateUnix: credential.expiryDate,
            revoked: credential.revoked,
@@ -98,6 +109,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         rawList: rawList,
        );
 
   YiviCredentialCard.fromSelectableInstance({
@@ -174,21 +186,9 @@ class YiviCredentialCard extends ConsumerWidget {
                  displayName: a.displayName,
                  description: a.description,
                  value: a.requestedValue,
-               ),
-             )
-             .toList(),
-         compareTo: descriptor.attributes
-             .where(
-               (a) =>
-                   a.requestedValue != null &&
-                   a.requestedValue!.hasConcreteValue,
-             )
-             .map(
-               (a) => Attribute(
-                 claimPath: a.claimPath,
-                 displayName: a.displayName,
-                 description: a.description,
-                 value: a.requestedValue,
+                 // Each shown value is what the credential must have: a
+                 // "Required" chip.
+                 requestedValue: a.requestedValue,
                ),
              )
              .toList(),
@@ -322,11 +322,15 @@ class YiviCredentialCard extends ConsumerWidget {
                 bottom: theme.smallSpacing,
               ),
             ),
-            YiviCredentialCardAttributeList(
-              attributes,
-              compareTo: compareTo,
-              credentialId: status.credentialId,
-              disclosure: disclosure,
+            RequestedValueScope(
+              template: status.templateMode,
+              child: YiviCredentialCardAttributeList(
+                attributes,
+                compareTo: compareTo,
+                credentialId: status.credentialId,
+                disclosure: disclosure,
+                rawList: rawList,
+              ),
             ),
           ],
           if (!hideFooter && !status.revoked)

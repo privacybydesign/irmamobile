@@ -119,7 +119,7 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
   expect(credentialCards[0].status.instanceCount, equals(credentialCount));
 
   expect(
-    find.text("$credentialCount times left", skipOffstage: false),
+    sharesLeftFinder(credentialCount, skipOffstage: false),
     findsOneWidget,
   );
 }
@@ -172,12 +172,16 @@ Future<void> testIssueEmailWithSdJwt(
 
   if (locale == Locale("nl", "NL")) {
     expect(
-      find.text("Nog $credentialCount keer", skipOffstage: false),
+      sharesLeftFinder(
+        credentialCount,
+        locale: const Locale("nl", "NL"),
+        skipOffstage: false,
+      ),
       findsOneWidget,
     );
   } else {
     expect(
-      find.text("$credentialCount times left", skipOffstage: false),
+      sharesLeftFinder(credentialCount, skipOffstage: false),
       findsOneWidget,
     );
   }

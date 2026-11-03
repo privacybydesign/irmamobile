@@ -44,8 +44,14 @@ class IrmaThemeData {
   final Color error = const Color(0xFFBD1919);
   final Color errorSurface = const Color(0xFFF5DBDB);
   final Color warning = const Color(0xFFEBA73B);
+  // A warning shown as a pill: dark amber text on a pale amber surface (the
+  // plain warning colour is too light for text).
+  final Color warningSurface = const Color(0xFFFDF1DC);
+  final Color onWarningSurface = const Color(0xFF8A4F00);
   final Color success = const Color(0xFF00973A);
   final Color successSurface = const Color(0xFFD7EFE0);
+  // Text and icons on successSurface; success itself is too light there.
+  final Color onSuccessSurface = const Color(0xFF00602A);
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
