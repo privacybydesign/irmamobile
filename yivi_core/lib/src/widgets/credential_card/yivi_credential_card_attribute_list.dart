@@ -64,16 +64,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
           .toList();
     }
 
-    // Images last, everything else in the order given. Not List.sort: it is
-    // not stable, and past 32 elements it reorders the attributes it sees as
-    // equal.
-    final sorted = [
-      ...remaining.where((a) => !_isImage(a)),
-      ...remaining.where(_isImage),
-    ];
-
+    // Images end up last on every level through _valuesFirst.
     final tree = _buildTree(
-      sorted,
+      remaining,
       compareTo: compareTo,
       namespaced: namespaced,
     );
@@ -173,12 +166,7 @@ String? _keyLabel(List<dynamic> arrayPath) {
 class _StackFrame {
   final List<dynamic> path;
   final List<_Node> childrenArr;
-  final bool isItem;
-  _StackFrame({
-    required this.path,
-    required this.childrenArr,
-    required this.isItem,
-  });
+  _StackFrame({required this.path, required this.childrenArr});
 }
 
 class _PrimCollector {
@@ -212,7 +200,7 @@ _GroupNode _buildTree(
 
   final root = _GroupNode(path: const [], children: []);
   final stack = <_StackFrame>[
-    _StackFrame(path: const [], childrenArr: root.children, isItem: false),
+    _StackFrame(path: const [], childrenArr: root.children),
   ];
   final primCollectors = <String, _PrimCollector>{};
 
@@ -255,45 +243,40 @@ _GroupNode _buildTree(
   // VCDM credential's `credentialSubject`: that key is the credential itself
   // rather than a part of it.
   final firstKey = attrs.firstOrNull?.claimPath.firstOrNull;
-  final rootLength =
+  final skipFirstKey =
       namespaced ||
-          firstKey is String &&
-              attrs.every(
-                (a) => a.claimPath.length > 1 && a.claimPath[0] == firstKey,
-              )
-      ? 1
-      : 0;
+      (firstKey is String &&
+          attrs.every(
+            (a) => a.claimPath.length > 1 && a.claimPath[0] == firstKey,
+          ));
 
   bool isOpen(List<dynamic> path) => stack.any((f) => listEquals(f.path, path));
 
-  // Opens a group for an object the issuer gave no header, titled with its
-  // key, so its fields stay together under it instead of spilling into the
-  // parent's level.
-  void ensureObjectFrame(List<dynamic> objectPath) {
-    if (isOpen(objectPath)) return;
-    popToPrefix(objectPath);
-    final group = _GroupNode(
-      label:
-          headers[_pathKey(objectPath)]?.effectiveDisplayName ??
-          _keyLabel(objectPath),
-      path: objectPath,
-      children: [],
-    );
+  // The issuer's name for the object or array at [path], else its own key.
+  String? labelFor(List<dynamic> path) =>
+      headers[_pathKey(path)]?.effectiveDisplayName ?? _keyLabel(path);
+
+  // Opens a group for an object or array the issuer gave no header, titled
+  // with its key, so its fields or items stay together under it instead of
+  // spilling into the parent's level. An array's items are then also counted
+  // per array rather than together with every other unnamed array's.
+  void ensureGroupFrame(List<dynamic> path) {
+    if (isOpen(path)) return;
+    popToPrefix(path);
+    final group = _GroupNode(label: labelFor(path), path: path, children: []);
     stack.last.childrenArr.add(group);
-    stack.add(
-      _StackFrame(path: objectPath, childrenArr: group.children, isItem: false),
-    );
+    stack.add(_StackFrame(path: path, childrenArr: group.children));
   }
 
   // Opens the levels [p] passes through: an item for every array element on
   // it, and a group for every object below the shared first key.
   void ensureFrames(List<dynamic> p) {
-    for (var i = rootLength; i < p.length; i++) {
+    for (var i = skipFirstKey ? 1 : 0; i < p.length; i++) {
       if (p[i] is! int) {
         // An object: a key followed by another key. A key followed by an
         // index is an array, whose group is opened with its first item.
         if (i + 1 < p.length && p[i + 1] is String) {
-          ensureObjectFrame(p.sublist(0, i + 1));
+          ensureGroupFrame(p.sublist(0, i + 1));
         }
         continue;
       }
@@ -301,42 +284,19 @@ _GroupNode _buildTree(
       if (isOpen(itemPath)) continue;
 
       final arrayHeaderPath = p.sublist(0, i);
+      ensureGroupFrame(arrayHeaderPath);
       popToPrefix(arrayHeaderPath);
-      // The array's label: the issuer's name for it, else its own key.
-      final arrayLabel =
-          headers[_pathKey(arrayHeaderPath)]?.effectiveDisplayName ??
-          _keyLabel(arrayHeaderPath);
-      // An array without a header has no group of its own yet. Open one, so
-      // its items are counted per array rather than together with the items
-      // of every other unnamed array under the same parent.
-      if (!listEquals(stack.last.path, arrayHeaderPath)) {
-        final group = _GroupNode(
-          label: arrayLabel,
-          path: arrayHeaderPath,
-          children: [],
-        );
-        stack.last.childrenArr.add(group);
-        stack.add(
-          _StackFrame(
-            path: arrayHeaderPath,
-            childrenArr: group.children,
-            isItem: false,
-          ),
-        );
-      }
       final arrayFrame = stack.last;
       final itemIndex =
           arrayFrame.childrenArr.whereType<_ItemNode>().length + 1;
       final item = _ItemNode(
-        parentLabel: arrayLabel,
+        parentLabel: labelFor(arrayHeaderPath),
         itemIndex: itemIndex,
         path: itemPath,
         children: [],
       );
       arrayFrame.childrenArr.add(item);
-      stack.add(
-        _StackFrame(path: itemPath, childrenArr: item.children, isItem: true),
-      );
+      stack.add(_StackFrame(path: itemPath, childrenArr: item.children));
     }
   }
 
@@ -357,9 +317,7 @@ _GroupNode _buildTree(
         children: [],
       );
       parentFrame.childrenArr.add(group);
-      stack.add(
-        _StackFrame(path: p, childrenArr: group.children, isItem: false),
-      );
+      stack.add(_StackFrame(path: p, childrenArr: group.children));
       continue;
     }
 
@@ -422,11 +380,7 @@ _GroupNode _buildTree(
 /// would otherwise land between two sections, where it reads as part of the
 /// one above it.
 void _valuesFirst(_Node node) {
-  final children = switch (node) {
-    _GroupNode n => n.children,
-    _ItemNode n => n.children,
-    _ => null,
-  };
+  final children = _childrenOf(node);
   if (children == null) return;
 
   int rank(_Node c) => switch (c) {
@@ -447,10 +401,15 @@ void _valuesFirst(_Node node) {
   }
 }
 
+/// The children of a group or an item; null for a node that has none.
+List<_Node>? _childrenOf(_Node node) => switch (node) {
+  _GroupNode n => n.children,
+  _ItemNode n => n.children,
+  _ => null,
+};
+
 void _stampItemTotals(_Node node) {
-  List<_Node>? children;
-  if (node is _GroupNode) children = node.children;
-  if (node is _ItemNode) children = node.children;
+  final children = _childrenOf(node);
   if (children == null) return;
 
   final itemCount = children.whereType<_ItemNode>().length;

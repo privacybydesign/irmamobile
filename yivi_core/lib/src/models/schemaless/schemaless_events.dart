@@ -107,6 +107,10 @@ class AttributeValue {
   Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
+/// Where a camelCase key starts a new word: lower-to-upper (`targetCode`), or
+/// the end of an all-caps run (`BRINCode`).
+final _wordBoundary = RegExp(r"([a-z0-9])([A-Z])|([A-Z])([A-Z][a-z])");
+
 /// Turns a claim key into a label, for a claim the issuer gave no display
 /// name: camelCase and snake_case are split into words, the first word is
 /// capitalised and the rest lowercased, and all-caps words such as "ECTS" or
@@ -115,7 +119,7 @@ class AttributeValue {
 String readableClaimKey(String key) {
   final words = key
       .replaceAllMapped(
-        RegExp(r"([a-z0-9])([A-Z])|([A-Z])([A-Z][a-z])"),
+        _wordBoundary,
         (m) => m[1] != null ? "${m[1]} ${m[2]}" : "${m[3]} ${m[4]}",
       )
       .replaceAll("_", " ")

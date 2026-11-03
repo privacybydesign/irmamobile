@@ -25,20 +25,15 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/base64_image.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
 
-import "disclose_sdjwt_over_openid4vp_test.dart"
-    show shareAndFinishDisclosureSession;
 import "disclosure_session/disclosure_helpers.dart";
+import "helpers/eudi_issuance_helpers.dart";
 import "helpers/helpers.dart";
-import "helpers/openid4vci_helpers.dart";
-import "helpers/veramo_verifier_helpers.dart";
 import "irma_binding.dart";
-import "openid4vci_issuance_test.dart" show navigateToLatestActivity;
 import "util.dart";
 
 const _configId = "TestCredentialVcdm";
@@ -73,6 +68,13 @@ final List<AttrRow> _expectedAttributes = [
   ("Id", startsWith("did:key:")),
 ];
 
+/// The credential's card as [verifyMostRecentActivityLog] checks it.
+final _expectedCard = (
+  credentialName: _credentialName,
+  issuerName: _issuerName,
+  attributes: _expectedAttributes,
+);
+
 const _badgeConfigId = "TestOpenBadgeCredential";
 const _badgeName = "Test Badge";
 const _openBadgesContext =
@@ -89,10 +91,15 @@ const _achievementName = "Schildertechnieken";
 /// badge's own image pictures the credential; the badge's issuer image (whoever
 /// awarded it) shows on neither; the achievement image is a field.
 const _logoBase = "https://schemes.yivi.app/pbdf/pbdf/Issues";
-const _issuerMetadataLogoUrl = "$_logoBase/passport/logo.png";
 const _badgeImageUrl = "$_logoBase/idcard/logo.png";
 const _badgeIssuerImageUrl = "$_logoBase/email/logo.png";
 const _achievementImageUrl = "$_logoBase/mobilenumber/logo.png";
+const _badgeImageUrls = {
+  "issuer metadata logo": "$_logoBase/passport/logo.png",
+  "badge image": _badgeImageUrl,
+  "badge's issuer image": _badgeIssuerImageUrl,
+  "achievement image": _achievementImageUrl,
+};
 
 const _badge = {
   "@context": ["https://www.w3.org/ns/credentials/v2", _openBadgesContext],
@@ -169,15 +176,11 @@ Future<void> testIssueVcdm(
   );
   await navigateBack(tester);
 
-  await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
-  await evaluateCredentialCard(
+  await verifyMostRecentActivityLog(
     tester,
-    find.byType(YiviCredentialCard).first,
-    credentialName: _credentialName,
-    issuerName: _issuerName,
-    attributes: _expectedAttributes,
+    expectedCredentials: [_expectedCard],
   );
+  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
 }
 
 Future<void> testDismissVcdmIssuance(
@@ -208,9 +211,12 @@ Future<void> testDiscloseVcdm(
   await _issueVcdm(tester, irmaBinding);
 
   final session = await startVeramoVerifierSession(
-    _vcdmQuery(
-      typeValues: ["VerifiableCredential", _credentialType],
-      claims: ["given_name", "email"],
+    _query(
+      type: _credentialType,
+      claims: [
+        ["credentialSubject", "given_name"],
+        ["credentialSubject", "email"],
+      ],
     ),
   );
   irmaBinding.repository.startTestSessionFromUrl(session.requestUri);
@@ -229,24 +235,16 @@ Future<void> testDiscloseVcdm(
     attributes: _expectedAttributes,
   );
 
-  await shareAndFinishDisclosureSession(tester);
+  await shareAndFinishEudiDisclosure(tester);
 
-  final result = await awaitVeramoVerifierResult(session.state);
-  expect(result.status, "RESPONSE_RECEIVED");
-  expect(result.rejections, isEmpty);
-  final received = result.credentials[_queryId];
-  expect(received, hasLength(1));
-  expect(received!.single, {..._claims, "id": startsWith("did:key:")});
+  final received = await _awaitReceived(session.state);
+  expect(received, {..._claims, "id": startsWith("did:key:")});
 
-  await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailDisclosure), findsOneWidget);
-  await evaluateCredentialCard(
+  await verifyMostRecentActivityLog(
     tester,
-    find.byType(YiviCredentialCard).first,
-    credentialName: _credentialName,
-    issuerName: _issuerName,
-    attributes: _expectedAttributes,
+    expectedCredentials: [_expectedCard],
   );
+  expect(find.byType(ActivityDetailDisclosure), findsOneWidget);
 }
 
 /// `type_values` must be a superset match on the credential's `type`.
@@ -258,9 +256,11 @@ Future<void> testVcdmNotOfferedForOtherType(
   await _issueVcdm(tester, irmaBinding);
 
   final session = await startVeramoVerifierSession(
-    _vcdmQuery(
-      typeValues: ["VerifiableCredential", "SomeOtherCredential"],
-      claims: ["given_name"],
+    _query(
+      type: "SomeOtherCredential",
+      claims: [
+        ["credentialSubject", "given_name"],
+      ],
     ),
   );
   irmaBinding.repository.startTestSessionFromUrl(session.requestUri);
@@ -278,75 +278,73 @@ Future<void> testVcdmNotOfferedForDcSdJwtQuery(
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await _issueVcdm(tester, irmaBinding);
 
-  final session = await startVeramoVerifierSession({
-    "credentials": [
-      {
-        "id": "sdjwt",
-        "format": "dc+sd-jwt",
-        "claims": [
-          {
-            "path": ["credentialSubject", "given_name"],
-          },
-        ],
-      },
-    ],
-  });
+  final session = await startVeramoVerifierSession(
+    _query(
+      format: "dc+sd-jwt",
+      claims: [
+        ["credentialSubject", "given_name"],
+      ],
+    ),
+  );
   irmaBinding.repository.startTestSessionFromUrl(session.requestUri);
   await evaluateIntroduction(tester);
 
   _expectVcdmNotOffered();
 }
 
-/// Issues the test VCDM credential through the app and lands back on home.
+/// Issues the test VCDM credential through the app, checking its card on the
+/// permission screen, and lands back on home.
 Future<void> _issueVcdm(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
-) async {
-  final offer = await startOpenID4VCISession(
-    credentialConfigId: _configId,
-    credentialData: _claims,
-  );
-  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
-
-  await tester.waitFor(find.byType(IssuancePermission));
-  await evaluateCredentialCard(
+) => issueOpenID4VCICredential(
+  tester,
+  irmaBinding,
+  credentialConfigId: _configId,
+  credentialData: _claims,
+  onPermissionScreen: () => evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,
     credentialName: _credentialName,
     isExpired: false,
     attributes: _expectedAttributes,
-  );
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  ),
+);
 
-  await tester.waitFor(find.byType(IssuanceSuccessScreen));
-  await tester.tapAndSettle(find.text("OK"));
-}
-
-Map<String, dynamic> _vcdmQuery({
-  required List<String> typeValues,
-  required List<String> claims,
+/// A one-credential DCQL query for [claims]. With [type], it asks for a
+/// credential whose `type` includes VerifiableCredential and [type].
+Map<String, dynamic> _query({
+  String format = "vc+sd-jwt",
+  String? type,
+  required List<List<String>> claims,
 }) => {
   "credentials": [
     {
       "id": _queryId,
-      "format": "vc+sd-jwt",
-      "meta": {
-        "type_values": [
-          [
-            for (final t in typeValues)
-              t == "VerifiableCredential" ? _verifiableCredentialIri : t,
+      "format": format,
+      if (type != null)
+        "meta": {
+          "type_values": [
+            [_verifiableCredentialIri, type],
           ],
-        ],
-      },
+        },
       "claims": [
-        for (final c in claims)
-          {
-            "path": ["credentialSubject", c],
-          },
+        for (final path in claims) {"path": path},
       ],
     },
   ],
 };
+
+/// What the verifier received for the one credential it asked for, after
+/// checking it accepted the presentation.
+Future<Map<String, dynamic>> _awaitReceived(String state) async {
+  final result = await awaitVeramoVerifierResult(state);
+  expect(result.status, "RESPONSE_RECEIVED");
+  expect(result.rejectionCodes, isEmpty);
+  final received = result.credentials[_queryId];
+  expect(received, hasLength(1));
+  return received!.single;
+}
 
 /// The request still opens, as one choice the wallet can fill with nothing:
 /// the VCDM credential is not offered, and nothing can be obtained for it.
@@ -364,21 +362,21 @@ Future<void> testIssueAndDiscloseOpenBadge(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  final images = await _BadgeImages.download();
+  final images = await _downloadBadgeImages();
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
-  final offer = await startOpenID4VCISession(
+  await issueOpenID4VCICredential(
+    tester,
+    irmaBinding,
     credentialConfigId: _badgeConfigId,
     credentialData: {},
     presetCredential: _badge,
+    onPermissionScreen: () async => _evaluateBadgeCard(
+      tester,
+      find.byType(YiviCredentialCard).first,
+      images,
+    ),
   );
-  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
-
-  await tester.waitFor(find.byType(IssuancePermission));
-  _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first, images);
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-  await tester.waitFor(find.byType(IssuanceSuccessScreen));
-  await tester.tapAndSettle(find.text("OK"));
 
   // The issuance in the activity list is pictured by the party the data came
   // from: the credential issuer, with the logo from its metadata. The badge's
@@ -401,24 +399,14 @@ Future<void> testIssueAndDiscloseOpenBadge(
   _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first, images);
   await navigateBack(tester);
 
-  final session = await startVeramoVerifierSession({
-    "credentials": [
-      {
-        "id": _queryId,
-        "format": "vc+sd-jwt",
-        "meta": {
-          "type_values": [
-            [_verifiableCredentialIri, _openBadgeCredentialIri],
-          ],
-        },
-        "claims": [
-          {
-            "path": ["credentialSubject", "achievement", "name"],
-          },
-        ],
-      },
-    ],
-  });
+  final session = await startVeramoVerifierSession(
+    _query(
+      type: _openBadgeCredentialIri,
+      claims: [
+        ["credentialSubject", "achievement", "name"],
+      ],
+    ),
+  );
   irmaBinding.repository.startTestSessionFromUrl(session.requestUri);
   await evaluateIntroduction(tester);
 
@@ -427,18 +415,14 @@ Future<void> testIssueAndDiscloseOpenBadge(
   expect(cardFinder, findsOneWidget);
   _evaluateBadgeCard(tester, cardFinder, images);
 
-  await shareAndFinishDisclosureSession(tester);
+  await shareAndFinishEudiDisclosure(tester);
 
-  final result = await awaitVeramoVerifierResult(session.state);
-  expect(result.status, "RESPONSE_RECEIVED");
-  expect(result.rejections, isEmpty);
-  final received = result.credentials[_queryId];
-  expect(received, hasLength(1));
-  final achievement = received!.single["achievement"] as Map<String, dynamic>;
+  final received = await _awaitReceived(session.state);
+  final achievement = received["achievement"] as Map<String, dynamic>;
   expect(achievement["name"], _achievementName);
   expect(achievement["image"], {"id": _achievementImageUrl, "type": "Image"});
 
-  await navigateToLatestActivity(tester);
+  await verifyMostRecentActivityLog(tester, expectedCredentials: []);
   expect(find.byType(ActivityDetailDisclosure), findsOneWidget);
   _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first, images);
 }
@@ -449,7 +433,7 @@ Future<void> testIssueAndDiscloseOpenBadge(
 void _evaluateBadgeCard(
   WidgetTester tester,
   Finder cardFinder,
-  _BadgeImages images,
+  Map<String, String> images,
 ) {
   final header = find.descendant(
     of: cardFinder,
@@ -496,12 +480,12 @@ void _evaluateBadgeCard(
   );
 }
 
-/// Expects [within] to draw the image named [expected] (see [_BadgeImages]),
+/// Expects [within] to draw the image named [expected] (see [_badgeImageUrls]),
 /// and none of [notOneOf]. Compares by name so a failure reads as names, not
 /// as kilobytes of base64.
 void _expectPictured(
   Finder within,
-  _BadgeImages images,
+  Map<String, String> images,
   String expected, {
   required String reason,
   List<String> notOneOf = const [],
@@ -512,7 +496,8 @@ void _expectPictured(
         matching: find.byType(Base64Image, skipOffstage: false),
       )
       .evaluate()
-      .map((e) => images.nameOf((e.widget as Base64Image).base64))
+      .map((e) => (e.widget as Base64Image).base64)
+      .map((b) => images[b] ?? "other image (${b.length} base64 chars)")
       .toList();
   expect(drawn, contains(expected), reason: reason);
   for (final other in notOneOf) {
@@ -520,52 +505,32 @@ void _expectPictured(
   }
 }
 
-/// The badge's pictures as the wallet stores them: the downloaded bytes,
-/// base64-encoded.
-class _BadgeImages {
-  final String issuerMetadata;
-  final String badge;
-  final String issuer;
-  final String achievement;
-
-  _BadgeImages._(
-    this.issuerMetadata,
-    this.badge,
-    this.issuer,
-    this.achievement,
-  );
-
-  /// The name of the test image [base64] is, or what it is otherwise.
-  String nameOf(String base64) =>
-      {
-        issuerMetadata: "issuer metadata logo",
-        badge: "badge image",
-        issuer: "badge's issuer image",
-        achievement: "achievement image",
-      }[base64] ??
-      "other image (${base64.length} base64 chars)";
-
-  static Future<_BadgeImages> download() async {
-    final [issuerMetadata, badge, issuer, achievement] = await Future.wait([
-      _download(_issuerMetadataLogoUrl),
-      _download(_badgeImageUrl),
-      _download(_badgeIssuerImageUrl),
-      _download(_achievementImageUrl),
-    ]);
-    final all = {issuerMetadata, badge, issuer, achievement};
-    if (all.length != 4) {
+/// The badge's test images as the wallet stores them, downloaded and
+/// base64-encoded: base64 → name (a key of [_badgeImageUrls]).
+Future<Map<String, String>> _downloadBadgeImages() async {
+  final client = HttpClient();
+  try {
+    final entries = await Future.wait(
+      _badgeImageUrls.entries.map((e) async {
+        final response = await (await client.getUrl(
+          Uri.parse(e.value),
+        )).close();
+        final bytes = await response.fold<List<int>>(
+          [],
+          (a, b) => a..addAll(b),
+        );
+        if (response.statusCode != 200) {
+          throw Exception("GET ${e.value}: status ${response.statusCode}");
+        }
+        return MapEntry(base64Encode(bytes), e.key);
+      }),
+    );
+    final names = Map.fromEntries(entries);
+    if (names.length != _badgeImageUrls.length) {
       throw StateError("the badge's test images must all differ");
     }
-    return _BadgeImages._(issuerMetadata, badge, issuer, achievement);
-  }
-
-  static Future<String> _download(String url) async {
-    final request = await HttpClient().getUrl(Uri.parse(url));
-    final response = await request.close();
-    final bytes = await response.fold<List<int>>([], (a, b) => a..addAll(b));
-    if (response.statusCode != 200) {
-      throw Exception("GET $url: status ${response.statusCode}");
-    }
-    return base64Encode(bytes);
+    return names;
+  } finally {
+    client.close();
   }
 }
