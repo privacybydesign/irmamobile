@@ -425,6 +425,8 @@ Future<void> evaluateRequestor(
 /// - `List<String>`: a primitive array, rendered as bullets
 /// - [Block] (`List<AttrRow>`): a nested group
 /// - `List<Block>`: an array of nested items
+/// - [Matcher]: a leaf row whose value is only known by shape, such as a
+///   holder `did:key` that differs per issuance
 typedef AttrRow = (String label, Object value);
 
 /// Ordered list of rows, used for nested groups and as item children.
@@ -730,7 +732,7 @@ Map<String, List<String>> _renderedLabelValues(
   final rows = _renderedRows(tester, cardAttList);
   final map = <String, List<String>>{};
   for (final r in rows) {
-    map[r.label] = r.values;
+    map[r.label] = r.values.cast<String>();
   }
   return map;
 }
@@ -744,7 +746,7 @@ List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
   final out = <_LabelValues>[];
   void walk(List<AttrRow> rows) {
     for (final (label, value) in rows) {
-      if (value is String) {
+      if (value is String || value is Matcher) {
         out.add(_LabelValues(label, [value]));
       } else if (value is List) {
         if (value.isEmpty) {
@@ -815,7 +817,9 @@ void _matchAttributes(
 
 class _LabelValues {
   final String label;
-  final List<String> values;
+
+  /// Rendered texts, or for an expectation also a [Matcher].
+  final List<Object> values;
   const _LabelValues(this.label, this.values);
 
   @override

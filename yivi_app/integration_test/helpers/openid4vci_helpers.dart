@@ -20,9 +20,14 @@ class OpenID4VCIOfferResponse {
 /// [ttlSeconds] controls the credential's `exp` claim. Defaults to one year.
 /// A negative value produces an already-expired credential at issuance time
 /// (the Veramo agent computes `exp = now + ttl`).
+///
+/// [presetCredential] is a whole vc+sd-jwt credential body (`@context`,
+/// `credentialSubject`, images, ...) that our Veramo fork issues as given,
+/// for credentials such as an Open Badge that [credentialData] can't express.
 Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
   required String credentialConfigId,
   required Map<String, dynamic> credentialData,
+  Map<String, dynamic>? presetCredential,
   String? txCodeInputMode,
   int? txCodeLength,
   int? ttlSeconds = 31536000,
@@ -46,6 +51,7 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
     "credentials": [credentialConfigId],
     "grants": grants,
     "credentialDataSupplierInput": dataWithTtl,
+    "credential": ?presetCredential,
   };
 
   final uri = Uri.parse("$_issuerBaseUrl/api/create-offer");
