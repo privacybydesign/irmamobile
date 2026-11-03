@@ -13,9 +13,13 @@
 // wallet bundles that context, so it tells the badge by its Open Badges type
 // without fetching anything; the badge's images do get downloaded.
 
+import "dart:convert";
+import "dart:io";
+
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_disclosure.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
@@ -25,6 +29,7 @@ import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.da
 import "package:yivi_core/src/widgets/base64_image.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
 
 import "disclose_sdjwt_over_openid4vp_test.dart"
     show shareAndFinishDisclosureSession;
@@ -78,14 +83,21 @@ const _badgeCredentialId =
     "https://www.w3.org/ns/credentials/v2 $_openBadgesContext VerifiableCredential OpenBadgeCredential";
 const _achievementName = "Schildertechnieken";
 
-/// A PNG staging already serves, used for every image on the badge.
-const _badgeImageUrl =
-    "https://schemes.yivi.app/pbdf/pbdf/Issues/passport/logo.png";
+/// Four different PNGs staging already serves, one per place a badge can be
+/// pictured, so the test can tell which one each card shows. The test-issuer's
+/// metadata logo (passport) pictures the issuer in the activity list; the
+/// badge's own image pictures the credential; the badge's issuer image (whoever
+/// awarded it) shows on neither; the achievement image is a field.
+const _logoBase = "https://schemes.yivi.app/pbdf/pbdf/Issues";
+const _issuerMetadataLogoUrl = "$_logoBase/passport/logo.png";
+const _badgeImageUrl = "$_logoBase/idcard/logo.png";
+const _badgeIssuerImageUrl = "$_logoBase/email/logo.png";
+const _achievementImageUrl = "$_logoBase/mobilenumber/logo.png";
 
 const _badge = {
   "@context": ["https://www.w3.org/ns/credentials/v2", _openBadgesContext],
   "image": {"id": _badgeImageUrl, "type": "Image"},
-  "issuer": {"image": _badgeImageUrl},
+  "issuer": {"image": _badgeIssuerImageUrl},
   "credentialSubject": {
     "type": ["AchievementSubject"],
     "achievement": {
@@ -94,7 +106,7 @@ const _badge = {
       "name": _achievementName,
       "description": "Kan een muur egaal schilderen.",
       "criteria": {"narrative": "Een muur geschilderd zonder strepen."},
-      "image": {"id": _badgeImageUrl, "type": "Image"},
+      "image": {"id": _achievementImageUrl, "type": "Image"},
     },
   },
 };
@@ -343,13 +355,16 @@ void _expectVcdmNotOffered() {
   expect(find.byType(YiviCredentialCard, skipOffstage: false), findsNothing);
 }
 
-/// An Open Badge goes the whole way: the achievement image is downloaded and
-/// shown as a picture on every card, a query naming the Open Badges type finds
-/// it, and the verifier gets the image's URL, not the picture.
+/// An Open Badge goes the whole way: every card is pictured by the badge's own
+/// image and shows the achievement image as a picture, the issuance in the
+/// activity list is pictured by the issuer's own metadata logo, a query naming
+/// the Open Badges type finds it, and the verifier gets the image URLs, not
+/// pictures.
 Future<void> testIssueAndDiscloseOpenBadge(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
+  final images = await _BadgeImages.download();
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   final offer = await startOpenID4VCISession(
@@ -360,14 +375,30 @@ Future<void> testIssueAndDiscloseOpenBadge(
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
   await tester.waitFor(find.byType(IssuancePermission));
-  await _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first);
+  _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first, images);
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await tester.waitFor(find.byType(IssuanceSuccessScreen));
   await tester.tapAndSettle(find.text("OK"));
 
+  // The issuance in the activity list is pictured by the party the data came
+  // from: the credential issuer, with the logo from its metadata. The badge's
+  // own issuer image names whoever awarded the badge, which can be another
+  // organisation, so it does not go next to the issuer's name.
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
+  await tester.pump(const Duration(seconds: 1));
+  _expectPictured(
+    find.byType(ActivityCard, skipOffstage: false).first,
+    images,
+    "issuer metadata logo",
+    reason: "the issuance's activity card shows the issuer's own logo",
+    notOneOf: ["badge's issuer image"],
+  );
+
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await navigateToCredentialDetailsPage(tester, _badgeCredentialId);
-  await _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first);
+  _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first, images);
   await navigateBack(tester);
 
   final session = await startVeramoVerifierSession({
@@ -394,7 +425,7 @@ Future<void> testIssueAndDiscloseOpenBadge(
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   final cardFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardFinder, findsOneWidget);
-  await _evaluateBadgeCard(tester, cardFinder);
+  _evaluateBadgeCard(tester, cardFinder, images);
 
   await shareAndFinishDisclosureSession(tester);
 
@@ -405,22 +436,40 @@ Future<void> testIssueAndDiscloseOpenBadge(
   expect(received, hasLength(1));
   final achievement = received!.single["achievement"] as Map<String, dynamic>;
   expect(achievement["name"], _achievementName);
-  expect(achievement["image"], {"id": _badgeImageUrl, "type": "Image"});
+  expect(achievement["image"], {"id": _achievementImageUrl, "type": "Image"});
 
   await navigateToLatestActivity(tester);
   expect(find.byType(ActivityDetailDisclosure), findsOneWidget);
-  await _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first);
+  _evaluateBadgeCard(tester, find.byType(YiviCredentialCard).first, images);
 }
 
-/// The badge's card: its name and issuer, the achievement's name, and its
-/// image drawn as a picture rather than shown as a URL.
-Future<void> _evaluateBadgeCard(WidgetTester tester, Finder cardFinder) async {
-  await evaluateCredentialCard(
-    tester,
-    cardFinder,
-    credentialName: _badgeName,
-    issuerName: _issuerName,
+/// The badge's card: its name and issuer, pictured by the badge's own image,
+/// and the achievement's name and image, the image drawn as a picture rather
+/// than shown as a URL.
+void _evaluateBadgeCard(
+  WidgetTester tester,
+  Finder cardFinder,
+  _BadgeImages images,
+) {
+  final header = find.descendant(
+    of: cardFinder,
+    matching: find.byType(YiviCredentialCardHeader),
   );
+  expect(header, findsOneWidget);
+  final headerText = tester.getAllText(header).toList();
+  expect(headerText, containsAllInOrder([_badgeName, _issuerName]));
+  _expectPictured(
+    header,
+    images,
+    "badge image",
+    reason: "the card header shows the badge's own image",
+    notOneOf: [
+      "issuer metadata logo",
+      "badge's issuer image",
+      "achievement image",
+    ],
+  );
+
   final attributes = find.descendant(
     of: cardFinder,
     matching: find.byType(YiviCredentialCardAttributeList),
@@ -432,18 +481,91 @@ Future<void> _evaluateBadgeCard(WidgetTester tester, Finder cardFinder) async {
     ),
     findsOneWidget,
   );
-  expect(
-    find.descendant(
-      of: attributes,
-      matching: find.byType(Base64Image, skipOffstage: false),
-    ),
-    findsAtLeastNWidgets(1),
+  _expectPictured(
+    attributes,
+    images,
+    "achievement image",
+    reason: "the achievement image is drawn among the fields",
   );
   expect(
     find.descendant(
       of: attributes,
-      matching: find.text(_badgeImageUrl, skipOffstage: false),
+      matching: find.text(_achievementImageUrl, skipOffstage: false),
     ),
     findsNothing,
   );
+}
+
+/// Expects [within] to draw the image named [expected] (see [_BadgeImages]),
+/// and none of [notOneOf]. Compares by name so a failure reads as names, not
+/// as kilobytes of base64.
+void _expectPictured(
+  Finder within,
+  _BadgeImages images,
+  String expected, {
+  required String reason,
+  List<String> notOneOf = const [],
+}) {
+  final drawn = find
+      .descendant(
+        of: within,
+        matching: find.byType(Base64Image, skipOffstage: false),
+      )
+      .evaluate()
+      .map((e) => images.nameOf((e.widget as Base64Image).base64))
+      .toList();
+  expect(drawn, contains(expected), reason: reason);
+  for (final other in notOneOf) {
+    expect(drawn, isNot(contains(other)), reason: "$reason, not the $other");
+  }
+}
+
+/// The badge's pictures as the wallet stores them: the downloaded bytes,
+/// base64-encoded.
+class _BadgeImages {
+  final String issuerMetadata;
+  final String badge;
+  final String issuer;
+  final String achievement;
+
+  _BadgeImages._(
+    this.issuerMetadata,
+    this.badge,
+    this.issuer,
+    this.achievement,
+  );
+
+  /// The name of the test image [base64] is, or what it is otherwise.
+  String nameOf(String base64) =>
+      {
+        issuerMetadata: "issuer metadata logo",
+        badge: "badge image",
+        issuer: "badge's issuer image",
+        achievement: "achievement image",
+      }[base64] ??
+      "other image (${base64.length} base64 chars)";
+
+  static Future<_BadgeImages> download() async {
+    final [issuerMetadata, badge, issuer, achievement] = await Future.wait([
+      _download(_issuerMetadataLogoUrl),
+      _download(_badgeImageUrl),
+      _download(_badgeIssuerImageUrl),
+      _download(_achievementImageUrl),
+    ]);
+    final all = {issuerMetadata, badge, issuer, achievement};
+    if (all.length != 4) {
+      throw StateError("the badge's test images must all differ");
+    }
+    return _BadgeImages._(issuerMetadata, badge, issuer, achievement);
+  }
+
+  static Future<String> _download(String url) async {
+    final request = await HttpClient().getUrl(Uri.parse(url));
+    final response = await request.close();
+    final bytes = await response.fold<List<int>>([], (a, b) => a..addAll(b));
+    if (response.statusCode != 200) {
+      throw Exception("GET $url: status ${response.statusCode}");
+    }
+    return base64Encode(bytes);
+  }
 }
