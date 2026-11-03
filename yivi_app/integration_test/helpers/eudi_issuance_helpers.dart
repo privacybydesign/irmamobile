@@ -226,9 +226,9 @@ Future<void> issueStatusListViaOpenID4VCI(
 );
 
 /// Revokes (or un-revokes) every status-list credential whose claims carry
-/// [markerEmail]; the issuer proxies each call to the statuslist-agent, which
-/// flips the bit. Throws when nothing matches — a silent no-match would make the
-/// revoked assertions pass for the wrong reason.
+/// [markerEmail]; the issuer flips the bit in the status list it hosts itself.
+/// Throws when nothing matches — a silent no-match would make the revoked
+/// assertions pass for the wrong reason.
 Future<void> setStatusListRevocation(
   String markerEmail, {
   required bool revoke,
