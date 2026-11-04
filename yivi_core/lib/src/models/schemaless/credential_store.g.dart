@@ -28,6 +28,11 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  format: $enumDecodeNullable(
+    _$CredentialFormatEnumMap,
+    json['format'],
+    unknownValue: JsonKey.nullForUndefinedEnumValue,
+  ),
 );
 
 Map<String, dynamic> _$CredentialDescriptorToJson(
@@ -40,6 +45,14 @@ Map<String, dynamic> _$CredentialDescriptorToJson(
   'image': instance.image,
   'attributes': instance.attributes,
   'issue_url': instance.issueURL,
+  'format': _$CredentialFormatEnumMap[instance.format],
+};
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
 CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>
