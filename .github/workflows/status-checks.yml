@@ -1,26 +1,53 @@
-# Workflow to check whether changes in a pull request fulfill all requirements.
+# Status checks: the shared workflows from privacybydesign/github-workflows plus this
+# repository's own Flutter/Fastlane jobs (there is no shared Flutter workflow).
+# The gate job "Status checks passed" is the one check to require.
 # We execute build stages in separate jobs to prevent artifact duplication.
 name: Status checks
 
 on:
+  push:
+    branches: [master]
   pull_request:
+  merge_group:
   schedule:
-    # Run every sunday at noon. We run this on sunday such that we can utilize the free test minutes we get from Firebase.
-    # The weekly run ensures that cached resources don't expire.
-    - cron: "0 12 * * 0"
+    # Mondays 06:17 UTC: govulncheck against a fresh database. The weekly run also
+    # keeps the build caches from expiring.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
 
+permissions: {}
+
+# Cancel superseded pull request runs. The workflow name is part of the group, so this
+# never cancels a Delivery run (Delivery uses the bare ref as its group).
 concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # The Go bridge in yivi_core: gofmt, go fix, go mod tidy, govulncheck and a race build.
+  # golangci-lint is off: it reports findings in the bridge that need their own change.
+  go:
+    uses: privacybydesign/github-workflows/.github/workflows/go-checks.yml@v1
+    permissions:
+      contents: read
+    with:
+      working-directory: yivi_core
+      golangci-lint-version: v2.15.0 # the default v2.12.2 cannot read Go >= 1.27.2
+      lint: false
+      apt-packages: libsqlcipher-dev # irmago links SQLCipher through cgo
+
   # We make sure that lint succeeds before we start any other job to
   # prevent that the setup-build-environment action runs in parallel.
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Compare pubspec versions
         run: |
           # Extract version lines from both pubspecs and make sure they're identical
@@ -41,73 +68,104 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint
+
   unit-test:
     runs-on: ubuntu-latest
     needs: lint
+    timeout-minutes: 45
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
+
   build-irmagobridge-ios:
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: lint
+    timeout-minutes: 45
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane ios_build_irmagobridge
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
+
   build-irmagobridge-android:
     runs-on: ubuntu-latest
     needs: lint
+    timeout-minutes: 45
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane android_build_irmagobridge
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/irmagobridge.aar
+
   build-prototypes-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
+    timeout-minutes: 60
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
       - run: cd yivi_app && flutter build apk --flavor alpha -t lib/main_prototypes.dart
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: prototypes-alpha-android
           path: ./build/app/outputs/apk/alpha/release/*.apk
+
   build-app-ios-alpha:
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
+    # Signs with the development certificate. Pull requests from forks don't get the
+    # secrets, so the job is skipped there instead of failing the gate.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    timeout-minutes: 60
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -117,44 +175,60 @@ jobs:
           APPLE_DEVELOPMENT_PROVISIONING_PROFILE: ${{ secrets.APPLE_DEVELOPMENT_PROVISIONING_PROFILE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
-          echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
+          echo "$APPLE_DEVELOPMENT_CERTIFICATE" | base64 --decode > ./fastlane/profiles/ios_development.p12
+          echo "$APPLE_DEVELOPMENT_PROVISIONING_PROFILE" | base64 --decode > ./fastlane/profiles/development.mobileprovision
       - name: Build
+        env:
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
         run: >
           bundle exec fastlane ios_build_app
           flavor:alpha
           certificate_path:profiles/ios_development.p12
-          certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+          certificate_password:"$CERTIFICATE_PASSWORD"
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-alpha-ios
           path: ./fastlane/build/*.ipa
+
   # The real F-Droid build needs the NDK and four srclib checkouts, so instead we
   # run fdroid_build.sh against stub tooling. No build environment needed.
   test-fdroid-build-script:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - run: ./yivi_fdroid/fdroid_build_test.sh
+
   build-app-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
+    # Signs with the development keystore. Pull requests from forks don't get the
+    # secrets, so the job is skipped there instead of failing the gate.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    timeout-minutes: 60
+    permissions:
+      contents: read
     strategy:
       matrix:
         flavor: [alpha, beta]
         type: [apk, appbundle]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
@@ -163,34 +237,46 @@ jobs:
           ANDROID_DEVELOPMENT_SIGNING_KEYSTORE: ${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $ANDROID_DEVELOPMENT_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
+          echo "$ANDROID_DEVELOPMENT_SIGNING_KEYSTORE" | base64 --decode > ./fastlane/profiles/keystore.jks
       - name: Build
+        env:
+          MATRIX_TYPE: ${{ matrix.type }}
+          MATRIX_FLAVOR: ${{ matrix.flavor }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
         run: >
-          bundle exec fastlane android_build_${{ matrix.type }}
-          flavor:${{ matrix.flavor }}
+          bundle exec fastlane "android_build_$MATRIX_TYPE"
+          flavor:"$MATRIX_FLAVOR"
           keystore_path:profiles/keystore.jks
           key_alias:android-signing-development
-          keystore_password:${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
-          key_password:${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+          keystore_password:"$KEYSTORE_PASSWORD"
+          key_password:"$KEYSTORE_PASSWORD"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
+
+  # The integration tests run on Firebase Test Lab. They have been switched off since
+  # May 2026 (they were `if: false`); set the repository variable
+  # RUN_FIREBASE_INTEGRATION_TESTS to "true" to run them again.
   build-integration-test-ios:
-    if: false
+    if: vars.RUN_FIREBASE_INTEGRATION_TESTS == 'true'
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
+    timeout-minutes: 90
+    permissions:
+      contents: read
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -200,31 +286,38 @@ jobs:
           APPLE_DEVELOPMENT_PROVISIONING_PROFILE: ${{ secrets.APPLE_DEVELOPMENT_PROVISIONING_PROFILE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
-          echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
+          echo "$APPLE_DEVELOPMENT_CERTIFICATE" | base64 --decode > ./fastlane/profiles/ios_development.p12
+          echo "$APPLE_DEVELOPMENT_PROVISIONING_PROFILE" | base64 --decode > ./fastlane/profiles/development.mobileprovision
       - name: Build
+        env:
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
         run: >
           bundle exec fastlane ios_build_integration_test
           certificate_path:profiles/ios_development.p12
-          certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+          certificate_password:"$CERTIFICATE_PASSWORD"
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: integration-test-ios
           path: ./fastlane/build/*.zip
       - name: Dynamically generate matrix for running integration tests
         id: set-matrix
         # This oneliner gets every test zip generated by Fastlane and writes this as output to GitHub. This is used for the matrix in the integration-test-ios job below.
-        run: echo "matrix=$(for file in $(ls ./fastlane/build/*.zip); do basename "$file"; done | jq -R . | jq -sc .)" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(for file in ./fastlane/build/*.zip; do basename "$file"; done | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
   build-integration-test-android:
-    if: false
+    if: vars.RUN_FIREBASE_INTEGRATION_TESTS == 'true'
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
+    timeout-minutes: 90
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           fetch-depth: 1
           submodules: true
       - name: Free disk space
@@ -238,7 +331,7 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
@@ -252,17 +345,20 @@ jobs:
           rm -rf ~/.android || true
           rm -rf ~/.pub-cache || true
           df -h
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: integration-test-android
           path: ./fastlane/build/*.apk
+
   integration-test-ios:
-    if: false
+    if: vars.RUN_FIREBASE_INTEGRATION_TESTS == 'true'
     runs-on: ubuntu-latest
-    container: google/cloud-sdk:latest
+    container: google/cloud-sdk:590.0.1@sha256:68474f08e672db64103abdf8794feac8221f4e9320429c2d8e20cb1c89bf4c6a # was :latest
     needs:
       - build-integration-test-ios
       - unit-test # To prevent that test resources are used when we already know there is an issue.
+    timeout-minutes: 60
+    permissions: {}
     strategy:
       matrix:
         file_name: ${{ fromJson(needs.build-integration-test-ios.outputs.matrix) }}
@@ -270,60 +366,117 @@ jobs:
     concurrency: integration-test-ios-${{ matrix.file_name }} # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: integration-test-ios
           path: .
       - name: Authenticate to Firebase
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-        run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
+        run: gcloud auth activate-service-account --key-file <(echo "$GCLOUD_SERVICE_KEY")
         shell: bash
       - name: Set Firebase project
-        run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
+        env:
+          GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
+        run: gcloud config set project "$GCLOUD_PROJECT_NAME"
       - name: Run integration tests for each zip file
+        env:
+          TEST_ZIP: ${{ matrix.file_name }}
         run: |
           gcloud firebase test ios run \
-            --test ${{ matrix.file_name }} \
+            --test "$TEST_ZIP" \
             --timeout 10m \
             --device=model=iphone16pro,orientation=portrait,version=18.3 \
             --device=model=iphone16pro,orientation=landscape,version=18.3
+
   # this summary is needed to report a final result for the ios test matrix
   # this job is added to the branch protection rules, so the matrix has to fully pass before merge
   integration-test-ios-summary:
     runs-on: ubuntu-latest
     needs: integration-test-ios # Wait for all matrix jobs
-    if: ${{ always() }} # Run even if a matrix job fails
+    if: always() # Run even if a matrix job fails
+    timeout-minutes: 5
+    permissions: {}
     steps:
       - name: Check integration test results
+        env:
+          RESULT: ${{ needs.integration-test-ios.result }}
         run: |
-          if [ "${{ needs.integration-test-ios.result }}" == "failure" ] || [ "${{ needs.integration-test-ios.result }}" == "cancelled" ]; then
+          if [ "$RESULT" == "failure" ] || [ "$RESULT" == "cancelled" ]; then
             echo "One or more integration tests failed."
             exit 1
           else
             echo "All integration tests passed."
           fi
+
   integration-test-android:
-    if: false
+    if: vars.RUN_FIREBASE_INTEGRATION_TESTS == 'true'
     runs-on: ubuntu-latest
-    container: google/cloud-sdk:latest
+    container: google/cloud-sdk:590.0.1@sha256:68474f08e672db64103abdf8794feac8221f4e9320429c2d8e20cb1c89bf4c6a # was :latest
     needs:
       - build-integration-test-android
       - unit-test # To prevent that test resources are used when we already know there is an issue.
+    timeout-minutes: 60
+    permissions: {}
     concurrency: integration-test-android # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: integration-test-android
           path: .
       - name: Authenticate to Firebase
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-        run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
+        run: gcloud auth activate-service-account --key-file <(echo "$GCLOUD_SERVICE_KEY")
         shell: bash
       - name: Set Firebase project
-        run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
+        env:
+          GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
+        run: gcloud config set project "$GCLOUD_PROJECT_NAME"
       - name: Run integration tests
         # komodo = Pixel 9 Pro XL
         run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 40m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    uses: privacybydesign/github-workflows/.github/workflows/dependency-review.yml@v1
+    permissions:
+      contents: read
+      pull-requests: write
+
+  workflow-lint:
+    uses: privacybydesign/github-workflows/.github/workflows/workflow-lint.yml@v1
+    permissions:
+      contents: read
+
+  passed:
+    name: Status checks passed
+    if: always()
+    needs:
+      - go
+      - lint
+      - unit-test
+      - build-irmagobridge-ios
+      - build-irmagobridge-android
+      - build-prototypes-android
+      - build-app-ios-alpha
+      - test-fdroid-build-script
+      - build-app-android
+      - build-integration-test-ios
+      - build-integration-test-android
+      - integration-test-ios
+      - integration-test-ios-summary
+      - integration-test-android
+      - dependency-review
+      - workflow-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: All required jobs succeeded
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          if grep -qE '"(failure|cancelled)"' <<< "$RESULTS"; then exit 1; fi

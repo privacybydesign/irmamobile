@@ -1,10 +1,20 @@
 # GitHub Actions workflows
 
-We currently have two workflows. The workflows use our Fastlane scripts. More details about the functioning of the Fastlane
+The build workflows use our Fastlane scripts. More details about the functioning of the Fastlane
 scripts can be found in the [README](../../fastlane/README.md).
 
 ## Status checks
-This workflow checks whether a change passes all our quality gates.
+This workflow checks whether a change passes all our quality gates. It runs on pull requests, the merge queue, pushes
+to `master`, every Monday and on demand. Next to our own Flutter/Fastlane jobs (lint, unit tests, app builds) it
+calls the shared workflows from [privacybydesign/github-workflows](https://github.com/privacybydesign/github-workflows):
+Go checks for the Go bridge in `yivi_core` (gofmt, go fix, go mod tidy, govulncheck, a race build), dependency review
+and workflow lint (actionlint and zizmor over everything in `.github`). The final job, `Status checks passed`, is the
+one check to require on `master`.
+
+Third-party actions are pinned to a commit SHA; Dependabot keeps them current.
+
+The Firebase Test Lab integration tests are switched off. Set the repository variable `RUN_FIREBASE_INTEGRATION_TESTS`
+to `true` to run them again.
 
 ### Secrets
 Below a list of the secrets that are needed. The secrets should be uploaded as repository secret to both the
