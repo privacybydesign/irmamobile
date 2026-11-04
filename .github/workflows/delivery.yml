@@ -6,6 +6,9 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: read
+
 concurrency: ${{ github.ref }}
 
 jobs:
@@ -13,11 +16,13 @@ jobs:
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane ios_build_irmagobridge
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -25,11 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane android_build_irmagobridge
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/irmagobridge.aar
@@ -40,13 +47,14 @@ jobs:
     environment: ad-hoc-alpha
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -56,8 +64,8 @@ jobs:
           APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $APPLE_DISTRIBUTION_CERTIFICATE | base64 --decode > ./fastlane/profiles/apple_distribution.p12
-          echo $APPLE_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/ad_hoc_alpha.mobileprovision
+          echo "$APPLE_DISTRIBUTION_CERTIFICATE" | base64 --decode > ./fastlane/profiles/apple_distribution.p12
+          echo "$APPLE_PROVISIONING_PROFILE" | base64 --decode > ./fastlane/profiles/ad_hoc_alpha.mobileprovision
       - name: Build app
         run: >
           bundle exec fastlane ios_build_app
@@ -67,7 +75,7 @@ jobs:
           certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/ad_hoc_alpha.mobileprovision
           sentry_dsn:${{ secrets.SENTRY_DSN }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-alpha-ios
           path: ./fastlane/build/*.ipa
@@ -84,13 +92,14 @@ jobs:
         type: [apk, appbundle]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
@@ -99,7 +108,7 @@ jobs:
           ANDROID_SIGNING_KEYSTORE: ${{ secrets.ANDROID_SIGNING_KEYSTORE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $ANDROID_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
+          echo "$ANDROID_SIGNING_KEYSTORE" | base64 --decode > ./fastlane/profiles/keystore.jks
       - name: Build app
         run: >
           bundle exec fastlane android_build_${{ matrix.type }}
@@ -109,7 +118,7 @@ jobs:
           key_alias:android-signing-alpha
           keystore_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
           key_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-alpha-android-${{ matrix.flavor }}-${{ matrix.type }}
           path: |
@@ -122,28 +131,28 @@ jobs:
       - build-app-android-alpha
     steps:
       - name: Download app-alpha-ios artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-alpha-ios
       # Check the comment above in the build-app-android-alpha job spec why the beta is also present here.
       - name: Download app-alpha-android-alpha-apk artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-alpha-android-alpha-apk
       - name: Download app-alpha-android-alpha-appbundle artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-alpha-android-alpha-appbundle
       - name: Download app-alpha-android-beta-apk artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-alpha-android-beta-apk
       - name: Download app-alpha-android-beta-appbundle artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-alpha-android-beta-appbundle
       - name: Bundle all artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-bundle-alpha
           path: .
@@ -154,13 +163,16 @@ jobs:
       version-changed: ${{ steps.detection.outcome == 'success' }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           fetch-depth: 0
       - name: Detect version bump
         id: detection
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
-          git diff -U0 ${{ github.event.before }} -- ./yivi_app/pubspec.yaml | egrep "^\+version: [0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$"
+          git diff -U0 "$BEFORE_SHA" -- ./yivi_app/pubspec.yaml | grep -E "^\+version: [0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$"
         shell: bash
         continue-on-error: true
   build-app-ios-beta:
@@ -170,13 +182,14 @@ jobs:
     environment: app-store-beta
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -186,8 +199,8 @@ jobs:
           APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $APPLE_DISTRIBUTION_CERTIFICATE | base64 --decode > ./fastlane/profiles/apple_distribution.p12
-          echo $APPLE_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/app_store_beta.mobileprovision
+          echo "$APPLE_DISTRIBUTION_CERTIFICATE" | base64 --decode > ./fastlane/profiles/apple_distribution.p12
+          echo "$APPLE_PROVISIONING_PROFILE" | base64 --decode > ./fastlane/profiles/app_store_beta.mobileprovision
       - name: Build app
         run: >
           bundle exec fastlane ios_build_app
@@ -197,7 +210,7 @@ jobs:
           certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/app_store_beta.mobileprovision
           sentry_dsn:${{ secrets.SENTRY_DSN }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-beta-ios
           path: ./fastlane/build/*.ipa
@@ -209,13 +222,14 @@ jobs:
     environment: android-beta
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
@@ -224,7 +238,7 @@ jobs:
           ANDROID_SIGNING_KEYSTORE: ${{ secrets.ANDROID_SIGNING_KEYSTORE }}
         run: |
           mkdir -p ./fastlane/profiles
-          echo $ANDROID_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
+          echo "$ANDROID_SIGNING_KEYSTORE" | base64 --decode > ./fastlane/profiles/keystore.jks
       - name: Build app
         run: >
           bundle exec fastlane android_build_appbundle
@@ -234,7 +248,7 @@ jobs:
           key_alias:android-play-store-upload-key
           keystore_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
           key_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-beta-android
           path: |
@@ -247,15 +261,15 @@ jobs:
       - build-app-android-beta
     steps:
       - name: Download app-beta-ios artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-beta-ios
       - name: Download app-beta-android artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: app-beta-android
       - name: Bundle all artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-bundle-beta
           path: .

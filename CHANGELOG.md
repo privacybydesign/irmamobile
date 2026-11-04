@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Internal
+- The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
+- `go fix` modernisations in the `structodart` developer tool, so the Go code passes the shared Go checks
+
 ## [8.4.0] - 2026-11-03
 ### Added
 - Support for SD-JWT-secured W3C VCDM credentials (format `vc+sd-jwt`)
