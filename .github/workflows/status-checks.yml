@@ -225,6 +225,14 @@ jobs:
         with:
           persist-credentials: false
           submodules: true
+      # The release builds fill up the runner's disk now and then. The tool cache stays,
+      # because setup-java, setup-go and setup-ruby use it.
+      - name: Free disk space
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          sudo docker system prune -af || true
+          df -h
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
