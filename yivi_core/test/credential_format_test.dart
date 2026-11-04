@@ -66,7 +66,7 @@ void main() {
     // here breaks decoding of any payload carrying it.
     expect(
       CredentialFormat.values.map((f) => f.name),
-      containsAll(<String>["idemix", "sdjwtvc", "msoMdoc"]),
+      containsAll(<String>["idemix", "sdjwtvc", "msoMdoc", "sdjwtVcdm"]),
     );
   });
 
@@ -96,6 +96,23 @@ void main() {
       "sdjwtvc",
     ]);
     expect(bundle.credentialHashes, {"mdoc-hash", "sdjwt-hash"});
+  });
+
+  test("SelectableCredentialInstance decodes a vc+sd-jwt candidate", () {
+    // SD-JWT-secured W3C VCDM credentials (Format_SdJwtVcdm in irmago).
+    final instance = SelectableCredentialInstance.fromJson(
+      _selectableInstance(format: "vc+sd-jwt", hash: "abc"),
+    );
+
+    expect(instance.format.name, "sdjwtVcdm");
+  });
+
+  test("LogCredential decodes vc+sd-jwt in formats", () {
+    final logCredential = LogCredential.fromJson(
+      _logCredential(formats: ["vc+sd-jwt"]),
+    );
+
+    expect(logCredential.formats.map((f) => f.name), ["sdjwtVcdm"]);
   });
 
   test("LogCredential decodes mso_mdoc in formats", () {

@@ -1,6 +1,7 @@
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
+import "../log_entry.dart";
 import "schemaless_events.dart";
 
 part "credential_store.g.dart";
@@ -27,6 +28,12 @@ class CredentialDescriptor {
   @JsonKey(name: "issue_url")
   final String? issueURL;
 
+  /// The format the credential is offered or requested in; null when the
+  /// descriptor is not tied to one format, as for an IRMA credential type, or
+  /// when irmago is too old to send it.
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
+  final CredentialFormat? format;
+
   CredentialDescriptor({
     required this.credentialId,
     required this.name,
@@ -35,6 +42,7 @@ class CredentialDescriptor {
     required this.attributes,
     required this.issueURL,
     this.image,
+    this.format,
   });
 
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
