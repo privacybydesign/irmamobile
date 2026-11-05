@@ -134,6 +134,15 @@ jobs:
         with:
           persist-credentials: false
           submodules: true
+      # The Android builds fill up the runner's disk now and then. Our own Android SDK
+      # lives in ~/android-sdk, so the preinstalled one can go. The tool cache stays,
+      # because setup-java, setup-go and setup-ruby use it.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost
+          sudo docker system prune -af || true
+          df -h /
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
@@ -225,6 +234,15 @@ jobs:
         with:
           persist-credentials: false
           submodules: true
+      # The Android builds fill up the runner's disk now and then. Our own Android SDK
+      # lives in ~/android-sdk, so the preinstalled one can go. The tool cache stays,
+      # because setup-java, setup-go and setup-ruby use it.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost
+          sudo docker system prune -af || true
+          df -h /
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
