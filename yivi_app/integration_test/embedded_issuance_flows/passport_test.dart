@@ -291,7 +291,8 @@ void main() {
     );
 
     testWidgets(
-      "face verification is skipped when the build has no face service",
+      "the Iris runner is used when the issuer assigns iris, and its face "
+      "session id reaches the issuer",
       (tester) async {
         final fakeReader = FakePassportReader(
           mrzResult: fakePassportMrz,
@@ -303,11 +304,70 @@ void main() {
             DocumentReaderSuccess(),
           ],
         );
+        final fakeIssuer = FakePassportIssuer(
+          faceVerification: const FaceVerificationConfig(
+            method: FaceVerificationMethod.iris,
+          ),
+        );
+        final fakeRegula = FakeFaceVerificationRunner(
+          livenessTransactionId: "txn-unused",
+        );
+        final fakeIris = FakeFaceVerificationRunner(faceSessionId: "fs_1");
+
+        // Both methods declared, as the Play Store / App Store build does.
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+          faceVerificationRunners: {
+            FaceVerificationMethod.regula: fakeRegula,
+            FaceVerificationMethod.iris: fakeIris,
+          },
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+        // The intro is shared by both methods.
+        await tester.waitFor(find.byType(FaceVerificationIntroScreen));
+        await tester.tapAndSettle(
+          find.descendant(
+            of: find.byType(FaceVerificationIntroScreen),
+            matching: find.byKey(const Key("bottom_bar_primary")),
+          ),
+        );
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
+
+        // The wallet declared both methods and the issuer's choice was
+        // honoured: only the Iris runner ran.
+        expect(fakeIssuer.lastStartRequest?.capabilities, [
+          FaceVerificationMethod.regula,
+          FaceVerificationMethod.iris,
+        ]);
+        expect(fakeIris.runCount, 1);
+        expect(fakeRegula.runCount, 0);
+        expect(fakeIris.lastDocumentType, DocumentType.passport);
+        expect(fakeIris.lastLanguageCode, isNotNull);
+        expect(fakeIssuer.lastIssuedData!.faceSessionId, "fs_1");
+        expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
+        expect(fakeIssuer.lastIssuedData!.faceAttempt, 1);
+        expect(fakeIssuer.lastIssuedData!.faceDurationMs, isNotNull);
+      },
+    );
+
+    testWidgets(
+      "an assignment the build has no runner for lands on the error screen",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [DocumentReaderSuccess()],
+        );
+        // The issuer announces Regula to a build that declared nothing (no
+        // runners injected). An honest issuer only assigns from the
+        // declaration, so this is the issuer-bug path: the flow fails before
+        // the chip is read and shows the in-screen error with retry.
         final fakeIssuer = FakePassportIssuer();
 
-        // The issuer does announce face verification here; what is missing is a
-        // liveness service, as in the FOSS build. No regulaFaceService override
-        // => regulaFaceServiceProvider keeps its null default.
         await navigateToPassportNfcReadingScreen(
           tester,
           irmaBinding,
@@ -317,15 +377,15 @@ void main() {
 
         await tester.waitFor(find.byType(NfcReadingScreen));
         await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-        // Reaching the issuer at all proves the step was skipped: an intro
-        // screen would sit there waiting for a tap that never comes.
-        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
+        await tester.pumpUntil(() => fakeIssuer.startSessionCount == 1);
+        await tester.pumpAndSettle();
 
-        // Straight to issuance: no intro screen, and no transaction id on the
-        // issuance request.
+        expect(fakeIssuer.lastStartRequest?.capabilities, isEmpty);
         expect(find.byType(FaceVerificationIntroScreen), findsNothing);
-        expect(fakeIssuer.lastIssuedData, isNotNull);
-        expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
+        expect(fakeReader.readCalled, isFalse);
+        expect(fakeIssuer.lastIssuedData, isNull);
+        expect(find.byType(NfcReadingScreen), findsOneWidget);
+        expect(find.text("Try again"), findsOneWidget);
       },
     );
 

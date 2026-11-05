@@ -1,4 +1,3 @@
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 /// Outcome of a Regula liveness session: the liveness verdict and the
@@ -30,7 +29,8 @@ class RegulaLivenessResult {
 ///
 /// Abstracted so the issuance flow can be tested without the native SDK, and so
 /// the concrete (non-FOSS) implementation can live in the app flavor rather
-/// than in `yivi_core` (see [regulaFaceServiceProvider]).
+/// than in `yivi_core`. Flavors hand it to the flow wrapped in a `RegulaRunner`
+/// (see `face_verification_runner_provider.dart`).
 abstract class RegulaFaceService {
   /// Initializes the SDK and points it at the Face API backend. Idempotent.
   Future<void> initialize();
@@ -43,12 +43,6 @@ abstract class RegulaFaceService {
   Future<RegulaLivenessResult> captureLiveness({String? languageCode});
 }
 
-/// The Regula liveness service for the current app flavor, or `null` when face
-/// verification is disabled (e.g. the FOSS build, which must not depend on the
-/// proprietary Regula native SDK). Overridden via
-/// `runYiviApp(regulaFaceService: ...)`.
-final regulaFaceServiceProvider = Provider<RegulaFaceService?>((ref) => null);
-
 /// Runs a liveness session with [service] (when face verification is enabled)
 /// and attaches the resulting transaction id to [data], so the issuer can match
 /// the live face against the document chip portrait.
@@ -56,8 +50,8 @@ final regulaFaceServiceProvider = Provider<RegulaFaceService?>((ref) => null);
 /// When [service] is `null`, face verification does not apply to this session
 /// (the issuer announced none) and [data] is returned unchanged.
 ///
-/// A non-null [service] means the issuer announced that face verification
-/// applies, so the request has to carry a transaction id. A session that yields
+/// A non-null [service] means the issuer assigned the Regula method to this
+/// session, so the request has to carry a transaction id. A session that yields
 /// none is therefore failed here rather than handed to the issuer with the gate
 /// silently missing: the caller surfaces it on the issuance error screen, the
 /// same place a rejected match ends up. A completed session that does carry an
