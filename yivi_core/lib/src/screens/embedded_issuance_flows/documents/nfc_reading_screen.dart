@@ -59,6 +59,12 @@ class NfcReadingTranslationKeys {
   final String failedToInitiateSession;
   final String success;
 
+  /// Shown when the chip turns out to be the other card in ID-card format: a
+  /// residence permit read as an ID card, or the other way round. Only the ID
+  /// card and residence permit flows need them.
+  final String? wrongDocument;
+  final String? wrongDocumentTip;
+
   NfcReadingTranslationKeys({
     required this.cancelDialogTitle,
     required this.cancelDialogExplanation,
@@ -89,7 +95,25 @@ class NfcReadingTranslationKeys {
     required this.tagLostTryAgain,
     required this.failedToInitiateSession,
     required this.success,
+    this.wrongDocument,
+    this.wrongDocumentTip,
   });
+}
+
+/// The card [document] turns out to be when it is not the [picked] one: a
+/// residence permit read in the ID card flow, or the other way round. This
+/// mirrors the passport issuer, which issues an ID card only to a national of
+/// the issuing state and a residence permit only to someone who is not. Null
+/// when the document matches, and for passports and driving licences.
+@visibleForTesting
+DocumentType? wrongDocumentType(DocumentData document, DocumentType picked) {
+  if (document is! PassportData) return null;
+  final national = document.mrz.nationality == document.mrz.country;
+  return switch (picked) {
+    .identityCard when !national => .residencePermit,
+    .residencePermit when national => .identityCard,
+    _ => null,
+  };
 }
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
@@ -121,6 +145,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// Shows a loader instead of the (already-completed) readout page, so the
   /// user is not sent back to the readout screen after the liveness session.
   bool _preparingIssuance = false;
+
+  /// Set when the chip turned out to be the other card than the one picked;
+  /// the read is then not sent to the issuer, so it can never be issued as
+  /// the wrong credential.
+  DocumentType? _wrongDocument;
 
   Widget _getAnimation() {
     return switch (widget.mrz) {
@@ -174,6 +203,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       issuanceError = null;
       _issuanceErrorIsFaceMatch = false;
       _preparingIssuance = false;
+      _wrongDocument = null;
     });
     // Capture the root navigator context up front, outside the try. The Regula
     // liveness UI is a native screen that backgrounds — and on some devices
@@ -220,6 +250,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
       if (result != null) {
         final (pdr, rawDocData) = result;
+        final wrongDocument = wrongDocumentType(pdr, widget.mrz.documentType);
+        if (wrongDocument != null) {
+          if (mounted) setState(() => _wrongDocument = wrongDocument);
+          return;
+        }
         var toIssue = rawDocData;
         final faceVerification = faceService != null;
         // When face verification is enabled, show the Yivi intro after the
@@ -291,11 +326,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // start the issuance session at the irma server
       final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
         result,
-        switch (widget.mrz) {
-          ScannedPassportMrz() => .passport,
-          ScannedDrivingLicenceMrz() => .drivingLicence,
-          ScannedIdCardMrz() => .identityCard,
-        },
+        widget.mrz.documentType,
       );
       if (!navContext.mounted) {
         return;
@@ -326,7 +357,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // (vcmrtd: `Exception('Store failed: 400 …')`); flag it so the error
           // screen shows the dedicated failed-face illustration.
           _issuanceErrorIsFaceMatch =
-              faceVerification && e.toString().contains("Store failed: 400");
+              faceVerification &&
+              e.toString().contains("Store failed: 400") &&
+              !e.toString().contains("error:wrong-document-type");
           _preparingIssuance = false;
         });
       } else if (navContext.mounted) {
@@ -364,6 +397,23 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         illustrationAsset: _issuanceErrorIsFaceMatch
             ? "error/failed_face_verification.svg"
             : "error/general_error_illustration.svg",
+      );
+    }
+
+    if (_wrongDocument case final wrongDocument?) {
+      return _buildError(
+        context,
+        _UiState(
+          stateKey:
+              widget.translationKeys.wrongDocument ??
+              widget.translationKeys.error,
+          tipKey:
+              widget.translationKeys.wrongDocumentTip ??
+              widget.translationKeys.errorGeneric,
+          progress: 0,
+        ),
+        "Picked ${widget.mrz.documentType.name}, "
+        "but the chip shows a ${wrongDocument.name}.",
       );
     }
 
