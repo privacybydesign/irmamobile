@@ -159,7 +159,10 @@ class YiviApp extends ConsumerWidget {
             BlocProvider(
               create: (context) => notificationsBloc..add(Initialize()),
             ),
-            BlocProvider(create: (context) => HomeTabState()),
+            BlocProvider(
+              create: (context) =>
+                  HomeTabState(repositoryEvents: repository.getEvents()),
+            ),
           ],
           child: PreferredLocaleBuilder(
             builder: (context, preferredLocale) {

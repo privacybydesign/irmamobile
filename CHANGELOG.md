@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A screen reader now announces the search and add data buttons in the top bar of the data tab as "Search your data" and "Obtain data" ("Zoek in je gegevens" and "Haal gegevens op" in Dutch), instead of only "button" ([#726](https://github.com/privacybydesign/irmamobile/issues/726))
 - A screen reader can now read the App ID and the version on the More tab, and activate the item that enables developer mode ([#727](https://github.com/privacybydesign/irmamobile/issues/727))
 - A screen reader no longer announces the progress bar on the collect data screen by its numeric value; the "Step 1 of 2" text stays ([#728](https://github.com/privacybydesign/irmamobile/issues/728))
+- After deleting all data in the settings and enrolling again, the app opens on the data tab, as after a fresh install, instead of on the tab it showed before
+- After deleting all data, the app shows developer mode as off, as it then is. It kept showing it as on, while sessions over http failed with "remote server does not use https"
 
 ### Internal
 - Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
