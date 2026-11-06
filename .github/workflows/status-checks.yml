@@ -45,7 +45,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Compare pubspec versions
@@ -77,7 +77,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Setup build environment
@@ -92,13 +92,13 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane ios_build_irmagobridge
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -111,13 +111,13 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane android_build_irmagobridge
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/irmagobridge.aar
@@ -130,7 +130,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           submodules: true
@@ -146,12 +146,12 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
       - run: cd yivi_app && flutter build apk --flavor alpha -t lib/main_prototypes.dart
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: prototypes-alpha-android
           path: ./build/app/outputs/apk/alpha/release/*.apk
@@ -167,14 +167,14 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -196,7 +196,7 @@ jobs:
           certificate_password:"$CERTIFICATE_PASSWORD"
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: app-alpha-ios
           path: ./fastlane/build/*.ipa
@@ -210,7 +210,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - run: ./yivi_fdroid/fdroid_build_test.sh
@@ -230,7 +230,7 @@ jobs:
         type: [apk, appbundle]
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           submodules: true
@@ -246,7 +246,7 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
@@ -268,7 +268,7 @@ jobs:
           key_alias:android-signing-development
           keystore_password:"$KEYSTORE_PASSWORD"
           key_password:"$KEYSTORE_PASSWORD"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
@@ -287,14 +287,14 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: irmagobridge-ios
           path: yivi_core/ios/Irmagobridge.xcframework/
@@ -315,7 +315,7 @@ jobs:
           certificate_password:"$CERTIFICATE_PASSWORD"
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: integration-test-ios
           path: ./fastlane/build/*.zip
@@ -333,7 +333,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 1
@@ -349,7 +349,7 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
@@ -363,7 +363,7 @@ jobs:
           rm -rf ~/.android || true
           rm -rf ~/.pub-cache || true
           df -h
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: integration-test-android
           path: ./fastlane/build/*.apk
@@ -384,7 +384,7 @@ jobs:
     concurrency: integration-test-ios-${{ matrix.file_name }} # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: integration-test-ios
           path: .
@@ -439,7 +439,7 @@ jobs:
     concurrency: integration-test-android # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: integration-test-android
           path: .
