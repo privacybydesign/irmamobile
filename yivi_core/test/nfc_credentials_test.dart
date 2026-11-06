@@ -8,8 +8,13 @@ void main() {
       expect(credentialRequiresNfc("pbdf.pbdf.passport"), isTrue);
       expect(credentialRequiresNfc("pbdf.pbdf.drivinglicence"), isTrue);
       expect(credentialRequiresNfc("pbdf.pbdf.idcard"), isTrue);
+      expect(credentialRequiresNfc("pbdf.pbdf.residencepermit"), isTrue);
       expect(credentialRequiresNfc("pbdf-staging.pbdf.passport"), isTrue);
       expect(credentialRequiresNfc("pbdf-staging.pbdf.drivinglicence"), isTrue);
+      expect(
+        credentialRequiresNfc("pbdf-staging.pbdf.residencepermit"),
+        isTrue,
+      );
       expect(credentialRequiresNfc("pbdf-staging.pbdf.idcard"), isTrue);
     });
 

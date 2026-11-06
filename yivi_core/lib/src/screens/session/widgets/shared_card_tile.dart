@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
@@ -176,6 +177,7 @@ class SharedCardTile extends ConsumerWidget {
               child: YiviCredentialCardAttributeList(
                 c.attributes,
                 credentialId: c.credentialId,
+                namespaced: c.format == CredentialFormat.msoMdoc,
                 disclosure: true,
                 showDividers: true,
                 matchedTag: FlutterI18n.translate(context, "share.match_tag"),

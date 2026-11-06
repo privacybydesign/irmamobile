@@ -226,6 +226,7 @@ class _DocumentData extends StatelessWidget {
               child: YiviCredentialCardAttributeList(
                 credential.attributes,
                 credentialId: credential.credentialId,
+                namespaced: credential.isMdoc,
                 ageDisplay: AgeDisplay.collapsed,
                 layout: CredentialCardLayout.document,
                 showDividers: true,

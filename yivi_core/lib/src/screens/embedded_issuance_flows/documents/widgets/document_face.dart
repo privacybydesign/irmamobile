@@ -22,6 +22,7 @@ class DocumentFace extends StatelessWidget {
   static Size sizeOf(DocumentType type) => switch (type) {
     DocumentType.passport => const Size(150, 206),
     DocumentType.identityCard ||
+    DocumentType.residencePermit ||
     DocumentType.drivingLicence => const Size(170, 108),
   };
 
@@ -32,7 +33,7 @@ class DocumentFace extends StatelessWidget {
       size: size,
       child: switch (type) {
         DocumentType.passport => _Passport(sweep: sweep),
-        DocumentType.identityCard => _Card(
+        DocumentType.identityCard || DocumentType.residencePermit => _Card(
           sweep: sweep,
           fill: DocumentColors.identityCardFill,
           mrz: const [

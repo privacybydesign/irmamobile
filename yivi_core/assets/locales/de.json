@@ -854,6 +854,7 @@
     "document": {
       "passport": "Reisepass",
       "id_card": "Personalausweis",
+      "residence_permit": "Aufenthaltstitel",
       "driving_licence": "Führerschein"
     },
     "instruction": {
@@ -868,6 +869,12 @@
         "body": "Halten Sie Ihren Personalausweis vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
         "tip": "Halten Sie die Karte nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
         "image_alt": "Ein Handy über der Rückseite eines Personalausweises, die Kamera auf den drei Zeilen unten."
+      },
+      "residence_permit": {
+        "title": "Verwenden Sie die Rückseite Ihres Aufenthaltstitels",
+        "body": "Halten Sie Ihren Aufenthaltstitel vor die Kamera und achten Sie darauf, dass die ganze Rückseite gut sichtbar ist. Drücken Sie danach auf Start.",
+        "tip": "Halten Sie die Karte nicht direkt unter eine Lampe, dann gibt es weniger Spiegelungen.",
+        "image_alt": "Ein Handy über der Rückseite eines Aufenthaltstitels, die Kamera auf den drei Zeilen unten."
       },
       "driving_licence": {
         "title": "Verwenden Sie die Vorderseite Ihres Führerscheins",
@@ -896,6 +903,7 @@
       "reading_label": {
         "passport": "Reisepass lesen",
         "id_card": "Personalausweis lesen",
+        "residence_permit": "Aufenthaltstitel lesen",
         "driving_licence": "Führerschein lesen"
       }
     },
@@ -903,6 +911,7 @@
       "document_nr_hint": "z. B. NXC4R1P72",
       "tip_passport": "Du findest diese auf der Seite mit deinem Passfoto, in den zwei Zeilen unten.",
       "tip_id_card": "Du findest diese auf der Rückseite deines Ausweises, in den Zeilen unten.",
+      "tip_residence_permit": "Du findest diese auf der Rückseite deines Aufenthaltstitels, in den Zeilen unten.",
       "tip_driving_licence": "Du findest dies auf der Vorderseite deines Führerscheins, in der Zeile unten."
     }
   },
@@ -990,7 +999,46 @@
         "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Personalausweises abbrechen möchten?",
         "confirm": "Ja",
         "decline": "Nein"
+      },
+      "wrong_document": "Das ist ein Aufenthaltstitel",
+      "wrong_document_tip": "Gehen Sie zurück und wählen Sie Aufenthaltstitel."
+    }
+  },
+  "residence_permit": {
+    "scan": {
+      "title": "Aufenthaltstitel scannen",
+      "manual": "Manuell eingeben"
+    },
+    "manual": {
+      "title": "Daten des Aufenthaltstitels eingeben",
+      "explanation": "Wir benötigen die Dokumentennummer, das Geburtsdatum und das Ablaufdatum Ihres Aufenthaltstitels, um auf den NFC-Chip zuzugreifen.",
+      "fields": {
+        "document_nr": "Dokumentennummer",
+        "document_nr_required": "Dokumentennummer ist erforderlich",
+        "document_nr_invalid": "Dokumentennummer ist ungültig",
+        "date_of_birth": "Geburtsdatum",
+        "date_of_birth_required": "Geburtsdatum ist erforderlich",
+        "date_of_expiry": "Ablaufdatum",
+        "date_of_expiry_required": "Ablaufdatum ist erforderlich",
+        "date_invalid": "Datum ist ungültig"
       }
+    },
+    "nfc": {
+      "title": "Aufenthaltstitel lesen",
+      "error": "Aufenthaltstitel konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
+      "cancelled": "Abgebrochen",
+      "error_generic": "Beim Lesen des Aufenthaltstitels ist ein Fehler aufgetreten.",
+      "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Aufenthaltstitel-Tag",
+      "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
+      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
+      "cancel_dialog": {
+        "title": "Lesen des Aufenthaltstitels abbrechen?",
+        "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Aufenthaltstitels abbrechen möchten?",
+        "confirm": "Ja",
+        "decline": "Nein"
+      },
+      "wrong_document": "Das ist ein Personalausweis",
+      "wrong_document_tip": "Gehen Sie zurück und wählen Sie Personalausweis."
     }
   },
   "passport": {
@@ -1406,6 +1454,7 @@
       "format": {
         "idemix": "Idemix",
         "sdjwtvc": "SD-JWT VC",
+        "sdjwt_vcdm": "SD-JWT VCDM",
         "mdoc": "mdoc",
         "unknown": "Unbekanntes Format"
       }

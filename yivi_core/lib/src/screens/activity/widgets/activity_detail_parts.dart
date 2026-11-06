@@ -453,6 +453,7 @@ class ActivityCredentialTile extends StatelessWidget {
             child: YiviCredentialCardAttributeList(
               credential.attributes,
               credentialId: credential.credentialId,
+              namespaced: credential.formats.contains(CredentialFormat.msoMdoc),
               disclosure: card.disclosure,
               showDividers: true,
             ),

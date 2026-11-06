@@ -524,6 +524,7 @@ class _Details extends ConsumerWidget {
             builder: (key) => YiviCredentialCardAttributeList(
               credential.attributes,
               credentialId: credential.credentialId,
+              namespaced: credential.isMdoc,
               showDividers: true,
               found: foundLabel == null ? null : found,
               foundQuery: ref.watch(dataSearchQueryProvider),
@@ -692,6 +693,7 @@ String _formatLabel(schemaless.Credential c) {
   return [
     if (formats.contains(CredentialFormat.idemix)) "Yivi (idemix)",
     if (formats.contains(CredentialFormat.sdjwtvc)) "SD-JWT VC",
+    if (formats.contains(CredentialFormat.sdjwtVcdm)) "SD-JWT VCDM",
     if (formats.contains(CredentialFormat.msoMdoc)) "mdoc",
   ].join(", ");
 }

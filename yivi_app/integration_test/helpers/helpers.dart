@@ -486,9 +486,12 @@ Future<void> evaluateRequestor(
 
 /// One label-value entry in an [attributes] list. The value is one of:
 /// - `String`: a leaf row (label + value)
-/// - `List<String>`: a primitive array, rendered as bullets
+/// - `List<String>`: a primitive array, rendered as bullets (a [Matcher] may
+///   stand in for any of them)
 /// - [Block] (`List<AttrRow>`): a nested group
 /// - `List<Block>`: an array of nested items
+/// - [Matcher]: a leaf row whose value is only known by shape, such as a
+///   holder `did:key` that differs per issuance
 typedef AttrRow = (String label, Object value);
 
 /// Ordered list of rows, used for nested groups and as item children.
@@ -1287,17 +1290,18 @@ Map<String, List<String>> _renderedLabelValues(
 /// (`yivi_credential_card_attribute_list.dart`): leaves emit one entry,
 /// primitive arrays emit one entry with all bullets, item arrays recurse
 /// into each item's children, and nested groups recurse into their children.
-List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
-  final out = <_LabelValues>[];
+List<_ExpectedRow> _flattenExpected(List<AttrRow> rows) {
+  final out = <_ExpectedRow>[];
+  bool isValue(Object? v) => v is String || v is Matcher;
   void walk(List<AttrRow> rows) {
     for (final (label, value) in rows) {
-      if (value is String) {
-        out.add(_LabelValues(label, [value]));
+      if (isValue(value)) {
+        out.add((label: label, values: [value]));
       } else if (value is List) {
         if (value.isEmpty) {
-          out.add(_LabelValues(label, const []));
-        } else if (value.every((v) => v is String)) {
-          out.add(_LabelValues(label, value.cast<String>()));
+          out.add((label: label, values: const []));
+        } else if (value.every(isValue)) {
+          out.add((label: label, values: value.cast<Object>()));
         } else if (value.every((v) => v is List)) {
           // List<Block>: array of items. Recurse into each item. An item's
           // first value, when it is text, is its name (a heading), not a
@@ -1366,6 +1370,9 @@ void _matchAttributes(
     );
   }
 }
+
+/// An expected row: its label and its values, each a [String] or a [Matcher].
+typedef _ExpectedRow = ({String label, List<Object> values});
 
 class _LabelValues {
   final String label;

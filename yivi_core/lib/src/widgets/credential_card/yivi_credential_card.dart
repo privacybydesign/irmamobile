@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../screens/add_data/add_data_sheet.dart";
@@ -35,6 +36,9 @@ class YiviCredentialCard extends ConsumerWidget {
   /// whole credential; attribute groups lay themselves out accordingly.
   final bool disclosure;
 
+  /// The attributes' claim paths start with an mso_mdoc namespace.
+  final bool namespaced;
+
   const YiviCredentialCard({
     super.key,
     required this.credentialName,
@@ -50,6 +54,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.hideFooter = false,
     this.hideNotObtainable = false,
     this.disclosure = false,
+    this.namespaced = false,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -65,6 +70,9 @@ class YiviCredentialCard extends ConsumerWidget {
     bool hideFooter = false,
   }) : this(
          key: key,
+         namespaced: credential.credentialInstanceIds.containsKey(
+           CredentialFormat.msoMdoc,
+         ),
          credentialName: credential.name,
          issuerName: credential.issuer.name,
          image: credential.image != null
@@ -101,6 +109,7 @@ class YiviCredentialCard extends ConsumerWidget {
     bool hideNotObtainable = false,
   }) : this(
          key: key,
+         namespaced: descriptor.format == CredentialFormat.msoMdoc,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
@@ -196,6 +205,7 @@ class YiviCredentialCard extends ConsumerWidget {
               credentialId: status.credentialId,
               disclosure: disclosure,
               ageDisplay: AgeDisplay.collapsed,
+              namespaced: namespaced,
             ),
           ],
           if (!hideFooter && !status.revoked)

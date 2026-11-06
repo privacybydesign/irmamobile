@@ -122,6 +122,7 @@ String technicalDetailsText(List<TechGroup> groups) => [
 String _format(CredentialFormat? format, Translate t) => switch (format) {
   CredentialFormat.idemix => t("share.tech.format.idemix"),
   CredentialFormat.sdjwtvc => t("share.tech.format.sdjwtvc"),
+  CredentialFormat.sdjwtVcdm => t("share.tech.format.sdjwt_vcdm"),
   CredentialFormat.msoMdoc => t("share.tech.format.mdoc"),
   null => t("share.tech.format.unknown"),
 };

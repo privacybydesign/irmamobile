@@ -59,11 +59,16 @@ abstract final class DocumentFlowSteps {
         onCancel: onCancel,
         mrzParser: PassportMrzParser(),
       ),
-      .identityCard => MrzReaderScreen(
+      // A residence permit is a card in ID-card format too.
+      .identityCard || .residencePermit => MrzReaderScreen(
         translationKeys: keys,
         instructionKey: type.instructionKey,
-        onSuccess: (r) =>
-            onRead(ScannedIdCardMrz.fromMRZResult(r as PassportMrzResult)),
+        onSuccess: (r) => onRead(
+          ScannedIdCardMrz.fromMRZResult(
+            r as PassportMrzResult,
+            documentType: type,
+          ),
+        ),
         onManualAdd: onManual,
         onCancel: onCancel,
         mrzParser: IdCardMrzParser(),
@@ -111,6 +116,7 @@ abstract final class DocumentFlowSteps {
                 documentNumber: data.documentNr,
                 dateOfBirth: data.dateOfBirth,
                 dateOfExpiry: data.expiryDate,
+                documentType: type,
               ),
       ),
     );
@@ -137,6 +143,10 @@ abstract final class DocumentFlowSteps {
         timeoutWaitingForTag: "$s.nfc.timeout_waiting_for_tag",
         tagLostTryAgain: "$s.nfc.tag_lost_try_again",
         failedToInitiateSession: "$s.nfc.failed_to_initiate_session",
+        wrongDocument: mrz is ScannedIdCardMrz ? "$s.nfc.wrong_document" : null,
+        wrongDocumentTip: mrz is ScannedIdCardMrz
+            ? "$s.nfc.wrong_document_tip"
+            : null,
       ),
       mrz: mrz,
       onCancel: onCancel,

@@ -13,6 +13,7 @@ import "../providers/ocr_processor_provider.dart";
 const documentPaths = {
   DocumentType.passport: "passport",
   DocumentType.identityCard: "id_card",
+  DocumentType.residencePermit: "residence_permit",
   DocumentType.drivingLicence: "driving_licence",
 };
 

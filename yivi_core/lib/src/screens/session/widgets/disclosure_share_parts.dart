@@ -184,6 +184,7 @@ class _OfferedCard extends StatelessWidget {
         YiviCredentialCardAttributeList(
           card.attributes,
           credentialId: card.credentialId,
+          namespaced: card.isMdoc,
           showDividers: true,
         ),
     ],
@@ -457,6 +458,7 @@ class _MismatchTile extends StatelessWidget {
         YiviCredentialCardAttributeList(
           card.attributes,
           credentialId: card.credentialId,
+          namespaced: card.isMdoc,
           disclosure: true,
           showDividers: true,
           mismatched: {

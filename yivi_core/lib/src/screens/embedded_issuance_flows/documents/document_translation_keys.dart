@@ -5,6 +5,7 @@ extension DocumentTranslationKeys on DocumentType {
   String get keySegment => switch (this) {
     .passport => "passport",
     .identityCard => "id_card",
+    .residencePermit => "residence_permit",
     .drivingLicence => "driving_licence",
   };
 

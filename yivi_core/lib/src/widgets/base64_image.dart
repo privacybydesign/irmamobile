@@ -25,60 +25,86 @@ Uint8List decodeBase64Cached(String base64) {
 const _decodedLimit = 512;
 final _decoded = <String, Uint8List>{};
 
+/// Whether [bytes] are an SVG: by [mimeType] when known, else by their start.
+bool isSvgImage(Uint8List bytes, {String? mimeType}) {
+  if (mimeType != null) {
+    // Strip parameters like "; charset=utf-8" from the Content-Type.
+    return mimeType.split(";").first.trim() == "image/svg+xml";
+  }
+  // Logos cached before the MIME type was recorded, and attribute images
+  // from an irmago that does not send one, come through without it; every
+  // bitmap format starts with binary magic bytes, so data starting with
+  // "<" (allowing a BOM/whitespace) can only be SVG/XML.
+  var start = 0;
+  if (bytes.length >= 3 &&
+      bytes[0] == 0xEF &&
+      bytes[1] == 0xBB &&
+      bytes[2] == 0xBF) {
+    start = 3;
+  }
+  for (var i = start; i < bytes.length; i++) {
+    final byte = bytes[i];
+    if (byte == 0x20 || byte == 0x09 || byte == 0x0A || byte == 0x0D) {
+      continue;
+    }
+    return byte == 0x3C; // "<"
+  }
+  return false;
+}
+
+/// Draws a base64-encoded image: an SVG with flutter_svg, anything else as a
+/// bitmap. Renders nothing for text that is not base64 or not an image, so a
+/// bad value from an issuer never shows as an error box.
 class Base64Image extends StatefulWidget {
   final String base64;
   final String? mimeType;
+  final BoxFit? fit;
 
   /// The size it is shown at, when known (a logo in an avatar): a bitmap is
   /// then decoded at that size on this screen, not at its own size, which
   /// for a logo is often many times larger.
   final double? size;
 
-  Base64Image({Key? key, required this.base64, this.mimeType, this.size})
-    : super(key: key ?? ValueKey(base64));
+  Base64Image({
+    Key? key,
+    required this.base64,
+    this.mimeType,
+    this.fit,
+    this.size,
+  }) : super(key: key ?? ValueKey(base64));
 
   @override
   State<Base64Image> createState() => _Base64ImageState();
 }
 
 class _Base64ImageState extends State<Base64Image> {
-  late final Uint8List _bytes = decodeBase64Cached(widget.base64);
-  late final bool _isSvg = _detectSvg();
-  late final MemoryImage? _memory = _isSvg ? null : MemoryImage(_bytes);
+  late final Uint8List? _bytes = _decode(widget.base64);
+  late final bool _isSvg =
+      _bytes != null && isSvgImage(_bytes, mimeType: widget.mimeType);
+  late final MemoryImage? _memory = _bytes == null || _isSvg
+      ? null
+      : MemoryImage(_bytes);
 
-  bool _detectSvg() {
-    final mimeType = widget.mimeType;
-    if (mimeType != null) {
-      // Strip parameters like "; charset=utf-8" from the Content-Type.
-      return mimeType.split(";").first.trim() == "image/svg+xml";
+  static Uint8List? _decode(String base64) {
+    try {
+      final bytes = decodeBase64Cached(base64.trim());
+      return bytes.isEmpty ? null : bytes;
+    } on FormatException {
+      return null;
     }
-    // Logos cached before the MIME type was recorded come through without
-    // one; every bitmap format starts with binary magic bytes, so data
-    // starting with "<" (allowing a BOM/whitespace) can only be SVG/XML.
-    return _looksLikeSvg(_bytes);
-  }
-
-  static bool _looksLikeSvg(Uint8List bytes) {
-    var start = 0;
-    if (bytes.length >= 3 &&
-        bytes[0] == 0xEF &&
-        bytes[1] == 0xBB &&
-        bytes[2] == 0xBF) {
-      start = 3;
-    }
-    for (var i = start; i < bytes.length; i++) {
-      final byte = bytes[i];
-      if (byte == 0x20 || byte == 0x09 || byte == 0x0A || byte == 0x0D) {
-        continue;
-      }
-      return byte == 0x3C; // "<"
-    }
-    return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isSvg) return SvgPicture.memory(_bytes);
+    final bytes = _bytes;
+    if (bytes == null) return const SizedBox.shrink();
+    if (_isSvg) {
+      return SvgPicture.memory(
+        bytes,
+        fit: widget.fit ?? BoxFit.contain,
+        errorBuilder: (_, _, _) => const SizedBox.shrink(),
+      );
+    }
     final size = widget.size;
     final ImageProvider image = size == null
         ? _memory!
@@ -88,6 +114,11 @@ class _Base64ImageState extends State<Base64Image> {
             // Never upscaled: a small logo keeps its own size.
             allowUpscaling: false,
           );
-    return Image(image: image, gaplessPlayback: true);
+    return Image(
+      image: image,
+      fit: widget.fit,
+      gaplessPlayback: true,
+      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+    );
   }
 }

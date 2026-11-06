@@ -405,6 +405,7 @@ class IssuanceOffer {
         YiviCredentialCardAttributeList(
           card.attributes,
           credentialId: card.credentialId,
+          namespaced: card.isMdoc,
           showDividers: true,
           mismatched: mismatchedIn(card),
         );

@@ -9,6 +9,7 @@ import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/credential_field_search.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
+import "../base64_image.dart";
 import "../search_mark.dart";
 import "../status_chip.dart";
 import "../translated_text.dart";
@@ -72,6 +73,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final String? found;
   final String foundQuery;
   final GlobalKey? foundKey;
+  // The claim paths start with an mso_mdoc namespace: who defined the data
+  // element, not a part of the credential, so it never gets a level.
+  final bool namespaced;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
@@ -90,6 +94,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
     this.found,
     this.foundQuery = "",
     this.foundKey,
+    this.namespaced = false,
   });
 
   @override
@@ -118,17 +123,11 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
           .toList();
     }
 
-    // Images last, everything else in the order given. Not List.sort: it is
-    // not stable, and past 32 elements it reorders the attributes it sees as
-    // equal.
-    final sorted = [
-      ...remaining.where((a) => !_isImage(a)),
-      ...remaining.where(_isImage),
-    ];
-
+    // Images end up last on every level through _valuesFirst.
     final tree = _buildTree(
-      sorted,
+      remaining,
       compareTo: compareTo,
+      namespaced: namespaced,
       mismatched: mismatched,
       matched: matched,
       found: found == null
@@ -236,15 +235,18 @@ bool _isImage(schemaless.Attribute a) =>
 // Tree builder
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Label for an array or object the issuer gave no header: its own key made
+/// readable, as [schemaless.Attribute.effectiveDisplayName] does for a leaf.
+/// Null when the path has no key, which leaves array items labelled "ITEM".
+String? _keyLabel(List<dynamic> arrayPath) {
+  final key = arrayPath.lastWhereOrNull((s) => s is String) as String?;
+  return key == null ? null : schemaless.readableClaimKey(key);
+}
+
 class _StackFrame {
   final List<dynamic> path;
   final List<_Node> childrenArr;
-  final bool isItem;
-  _StackFrame({
-    required this.path,
-    required this.childrenArr,
-    required this.isItem,
-  });
+  _StackFrame({required this.path, required this.childrenArr});
 }
 
 class _PrimCollector {
@@ -268,6 +270,7 @@ _GroupNode _buildTree(
   Set<String> mismatched = const {},
   Set<String> matched = const {},
   _Found? found,
+  bool namespaced = false,
 }) {
   final headers = <String, schemaless.Attribute>{};
   for (final e in attrs) {
@@ -282,7 +285,7 @@ _GroupNode _buildTree(
 
   final root = _GroupNode(path: const [], children: []);
   final stack = <_StackFrame>[
-    _StackFrame(path: const [], childrenArr: root.children, isItem: false),
+    _StackFrame(path: const [], childrenArr: root.children),
   ];
   final primCollectors = <String, _PrimCollector>{};
 
@@ -320,32 +323,65 @@ _GroupNode _buildTree(
     }
   }
 
-  void ensureItemFrames(List<dynamic> p) {
-    for (var i = 0; i < p.length; i++) {
-      if (p[i] is! int) continue;
+  // The first key gets no level of its own when it is an mdoc namespace,
+  // however many the card shows, or when every attribute shares it, like a
+  // VCDM credential's `credentialSubject`: that key is the credential itself
+  // rather than a part of it.
+  final firstKey = attrs.firstOrNull?.claimPath.firstOrNull;
+  final skipFirstKey =
+      namespaced ||
+      (firstKey is String &&
+          attrs.every(
+            (a) => a.claimPath.length > 1 && a.claimPath[0] == firstKey,
+          ));
+
+  bool isOpen(List<dynamic> path) => stack.any((f) => listEquals(f.path, path));
+
+  // The issuer's name for the object or array at [path], else its own key.
+  String? labelFor(List<dynamic> path) =>
+      headers[claimPathKey(path)]?.effectiveDisplayName ?? _keyLabel(path);
+
+  // Opens a group for an object or array the issuer gave no header, titled
+  // with its key, so its fields or items stay together under it instead of
+  // spilling into the parent's level. An array's items are then also counted
+  // per array rather than together with every other unnamed array's.
+  void ensureGroupFrame(List<dynamic> path) {
+    if (isOpen(path)) return;
+    popToPrefix(path);
+    final group = _GroupNode(label: labelFor(path), path: path, children: []);
+    stack.last.childrenArr.add(group);
+    stack.add(_StackFrame(path: path, childrenArr: group.children));
+  }
+
+  // Opens the levels [p] passes through: an item for every array element on
+  // it, and a group for every object below the shared first key.
+  void ensureFrames(List<dynamic> p) {
+    for (var i = skipFirstKey ? 1 : 0; i < p.length; i++) {
+      if (p[i] is! int) {
+        // An object: a key followed by another key. A key followed by an
+        // index is an array, whose group is opened with its first item.
+        if (i + 1 < p.length && p[i + 1] is String) {
+          ensureGroupFrame(p.sublist(0, i + 1));
+        }
+        continue;
+      }
       final itemPath = p.sublist(0, i + 1);
-      final itemKey = claimPathKey(itemPath);
-      final alreadyOpen = stack.any(
-        (f) => f.isItem && claimPathKey(f.path) == itemKey,
-      );
-      if (alreadyOpen) continue;
+      if (isOpen(itemPath)) continue;
 
       final arrayHeaderPath = p.sublist(0, i);
+      ensureGroupFrame(arrayHeaderPath);
       popToPrefix(arrayHeaderPath);
       final arrayFrame = stack.last;
       final itemIndex =
           arrayFrame.childrenArr.whereType<_ItemNode>().length + 1;
-      final parentHeader = headers[claimPathKey(arrayHeaderPath)];
       final item = _ItemNode(
-        parentLabel: parentHeader?.effectiveDisplayName,
+        parentLabel: labelFor(arrayHeaderPath),
         itemIndex: itemIndex,
         path: itemPath,
         children: [],
       );
       arrayFrame.childrenArr.add(item);
-      stack.add(
-        _StackFrame(path: itemPath, childrenArr: item.children, isItem: true),
-      );
+      stack.add(_StackFrame(path: itemPath, childrenArr: item.children));
     }
   }
 
@@ -356,7 +392,7 @@ _GroupNode _buildTree(
       // Header → opens a group at this path.
       flushAllPrims();
       popToPrefix(p);
-      ensureItemFrames(p);
+      ensureFrames(p);
       popToPrefix(p);
 
       final parentFrame = stack.last;
@@ -366,9 +402,7 @@ _GroupNode _buildTree(
         children: [],
       );
       parentFrame.childrenArr.add(group);
-      stack.add(
-        _StackFrame(path: p, childrenArr: group.children, isItem: false),
-      );
+      stack.add(_StackFrame(path: p, childrenArr: group.children));
       continue;
     }
 
@@ -389,6 +423,9 @@ _GroupNode _buildTree(
       final headerEntry = headers[parentKey];
       final label = headerEntry?.effectiveDisplayName ?? e.effectiveDisplayName;
 
+      // A list of values inside an array item (`alignment|0|type|0`) belongs
+      // in that item, also when it is the item's first attribute.
+      ensureFrames(parentArrPath);
       popToPrefix(parentArrPath);
       final frame = stack.last;
 
@@ -405,7 +442,7 @@ _GroupNode _buildTree(
       continue;
     }
 
-    ensureItemFrames(p);
+    ensureFrames(p);
     popToPrefix(parentArrPath);
     final frame = stack.last;
     final key = claimPathKey(p);
@@ -422,8 +459,42 @@ _GroupNode _buildTree(
   }
 
   flushAllPrims();
+  _valuesFirst(root);
   return root;
 }
+
+/// Orders every level as simple values, then sections (nested objects and
+/// lists), then images, keeping the order within each of the three. A value
+/// would otherwise land between two sections, where it reads as part of the
+/// one above it.
+void _valuesFirst(_Node node) {
+  final children = _childrenOf(node);
+  if (children == null) return;
+
+  int rank(_Node c) => switch (c) {
+    _RowNode n when _isImage(n.attribute) => 2,
+    _RowNode() || _PrimArrayNode() => 0,
+    // A header without descendants is drawn as a labelled row.
+    _GroupNode n when n.children.isEmpty => 0,
+    _ => 1,
+  };
+  final ordered = [
+    for (final r in [0, 1, 2]) ...children.where((c) => rank(c) == r),
+  ];
+  children
+    ..clear()
+    ..addAll(ordered);
+  for (final c in children) {
+    _valuesFirst(c);
+  }
+}
+
+/// The children of a group or an item; null for a node that has none.
+List<_Node>? _childrenOf(_Node node) => switch (node) {
+  _GroupNode n => n.children,
+  _ItemNode n => n.children,
+  _ => null,
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Ages — `overNN` attributes fold into one row per group.
@@ -729,14 +800,22 @@ class _LeafContent extends StatelessWidget {
 
   Widget _tappableImage() {
     final attribute = node.attribute;
-    final bytes = decodeAttributeImage(attribute.value);
+    final value = attribute.value;
+    final bytes = decodeAttributeImage(value);
     if (bytes == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: 4),
-      child: AttributePhoto(
-        bytes: bytes,
-        title: attribute.effectiveDisplayName,
-      ),
+      // An SVG (an Open Badge's picture) is drawn like a logo; only a bitmap
+      // opens full screen.
+      child: isSvgImage(bytes, mimeType: value?.mimeType)
+          ? ConstrainedBox(
+              constraints: BoxConstraints.loose(AttributePhoto.thumbnail),
+              child: Base64Image(
+                base64: (value?.imagePath ?? value?.base64Image ?? "").trim(),
+                mimeType: value?.mimeType,
+              ),
+            )
+          : AttributePhoto(bytes: bytes, title: attribute.effectiveDisplayName),
     );
   }
 }

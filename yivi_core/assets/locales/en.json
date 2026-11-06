@@ -851,6 +851,7 @@
     "document": {
       "passport": "passport",
       "id_card": "ID-card",
+      "residence_permit": "residence permit",
       "driving_licence": "driving licence"
     },
     "instruction": {
@@ -865,6 +866,12 @@
         "body": "Hold your ID-card in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
         "tip": "Don't hold the card directly under a lamp, it gives less glare.",
         "image_alt": "A phone held above the back of an ID-card, its camera on the three lines at the bottom."
+      },
+      "residence_permit": {
+        "title": "Use the back of your residence permit",
+        "body": "Hold your residence permit in front of the camera and make sure the whole back is clearly visible. Then press Start to begin.",
+        "tip": "Don't hold the card directly under a lamp, it gives less glare.",
+        "image_alt": "A phone held above the back of a residence permit, its camera on the three lines at the bottom."
       },
       "driving_licence": {
         "title": "Use the front of your driving licence",
@@ -893,6 +900,7 @@
       "reading_label": {
         "passport": "Reading passport",
         "id_card": "Reading ID-card",
+        "residence_permit": "Reading residence permit",
         "driving_licence": "Reading driving licence"
       }
     },
@@ -900,6 +908,7 @@
       "document_nr_hint": "e.g. NXC4R1P72",
       "tip_passport": "You find these on the photo page, in the two lines at the bottom.",
       "tip_id_card": "You find these on the back of your ID-card, in the lines at the bottom.",
+      "tip_residence_permit": "You find these on the back of your residence permit, in the lines at the bottom.",
       "tip_driving_licence": "You find this on the front of your driving licence, in the line at the bottom."
     }
   },
@@ -987,7 +996,46 @@
         "explanation": "Are you sure you want to cancel reading your ID-card?",
         "confirm": "Yes",
         "decline": "No"
+      },
+      "wrong_document": "This is a residence permit",
+      "wrong_document_tip": "Go back and choose Residence permit."
+    }
+  },
+  "residence_permit": {
+    "scan": {
+      "title": "Scan residence permit",
+      "manual": "Enter manually"
+    },
+    "manual": {
+      "title": "Enter residence permit details",
+      "explanation": "We need the document number, date of birth and date of expiry of your residence permit to access the NFC-chip.",
+      "fields": {
+        "document_nr": "Document number",
+        "document_nr_required": "Document number is required",
+        "document_nr_invalid": "Document number is invalid",
+        "date_of_birth": "Date of birth",
+        "date_of_birth_required": "Date of birth is required",
+        "date_of_expiry": "Date of expiry",
+        "date_of_expiry_required": "Date of expiry is required",
+        "date_invalid": "Date is invalid"
       }
+    },
+    "nfc": {
+      "title": "Read residence permit",
+      "error": "Could not read residence permit. Please try again.",
+      "cancelled": "Cancelled",
+      "error_generic": "An error has occurred while reading residence permit.",
+      "timeout_waiting_for_tag": "Timeout while waiting for residence permit tag",
+      "tag_lost_try_again": "Tag was lost. Please try again.",
+      "cancelled_by_user": "You cancelled the scanning process.",
+      "cancel_dialog": {
+        "title": "Cancel reading residence permit?",
+        "explanation": "Are you sure you want to cancel reading your residence permit?",
+        "confirm": "Yes",
+        "decline": "No"
+      },
+      "wrong_document": "This is an ID-card",
+      "wrong_document_tip": "Go back and choose ID-card."
     }
   },
   "passport": {
@@ -1406,6 +1454,7 @@
       "format": {
         "idemix": "Idemix",
         "sdjwtvc": "SD-JWT VC",
+        "sdjwt_vcdm": "SD-JWT VCDM",
         "mdoc": "mdoc",
         "unknown": "Unknown format"
       }

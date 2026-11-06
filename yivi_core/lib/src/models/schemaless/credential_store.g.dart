@@ -29,6 +29,11 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
   isSingleton: json['is_singleton'] as bool? ?? false,
+  format: $enumDecodeNullable(
+    _$CredentialFormatEnumMap,
+    json['format'],
+    unknownValue: JsonKey.nullForUndefinedEnumValue,
+  ),
 );
 
 Map<String, dynamic> _$CredentialDescriptorToJson(
@@ -42,6 +47,14 @@ Map<String, dynamic> _$CredentialDescriptorToJson(
   'attributes': instance.attributes,
   'issue_url': instance.issueURL,
   'is_singleton': instance.isSingleton,
+  'format': _$CredentialFormatEnumMap[instance.format],
+};
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
 CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>

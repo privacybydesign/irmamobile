@@ -366,16 +366,21 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   final args = PassportNfcReadingRouteParams.fromQueryParams(
                     state.uri.queryParameters,
                   );
-                  final mrz = type == .passport
-                      ? ScannedPassportMrz.new
-                      : ScannedIdCardMrz.new;
                   return DocumentFlowSteps.nfc(
-                    mrz(
-                      documentNumber: args.documentNumber,
-                      countryCode: args.countryCode ?? "",
-                      dateOfBirth: args.dateOfBirth,
-                      dateOfExpiry: args.dateOfExpiry,
-                    ),
+                    type == .passport
+                        ? ScannedPassportMrz(
+                            documentNumber: args.documentNumber,
+                            countryCode: args.countryCode ?? "",
+                            dateOfBirth: args.dateOfBirth,
+                            dateOfExpiry: args.dateOfExpiry,
+                          )
+                        : ScannedIdCardMrz(
+                            documentNumber: args.documentNumber,
+                            countryCode: args.countryCode ?? "",
+                            dateOfBirth: args.dateOfBirth,
+                            dateOfExpiry: args.dateOfExpiry,
+                            documentType: type,
+                          ),
                     onCancel: context.goHomeScreen,
                   );
                 },

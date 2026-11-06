@@ -13,6 +13,9 @@ sealed class ScannedMrz {
   });
 }
 
+/// The MRZ of a card in ID-card format (TD1): an ID card or, with
+/// [documentType] residencePermit, a residence permit. Both read the same way,
+/// but they are issued as different credentials.
 class ScannedIdCardMrz extends ScannedMrz {
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
@@ -22,14 +25,21 @@ class ScannedIdCardMrz extends ScannedMrz {
     required super.countryCode,
     required this.dateOfBirth,
     required this.dateOfExpiry,
-  }) : super(documentType: .identityCard);
+    super.documentType = .identityCard,
+  }) : assert(
+         documentType == .identityCard || documentType == .residencePermit,
+       );
 
-  factory ScannedIdCardMrz.fromMRZResult(PassportMrzResult mrz) {
+  factory ScannedIdCardMrz.fromMRZResult(
+    PassportMrzResult mrz, {
+    DocumentType documentType = .identityCard,
+  }) {
     return ScannedIdCardMrz(
       documentNumber: mrz.documentNumber,
       countryCode: mrz.countryCode,
       dateOfBirth: mrz.birthDate,
       dateOfExpiry: mrz.expiryDate,
+      documentType: documentType,
     );
   }
 
@@ -38,12 +48,14 @@ class ScannedIdCardMrz extends ScannedMrz {
     required DateTime dateOfBirth,
     required DateTime dateOfExpiry,
     String countryCode = "",
+    DocumentType documentType = .identityCard,
   }) {
     return ScannedIdCardMrz(
       documentNumber: documentNumber,
       countryCode: countryCode,
       dateOfBirth: dateOfBirth,
       dateOfExpiry: dateOfExpiry,
+      documentType: documentType,
     );
   }
 

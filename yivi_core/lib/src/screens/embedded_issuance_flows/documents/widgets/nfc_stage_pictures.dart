@@ -28,7 +28,7 @@ enum NfcDocumentPicture {
   /// The picture of a document of [type].
   static NfcDocumentPicture of(DocumentType type) => switch (type) {
     .passport => passport,
-    .identityCard => identityCard,
+    .identityCard || .residencePermit => identityCard,
     .drivingLicence => drivingLicence,
   };
 }

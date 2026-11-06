@@ -899,12 +899,14 @@ class IrmaRepository {
     "pbdf.pbdf.passport",
     "pbdf.pbdf.drivinglicence",
     "pbdf.pbdf.idcard",
+    "pbdf.pbdf.residencepermit",
     "pbdf.sidn-pbdf.mobilenumber",
     "pbdf.sidn-pbdf.email",
     //----------- staging
     "pbdf-staging.pbdf.passport",
     "pbdf-staging.pbdf.drivinglicence",
     "pbdf-staging.pbdf.idcard",
+    "pbdf-staging.pbdf.residencepermit",
     "pbdf-staging.sidn-pbdf.mobilenumber",
     "pbdf-staging.sidn-pbdf.email",
   };
@@ -1178,6 +1180,7 @@ DocumentType? documentTypeOf(String credentialId) =>
     switch (credentialId.split(".").last) {
       "passport" => .passport,
       "idcard" => .identityCard,
+      "residencepermit" => .residencePermit,
       "drivinglicence" => .drivingLicence,
       _ => null,
     };
