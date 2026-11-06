@@ -46,6 +46,13 @@ void _startSession(
   final repo = IrmaRepositoryProvider.of(context);
 
   final sessionId = repo.allocateSessionId();
+  if (sessionPointer.dcApi != null) {
+    // The platform is waiting on this session, so its ending has to be reported
+    // back. Record the id now: the session state that [SessionScreen] sees says
+    // nothing about the request having arrived through the Digital Credentials
+    // API, except on the success leg.
+    repo.markDigitalCredentialsSession(sessionId);
+  }
   // Any session active at this moment is "underlying" — ours does not exist on
   // the Go side yet, so we don't need to exclude it.
   final hasUnderlying = repo.hasActiveSessions();
