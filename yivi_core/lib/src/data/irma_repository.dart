@@ -800,6 +800,31 @@ class IrmaRepository {
     }
   }
 
+  void _startResidencePermitIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref,
+  ) {
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
+
+      if (ref.read(ocrProcessorProvider) != null) {
+        context.pushResidencePermitMrzReaderScreen();
+      } else {
+        context.pushResidencePermitManualEntryScreen();
+      }
+    }
+  }
+
   void _startDrivingLicenceIssuance(
     BuildContext context,
     String url,
@@ -902,12 +927,14 @@ class IrmaRepository {
       "pbdf.pbdf.passport": _startPassportIssuance,
       "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
       "pbdf.pbdf.idcard": _startIdCardIssuance,
+      "pbdf.pbdf.residencepermit": _startResidencePermitIssuance,
       "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
       "pbdf.sidn-pbdf.email": _startEmailIssuance,
       //----------- staging
       "pbdf-staging.pbdf.passport": _startPassportIssuance,
       "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
       "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+      "pbdf-staging.pbdf.residencepermit": _startResidencePermitIssuance,
       "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
       "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
     };

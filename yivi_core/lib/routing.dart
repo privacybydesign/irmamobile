@@ -354,6 +354,43 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   );
                 },
               ),
+              GoRoute(
+                path: "/residence_permit",
+                builder: (context, state) {
+                  return PassportMrzManualEntryScreen(
+                    translationKeys: PassportMrzManualEntryTranslationKeys(
+                      title: "residence_permit.manual.title",
+                      explanation: "residence_permit.manual.explanation",
+                      dateOfBirth:
+                          "residence_permit.manual.fields.date_of_birth",
+                      dateOfBirthRequired:
+                          "residence_permit.manual.fields.date_of_birth_required",
+                      dateOfExpiry:
+                          "residence_permit.manual.fields.date_of_expiry",
+                      dateOfExpiryRequired:
+                          "residence_permit.manual.fields.date_of_expiry_required",
+                      documentNumber:
+                          "residence_permit.manual.fields.document_nr",
+                      documentNumberRequired:
+                          "residence_permit.manual.fields.document_nr_required",
+                      documentNumberInvalid:
+                          "residence_permit.manual.fields.document_nr_invalid",
+                      dateInvalid:
+                          "residence_permit.manual.fields.date_invalid",
+                    ),
+                    onCancel: context.pop,
+                    onContinue: (data) {
+                      context.pushResidencePermitNfcReadingScreen(
+                        PassportNfcReadingRouteParams(
+                          documentNumber: data.documentNr,
+                          dateOfBirth: data.dateOfBirth,
+                          dateOfExpiry: data.expiryDate,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
           GoRoute(
@@ -453,6 +490,37 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       );
                     },
                     onManualAdd: context.pushIdCardManualEntryScreen,
+                    onCancel: context.pop,
+                    mrzParser: IdCardMrzParser(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: "/residence_permit",
+                builder: (context, state) {
+                  return MrzReaderScreen(
+                    overlayBuilder: ({required success, required child}) =>
+                        IdCardMrzCameraOverlay(success: success, child: child),
+                    translationKeys: MrzReaderTranslationKeys(
+                      title: "residence_permit.scan.title",
+                      manualEntryButton: "residence_permit.scan.manual",
+                      error: "residence_permit.scan.error",
+                      success: "residence_permit.scan.success",
+                      successExplanation:
+                          "residence_permit.scan.success_explanation",
+                    ),
+                    onSuccess: (mrzResult) {
+                      final r = mrzResult as PassportMrzResult;
+                      context.pushResidencePermitNfcReadingScreen(
+                        PassportNfcReadingRouteParams(
+                          documentNumber: r.documentNumber,
+                          dateOfBirth: r.birthDate,
+                          dateOfExpiry: r.expiryDate,
+                          countryCode: r.countryCode,
+                        ),
+                      );
+                    },
+                    onManualAdd: context.pushResidencePermitManualEntryScreen,
                     onCancel: context.pop,
                     mrzParser: IdCardMrzParser(),
                   );
@@ -617,12 +685,76 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   failedToInitiateSession:
                       "id_card.nfc.failed_to_initiate_session",
                   success: "id_card.nfc.success",
+                  wrongDocument: "id_card.nfc.wrong_document",
+                  wrongDocumentTip: "id_card.nfc.wrong_document_tip",
                 ),
                 mrz: ScannedIdCardMrz(
                   documentNumber: args.documentNumber,
                   countryCode: args.countryCode ?? "",
                   dateOfBirth: args.dateOfBirth,
                   dateOfExpiry: args.dateOfExpiry,
+                ),
+                onCancel: context.goHomeScreen,
+              );
+            },
+          ),
+          GoRoute(
+            path: "/residence_permit",
+            builder: (context, state) {
+              final args = PassportNfcReadingRouteParams.fromQueryParams(
+                state.uri.queryParameters,
+              );
+              return NfcReadingScreen(
+                translationKeys: NfcReadingTranslationKeys(
+                  cancelDialogTitle: "residence_permit.nfc.cancel_dialog.title",
+                  cancelDialogExplanation:
+                      "residence_permit.nfc.cancel_dialog.explanation",
+                  cancelDialogDecline:
+                      "residence_permit.nfc.cancel_dialog.decline",
+                  cancelDialogConfirm:
+                      "residence_permit.nfc.cancel_dialog.confirm",
+                  error: "residence_permit.nfc.error",
+                  errorGeneric: "residence_permit.nfc.error_generic",
+                  title: "residence_permit.nfc.title",
+                  nfcDisabled: "residence_permit.nfc.nfc_disabled",
+                  nfcEnabled: "residence_permit.nfc.nfc_enabled",
+                  introduction: "residence_permit.nfc.introduction",
+                  startScanning: "residence_permit.nfc.start_scanning",
+                  nfcDisabledExplanation:
+                      "residence_permit.nfc.nfc_disabled_explanation",
+                  holdNearPhotoPage:
+                      "residence_permit.nfc.hold_near_photo_page",
+                  tip1: "residence_permit.nfc.tip_1",
+                  tip2: "residence_permit.nfc.tip_2",
+                  tip3: "residence_permit.nfc.tip_3",
+                  successExplanation:
+                      "residence_permit.nfc.success_explanation",
+                  cancelledByUser: "residence_permit.nfc.cancelled_by_user",
+                  cancelled: "residence_permit.nfc.cancelled",
+                  cancelling: "residence_permit.nfc.cancelling",
+                  connecting: "residence_permit.nfc.connecting",
+                  readingCardSecurity:
+                      "residence_permit.nfc.reading_card_security",
+                  readingDocumentData:
+                      "residence_permit.nfc.reading_passport_data",
+                  authenticating: "residence_permit.nfc.authenticating",
+                  performingSecurityVerification:
+                      "residence_permit.nfc.performing_security_verification",
+                  timeoutWaitingForTag:
+                      "residence_permit.nfc.timeout_waiting_for_tag",
+                  tagLostTryAgain: "residence_permit.nfc.tag_lost_try_again",
+                  failedToInitiateSession:
+                      "residence_permit.nfc.failed_to_initiate_session",
+                  success: "residence_permit.nfc.success",
+                  wrongDocument: "residence_permit.nfc.wrong_document",
+                  wrongDocumentTip: "residence_permit.nfc.wrong_document_tip",
+                ),
+                mrz: ScannedIdCardMrz(
+                  documentNumber: args.documentNumber,
+                  countryCode: args.countryCode ?? "",
+                  dateOfBirth: args.dateOfBirth,
+                  dateOfExpiry: args.dateOfExpiry,
+                  documentType: .residencePermit,
                 ),
                 onCancel: context.goHomeScreen,
               );
