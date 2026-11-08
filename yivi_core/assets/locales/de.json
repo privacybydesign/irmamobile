@@ -578,6 +578,8 @@
     "irma_website_link": "https://www.yivi.app/en",
     "privacy_policy": "Yivi-Datenschutzrichtlinie",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
+    "dpa_report": "Bei der Datenschutzbehörde melden",
+    "dpa_report_link": "https://autoriteitpersoonsgegevens.nl/en/submitting-a-tip-off-or-a-complaint-to-the-ap",
     "app_id": "App-ID {id}",
     "log_out": "Abmelden",
     "logged_out_toast": "Sie wurden abgemeldet"

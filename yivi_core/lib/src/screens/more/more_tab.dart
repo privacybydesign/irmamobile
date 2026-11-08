@@ -125,6 +125,11 @@ class _MoreTabState extends State<MoreTab> {
                   labelTranslationKey: "more_tab.privacy_policy",
                   urlLinkKey: "more_tab.privacy_policy_link",
                 ),
+                ExternalLinkTile(
+                  iconData: Icons.flag_outlined,
+                  labelTranslationKey: "more_tab.dpa_report",
+                  urlLinkKey: "more_tab.dpa_report_link",
+                ),
               ],
             ),
             spacerWidget,
