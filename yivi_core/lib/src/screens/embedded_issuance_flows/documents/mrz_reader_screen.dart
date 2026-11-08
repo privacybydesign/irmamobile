@@ -97,6 +97,7 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
     // sheet's bar, "Enter manually" under it, no Cancel.
     if (DocumentStepInSheet.of(context)) {
       return _SheetCamera(
+        titleKey: widget.translationKeys.title,
         body: body,
         manualLabel: widget.translationKeys.manualEntryButton,
         onManual: widget.onManualAdd,
@@ -243,12 +244,15 @@ class _CameraScaffold extends StatelessWidget {
 /// The camera as a step in a sheet: the picture in a rounded card filling
 /// the page under the sheet's bar, and "Enter manually" under it.
 class _SheetCamera extends StatelessWidget {
+  /// The page's heading upright ("Scan passport"), above the camera.
+  final String titleKey;
   final Widget body;
   final String manualLabel;
   final VoidCallback onManual;
   final String? instructionKey;
 
   const _SheetCamera({
+    required this.titleKey,
     required this.body,
     required this.manualLabel,
     required this.onManual,
@@ -274,7 +278,28 @@ class _SheetCamera extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: card,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // The page's heading, as on every step of adding a card.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                child: TranslatedText(
+                  titleKey,
+                  key: const Key("sheet_camera_heading"),
+                  isHeader: true,
+                  textAlign: TextAlign.center,
+                  style: YiviPalette.of(context)
+                      .display(22, weight: FontWeight.w700)
+                      .copyWith(
+                        height: 30 / 22,
+                        color: YiviPalette.of(context).heading,
+                      ),
+                ),
+              ),
+              Expanded(child: card),
+            ],
+          ),
         ),
       );
     }
@@ -301,7 +326,6 @@ class _SheetCamera extends StatelessWidget {
     if (useSheetColumns(context)) {
       final palette = YiviPalette.of(context);
       return SheetSplit(
-        startWidth: SheetSplit.wideWidth,
         endFills: true,
         start: [
           if (instruction != null) ...[

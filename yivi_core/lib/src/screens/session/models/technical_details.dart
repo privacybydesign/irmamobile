@@ -1,4 +1,5 @@
 import "../../../models/log_entry.dart" show CredentialFormat;
+import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 
 /// One line of the technical details: a label and its value. Identifiers
@@ -31,6 +32,55 @@ List<TechGroup> technicalDetailsOf(
   Translate t,
 ) {
   final party = session.requestor;
+  return [
+    TechGroup(t("share.tech.group.who"), _partyRows(party, t)),
+    TechGroup(t("share.tech.group.how"), _howRows(session, t)),
+    if (shared.isNotEmpty)
+      TechGroup(t("share.tech.group.what"), [
+        for (final c in shared)
+          TechRow(
+            c.name,
+            t("share.tech.card", {
+              "format": _format(c.format, t),
+              "issuer": c.issuer.name,
+            }),
+          ),
+      ]),
+  ];
+}
+
+/// The technical details of an issuance, from the page that asks whether
+/// to add the [cards]: who issues them (as [technicalDetailsOf] says who
+/// asks), how they come (protocol, session) and each card's format.
+List<TechGroup> issuanceTechnicalDetailsOf(
+  SessionState session,
+  List<schemaless.Credential> cards,
+  Translate t,
+) {
+  final issuer = cards.firstOrNull?.issuer ?? session.requestor;
+  final fallback = session.protocol == "irma" ? CredentialFormat.idemix : null;
+  return [
+    TechGroup(t("issuance.tech.group.who"), _partyRows(issuer, t)),
+    TechGroup(t("issuance.tech.group.how"), _howRows(session, t)),
+    if (cards.isNotEmpty)
+      TechGroup(t("issuance.tech.group.what"), [
+        for (final c in cards)
+          TechRow(
+            c.name,
+            t("share.tech.card", {
+              "format": _format(
+                c.credentialInstanceIds.keys.firstOrNull ?? fallback,
+                t,
+              ),
+              "issuer": c.issuer.name,
+            }),
+          ),
+      ]),
+  ];
+}
+
+/// Who a party is and where the trust in it comes from.
+List<TechRow> _partyRows(schemaless.TrustedParty party, Translate t) {
   final evidence = party.evidence;
   final certificate = evidence?.certificate;
 
@@ -53,7 +103,7 @@ List<TechGroup> technicalDetailsOf(
   };
   final notAfter = certificate?.notAfter;
 
-  final who = [
+  return [
     TechRow(t("share.tech.row.name"), party.name),
     if (party.id.isNotEmpty)
       TechRow(t("share.tech.row.identifier"), party.id, mono: true),
@@ -76,39 +126,23 @@ List<TechGroup> technicalDetailsOf(
         TechRow(t("share.tech.row.cert_valid"), _date(notAfter)),
     ],
   ];
-
-  final how = [
-    TechRow(t("share.tech.row.protocol"), switch (session.protocol) {
-      "irma" => t("share.tech.protocol.irma"),
-      "openid4vp" => t("share.tech.protocol.openid4vp"),
-      "openid4vci" => t("share.tech.protocol.openid4vci"),
-      final other => other,
-    }),
-    TechRow(
-      t("share.tech.row.session"),
-      t("share.tech.session.${session.type.name}"),
-    ),
-    if (session.responseMode case final mode? when mode.isNotEmpty)
-      TechRow(t("share.tech.row.response"), mode, mono: true),
-  ];
-
-  final what = [
-    for (final c in shared)
-      TechRow(
-        c.name,
-        t("share.tech.card", {
-          "format": _format(c.format, t),
-          "issuer": c.issuer.name,
-        }),
-      ),
-  ];
-
-  return [
-    TechGroup(t("share.tech.group.who"), who),
-    TechGroup(t("share.tech.group.how"), how),
-    if (what.isNotEmpty) TechGroup(t("share.tech.group.what"), what),
-  ];
 }
+
+/// How the data travels: protocol, session, response.
+List<TechRow> _howRows(SessionState session, Translate t) => [
+  TechRow(t("share.tech.row.protocol"), switch (session.protocol) {
+    "irma" => t("share.tech.protocol.irma"),
+    "openid4vp" => t("share.tech.protocol.openid4vp"),
+    "openid4vci" => t("share.tech.protocol.openid4vci"),
+    final other => other,
+  }),
+  TechRow(
+    t("share.tech.row.session"),
+    t("share.tech.session.${session.type.name}"),
+  ),
+  if (session.responseMode case final mode? when mode.isNotEmpty)
+    TechRow(t("share.tech.row.response"), mode, mono: true),
+];
 
 /// All details as plain text, for "Copy all details".
 String technicalDetailsText(List<TechGroup> groups) => [

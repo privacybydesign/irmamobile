@@ -245,7 +245,8 @@
         "title_add": "Add {name}",
         "how_email": "You enter your e-mail address. Yivi sends you a code, which you type in here. Then your e-mail address is in your app.",
         "how_phone": "You enter your mobile number. Yivi texts you a code, which you type in here. Then your number is in your app.",
-        "how_document": "You take a photo of your document and then hold it against your phone. That is how Yivi reads the chip."
+        "how_document": "You take a photo of your document and then hold it against your phone. That is how Yivi reads the chip.",
+        "from": "From {issuer}"
       },
       "nfc_unsupported": {
         "title": "NFC not supported",
@@ -259,15 +260,14 @@
       "website": {
         "heading": "Continue on the website",
         "open": "To {host}",
-        "caption": "The website opens in your browser; this request waits here for you.",
         "step_open": "Your browser opens {host}",
         "step_do": "You do there what {issuer} asks",
         "step_back": "Yivi opens again by itself, back at this request",
         "not_done": "Not done on the website yet?",
         "not_done_body": "{issuer} hasn't sent anything yet. Continue on the website. When you're done there, Yivi opens again by itself.",
-        "waits": "{requestor} waits here for you. Nothing is sent until you share it yourself.",
         "continue": "Continue on the website",
-        "other": "Choose something else"
+        "other": "Choose something else",
+        "lead": "{issuer} issues the card on their website. It opens in your browser."
       }
     },
     "problematic": {
@@ -469,7 +469,6 @@
   },
   "issuance": {
     "title": "Add data",
-    "description": "Do you want to add this data to your Yivi app?",
     "add": "Add data",
     "success_feedback": {
       "header": "Success",
@@ -478,8 +477,7 @@
       "added_many": "These {count} cards have been added to Yivi.",
       "added_one_back": "The card is now in your app. Go back to {requestor} to continue.",
       "added_many_back": "The {count} cards are now in your app. Go back to {requestor} to continue.",
-      "back_to": "Back to {requestor}",
-      "added_header": "Added"
+      "back_to": "Back to {requestor}"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -509,14 +507,34 @@
       }
     },
     "you_will_receive": "You will receive",
-    "question_many": "Do you want to add these {count} cards to your Yivi app?",
     "add_many": "Add {count} cards",
     "card_count": "{count} cards",
     "from_issuers": "from {count} issuers",
     "for_request": "For {requestor}",
-    "for_request_step": "For {requestor} · step {step} of {total}",
-    "returned_from": "Back from the website of {issuer}",
-    "all_together": "All cards are added together"
+    "all_together": "All cards are added together",
+    "question": {
+      "one": "Do you want to add this card?",
+      "many": "Do you want to add these {count} cards?",
+      "anyway": "Do you want to add this card anyway?",
+      "add_anyway": "Add anyway",
+      "risky_reason": "Only add this if you trust {issuer}"
+    },
+    "trust": {
+      "fact_responsibility": "Adding it is your own responsibility",
+      "label_hint": "What does this mean?"
+    },
+    "tech": {
+      "group": {
+        "who": "Who issues it",
+        "how": "How you get it",
+        "what": "What you get"
+      }
+    },
+    "island": {
+      "body": "They ask for data that is not in your app yet. Add this card first; then you share it with them.",
+      "ok": "Got it",
+      "hint": "Why you add this"
+    }
   },
   "email_issuance": {
     "enter_email": {
@@ -931,7 +949,8 @@
       "tip_lighting": "Make sure there's enough light.",
       "tip_look_straight": "Look straight into the camera.",
       "tip_no_accessories": "Remove glasses, hats, etc.",
-      "start": "Start verification"
+      "start": "Start verification",
+      "head": "Quick face check"
     }
   },
   "driving_licence": {
@@ -1507,9 +1526,6 @@
       "via": "{issuer} · via {host}"
     },
     "offer": {
-      "question": "{issuer} sends you this card",
-      "question_many": "{issuer} sends you {count} cards",
-      "lead_many": "They all go into your app. Each one says whether {requestor} uses it.",
       "add": "Add",
       "add_many": "Add {count} cards",
       "retry": "Try again",
@@ -1543,7 +1559,11 @@
     "wrong_code": "That code is not right. Check it, or send a new one.",
     "not_checked": "We could not check the code. Try again.",
     "not_sent_email": "We could not send the email. Check the address and try again.",
-    "not_sent_phone": "We could not send a text to this number. Check it and try again."
+    "not_sent_phone": "We could not send a text to this number. Check it and try again.",
+    "head_phone": "Your phone number",
+    "head_email": "Your e-mail address",
+    "code_head_phone": "Code from the text message",
+    "code_head_email": "Code from the e-mail"
   },
   "waiting_request": {
     "sentence": {

@@ -1,208 +1,21 @@
-import "dart:math" as math;
-
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
-import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_close_button.dart";
-import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
-import "../../../widgets/translated_text.dart";
-import "../../embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
-import "issuance_permission.dart";
 
-/// The permission screen for a document read from its chip, as on the
-/// design's permission board: the
-/// question, the document's card, its data in a group with the ages folded
-/// into one row, and how long it is valid and how often it can be shared.
-class DocumentIssuancePermission extends StatelessWidget {
-  const DocumentIssuancePermission({
-    required this.issuedCredentials,
-    this.onDismiss,
-    this.onGivePermission,
-    this.returnedFromIssuer,
-    super.key,
-  });
-
-  final VoidCallback? onDismiss;
-  final VoidCallback? onGivePermission;
-  final List<schemaless.Credential> issuedCredentials;
-
-  /// Name of the issuer whose website the user just came back from, if any.
-  final String? returnedFromIssuer;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    // Sideways in a wide sheet, and on any screen wider than high (also an
-    // unfolded phone or a tablet, from 900 wide).
-    final landscape = useSheetColumns(context);
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(
-        titleTranslationKey: "issuance.title",
-        leading: null,
-        // Sideways: close in the corner, beside the column.
-        edgeActions: landscape,
-        edge: !landscape,
-        actions: [if (onDismiss != null) IrmaCloseButton(onTap: onDismiss!)],
-      ),
-      body: landscape ? _landscape(context) : _portrait(context),
-      bottomNavigationBar: landscape ? null : _footer(),
-    );
-  }
-
-  /// A phone held sideways: the document's card at the left with the
-  /// buttons under it; the question and its data at the right.
-  Widget _landscape(BuildContext context) {
-    return IssuanceLandscape(
-      title: context.tr("issuance.description"),
-      overview: [
-        for (final credential in issuedCredentials)
-          Center(child: CredentialCardArt(credential: credential, width: 220)),
-        if (returnedFromIssuer case final issuer?)
-          StatusChipRow(
-            chips: [
-              StatusChip(
-                label: context.tr("issuance.returned_from", {"issuer": issuer}),
-                tone: DialogTone.info,
-              ),
-            ],
-          ),
-      ],
-      receives: [
-        for (final (i, credential) in issuedCredentials.indexed) ...[
-          if (i > 0) const SizedBox(height: 16),
-          _DocumentData(credential: credential),
-        ],
-      ],
-      actions: onGivePermission != null
-          ? Row(
-              spacing: 10,
-              children: [
-                PillButton(
-                  key: DocumentFlowButton.secondaryKey,
-                  label: context.tr("document_flow.cancel"),
-                  style: PillStyle.text,
-                  size: PillSize.regular,
-                  expand: false,
-                  onPressed: onDismiss,
-                ),
-                Expanded(
-                  child: FancyPillButton(
-                    key: DocumentFlowButton.primaryKey,
-                    label: context.tr("issuance.add"),
-                    size: PillSize.regular,
-                    onPressed: onGivePermission,
-                  ),
-                ),
-              ],
-            )
-          : PillButton(
-              key: DocumentFlowButton.primaryKey,
-              label: context.tr("session.navigation_bar.back"),
-              size: PillSize.regular,
-              onPressed: onDismiss,
-            ),
-    );
-  }
-
-  Widget _portrait(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final cardWidth = math.min(
-              CredentialCardArt.designWidth,
-              constraints.maxWidth,
-            );
-            return Column(
-              crossAxisAlignment: .stretch,
-              children: [
-                if (returnedFromIssuer != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                    child: TranslatedText(
-                      "external_issuer.returned",
-                      translationParams: {"issuer": returnedFromIssuer!},
-                      style: palette.display(18),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
-                  child: TranslatedText(
-                    "issuance.description",
-                    isHeader: true,
-                    style: palette
-                        .display(22)
-                        .copyWith(height: 30 / 22, color: palette.heading),
-                  ),
-                ),
-                for (final credential in issuedCredentials) ...[
-                  const SizedBox(height: 20),
-                  Center(
-                    child: CredentialCardArt(
-                      credential: credential,
-                      width: cardWidth,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _DocumentData(credential: credential),
-                ],
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _footer() => DocumentFlowFooter(
-    buttons: onGivePermission != null
-        ? [
-            DocumentFlowButton(
-              key: DocumentFlowButton.primaryKey,
-              labelKey: "issuance.add",
-              onPressed: onGivePermission,
-            ),
-            DocumentFlowButton(
-              key: DocumentFlowButton.secondaryKey,
-              labelKey: "document_flow.cancel",
-              onPressed: onDismiss,
-              style: .secondary,
-            ),
-          ]
-        : [
-            DocumentFlowButton(
-              key: DocumentFlowButton.primaryKey,
-              labelKey: "session.navigation_bar.back",
-              onPressed: onDismiss,
-            ),
-          ],
-  );
-}
-
-/// The data of the document in one group: a row per attribute, the ages
+/// The data of a document read from its chip, for the question whether
+/// to add it ([IssuancePermission]), in one group: a row per attribute, the ages
 /// folded into one row, and the validity in two cells at the bottom.
-class _DocumentData extends StatelessWidget {
+class DocumentIssuanceData extends StatelessWidget {
   final schemaless.Credential credential;
 
-  const _DocumentData({required this.credential});
+  const DocumentIssuanceData({super.key, required this.credential});
 
   @override
   Widget build(BuildContext context) {

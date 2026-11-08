@@ -22,7 +22,6 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
-import "package:yivi_core/src/widgets/status_chip.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
@@ -136,19 +135,23 @@ void main() {
     ]),
   ];
 
-  testWidgets("one card: the card, its chips and every value", (tester) async {
+  testWidgets("one card: who issues it, the question and every value", (
+    tester,
+  ) async {
     await _pump(tester, IssuancePermission(issuedCredentials: [email]));
 
+    // The same question page as in the Change sheet.
+    expect(find.text("Do you want to add this card?"), findsOneWidget);
     expect(
-      find.text("Do you want to add this data to your Yivi app?"),
+      find.descendant(
+        of: find.byType(IssuerQuestion),
+        matching: find.text("Gemeente"),
+      ),
       findsOneWidget,
     );
+    expect(find.byKey(const Key("issuance_trust_label")), findsOneWidget);
     expect(find.byType(CardPile), findsNothing);
-    // The issuer's chip: its name alone, nothing put before it.
-    expect(find.widgetWithText(StatusChip, "Gemeente"), findsOneWidget);
-    expect(find.text("by Gemeente"), findsNothing);
     expect(find.text("me@example.com"), findsOneWidget);
-    expect(find.byKey(const Key("issuance_context")), findsNothing);
     expect(find.byKey(const Key("issuance_mismatch")), findsNothing);
   });
 
@@ -168,13 +171,7 @@ void main() {
       ),
     );
 
-    expect(
-      find.text("Do you want to add these 3 cards to your Yivi app?"),
-      findsOneWidget,
-    );
-    expect(find.byType(CardPile), findsOneWidget);
-    expect(find.text("3 cards"), findsOneWidget);
-    expect(find.text("All cards are added together"), findsOneWidget);
+    expect(find.text("Do you want to add these 3 cards?"), findsOneWidget);
     for (final i in [0, 1, 2]) {
       expect(find.byKey(Key("issuance_card_$i")), findsOneWidget);
     }
@@ -221,48 +218,16 @@ void main() {
     expect(band, findsNothing);
   });
 
-  testWidgets("cards from several issuers say how many", (tester) async {
-    await _pump(
-      tester,
-      IssuancePermission(
-        issuedCredentials: [
-          email,
-          _card("bank", issuer: "Bank"),
-        ],
-      ),
-    );
-
-    expect(find.text("from 2 issuers"), findsOneWidget);
-  });
-
-  testWidgets("inside a request: which request, and which step", (
-    tester,
-  ) async {
+  testWidgets("inside a request: the card says who it is for", (tester) async {
     await _pump(
       tester,
       IssuancePermission(
         issuedCredentials: [email],
         forRequest: testSession(steps: twoSteps),
-        returnedFromIssuer: "Gemeente",
       ),
     );
 
-    expect(find.text("For Test Verifier · step 2 of 2"), findsOneWidget);
-    // The request says more than where the user came back from.
-    expect(find.textContaining("Back from"), findsNothing);
-  });
-
-  testWidgets("one step needs no number", (tester) async {
-    await _pump(
-      tester,
-      IssuancePermission(
-        issuedCredentials: [email],
-        forRequest: testSession(steps: [twoSteps.last]),
-      ),
-    );
-
-    // The chip, and the tag on the card the request uses.
-    expect(find.text("For Test Verifier"), findsNWidgets(2));
+    expect(find.text("For Test Verifier"), findsOneWidget);
   });
 
   testWidgets("a value the request cannot use is warned about first", (
@@ -349,20 +314,6 @@ void main() {
     expect(find.byKey(const Key("issuance_mismatch")), findsNothing);
   });
 
-  testWidgets("back from the issuer's website, outside a request", (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      IssuancePermission(
-        issuedCredentials: [email],
-        returnedFromIssuer: "Gemeente",
-      ),
-    );
-
-    expect(find.text("Back from the website of Gemeente"), findsOneWidget);
-  });
-
   testWidgets("a nested session screen reads the request underneath", (
     tester,
   ) async {
@@ -381,7 +332,7 @@ void main() {
     );
 
     expect(find.byType(IssuancePermission), findsOneWidget);
-    expect(find.text("For Test Verifier · step 2 of 2"), findsOneWidget);
+    expect(find.text("For Test Verifier"), findsOneWidget);
   });
 
   group("SessionRepository.underlyingDisclosure", () {

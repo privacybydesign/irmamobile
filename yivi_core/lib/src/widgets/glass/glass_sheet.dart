@@ -947,7 +947,43 @@ class _GlassSheetFloating extends InheritedWidget {
 /// the keyboard would cover a button at the bottom. A phone held upright has
 /// it at the bottom, in the thumb's reach, right above the keyboard.
 bool sheetActionInBar(BuildContext context) =>
-    _GlassSheetFloating.of(context) || useSheetColumns(context);
+    _GlassSheetFloating.of(context) ||
+    (useSheetColumns(context) && !SheetActionsInColumn.of(context));
+
+/// The pages under it keep their way on out of the bar on a phone held
+/// sideways: at the bottom of the left column of their [SheetSplit], under
+/// what the page puts above it (the progress of adding a card). The bar
+/// then only has back and close, as upright. A tablet's form sheet keeps it
+/// in the bar.
+class SheetActionsInColumn extends InheritedWidget {
+  const SheetActionsInColumn({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SheetActionsInColumn>() !=
+      null;
+
+  @override
+  bool updateShouldNotify(SheetActionsInColumn oldWidget) => false;
+}
+
+/// What a sideways [GlassSheetPage] puts at the bottom of its
+/// [SheetSplit]'s left column: its [GlassSheetPage.bottom] and its way on,
+/// when they are not in the bar ([SheetActionsInColumn]).
+class SheetSplitBottom extends InheritedWidget {
+  final Widget bottom;
+
+  const SheetSplitBottom({
+    super.key,
+    required this.bottom,
+    required super.child,
+  });
+
+  static Widget? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SheetSplitBottom>()?.bottom;
+
+  @override
+  bool updateShouldNotify(SheetSplitBottom old) => old.bottom != bottom;
+}
 
 /// Every page under it has the close button at the right of the bar on a
 /// phone held upright, also the pages that are otherwise left by back or a

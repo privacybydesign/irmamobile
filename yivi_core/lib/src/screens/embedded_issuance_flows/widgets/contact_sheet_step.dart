@@ -317,10 +317,35 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   // ---------- the page ----------
 
+  /// The page's heading ("Your phone number", "Code from the text
+  /// message"): in the page, as on every step of adding a card; the bar
+  /// names the page once it has scrolled away.
+  Widget _heading() {
+    final palette = YiviPalette.of(context);
+    final sideways = useSheetColumns(context);
+    return Padding(
+      padding: sideways
+          ? const EdgeInsets.only(bottom: 4)
+          : const EdgeInsets.fromLTRB(8, 8, 8, 14),
+      child: Semantics(
+        header: true,
+        child: Text(
+          _k(widget.code ? "code_head" : "head"),
+          key: const Key("contact_sheet_heading"),
+          textAlign: sideways ? TextAlign.start : TextAlign.center,
+          style: palette
+              .display(22, weight: FontWeight.w700)
+              .copyWith(height: 30 / 22, color: palette.heading),
+        ),
+      ),
+    );
+  }
+
   /// The step's content: [start] above [end]; on a phone held sideways in
   /// two columns, the explanation at the left, the field at the right
   /// ([SheetSplit]). The way on is the page's ([SheetAction]).
   Widget _split(List<Widget> start, List<Widget> end, {Key? key}) {
+    start = [_heading(), ...start];
     if (!useSheetColumns(context)) {
       return Column(
         key: key,
@@ -388,12 +413,13 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             changeLabel: context.tr("contact_sheet.change"),
             onChange: _change,
           ),
-          // Held sideways the hint and "Send again" go under where the code
-          // went, at the left; the boxes are alone at the right.
-          if (sideways && errorText == null) resend,
         ],
         [
+          // The room the label above the boxes had: the heading says what
+          // goes in them now.
+          if (!sideways) const SizedBox(height: 28),
           ContactCodeField(
+            showLabel: false,
             fieldKey: Key(
               _email
                   ? "email_verification_code_input_field"
@@ -418,7 +444,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               key: const Key("contact_sheet_error"),
               child: ContactCodeError.text(errorText),
             )
-          else if (!sideways)
+          else
             resend,
         ],
       );
@@ -432,9 +458,14 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       body = _split(
         [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: useSheetColumns(context) ? 0 : 4,
+            ),
             child: Text(
               _k("intro"),
+              textAlign: useSheetColumns(context)
+                  ? TextAlign.start
+                  : TextAlign.center,
               style: YiviPalette.of(context).body(15).copyWith(height: 22 / 15),
             ),
           ),
@@ -484,12 +515,14 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       split: landscape,
       action: action,
       // Two steps of their own: the address, then the code.
-      pinned: IssueSheetProgress(
+      titleWidget: IssueRequestorPill.maybe(widget.subject),
+      titleWidgetCentred: true,
+      titleAfterScroll: 40,
+      bottom: IssueSheetProgress(
         subject: widget.subject,
         step: code ? 3 : 2,
         total: widget.total,
       ),
-      subtitle: IssueSheetRequestorLine(subject: widget.subject),
       child: landscape
           ? body
           : Padding(padding: const EdgeInsets.only(top: 8), child: body),

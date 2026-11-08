@@ -575,15 +575,6 @@ void main() {
         isEmpty,
       );
     });
-
-    test("the step an offered card belongs to", () {
-      expect(stepNumberFor([_offered("ideal", const [])], steps), 2);
-      expect(stepNumberFor([_offered("other", const [])], steps), isNull);
-      expect(
-        stepNumberFor([_offered("idin", const [])], steps.take(1).toList()),
-        isNull,
-      );
-    });
   });
 
   test("names inside a sentence keep abbreviations", () {

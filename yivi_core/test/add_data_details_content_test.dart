@@ -83,22 +83,23 @@ void main() {
     "Email domain name",
   ]);
 
-  testWidgets("the card beside the name, what you get as a checklist", (
+  testWidgets("the card large above its name, what you get as a checklist", (
     tester,
   ) async {
     await pump(tester, email, faq: _emailFaq);
-    // The card, small, beside its name and who issues it.
+    // The hero: the card large, its name and "From {issuer}" centred under
+    // it.
     final issuer = tester.getRect(
       find.byKey(const Key("add_data_details_issuer")),
     );
     final card = tester.getRect(find.byType(CredentialTypeThumbnail));
-    expect(card.width, 88);
-    expect(issuer.left, greaterThan(card.right));
-    expect(issuer.top, lessThan(card.bottom));
+    expect(card.width, 200);
     final name = tester.getRect(find.byKey(const Key("add_data_details_name")));
-    expect(name.top, lessThan(issuer.top));
+    expect(name.top, greaterThan(card.bottom));
+    expect(issuer.top, greaterThan(name.top));
+    expect(name.center.dx, closeTo(card.center.dx, 2));
     expect(find.text("Email address"), findsWidgets);
-    expect(find.text("Yivi"), findsOneWidget);
+    expect(find.text("From Yivi"), findsOneWidget);
     expect(find.textContaining("Example card"), findsNothing);
     expect(find.text("GOES INTO YOUR APP"), findsOneWidget);
     final list = find.byKey(const Key("add_data_checklist"));
@@ -199,9 +200,7 @@ void main() {
   testWidgets("during a request the note names who gets what", (tester) async {
     await pump(tester, email, faq: _emailFaq, forRequestor: "Webshop Noord");
     expect(
-      find.textContaining(
-        "Webshop Noord only gets what they ask from this.",
-      ),
+      find.textContaining("Webshop Noord only gets what they ask from this."),
       findsOneWidget,
     );
   });

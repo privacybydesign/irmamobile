@@ -3,14 +3,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/press_scale.dart";
 import "requestor_card.dart";
 
-/// What the tag of an [IssueSheetProgress] names: the request a card is
-/// added for ("For {requestor}"), or, with no request behind the sheet,
-/// nothing.
+/// What a card is added for: the request behind the sheet ("For
+/// {requestor}"), or, with no request behind it, nothing.
 sealed class IssueSheetSubject {
   const IssueSheetSubject();
 
@@ -21,9 +19,13 @@ sealed class IssueSheetSubject {
     ({int n, int total})? ofSet,
   }) = _ForRequest;
   const factory IssueSheetSubject.none() = _NoSubject;
+
+  /// The requestor the card is added for, if any.
+  TrustedParty? get requestor => null;
 }
 
 class _ForRequest extends IssueSheetSubject {
+  @override
   final TrustedParty requestor;
   final ({int n, int total})? ofSet;
   const _ForRequest(this.requestor, {this.ofSet});
@@ -49,17 +51,13 @@ class _NoSubject extends IssueSheetSubject {
   const _NoSubject();
 }
 
-/// Where adding a card stands, right under the bar of the sheet it is added
-/// in: a thin line the full width of the sheet that fills up to the step of
-/// the flow ([total]: the details, the steps that prove it, adding it).
-/// During a request "For {requestor}"
-/// goes under it ([subject]), so it is clear the card is for the request
-/// behind the sheet.
-///
-/// Each step of the sheet has a progress of its own, so the bar remembers
-/// where it stood ([GlassSheetPages.memoryOf]) and fills (or empties) on from
-/// there: it moves smoothly from step to step.
-class IssueSheetProgress extends StatefulWidget {
+/// Where adding a card stands, right above the way on of each of its pages:
+/// a short part per step ([total]: the details, the steps that prove it,
+/// adding it), filled up to [step], and "Step n of N". It sits in the
+/// page's bottom ([GlassSheetPage.bottom]), which stays put while the pages
+/// change, so it does not jump; a page without a button keeps the button's
+/// room.
+class IssueSheetProgress extends StatelessWidget {
   final IssueSheetSubject subject;
 
   /// The step on screen, from 1 to [total]. The ones up to it are filled.
@@ -84,202 +82,166 @@ class IssueSheetProgress extends StatefulWidget {
       ? null
       : IssueSheetProgress(subject: subject, step: total, total: total);
 
-  @override
-  State<IssueSheetProgress> createState() => _IssueSheetProgressState();
-}
-
-/// What a bar leaves for the next one: the part filled, so a flow with
-/// another number of steps carries on from the same point.
-typedef _Left = ({double part});
-
-class _IssueSheetProgressState extends State<IssueSheetProgress>
-    with SingleTickerProviderStateMixin {
-  static const _memoryKey = #issueSheetProgress;
-
-  late final _move = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 450),
-  );
-  late final _curve = CurvedAnimation(
-    parent: _move,
-    curve: Curves.easeInOutCubic,
-  );
-
-  /// How far (in steps) the bar is filled where it moves from; it is at
-  /// [_to] when [_move] is done.
-  double _from = 0;
-  bool _started = false;
-
-  /// Its page was on top at the last check. Pages stay alive under the next
-  /// one, so a page that comes back on top moves its bar from where the
-  /// page it covered left it.
-  bool _wasTop = true;
-
-  double get _to => widget.step.toDouble();
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final top = GlassSheetPages.isTopPage(context);
-    final backOnTop = top && !_wasTop;
-    _wasTop = top;
-    if (_started && !backOnTop) return;
-    _started = true;
-    // From where the previous step's bar stood; a first bar fills from empty.
-    final last = GlassSheetPages.memoryOf(context)?[_memoryKey];
-    _go(from: last is _Left ? last.part * widget.total : 0);
-  }
-
-  @override
-  void didUpdateWidget(IssueSheetProgress old) {
-    super.didUpdateWidget(old);
-    if (old.step != widget.step || old.total != widget.total) {
-      // Where the bar stands now, towards the old step (`_to` is already
-      // the new one), as a part of the whole: a face check that adds a step
-      // keeps the bar where it is.
-      final now = _from + (old.step - _from) * _curve.value;
-      _go(from: now / old.total * widget.total);
-    }
-  }
-
-  @override
-  void dispose() {
-    _curve.dispose();
-    _move.dispose();
-    super.dispose();
-  }
-
-  /// Where the bar is right now.
-  double get _now => _from + (_to - _from) * _curve.value;
-
-  void _go({required double from}) {
-    _from = from;
-    // The page on top tells the next one where it ends up; the one under it
-    // (shown only while pages change) does not.
-    if (GlassSheetPages.isTopPage(context)) {
-      GlassSheetPages.memoryOf(context)?[_memoryKey] = (
-        part: _to / widget.total,
-      );
-    }
-    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final still = reduce || from == _to;
-    if (still) {
-      _move.value = 1;
-    } else {
-      _move.forward(from: 0);
-    }
-  }
+  /// A part's width: narrower for a long flow (a document with a face
+  /// check), so it fits a sheet's left column held sideways.
+  double get _partWidth => total > 4 ? 18 : 28;
+  static const double _partHeight = 4;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final step = widget.step;
-    final params = {"step": "$step", "total": "${widget.total}"};
-    final ink = palette.successText;
-    final track = palette.text.withValues(alpha: 0.12);
-
-    // One thin line the full width of the sheet, right under the bar, says
-    // where you are; the bar's title says what.
-    final line = Semantics(
-      // The step and the total, for a test to find without a visible count.
-      key: ValueKey(("issue_sheet_progress", step, widget.total)),
+    final params = {"step": "$step", "total": "$total"};
+    final label = context.tr("share.step_count", params);
+    return Semantics(
+      // The step and the total, for a test to find.
+      key: ValueKey(("issue_sheet_progress", step, total)),
       // Read out when the step changes.
       liveRegion: true,
-      label: context.tr("share.step_count", params),
+      label: label,
       excludeSemantics: true,
-      child: Container(
-        key: const Key("issue_sheet_progress_line"),
-        height: 3,
-        color: track,
-        child: AnimatedBuilder(
-          animation: _curve,
-          builder: (context, _) => Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FractionallySizedBox(
-              widthFactor: (_now / widget.total).clamp(0.0, 1.0),
-              heightFactor: 1,
-              child: ColoredBox(color: ink),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // During a request a quiet line under it says who it is for; on a phone
-    // held sideways that goes under the bar's title instead
-    // ([IssueSheetRequestorLine]).
-    return switch (widget.subject) {
-      final _ForRequest subject when !useSheetColumns(context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
+        key: const Key("issue_sheet_progress_parts"),
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 10,
         children: [
-          line,
-          Padding(
-            key: const Key("issue_sheet_for_requestor"),
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 2),
-            child: Row(
-              spacing: 8,
-              children: [
-                ExcludeSemantics(
-                  child: requestorAvatar(subject.requestor, size: 20),
-                ),
-                Flexible(
-                  child: Text(
-                    subject.text(context),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .body(13)
-                        .copyWith(color: palette.secondaryText),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 6,
+            children: [
+              for (var i = 1; i <= total; i++)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: _partWidth,
+                  height: _partHeight,
+                  decoration: BoxDecoration(
+                    color: i <= step
+                        ? palette.successText
+                        : palette.text.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(_partHeight / 2),
                   ),
                 ),
-              ],
+            ],
+          ),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: palette
+                  .body(12)
+                  .copyWith(color: palette.secondaryText, height: 16 / 12),
             ),
           ),
         ],
       ),
-      _ => line,
-    };
+    );
   }
 }
 
-/// Who a card is added for, centred under the title in the bar of the
-/// sheet, on a phone held sideways (elsewhere [IssueSheetProgress] shows it
-/// under its line): the requestor's avatar and "For {requestor}". Nothing when the
-/// card is not added for a request.
-class IssueSheetRequestorLine extends StatelessWidget {
+/// Opens the island ([IssueIsland]) of the sheet around it: what the pill
+/// in the bar does. Put above the sheet's pages by the flow.
+class IssueIslandScope extends InheritedWidget {
+  final VoidCallback open;
+
+  /// Whether the island is open (the pill gives way to it).
+  final bool isOpen;
+
+  const IssueIslandScope({
+    super.key,
+    required this.open,
+    required this.isOpen,
+    required super.child,
+  });
+
+  static IssueIslandScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<IssueIslandScope>();
+
+  @override
+  bool updateShouldNotify(IssueIslandScope old) =>
+      old.isOpen != isOpen || old.open != open;
+}
+
+/// "For {requestor}" in the middle of the bar of each page of adding a card
+/// for a request: the requestor's logo and the words in a light pill with a
+/// chevron. A tap grows it into the island, which says why the card is
+/// added. Nothing when the card is not added for a request.
+class IssueRequestorPill extends StatelessWidget {
   final IssueSheetSubject subject;
 
-  const IssueSheetRequestorLine({super.key, required this.subject});
+  const IssueRequestorPill({super.key, required this.subject});
 
-  /// The line for [subject]; none without one.
-  static IssueSheetRequestorLine? maybe(IssueSheetSubject? subject) =>
-      subject == null ? null : IssueSheetRequestorLine(subject: subject);
+  /// The pill for [subject]; none without a request.
+  static IssueRequestorPill? maybe(IssueSheetSubject? subject) =>
+      subject is _ForRequest ? IssueRequestorPill(subject: subject) : null;
 
   @override
   Widget build(BuildContext context) {
     final subject = this.subject;
-    if (subject is! _ForRequest || !useSheetColumns(context)) {
-      return const SizedBox.shrink();
-    }
+    if (subject is! _ForRequest) return const SizedBox.shrink();
     final palette = YiviPalette.of(context);
-    return Row(
-      key: const Key("issue_sheet_for_requestor"),
-      mainAxisSize: MainAxisSize.min,
-      spacing: 6,
-      children: [
-        ExcludeSemantics(child: requestorAvatar(subject.requestor, size: 16)),
-        Flexible(
-          child: Text(
-            subject.text(context),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: palette
-                .body(12)
-                .copyWith(color: palette.secondaryText, height: 16 / 12),
+    final scope = IssueIslandScope.maybeOf(context);
+    final text = subject.text(context);
+    // While the island is open it stands in the pill's place.
+    final pill = AnimatedOpacity(
+      opacity: scope?.isOpen ?? false ? 0 : 1,
+      duration: const Duration(milliseconds: 150),
+      child: Center(
+        child: Semantics(
+          key: const Key("issue_sheet_for_requestor"),
+          button: scope != null,
+          label: text,
+          hint: scope == null ? null : context.tr("issuance.island.hint"),
+          excludeSemantics: true,
+          child: PressScale(
+            scale: PressScale.glass,
+            enabled: scope != null,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: scope?.open,
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 34),
+                padding: const EdgeInsetsDirectional.fromSTEB(6, 0, 10, 0),
+                decoration: ShapeDecoration(
+                  color: palette.infoSurface,
+                  shape: const StadiumBorder(),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 7,
+                  children: [
+                    requestorAvatar(subject.requestor, size: 22),
+                    Flexible(
+                      child: Text(
+                        text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .body(14, weight: FontWeight.w600)
+                            .copyWith(color: palette.noteText),
+                      ),
+                    ),
+                    if (scope != null)
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 18,
+                        color: palette.noteText,
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-      ],
+      ),
+    );
+    // Not squeezed: where the bar leaves it no room (a button in the bar
+    // beside it), it gives way.
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          constraints.maxWidth < _minWidth ? const SizedBox.shrink() : pill,
     );
   }
+
+  /// Its logo, chevron and a few letters.
+  static const double _minWidth = 120;
 }

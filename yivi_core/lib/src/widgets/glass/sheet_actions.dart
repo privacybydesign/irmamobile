@@ -25,6 +25,9 @@ class SheetActionRow extends StatelessWidget {
   final Key? primaryKey;
   final Key? secondaryKey;
 
+  /// The way on as a neutral (grey) pill (see [SheetAction.neutral]).
+  final bool primaryNeutral;
+
   /// Both buttons are this tall, so the row reads as one.
   static const double height = PillSize.regularHeight;
 
@@ -37,6 +40,7 @@ class SheetActionRow extends StatelessWidget {
     this.primaryLeading,
     this.primaryKey,
     this.secondaryKey,
+    this.primaryNeutral = false,
   }) : assert(
          primaryLabel != null || secondaryLabel != null,
          "a row needs at least one button",
@@ -60,6 +64,14 @@ class SheetActionRow extends StatelessWidget {
           );
     final primaryButton = primary == null
         ? null
+        : primaryNeutral
+        ? PillButton(
+            key: primaryKey,
+            label: primary,
+            onPressed: onPrimary,
+            style: PillStyle.neutral,
+            size: PillSize.regular,
+          )
         : FancyPillButton(
             key: primaryKey,
             label: primary,
@@ -117,11 +129,16 @@ class SheetAction {
   /// For tests to find it, wherever it shows.
   final Key? key;
 
+  /// A neutral (grey) button instead of the red one: the way on that goes
+  /// ahead anyway, after a warning ("Add anyway").
+  final bool neutral;
+
   const SheetAction({
     required this.label,
     this.onTap,
     this.busy = false,
     this.key,
+    this.neutral = false,
   });
 
   /// Whether it is ready to be tapped.
@@ -133,7 +150,8 @@ class SheetAction {
       other.label == label &&
       other.busy == busy &&
       other.enabled == enabled &&
-      other.key == key;
+      other.key == key &&
+      other.neutral == neutral;
 }
 
 /// Where screens that are not the sheet page itself (the document screens,

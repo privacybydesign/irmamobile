@@ -54,10 +54,11 @@ class DocumentInstructionScreen extends StatelessWidget {
     List<Widget> words(TextAlign align, {double top = 28, double size = 22}) =>
         [
           Padding(
+            // In a sheet's column flush with the words under it.
             padding: EdgeInsets.fromLTRB(
-              top == 0 ? 4 : 8,
+              top == 0 ? 0 : 8,
               top,
-              top == 0 ? 4 : 8,
+              top == 0 ? 0 : 8,
               0,
             ),
             child: TranslatedText(
@@ -102,15 +103,23 @@ class DocumentInstructionScreen extends StatelessWidget {
       return DocumentStepScaffold.split(
         SheetSplit(
           endFills: true,
-          start: [
-            // The title at the top of the column.
-            ...words(TextAlign.start, top: 0, size: 20),
-          ],
-          end: Center(
-            child: AspectRatio(
-              aspectRatio: _pictureSize.width / _pictureSize.height,
-              child: FittedBox(child: picture),
-            ),
+          // The title and what to do at the left; the tip under the
+          // picture, where the column has room for it.
+          start: words(TextAlign.start, top: 0, size: 20).take(2).toList(),
+          end: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Expanded(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: _pictureSize.width / _pictureSize.height,
+                    child: FittedBox(child: picture),
+                  ),
+                ),
+              ),
+              DocumentTipBox(textKey: "$keys.tip"),
+            ],
           ),
           actions: DocumentFlowFooter.sheetActions(context, buttons),
         ),

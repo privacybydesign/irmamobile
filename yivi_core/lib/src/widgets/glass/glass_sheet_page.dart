@@ -77,6 +77,18 @@ class GlassSheetPage extends StatefulWidget {
   /// page without [fit] comes in over it, and goes back as that page goes.
   final bool fit;
 
+  /// [titleWidget] stays in the middle of the bar on a phone held sideways
+  /// too (a tag), instead of standing next to the title at the start.
+  final bool titleWidgetCentred;
+
+  /// The title shows only once the page has scrolled this far: its heading
+  /// is in the page, and the bar names the page once that is under it.
+  /// Null: the title always shows.
+  final double? titleAfterScroll;
+
+  /// See the constructor's `split`.
+  final bool split;
+
   const GlassSheetPage({
     super.key,
     required this.title,
@@ -98,7 +110,10 @@ class GlassSheetPage extends StatefulWidget {
     this.edge = true,
     this.slotBottom = false,
     this.fit = false,
-  }) : padding = split ? EdgeInsets.zero : padding,
+    this.titleWidgetCentred = false,
+    this.titleAfterScroll,
+  }) : split = split,
+       padding = split ? EdgeInsets.zero : padding,
        scrolls = scrolls && !split,
        childClearsBottom = childClearsBottom || split,
        assert((child == null) != (slivers == null), "child or slivers"),
@@ -115,11 +130,23 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
   final _under = ScrollEdgeNotifier();
   final _slot = SheetActionSlot();
 
+  /// Whether the page has scrolled past [GlassSheetPage.titleAfterScroll].
+  final _past = ValueNotifier(false);
+
   @override
   void dispose() {
     _under.dispose();
     _slot.dispose();
+    _past.dispose();
     super.dispose();
+  }
+
+  bool _onScroll(ScrollNotification n) {
+    final after = widget.titleAfterScroll;
+    if (after != null && n.metrics.axis == Axis.vertical) {
+      _past.value = n.metrics.pixels > after;
+    }
+    return false;
   }
 
   @override
@@ -131,7 +158,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final pinned = widget.pinned;
     final action = widget.action;
     final inBar = sheetActionInBar(context);
-    _slot.takesBottom = widget.slotBottom && !widget.scrolls && !inBar;
+    _slot.takesBottom =
+        widget.slotBottom &&
+        !widget.scrolls &&
+        !inBar &&
+        !useSheetColumns(context);
     role?.chrome[role.pageKey] = (
       back: onBack != null,
       pinned: pinned != null,
@@ -171,12 +202,19 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       // into each other. The way on in the bar comes from the page, or from
       // a screen inside it (the slot).
       ListenableBuilder(
-        listenable: _slot,
+        listenable: Listenable.merge([_slot, _past]),
         builder: (context, _) {
           final slotted = action == null ? _slot.action : null;
+          // Until the page has scrolled its heading away, nothing in the
+          // title's place (the title still names the page).
+          final hideTitle = widget.titleAfterScroll != null && !_past.value;
           return GlassSheetHeader(
             title: title,
-            titleWidget: widget.titleWidget,
+            titleWidget:
+                widget.titleWidget ??
+                (hideTitle ? const SizedBox.shrink() : null),
+            titleWidgetCentred:
+                widget.titleWidgetCentred || widget.titleWidget == null,
             onBack: onBack,
             action: inBar ? (action ?? slotted) : null,
             onAction: slotted == null
@@ -200,12 +238,15 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       // The progress: a line the full width of the sheet, under the bar.
       ?pinnedShown,
     ];
-    final body = ScrollEdgeListener(
-      notifier: _under,
-      child: Column(
-        mainAxisSize: role == null ? MainAxisSize.min : MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _body(context, inBar ? null : action),
+    final body = NotificationListener<ScrollNotification>(
+      onNotification: _onScroll,
+      child: ScrollEdgeListener(
+        notifier: _under,
+        child: Column(
+          mainAxisSize: role == null ? MainAxisSize.min : MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _body(context, inBar ? null : action),
+        ),
       ),
     );
     // Taps on the bar stay on the bar, also where content is under it.
@@ -265,6 +306,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             primaryLabel: action.label,
             onPrimary: action.enabled ? action.onTap : null,
             primaryLeading: action.busy ? const SheetBusySpinner() : null,
+            primaryNeutral: action.neutral,
           );
     final given = widget.bottom;
     final bottom = button == null
@@ -278,6 +320,22 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             children: [given, button],
           );
     if (_slot.takesBottom) return _slotBody(padding, child!);
+    // Sideways with the way on out of the bar: at the bottom of the split's
+    // left column, not in a bar across the sheet.
+    // The document steps' screens lay themselves out in a split sideways
+    // too ([slotBottom]).
+    if ((widget.split || widget.slotBottom) &&
+        bottom != null &&
+        useSheetColumns(context)) {
+      return [
+        Expanded(
+          child: Padding(
+            padding: padding,
+            child: SheetSplitBottom(bottom: bottom, child: child!),
+          ),
+        ),
+      ];
+    }
     return [
       if (!widget.scrolls) ...[
         Expanded(
@@ -366,7 +424,19 @@ extension on _GlassSheetPageState {
             secondaryLabel: secondary?.label,
             onSecondary: secondary?.onTap,
           );
-          return SheetBottomBar(child: _kept(!empty, row));
+          // What the page puts above the buttons (the progress) stays,
+          // also while a screen has no buttons.
+          final above = widget.bottom;
+          return SheetBottomBar(
+            child: above == null
+                ? _kept(!empty, row)
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 10,
+                    children: [above, _kept(!empty, row)],
+                  ),
+          );
         },
       ),
     ];

@@ -118,7 +118,6 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
             ],
             receives: IssuanceOffer(
               cards: cards,
-              showRequestChip: false,
             ).receives(context, headingKey: "data.add.in_your_app"),
             actions: FancyPillButton(
               key: const Key("ok_button"),

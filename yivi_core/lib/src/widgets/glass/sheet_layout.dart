@@ -104,10 +104,12 @@ class SheetSplit extends StatelessWidget {
   /// of scrolling.
   final bool endFills;
 
-  /// The width of the start column: 280, or 330 for the camera and manual
-  /// entry.
+  /// The width of the start column, the same on every step so the button
+  /// and the progress stay put from page to page.
   static const double width = 280;
-  static const double wideWidth = 330;
+
+  /// The widest [end] gets (a field, cards, steps); centred in its room.
+  static const double endMaxWidth = 420;
 
   const SheetSplit({
     super.key,
@@ -135,7 +137,20 @@ class SheetSplit extends StatelessWidget {
     // As low as the buttons of a full screen; right above the keyboard
     // while it is up.
     final bottom = keyboard ? 12.0 : FloatingBarPlacement.buttonBottom(context);
-    final actions = this.actions;
+    // The page's own bottom (the progress, its way on) above the column's
+    // buttons.
+    final pageBottom = SheetSplitBottom.of(context);
+    final own = this.actions;
+    final actions = pageBottom == null
+        ? own
+        : own == null
+        ? pageBottom
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 10,
+            children: [pageBottom, own],
+          );
     return _InSplit(
       child: Padding(
         padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -150,8 +165,9 @@ class SheetSplit extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
+                      // Clipped: what does not fit scrolls, rather than
+                      // running under the progress and the button.
                       child: SingleChildScrollView(
-                        clipBehavior: Clip.none,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           spacing: 10,
@@ -175,12 +191,26 @@ class SheetSplit extends StatelessWidget {
               child: endFills
                   ? Padding(
                       padding: EdgeInsets.only(bottom: bottom),
-                      child: end,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: endMaxWidth,
+                          ),
+                          child: end,
+                        ),
+                      ),
                     )
                   : SingleChildScrollView(
                       clipBehavior: Clip.none,
                       padding: EdgeInsets.only(bottom: bottom + 16),
-                      child: end,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: endMaxWidth,
+                          ),
+                          child: end,
+                        ),
+                      ),
                     ),
             ),
           ],

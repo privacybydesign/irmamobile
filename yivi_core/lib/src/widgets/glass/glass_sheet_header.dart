@@ -65,6 +65,11 @@ class GlassSheetHeader extends StatelessWidget {
   /// added for).
   final Widget? subtitle;
 
+  /// [titleWidget] stays centred between the buttons on a phone held
+  /// sideways too, as upright (a tag, or nothing while the title waits for
+  /// its heading to scroll away).
+  final bool titleWidgetCentred;
+
   const GlassSheetHeader({
     super.key,
     required this.title,
@@ -80,12 +85,15 @@ class GlassSheetHeader extends StatelessWidget {
     this.actionOpacity,
     this.buttons = true,
     this.subtitle,
+    this.titleWidgetCentred = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final sideways = useSheetColumns(context);
-    if (sideways && this.titleWidget != null) return _row(context);
+    if (sideways && this.titleWidget != null && !titleWidgetCentred) {
+      return _row(context);
+    }
     final palette = YiviPalette.of(context);
     final floating = _GlassSheetFloating.of(context);
     final titleWidget = this.titleWidget;
@@ -125,8 +133,10 @@ class GlassSheetHeader extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           AnimatedOpacity(
-            // Gone while a widget takes its place; it still names the page.
+            // Gone while a widget takes its place; it still names the page,
+            // also for screen readers.
             opacity: titleWidget == null ? 1 : 0,
+            alwaysIncludeSemantics: true,
             duration: _switch(context),
             child: subtitle == null
                 ? text
@@ -215,7 +225,7 @@ class GlassSheetHeader extends StatelessWidget {
         child: CustomMultiChildLayout(
           delegate: _BarLayout(
             Directionality.of(context),
-            fill: titleWidget != null,
+            fill: titleWidget != null && !titleWidgetCentred,
           ),
           children: [
             if (start != null) LayoutId(id: _BarSlot.start, child: start),

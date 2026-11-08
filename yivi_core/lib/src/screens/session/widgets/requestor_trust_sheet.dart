@@ -25,19 +25,22 @@ const _euTrustedList =
 /// sheet, opened from the requestor card ([RequestorCard]).
 ///
 /// [onDontShare] is "Don't share" for a party nobody vouches for: it closes
-/// the request. With [technicalDetails] the sheet ends with a row that opens
+/// the request. [issuer]: about the issuer of a card being added (see
+/// [RequestorTrustSheet.issuer]). With [technicalDetails] the sheet ends with a row that opens
 /// them, as a subpage of the sheet.
 Future<void> showRequestorTrustSheet({
   required BuildContext context,
   required TrustedParty requestor,
   VoidCallback? onDontShare,
   List<TechGroup>? technicalDetails,
+  bool issuer = false,
 }) => showGlassSheet<void>(
   context: context,
   builder: (_) => _TrustSheetPages(
     requestor: requestor,
     onDontShare: onDontShare,
     technicalDetails: technicalDetails,
+    issuer: issuer,
   ),
 );
 
@@ -47,11 +50,13 @@ class _TrustSheetPages extends StatefulWidget {
   final TrustedParty requestor;
   final VoidCallback? onDontShare;
   final List<TechGroup>? technicalDetails;
+  final bool issuer;
 
   const _TrustSheetPages({
     required this.requestor,
     this.onDontShare,
     this.technicalDetails,
+    this.issuer = false,
   });
 
   @override
@@ -71,6 +76,7 @@ class _TrustSheetPagesState extends State<_TrustSheetPages> {
           key: const Key("requestor_trust_sheet"),
           requestor: widget.requestor,
           onDontShare: widget.onDontShare,
+          issuer: widget.issuer,
           onTechnicalDetails: groups == null
               ? null
               : () => setState(() => _tech = true),
@@ -98,11 +104,22 @@ class RequestorTrustSheet extends StatelessWidget {
   /// them when null.
   final VoidCallback? onTechnicalDetails;
 
+  /// Back, when the page is pushed in a sheet of its own pages (the issuer
+  /// of a card being added, from its trust label).
+  final VoidCallback? onBack;
+
+  /// About the issuer of a card being added rather than a party that asks:
+  /// what you take responsibility for is adding, and there is no request
+  /// to stop or a registration to ask for.
+  final bool issuer;
+
   const RequestorTrustSheet({
     super.key,
     required this.requestor,
     this.onDontShare,
     this.onTechnicalDetails,
+    this.onBack,
+    this.issuer = false,
   });
 
   @override
@@ -152,7 +169,13 @@ class RequestorTrustSheet extends StatelessWidget {
         [
           _Fact.no(context.tr("share.trust.sheet.unknown.fact_unchecked")),
           _Fact.no(context.tr("share.trust.sheet.unknown.fact_self")),
-          _Fact.no(context.tr("share.trust.sheet.unknown.fact_responsibility")),
+          _Fact.no(
+            context.tr(
+              issuer
+                  ? "issuance.trust.fact_responsibility"
+                  : "share.trust.sheet.unknown.fact_responsibility",
+            ),
+          ),
         ],
       ),
     };
@@ -193,30 +216,32 @@ class RequestorTrustSheet extends StatelessWidget {
       _ => (
         context.tr("share.trust.sheet.do.unsure"),
         [
-          _Do(
-            key: const Key("trust_sheet_dont_share"),
-            icon: Icons.shield_outlined,
-            title: context.tr("share.trust.sheet.do.dont_share"),
-            subtitle: context.tr("share.trust.sheet.do.dont_share_text"),
-            onTap: onDontShare == null
-                ? null
-                : () {
-                    Navigator.of(context).pop();
-                    onDontShare!();
-                  },
-          ),
+          if (!issuer)
+            _Do(
+              key: const Key("trust_sheet_dont_share"),
+              icon: Icons.shield_outlined,
+              title: context.tr("share.trust.sheet.do.dont_share"),
+              subtitle: context.tr("share.trust.sheet.do.dont_share_text"),
+              onTap: onDontShare == null
+                  ? null
+                  : () {
+                      Navigator.of(context).pop();
+                      onDontShare!();
+                    },
+            ),
           _Do(
             icon: Icons.call_outlined,
             title: context.tr("share.trust.sheet.do.contact", params),
             subtitle: context.tr("share.trust.sheet.do.contact_text"),
           ),
-          _Do(
-            key: const Key("trust_sheet_register"),
-            icon: Icons.open_in_new_rounded,
-            title: context.tr("share.trust.sheet.do.register"),
-            subtitle: context.tr("share.trust.sheet.do.register_text"),
-            onTap: () => open(_portal),
-          ),
+          if (!issuer)
+            _Do(
+              key: const Key("trust_sheet_register"),
+              icon: Icons.open_in_new_rounded,
+              title: context.tr("share.trust.sheet.do.register"),
+              subtitle: context.tr("share.trust.sheet.do.register_text"),
+              onTap: () => open(_portal),
+            ),
         ],
       ),
     };
@@ -230,6 +255,7 @@ class RequestorTrustSheet extends StatelessWidget {
       explicitChildNodes: true,
       child: GlassSheetPage(
         title: "",
+        onBack: onBack,
         // No bar once scrolled either: only the close button floats.
         edge: false,
         // Held sideways the columns scroll each on their own.

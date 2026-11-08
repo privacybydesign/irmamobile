@@ -4,11 +4,11 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../../../data/irma_repository.dart";
+import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/email_issuance_provider.dart";
-import "../../../providers/external_issuer_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/preferences_provider.dart";
@@ -30,12 +30,16 @@ import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../error/session_error_screen.dart";
 import "../models/disclosure_view_model.dart";
+import "../models/technical_details.dart";
 import "issuance_permission.dart";
 import "issuance_success_screen.dart";
+import "issue_island.dart";
 import "issue_sheet_progress.dart";
 import "issue_website_step.dart";
 import "openid4vci_preauth_txcode_screen.dart";
+import "requestor_trust_sheet.dart";
 import "session_pin_entry_screen.dart";
+import "technical_details_sheet.dart";
 
 /// Sends the user to the issuer of a credential type: its website, or the
 /// app's own flow for the types Yivi issues itself (e-mail, phone,
@@ -116,6 +120,18 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void issueStartWith(CredentialDescriptor? d) {
     issueAdding = d;
     _direct = d != null;
+  }
+
+  /// The issuer's details over the question (1), and their technical
+  /// details over those (2); 0: none.
+  int _issuerDepth = 0;
+
+  /// The island over the sheet ([IssueIsland]): why the card is added,
+  /// during a request. Only opened from the pill in the bar.
+  bool _island = false;
+
+  void _closeIsland() {
+    if (_island) setState(() => _island = false);
   }
 
   /// There is something else to choose than the card being added: the
@@ -347,6 +363,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The issuance in the sheet is gone: no session, no PIN page kept under
   /// "Success", no offer kept.
   void _forgetSession() {
+    _issuerDepth = 0;
     _nestedId = null;
     _pinShown = false;
     _lastOffer = null;
@@ -531,19 +548,51 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // On a phone held upright the close button stays at the top right on
       // every page of adding.
       child: SheetKeepsClose(
-        child: GlassSheetPages(
-          onBack: onBack,
-          pages: _closing && _shownPages != null
-              ? _shownPages!
-              : _shownPages = [
-                  if (!_direct || issueAdding == null)
-                    KeyedSubtree(key: ValueKey(rootKey), child: root()),
-                  ...issueFlowPages(),
-                ],
+        // Sideways the way on and the progress stay at the bottom of the
+        // left column, as upright at the bottom: the bar has only back and
+        // close.
+        child: SheetActionsInColumn(
+          child: IssueIslandScope(
+            open: () => setState(() => _island = true),
+            isOpen: _islandOpen,
+            child: Stack(
+              // The pages get the sheet's own constraints: a short page
+              // still makes a low sheet.
+              fit: StackFit.passthrough,
+              children: [
+                GlassSheetPages(
+                  onBack: onBack,
+                  pages: _closing && _shownPages != null
+                      ? _shownPages!
+                      : _shownPages = [
+                          if (!_direct || issueAdding == null)
+                            KeyedSubtree(key: ValueKey(rootKey), child: root()),
+                          ...issueFlowPages(),
+                        ],
+                ),
+                if (_islandOpen)
+                  Positioned.fill(
+                    child: IssueIsland(
+                      requestor: issueRequest!.requestor,
+                      onClose: _closeIsland,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+
+  /// The island shows while adding a card for a request, not over the
+  /// sheet's root page or once the card is in.
+  bool get _islandOpen =>
+      _island &&
+      issueRequest != null &&
+      issueAdding != null &&
+      issueAdded == null &&
+      !_closing;
 
   /// Back in the sheet: one step back, or from the details to the root page.
   void issueBack() {
@@ -723,9 +772,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             opened: _opened,
             onOpen: () => _openWebsite(adding),
             onBack: _leaveWebsite,
-            pinned: IssueSheetProgress(subject: subject, step: 2, total: total),
-            subtitle: IssueSheetRequestorLine(subject: subject),
-            requestor: issueRequest?.requestor.name,
+            bottom: IssueSheetProgress(subject: subject, step: 2, total: total),
+            titleWidget: IssueRequestorPill.maybe(subject),
             onOther: issueHasOtherChoices ? _issueChooseOther : null,
           ),
         ),
@@ -774,7 +822,45 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           key: ValueKey(("issue", nested)),
           child: _buildIssuance(nested, subject, total),
         ),
+      ..._issuerPages(nested),
       ..._issuanceTail(nested, subject, total),
+    ];
+  }
+
+  /// The issuer's details, from the trust label on the question, as pages
+  /// of the sheet (back returns to the question), and their technical
+  /// details under them.
+  List<Widget> _issuerPages(int? nested) {
+    final offer = _lastOffer;
+    final cards = offer?.offeredCredentials;
+    if (_issuerDepth == 0 || offer == null || cards == null || cards.isEmpty) {
+      return const [];
+    }
+    final issuer = cards.first.issuer;
+    return [
+      KeyedSubtree(
+        key: ValueKey(("issuer", nested)),
+        child: RequestorTrustSheet(
+          key: const Key("issuer_trust_page"),
+          requestor: issuer,
+          issuer: true,
+          onBack: () => setState(() => _issuerDepth = 0),
+          onTechnicalDetails: () => setState(() => _issuerDepth = 2),
+        ),
+      ),
+      if (_issuerDepth >= 2)
+        KeyedSubtree(
+          key: ValueKey(("issuer_tech", nested)),
+          child: TechnicalDetailsSheet(
+            key: const Key("issuer_technical_details"),
+            groups: issuanceTechnicalDetailsOf(
+              offer,
+              cards,
+              (key, [params]) => context.tr(key, params ?? const {}),
+            ),
+            onBack: () => setState(() => _issuerDepth = 1),
+          ),
+        ),
     ];
   }
 
@@ -823,6 +909,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         key: ValueKey(("issue", nested)),
         child: _buildIssuance(nested, subject, 0),
       ),
+      ..._issuerPages(nested),
       ..._issuanceTail(nested, subject, 0),
     ];
   }
@@ -884,15 +971,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       // dragging its header down.
       closable: _direct,
       closeAtStart: true,
-      // "Add {name}": the page is about adding it (the progress under the
-      // bar says where in adding it you are).
+      // "Add {name}" names the page; the card's name is its heading, and
+      // the bar shows the title only once that has scrolled away.
       title: context.tr("data.add.details.title_add", {"name": d.name}),
+      titleWidget: IssueRequestorPill.maybe(subject),
+      titleWidgetCentred: true,
+      titleAfterScroll: 190,
       onBack: _direct ? null : _issueLeave,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       split: split != null,
       action: action,
-      pinned: IssueSheetProgress(subject: subject, step: 1, total: total),
-      subtitle: IssueSheetRequestorLine(subject: subject),
+      bottom: IssueSheetProgress(subject: subject, step: 1, total: total),
       child:
           split ??
           Column(
@@ -946,6 +1035,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final grant = offer == null || nestedId == null
         ? null
         : () => _grant(nestedId);
+    // Nobody vouches for the issuer: adding becomes "Add anyway", neutral,
+    // with the reason above it and a red wash at the top, as sharing with a
+    // requestor nobody vouches for.
+    final issuer = cards.firstOrNull?.issuer;
+    final risky =
+        !mismatched &&
+        issuer != null &&
+        requestorTrustOf(issuer) == RequestorTrust.unknown;
     final action = mismatched
         ? SheetAction(
             key: const Key("sheet_issue_retry"),
@@ -956,13 +1053,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           )
         : SheetAction(
             key: const Key("sheet_issue_add"),
-            label: request != null
-                ? (cards.length > 1
-                      ? context.tr("share.offer.add_many", {
-                          "count": "${cards.length}",
-                        })
-                      : context.tr("share.offer.add"))
-                : issuanceAddLabel(context, cards.length),
+            label: risky
+                ? context.tr("issuance.question.add_anyway")
+                : cards.length > 1
+                ? context.tr("share.offer.add_many", {
+                    "count": "${cards.length}",
+                  })
+                : context.tr("share.offer.add"),
+            neutral: risky,
             // Under way once tapped, until "Success" comes in.
             busy: awaiting,
             onTap: grant,
@@ -980,86 +1078,90 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             ),
           )
         : null;
-    // A phone held sideways: the card(s) at the left, the question and the
-    // values at the right; the way on is in the bar.
-    if (useSheetColumns(context)) {
-      final content = offer == null ? null : _offerContent(offer);
-      return GlassSheetPage(
-        // Left by dragging its header down: no close button.
-        closable: false,
-        title: context.tr("issuance.title"),
-        onBack: issueBack,
-        action: action,
-        pinned: IssueSheetProgress.lastStep(subject, total),
-        subtitle: IssueSheetRequestorLine.maybe(subject),
-        split: true,
-        child: SheetSplit(
-          key: content == null ? null : const Key("sheet_issuance"),
-          start: content == null
-              ? const []
-              : content.overview(context, cardWidth: 230),
-          end: content == null
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 60),
-                  child: Center(child: LoadingIndicator()),
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 8,
-                  children: [
-                    _question(cards),
-                    ...content.receives(context),
-                    ?anyway,
-                  ],
-                ),
-        ),
-      );
-    }
-    return GlassSheetPage(
-      // Left by dragging its header down: no close button.
-      closable: false,
-      title: context.tr("issuance.title"),
+    final palette = YiviPalette.of(context);
+    // Above the button: why it says "anyway" for an issuer nobody vouches
+    // for (no progress then: it is the last step anyway); else the progress.
+    final bottom = risky
+        ? Text(
+            context.tr("issuance.question.risky_reason", {
+              "issuer": issuer.name,
+            }),
+            key: const Key("issuance_risky_reason"),
+            textAlign: useSheetColumns(context)
+                ? TextAlign.start
+                : TextAlign.center,
+            style: palette
+                .body(13.5, weight: FontWeight.w600)
+                .copyWith(color: palette.errorText, height: 19 / 13.5),
+          )
+        : IssueSheetProgress.lastStep(subject, total);
+    final content = offer == null ? null : _offerContent(offer);
+    final question = issuer == null
+        ? null
+        : IssuerQuestion(
+            issuer: issuer,
+            question: _question(cards, mismatched: mismatched),
+            onTrust: () => setState(() => _issuerDepth = 1),
+          );
+    final loading = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 80),
+      child: Center(child: LoadingIndicator()),
+    );
+    // The cards: their values in tiles, the mismatch note above them.
+    List<Widget> cardsAndValues(IssuanceOffer content) => [
+      ?content.note(context),
+      ...content.receives(context, headingKey: null),
+      ?anyway,
+    ];
+    final sideways = useSheetColumns(context);
+    final page = GlassSheetPage(
+      // The issuer names the page; the question is its heading, and the
+      // bar shows the issuer once that has scrolled away.
+      title: issuer?.name ?? context.tr("issuance.title"),
+      titleWidget: IssueRequestorPill.maybe(subject),
+      titleWidgetCentred: true,
+      titleAfterScroll: 150,
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
-      pinned: IssueSheetProgress.lastStep(subject, total),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (offer == null)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 80),
-              child: Center(child: LoadingIndicator()),
+      bottom: bottom,
+      split: sideways,
+      child: sideways
+          // A phone held sideways: the issuer and the question at the left
+          // with the button under them; the cards at the right.
+          ? SheetSplit(
+              key: content == null ? null : const Key("sheet_issuance"),
+              start: [?question],
+              end: content == null
+                  ? loading
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 8,
+                      children: cardsAndValues(content),
+                    ),
             )
-          else
-            KeyedSubtree(
+          : content == null || question == null
+          ? loading
+          : KeyedSubtree(
               key: const Key("sheet_issuance"),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: [..._offer(offer), ?anyway],
+                spacing: 12,
+                children: [
+                  question,
+                  const SizedBox(height: 8),
+                  ...cardsAndValues(content),
+                ],
               ),
             ),
-        ],
-      ),
     );
+    return IssuanceTrustWash(on: risky, child: page);
   }
 
-  /// What the offer holds: the card(s), their chips and their values.
-  IssuanceOffer _offerContent(SessionState offer) {
-    final cards = offer.offeredCredentials!;
-    final returned = _opened && cards.any((c) => _launched(c.credentialId))
-        ? cards.first.issuer.name
-        : null;
-    return IssuanceOffer(
-      cards: cards,
-      forRequest: issueRequest,
-      returnedFromIssuer: returned,
-      showRequestChip: false,
-    );
-  }
+  /// What the offer holds: the card(s) and their values.
+  IssuanceOffer _offerContent(SessionState offer) =>
+      IssuanceOffer(cards: offer.offeredCredentials!, forRequest: issueRequest);
 
   /// Back to the step before the issuance (the website, the code), to try
   /// again after a card that does not count came back.
@@ -1068,73 +1170,18 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     setState(() => _opened = false);
   }
 
-  /// "Do you want to add this to your Yivi app?"; inside a request, "{issuer}
-  /// sends you this card". Smaller in the right column of a phone held
-  /// sideways.
-  Widget _question(List<schemaless.Credential> cards) {
-    final palette = YiviPalette.of(context);
-    final landscape = useSheetColumns(context);
+  /// "Do you want to add this card?", "… these 2 cards?", or, for a card
+  /// that does not count for the request, "… this card anyway?".
+  String _question(
+    List<schemaless.Credential> cards, {
+    required bool mismatched,
+  }) {
+    if (mismatched) return context.tr("issuance.question.anyway");
     final count = cards.length;
-    final issuer = cards.firstOrNull?.issuer.name ?? "";
-    final request = issueRequest;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Semantics(
-        header: true,
-        child: Text(
-          request != null
-              ? (count > 1
-                    ? context.tr("share.offer.question_many", {
-                        "issuer": issuer,
-                        "count": "$count",
-                      })
-                    : context.tr("share.offer.question", {"issuer": issuer}))
-              : issuanceQuestion(context, count),
-          style: landscape
-              ? palette
-                    .display(17, weight: FontWeight.w700)
-                    .copyWith(height: 23 / 17, color: palette.text)
-              : palette
-                    .display(22)
-                    .copyWith(height: 30 / 22, color: palette.heading),
-        ),
-      ),
-    );
+    return count > 1
+        ? context.tr("issuance.question.many", {"count": "$count"})
+        : context.tr("issuance.question.one");
   }
-
-  List<Widget> _offer(SessionState offer) {
-    final cards = offer.offeredCredentials!;
-    final content = _offerContent(offer);
-    final question = _question(cards);
-    final requestor = issueRequest?.requestor.name;
-    final palette = YiviPalette.of(context);
-    return [
-      question,
-      if (requestor != null && cards.length > 1)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            context.tr("share.offer.lead_many", {"requestor": requestor}),
-            key: const Key("sheet_offer_lead"),
-            style: palette
-                .body(15)
-                .copyWith(height: 22 / 15, color: palette.heading),
-          ),
-        ),
-      ...content.overview(context, cardWidth: 358),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: content.receives(context),
-      ),
-    ];
-  }
-
-  bool _launched(String credentialId) =>
-      ref
-          .watch(websiteLaunchedCredentialsProvider)
-          .value
-          ?.contains(credentialId) ??
-      false;
 
   /// OpenID4VCI's transaction code or authorization-code step, as a page.
   /// Back declines the issuance.
@@ -1192,62 +1239,85 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ? null
         : Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: Center(
-              child: TextLink(
-                key: link.key,
-                label: link.label,
-                onPressed: link.onTap,
-              ),
-            ),
+            // Under the words they go with: centred upright, at the start
+            // of the column sideways.
+            child: useSheetColumns(context)
+                ? Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    // Its words flush with the text above (the link pads
+                    // its tap area by 8).
+                    child: Transform.translate(
+                      offset: Offset(
+                        Directionality.of(context) == TextDirection.rtl
+                            ? 8
+                            : -8,
+                        0,
+                      ),
+                      child: TextLink(
+                        key: link.key,
+                        label: link.label,
+                        onPressed: link.onTap,
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: TextLink(
+                      key: link.key,
+                      label: link.label,
+                      onPressed: link.onTap,
+                    ),
+                  ),
           );
-    // The bar says "Success"; what was added is the heading below. Done:
-    // no progress, no close button; the way on is the way out.
-    // A phone held sideways: the card with its check and the words at the
-    // left; what is now in the app at the right.
+    // "Success" is the page's heading; the bar names it only once that has
+    // scrolled away. Done: no progress; the way on is the way out.
+    final received = Center(
+      child: SizedBox(
+        // The card at about four fifths of the page's width (the success
+        // picture is the card minus 48 of room for its check).
+        width: _receivedWidth + 48,
+        child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
+      ),
+    );
+    final heading = Semantics(
+      header: true,
+      child: Text(
+        context.tr("issuance.success_feedback.header"),
+        style: palette
+            .display(26, weight: FontWeight.w700)
+            .copyWith(color: palette.heading),
+      ),
+    );
+    final text = Text(
+      issueSuccessText(cards),
+      key: const Key("sheet_added_text"),
+      style: palette.body(16).copyWith(height: 24 / 16),
+    );
+    // A phone held sideways: "Success", the words and the way on at the
+    // left; the card with its check at the right.
     if (useSheetColumns(context)) {
       return GlassSheetPage(
         title: context.tr("issuance.success_feedback.header"),
+        titleWidget: IssueRequestorPill.maybe(subject),
+        titleWidgetCentred: true,
+        titleAfterScroll: 0,
         action: action,
         closable: false,
-        subtitle: IssueSheetRequestorLine.maybe(subject),
         split: true,
         child: SheetSplit(
-          start: [
-            if (cards.isNotEmpty)
-              Padding(
-                // Room for the check over the card's corner.
-                padding: const EdgeInsets.only(top: 14, right: 80),
-                child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
-              ),
-            Text(
-              context.tr("issuance.success_feedback.added_header"),
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(color: palette.heading),
-            ),
-            Text(
-              issueSuccessText(cards),
-              key: const Key("sheet_added_text"),
-              style: palette.body(15).copyWith(height: 22 / 15),
-            ),
-          ],
+          start: [heading, text, ?linkButton],
           end: Column(
             key: const Key("sheet_added_values"),
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (cards.isNotEmpty)
-                ...IssuanceOffer(
-                  cards: cards,
-                  showRequestChip: false,
-                ).receives(context, headingKey: "data.add.in_your_app"),
-              ?linkButton,
-            ],
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [if (cards.isNotEmpty) received],
           ),
         ),
       );
     }
     return GlassSheetPage(
       title: context.tr("issuance.success_feedback.header"),
+      titleWidget: IssueRequestorPill.maybe(subject),
+      titleWidgetCentred: true,
+      titleAfterScroll: 260,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
       closable: false,
@@ -1256,28 +1326,34 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         spacing: 16,
         children: [
           if (cards.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: IssuanceReceived(cards: cards, cardKeys: issueAddedKeys),
+            Padding(padding: const EdgeInsets.only(top: 48), child: received),
+          DefaultTextStyle.merge(
+            textAlign: TextAlign.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: [
+                Center(child: heading),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    issueSuccessText(cards),
+                    key: const Key("sheet_added_text"),
+                    textAlign: TextAlign.center,
+                    style: palette.body(16).copyWith(height: 24 / 16),
+                  ),
+                ),
+              ],
             ),
-          Text(
-            context.tr("issuance.success_feedback.added_header"),
-            textAlign: TextAlign.center,
-            style: palette
-                .display(26, weight: FontWeight.w700)
-                .copyWith(color: palette.heading),
-          ),
-          Text(
-            issueSuccessText(cards),
-            key: const Key("sheet_added_text"),
-            textAlign: TextAlign.center,
-            style: palette.body(16).copyWith(height: 24 / 16),
           ),
           ?linkButton,
         ],
       ),
     );
   }
+
+  /// The added card's width on "Success".
+  static const double _receivedWidth = 298;
 }
 
 /// An [IssueFlow] that adds a card on its own, not for a request (the Add
@@ -1357,8 +1433,8 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
       closable: false,
       title: FlutterI18n.translate(context, "issuance.title"),
       onBack: widget.onCancel,
-      pinned: IssueSheetProgress.lastStep(widget.subject, widget.total),
-      subtitle: IssueSheetRequestorLine.maybe(widget.subject),
+      titleWidget: IssueRequestorPill.maybe(widget.subject),
+      titleWidgetCentred: true,
       // The pad fills the page and scales itself to it; it does not scroll.
       // It keeps clear of the home indicator itself (YiviPinScreen), so the
       // link under the keypad sits as low as on the full-screen PIN.

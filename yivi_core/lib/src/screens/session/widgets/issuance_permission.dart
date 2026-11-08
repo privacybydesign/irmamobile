@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/yivi_palette.dart";
@@ -7,7 +8,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/nfc_credentials.dart";
-import "../../../widgets/card_pile.dart";
+import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -15,50 +16,55 @@ import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dar
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/large_title_scroll_view.dart";
+import "../../../widgets/irma_bottom_bar_base.dart";
+import "../../../widgets/press_scale.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
+import "../models/technical_details.dart";
 import "document_issuance_permission.dart";
+import "requestor_card.dart";
+import "requestor_trust_sheet.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
-
-/// The question above an offer of [count] cards.
-String issuanceQuestion(BuildContext context, int count) => count > 1
-    ? context.tr("issuance.question_many", {"count": "$count"})
-    : context.tr("issuance.description");
 
 /// The button that adds an offer of [count] cards.
 String issuanceAddLabel(BuildContext context, int count) => count > 1
     ? context.tr("issuance.add_many", {"count": "$count"})
     : context.tr("issuance.add");
 
-/// "Do you want to add this data to your Yivi app?": the card an issuer
-/// offers, or a pile of them, with every value it holds.
+/// "Do you want to add this card?" as a page of its own: who issues it (the
+/// logo with its trust badge, the name, the trust label, which opens the
+/// issuer's details in a sheet on top) above the question, the cards with
+/// every value they hold under it, one button at the bottom. The same page
+/// as the question in the Change sheet, full screen.
 ///
 /// Several cards are added together (an issuance is all or nothing), so
-/// the button says how many. When the issuance runs inside a request
-/// ([forRequest]), a tinted chip says which request and step it is for, and
-/// a note warns before adding a card whose value that request cannot use.
+/// the button says how many. Inside a request ([forRequest]), a note warns
+/// before adding a card whose value that request cannot use. For an issuer
+/// nobody vouches for the top is washed red and the button becomes a
+/// neutral "Add anyway", with the reason above it. A document read from its
+/// chip shows its data as the document flow does ([DocumentIssuanceData]).
 class IssuancePermission extends StatefulWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
 
-  /// Name of the issuer whose website the user just came back from, if any.
-  final String? returnedFromIssuer;
-
   /// The request waiting underneath this issuance, if any.
   final SessionState? forRequest;
+
+  /// The issuance itself, for the technical details under the issuer's
+  /// details; none without it.
+  final SessionState? session;
 
   const IssuancePermission({
     super.key,
     this.onDismiss,
     this.onGivePermission,
-    this.returnedFromIssuer,
     this.forRequest,
+    this.session,
     required this.issuedCredentials,
   });
 
@@ -74,7 +80,6 @@ class _IssuancePermissionState extends State<IssuancePermission> {
   IssuanceOffer get _offer => IssuanceOffer(
     cards: widget.issuedCredentials,
     forRequest: widget.forRequest,
-    returnedFromIssuer: widget.returnedFromIssuer,
   );
 
   @override
@@ -83,70 +88,160 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     super.dispose();
   }
 
+  void _openIssuer(schemaless.TrustedParty issuer) {
+    final session = widget.session;
+    showRequestorTrustSheet(
+      context: context,
+      requestor: issuer,
+      issuer: true,
+      technicalDetails: session == null
+          ? null
+          : issuanceTechnicalDetailsOf(
+              session,
+              _cards,
+              (key, [params]) => context.tr(key, params ?? const {}),
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final offer = _offer;
+    final palette = YiviPalette.of(context);
     final isDocument =
         _cards.isNotEmpty &&
         _cards.every((c) => credentialRequiresNfc(c.credentialId));
-    if (isDocument) {
-      return DocumentIssuancePermission(
-        issuedCredentials: _cards,
-        returnedFromIssuer: widget.returnedFromIssuer,
-        onDismiss: widget.onDismiss,
-        onGivePermission: widget.onGivePermission,
-      );
-    }
+    final note = offer.note(context);
+    final issuer = _cards.firstOrNull?.issuer;
+    final risky =
+        note == null &&
+        issuer != null &&
+        requestorTrustOf(issuer) == RequestorTrust.unknown;
+    final count = _cards.length;
+    final question = issuer == null
+        ? null
+        : IssuerQuestion(
+            issuer: issuer,
+            question: note != null
+                ? context.tr("issuance.question.anyway")
+                : count > 1
+                ? context.tr("issuance.question.many", {"count": "$count"})
+                : context.tr("issuance.question.one"),
+            onTrust: () => _openIssuer(issuer),
+          );
+    final values = [
+      ?note,
+      if (isDocument)
+        for (final card in _cards) DocumentIssuanceData(credential: card)
+      else
+        ...offer.receives(context, headingKey: null),
+    ];
+    final reason = risky
+        ? Text(
+            context.tr("issuance.question.risky_reason", {
+              "issuer": issuer.name,
+            }),
+            key: const Key("issuance_risky_reason"),
+            textAlign: useSheetColumns(context)
+                ? TextAlign.start
+                : TextAlign.center,
+            style: palette
+                .body(13.5, weight: FontWeight.w600)
+                .copyWith(color: palette.errorText, height: 19 / 13.5),
+          )
+        : null;
+    final button = _button(risky: risky);
 
-    final title = issuanceQuestion(context, _cards.length);
-    final offer = _offer;
-
-    // A phone held sideways: the card or pile at the left with its chips,
-    // and the buttons under them; the question and the values at the right.
+    // A phone held sideways: the issuer and the question at the left with
+    // the button at its foot; the cards at the right, at most 420 wide.
     if (!useSessionColumns(context) && useSheetColumns(context)) {
       return SessionScaffold(
-        appBarTitle: "issuance.title",
         wide: true,
         scrollsUnderBars: true,
         cornerClose: true,
         onDismiss: widget.onDismiss,
+        // The body's own context sees the bars.
         body: Builder(
-          builder: (context) => IssuanceLandscape(
-            title: title,
-            overview: offer.overview(context, cardWidth: 220, withNote: false),
-            note: offer.note(context),
-            receives: offer.receives(context),
-            actions: _landscapeActions(),
+          builder: (context) => IssuanceTrustWash(
+            on: risky,
+            child: SidewaysLayout(
+              panel: Padding(
+                key: const Key("issuance_panel"),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  cornerContentTop(context),
+                  0,
+                  FloatingBarPlacement.buttonBottom(context),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: SingleChildScrollView(child: question)),
+                    const SizedBox(height: 16),
+                    if (reason != null) ...[reason, const SizedBox(height: 10)],
+                    button,
+                  ],
+                ),
+              ),
+              content: SingleChildScrollView(
+                key: const Key("issuance_scroll_view"),
+                padding: EdgeInsets.fromLTRB(
+                  0,
+                  cornerContentTop(context),
+                  16,
+                  16 + MediaQuery.paddingOf(context).bottom,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: SheetSplit.endMaxWidth,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 12,
+                      children: values,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       );
     }
 
-    // Tablets: the card or pile on the left, the values and buttons on the
-    // right.
+    final bar = IrmaBottomBarBase(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 10,
+        children: [?reason, button],
+      ),
+    );
+
+    // Tablets: the issuer and the question on the left, the cards and the
+    // button on the right.
     if (useSessionColumns(context)) {
       return SessionScaffold(
-        appBarTitle: "issuance.title",
         wide: true,
         scrollsUnderBars: true,
-        barTitleVisibility: hiddenBarTitle,
         onDismiss: widget.onDismiss,
-        body: SessionColumns(
-          start: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 16,
-            children: [
-              SessionColumnsTitle(title),
-              ...offer.overview(context, cardWidth: 460),
-            ],
-          ),
-          end: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Column(
+        body: IssuanceTrustWash(
+          on: risky,
+          child: SessionColumns(
+            start: question ?? const SizedBox.shrink(),
+            end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: offer.receives(context),
+              spacing: 12,
+              children: values,
+            ),
+            actions: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [?reason, button],
             ),
           ),
-          actions: _bar(),
         ),
       );
     }
@@ -154,162 +249,85 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     return SessionScaffold(
       appBarTitle: "issuance.title",
       scrollsUnderBars: true,
+      // The bar's title once the issuer and the question have scrolled
+      // under it, as in the sheet.
       barTitleVisibility: _barTitleVisible,
-      // The band comes with the small title, not before.
       edgeShown: _barTitleVisible,
-      bottomNavigationBar: _bar(),
+      bottomNavigationBar: bar,
       onDismiss: widget.onDismiss,
-      body: LayoutBuilder(
-        builder: (context, constraints) => LargeTitleScrollView(
-          key: const Key("issuance_scroll_view"),
-          title: title,
-          barTitleVisible: _barTitleVisible,
-          padding: BarInsets.of(
-            context,
-            const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      body: IssuanceTrustWash(
+        on: risky,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (n) {
+            if (n.depth == 0) _barTitleVisible.value = n.metrics.pixels > 150;
+            return false;
+          },
+          child: BarInsetsBuilder(
+            builder: (context, insets) => SingleChildScrollView(
+              key: const Key("issuance_scroll_view"),
+              padding: insets + const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: CentredMaxWidth(
+                maxWidth: 560,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 12,
+                  children: [?question, const SizedBox(height: 8), ...values],
+                ),
+              ),
+            ),
           ),
-          spacing: 16,
-          children: [
-            ...offer.overview(
-              context,
-              cardWidth: (constraints.maxWidth - 32).clamp(0.0, 460.0),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: offer.receives(context),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  /// The way on, at the bottom of the panel. No Cancel: the close button
-  /// at the top declines.
-  Widget _landscapeActions() {
+  /// The way on: add (a neutral "Add anyway" when nobody vouches for the
+  /// issuer), or back when there is nothing to add. No Cancel: the close
+  /// button at the top declines.
+  Widget _button({required bool risky}) {
     if (widget.onGivePermission == null) {
       return PillButton(
+        key: const Key("bottom_bar_primary"),
         label: context.tr("session.navigation_bar.back"),
-        size: PillSize.regular,
+        size: PillSize.large,
         onPressed: () => widget.onDismiss?.call(),
+      );
+    }
+    if (risky) {
+      return PillButton(
+        key: const Key("bottom_bar_primary"),
+        label: context.tr("issuance.question.add_anyway"),
+        style: PillStyle.neutral,
+        size: PillSize.large,
+        onPressed: () => widget.onGivePermission?.call(),
       );
     }
     return FancyPillButton(
       key: const Key("bottom_bar_primary"),
       label: issuanceAddLabel(context, _cards.length),
-      size: PillSize.regular,
       onPressed: () => widget.onGivePermission?.call(),
-    );
-  }
-
-  Widget _bar() {
-    if (widget.onGivePermission == null) {
-      return IrmaBottomBar(
-        primaryButtonLabel: context.tr("session.navigation_bar.back"),
-        onPrimaryPressed: () => widget.onDismiss?.call(),
-      );
-    }
-    return IrmaBottomBar(
-      primaryButtonLabel: issuanceAddLabel(context, _cards.length),
-      onPrimaryPressed: () => widget.onGivePermission?.call(),
     );
   }
 }
 
 /// What an issuer offers, for the screens that ask whether to add it: the
-/// card or the pile with its chips and the mismatch note ([overview]), and
-/// "You will receive" with every value ([receives]). The permission screen
-/// lays them out full-screen (in two columns on a tablet); the Change sheet
-/// shows them as the last step of adding a card for a request.
+/// mismatch note ([note]) and every value, a group per card ([receives]).
+/// The permission screen lays them out full-screen; the Change sheet shows
+/// them as the last step of adding a card.
 class IssuanceOffer {
   final List<schemaless.Credential> cards;
 
   /// The request waiting underneath this issuance, if any.
   final SessionState? forRequest;
 
-  /// Name of the issuer whose website the user just came back from, if any.
-  final String? returnedFromIssuer;
-
-  /// The tinted "For {requestor} · step n of m" chip. Off in the Change
-  /// sheet, which says who it is for above its pages; the "back from the
-  /// website" chip stays.
-  final bool showRequestChip;
-
-  const IssuanceOffer({
-    required this.cards,
-    this.forRequest,
-    this.returnedFromIssuer,
-    this.showRequestChip = true,
-  });
+  const IssuanceOffer({required this.cards, this.forRequest});
 
   List<IssuanceStep> get _steps =>
       forRequest?.disclosurePlan?.issueDuringDisclosure?.steps ??
       const <IssuanceStep>[];
 
-  String? _returnedChip(BuildContext context) {
-    final issuer = returnedFromIssuer;
-    return issuer == null
-        ? null
-        : context.tr("issuance.returned_from", {"issuer": issuer});
-  }
-
-  /// The card (or the pile), its chips and the mismatch note.
-  List<Widget> overview(
-    BuildContext context, {
-    required double cardWidth,
-    bool withNote = true,
-  }) {
-    final steps = _steps;
-    final many = cards.length > 1;
-    final issuers = cards.map((c) => c.issuer.name).toSet();
-    final first = cards.firstOrNull;
-
-    final chips = [
-      StatusChip(
-        label: issuers.length > 1
-            ? context.tr("issuance.from_issuers", {
-                "count": "${issuers.length}",
-              })
-            : issuers.firstOrNull ?? "",
-      ),
-      if (many)
-        StatusChip(
-          label: context.tr("issuance.card_count", {
-            "count": "${cards.length}",
-          }),
-        ),
-      if (!many && (first?.display?.svgTemplates.isNotEmpty ?? false))
-        StatusChip(
-          label: context.tr("credential_card.source.issuer_design"),
-          tone: DialogTone.info,
-        ),
-      if (showRequestChip
-              ? _contextChip(context, steps)
-              : _returnedChip(context)
-          case final label?)
-        StatusChip(
-          key: const Key("issuance_context"),
-          label: label,
-          tone: DialogTone.info,
-        ),
-    ];
-
-    return [
-      if (many)
-        CardPile(cards: cards)
-      else if (first != null)
-        Center(
-          child: CredentialCardArt(credential: first, width: cardWidth),
-        ),
-      StatusChipRow(chips: chips),
-      if (withNote) ?note(context),
-    ];
-  }
-
   /// "This card doesn't count for {requestor}": inside a request, when an
   /// offered card won't do for it, what they ask next to what the card has.
-  /// Part of [overview] unless it is left out there (landscape shows it
-  /// with the values).
   Widget? note(BuildContext context) {
     final miss = issuanceMismatches(cards, _steps).firstOrNull;
     final request = forRequest;
@@ -350,24 +368,6 @@ class IssuanceOffer {
     return context.tr("share.offer.tag_extra");
   }
 
-  /// "For {requestor} · step n of m" inside a request, "Back from the
-  /// website of {issuer}" after the user went there from the app.
-  String? _contextChip(BuildContext context, List<IssuanceStep> steps) {
-    final request = forRequest;
-    if (request != null) {
-      final step = stepNumberFor(cards, steps);
-      final requestor = request.requestor.name;
-      return step == null
-          ? context.tr("issuance.for_request", {"requestor": requestor})
-          : context.tr("issuance.for_request_step", {
-              "requestor": requestor,
-              "step": "$step",
-              "total": "${steps.length}",
-            });
-    }
-    return _returnedChip(context);
-  }
-
   String? _validUntil(BuildContext context, schemaless.Credential card) {
     final expiry = card.expiryDate ?? 0;
     if (expiry <= 0) return null;
@@ -384,9 +384,11 @@ class IssuanceOffer {
   /// mini art, name and validity on top.
   /// [headingKey]: what the heading says ("You will receive"; "In your
   /// app" once added).
+  /// No heading when [headingKey] is null (the question above says what
+  /// they are).
   List<Widget> receives(
     BuildContext context, {
-    String headingKey = "issuance.you_will_receive",
+    String? headingKey = "issuance.you_will_receive",
   }) {
     final mismatches = issuanceMismatches(cards, _steps);
     // Per card: a value the request waiting underneath cannot use.
@@ -410,34 +412,38 @@ class IssuanceOffer {
           mismatched: mismatchedIn(card),
         );
 
-    final heading = Text(context.tr(headingKey), style: palette.display(16));
+    final key = headingKey;
+    final heading = key == null
+        ? null
+        : Text(context.tr(key), style: palette.display(16));
 
     return [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-        child: Semantics(
-          header: true,
-          child: many
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  spacing: 8,
-                  children: [
-                    Expanded(child: heading),
-                    Flexible(
-                      child: Text(
-                        context.tr("issuance.all_together"),
-                        textAlign: TextAlign.end,
-                        style: palette
-                            .body(13)
-                            .copyWith(color: palette.secondaryText),
+      if (heading != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+          child: Semantics(
+            header: true,
+            child: many
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    spacing: 8,
+                    children: [
+                      Expanded(child: heading),
+                      Flexible(
+                        child: Text(
+                          context.tr("issuance.all_together"),
+                          textAlign: TextAlign.end,
+                          style: palette
+                              .body(13)
+                              .copyWith(color: palette.secondaryText),
+                        ),
                       ),
-                    ),
-                  ],
-                )
-              : heading,
+                    ],
+                  )
+                : heading,
+          ),
         ),
-      ),
       // One card looks like each of several: its name above its values.
       for (final (i, card) in cards.indexed)
         Padding(
@@ -676,6 +682,187 @@ class _MismatchBox extends StatelessWidget {
           row(has, got, bad: true),
         ],
       ),
+    );
+  }
+}
+
+/// The top of the page that asks whether to add a card: who issues it (the
+/// logo with its trust badge, the name, and the trust label, which opens
+/// the issuer's details, [onTrust]) and the [question] as the page's
+/// heading. Upright all centred; sideways (the left column of a sheet) the
+/// issuer as one row, logo at the left, name and label stacked beside it,
+/// and the question under it, left-aligned.
+class IssuerQuestion extends StatelessWidget {
+  final schemaless.TrustedParty issuer;
+  final String question;
+  final VoidCallback? onTrust;
+
+  const IssuerQuestion({
+    super.key,
+    required this.issuer,
+    required this.question,
+    this.onTrust,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final style = RequestorTrustStyle.of(context, issuer);
+    final sideways = useSheetColumns(context);
+    final logo = RequestorLogo(requestor: issuer, style: style, size: 64);
+    final name = Text(
+      issuer.name,
+      key: const Key("issuance_issuer_name"),
+      textAlign: sideways ? TextAlign.start : TextAlign.center,
+      style: palette.display(17).copyWith(height: 23 / 17, color: palette.text),
+    );
+    final label = style.label == null
+        ? null
+        : IssuerTrustLabel(style: style, onTap: onTrust);
+    final heading = Semantics(
+      header: true,
+      child: Text(
+        question,
+        key: const Key("issuance_question"),
+        textAlign: sideways ? TextAlign.start : TextAlign.center,
+        style: palette
+            .display(22, weight: FontWeight.w700)
+            .copyWith(height: 30 / 22, color: palette.heading),
+      ),
+    );
+    if (sideways) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            spacing: 14,
+            children: [
+              logo,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 6,
+                  children: [name, ?label],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          heading,
+        ],
+      );
+    }
+    return Column(
+      key: const Key("issuance_issuer_question"),
+      children: [
+        const SizedBox(height: 8),
+        logo,
+        const SizedBox(height: 12),
+        name,
+        if (label != null) ...[const SizedBox(height: 10), label],
+        const SizedBox(height: 20),
+        heading,
+      ],
+    );
+  }
+}
+
+/// The issuer's trust in one label, in the tier's colours (as on the share
+/// screen), with ⓘ: a tap opens what it means.
+class IssuerTrustLabel extends StatelessWidget {
+  final RequestorTrustStyle style;
+  final VoidCallback? onTap;
+
+  const IssuerTrustLabel({super.key, required this.style, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final label = style.label ?? "";
+    return Semantics(
+      button: onTap != null,
+      label: label,
+      hint: onTap == null ? null : context.tr("issuance.trust.label_hint"),
+      excludeSemantics: true,
+      child: PressScale(
+        enabled: onTap != null,
+        child: GestureDetector(
+          key: const Key("issuance_trust_label"),
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 32),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 10, 0),
+            decoration: BoxDecoration(
+              color: style.pillFill,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: palette
+                        .body(13.5, weight: FontWeight.w700)
+                        .copyWith(color: style.pillInk),
+                  ),
+                ),
+                if (onTap != null)
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: style.pillInk,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A red wash behind the top of the page when nobody vouches for the
+/// issuer, as the share screen has for a requestor nobody vouches for.
+class IssuanceTrustWash extends StatelessWidget {
+  final bool on;
+  final Widget child;
+
+  const IssuanceTrustWash({super.key, required this.on, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!on) return child;
+    final palette = YiviPalette.of(context);
+    return Stack(
+      children: [
+        Positioned(
+          key: const Key("issuance_trust_wash"),
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 460,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    palette.errorSurface,
+                    palette.errorSurface.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        child,
+      ],
     );
   }
 }

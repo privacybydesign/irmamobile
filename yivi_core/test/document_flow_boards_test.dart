@@ -21,13 +21,10 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_view.dart";
 import "package:yivi_core/src/screens/session/widgets/document_issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
-import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/done_check.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/irma_avatar.dart";
 
 import "support/pump_translated.dart";
 
@@ -41,7 +38,6 @@ const _phone = Size(390, 844);
 const _dutch = Locale("nl", "NL");
 
 const _textColor = Color(0xFF484747);
-const _lightBlue = Color(0xFFEAF3F9);
 
 Future<void> _pump(
   WidgetTester tester,
@@ -659,47 +655,33 @@ void main() {
       locale: _dutch,
     );
 
-    testWidgets("a document gets the board's screen", (tester) async {
-      await pumpPermission(tester);
-
-      expect(find.byType(DocumentIssuancePermission), findsOneWidget);
-      expect(find.byType(SessionScaffold), findsNothing);
-      expect(
-        tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
-        _lightBlue,
-      );
-    });
-
-    testWidgets("a credential that is no document: as before", (tester) async {
-      await pumpPermission(tester, id: "pbdf.pbdf.email");
-      expect(find.byType(SessionScaffold), findsOneWidget);
-      expect(find.byType(DocumentIssuancePermission), findsNothing);
-    });
-
-    testWidgets("the heading, the card, the rows and the validity", (
+    testWidgets("a document: the question page, its data as on the board", (
       tester,
     ) async {
       await pumpPermission(tester);
 
-      expect(find.text("Gegevens toevoegen"), findsWidgets);
-      // The question as the page heading, then the card of the document.
-      final heading = _styleOf(
-        tester,
-        "Wil je deze gegevens aan je Yivi-app toevoegen?",
-      );
+      expect(find.byType(DocumentIssuanceData), findsOneWidget);
+      expect(find.byType(IssuerQuestion), findsOneWidget);
+    });
+
+    testWidgets("a credential that is no document: its values", (tester) async {
+      await pumpPermission(tester, id: "pbdf.pbdf.email");
+      expect(find.byType(IssuerQuestion), findsOneWidget);
+      expect(find.byType(DocumentIssuanceData), findsNothing);
+    });
+
+    testWidgets("the question, the rows and the validity", (tester) async {
+      await pumpPermission(tester);
+
+      // The question as the page heading, the data right under it.
+      final heading = _styleOf(tester, "Wil je dit kaartje toevoegen?");
       expect(heading.fontSize, 22);
-      expect(heading.fontWeight, FontWeight.w600);
-      expect(find.byType(IrmaAvatar), findsNothing);
-      final card = tester.getRect(find.byType(CredentialCardArt));
-      expect(card.width, 358);
+      expect(heading.fontWeight, FontWeight.w700);
       expect(
-        card.top,
-        tester
-                .getRect(
-                  find.text("Wil je deze gegevens aan je Yivi-app toevoegen?"),
-                )
-                .bottom +
-            20,
+        tester.getRect(find.byType(DocumentIssuanceData)).top,
+        greaterThan(
+          tester.getRect(find.text("Wil je dit kaartje toevoegen?")).bottom,
+        ),
       );
 
       final value = _styleOf(tester, "SPECI2021");
@@ -743,18 +725,12 @@ void main() {
       expect(find.text("Verberg leeftijden"), findsOneWidget);
     });
 
-    testWidgets("the footer: the choice, then Annuleer as a text pill", (
-      tester,
-    ) async {
+    testWidgets("one button; the close button declines", (tester) async {
       await pumpPermission(tester);
 
-      expect(find.text("Annuleer"), findsOneWidget);
-      expect(
-        _styleOf(tester, "Annuleer").decoration,
-        isNot(TextDecoration.underline),
-      );
-      _expectFooterButton(tester, _primary());
-      _expectFooterButton(tester, _secondary(), top: _phone.height - 8 - 56);
+      expect(find.byKey(DocumentFlowButton.primaryKey), findsOneWidget);
+      expect(find.byKey(DocumentFlowButton.secondaryKey), findsNothing);
+      expect(find.text("Annuleer"), findsNothing);
     });
 
     testWidgets("the close button is on the right of the bar", (tester) async {

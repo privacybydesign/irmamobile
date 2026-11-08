@@ -33,7 +33,7 @@
     "signed_for": "Bericht ondertekend voor",
     "note": {
       "shared": "Gegevens die hier niet staan, bleven op je telefoon.",
-      "received": "De nieuwe kaarten zijn toegevoegd aan je Yivi-app.",
+      "received": "De nieuwe kaartjes zijn toegevoegd aan je Yivi-app.",
       "deleted": "Dit kan niet ongedaan worden gemaakt.",
       "signed": "Gegevens die hier niet staan, bleven op je telefoon."
     },
@@ -100,8 +100,8 @@
         "one": "Eén",
         "card": "Kaartje",
         "any_card": "Elk kaartje",
-        "search_cards": "Zoek een kaart",
-        "no_cards": "Geen kaarten gevonden",
+        "search_cards": "Zoek een kaartje",
+        "no_cards": "Geen kaartjes gevonden",
         "pick_card": "Kies uit {count}",
         "fields": "Gegevens uit {card}",
         "party": "Met wie",
@@ -245,12 +245,13 @@
         "title_add": "{name} toevoegen",
         "how_email": "Je vult je e-mailadres in. Yivi stuurt je een code; die typ je hier in. Daarna staat je e-mailadres in je app.",
         "how_phone": "Je vult je mobiele nummer in. Yivi stuurt je een code per sms; die typ je hier in. Daarna staat je nummer in je app.",
-        "how_document": "Je maakt een foto van je document en houdt het daarna tegen je telefoon. Zo leest Yivi de chip."
+        "how_document": "Je maakt een foto van je document en houdt het daarna tegen je telefoon. Zo leest Yivi de chip.",
+        "from": "Van {issuer}"
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",
-        "body": "Dit apparaat ondersteunt geen NFC en kan deze kaart daarom niet laden. NFC is nodig om je document te lezen.",
-        "hint": "Vereist NFC, wat dit apparaat niet ondersteunt. Deze kaart kan niet worden geladen."
+        "body": "Dit apparaat ondersteunt geen NFC en kan dit kaartje daarom niet laden. NFC is nodig om je document te lezen.",
+        "hint": "Vereist NFC, wat dit apparaat niet ondersteunt. Dit kaartje kan niet worden geladen."
       },
       "stop_text": "Wat je tot nu toe hebt ingevuld gaat verloren en er wordt niets toegevoegd.",
       "add_more": "Meer toevoegen",
@@ -259,15 +260,14 @@
       "website": {
         "heading": "Ga verder op de website",
         "open": "Naar {host}",
-        "caption": "De website opent in je browser; dit verzoek wacht hier op je.",
         "step_open": "Je browser opent {host}",
         "step_do": "Je doet daar wat {issuer} vraagt",
         "step_back": "Yivi opent vanzelf weer, terug bij dit verzoek",
         "not_done": "Nog niet klaar op de website?",
         "not_done_body": "{issuer} heeft nog niets gestuurd. Ga verder op de website. Als je daar klaar bent, opent Yivi vanzelf weer.",
-        "waits": "{requestor} wacht hier op je. Er gaat niets weg tot je zelf deelt.",
         "continue": "Verder op de website",
-        "other": "Iets anders kiezen"
+        "other": "Iets anders kiezen",
+        "lead": "{issuer} geeft het kaartje uit op hun website. Die opent in je browser."
       }
     },
     "problematic": {
@@ -472,17 +472,15 @@
   },
   "issuance": {
     "title": "Gegevens toevoegen",
-    "description": "Wil je deze gegevens aan je Yivi-app toevoegen?",
     "add": "Gegevens toevoegen",
     "success_feedback": {
       "header": "Gelukt",
-      "text": "De gegevens zijn successvol aan Yivi toegevoegd.",
+      "text": "De gegevens zijn succesvol aan Yivi toegevoegd.",
       "added_one": "{name} is aan Yivi toegevoegd.",
-      "added_many": "Deze {count} kaarten zijn aan Yivi toegevoegd.",
+      "added_many": "Deze {count} kaartjes zijn aan Yivi toegevoegd.",
       "added_one_back": "Het kaartje staat nu in je app. Ga terug naar {requestor} om verder te gaan.",
       "added_many_back": "De {count} kaartjes staan nu in je app. Ga terug naar {requestor} om verder te gaan.",
-      "back_to": "Terug naar {requestor}",
-      "added_header": "Toegevoegd"
+      "back_to": "Terug naar {requestor}"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -512,14 +510,34 @@
       }
     },
     "you_will_receive": "Je ontvangt",
-    "question_many": "Wil je deze {count} kaarten aan je Yivi-app toevoegen?",
-    "add_many": "{count} kaarten toevoegen",
-    "card_count": "{count} kaarten",
+    "add_many": "{count} kaartjes toevoegen",
+    "card_count": "{count} kaartjes",
     "from_issuers": "van {count} uitgevers",
     "for_request": "Voor {requestor}",
-    "for_request_step": "Voor {requestor} · stap {step} van {total}",
-    "returned_from": "Terug van de website van {issuer}",
-    "all_together": "Alle kaarten worden samen toegevoegd"
+    "all_together": "Alle kaartjes worden samen toegevoegd",
+    "question": {
+      "one": "Wil je dit kaartje toevoegen?",
+      "many": "Wil je deze {count} kaartjes toevoegen?",
+      "anyway": "Wil je dit kaartje toch toevoegen?",
+      "add_anyway": "Toch toevoegen",
+      "risky_reason": "Voeg dit alleen toe als je {issuer} vertrouwt"
+    },
+    "trust": {
+      "fact_responsibility": "Toevoegen is je eigen verantwoordelijkheid",
+      "label_hint": "Wat betekent dit?"
+    },
+    "tech": {
+      "group": {
+        "who": "Wie geeft het uit",
+        "how": "Hoe je het krijgt",
+        "what": "Wat je krijgt"
+      }
+    },
+    "island": {
+      "body": "Ze vragen om gegevens die nog niet in je app staan. Voeg eerst dit kaartje toe; daarna deel je het met ze.",
+      "ok": "Begrepen",
+      "hint": "Waarom je dit toevoegt"
+    }
   },
   "email_issuance": {
     "enter_email": {
@@ -934,7 +952,8 @@
       "tip_lighting": "Zorg voor voldoende licht.",
       "tip_look_straight": "Kijk recht in de camera.",
       "tip_no_accessories": "Verwijder brillen, hoeden, etc.",
-      "start": "Start verificatie"
+      "start": "Start verificatie",
+      "head": "Korte gezichtscontrole"
     }
   },
   "driving_licence": {
@@ -1163,9 +1182,9 @@
   "credential_card": {
     "added_on": "Toegevoegd {date}",
     "source": {
-      "issuer_design": "Kaart ontworpen door uitgever",
-      "issuer_colours": "Kaart in kleuren van uitgever",
-      "yivi": "Yivi-kaart"
+      "issuer_design": "Kaartje ontworpen door uitgever",
+      "issuer_colours": "Kaartje in kleuren van uitgever",
+      "yivi": "Yivi-kaartje"
     }
   },
   "wallet": {
@@ -1184,9 +1203,9 @@
       "name": "Op naam",
       "newest": "Nieuwste eerst",
       "issuer": "Op uitgever",
-      "hint": "Of houd een kaart vast en sleep hem naar een andere plek.",
+      "hint": "Of houd een kaartje vast en sleep het naar een andere plek.",
       "done_name": "Geordend op naam",
-      "done_newest": "Nieuwste kaarten bovenaan",
+      "done_newest": "Nieuwste kaartjes bovenaan",
       "done_issuer": "Geordend op uitgever",
       "undo": "Ongedaan maken",
       "move_up": "Naar voren",
@@ -1194,7 +1213,7 @@
     },
     "no_results": {
       "title": "Geen gegevens gevonden",
-      "body": "Zoek op een kaart, wie hem uitgaf, of een gegeven zoals je woonplaats of BSN."
+      "body": "Zoek op een kaartje, wie het uitgaf, of een gegeven zoals je woonplaats of BSN."
     },
     "search": {
       "contains": "Bevat {label}",
@@ -1202,11 +1221,11 @@
       "found": "Gevonden: {label}"
     },
     "detail": {
-      "back_to_cards": "Terug naar alle kaarten",
+      "back_to_cards": "Terug naar alle kaartjes",
       "details": "Gegevens",
       "activity": "Activiteit",
-      "activity_empty": "Nog geen activiteit voor deze kaart",
-      "siblings": "Je {count} kaarten van dit type",
+      "activity_empty": "Nog geen activiteit voor dit kaartje",
+      "siblings": "Je {count} kaartjes van dit type",
       "valid_until": "Geldig tot {date}",
       "valid_indefinitely": "Onbeperkt geldig",
       "sharable_explanation": "Bij elke keer delen wordt een nieuwe kopie gebruikt, zodat verifiers je deelacties niet aan elkaar kunnen koppelen.",
@@ -1227,9 +1246,9 @@
       "with_parties-2": "met {count} partijen"
     },
     "title": "Je gegevens",
-    "count-0": "{count} kaarten",
-    "count-1": "1 kaart",
-    "count-2": "{count} kaarten"
+    "count-0": "{count} kaartjes",
+    "count-1": "1 kaartje",
+    "count-2": "{count} kaartjes"
   },
   "share": {
     "step_count": "Stap {step} van {total}",
@@ -1247,12 +1266,12 @@
     "button": {
       "share": "Delen",
       "sign_and_share": "Ondertekenen",
-      "share_and_add": "Delen en kaart toevoegen",
+      "share_and_add": "Delen en kaartje toevoegen",
       "share_without_data": "Delen zonder gegevens",
       "close": "Sluiten"
     },
     "reason": {
-      "cant_renew": "{requestor} heeft een kaart nodig die je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe.",
+      "cant_renew": "{requestor} heeft een kaartje nodig dat je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe.",
       "cant_add": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan dan de QR-code opnieuw.",
       "cant_add_unknown": "Yivi kan {name} niet toevoegen. Haal het eerst bij de uitgever en scan dan de QR-code opnieuw.",
       "add_one": "Nog één ding toevoegen, dan kun je delen",
@@ -1279,14 +1298,14 @@
       "subtitle_one": "{requestor} heeft er maar één nodig. Tik op het kaartje dat je wil delen.",
       "subtitle_one_add": "{requestor} heeft er maar één nodig. Kies er één.",
       "for_requestor": "Voor {requestor}",
-      "for_requestor_set": "Voor {requestor} · kaart {n} van {total}",
+      "for_requestor_set": "Voor {requestor} · kaartje {n} van {total}",
       "stop_title": "Stoppen met {name} toevoegen?",
       "stop_text": "Wat je tot nu toe deed gaat verloren en er wordt niets toegevoegd. {requestor} vraagt er nog steeds om.",
       "stop_confirm": "Stoppen",
       "keep_going": "Doorgaan",
       "together_title": "Allebei toevoegen",
       "together_intro": "{requestor} accepteert deze alleen samen. Voeg ze een voor een toe; dit verzoek wacht op je.",
-      "together_step": "Kaart {n} van {total}",
+      "together_step": "Kaartje {n} van {total}",
       "together_added": "{name} staat in je app. {requestor} heeft ook {next} nodig: voeg die nu toe.",
       "together_add_next": "{next} toevoegen",
       "later": "Later",
@@ -1507,9 +1526,6 @@
       "via": "{issuer} · via {host}"
     },
     "offer": {
-      "question": "{issuer} stuurt je dit kaartje",
-      "question_many": "{issuer} stuurt je {count} kaartjes",
-      "lead_many": "Ze komen allemaal in je app. Er staat bij welk kaartje {requestor} gebruikt.",
       "add": "Toevoegen",
       "add_many": "{count} kaartjes toevoegen",
       "retry": "Opnieuw proberen",
@@ -1543,7 +1559,11 @@
     "wrong_code": "Die code klopt niet. Controleer hem, of vraag een nieuwe aan.",
     "not_checked": "We konden de code niet controleren. Probeer het opnieuw.",
     "not_sent_email": "We konden de e-mail niet versturen. Controleer het adres en probeer het opnieuw.",
-    "not_sent_phone": "We konden geen sms naar dit nummer sturen. Controleer het en probeer het opnieuw."
+    "not_sent_phone": "We konden geen sms naar dit nummer sturen. Controleer het en probeer het opnieuw.",
+    "head_phone": "Je telefoonnummer",
+    "head_email": "Je e-mailadres",
+    "code_head_phone": "Code uit de sms",
+    "code_head_email": "Code uit de e-mail"
   },
   "waiting_request": {
     "sentence": {

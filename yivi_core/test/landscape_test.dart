@@ -66,8 +66,8 @@ void main() {
     final panel = find.byKey(const Key("issuance_panel"));
     final column = find.byKey(const Key("issuance_scroll_view"));
 
-    testWidgets("the card and buttons in the panel, the question and the "
-        "values at the right", (tester) async {
+    testWidgets("the issuer, the question and the button in the panel, "
+        "the values at the right", (tester) async {
       await pump(
         tester,
         IssuancePermission(
@@ -77,28 +77,23 @@ void main() {
         ),
       );
       final question = find.byKey(const Key("issuance_question"));
-      expect(find.descendant(of: column, matching: question), findsOneWidget);
-      expect(find.descendant(of: panel, matching: question), findsNothing);
-      expect(
-        find.descendant(of: column, matching: find.text("You will receive")),
-        findsOneWidget,
-      );
-      final card = find.descendant(
-        of: panel,
-        matching: find.byType(CredentialCardArt),
-      );
-      expect(card, findsOneWidget);
-      // No bottom bar: the buttons are at the bottom of the panel.
+      expect(find.descendant(of: panel, matching: question), findsOneWidget);
+      expect(find.descendant(of: column, matching: find.text("12A")), findsOne);
+      // No bottom bar: the button is at the bottom of the panel.
       expect(find.byType(IrmaBottomBarBase), findsNothing);
       final add = find.byKey(const Key("bottom_bar_primary"));
       expect(find.descendant(of: panel, matching: add), findsOneWidget);
+      expect(
+        tester.getRect(add).top,
+        greaterThan(tester.getRect(question).bottom),
+      );
       // No Cancel: the close button declines.
       expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
-      // The card in the middle of the room above the buttons.
-      final room = tester.getRect(panel).top + 16;
-      final above = tester.getRect(add).top - 16;
-      final middle = (room + above) / 2;
-      expect(tester.getRect(card).center.dy, closeTo(middle, 24));
+      // The values at most 420 wide.
+      expect(
+        tester.getRect(find.byKey(const Key("issuance_card_0"))).width,
+        lessThanOrEqualTo(420),
+      );
       // Close in the corner, beside the column, clear of the rounded corner.
       final close = tester.getRect(find.byType(IrmaCloseButton));
       expect(close.right, 874 - 24);

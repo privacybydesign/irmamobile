@@ -5,7 +5,6 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/sheet_actions.dart";
 
@@ -114,8 +113,6 @@ void main() {
   });
 
   group("IssueSheetProgress", () {
-    // A phone held upright (sideways, who it is for goes under the bar's
-    // title: see the first test).
     setUp(() {
       TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
         ..physicalSize = const Size(390, 844)
@@ -127,131 +124,71 @@ void main() {
         ..resetDevicePixelRatio(),
     );
 
-    testWidgets(
-      "sideways: the line, and who it is for once (under the title)",
-      (tester) async {
-        tester.view.physicalSize = const Size(874, 402);
-        await pumpTranslated(
-          tester,
-          _wrap(
-            Column(
-              children: [
-                IssueSheetProgress(
-                  subject: IssueSheetSubject.request(_shop),
-                  step: 2,
-                  total: 4,
-                ),
-                IssueSheetRequestorLine(
-                  subject: IssueSheetSubject.request(_shop),
-                ),
-              ],
+    /// The parts of the progress: how many, and how many are green.
+    (int, int) parts(WidgetTester tester) {
+      final boxes = tester
+          .widgetList<AnimatedContainer>(
+            find.descendant(
+              of: find.byKey(const Key("issue_sheet_progress_parts")),
+              matching: find.byType(AnimatedContainer),
             ),
-          ),
-        );
-        // No count to read; screen readers hear it.
-        expect(find.text("2 of 4"), findsNothing);
-        expect(
-          tester
-              .getSize(find.byKey(const Key("issue_sheet_progress_line")))
-              .height,
-          3,
-        );
-        expect(find.bySemanticsLabel("Step 2 of 4"), findsOneWidget);
-        // Who it is for: once, the line for under the bar's title.
-        expect(find.text("For Webshop Noord"), findsOneWidget);
-      },
-    );
+          )
+          .toList();
+      final green = boxes.where((b) {
+        final d = b.decoration as BoxDecoration?;
+        return d?.color == YiviPalette.light.successText;
+      }).length;
+      return (boxes.length, green);
+    }
 
-    testWidgets("says who it is for and which step", (tester) async {
+    testWidgets("a part per step, green up to the step, and the count", (
+      tester,
+    ) async {
       await pumpTranslated(
         tester,
         _wrap(
           IssueSheetProgress(
             subject: IssueSheetSubject.request(_shop),
             step: 2,
+            total: 4,
+          ),
+        ),
+      );
+      expect(parts(tester), (4, 2));
+      expect(find.text("Step 2 of 4"), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 2, 4))),
+        findsOneWidget,
+      );
+      expect(find.bySemanticsLabel("Step 2 of 4"), findsOneWidget);
+      // Who it is for is the pill in the bar, not here.
+      expect(find.text("For Webshop Noord"), findsNothing);
+    });
+
+    testWidgets("the pill says who it is for and opens the island", (
+      tester,
+    ) async {
+      var opened = 0;
+      await pumpTranslated(
+        tester,
+        _wrap(
+          IssueIslandScope(
+            open: () => opened++,
+            isOpen: false,
+            child: IssueRequestorPill(
+              subject: IssueSheetSubject.request(_shop),
+            ),
           ),
         ),
       );
       expect(find.text("For Webshop Noord"), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
-        findsOneWidget,
-      );
-      expect(find.bySemanticsLabel("Step 2 of 3"), findsOneWidget);
+      await tester.tap(find.text("For Webshop Noord"));
+      expect(opened, 1);
     });
 
-    /// The filled part of the line: its colour and how much of it.
-    (Color, double) line(WidgetTester tester) {
-      // The top page's bar: while pages change the one under it is there too.
-      final bar = find.byKey(const Key("issue_sheet_progress_line")).last;
-      final fill = tester.widget<FractionallySizedBox>(
-        find.descendant(of: bar, matching: find.byType(FractionallySizedBox)),
-      );
-      final ink = tester.widget<ColoredBox>(
-        find.descendant(of: bar, matching: find.byType(ColoredBox)).last,
-      );
-      return (ink.color, fill.widthFactor!);
-    }
-
-    testWidgets("green up to the step during a request", (tester) async {
-      await pumpTranslated(
-        tester,
-        _wrap(
-          IssueSheetProgress(
-            subject: IssueSheetSubject.request(_shop),
-            step: 2,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final (ink, part) = line(tester);
-      expect(ink, YiviPalette.light.successText);
-      expect(part, closeTo(2 / 3, 0.001));
-    });
-
-    testWidgets("the next step's line fills on from where the last stood", (
-      tester,
-    ) async {
-      late StateSetter setStep;
-      var step = 1;
-      await pumpTranslated(
-        tester,
-        _wrap(
-          SizedBox(
-            height: 300,
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                setStep = setState;
-                return GlassSheetPages(
-                  onBack: () {},
-                  pages: [
-                    for (var s = 1; s <= step; s++)
-                      GlassSheetPage(
-                        key: ValueKey(s),
-                        title: "Step $s",
-                        pinned: IssueSheetProgress(
-                          subject: IssueSheetSubject.request(_shop),
-                          step: s,
-                        ),
-                        child: const SizedBox(height: 40),
-                      ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      setStep(() => step = 2);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 200));
-      // Half way from step 1 to step 2.
-      final part = line(tester).$2;
-      expect(part, greaterThan(1 / 3));
-      expect(part, lessThan(2 / 3));
-      await tester.pumpAndSettle();
-      expect(line(tester).$2, closeTo(2 / 3, 0.001));
+    testWidgets("no pill without a request", (tester) async {
+      expect(IssueRequestorPill.maybe(const IssueSheetSubject.none()), isNull);
+      expect(IssueRequestorPill.maybe(null), isNull);
     });
   });
 }

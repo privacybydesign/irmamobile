@@ -191,7 +191,6 @@ class ManualEntryLayout extends StatelessWidget {
       ),
     );
     return SheetSplit(
-      startWidth: SheetSplit.wideWidth,
       start: [
         TranslatedText(
           titleKey,

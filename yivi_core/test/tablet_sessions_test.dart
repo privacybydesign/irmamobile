@@ -6,7 +6,6 @@ import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
-import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
@@ -62,33 +61,35 @@ void main() {
       onGivePermission: () {},
     );
 
-    testWidgets("tablet: the card left, what you receive and the buttons "
-        "right", (tester) async {
+    testWidgets("tablet: the issuer and the question left, the values and "
+        "the button right", (tester) async {
       await pump(tester, _tablet, screen());
 
       expect(find.byType(SessionColumns), findsOneWidget);
-      // The big card; the group of values has a mini one too.
-      final card = tester.getRect(find.byType(CredentialCardArt).first);
-      final receive = tester.getRect(find.text("You will receive"));
+      final question = tester.getRect(
+        find.byKey(const Key("issuance_question")),
+      );
+      final values = tester.getRect(find.byKey(const Key("issuance_card_0")));
       final add = tester.getRect(find.byKey(const Key("bottom_bar_primary")));
-      expect(receive.left, greaterThan(card.right));
-      expect(add.left, greaterThan(card.right));
-      // The way on at the foot of the right column, under what you receive;
-      // no Cancel under it (the close button declines).
-      expect(add.top, greaterThan(receive.bottom));
+      expect(values.left, greaterThan(question.right));
+      expect(add.left, greaterThan(question.right));
+      // The way on at the foot of the right column, under the values; no
+      // Cancel under it (the close button declines).
+      expect(add.top, greaterThan(values.bottom));
       expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
     });
 
-    testWidgets("phone: one column, the buttons in the bottom bar", (
+    testWidgets("phone: one column, the button in the bottom bar", (
       tester,
     ) async {
       await pump(tester, _phone, screen());
 
       expect(find.byType(SessionColumns), findsNothing);
-      // The big card; the group of values has a mini one too.
-      final card = tester.getRect(find.byType(CredentialCardArt).first);
-      final receive = tester.getRect(find.text("You will receive"));
-      expect(receive.top, greaterThan(card.bottom));
+      final question = tester.getRect(
+        find.byKey(const Key("issuance_question")),
+      );
+      final values = tester.getRect(find.byKey(const Key("issuance_card_0")));
+      expect(values.top, greaterThan(question.bottom));
     });
   });
 

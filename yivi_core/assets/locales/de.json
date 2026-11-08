@@ -245,7 +245,8 @@
         "title_add": "{name} hinzufügen",
         "how_email": "Du gibst deine E-Mail-Adresse ein. Yivi schickt dir einen Code, den du hier eintippst. Danach ist deine E-Mail-Adresse in deiner App.",
         "how_phone": "Du gibst deine Handynummer ein. Yivi schickt dir einen Code per SMS, den du hier eintippst. Danach ist deine Nummer in deiner App.",
-        "how_document": "Du fotografierst dein Dokument und hältst es dann an dein Telefon. So liest Yivi den Chip."
+        "how_document": "Du fotografierst dein Dokument und hältst es dann an dein Telefon. So liest Yivi den Chip.",
+        "from": "Von {issuer}"
       },
       "nfc_unsupported": {
         "title": "NFC nicht unterstützt",
@@ -259,15 +260,14 @@
       "website": {
         "heading": "Weiter auf der Website",
         "open": "Zu {host}",
-        "caption": "Die Website öffnet sich in Ihrem Browser; diese Anfrage wartet hier auf Sie.",
         "step_open": "Dein Browser öffnet {host}",
         "step_do": "Du machst dort, was {issuer} verlangt",
         "step_back": "Yivi öffnet sich von selbst wieder, zurück bei dieser Anfrage",
         "not_done": "Noch nicht fertig auf der Website?",
         "not_done_body": "{issuer} hat noch nichts geschickt. Mach auf der Website weiter. Wenn du dort fertig bist, öffnet sich Yivi von selbst wieder.",
-        "waits": "{requestor} wartet hier auf dich. Nichts wird gesendet, bis du selbst teilst.",
         "continue": "Weiter auf der Website",
-        "other": "Etwas anderes wählen"
+        "other": "Etwas anderes wählen",
+        "lead": "{issuer} gibt die Karte auf der eigenen Website aus. Sie öffnet sich in deinem Browser."
       }
     },
     "problematic": {
@@ -472,7 +472,6 @@
   },
   "issuance": {
     "title": "Daten hinzufügen",
-    "description": "Möchten Sie diese Daten zu Ihrer Yivi-App hinzufügen?",
     "add": "Daten hinzufügen",
     "success_feedback": {
       "header": "Erfolg",
@@ -481,8 +480,7 @@
       "added_many": "Diese {count} Karten wurden zu Yivi hinzugefügt.",
       "added_one_back": "Die Karte ist jetzt in deiner App. Geh zurück zu {requestor}, um weiterzumachen.",
       "added_many_back": "Die {count} Karten sind jetzt in deiner App. Geh zurück zu {requestor}, um weiterzumachen.",
-      "back_to": "Zurück zu {requestor}",
-      "added_header": "Hinzugefügt"
+      "back_to": "Zurück zu {requestor}"
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -512,14 +510,34 @@
       }
     },
     "you_will_receive": "Du erhältst",
-    "question_many": "Möchtest du diese {count} Karten zu deiner Yivi-App hinzufügen?",
     "add_many": "{count} Karten hinzufügen",
     "card_count": "{count} Karten",
     "from_issuers": "von {count} Ausstellern",
     "for_request": "Für {requestor}",
-    "for_request_step": "Für {requestor} · Schritt {step} von {total}",
-    "returned_from": "Zurück von der Website von {issuer}",
-    "all_together": "Alle Karten werden zusammen hinzugefügt"
+    "all_together": "Alle Karten werden zusammen hinzugefügt",
+    "question": {
+      "one": "Möchtest du diese Karte hinzufügen?",
+      "many": "Möchtest du diese {count} Karten hinzufügen?",
+      "anyway": "Möchtest du diese Karte trotzdem hinzufügen?",
+      "add_anyway": "Trotzdem hinzufügen",
+      "risky_reason": "Füge dies nur hinzu, wenn du {issuer} vertraust"
+    },
+    "trust": {
+      "fact_responsibility": "Das Hinzufügen liegt in deiner eigenen Verantwortung",
+      "label_hint": "Was bedeutet das?"
+    },
+    "tech": {
+      "group": {
+        "who": "Wer es ausgibt",
+        "how": "Wie du es bekommst",
+        "what": "Was du bekommst"
+      }
+    },
+    "island": {
+      "body": "Sie fragen nach Daten, die noch nicht in deiner App sind. Füge zuerst diese Karte hinzu; danach teilst du sie mit ihnen.",
+      "ok": "Verstanden",
+      "hint": "Warum du das hinzufügst"
+    }
   },
   "email_issuance": {
     "enter_email": {
@@ -934,7 +952,8 @@
       "tip_lighting": "Sorgen Sie für ausreichend Licht.",
       "tip_look_straight": "Blicken Sie direkt in die Kamera.",
       "tip_no_accessories": "Entfernen Sie Brillen, Hüte usw.",
-      "start": "Verifizierung starten"
+      "start": "Verifizierung starten",
+      "head": "Kurze Gesichtsprüfung"
     }
   },
   "driving_licence": {
@@ -1507,9 +1526,6 @@
       "via": "{issuer} · über {host}"
     },
     "offer": {
-      "question": "{issuer} schickt dir diese Karte",
-      "question_many": "{issuer} schickt dir {count} Karten",
-      "lead_many": "Alle kommen in deine App. Bei jeder steht, ob {requestor} sie verwendet.",
       "add": "Hinzufügen",
       "add_many": "{count} Karten hinzufügen",
       "retry": "Erneut versuchen",
@@ -1543,7 +1559,11 @@
     "wrong_code": "Dieser Code stimmt nicht. Prüfe ihn oder fordere einen neuen an.",
     "not_checked": "Wir konnten den Code nicht prüfen. Versuche es erneut.",
     "not_sent_email": "Wir konnten die E-Mail nicht senden. Prüfe die Adresse und versuche es erneut.",
-    "not_sent_phone": "Wir konnten keine SMS an diese Nummer senden. Prüfe sie und versuche es erneut."
+    "not_sent_phone": "Wir konnten keine SMS an diese Nummer senden. Prüfe sie und versuche es erneut.",
+    "head_phone": "Deine Telefonnummer",
+    "head_email": "Deine E-Mail-Adresse",
+    "code_head_phone": "Code aus der SMS",
+    "code_head_email": "Code aus der E-Mail"
   },
   "waiting_request": {
     "sentence": {

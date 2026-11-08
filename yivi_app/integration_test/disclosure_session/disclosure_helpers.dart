@@ -311,7 +311,10 @@ Future<void> tapAddOnDetails(WidgetTester tester) async {
   expect(go, findsOneWidget);
   await tester.tapAndSettle(go);
   await tester.tapAndSettle(find.byKey(const Key("sheet_open_website")));
-  expect(find.byKey(const Key("sheet_opened_note")), findsOneWidget);
+  // Back from the website before it sent anything: "Not done on the website
+  // yet?", with the way back to it.
+  expect(find.byKey(const Key("sheet_website_heading")), findsOneWidget);
+  expect(find.byKey(const Key("sheet_open_website")), findsOneWidget);
 }
 
 // ---------------------------------------------------------------------------

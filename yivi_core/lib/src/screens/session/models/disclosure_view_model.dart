@@ -722,17 +722,3 @@ bool sameValue(AttributeValue? a, AttributeValue b) =>
     a.boolValue == b.boolValue &&
     a.imagePath == b.imagePath &&
     a.base64Image == b.base64Image;
-
-/// "For {requestor} · step 2 of 3" context of an issuance inside a request:
-/// the 1-based step of [steps] that [offered] belongs to, or null when it
-/// belongs to none (or there is only one step, which needs no number).
-int? stepNumberFor(List<Credential> offered, List<IssuanceStep> steps) {
-  if (steps.length < 2) return null;
-  final ids = offered.map((c) => c.credentialId).toSet();
-  final i = steps.indexWhere(
-    (s) => s.options.any(
-      (b) => b.credentials.any((d) => ids.contains(d.credentialId)),
-    ),
-  );
-  return i < 0 ? null : i + 1;
-}

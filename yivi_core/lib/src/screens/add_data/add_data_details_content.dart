@@ -20,10 +20,11 @@ import "../../widgets/step_number_disc.dart";
 /// sheet held sideways, [SheetSplit]) the card with its name, or the rest.
 enum AddDataDetailsPart { all, card, rest }
 
-/// What a credential type is, compact for the sheet (its name is in the
-/// sheet's bar): a small example card beside "Issued by {issuer}", the intro,
-/// what you get as a checklist of its attributes, and the answers to what it
-/// is for and how it is added, folded into one group. During a request
+/// What a credential type is, for the sheet: upright the card large and
+/// centred, its name and "From {issuer}" under it (the page's heading; the
+/// sheet's bar stays empty), the intro, what you get as a checklist of its
+/// attributes, and the answers to what it is for and how it is added, folded
+/// into one group. During a request
 /// ([forRequestor]) a note says that only what is asked is shared. The first
 /// step of adding a card in a sheet ([IssueFlow]).
 class AddDataDetailsContent extends StatelessWidget {
@@ -101,20 +102,20 @@ class AddDataDetailsContent extends StatelessWidget {
         ],
       );
     }
-    // Upright, the card and the intro start where the section labels' text
-    // does ("You get").
+    // Upright, the card is the page's hero and the intro is centred under
+    // it.
     final upright = part == AddDataDetailsPart.all && !useSheetColumns(context);
     final inset = upright ? _SectionLabel.inset : 0.0;
     final rest = <Widget>[
       Padding(
-        // Starts where the card does.
         padding: EdgeInsets.fromLTRB(
           inset,
-          part == AddDataDetailsPart.rest ? 0 : 14,
+          part == AddDataDetailsPart.rest ? 0 : (upright ? 8 : 14),
           inset,
           0,
         ),
         child: Text(
+          textAlign: upright ? TextAlign.center : TextAlign.start,
           howIntro ??
               (intro.isNotEmpty
                   ? intro
@@ -195,28 +196,52 @@ class AddDataDetailsContent extends StatelessWidget {
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [_hero(context), ...rest],
+    );
+  }
+
+  /// The top of the page upright: the card, the card's name as the page's
+  /// heading, and "From {issuer}".
+  Widget _hero(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final issuer = credential.issuer;
+    return Column(
+      key: const Key("add_data_details_hero"),
       children: [
-        // Room above the card, under the bar.
-        const SizedBox(height: 16),
+        const SizedBox(height: 4),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: inset),
-          child: Row(
-            spacing: 14,
-            children: [
-              CredentialTypeThumbnail(descriptor: credential, width: 88),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: name,
-                ),
-              ),
-            ],
+          padding: const EdgeInsets.only(top: 20),
+          child: CredentialTypeThumbnail(
+            descriptor: credential,
+            width: _heroWidth,
           ),
         ),
-        ...rest,
+        const SizedBox(height: 22),
+        Semantics(
+          header: true,
+          child: Text(
+            credential.name,
+            key: const Key("add_data_details_name"),
+            textAlign: TextAlign.center,
+            style: palette
+                .display(24, weight: FontWeight.w700)
+                .copyWith(height: 30 / 24, color: palette.text),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.tr("data.add.details.from", {"issuer": issuer.name}),
+          key: const Key("add_data_details_issuer"),
+          textAlign: TextAlign.center,
+          style: palette
+              .body(13)
+              .copyWith(height: 18 / 13, color: palette.secondaryText),
+        ),
       ],
     );
   }
+
+  static const double _heroWidth = 200;
 
   /// "How does it work?": its "1. …" lines as numbered steps, the text
   /// before and after them as paragraphs. Folded, it says how many steps

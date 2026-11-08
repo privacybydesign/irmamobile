@@ -267,6 +267,9 @@ class ContactCodeField extends StatelessWidget {
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
 
+  /// The label above the boxes; off when a heading says what goes in them.
+  final bool showLabel;
+
   const ContactCodeField({
     super.key,
     this.fieldKey,
@@ -280,6 +283,7 @@ class ContactCodeField extends StatelessWidget {
     this.labelKey = "embedded_issuance.code_label",
     this.keyboardType = TextInputType.text,
     this.inputFormatters,
+    this.showLabel = true,
   });
 
   static const double _gap = 8;
@@ -305,7 +309,7 @@ class ContactCodeField extends StatelessWidget {
     return Column(
       crossAxisAlignment: .stretch,
       children: [
-        ContactFieldLabel(labelKey, textAlign: TextAlign.center),
+        if (showLabel) ContactFieldLabel(labelKey, textAlign: TextAlign.center),
         LayoutBuilder(
           builder: (context, constraints) {
             final fits = (constraints.maxWidth - _gap * (length - 1)) / length;

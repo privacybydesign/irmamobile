@@ -283,12 +283,18 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
       closable: false,
       title: FlutterI18n.translate(context, _titleKey),
       onBack: _back,
-      pinned: IssueSheetProgress(
+      // Each screen has its heading in the page; the bar names it once
+      // that has scrolled away.
+      titleWidget: IssueRequestorPill.maybe(widget.subject),
+      titleWidgetCentred: true,
+      titleAfterScroll: 60,
+      // Above the screens' buttons, staying put while they change (also on
+      // a screen without buttons, which keeps their room).
+      bottom: IssueSheetProgress(
         subject: widget.subject,
         step: _screen.step,
         total: widget.total,
       ),
-      subtitle: IssueSheetRequestorLine(subject: widget.subject),
       // The screens fill the page; upright their buttons are in the page's
       // bottom bar, which stays put while they change.
       scrolls: false,
