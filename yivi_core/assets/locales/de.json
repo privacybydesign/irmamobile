@@ -353,6 +353,10 @@
     "submit": {
       "title": "Anmeldung",
       "progress_enrollment": "Willkommen! Bitte warten Sie einen Moment, wir melden Sie an."
+    },
+    "wallet_deleted": {
+      "title": "Wallet entfernt",
+      "body": "Ihre Wallet wurde entfernt und alle Ihre Daten wurden gelöscht"
     }
   },
   "error": {
