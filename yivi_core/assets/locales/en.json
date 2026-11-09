@@ -680,6 +680,14 @@
     "explanation": "We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
     "reset": "Start all over"
   },
+  "device_lock_required": {
+    "title": "Set a screen lock",
+    "explanation_android": "Your phone has no screen lock. Yivi protects your data with your phone's security, so it only works on a phone with a screen lock: a PIN, pattern or password, which fingerprint and face unlock also use.\n\nSet a screen lock in your phone's settings, then come back to Yivi.",
+    "explanation_ios": "Your iPhone has no passcode. Yivi protects your data with your iPhone's security, so it only works on an iPhone with a passcode, which Face ID and Touch ID also use.\n\nSet a passcode in Settings, under Face ID & Passcode (or Touch ID & Passcode), then come back to Yivi.",
+    "open_settings": "Open settings",
+    "check_again": "Check again",
+    "continue_anyway_debug": "Continue anyway (debug build)"
+  },
   "rooted_warning": {
     "title": "Device unsafe",
     "explanation": "The operating system on your device seems to be modified (Rooted/Jailbreak). Because of this, the safety of your data cannot be guaranteed.",

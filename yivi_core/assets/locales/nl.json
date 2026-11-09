@@ -680,6 +680,14 @@
     "explanation": "Dat is vervelend voor je. De organisatie achter Yivi weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je Yivi wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe gegevens ophalen.",
     "reset": "Begin opnieuw"
   },
+  "device_lock_required": {
+    "title": "Stel een schermvergrendeling in",
+    "explanation_android": "Je telefoon heeft geen schermvergrendeling. Yivi beschermt je gegevens met de beveiliging van je telefoon en werkt daarom alleen op een telefoon met schermvergrendeling: een pincode, patroon of wachtwoord, die ook nodig is voor ontgrendelen met vingerafdruk of gezicht.\n\nStel een schermvergrendeling in bij de instellingen van je telefoon en ga daarna terug naar Yivi.",
+    "explanation_ios": "Je iPhone heeft geen toegangscode. Yivi beschermt je gegevens met de beveiliging van je iPhone en werkt daarom alleen op een iPhone met toegangscode, die ook nodig is voor Face ID en Touch ID.\n\nStel een toegangscode in bij Instellingen, onder Face ID en toegangscode (of Touch ID en toegangscode), en ga daarna terug naar Yivi.",
+    "open_settings": "Open instellingen",
+    "check_again": "Controleer opnieuw",
+    "continue_anyway_debug": "Toch doorgaan (debugbuild)"
+  },
   "rooted_warning": {
     "title": "Apparaat niet veilig",
     "explanation": "Het besturingssysteem van je mobiel lijkt gewijzigd te zijn (root/jailbreak). Hierdoor kan de veiligheid van je gegevens niet worden gegarandeerd.",

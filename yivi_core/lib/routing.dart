@@ -13,6 +13,7 @@ import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
+import "src/providers/device_security_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
@@ -22,6 +23,8 @@ import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
+import "src/screens/device_lock/device_lock_required_screen.dart";
+import "src/screens/device_lock/device_security.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -59,7 +62,14 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
-  final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
+  final deviceLockRequirement = DeviceLockRequirement(
+    ref.read(deviceSecurityProvider),
+  );
+  final redirectionTriggers = RedirectionListenable(
+    repo,
+    rootedDeviceDetector,
+    deviceLockRequirement,
+  );
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -224,6 +234,16 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               headerTranslation: successHeader,
               contentTranslation: successContent,
             ),
+          );
+        },
+      ),
+      GoRoute(
+        path: "/device_lock_required",
+        builder: (context, state) {
+          return DeviceLockRequiredScreen(
+            onOpenSettingsPressed: deviceLockRequirement.openSecuritySettings,
+            onCheckAgainPressed: deviceLockRequirement.recheck,
+            onContinueAnywayPressed: deviceLockRequirement.skipForDebugging,
           );
         },
       ),
@@ -764,6 +784,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
     ],
     redirect: (context, state) {
+      if (redirectionTriggers.value.deviceLockRequired) {
+        return "/device_lock_required";
+      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return "/rooted_warning";
       }
@@ -803,8 +826,12 @@ class RouteNotFoundScreen extends StatelessWidget {
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
-  RedirectionListenable(IrmaRepository repo, RootedDeviceDetector detector)
-    : super(RedirectionTriggers.withDefaults()) {
+  RedirectionListenable(
+    IrmaRepository repo,
+    RootedDeviceDetector detector,
+    DeviceLockRequirement deviceLockRequirement,
+  ) : super(RedirectionTriggers.withDefaults()) {
+    final deviceLockStream = deviceLockRequirement.lockRequired;
     final warningStream = _displayDeviceIsRootedWarning(repo, detector);
     final infoStream = repo
         .getVersionInformation()
@@ -814,13 +841,21 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
     final enrollmentStream = repo.getEnrollmentStatus();
 
     // combine the streams into one
-    _streamSubscription = Rx.combineLatest4(
+    _streamSubscription = Rx.combineLatest5(
+      deviceLockStream,
       warningStream,
       infoStream,
       nameChangedStream,
       enrollmentStream,
-      (deviceRootedWarning, versionInfo, nameChangedWarning, enrollment) {
+      (
+        deviceLockRequired,
+        deviceRootedWarning,
+        versionInfo,
+        nameChangedWarning,
+        enrollment,
+      ) {
         return RedirectionTriggers(
+          deviceLockRequired: deviceLockRequired,
           showDeviceRootedWarning: deviceRootedWarning,
           showNameChangedMessage: nameChangedWarning,
           versionInformation: versionInfo,
@@ -839,12 +874,14 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
 }
 
 class RedirectionTriggers {
+  final bool deviceLockRequired;
   final bool showDeviceRootedWarning;
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
   final EnrollmentStatus enrollmentStatus;
 
   RedirectionTriggers({
+    this.deviceLockRequired = false,
     required this.showDeviceRootedWarning,
     required this.showNameChangedMessage,
     required this.versionInformation,
@@ -853,17 +890,20 @@ class RedirectionTriggers {
 
   RedirectionTriggers.withDefaults()
     : enrollmentStatus = .undetermined,
+      deviceLockRequired = false,
       showDeviceRootedWarning = false,
       showNameChangedMessage = false,
       versionInformation = null;
 
   RedirectionTriggers copyWith({
+    bool? deviceLockRequired,
     bool? showDeviceRootedWarning,
     bool? showNameChangedMessage,
     VersionInformation? versionInformation,
     EnrollmentStatus? enrollmentStatus,
   }) {
     return RedirectionTriggers(
+      deviceLockRequired: deviceLockRequired ?? this.deviceLockRequired,
       showDeviceRootedWarning:
           showDeviceRootedWarning ?? this.showDeviceRootedWarning,
       showNameChangedMessage:
@@ -879,6 +919,7 @@ class RedirectionTriggers {
       return true;
     }
     return other is RedirectionTriggers &&
+        deviceLockRequired == other.deviceLockRequired &&
         showDeviceRootedWarning == other.showDeviceRootedWarning &&
         showNameChangedMessage == other.showNameChangedMessage &&
         versionInformation == other.versionInformation &&
@@ -887,11 +928,12 @@ class RedirectionTriggers {
 
   @override
   String toString() {
-    return "enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
+    return "enroll: $enrollmentStatus, device lock required: $deviceLockRequired, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
   }
 
   @override
   int get hashCode => Object.hash(
+    deviceLockRequired,
     showNameChangedMessage,
     showDeviceRootedWarning,
     versionInformation,
