@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/sheet_actions.dart";
 
@@ -125,20 +124,20 @@ void main() {
     );
 
     /// The parts of the progress: how many, and how many are green.
+    /// How full each part is, from 0 to 1.
+    List<double> fills(WidgetTester tester) => [
+      for (final f in tester.widgetList<FractionallySizedBox>(
+        find.descendant(
+          of: find.byKey(const Key("issue_sheet_progress_parts")),
+          matching: find.byType(FractionallySizedBox),
+        ),
+      ))
+        f.widthFactor!,
+    ];
+
     (int, int) parts(WidgetTester tester) {
-      final boxes = tester
-          .widgetList<AnimatedContainer>(
-            find.descendant(
-              of: find.byKey(const Key("issue_sheet_progress_parts")),
-              matching: find.byType(AnimatedContainer),
-            ),
-          )
-          .toList();
-      final green = boxes.where((b) {
-        final d = b.decoration as BoxDecoration?;
-        return d?.color == YiviPalette.light.successText;
-      }).length;
-      return (boxes.length, green);
+      final all = fills(tester);
+      return (all.length, all.where((f) => f == 1).length);
     }
 
     testWidgets("a part per step, green up to the step, and the count", (
@@ -154,6 +153,11 @@ void main() {
           ),
         ),
       );
+      // The step just reached fills from the start, the one before is full.
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(fills(tester)[0], 1);
+      expect(fills(tester)[1], inExclusiveRange(0, 1));
+      await tester.pumpAndSettle();
       expect(parts(tester), (4, 2));
       expect(find.text("Step 2 of 4"), findsOneWidget);
       expect(

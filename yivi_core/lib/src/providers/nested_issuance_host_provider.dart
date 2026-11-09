@@ -26,9 +26,10 @@ class NestedIssuanceHostNotifier extends Notifier<NestedIssuanceHost?> {
 
   void register(NestedIssuanceHost host) => state = host;
 
-  /// Only removes [host] itself, not a host that registered after it.
+  /// Only removes [host] itself, not a host that registered after it. Late
+  /// (a sheet closed as the app goes) it is a no-op.
   void unregister(NestedIssuanceHost host) {
-    if (state == host) state = null;
+    if (ref.mounted && state == host) state = null;
   }
 }
 

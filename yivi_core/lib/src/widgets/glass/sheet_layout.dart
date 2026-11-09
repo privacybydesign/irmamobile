@@ -88,35 +88,35 @@ class SheetColumns extends StatelessWidget {
   );
 }
 
-/// A step of a sheet on a phone held sideways: [start] (what it is: a card,
-/// a picture, the explanation) in a column of [startWidth] at the left with
-/// [actions] (usually a [SheetActionRow]) at its bottom, and [end] (what you
-/// read or fill in) taking the rest. There is no bottom bar: with the
-/// keyboard up the buttons sit right above it. Give it to a
-/// [GlassSheetPage] with `scrolls: false` and `childClearsBottom: true`.
+/// A step of a sheet on a phone held sideways: [start] (the words: what it
+/// is, the heading, the explanation) in the left column and [end] (what you
+/// read or fill in: the card, the field, the picture) in the right, two
+/// equal columns 40 apart, each at most 399 (the share screen's grid); a
+/// wide sheet keeps them centred. The way on is in the bar; what a page
+/// still has at its bottom ([actions], the progress of a step without its
+/// own) sits at the bottom of the left column. With the keyboard up the
+/// columns end right above it. Give it to a [GlassSheetPage] with
+/// `split: true`.
 class SheetSplit extends StatelessWidget {
   final List<Widget> start;
   final Widget end;
   final Widget? actions;
-  final double startWidth;
 
   /// [end] fills the column and fits itself (a camera, a picture) instead
   /// of scrolling.
   final bool endFills;
 
-  /// The width of the start column, the same on every step so the button
-  /// and the progress stay put from page to page.
-  static const double width = 280;
+  /// The most each column is wide.
+  static const double columnMaxWidth = 399;
 
-  /// The widest [end] gets (a field, cards, steps); centred in its room.
-  static const double endMaxWidth = 420;
+  /// The room between the columns.
+  static const double gap = 40;
 
   const SheetSplit({
     super.key,
     required this.start,
     required this.end,
     this.actions,
-    this.startWidth = width,
     this.endFills = false,
   });
 
@@ -137,8 +137,8 @@ class SheetSplit extends StatelessWidget {
     // As low as the buttons of a full screen; right above the keyboard
     // while it is up.
     final bottom = keyboard ? 12.0 : FloatingBarPlacement.buttonBottom(context);
-    // The page's own bottom (the progress, its way on) above the column's
-    // buttons.
+    // The page's own bottom (what is left of it held sideways) above the
+    // column's buttons.
     final pageBottom = SheetSplitBottom.of(context);
     final own = this.actions;
     final actions = pageBottom == null
@@ -153,67 +153,59 @@ class SheetSplit extends StatelessWidget {
           );
     return _InSplit(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              width: startWidth,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: bottom),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      // Clipped: what does not fit scrolls, rather than
-                      // running under the progress and the button.
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: 10,
-                          children: start,
+        padding: const EdgeInsets.only(top: 12),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 2 * columnMaxWidth + gap,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: gap,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: bottom),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          // Clipped: what does not fit scrolls, rather than
+                          // running under what is at the column's bottom.
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              spacing: 10,
+                              children: start,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (actions != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            // In place while the content slides over to
+                            // another page.
+                            child: GlassSheetHold(child: actions),
+                          ),
+                      ],
                     ),
-                    if (actions != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        // In place while the content slides over to
-                        // another page.
-                        child: GlassSheetHold(child: actions),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 28),
-            Expanded(
-              child: endFills
-                  ? Padding(
-                      padding: EdgeInsets.only(bottom: bottom),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: endMaxWidth,
-                          ),
+                Expanded(
+                  child: endFills
+                      ? Padding(
+                          padding: EdgeInsets.only(bottom: bottom),
+                          child: end,
+                        )
+                      : SingleChildScrollView(
+                          clipBehavior: Clip.none,
+                          padding: EdgeInsets.only(bottom: bottom + 16),
                           child: end,
                         ),
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      clipBehavior: Clip.none,
-                      padding: EdgeInsets.only(bottom: bottom + 16),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: endMaxWidth,
-                          ),
-                          child: end,
-                        ),
-                      ),
-                    ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

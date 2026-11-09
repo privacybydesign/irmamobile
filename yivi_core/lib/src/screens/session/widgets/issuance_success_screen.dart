@@ -7,9 +7,10 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/credential_card/card_flight.dart";
+import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../data/wallet/issuance_flight.dart";
 import "action_feedback.dart";
@@ -116,9 +117,13 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
                 child: IssuanceReceived(cards: cards, cardKeys: _cardKeys),
               ),
             ],
-            receives: IssuanceOffer(
-              cards: cards,
-            ).receives(context, headingKey: "data.add.in_your_app"),
+            receives: [
+              CapsLabel(
+                context.tr("data.add.in_your_app"),
+                padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
+              ),
+              ...IssuanceOffer(cards: cards).receives(context),
+            ],
             actions: FancyPillButton(
               key: const Key("ok_button"),
               label: context.tr(

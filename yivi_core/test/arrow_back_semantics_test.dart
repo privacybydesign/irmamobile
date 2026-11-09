@@ -65,13 +65,13 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
-    await pumpArrowBack(tester, ArrowBackType.disclosure);
+    await pumpArrowBack(tester, ArrowBackType.issuance);
 
     expect(
       tester.getSemantics(announcement),
       matchesSemantics(
         label:
-            "Success, your data has been shared\n"
+            "Success, the data has been added\n"
             "Tap on the name of the application (such as Safari, Chrome, "
             "Firefox) in the top left corner to return to the previous "
             "application.",
@@ -93,7 +93,7 @@ void main() {
 
   testWidgets("the decorative arrow is not announced", (tester) async {
     final handle = tester.ensureSemantics();
-    await pumpArrowBack(tester, ArrowBackType.disclosure);
+    await pumpArrowBack(tester, ArrowBackType.issuance);
 
     expect(
       _imageNodes(tester.binding.rootElement!.renderObject!.debugSemantics!),
@@ -130,7 +130,7 @@ void main() {
       ..devicePixelRatio = 1
       ..padding = const FakeViewPadding(top: 62, bottom: 34);
     addTearDown(tester.view.reset);
-    await pumpArrowBack(tester, ArrowBackType.disclosure);
+    await pumpArrowBack(tester, ArrowBackType.issuance);
 
     final close = tester.getRect(find.byKey(const Key("arrow_back_close")));
     expect(close.right, 402 - 16);

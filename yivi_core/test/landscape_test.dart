@@ -7,7 +7,6 @@ import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
@@ -125,19 +124,18 @@ void main() {
       final card = tester.getRect(find.byType(CredentialCardArt).first);
       final title = tester.getRect(find.text("Success"));
       expect(title.left, greaterThan(card.right));
-      expect(find.text("In your app"), findsOneWidget);
+      expect(find.text("IN YOUR APP"), findsOneWidget);
     });
   });
 
-  testWidgets("shared: the check and Done left, what was shared right, "
-      "the full height", (tester) async {
+  testWidgets("shared: the pile with its check left, the words and Done "
+      "right", (tester) async {
     await pump(
       tester,
       DisclosureFeedbackScreen(
-        feedbackType: DisclosureFeedbackType.success,
         otherParty: "Webshop",
         isSignatureSession: false,
-        // On another device: with Done (on the same phone there is none).
+        // On another device: with Done.
         onOtherDevice: true,
         shared: [
           SelectableCredentialInstance(
@@ -154,16 +152,22 @@ void main() {
         onDismiss: (_) {},
       ),
     );
+    final pile = tester.getRect(find.byKey(const Key("share_done_pile")));
     final check = tester.getRect(find.byKey(const Key("share_done_check")));
-    final tile = tester.getRect(find.byType(SharedCardTile));
-    expect(tile.left, greaterThan(check.right));
+    final title = tester.getRect(find.byKey(const Key("share_done_title")));
     final ok = tester.getRect(find.byKey(const Key("ok_button")));
-    // In the panel under the check, as on the issuance success.
-    expect(ok.right, lessThan(tile.left));
-    expect(ok.top, greaterThan(check.bottom));
-    // The list has the right column to the bottom: no bar under it.
-    final list = tester.getRect(find.byKey(const Key("issuance_scroll_view")));
-    expect(list.bottom, 402);
+    // The check on the pile's corner.
+    expect(check.right, lessThanOrEqualTo(pile.right + 4));
+    expect(check.top, closeTo(pile.top, 4));
+    // The words and the button in the right column, the button under them.
+    expect(title.left, greaterThan(pile.right));
+    expect(ok.left, title.left);
+    expect(
+      ok.top,
+      greaterThan(
+        tester.getRect(find.byKey(const Key("share_done_text"))).bottom,
+      ),
+    );
   });
 
   testWidgets("a dialog: wider, its buttons side by side, the first right", (

@@ -270,6 +270,13 @@ class ContactCodeField extends StatelessWidget {
   /// The label above the boxes; off when a heading says what goes in them.
   final bool showLabel;
 
+  /// The boxes spread over the whole width, the first at the start and the
+  /// last at the end (with the left-aligned page around them).
+  final bool spread;
+
+  /// The boxes' height (60; 56 held sideways).
+  final double boxHeight;
+
   const ContactCodeField({
     super.key,
     this.fieldKey,
@@ -284,6 +291,8 @@ class ContactCodeField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.inputFormatters,
     this.showLabel = true,
+    this.spread = false,
+    this.boxHeight = 60,
   });
 
   static const double _gap = 8;
@@ -295,7 +304,7 @@ class ContactCodeField extends StatelessWidget {
     // 48 wide, narrower when a long code would not fit.
     PinTheme box(Color border, double width) => PinTheme(
       width: width,
-      height: 60,
+      height: boxHeight,
       textStyle: palette
           .display(26, weight: FontWeight.w700)
           .copyWith(color: palette.heading),
@@ -314,6 +323,10 @@ class ContactCodeField extends StatelessWidget {
           builder: (context, constraints) {
             final fits = (constraints.maxWidth - _gap * (length - 1)) / length;
             final width = fits.isFinite ? fits.clamp(32.0, 48.0) : 48.0;
+            final gap = spread && constraints.maxWidth.isFinite && length > 1
+                ? ((constraints.maxWidth - width * length) / (length - 1))
+                      .clamp(_gap, double.infinity)
+                : _gap;
             return Pinput(
               key: fieldKey,
               controller: controller,
@@ -324,8 +337,8 @@ class ContactCodeField extends StatelessWidget {
               textCapitalization: .characters,
               autofocus: true,
               length: length,
-              mainAxisAlignment: .center,
-              separatorBuilder: (_) => const SizedBox(width: _gap),
+              mainAxisAlignment: spread ? .start : .center,
+              separatorBuilder: (_) => SizedBox(width: gap),
               defaultPinTheme: box(
                 invalid ? palette.danger : palette.outline,
                 width,

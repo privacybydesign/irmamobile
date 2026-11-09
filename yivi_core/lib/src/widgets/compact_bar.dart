@@ -14,15 +14,17 @@ const double _barButtonsBottom = 16 + 44;
 /// header itself, not a fixed offset: it grows when a long name wraps.
 ///
 /// With [part] less than 1: whether that part of the header has (a big
-/// picture, whose bar version is wanted before all of it is gone).
+/// picture, whose bar version is wanted before all of it is gone). With [at]:
+/// whether the point that far down the header has (the top of a name).
 bool? headerUnderBar(
   BuildContext context,
   GlobalKey headerKey, {
   double part = 1,
+  double? at,
 }) {
   final box = headerKey.currentContext.laidOutBox;
   if (box == null) return null;
-  final bottom = box.localToGlobal(Offset(0, box.size.height * part)).dy;
+  final bottom = box.localToGlobal(Offset(0, at ?? box.size.height * part)).dy;
   return bottom < MediaQuery.paddingOf(context).top + _barButtonsBottom;
 }
 

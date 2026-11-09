@@ -2,7 +2,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
@@ -10,45 +9,37 @@ import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
-import "../../../widgets/dashed_outline_painter.dart";
-import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/credential_card/faded_card_art.dart";
+import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/press_scale.dart";
 import "shared_card_tile.dart";
 
-/// The rows of an [EmptyCardSpot] for [card]: each field the request asks
-/// for, with "Not in your app yet", or "Must be {value}" when it needs one.
-///
-/// Only the fields with a requested value: for IRMA requests irmago lists the
-/// whole type in the descriptor and marks the requested ones.
-List<(String, String)> emptySpotRows(
-  BuildContext context,
-  CredentialDescriptor card,
-) {
-  String rowValue(schemaless.Attribute a) {
-    final v = a.requestedValue;
-    return v != null && v.hasConcreteValue
-        ? FlutterI18n.translate(
-            context,
-            "share.spot.must_be_value",
-            translationParams: {
-              "value": localizedAttributeText(context, v) ?? "",
-            },
-          )
-        : FlutterI18n.translate(context, "share.not_in_app_yet");
-  }
+/// A row of an [EmptyCardSpot]: a field, its value, and whether that value
+/// is what the request asks of the card ("Asked").
+typedef SpotRow = (String label, String value, bool asked);
 
+/// The rows of an [EmptyCardSpot] for [card]: each field the request asks a
+/// set value for, with that value, marked "Asked". Fields asked without a
+/// value are not listed: the card is not there yet, so there is nothing to
+/// show.
+List<SpotRow> emptySpotRows(BuildContext context, CredentialDescriptor card) {
   return [
     for (final a in card.attributes)
-      if (a.requestedValue != null) (a.effectiveDisplayName, rowValue(a)),
+      if (a.requestedValue case final v? when v.hasConcreteValue)
+        (
+          a.effectiveDisplayName,
+          localizedAttributeText(context, v) ?? "",
+          true,
+        ),
   ];
 }
 
-/// A card that is not in the app yet: a dashed [CardTile] with a dashed
-/// outline where the card will land (or the types to choose from, [kinds]),
-/// its name, and what it will share, still empty ("Not in your app yet", or
-/// the value it must have). When it can be added, a strip at its foot says
-/// to add it first, with an "Add" pill: the same strip a card with a choice
-/// has, with "Change choice".
+/// A card that is not in the app yet: a dashed [CardTile] with the card's
+/// own picture faded under a "+" (or the types to choose from, [kinds]),
+/// its name, the values the request asks of it ("Asked"), and a strip at its
+/// foot that says it is "Not in your app yet". The whole card is the button
+/// that adds it: it has no pill.
 ///
 /// The one widget for this: on the share screen for a required card, and in
 /// the Change sheet for each type that can be added.
@@ -57,9 +48,8 @@ class EmptyCardSpot extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  /// What the request asks of the card: label and "Not in your app yet"
-  /// (or the value it must have).
-  final List<(String, String)> rows;
+  /// The values the request asks of the card (see [emptySpotRows]).
+  final List<SpotRow> rows;
 
   /// "{field} must be {value}" for each value the request needs, when there
   /// are no [rows] to show them in.
@@ -79,8 +69,12 @@ class EmptyCardSpot extends StatelessWidget {
   /// lines, and [kinds] are the set, not a choice.
   final bool together;
 
-  /// The pill's label; "Add" by default ("Add both" for a set).
-  final String? addLabel;
+  /// The card type, for its faded picture; null draws a dashed box.
+  final CredentialDescriptor? descriptor;
+
+  /// What the strip at its foot says; "Not in your app yet" by default
+  /// ("You don't share this" for optional data).
+  final String? strip;
 
   const EmptyCardSpot({
     super.key,
@@ -92,90 +86,79 @@ class EmptyCardSpot extends StatelessWidget {
     this.onTap,
     this.kinds,
     this.together = false,
-    this.addLabel,
+    this.descriptor,
+    this.strip,
   });
+
+  /// The picture, where an added card lands (hidden while it flies in).
+  Widget _landing(Widget art) {
+    final key = landingKey;
+    return key == null ? art : FlightSpot(flightKey: key, child: art);
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final faint = palette.secondaryText.withValues(alpha: 0.75);
-    final addLabel =
-        this.addLabel ?? FlutterI18n.translate(context, "share.add");
     final canAdd = onTap != null;
     final choice = kinds != null && kinds!.length > 1 ? kinds : null;
     final tile = CardTile(
       dashed: true,
       titleMaxLines: choice == null ? 1 : 3,
       subtitleMaxLines: together ? 3 : 1,
-      art: choice != null
-          ? SizedBox(
-              key: landingKey,
-              child: _KindsArt(kinds: choice),
-            )
-          : SizedBox(
-              key: landingKey,
-              width: SharedCardTile.miniWidth,
-              height: CardTile.miniHeight,
-              child: CustomPaint(
-                painter: DashedOutlinePainter(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(9)),
-                  ),
-                  color: palette.secondaryText.withValues(alpha: 0.6),
-                  dash: 4,
-                  period: 7,
-                ),
-                child: Icon(
-                  canAdd ? Icons.add_rounded : Icons.block_rounded,
-                  size: 18,
-                  color: canAdd ? palette.link : palette.secondaryText,
-                ),
-              ),
-            ),
+      art: _landing(
+        choice != null
+            ? _KindsArt(kinds: choice)
+            : FadedCardArt(descriptor: descriptor, canAdd: canAdd),
+      ),
       title: title,
       subtitle: subtitle,
-      footer: canAdd
-          ? CardTileStrip(
-              children: [
-                Expanded(
-                  child: Text(
-                    FlutterI18n.translate(context, "share.spot.add_first"),
-                    style: CardTileStrip.textStyle(context),
-                  ),
-                ),
-                // Says what a tap does; the whole spot is the button.
-                SmallPill(
-                  key: const Key("empty_spot_add"),
-                  label: addLabel,
-                  tone: SmallPillTone.surface,
-                  onPressed: onTap,
-                ),
-              ],
-            )
-          : null,
+      footer: CardTileStrip(
+        line: palette.link.withValues(alpha: 0.12),
+        children: [
+          Expanded(
+            child: Text(
+              strip ?? FlutterI18n.translate(context, "share.not_in_app_yet"),
+              style: CardTileStrip.textStyle(context),
+            ),
+          ),
+        ],
+      ),
       body: [
         if (rows.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final (n, (label, value)) in rows.indexed)
+              for (final (n, (label, value, asked)) in rows.indexed)
                 Container(
                   decoration: BoxDecoration(
                     border: n == 0
                         ? null
                         : Border(top: BorderSide(color: palette.divider)),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(label, style: attributeLabelStyle(context)),
-                      Text(
-                        value,
-                        style: attributeValueStyle(
-                          context,
-                          faint,
-                        ).copyWith(fontWeight: FontWeight.w500),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            value,
+                            style: attributeValueStyle(context, palette.text),
+                          ),
+                          if (asked)
+                            ValueTag(
+                              key: const Key("value_tag_asked"),
+                              text: FlutterI18n.translate(
+                                context,
+                                "share.spot.asked",
+                              ),
+                              tone: ValueTagTone.asked,
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -192,6 +175,7 @@ class EmptyCardSpot extends StatelessWidget {
     return Semantics(
       button: canAdd,
       child: GestureDetector(
+        key: const Key("empty_spot_add"),
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: PressScale(scale: PressScale.card, enabled: canAdd, child: tile),

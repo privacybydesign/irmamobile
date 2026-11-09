@@ -3,8 +3,7 @@ part of "glass_sheet.dart";
 /// Pages inside one sheet, as the navigation stack of a native iOS sheet.
 /// [pages] is the stack, the first at the bottom, each with a key of its own;
 /// the last is shown. A new last page slides in from the right over the one
-/// under it, which moves a third of the way left; a removed one slides back
-/// out. A horizontal swipe on a subpage takes it back the iOS way: it follows
+/// under it, which moves 30% of the way left; a removed one slides back out. A horizontal swipe on a subpage takes it back the iOS way: it follows
 /// the finger, and past half way or with a flick it calls [onBack], which
 /// removes it.
 ///
@@ -16,12 +15,38 @@ class GlassSheetPages extends StatefulWidget {
   final List<Widget> pages;
   final VoidCallback onBack;
 
-  const GlassSheetPages({super.key, required this.pages, required this.onBack});
+  /// When the first page is under another one, it moves this far left (not
+  /// 30%) and is dimmed: a page that a whole flow is pushed onto (Welk
+  /// kaartje deel je? under adding a card). Popping back to it takes 300 ms.
+  final double? rootShift;
+
+  const GlassSheetPages({
+    super.key,
+    required this.pages,
+    required this.onBack,
+    this.rootShift,
+  });
+
+  /// How long a page slides in or out.
+  static const slideDuration = Duration(milliseconds: 360);
+
+  /// How far the page under a new one moves left, as a fraction of the width.
+  static const underShift = 0.3;
 
   /// Values the pages keep for the next page (e.g. where a progress bar
   /// stood, so the next one fills on from there); null outside the pages.
   static Map<Object, Object?>? memoryOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_SheetPageRole>()?.memory;
+
+  /// The key of the page that is on top once the pages stop moving (the new
+  /// page while it slides in, the one under while the top one slides out);
+  /// null outside the pages.
+  static ValueListenable<Object?>? comingOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_SheetPageRole>()?.coming;
+
+  /// The key of the page around [context]; null outside the pages.
+  static Object? pageKeyOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_SheetPageRole>()?.pageKey;
 
   /// Whether the page around [context] is the one on top (or not in pages
   /// at all), not the one under it.
@@ -50,7 +75,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   /// 1 when the top page is fully in, 0 when it is out to the right.
   late final AnimationController _slide = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 340),
+    duration: GlassSheetPages.slideDuration,
     value: 1,
   )..addListener(() => _moving.value = _slide.value < 1);
 
@@ -60,6 +85,9 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   /// See [GlassSheetPages.memoryOf].
   final _memory = <Object, Object?>{};
+
+  /// See [GlassSheetPages.comingOf].
+  late final _coming = ValueNotifier<Object?>(widget.pages.last.key);
 
   /// See [_SheetPageRole.fadeIn]. In time with [_slide], also when it is
   /// dragged.
@@ -94,22 +122,28 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   @override
   void didUpdateWidget(GlassSheetPages oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _coming.value = widget.pages.last.key;
     final added = widget.pages.length > oldWidget.pages.length;
     final removed = widget.pages.length < oldWidget.pages.length;
     if (added) {
       _shown = widget.pages;
       _slide.value = 0;
-      _slide.animateTo(1, curve: Curves.easeOutCubic);
+      _slide.animateTo(1, curve: YiviMotion.ease);
     } else if (removed && !_swipedOut) {
       // Slides the removed page out over the page under it, then drops it.
       _shown = [...widget.pages, oldWidget.pages.last];
-      _slide.animateBack(0, curve: Curves.easeInOutCubic).whenCompleteOrCancel(
-        () {
-          if (!mounted) return;
-          setState(() => _shown = widget.pages);
-          _slide.value = 1;
-        },
-      );
+      final toRoot = widget.rootShift != null && widget.pages.length == 1;
+      _slide
+          .animateBack(
+            0,
+            duration: toRoot ? const Duration(milliseconds: 300) : null,
+            curve: toRoot ? YiviMotion.leave : YiviMotion.ease,
+          )
+          .whenCompleteOrCancel(() {
+            if (!mounted) return;
+            setState(() => _shown = widget.pages);
+            _slide.value = 1;
+          });
     } else if (_swipedOut) {
       _swipedOut = false;
       _shown = widget.pages;
@@ -127,6 +161,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
 
   @override
   void dispose() {
+    _coming.dispose();
     _moving.dispose();
     _slide.dispose();
     super.dispose();
@@ -295,7 +330,14 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   moving: moving && (top ? _shown.length > 1 : true),
                   reduce: reduce,
                   width: width,
+                  shift:
+                      !top && widget.rootShift != null && page == _shown.first
+                      ? widget.rootShift!
+                      : GlassSheetPages.underShift,
+                  dims:
+                      !top && widget.rootShift != null && page == _shown.first,
                   memory: _memory,
+                  coming: _coming,
                   fadeIn: _fadeIn,
                   fadeOut: _fadeOut,
                   chrome: _chrome,
@@ -329,7 +371,16 @@ class _SheetPageRole extends InheritedWidget {
 
   /// The width the pages slide across.
   final double width;
+
+  /// How far this page moves left while one slides in over it.
+  final double shift;
+
+  /// This page darkens while one slides in over it.
+  final bool dims;
   final Map<Object, Object?> memory;
+
+  /// See [GlassSheetPages.comingOf].
+  final ValueListenable<Object?> coming;
 
   /// The opacity of what is in the top page's bar alone, and of what is in
   /// the other page's alone: the one goes before the other comes, so two
@@ -359,7 +410,10 @@ class _SheetPageRole extends InheritedWidget {
     required this.moving,
     required this.reduce,
     required this.width,
+    this.shift = GlassSheetPages.underShift,
+    this.dims = false,
     required this.memory,
+    required this.coming,
     required this.fadeIn,
     required this.fadeOut,
     required this.chrome,
@@ -388,19 +442,42 @@ class _SheetPageRole extends InheritedWidget {
         child: child,
       );
     }
-    return _Slide(
+    Widget moved = _Slide(
       animation: animation,
       from: top ? 1 : 0,
-      to: top ? 0 : -1,
-      child: child,
+      to: top ? 0 : -shift,
+      // The top page covers the one under it, which only moves part of the
+      // way: it has the sheet's own colour.
+      child: top && moving ? _SheetColoured(child: child) : child,
     );
+    if (dims && !top) {
+      moved = Stack(
+        fit: StackFit.passthrough,
+        children: [
+          moved,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: animation,
+                builder: (context, _) => ColoredBox(
+                  color: sheetDim.withValues(
+                    alpha: sheetDim.a * animation.value,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return moved;
   }
 
   /// How far [slide] has moved this page, as a fraction of [width].
   double get slidOffset {
     if (reduce) return 0;
     final t = animation.value;
-    return top ? 1 - t : -t;
+    return top ? 1 - t : -t * shift;
   }
 
   /// How the title of this page shows: fading in on top, out underneath.
@@ -416,11 +493,24 @@ class _SheetPageRole extends InheritedWidget {
       moving != old.moving ||
       reduce != old.reduce ||
       width != old.width ||
+      shift != old.shift ||
+      dims != old.dims ||
       otherKey != old.otherKey;
 }
 
 /// What a [GlassSheetPage] has in its bar.
 typedef _Chrome = ({bool back, bool pinned, bool action});
+
+/// [child] on the sheet's colour.
+class _SheetColoured extends StatelessWidget {
+  final Widget child;
+
+  const _SheetColoured({required this.child});
+
+  @override
+  Widget build(BuildContext context) =>
+      ColoredBox(color: YiviPalette.of(context).sheet, child: child);
+}
 
 /// Moves [child] sideways by a fraction of its width, from [from] (slide 0)
 /// to [to] (slide 1), repainting only.

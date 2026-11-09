@@ -290,6 +290,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
       titleAfterScroll: 60,
       // Above the screens' buttons, staying put while they change (also on
       // a screen without buttons, which keeps their room).
+      bottomInBar: true,
       bottom: IssueSheetProgress(
         subject: widget.subject,
         step: _screen.step,

@@ -10,26 +10,13 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
-import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/status_chip.dart";
 import "../models/disclosure_view_model.dart";
-
-/// Marks a [SharedCardTile] as flying in a hero (or following a drag), so
-/// its trailing control is hidden until it lands.
-class SharedCardTileInFlight extends InheritedWidget {
-  const SharedCardTileInFlight({super.key, required super.child});
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<SharedCardTileInFlight>() !=
-      null;
-
-  @override
-  bool updateShouldNotify(SharedCardTileInFlight oldWidget) => false;
-}
 
 /// One requested item on the share screen: the selected card (or set of
 /// cards that go together) as small card art, its name and issuer, and only
@@ -51,7 +38,7 @@ class SharedCardTile extends ConsumerWidget {
   final bool showStatus;
 
   /// Marks the small card art as where a card added in the Change sheet
-  /// lands (a [CardFlightLanding]).
+  /// lands (a [FlightSpot]).
   final GlobalKey? landingKey;
 
   /// A strip across the bottom: another choice, or that the cards go
@@ -79,13 +66,10 @@ class SharedCardTile extends ConsumerWidget {
     this.isNew = false,
   }) : assert((fixLabel == null) == (onFix == null));
 
-  /// The art, marked as a landing spot. Not the copy in a hero flight: the
-  /// flight builds the tile a second time, and a key can be in the tree once.
+  /// The art, marked as a landing spot.
   Widget _landing(BuildContext context, Widget art) {
     final key = landingKey;
-    return key == null || SharedCardTileInFlight.of(context)
-        ? art
-        : CardFlightLanding(landingKey: key, child: art);
+    return key == null ? art : FlightSpot(flightKey: key, child: art);
   }
 
   /// Width of the small card art, at the card's 358:226 ratio.
@@ -153,22 +137,14 @@ class SharedCardTile extends ConsumerWidget {
       footer: bottom,
       art: _landing(
         context,
-        CardTileMiniCards(cards: [for (final c in cards) _cardFor(c, wallet)]),
+        CardTileMiniCards(
+          cards: [for (final c in cards) sharedCardFor(c, wallet)],
+        ),
       ),
       title: name,
       subtitle: issuers,
       chip: chip,
-      trailing: trailing == null
-          ? null
-          // Kept in place but hidden while the card flies, so the "Change"
-          // pill or radio shows only once it has landed.
-          : Visibility(
-              visible: !SharedCardTileInFlight.of(context),
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: trailing!,
-            ),
+      trailing: trailing,
       body: [
         for (final c in cards)
           if (c.attributes.isNotEmpty)
@@ -235,7 +211,7 @@ class SharedCardTile extends ConsumerWidget {
 
 /// The card picture of [instance]: the wallet card with the same hash
 /// (which carries the issuer's design), or one built from the instance.
-schemaless.Credential _cardFor(
+schemaless.Credential sharedCardFor(
   SelectableCredentialInstance instance,
   List<schemaless.Credential> wallet,
 ) =>

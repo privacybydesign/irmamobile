@@ -114,16 +114,6 @@ class PrototypesScreen extends StatelessWidget {
             "Arrow back - Issuance",
             const ArrowBack(type: ArrowBackType.issuance),
           ),
-          _buildTile(
-            context,
-            "Arrow back - Signature",
-            const ArrowBack(type: ArrowBackType.signature),
-          ),
-          _buildTile(
-            context,
-            "Arrow back - Disclosure",
-            const ArrowBack(type: ArrowBackType.disclosure),
-          ),
           _buildTile(context, "Update required", RequiredUpdateScreen()),
           _buildTile(context, "Root warning", const RootedWarningScreen()),
           _buildTile(
@@ -166,37 +156,8 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            "Disclosure feedback - disclosure notSatisfiable",
-            DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.notSatisfiable,
-              otherParty: "other party",
-              onDismiss: Navigator.pop,
-            ),
-          ),
-          _buildTile(
-            context,
-            "Disclosure feedback - signature notSatisfiable",
-            DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.notSatisfiable,
-              otherParty: "other party",
-              onDismiss: Navigator.pop,
-              isSignatureSession: true,
-            ),
-          ),
-          _buildTile(
-            context,
             "Disclosure feedback - disclosure success",
             DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.success,
-              otherParty: "other party",
-              onDismiss: Navigator.pop,
-            ),
-          ),
-          _buildTile(
-            context,
-            "Disclosure feedback - disclosure canceled",
-            DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.canceled,
               otherParty: "other party",
               onDismiss: Navigator.pop,
             ),
@@ -205,38 +166,10 @@ class PrototypesScreen extends StatelessWidget {
             context,
             "Disclosure feedback - signature success",
             DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.success,
               otherParty: "other party",
               onDismiss: Navigator.pop,
               isSignatureSession: true,
-            ),
-          ),
-          _buildTile(
-            context,
-            "Disclosure feedback - signature canceled",
-            DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.canceled,
-              otherParty: "successful party",
-              onDismiss: Navigator.pop,
-              isSignatureSession: true,
-            ),
-          ),
-          _buildTile(
-            context,
-            "Disclosure feedback - canceled",
-            DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.canceled,
-              otherParty: "canceled party",
-              onDismiss: Navigator.pop,
-            ),
-          ),
-          _buildTile(
-            context,
-            "Disclosure feedback - not satisfiable",
-            DisclosureFeedbackScreen(
-              feedbackType: DisclosureFeedbackType.notSatisfiable,
-              otherParty: "unsatisfied party",
-              onDismiss: Navigator.pop,
+              message: "I agree to the terms.",
             ),
           ),
           _buildTile(context, "Splash screen", const SplashScreen()),

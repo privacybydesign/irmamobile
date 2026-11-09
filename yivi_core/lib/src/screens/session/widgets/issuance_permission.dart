@@ -8,20 +8,20 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/nfc_credentials.dart";
+import "../../../widgets/caps_label.dart";
 import "../../../widgets/centred_max_width.dart";
+import "../../../widgets/compact_bar.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/press_scale.dart";
 import "../../../widgets/status_chip.dart";
-import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/technical_details.dart";
 import "document_issuance_permission.dart";
@@ -32,8 +32,8 @@ import "session_scaffold.dart";
 
 /// The button that adds an offer of [count] cards.
 String issuanceAddLabel(BuildContext context, int count) => count > 1
-    ? context.tr("issuance.add_many", {"count": "$count"})
-    : context.tr("issuance.add");
+    ? context.tr("share.offer.add_many", {"count": "$count"})
+    : context.tr("share.offer.add");
 
 /// "Do you want to add this card?" as a page of its own: who issues it (the
 /// logo with its trust badge, the name, the trust label, which opens the
@@ -74,6 +74,7 @@ class IssuancePermission extends StatefulWidget {
 
 class _IssuancePermissionState extends State<IssuancePermission> {
   final _barTitleVisible = ValueNotifier(false);
+  final _headingKey = GlobalKey(debugLabel: "issuance_heading");
 
   List<schemaless.Credential> get _cards => widget.issuedCredentials;
 
@@ -118,23 +119,20 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         issuer != null &&
         requestorTrustOf(issuer) == RequestorTrust.unknown;
     final count = _cards.length;
-    final question = issuer == null
+    final heading = issuer == null
         ? null
-        : IssuerQuestion(
+        : IssuerHeading(
             issuer: issuer,
-            question: note != null
-                ? context.tr("issuance.question.anyway")
-                : count > 1
-                ? context.tr("issuance.question.many", {"count": "$count"})
-                : context.tr("issuance.question.one"),
+            count: count,
             onTrust: () => _openIssuer(issuer),
           );
     final values = [
+      const YouGetLabel(),
       ?note,
       if (isDocument)
         for (final card in _cards) DocumentIssuanceData(credential: card)
       else
-        ...offer.receives(context, headingKey: null),
+        ...offer.receives(context),
     ];
     final reason = risky
         ? Text(
@@ -142,9 +140,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
               "issuer": issuer.name,
             }),
             key: const Key("issuance_risky_reason"),
-            textAlign: useSheetColumns(context)
-                ? TextAlign.start
-                : TextAlign.center,
+            textAlign: TextAlign.center,
             style: palette
                 .body(13.5, weight: FontWeight.w600)
                 .copyWith(color: palette.errorText, height: 19 / 13.5),
@@ -152,9 +148,9 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         : null;
     final button = _button(risky: risky);
 
-    // A phone held sideways: the issuer and the question at the left with
-    // the button at its foot; the cards at the right, at most 420 wide.
-    if (!useSessionColumns(context) && useSheetColumns(context)) {
+    // Held sideways, and on a tablet: who gives it at the left with the
+    // button at its foot; the cards at the right.
+    if (useSessionColumns(context) || useSheetColumns(context)) {
       return SessionScaffold(
         wide: true,
         scrollsUnderBars: true,
@@ -168,15 +164,15 @@ class _IssuancePermissionState extends State<IssuancePermission> {
               panel: Padding(
                 key: const Key("issuance_panel"),
                 padding: EdgeInsets.fromLTRB(
-                  16,
-                  cornerContentTop(context),
+                  0,
+                  sidewaysPanelTop(context),
                   0,
                   FloatingBarPlacement.buttonBottom(context),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: SingleChildScrollView(child: question)),
+                    Expanded(child: SingleChildScrollView(child: heading)),
                     const SizedBox(height: 16),
                     if (reason != null) ...[reason, const SizedBox(height: 10)],
                     button,
@@ -186,22 +182,14 @@ class _IssuancePermissionState extends State<IssuancePermission> {
               content: SingleChildScrollView(
                 key: const Key("issuance_scroll_view"),
                 padding: EdgeInsets.fromLTRB(
+                  4,
+                  sidewaysContentTop(context),
                   0,
-                  cornerContentTop(context),
-                  16,
-                  16 + MediaQuery.paddingOf(context).bottom,
+                  56 + MediaQuery.paddingOf(context).bottom,
                 ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: SheetSplit.endMaxWidth,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 12,
-                      children: values,
-                    ),
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: values,
                 ),
               ),
             ),
@@ -219,38 +207,10 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       ),
     );
 
-    // Tablets: the issuer and the question on the left, the cards and the
-    // button on the right.
-    if (useSessionColumns(context)) {
-      return SessionScaffold(
-        wide: true,
-        scrollsUnderBars: true,
-        onDismiss: widget.onDismiss,
-        body: IssuanceTrustWash(
-          on: risky,
-          child: SessionColumns(
-            start: question ?? const SizedBox.shrink(),
-            end: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
-              children: values,
-            ),
-            actions: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 10,
-              children: [?reason, button],
-            ),
-          ),
-        ),
-      );
-    }
-
     return SessionScaffold(
       appBarTitle: "issuance.title",
       scrollsUnderBars: true,
-      // The bar's title once the issuer and the question have scrolled
-      // under it, as in the sheet.
+      // The bar's title once the heading has scrolled under it.
       barTitleVisibility: _barTitleVisible,
       edgeShown: _barTitleVisible,
       bottomNavigationBar: bar,
@@ -259,7 +219,10 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         on: risky,
         child: NotificationListener<ScrollNotification>(
           onNotification: (n) {
-            if (n.depth == 0) _barTitleVisible.value = n.metrics.pixels > 150;
+            if (n.depth == 0) {
+              _barTitleVisible.value =
+                  headerUnderBar(context, _headingKey) ?? false;
+            }
             return false;
           },
           child: BarInsetsBuilder(
@@ -270,8 +233,11 @@ class _IssuancePermissionState extends State<IssuancePermission> {
                 maxWidth: 560,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 12,
-                  children: [?question, const SizedBox(height: 8), ...values],
+                  children: [
+                    if (heading != null)
+                      KeyedSubtree(key: _headingKey, child: heading),
+                    ...values,
+                  ],
                 ),
               ),
             ),
@@ -345,27 +311,28 @@ class IssuanceOffer {
     );
   }
 
-  /// The tag of [card] inside a request: what the request uses ("For
-  /// {requestor}"), what doesn't count, or what comes along ("Comes too").
-  String? _tagOf(
+  /// The chip of [card] inside a request: what doesn't count, and with
+  /// several cards which one the request asks for ("Asked") and which comes
+  /// along ("Comes too"). One card that counts has none.
+  (String, DialogTone)? _tagOf(
     BuildContext context,
     schemaless.Credential card, {
     required bool mismatched,
   }) {
     final request = forRequest;
     if (request == null) return null;
-    if (mismatched) return context.tr("share.offer.tag_not_counted");
+    if (mismatched) {
+      return (context.tr("share.offer.tag_not_counted"), DialogTone.danger);
+    }
+    if (cards.length == 1) return null;
     final used = {
       for (final step in _steps)
         for (final b in step.options)
           for (final d in b.credentials) d.credentialId,
     };
-    if (used.contains(card.credentialId) || cards.length == 1) {
-      return context.tr("issuance.for_request", {
-        "requestor": request.requestor.name,
-      });
-    }
-    return context.tr("share.offer.tag_extra");
+    return used.contains(card.credentialId)
+        ? (context.tr("share.spot.asked"), DialogTone.info)
+        : (context.tr("share.offer.tag_extra"), DialogTone.neutral);
   }
 
   String? _validUntil(BuildContext context, schemaless.Credential card) {
@@ -380,150 +347,49 @@ class IssuanceOffer {
     });
   }
 
-  /// "You will receive" and every value: a group per card, with the card's
-  /// mini art, name and validity on top.
-  /// [headingKey]: what the heading says ("You will receive"; "In your
-  /// app" once added).
-  /// No heading when [headingKey] is null (the question above says what
-  /// they are).
-  List<Widget> receives(
-    BuildContext context, {
-    String? headingKey = "issuance.you_will_receive",
-  }) {
+  /// What comes in the app: a tile per card, as on the share screen (its
+  /// picture, name, and how long it is valid, or who gives it), with every
+  /// value under it and a chip in its head when it matters ([_tagOf]).
+  List<Widget> receives(BuildContext context) {
     final mismatches = issuanceMismatches(cards, _steps);
-    // Per card: a value the request waiting underneath cannot use.
-    final bad = [
-      for (final card in cards) issuanceMismatches([card], _steps).isNotEmpty,
-    ];
-    final palette = YiviPalette.of(context);
-    final many = cards.length > 1;
-
     Set<String> mismatchedIn(schemaless.Credential card) => {
       for (final m in mismatches)
         if (m.credentialId == card.credentialId) claimPathKey(m.claimPath),
     };
-
-    Widget values(schemaless.Credential card) =>
-        YiviCredentialCardAttributeList(
-          card.attributes,
-          credentialId: card.credentialId,
-          namespaced: card.isMdoc,
-          showDividers: true,
-          mismatched: mismatchedIn(card),
-        );
-
-    final key = headingKey;
-    final heading = key == null
-        ? null
-        : Text(context.tr(key), style: palette.display(16));
-
     return [
-      if (heading != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-          child: Semantics(
-            header: true,
-            child: many
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    spacing: 8,
-                    children: [
-                      Expanded(child: heading),
-                      Flexible(
-                        child: Text(
-                          context.tr("issuance.all_together"),
-                          textAlign: TextAlign.end,
-                          style: palette
-                              .body(13)
-                              .copyWith(color: palette.secondaryText),
-                        ),
-                      ),
-                    ],
-                  )
-                : heading,
-          ),
-        ),
-      // One card looks like each of several: its name above its values.
       for (final (i, card) in cards.indexed)
         Padding(
           padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
-          child: SurfaceCard(
-            key: Key("issuance_card_$i"),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _GroupHeader(
-                    card: card,
-                    until: _validUntil(context, card),
-                    tag: _tagOf(context, card, mismatched: bad[i]),
-                    tagBad: bad[i],
+          child: Builder(
+            builder: (context) {
+              final bad = issuanceMismatches([card], _steps).isNotEmpty;
+              final tag = _tagOf(context, card, mismatched: bad);
+              return CardTile(
+                key: Key("issuance_card_$i"),
+                art: CredentialCardArt(
+                  credential: card,
+                  width: CardTile.miniWidth,
+                ),
+                title: card.name,
+                subtitle: _validUntil(context, card) ?? card.issuer.name,
+                chip: tag == null
+                    ? null
+                    : StatusChip(label: tag.$1, tone: tag.$2),
+                body: [
+                  YiviCredentialCardAttributeList(
+                    card.attributes,
+                    credentialId: card.credentialId,
+                    namespaced: card.isMdoc,
+                    disclosure: true,
+                    showDividers: true,
+                    mismatched: mismatchedIn(card),
                   ),
-                  Divider(height: 1, color: palette.divider),
-                  values(card),
                 ],
-              ),
-            ),
+              );
+            },
           ),
         ),
     ];
-  }
-}
-
-/// A card's mini art, name and validity above its values.
-class _GroupHeader extends StatelessWidget {
-  final schemaless.Credential card;
-  final String? until;
-
-  /// Inside a request: what it is for ("For {requestor}", "Comes too",
-  /// "Doesn't count", the last in red when [tagBad]).
-  final String? tag;
-  final bool tagBad;
-
-  const _GroupHeader({
-    required this.card,
-    required this.until,
-    this.tag,
-    this.tagBad = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 8),
-      child: Row(
-        spacing: 10,
-        children: [
-          ExcludeSemantics(
-            child: CredentialCardArt(credential: card, width: 34),
-          ),
-          Expanded(
-            child: Text(
-              card.name,
-              style: palette.display(14).copyWith(color: palette.heading),
-            ),
-          ),
-          if (tag != null)
-            StatusChip(
-              key: const Key("issuance_card_tag"),
-              label: tag!,
-              tone: tagBad ? DialogTone.danger : DialogTone.info,
-            )
-          // Wraps rather than pushing the name off at a large text size.
-          else if (until != null)
-            Flexible(
-              child: Text(
-                until!,
-                textAlign: TextAlign.end,
-                style: palette.body(12).copyWith(color: palette.secondaryText),
-              ),
-            ),
-        ],
-      ),
-    );
   }
 }
 
@@ -686,144 +552,73 @@ class _MismatchBox extends StatelessWidget {
   }
 }
 
-/// The top of the page that asks whether to add a card: who issues it (the
-/// logo with its trust badge, the name, and the trust label, which opens
-/// the issuer's details, [onTrust]) and the [question] as the page's
-/// heading. Upright all centred; sideways (the left column of a sheet) the
-/// issuer as one row, logo at the left, name and label stacked beside it,
-/// and the question under it, left-aligned.
-class IssuerQuestion extends StatelessWidget {
+/// Who gives the card, at the top of the question whether to add it: "You
+/// get a card from" (or "{n} cards"), and the issuer as a card under it, as
+/// the share screen's requestor ([RequestorCard.compact]): its logo and
+/// badge, its name, who vouches for it, and an ⓘ ([onTrust], the issuer's
+/// page).
+class IssuerHeading extends StatelessWidget {
   final schemaless.TrustedParty issuer;
-  final String question;
-  final VoidCallback? onTrust;
+  final int count;
+  final VoidCallback onTrust;
 
-  const IssuerQuestion({
+  /// The heading, for the bar's title once it has scrolled under the bar.
+  final GlobalKey? titleKey;
+
+  /// Where the issuer's logo is: it flies into the issuer's page.
+  final GlobalKey? logoKey;
+
+  const IssuerHeading({
     super.key,
     required this.issuer,
-    required this.question,
-    this.onTrust,
+    required this.count,
+    required this.onTrust,
+    this.titleKey,
+    this.logoKey,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final style = RequestorTrustStyle.of(context, issuer);
-    final sideways = useSheetColumns(context);
-    final logo = RequestorLogo(requestor: issuer, style: style, size: 64);
-    final name = Text(
-      issuer.name,
-      key: const Key("issuance_issuer_name"),
-      textAlign: sideways ? TextAlign.start : TextAlign.center,
-      style: palette.display(17).copyWith(height: 23 / 17, color: palette.text),
-    );
-    final label = style.label == null
-        ? null
-        : IssuerTrustLabel(style: style, onTap: onTrust);
-    final heading = Semantics(
-      header: true,
-      child: Text(
-        question,
-        key: const Key("issuance_question"),
-        textAlign: sideways ? TextAlign.start : TextAlign.center,
-        style: palette
-            .display(22, weight: FontWeight.w700)
-            .copyWith(height: 30 / 22, color: palette.heading),
-      ),
-    );
-    if (sideways) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            spacing: 14,
-            children: [
-              logo,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 6,
-                  children: [name, ?label],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          heading,
-        ],
-      );
-    }
     return Column(
-      key: const Key("issuance_issuer_question"),
+      key: const Key("issuance_heading"),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 8),
-        logo,
-        const SizedBox(height: 12),
-        name,
-        if (label != null) ...[const SizedBox(height: 10), label],
-        const SizedBox(height: 20),
-        heading,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Semantics(
+            header: true,
+            child: Text(
+              count > 1
+                  ? context.tr("issuance.heading.many", {"count": "$count"})
+                  : context.tr("issuance.heading.one"),
+              key: titleKey ?? const Key("issuance_question"),
+              style: palette
+                  .display(24, weight: FontWeight.w700)
+                  .copyWith(height: 30 / 24, color: palette.text),
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        RequestorCard.compact(
+          requestor: issuer,
+          onInfo: onTrust,
+          logoKey: logoKey,
+        ),
       ],
     );
   }
 }
 
-/// The issuer's trust in one label, in the tier's colours (as on the share
-/// screen), with ⓘ: a tap opens what it means.
-class IssuerTrustLabel extends StatelessWidget {
-  final RequestorTrustStyle style;
-  final VoidCallback? onTap;
-
-  const IssuerTrustLabel({super.key, required this.style, this.onTap});
+/// "This goes in your app", above the cards of an offer.
+class YouGetLabel extends StatelessWidget {
+  const YouGetLabel({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final label = style.label ?? "";
-    return Semantics(
-      button: onTap != null,
-      label: label,
-      hint: onTap == null ? null : context.tr("issuance.trust.label_hint"),
-      excludeSemantics: true,
-      child: PressScale(
-        enabled: onTap != null,
-        child: GestureDetector(
-          key: const Key("issuance_trust_label"),
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 32),
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 10, 0),
-            decoration: BoxDecoration(
-              color: style.pillFill,
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 6,
-              children: [
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .body(13.5, weight: FontWeight.w700)
-                        .copyWith(color: style.pillInk),
-                  ),
-                ),
-                if (onTap != null)
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 16,
-                    color: style.pillInk,
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CapsLabel(
+    context.tr("data.add.details.you_get"),
+    padding: const EdgeInsets.fromLTRB(6, 24, 6, 8),
+  );
 }
 
 /// A red wash behind the top of the page when nobody vouches for the

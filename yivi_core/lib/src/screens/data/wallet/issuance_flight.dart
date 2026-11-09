@@ -6,9 +6,12 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../theme/yivi_motion.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/laid_out_box.dart";
-import "../../../widgets/credential_card/card_flight.dart";
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../home/home_screen.dart";
 import "../../home/widgets/home_tab.dart";
 import "wallet_transition.dart";
@@ -27,20 +30,28 @@ class IssuanceFlightState {
 }
 
 /// The fly-in after an issuance: on "Done" the session closes at once, a
-/// curtain in the page colour hides the switch to the data tab, and a copy
-/// of the received card flies from the success screen into the first slot
-/// (a [CardFlight]), while the other cards slide down to make room.
+/// curtain in the page colour hides the switch to the data tab, and the
+/// received card is carried from the success screen into the first slot
+/// (a [YiviFlight], as a card lands on the share screen: picked up as it
+/// lies, turned a little, carried and put down, 950 ms), while the other
+/// cards slide down to make room from the moment it is picked up.
 ///
 /// Like [WalletTransition], the data tab and the overlay share state through
 /// static notifiers: the overlay outlives the session route.
 class IssuanceFlight {
   IssuanceFlight._();
 
-  static const insertAt = Duration(milliseconds: 420);
+  /// When the other cards start making room: as the card is picked up.
+  static const insertAt = Duration(milliseconds: 190);
 
-  static const stackEnd = Duration(milliseconds: 1120);
-  static const end = Duration(milliseconds: 840);
-  static const curve = CardFlight.curve;
+  /// The flight.
+  static const duration = Duration(milliseconds: 950);
+
+  /// How long the curtain takes to fade out.
+  static const curtainFade = Duration(milliseconds: 460);
+
+  /// How the other cards slide down to make room.
+  static const curve = YiviMotion.ease;
 
   static final state = ValueNotifier<IssuanceFlightState?>(null);
 
@@ -53,7 +64,8 @@ class IssuanceFlight {
   /// instance that was replaced in place). The caller then closes the
   /// session as usual.
   ///
-  /// With reduce motion on only the curtain fades.
+  /// With reduce motion on nothing flies (false): the session closes as
+  /// usual.
   ///
   /// Without [curtain] the card only flies: for a start from the Add data
   /// sheet, which closes over the data tab that is already on screen.
@@ -64,7 +76,7 @@ class IssuanceFlight {
     bool curtain = true,
   }) {
     final box = source.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize || CardFlight.isFlying) return false;
+    if (box == null || !box.hasSize || state.value != null) return false;
 
     final container = ProviderScope.containerOf(context, listen: false);
     final cards = container.read(walletCardsProvider);
@@ -80,29 +92,43 @@ class IssuanceFlight {
       return false;
     }
 
-    final stack =
-        (container.read(walletViewProvider) ?? WalletView.stack) ==
-            WalletView.stack &&
-        cards.length > 1;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (reduceMotion) return false;
 
     // With other cards, the new one joins the list a little later, so they
     // visibly slide down to make room.
     state.value = IssuanceFlightState(
       hash: card.hash,
-      inserted: reduceMotion || cards.length == 1,
+      inserted: cards.length == 1,
     );
     tabs.add(HomeTab.data);
 
-    return CardFlight.start(
+    final palette = YiviPalette.of(context);
+    var first = true;
+    return YiviFlight.start(
       context,
-      source: source,
-      card: card,
-      cardKey: const Key("issuance_flight_card"),
-      target: (overlay, {required first}) =>
-          _targetRect(overlay, scroll: first),
-      total: stack ? stackEnd : end,
-      curtain: curtain,
+      from: source,
+      to: (overlay) {
+        final rect = _targetRect(overlay, scroll: first);
+        if (rect != null) first = false;
+        return rect;
+      },
+      keys: const [
+        FlightKey(0, FlightKey.start, turn: -0.035),
+        FlightKey(0.2, FlightKey.start, lifted: true, turn: -0.035),
+        FlightKey(0.8, FlightKey.end, lifted: true),
+        FlightKey(1, FlightKey.end),
+      ],
+      duration: duration,
+      lift: YiviFlight.liftCarried,
+      shadow: const BoxShadow(
+        color: Color(0x3D102846),
+        blurRadius: 28,
+        offset: Offset(0, 12),
+      ),
+      copyKey: const Key("issuance_flight_card"),
+      copy: (context, frame) =>
+          CredentialCardArt(credential: card, width: frame.size.width),
       // Slides under the card below its place in the stack (the first card,
       // until it joins the list), so it tucks in as it lands instead of
       // jumping under at the end.
@@ -112,13 +138,27 @@ class IssuanceFlight {
         repaint: clock,
         child: child,
       ),
+      backdrop: curtain
+          ? (elapsed) => ColoredBox(
+              color: palette.background.withValues(
+                alpha:
+                    1 -
+                    (elapsed.inMicroseconds / curtainFade.inMicroseconds).clamp(
+                      0.0,
+                      1.0,
+                    ),
+              ),
+            )
+          : null,
       onTick: (elapsed) {
         final flight = state.value;
         if (flight != null && !flight.inserted && elapsed >= insertAt) {
           state.value = IssuanceFlightState(hash: flight.hash, inserted: true);
         }
       },
-      onDone: () => _finish(container, card.hash),
+      // The card in the list shows as the copy lands; the copy goes two
+      // frames later.
+      onLanded: () => _finish(container, card.hash),
     );
   }
 
@@ -173,7 +213,7 @@ class IssuanceFlight {
   /// Ends a flight at once, e.g. between tests.
   @visibleForTesting
   static void reset() {
-    CardFlight.reset();
+    YiviFlight.reset();
     _target = null;
     state.value = null;
   }

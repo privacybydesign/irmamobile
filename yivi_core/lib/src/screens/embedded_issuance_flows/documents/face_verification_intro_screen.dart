@@ -110,8 +110,8 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                     isHeader: true,
                     textAlign: TextAlign.center,
                     style: palette
-                        .display(22, weight: FontWeight.w700)
-                        .copyWith(height: 30 / 22, color: palette.heading),
+                        .display(24, weight: FontWeight.w700)
+                        .copyWith(height: 30 / 24, color: palette.text),
                   ),
                 ),
               const SurfaceCard(

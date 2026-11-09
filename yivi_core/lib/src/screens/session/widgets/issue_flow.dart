@@ -15,10 +15,12 @@ import "../../../providers/preferences_provider.dart";
 import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -37,6 +39,7 @@ import "issue_island.dart";
 import "issue_sheet_progress.dart";
 import "issue_website_step.dart";
 import "openid4vci_preauth_txcode_screen.dart";
+import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
 import "session_pin_entry_screen.dart";
 import "technical_details_sheet.dart";
@@ -106,6 +109,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void issueSessionEnded() {}
 
   // ---------- the flow's state ----------
+
+  /// Where step 1's picture is: a card lifted from the share screen lands
+  /// there.
+  final issueHeroKey = GlobalKey(debugLabel: "issue_hero");
+
+  /// The big heading of each page (by page): the bar's title shows once it
+  /// has scrolled under the bar.
+  final _titleKeys = <String, GlobalKey>{};
+
+  GlobalKey _titleKey(String page) =>
+      _titleKeys[page] ??= GlobalKey(debugLabel: "issue_title_$page");
 
   /// The type the user is adding; null while on the sheet's root page.
   CredentialDescriptor? issueAdding;
@@ -537,6 +551,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     required String rootKey,
     required Widget Function() root,
     required VoidCallback onBack,
+    double? rootShift,
   }) {
     // Popped, however (its close button, a drag, a tap outside, Done): the
     // sheet keeps its pages while it goes.
@@ -546,13 +561,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       ask: _issueStarted,
       confirm: _issueConfirmStop,
       // On a phone held upright the close button stays at the top right on
-      // every page of adding.
+      // every page of adding. Sideways the way on is in the bar, in the
+      // close button's place, with the progress after "For …".
       child: SheetKeepsClose(
-        // Sideways the way on and the progress stay at the bottom of the
-        // left column, as upright at the bottom: the bar has only back and
-        // close.
-        child: SheetActionsInColumn(
-          child: IssueIslandScope(
+        child: Builder(
+          builder: (_) => IssueIslandScope(
             open: () => setState(() => _island = true),
             isOpen: _islandOpen,
             child: Stack(
@@ -562,6 +575,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               children: [
                 GlassSheetPages(
                   onBack: onBack,
+                  rootShift: rootShift,
                   pages: _closing && _shownPages != null
                       ? _shownPages!
                       : _shownPages = [
@@ -830,6 +844,51 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The issuer's details, from the trust label on the question, as pages
   /// of the sheet (back returns to the question), and their technical
   /// details under them.
+  /// The issuer's logo on the question page, and on the issuer's page: it
+  /// flies between them as the page slides in and out.
+  final _issuerLogoFrom = GlobalKey(debugLabel: "issuer_logo_from");
+  final _issuerLogoTo = GlobalKey(debugLabel: "issuer_logo_to");
+
+  /// The issuer's page slides in over the question; its logo grows from the
+  /// question's into its own (360 ms, with the slide).
+  void _openIssuerPage(schemaless.TrustedParty issuer) {
+    YiviFlight.hide([_issuerLogoTo]);
+    setState(() => _issuerDepth = 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      YiviFlight.show([_issuerLogoTo]);
+      _flyIssuerLogo(issuer, from: _issuerLogoFrom, to: _issuerLogoTo);
+    });
+  }
+
+  /// Back to the question: the logo shrinks back into the question's.
+  void _closeIssuerPage(schemaless.TrustedParty issuer) {
+    _flyIssuerLogo(issuer, from: _issuerLogoTo, to: _issuerLogoFrom);
+    setState(() => _issuerDepth = 0);
+  }
+
+  void _flyIssuerLogo(
+    schemaless.TrustedParty issuer, {
+    required GlobalKey from,
+    required GlobalKey to,
+  }) {
+    final style = RequestorTrustStyle.of(context, issuer);
+    YiviFlight.start(
+      context,
+      from: from,
+      to: YiviFlight.boxOf(to),
+      keys: const [FlightKey(0, FlightKey.start), FlightKey(1, FlightKey.end)],
+      duration: GlassSheetPages.slideDuration,
+      curve: YiviMotion.ease,
+      hide: [from, to],
+      copy: (context, frame) => RequestorLogo(
+        requestor: issuer,
+        style: style,
+        size: frame.size.width,
+      ),
+    );
+  }
+
   List<Widget> _issuerPages(int? nested) {
     final offer = _lastOffer;
     final cards = offer?.offeredCredentials;
@@ -844,7 +903,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           key: const Key("issuer_trust_page"),
           requestor: issuer,
           issuer: true,
-          onBack: () => setState(() => _issuerDepth = 0),
+          logoKey: _issuerLogoTo,
+          onBack: () => _closeIssuerPage(issuer),
           onTechnicalDetails: () => setState(() => _issuerDepth = 2),
         ),
       ),
@@ -928,10 +988,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       label: context.tr("data.add.details.get_button"),
       onTap: () => _add(d),
     );
-    // During a request: that the requestor only gets what they ask, when
-    // the card holds more than that.
-    final asked = d.attributes.where((a) => a.requestedValue != null).length;
-    final holdsMore = asked > 0 && asked < d.attributes.length;
     final howIntro = switch (_repo.embeddedFlowOf(d.credentialId)) {
       EmbeddedFlow.email => context.tr("data.add.details.how_email"),
       EmbeddedFlow.phone => context.tr("data.add.details.how_phone"),
@@ -939,25 +995,19 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         context.tr("data.add.details.how_document"),
       _ => null,
     };
-    Widget part(AddDataDetailsPart part, {double cardWidth = 220}) =>
-        AddDataDetailsContent(
-          credential: d,
-          faq: faq,
-          forRequestor: holdsMore ? issueRequest?.requestor.name : null,
-          howIntro: howIntro,
-          part: part,
-          cardWidth: cardWidth,
-        );
-    // A phone held sideways: the card and its name at the left, what it
-    // is and what you get at the right; the way on is in the bar.
+    Widget part(AddDataDetailsPart part) => AddDataDetailsContent(
+      credential: d,
+      faq: faq,
+      heroKey: issueHeroKey,
+      titleKey: _titleKey("details"),
+      howIntro: howIntro,
+      part: part,
+    );
+    // A phone held sideways: the card, its name and the intro at the left,
+    // what you get at the right; the way on is in the bar.
     final split = useSheetColumns(context)
         ? SheetSplit(
-            start: [
-              part(
-                AddDataDetailsPart.card,
-                cardWidth: SheetColumns.defaultStartWidth,
-              ),
-            ],
+            start: [part(AddDataDetailsPart.card)],
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 12,
@@ -976,11 +1026,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       title: context.tr("data.add.details.title_add", {"name": d.name}),
       titleWidget: IssueRequestorPill.maybe(subject),
       titleWidgetCentred: true,
-      titleAfterScroll: 190,
+      titleUnder: _titleKey("details"),
       onBack: _direct ? null : _issueLeave,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       split: split != null,
       action: action,
+      bottomInBar: true,
       bottom: IssueSheetProgress(subject: subject, step: 1, total: total),
       child:
           split ??
@@ -1055,11 +1106,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             key: const Key("sheet_issue_add"),
             label: risky
                 ? context.tr("issuance.question.add_anyway")
-                : cards.length > 1
-                ? context.tr("share.offer.add_many", {
-                    "count": "${cards.length}",
-                  })
-                : context.tr("share.offer.add"),
+                : issuanceAddLabel(context, cards.length),
             neutral: risky,
             // Under way once tapped, until "Success" comes in.
             busy: awaiting,
@@ -1098,10 +1145,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final content = offer == null ? null : _offerContent(offer);
     final question = issuer == null
         ? null
-        : IssuerQuestion(
+        : IssuerHeading(
             issuer: issuer,
-            question: _question(cards, mismatched: mismatched),
-            onTrust: () => setState(() => _issuerDepth = 1),
+            count: cards.length,
+            titleKey: _titleKey("issuance"),
+            logoKey: _issuerLogoFrom,
+            onTrust: () => _openIssuerPage(issuer),
           );
     final loading = Padding(
       padding: const EdgeInsets.symmetric(vertical: 80),
@@ -1109,8 +1158,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     );
     // The cards: their values in tiles, the mismatch note above them.
     List<Widget> cardsAndValues(IssuanceOffer content) => [
+      const YouGetLabel(),
       ?content.note(context),
-      ...content.receives(context, headingKey: null),
+      ...content.receives(context),
       ?anyway,
     ];
     final sideways = useSheetColumns(context);
@@ -1120,11 +1170,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       title: issuer?.name ?? context.tr("issuance.title"),
       titleWidget: IssueRequestorPill.maybe(subject),
       titleWidgetCentred: true,
-      titleAfterScroll: 150,
+      titleUnder: _titleKey("issuance"),
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
+      // The progress in the bar sideways; the reason stays with the button.
+      bottomInBar: !risky,
       bottom: bottom,
       split: sideways,
       child: sideways
@@ -1147,12 +1199,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               key: const Key("sheet_issuance"),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 12,
-                children: [
-                  question,
-                  const SizedBox(height: 8),
-                  ...cardsAndValues(content),
-                ],
+                children: [question, ...cardsAndValues(content)],
               ),
             ),
     );
@@ -1168,19 +1215,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void _retry() {
     issueBack();
     setState(() => _opened = false);
-  }
-
-  /// "Do you want to add this card?", "… these 2 cards?", or, for a card
-  /// that does not count for the request, "… this card anyway?".
-  String _question(
-    List<schemaless.Credential> cards, {
-    required bool mismatched,
-  }) {
-    if (mismatched) return context.tr("issuance.question.anyway");
-    final count = cards.length;
-    return count > 1
-        ? context.tr("issuance.question.many", {"count": "$count"})
-        : context.tr("issuance.question.one");
   }
 
   /// OpenID4VCI's transaction code or authorization-code step, as a page.
@@ -1282,9 +1316,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       header: true,
       child: Text(
         context.tr("issuance.success_feedback.header"),
+        key: _titleKey("done"),
         style: palette
-            .display(26, weight: FontWeight.w700)
-            .copyWith(color: palette.heading),
+            .display(24, weight: FontWeight.w700)
+            .copyWith(height: 30 / 24, color: palette.text),
       ),
     );
     final text = Text(
@@ -1299,7 +1334,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         title: context.tr("issuance.success_feedback.header"),
         titleWidget: IssueRequestorPill.maybe(subject),
         titleWidgetCentred: true,
-        titleAfterScroll: 0,
+        titleUnder: _titleKey("done"),
         action: action,
         closable: false,
         split: true,
@@ -1317,7 +1352,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       title: context.tr("issuance.success_feedback.header"),
       titleWidget: IssueRequestorPill.maybe(subject),
       titleWidgetCentred: true,
-      titleAfterScroll: 260,
+      titleUnder: _titleKey("done"),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       action: action,
       closable: false,
@@ -1326,7 +1361,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         spacing: 16,
         children: [
           if (cards.isNotEmpty)
-            Padding(padding: const EdgeInsets.only(top: 48), child: received),
+            Padding(padding: const EdgeInsets.only(top: 90), child: received),
           DefaultTextStyle.merge(
             textAlign: TextAlign.center,
             child: Column(

@@ -132,9 +132,7 @@
   },
   "arrow_back": {
     "no_success": "Cancelled",
-    "disclosure_success": "Success, your data has been shared",
     "issuance_success": "Success, the data has been added",
-    "signature_success": "Success, the message has been signed",
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the previous application."
   },
   "change_pin": {
@@ -237,11 +235,8 @@
         "howto_question": "How does it work?",
         "get_button": "Next",
         "obtain": "This card goes into your Yivi app.",
-        "disclosure_info_requestor": "{requestor} only gets what they ask from this.",
-        "you_get": "Goes into your app",
+        "you_get": "This goes in your app",
         "good_to_know": "Good to know",
-        "show_all": "Show all {count}",
-        "steps_peek": "{count} steps · {first}",
         "title_add": "Add {name}",
         "how_email": "You enter your e-mail address. Yivi sends you a code, which you type in here. Then your e-mail address is in your app.",
         "how_phone": "You enter your mobile number. Yivi texts you a code, which you type in here. Then your number is in your app.",
@@ -280,17 +275,7 @@
     "logo_semantic": "Logo of {otherParty}",
     "feedback": {
       "header": {
-        "success": "Success",
-        "canceled": "Cancelled",
-        "not_satisfiable": "Cancelled"
-      },
-      "text": {
-        "success": "Your data is disclosed to {otherParty}",
-        "success_signature": "You signed the request of {otherParty}",
-        "canceled": "Your data has not been disclosed to {otherParty}",
-        "canceled_signature": "You did not sign the request of {otherParty}",
-        "not_satisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party.",
-        "not_satisfiable_signature": "{otherParty} is requesting you to sign with outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party."
+        "success": "Success"
       }
     }
   },
@@ -469,15 +454,14 @@
   },
   "issuance": {
     "title": "Add data",
-    "add": "Add data",
     "success_feedback": {
       "header": "Success",
       "text": "The data has been successfully added to Yivi",
       "added_one": "{name} has been added to Yivi.",
       "added_many": "These {count} cards have been added to Yivi.",
+      "back_to": "Back to {requestor}",
       "added_one_back": "The card is now in your app. Go back to {requestor} to continue.",
-      "added_many_back": "The {count} cards are now in your app. Go back to {requestor} to continue.",
-      "back_to": "Back to {requestor}"
+      "added_many_back": "The {count} cards are now in your app. Go back to {requestor} to continue."
     },
     "pre-authorized_code": {
       "tx_code_screen": {
@@ -506,16 +490,10 @@
         "header": "Continue in your browser"
       }
     },
-    "you_will_receive": "You will receive",
-    "add_many": "Add {count} cards",
     "card_count": "{count} cards",
     "from_issuers": "from {count} issuers",
     "for_request": "For {requestor}",
-    "all_together": "All cards are added together",
     "question": {
-      "one": "Do you want to add this card?",
-      "many": "Do you want to add these {count} cards?",
-      "anyway": "Do you want to add this card anyway?",
       "add_anyway": "Add anyway",
       "risky_reason": "Only add this if you trust {issuer}"
     },
@@ -534,6 +512,10 @@
       "body": "They ask for data that is not in your app yet. Add this card first; then you share it with them.",
       "ok": "Got it",
       "hint": "Why you add this"
+    },
+    "heading": {
+      "one": "You get a card from",
+      "many": "You get {count} cards from"
     }
   },
   "email_issuance": {
@@ -1155,8 +1137,7 @@
     }
   },
   "signature": {
-    "read_more": "Read more",
-    "read_less": "Read less"
+    "read_all": "Read the whole message"
   },
   "review": {
     "gate": {
@@ -1274,12 +1255,8 @@
       "cant_renew": "{requestor} needs a card you can't renew in Yivi. Ask {issuer} for a new one.",
       "cant_add": "Yivi can't add {name}. Get it from {issuer} first, then scan the QR code again.",
       "cant_add_unknown": "Yivi can't add {name}. Get it from its issuer first, then scan the QR code again.",
-      "add_one": "One more thing to add, then you can share",
-      "add_many": "{count} more things to add, then you can share",
       "fix_one": "One more thing to sort out, then you can share",
-      "fix_many": "{count} more things to sort out, then you can share",
-      "not_counted": "Your card doesn't count for this request",
-      "ready": "All set. Have one more look at what you share."
+      "fix_many": "{count} more things to sort out, then you can share"
     },
     "section": {
       "you_share": "You share this",
@@ -1288,15 +1265,13 @@
       "you_receive": "You get this in return",
       "nothing_required_text": "{requestor} asks for nothing you must share."
     },
-    "add": "Add",
     "not_in_app_yet": "Not in your app yet",
     "or": " or ",
-    "message_label": "You sign",
-    "footnote": "{requestor} only gets what is above. Everything else stays on your phone.",
+    "message_label": "The message",
     "sheet": {
       "pick_card": "Which card do you share?",
-      "subtitle_one": "{requestor} only needs one. Tap the card you want to share.",
-      "subtitle_one_add": "{requestor} only needs one. Choose one.",
+      "subtitle_one": "{requestor} needs only one.",
+      "subtitle_one_add": "{requestor} needs only one.",
       "for_requestor": "For {requestor}",
       "for_requestor_set": "For {requestor} · card {n} of {total}",
       "stop_title": "Stop adding {name}?",
@@ -1310,33 +1285,41 @@
       "together_add_next": "Add {next}",
       "later": "Later",
       "optional_title": "Do you want to share this too?",
-      "optional_intro": "{requestor} asks for this, but you don't have to. You can share without it too.",
+      "optional_intro": "{requestor} asks for this, but you don't have to.",
       "share_nothing": "Don't share",
       "share_nothing_sub": "{requestor} doesn't get this",
-      "subtitle_one_docs": "{requestor} only needs one. Choose a document you have at hand.",
+      "subtitle_one_docs": "{requestor} needs only one.",
       "add_other": "Add another card",
-      "optional_intro_many": "{requestor} asks for one of these cards, but you don't have to. You can share without it too.",
-      "optional_intro_none": "{requestor} asks for this, but you don't have to. It isn't in your app yet.",
-      "optional_intro_many_none": "{requestor} asks for one of these cards, but you don't have to. None of them is in your app yet.",
+      "optional_intro_many": "{requestor} asks for one of these cards, but you don't have to.",
+      "optional_intro_none": "{requestor} asks for this, but you don't have to.",
+      "optional_intro_many_none": "{requestor} asks for one of these cards, but you don't have to.",
       "or_add_one": "Or add one",
-      "or_add_it": "Or add it"
+      "or_add_it": "Or add it",
+      "added_one": "The card is in your app now. Go back to share your data.",
+      "added_many": "The {count} cards are in your app now. Go back to share your data.",
+      "added_one_sign": "The card is in your app now. Go back to sign the message.",
+      "added_many_sign": "The {count} cards are in your app now. Go back to sign the message.",
+      "continue_share": "Continue sharing",
+      "continue_sign": "Continue signing"
     },
     "done": {
       "title": "Shared with {requestor}",
-      "title_signature": "Signed",
+      "title_signature": "Signed for {requestor}",
       "title_none": "Done",
       "text_none": "{requestor} received no data from you. You can find this in Activity.",
       "button": "Done",
-      "they_got": "This is what {requestor} got",
       "in_activity": "You'll find this in Activity.",
       "next": {
-        "other_head": "Continue on the other screen",
-        "other_text": "Where you scanned the QR code. That's where it continues.",
         "return_head": "Back to {host}",
-        "return_text": "That's where it continues.",
         "back_head": "Go back to the website",
         "back_text": "Tap ◀ with the name of the app you came from, at the top left of your screen."
-      }
+      },
+      "cards": "{count} cards",
+      "signed_with": "You signed this message with {what}.",
+      "shared_one": "{name} has been shared.",
+      "shared_many": "{count} cards have been shared.",
+      "other_device": "Continue on your other device.",
+      "back_website": "Back to the website"
     },
     "call": {
       "title": "Shared. Now call {requestor}",
@@ -1344,14 +1327,13 @@
       "button": "Call {requestor}"
     },
     "spot": {
-      "add_first": "Add it to your app first",
       "many": "You pick one when adding",
       "cant": "Can't be added in Yivi. Get it from {issuer} first.",
       "cant_unknown": "Can't be added in Yivi.",
       "must_be": "{field} must be {value}",
-      "must_be_value": "Must be {value}",
       "together_both": "{requestor} needs both, together. You add them one by one.",
-      "together_one_left": "{name} is in your app. Add {other} too: {requestor} needs both."
+      "together_one_left": "{name} is in your app. Add {other} too: {requestor} needs both.",
+      "asked": "Asked"
     },
     "trust": {
       "pill": {
@@ -1359,14 +1341,14 @@
         "eu": "Verified in the EU",
         "anchor": "Verified by {anchor}",
         "confirmed": "Identity confirmed",
-        "unknown": "Not known by Yivi",
-        "unchecked": "Not checked"
+        "unknown": "Not known by Yivi"
       },
       "card_semantics": "{name}, {status}. What does this mean?",
       "risky": {
         "reason": "Only share if you trust {requestor}",
         "share_anyway": "Share anyway",
-        "sign_anyway": "Sign anyway"
+        "sign_anyway": "Sign anyway",
+        "reason_sign": "Only sign if you trust {requestor}"
       },
       "confirm": {
         "title": "Share with a party Yivi doesn't know?",
@@ -1487,31 +1469,25 @@
     "new_chip": "New",
     "together": "These go together. {requestor} gets both, or neither.",
     "also_share": "Share too",
-    "lead_side": "{requestor} only gets what is next to this, and only when you press the share button. Everything else stays on your phone.",
-    "lead_side_sign": "{requestor} only gets what is next to this, and only when you press the sign button. Everything else stays on your phone.",
-    "lead_side_receive": "You only share what is next to this and get a card in return, only when you press the share button. Everything else stays on your phone.",
     "add_both": "Add both",
     "and": " and ",
     "optional": {
-      "row_sub": "Not shared. {requestor} asks for it, but you don't have to.",
-      "row_pick": "Share",
-      "also": "You don't have to. You can also not share it, or choose something else."
+      "also": "You share this",
+      "not_shared": "You don't share this"
     },
     "title": {
-      "share": "{requestor} is asking for your data",
-      "sign": "{requestor} is asking you to sign something",
-      "share_receive": "{requestor} is asking for your data"
+      "share": "You share data with",
+      "sign": "You sign a message for",
+      "share_receive": "You share data with"
     },
-    "message_how": "You sign by pressing the button at the bottom.",
-    "footnote_sign": "{requestor} only gets the message and what is above. Everything else stays on your phone.",
     "next": {
-      "add": "Add data",
       "add_again": "Add again",
       "fetch_again": "Get it again",
-      "pick": "Choose what to add"
+      "pick": "Choose what to add",
+      "add_card": "Add {card}"
     },
-    "also_choose": "You can also choose another card",
-    "also_add": "You can also add another card",
+    "also_choose": "You have another one",
+    "also_add": "In your app",
     "match_tag": "Exactly what they ask",
     "not_counted": {
       "chip": "Doesn't count",
@@ -1539,6 +1515,18 @@
       "tag_extra": "Comes too",
       "done_not_counted": "The card is now in your app, but it doesn't count for {requestor}. Asked: {field} {value}.",
       "done_replaced_not_counted": "The card in your app has been replaced, but it doesn't count for {requestor}. Asked: {field} {value}."
+    },
+    "progress": {
+      "add_one": "One more card to add, then you can share",
+      "add_many": "{count} more cards to add, then you can share",
+      "add_one_sign": "One more card to add, then you can sign",
+      "add_many_sign": "{count} more cards to add, then you can sign",
+      "ready": "All set",
+      "not_counted": "Your card does not count for this request"
+    },
+    "message_sheet": {
+      "lead": "You sign this for {requestor}.",
+      "lead_done": "You signed this for {requestor}."
     }
   },
   "contact_sheet": {
@@ -1563,7 +1551,9 @@
     "head_phone": "Your phone number",
     "head_email": "Your e-mail address",
     "code_head_phone": "Code from the text message",
-    "code_head_email": "Code from the e-mail"
+    "code_head_email": "Code from the e-mail",
+    "sent_short_phone": "Texted to {target}",
+    "sent_short_email": "Emailed to {target}"
   },
   "waiting_request": {
     "sentence": {

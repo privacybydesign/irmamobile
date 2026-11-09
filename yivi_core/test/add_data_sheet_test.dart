@@ -254,6 +254,10 @@ Future<void> _pumpFor(
   }
 }
 
+/// The bar's back button, to tell what sits in the bar sideways.
+Rect _barBack(WidgetTester tester) =>
+    tester.getRect(find.bySemanticsLabel("Go back").last);
+
 void main() {
   _closingInADocument();
   group("the list", () {
@@ -544,7 +548,7 @@ void main() {
       // The card's name is the bar's title; no tag, no requestor line.
       expect(find.text("Personal data"), findsWidgets);
       expect(find.byKey(const Key("issue_sheet_for_requestor")), findsNothing);
-      expect(find.byKey(const Key("add_data_details_name")), findsOneWidget);
+      expect(find.byKey(const Key("add_data_details_hero")), findsOneWidget);
       // Not during a request: no note about sharing only what is asked.
       expect(find.textContaining("you will only share"), findsNothing);
       // Issued on a website: no note about it on the details (the next
@@ -575,7 +579,7 @@ void main() {
       Size size = const Size(390, 844),
     }) async {
       final nested = StreamController<SessionState>();
-      addTearDown(nested.close);
+      addTearDown(() => unawaited(nested.close()));
       final calls = await _pump(
         tester,
         nested: {_nestedId: nested.stream},
@@ -631,8 +635,8 @@ void main() {
 
     for (final (name, size, inBar) in [
       ("upright", const Size(390, 844), false),
-      // Sideways the way on stays at the bottom, of the left column.
-      ("sideways", const Size(874, 402), false),
+      // Sideways the way on is in the bar, as on a tablet.
+      ("sideways", const Size(874, 402), true),
       ("on a tablet", const Size(820, 1180), true),
     ]) {
       testWidgets("$name: Add first shows where adding goes, step 2; its way "
@@ -655,13 +659,13 @@ void main() {
         final open = tester.getRect(
           find.byKey(const Key("sheet_open_website")),
         );
-        final title = tester.getRect(
-          find.byKey(const Key("glass_sheet_title")).last,
-        );
-        // At the bottom upright and sideways (of the left column there);
-        // in the bar on a tablet.
+        // At the bottom upright; in the bar sideways (with the back button)
+        // and on a tablet (with the title).
+        final bar = size.width > size.height
+            ? _barBack(tester)
+            : tester.getRect(find.byKey(const Key("glass_sheet_title")).last);
         if (inBar) {
-          expect(open.center.dy, closeTo(title.center.dy, 2));
+          expect(open.center.dy, closeTo(bar.center.dy, 2));
         } else {
           expect(open.top, greaterThan(size.height - 120));
           expect(open.left, lessThan(size.width / 2));
@@ -747,7 +751,7 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
         findsOneWidget,
       );
-      expect(find.text("Do you want to add this card?"), findsOneWidget);
+      expect(find.text("You get a card from"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_issue_add")));
       await tester.pump();
       final granted = calls.interactions.last;
@@ -886,44 +890,47 @@ void main() {
     group("sideways", () {
       const side = Size(874, 402);
 
-      testWidgets("details: Add at the bottom of the left column, under the "
-          "card and the progress; what you get at the right", (tester) async {
+      testWidgets("details: Add in the bar, after the progress; the card at "
+          "the left, what you get at the right", (tester) async {
         await _pump(tester, size: side);
         await tester.tap(
           find.byKey(const Key("pbdf.gemeente.personalData_tile")),
         );
         await tester.pumpAndSettle();
         final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
-        // Not in the bar: at the bottom, at the left.
-        expect(go.top, greaterThan(side.height - 120));
-        expect(go.right, lessThan(side.width / 2));
+        // In the bar, at its end: no bottom bar.
+        final back = _barBack(tester);
+        expect(go.center.dy, closeTo(back.center.dy, 2));
+        expect(go.right, closeTo(side.width - 16, 1));
         expect(find.byType(SheetBottomBar), findsNothing);
+        final hero = tester.getRect(find.byType(CredentialTypeThumbnail).first);
         final youGet = tester.getRect(
           find.byKey(const Key("add_data_you_get")),
         );
-        expect(youGet.left, greaterThan(go.right));
-        // The progress right above the button.
+        expect(hero.right, lessThan(side.width / 2));
+        expect(youGet.left, greaterThan(side.width / 2));
+        // The progress in the bar too, right before the button.
         final progress = tester.getRect(
           find.byKey(const Key("issue_sheet_progress_parts")),
         );
-        expect(progress.bottom, lessThanOrEqualTo(go.top));
+        expect(progress.center.dy, closeTo(go.center.dy, 2));
+        expect(progress.right, lessThan(go.left));
         expect(
           find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
           findsOneWidget,
         );
       });
 
-      testWidgets("opened: Continue on the website at the bottom left", (
-        tester,
-      ) async {
+      testWidgets("opened: Continue on the website in the bar", (tester) async {
         await openWebsite(tester, size: side);
-        // The website page: its way on under its words, at the left.
+        // The website page: its way on in the bar, its words at the left.
         final go = tester.getRect(find.byKey(const Key("sheet_open_website")));
         final heading = tester.getRect(
           find.byKey(const Key("sheet_website_heading")),
         );
-        expect(go.top, greaterThan(heading.bottom));
-        expect(go.right, lessThan(side.width / 2));
+        expect(go.center.dy, closeTo(_barBack(tester).center.dy, 2));
+        expect(go.bottom, lessThan(heading.top));
+        expect(heading.right, lessThan(side.width / 2));
         expect(find.text("Continue on the website"), findsOneWidget);
         expect(
           find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
@@ -935,12 +942,15 @@ void main() {
         await tester.pump();
       });
 
-      testWidgets("added: Success, the words and Done at the left, the card "
-          "with its check at the right", (tester) async {
+      testWidgets("added: Success, Done in the bar, the words at the left, "
+          "the card with its check at the right", (tester) async {
         await toSuccess(tester, size: side);
         final done = tester.getRect(find.byKey(const Key("sheet_done")));
-        expect(done.top, greaterThan(side.height - 120));
-        expect(done.right, lessThan(side.width / 2));
+        final title = tester.getRect(
+          find.byKey(const Key("glass_sheet_title")).last,
+        );
+        expect(done.center.dy, closeTo(title.center.dy, 2));
+        expect(done.left, greaterThan(side.width / 2));
         final card = tester.getRect(
           find.byKey(const Key("sheet_added_values")),
         );
@@ -1223,8 +1233,8 @@ void main() {
       expect(find.text("Adding data"), findsOneWidget);
     });
 
-    testWidgets("an e-mail address: Send code at the bottom left, the field "
-        "at the right", (tester) async {
+    testWidgets("an e-mail address: Send code in the bar, the field at the "
+        "right", (tester) async {
       await _pump(
         tester,
         size: side,
@@ -1236,10 +1246,10 @@ void main() {
       await _pumpFor(tester);
       final send = tester.getRect(find.byKey(const Key("contact_sheet_send")));
       final field = tester.getRect(find.byKey(const Key("email_input_field")));
-      expect(send.right, lessThan(field.left));
-      expect(send.top, greaterThan(side.height - 120));
-      // The explanation at the left (280 wide), the field at the right.
-      expect(field.left, greaterThanOrEqualTo(20 + 280 + 28));
+      expect(send.center.dy, closeTo(_barBack(tester).center.dy, 2));
+      expect(send.bottom, lessThan(field.top));
+      // The explanation at the left, the field in the right column.
+      expect(field.left, greaterThan(side.width / 2));
       expect(
         find.byKey(const ValueKey(("issue_sheet_progress", 2, 4))),
         findsOneWidget,
@@ -1247,8 +1257,8 @@ void main() {
       expect(find.byType(SheetBottomBar), findsNothing);
     });
 
-    testWidgets("a passport: Start at the bottom left, the words at the "
-        "left, the picture at the right", (tester) async {
+    testWidgets("a passport: Start in the bar, the words at the left, the "
+        "picture at the right", (tester) async {
       await _pump(
         tester,
         size: side,
@@ -1272,14 +1282,13 @@ void main() {
       final picture = tester.getRect(
         find.byKey(const Key("document_instruction_picture")),
       );
-      // The screen's Start at the bottom of the left column, under the
-      // progress.
+      // The screen's Start in the bar, the words and picture under it.
       final start = tester.getRect(find.byKey(const Key("bottom_bar_primary")));
       final title = tester.getRect(
         find.text("Open your passport on the photo page"),
       );
-      expect(start.right, lessThan(picture.left));
-      expect(start.top, greaterThan(title.bottom));
+      expect(start.center.dy, closeTo(_barBack(tester).center.dy, 2));
+      expect(start.bottom, lessThan(title.top));
       expect(title.right, lessThan(picture.left));
       expect(
         find.byKey(const ValueKey(("issue_sheet_progress", 2, 5))),

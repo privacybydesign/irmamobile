@@ -130,7 +130,7 @@ void main() {
       );
     });
 
-    testWidgets("Dutch copy, heading 22 bold, the tip 14 in dark blue", (
+    testWidgets("Dutch copy, heading 24 bold, the tip 14 in dark blue", (
       tester,
     ) async {
       await pumpScreen(tester);
@@ -147,9 +147,9 @@ void main() {
         tester,
         "Open je paspoort op de pagina met je pasfoto",
       );
-      expect(heading.fontSize, 22);
+      expect(heading.fontSize, 24);
       expect(heading.fontWeight, FontWeight.w700);
-      expect(heading.height, 30 / 22);
+      expect(heading.height, 30 / 24);
 
       final tip = _styleOf(
         tester,
@@ -661,26 +661,26 @@ void main() {
       await pumpPermission(tester);
 
       expect(find.byType(DocumentIssuanceData), findsOneWidget);
-      expect(find.byType(IssuerQuestion), findsOneWidget);
+      expect(find.byType(IssuerHeading), findsOneWidget);
     });
 
     testWidgets("a credential that is no document: its values", (tester) async {
       await pumpPermission(tester, id: "pbdf.pbdf.email");
-      expect(find.byType(IssuerQuestion), findsOneWidget);
+      expect(find.byType(IssuerHeading), findsOneWidget);
       expect(find.byType(DocumentIssuanceData), findsNothing);
     });
 
-    testWidgets("the question, the rows and the validity", (tester) async {
+    testWidgets("who gives it, the rows and the validity", (tester) async {
       await pumpPermission(tester);
 
-      // The question as the page heading, the data right under it.
-      final heading = _styleOf(tester, "Wil je dit kaartje toevoegen?");
-      expect(heading.fontSize, 22);
+      // Who gives it as the page heading, the data under it.
+      final heading = _styleOf(tester, "Je krijgt een kaartje van");
+      expect(heading.fontSize, 24);
       expect(heading.fontWeight, FontWeight.w700);
       expect(
         tester.getRect(find.byType(DocumentIssuanceData)).top,
         greaterThan(
-          tester.getRect(find.text("Wil je dit kaartje toevoegen?")).bottom,
+          tester.getRect(find.byKey(const Key("issuance_heading"))).bottom,
         ),
       );
 

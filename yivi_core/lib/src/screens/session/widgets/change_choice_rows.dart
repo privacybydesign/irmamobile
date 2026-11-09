@@ -79,13 +79,13 @@ class _ShareNothingCard extends StatelessWidget {
 }
 
 /// A card in the app, drawn as on the share screen with every value it
-/// would share, and a radio in its header: tap to use it. The chosen one
-/// (or the one a finger is on) has the outline of the current card on the
-/// credential's page, drawn just outside the card so it keeps the share
-/// screen's size (and hidden while the card flies).
+/// would share (and its tags): tap to use it. The chosen one has the link
+/// blue ring, drawn just outside the card so it keeps the share screen's
+/// size; it fades in (220 ms) when the card is put down in the sheet. No
+/// radio: the ring says which.
 ///
-/// A card that can't be used can't be picked: it has its chip, no radio,
-/// and [fix] ("Add a new passport") under it.
+/// A card that can't be used can't be picked: it has its chip and [fix]
+/// ("Add a new passport") under it.
 class _OwnedCard extends StatelessWidget {
   final DisclosureBundle bundle;
   final bool selected;
@@ -110,7 +110,6 @@ class _OwnedCard extends StatelessWidget {
         onFix: fix?.onTap,
       );
     }
-    final outlined = selected && !SharedCardTileInFlight.of(context);
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: selected,
@@ -121,12 +120,9 @@ class _OwnedCard extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: CardTileOutline(
-            shown: outlined,
-            child: SharedCardTile(
-              bundle: bundle,
-              trailing: _Radio(on: selected),
-            ),
+          child: _Ring(
+            shown: selected,
+            child: SharedCardTile(bundle: bundle),
           ),
         ),
       ),
@@ -134,39 +130,28 @@ class _OwnedCard extends StatelessWidget {
   }
 }
 
-/// The round tick of a choice: a ring, filled with a dot when [on].
-class _Radio extends StatelessWidget {
-  final bool on;
+/// The ring of the chosen card, fading in over 220 ms when it appears.
+class _Ring extends StatelessWidget {
+  final bool shown;
+  final Widget child;
 
-  const _Radio({required this.on});
+  const _Ring({required this.shown, required this.child});
 
   @override
   Widget build(BuildContext context) {
+    if (!shown) return child;
     final palette = YiviPalette.of(context);
-    return Container(
-      key: Key(on ? "sheet_radio_on" : "sheet_radio_off"),
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: on
-              ? palette.link
-              : palette.secondaryText.withValues(alpha: 0.5),
-          width: 2,
-        ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: YiviMotion.duration(context, const Duration(milliseconds: 220)),
+      curve: Curves.easeOut,
+      child: child,
+      builder: (context, t, child) => CardTileOutline(
+        key: const Key("sheet_chosen_ring"),
+        shown: true,
+        color: palette.link.withValues(alpha: t),
+        child: child!,
       ),
-      alignment: Alignment.center,
-      child: on
-          ? Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: palette.link,
-                shape: BoxShape.circle,
-              ),
-            )
-          : null,
     );
   }
 }
@@ -238,7 +223,15 @@ class _AddKindRow extends ConsumerWidget {
   final CredentialDescriptor descriptor;
   final VoidCallback onTap;
 
-  const _AddKindRow({super.key, required this.descriptor, required this.onTap});
+  /// Where its picture is: it rises from there into the first step.
+  final GlobalKey? artKey;
+
+  const _AddKindRow({
+    super.key,
+    required this.descriptor,
+    required this.onTap,
+    this.artKey,
+  });
 
   /// The "how" line of [d].
   static String howOf(
@@ -275,21 +268,49 @@ class _AddKindRow extends ConsumerWidget {
         onTap: onTap,
         child: PressScale(
           scale: PressScale.card,
-          child: CardTile(
-            art: Opacity(
-              opacity: 0.75,
-              child: CredentialTypeThumbnail(
-                descriptor: descriptor,
-                width: SharedCardTile.miniWidth,
-              ),
-            ),
-            title: descriptor.name,
-            subtitle: how,
-            subtitleMaxLines: 2,
-            trailing: Icon(
-              Icons.chevron_right_rounded,
-              size: 24,
-              color: palette.secondaryText,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 65),
+            padding: const EdgeInsets.fromLTRB(16, 10, 14, 10),
+            decoration: SurfaceCard.decoration(context),
+            child: Row(
+              spacing: 12,
+              children: [
+                artKey == null
+                    ? FadedCardArt(descriptor: descriptor)
+                    : FlightSpot(
+                        flightKey: artKey!,
+                        child: FadedCardArt(descriptor: descriptor),
+                      ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        descriptor.name,
+                        style: palette
+                            .display(16, weight: FontWeight.w700)
+                            .copyWith(height: 21 / 16, color: palette.text),
+                      ),
+                      Text(
+                        how,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .body(13.5)
+                            .copyWith(
+                              height: 19 / 13.5,
+                              color: palette.secondaryText,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 24,
+                  color: palette.secondaryText,
+                ),
+              ],
             ),
           ),
         ),

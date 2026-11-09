@@ -404,9 +404,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       String? returnHost,
       VoidCallback? onReturn,
       bool goBackYourself = false,
+      VoidCallback? onBackToWebsite,
     }) => DisclosureFeedbackScreen(
-      feedbackType: .success,
       isSignatureSession: session.type == .signature,
+      message: session.messageToSign,
       otherParty: session.requestor.name,
       onDismiss: (_) => _popToUnderlyingOrHome(),
       shared: _sharedInstances,
@@ -414,6 +415,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       returnHost: returnHost,
       onReturn: onReturn,
       goBackYourself: goBackYourself,
+      onBackToWebsite: onBackToWebsite,
     );
 
     final returnUrl = session.parsedClientReturnUrl;
@@ -471,11 +473,20 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     // Same-device session: hand the user back to the calling app. iOS lacks a
     // programmatic way to do that: after sharing, the done screen says to tap
-    // ◀ at the top left; after an issuance, ArrowBack. On Android we move
-    // the task to the background so the OS surfaces the previous app
-    // automatically.
+    // ◀ at the top left; after an issuance, ArrowBack. On Android, after
+    // sharing, the done screen's "Back to the website" moves the task to the
+    // background so the OS surfaces the previous app; after an issuance that
+    // happens at once.
     if (Platform.isIOS && session.type != .issuance) {
       return shared(goBackYourself: true);
+    }
+    if (session.type != .issuance) {
+      return shared(
+        onBackToWebsite: () {
+          _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+          _popToUnderlyingOrHome();
+        },
+      );
     }
     if (Platform.isIOS) return const ArrowBack(type: .issuance);
     WidgetsBinding.instance.addPostFrameCallback((_) {

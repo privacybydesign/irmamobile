@@ -22,22 +22,22 @@ import "../../../widgets/compact_bar.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/credential_card/card_flight.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/fill_scroll_view.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
-import "../../../widgets/press_scale.dart";
-import "../../../widgets/signature_message.dart";
+import "../../../widgets/scroll_edge.dart";
+import "../../../widgets/signed_message.dart";
 import "../../../widgets/status_chip.dart";
-import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/technical_details.dart";
 import "change_choice_sheet.dart";
+import "done_flight.dart";
 import "empty_card_spot.dart";
 import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
@@ -105,6 +105,20 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   final _headerKey = GlobalKey(debugLabel: "share_requestor_card");
   final _scrolledPast = ValueNotifier(false);
 
+  /// The requestor's logo: it flies into the trust sheet and back.
+  final _logoKey = GlobalKey(debugLabel: "share_requestor_logo");
+
+  /// The message to sign: it grows into the message sheet, and flies into
+  /// the done screen.
+  final _messageKey = GlobalKey(debugLabel: "share_message");
+
+  /// The page's scroll: a card is brought into view before it lifts into a
+  /// sheet and before one lands in it.
+  final _scroll = ScrollController();
+
+  /// See [_orderOf].
+  List<int>? _order;
+
   /// How far the page is scrolled: the list lets go of the card once it is
   /// far out of view, and then this says it has passed.
   double _scrolled = 0;
@@ -115,13 +129,20 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   GlobalKey _landingKey(int i) =>
       _landingKeys[i] ??= GlobalKey(debugLabel: "share_landing_$i");
 
-  /// Pick-ones whose card just landed: a green ring for a moment.
+  /// Per pick-one, its whole card: it is picked up into the Change sheet and
+  /// put down here again.
+  final _tileKeys = <int, GlobalKey>{};
+
+  GlobalKey _tileKey(int i) =>
+      _tileKeys[i] ??= GlobalKey(debugLabel: "share_tile_$i");
+
+  /// Pick-ones whose card landed while this screen was open: a green ring
+  /// that fades in as it lands and stays.
   final _landed = <int>{};
 
-  /// Something was missing or couldn't be used, and now everything is
-  /// there: "All set" above the button.
+  /// Something was missing or couldn't be used: once everything is there,
+  /// the share button fades in.
   bool _hadToDo = false;
-  bool _allSet = false;
 
   /// The share button is fading in after the last card landed; taps are
   /// ignored meanwhile (a second tap on "Back to …" would land on it).
@@ -147,14 +168,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// Sheets of this screen that are open.
   int _sheets = 0;
 
-  /// The landing spot a card is flying to now.
-  GlobalKey? _flyingTo;
-
   @override
   void initState() {
     super.initState();
     _hadToDo = _hasToDo(widget.session);
-    CardFlight.landing.addListener(_onFlight);
   }
 
   @override
@@ -164,19 +181,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     if (filled.isEmpty) return;
     _arrived.addAll(filled);
     // Nothing over the page (the card came in some other way): at once.
-    if (_sheets == 0 && !CardFlight.isFlying) {
+    if (_sheets == 0 && !YiviFlight.isFlying) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _land(fromSheet: false),
       );
     }
-  }
-
-  /// A flight to one of this screen's spots ended: the card is in place.
-  void _onFlight() {
-    final to = CardFlight.landing.value;
-    final was = _flyingTo;
-    _flyingTo = to;
-    if (to == null && was != null && _landingKeys.containsValue(was)) _land();
   }
 
   /// The cards that arrived are in place: a green ring around each for a
@@ -190,14 +199,12 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     setState(() {
       _landed.addAll(landed);
       if (_hadToDo && !_hasToDo(widget.session)) {
-        _allSet = true;
         if (fromSheet) {
           _arriving = true;
           _later(const Duration(milliseconds: 1300), () => _arriving = false);
         }
       }
     });
-    _later(const Duration(milliseconds: 2400), () => _landed.removeAll(landed));
   }
 
   /// Shows a sheet of this screen; once it has gone, a card that came in
@@ -209,7 +216,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     } finally {
       _sheets--;
     }
-    if (!mounted || CardFlight.isFlying) return;
+    if (!mounted || YiviFlight.isFlying) return;
     _land();
   }
 
@@ -226,38 +233,98 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
   @override
   void dispose() {
-    CardFlight.landing.removeListener(_onFlight);
     for (final t in _timers) {
       t.cancel();
     }
     _scrolledPast.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  /// Whether the bottom of the requestor card is under the bar.
+  /// Whether the requestor's name has started to go under the bar (its top,
+  /// 12 into the card): the compact bar then says who asks, so the name is
+  /// never cut off without it.
   void _checkHeader() {
     if (!mounted) return;
-    _scrolledPast.value = headerUnderBar(context, _headerKey) ?? _scrolled > 0;
+    _scrolledPast.value =
+        headerUnderBar(context, _headerKey, at: 12) ?? _scrolled > 0;
   }
 
   /// The choice sheet for pick-one [i]: "Change choice", "Add" on a spot,
   /// and the fix of a card that cannot be shared. With [addNew] it opens on
   /// adding that type. With [kindsOnly] it is "Choose what you add": only
   /// the kinds that can be added (and "Don't share" for optional data).
-  void _openSheet(
+  ///
+  /// First the card is brought into view, between the bar and the button
+  /// (a smooth scroll, 380 ms), when it is not; then it is picked up into the
+  /// sheet: the card into "Which card do you share?", or the picture of one
+  /// to add into the first step of adding it.
+  Future<void> _openSheet(
     int i, {
     CredentialDescriptor? addNew,
     bool kindsOnly = false,
-  }) => _trackSheet(
-    showChangeChoiceSheet(
-      context: context,
-      sessionId: _sessionId,
-      index: i,
-      addNew: addNew,
-      kindsOnly: kindsOnly,
-      landingKey: _landingKey(i),
-    ),
-  );
+  }) async {
+    final lifts = addNew != null || !kindsOnly;
+    final liftFrom = !lifts
+        ? null
+        : addNew != null
+        ? _landingKey(i)
+        : _tileKey(i);
+    await _reveal(liftFrom ?? _landingKey(i));
+    if (!mounted) return;
+    await _trackSheet(
+      showChangeChoiceSheet(
+        context: context,
+        sessionId: _sessionId,
+        index: i,
+        addNew: addNew,
+        kindsOnly: kindsOnly,
+        landingKey: _landingKey(i),
+        liftFrom: liftFrom,
+        returnTo: _tileKey(i),
+        tileCopy: (bundle, strip) => _tileCopy(i, bundle, strip),
+        onLanded: _land,
+      ),
+    );
+  }
+
+  /// Brings the card at [key] into view between the bar and the button,
+  /// to the middle of that room, when it is not (a smooth scroll, then a
+  /// moment for it to settle).
+  Future<void> _reveal(GlobalKey key) async {
+    final spot = key.currentContext;
+    if (spot == null || !_scroll.hasClients) return;
+    final box = spot.findRenderObject();
+    final viewport = Scrollable.maybeOf(spot)?.context.findRenderObject();
+    if (box is! RenderBox || viewport is! RenderBox || !box.hasSize) return;
+    final sideways = useSheetColumns(context) || useSessionColumns(context);
+    final top = sideways ? 40.0 : 120.0;
+    final bottom = viewport.size.height - (sideways ? 16.0 : 200.0);
+    final y = box.localToGlobal(Offset.zero, ancestor: viewport).dy;
+    if (y >= top && y + box.size.height <= bottom) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      await Scrollable.ensureVisible(spot, alignment: 0.5);
+      return;
+    }
+    await Scrollable.ensureVisible(
+      spot,
+      alignment: 0.5,
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  /// The share screen's tile of [bundle] for pick-one [i], with its bottom
+  /// strip at [strip]: what flies between this screen and the sheet.
+  Widget _tileCopy(int i, DisclosureBundle bundle, double strip) {
+    final p = _pickOnes[i];
+    final k = (p.ownedOptions ?? const []).indexOf(bundle);
+    final footer = k < 0 ? null : _choiceStrip(i, p, k);
+    return SharedCardTile(
+      bundle: bundle,
+      footer: footer == null ? null : Opacity(opacity: strip, child: footer),
+    );
+  }
 
   /// What the share button does before it can share.
   void _doNext(NextStep next) => switch (next.kind) {
@@ -269,9 +336,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   };
 
   String _nextLabel(NextStep next) {
-    // Not the card's name: the card on the page says which it is.
     return switch (next.kind) {
-      NextKind.add => context.tr("share.next.add"),
+      NextKind.add => context.tr("share.next.add_card", {
+        "card": next.descriptor?.name ?? "",
+      }),
       NextKind.addAgain => context.tr("share.next.add_again"),
       NextKind.fetchAgain => context.tr("share.next.fetch_again"),
       NextKind.pick => context.tr("share.next.pick"),
@@ -324,6 +392,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     void openTrust() => showRequestorTrustSheet(
       context: context,
       requestor: session.requestor,
+      logoFrom: _logoKey,
       onDontShare: widget.onClose,
       technicalDetails: technicalDetailsOf(
         session,
@@ -338,38 +407,50 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       "requestor": requestor,
     });
 
-    final message = isSignature && session.messageToSign != null
-        ? _QuotedMessage(message: session.messageToSign!)
-        : null;
-
-    // One title says who asks what; the card under it says who they are.
-    final requestorPart = <_Spaced>[
-      _Spaced(
-        0,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Semantics(
-            header: true,
-            child: Text(
-              t("share.title.$kind", {"requestor": requestor}),
-              key: const Key("share_title"),
-              style: palette
-                  .display(27, weight: FontWeight.w700)
-                  .copyWith(height: 34 / 27, color: palette.text),
+    final messageText = isSignature ? session.messageToSign : null;
+    final message = messageText == null
+        ? null
+        : FlightSpot(
+            flightKey: _messageKey,
+            child: SignedMessage(
+              key: const Key("share_message"),
+              message: messageText,
+              clamp: SignedMessage.shareClamp,
+              onReadAll: () => showSignedMessageSheet(
+                context: context,
+                message: messageText,
+                lead: t("share.message_sheet.lead", {"requestor": requestor}),
+                from: _messageKey,
+              ),
             ),
-          ),
+          );
+
+    final title = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Semantics(
+        header: true,
+        child: Text(
+          t("share.title.$kind"),
+          key: const Key("share_title"),
+          style: palette
+              .display(24, weight: FontWeight.w700)
+              .copyWith(height: 30 / 24, color: palette.text),
         ),
       ),
-      _Spaced(
-        18,
-        KeyedSubtree(
-          key: _headerKey,
-          child: RequestorCard.compact(
-            requestor: session.requestor,
-            onInfo: openTrust,
-          ),
-        ),
+    );
+    final card = KeyedSubtree(
+      key: _headerKey,
+      child: RequestorCard.compact(
+        requestor: session.requestor,
+        onInfo: openTrust,
+        logoKey: _logoKey,
       ),
+    );
+
+    // The title says what is going on; the card under it says with whom.
+    final requestorPart = <_Spaced>[
+      _Spaced(0, title),
+      _Spaced(18, card),
       if (required.isEmpty && optional.isNotEmpty)
         _Spaced(
           12,
@@ -384,32 +465,26 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             ),
           ),
         ),
+    ];
+    final messagePart = <_Spaced>[
       if (message != null) ...[
         _Spaced(24, _SectionLabel(t("share.message_label"))),
-        _Spaced(12, message),
-        _Spaced(
-          10,
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              t("share.message_how"),
-              style: palette
-                  .body(14)
-                  .copyWith(height: 20 / 14, color: palette.secondaryText),
-            ),
-          ),
-        ),
+        _Spaced(8, message),
       ],
     ];
 
+    // The order is the one the request had when it opened: what is ready
+    // first, what still has to be added after it. A card that is added
+    // stays where it was.
+    final order = _orderOf(required, selections);
     final requiredLabel = isSignature
         ? t("share.section.with_signature")
         : t("share.section.you_share");
     final requestedPart = <_Spaced>[
       if (required.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(requiredLabel)),
-        for (final (i, p) in required)
-          _requiredItem(i, p, selections, wallet: wallet, columns: columns),
+        for (final (i, p) in order)
+          _requiredItem(i, p, selections, wallet: wallet),
       ],
       if (optional.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.optional"))),
@@ -421,17 +496,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ],
       if (offered.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.you_receive"))),
-        for (final card in offered) _Spaced(12, _OfferedCard(card: card)),
+        for (final card in offered) _Spaced(8, _OfferedCard(card: card)),
       ],
     ];
-
-    // Right under the last card, always: what leaves the phone, and what
-    // doesn't.
-    final footnote = _Footnote(
-      text: t(isSignature ? "share.footnote_sign" : "share.footnote", {
-        "requestor": requestor,
-      }),
-    );
 
     // Nobody vouches for the requestor: Share becomes "Share anyway", asks
     // once more, and says above it to share only if you trust them.
@@ -440,50 +507,67 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         button.enabled &&
         button.label != ShareLabel.close &&
         button.label != ShareLabel.shareWithoutData;
-    void share() => widget.onShare(disclosureChoicesFor(pickOnes, selections));
+    void share() {
+      _captureForDone();
+      widget.onShare(disclosureChoicesFor(pickOnes, selections));
+    }
+
     final next = button.next;
+    final verb = isSignature ? "_sign" : "";
+    final notReady = button.ready.where((r) => !r).length;
+    // The line under the parts: what is left, or that all is set; a card
+    // that does not count in red. Why it can't be done in Yivi stands alone.
+    final String? cannot = switch (button) {
+      ShareButtonState(cannotAdd: final p?) =>
+        _issuersOf(p).isEmpty
+            ? t("share.reason.cant_add_unknown", {
+                "name": _inSentence(_spotName(p)),
+              })
+            : t("share.reason.cant_add", {
+                "name": _inSentence(_spotName(p)),
+                "issuer": _issuersOf(p),
+              }),
+      ShareButtonState(cannotRenewFrom: final issuer?) => t(
+        "share.reason.cant_renew",
+        {"requestor": requestor, "issuer": issuer},
+      ),
+      _ => null,
+    };
+    final line = switch (button) {
+      ShareButtonState(mismatch: _?) => t("share.progress.not_counted"),
+      ShareButtonState(missing: _?) =>
+        notReady == 1
+            ? t("share.progress.add_one$verb")
+            : t("share.progress.add_many$verb", {"count": "$notReady"}),
+      ShareButtonState(blockedCard: _?) =>
+        button.toDo == 1
+            ? t("share.reason.fix_one")
+            : t("share.reason.fix_many", {"count": "${button.toDo}"}),
+      _ => t("share.progress.ready"),
+    };
     final bar = _ShareBar(
       inBar: !landscape,
-      steps: next != null && button.ready.length > 1 ? button.ready : null,
-      tone: risky
-          ? _ReasonTone.risky
-          : next != null
-          ? _ReasonTone.soft
-          : _allSet && button.enabled
-          ? _ReasonTone.ready
-          : _ReasonTone.plain,
+      parts: risky || cannot != null || button.ready.isEmpty
+          ? null
+          : (
+              total: button.ready.length,
+              filled: button.ready.length - notReady,
+            ),
+      line: risky || cannot != null ? null : line,
+      warn: button.mismatch != null,
+      reason: risky
+          ? t(
+              isSignature
+                  ? "share.trust.risky.reason_sign"
+                  : "share.trust.risky.reason",
+              {"requestor": requestor},
+            )
+          : cannot,
       arriving: _arriving,
       isNext: next != null,
       decline: button.mismatch == null
           ? null
           : (label: t("share.trust.confirm.dont_share"), onTap: widget.onClose),
-      reason: switch (button) {
-        ShareButtonState(cannotAdd: final p?) =>
-          _issuersOf(p).isEmpty
-              ? t("share.reason.cant_add_unknown", {
-                  "name": _inSentence(_spotName(p)),
-                })
-              : t("share.reason.cant_add", {
-                  "name": _inSentence(_spotName(p)),
-                  "issuer": _issuersOf(p),
-                }),
-        ShareButtonState(cannotRenewFrom: final issuer?) => t(
-          "share.reason.cant_renew",
-          {"requestor": requestor, "issuer": issuer},
-        ),
-        ShareButtonState(mismatch: _?) => t("share.reason.not_counted"),
-        ShareButtonState(missing: _?) =>
-          button.toDo == 1
-              ? t("share.reason.add_one")
-              : t("share.reason.add_many", {"count": "${button.toDo}"}),
-        ShareButtonState(blockedCard: _?) =>
-          button.toDo == 1
-              ? t("share.reason.fix_one")
-              : t("share.reason.fix_many", {"count": "${button.toDo}"}),
-        _ when risky => t("share.trust.risky.reason", {"requestor": requestor}),
-        _ when _allSet && button.enabled => t("share.reason.ready"),
-        _ => null,
-      },
       label: next != null
           ? _nextLabel(next)
           : risky
@@ -508,123 +592,41 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           : share,
     );
 
-    // A phone held sideways: who asks, what it means and the button in a
-    // panel at the left that stays put; what is shared scrolls at the right.
-    if (landscape) {
-      // The panel's card starts level with the first card at the right: both
-      // have the first section label's room above them (in the panel an
-      // invisible copy, so the text size can't move them apart).
-      final firstLabel = required.isNotEmpty
-          ? requiredLabel
-          : optional.isNotEmpty
-          ? t("share.section.optional")
-          : offered.isNotEmpty
-          ? t("share.section.you_receive")
-          : null;
-      final column = <_Spaced>[
-        if (message != null) ...[
-          _Spaced(24, _SectionLabel.room(firstLabel ?? "")),
-          _Spaced(12, message),
-        ],
-        ...requestedPart,
-      ];
-      // Held sideways one sentence in the panel says both what they get
-      // and that nothing else leaves the phone: no footnote under the list.
-      final combined = !(required.isEmpty && optional.isNotEmpty);
-      final sideLead = !combined
-          ? lead
-          : t(
-              switch (kind) {
-                "sign" => "share.lead_side_sign",
-                "share_receive" => "share.lead_side_receive",
-                _ => "share.lead_side",
-              },
-              {"requestor": requestor},
-            );
+    // Held sideways, and on a tablet: the title, who asks and the button in
+    // a panel at the left that stays put; what is shared scrolls at the
+    // right, the message first.
+    if (landscape || columns) {
       return SessionScaffold(
         appBarTitle: "share.bar.$kind",
         onDismiss: widget.onDismiss,
         wide: true,
         scrollsUnderBars: true,
-        // No band under the bar: only its buttons float over the content.
+        // The band is the right column's own (see _SidewaysCards).
         scrollEdge: false,
         cornerClose: true,
         body: _TrustWash(
           on: trust.risky,
+          height: 300,
           child: Builder(
             builder: (context) {
-              final media = MediaQuery.paddingOf(context);
-              // The bar holds only the close button, in the corner beside
-              // the column: the content starts at the top of the screen.
-              final top = cornerContentTop(context);
+              final top = sidewaysContentTop(context);
               return SidewaysLayout(
                 panel: _LandscapePanel(
-                  top: top,
-                  label: firstLabel,
-                  card: RequestorCard.compact(
-                    requestor: session.requestor,
-                    ask: ask,
-                    onInfo: openTrust,
-                  ),
-                  lead: sideLead,
+                  top: sidewaysPanelTop(context),
+                  title: title,
+                  card: card,
                   action: bar,
                 ),
-                content: FillScrollView(
-                  scrollKey: const Key("share_scroll_view"),
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(0, top, 16, 16 + media.bottom),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: _laidOut(column),
-                      ),
-                      if (!combined)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 28),
-                          child: footnote,
-                        ),
-                    ],
-                  ),
+                content: _SidewaysCards(
+                  top: top,
+                  risky: trust.risky,
+                  children: _laidOut([
+                    ...messagePart,
+                    ...requestedPart,
+                  ], first: true),
                 ),
               );
             },
-          ),
-        ),
-      );
-    }
-
-    // Tablets: who asks and what it means on the left, with the footnote
-    // and the details at its foot; what is shared and the button on the
-    // right.
-    if (columns) {
-      return SessionScaffold(
-        appBarTitle: "share.bar.$kind",
-        onDismiss: widget.onDismiss,
-        wide: true,
-        scrollsUnderBars: true,
-        // No band under the bar: only its buttons float over the content.
-        scrollEdge: false,
-        body: _TrustWash(
-          on: trust.risky,
-          child: SessionColumns(
-            startWidth: 400,
-            endWidth: 520,
-            gap: 56,
-            start: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _laidOut(requestorPart),
-            ),
-            end: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _laidOut([
-                ...requestedPart,
-                _Spaced(16, footnote),
-              ], first: true),
-            ),
-            actions: bar,
           ),
         ),
       );
@@ -635,6 +637,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       onDismiss: widget.onDismiss,
       scrollsUnderBars: true,
       bottomNavigationBar: bar,
+      edgeColor: trust.risky ? palette.errorSurface : null,
       startBar: _CompactBarSlot(
         shown: _scrolledPast,
         requestor: session.requestor,
@@ -653,6 +656,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               },
               child: FillScrollView(
                 scrollKey: const Key("share_scroll_view"),
+                controller: _scroll,
                 // Scrolls (and bounces) also when it all fits.
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
@@ -665,8 +669,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: _laidOut([
                     ...requestorPart,
+                    ...messagePart,
                     ...requestedPart,
-                    _Spaced(16, footnote),
                   ]),
                 ),
               ),
@@ -677,11 +681,58 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
   }
 
+  /// Notes where the cards and the message are on screen, for the flight
+  /// into the done screen (see [DoneFlight]).
+  void _captureForDone() {
+    final pickOnes = _pickOnes;
+    final choices = ref.read(sessionUserChoicesProvider(_sessionId));
+    final selections = selectionsFrom(
+      pickOnes,
+      choices.disclosureChoices,
+      choices.addedOptionalIndices,
+      preferred: ref.read(lastSharedBundlesProvider(_sessionId)),
+    );
+    DoneFlight.capture(
+      context,
+      messageKey: _messageKey,
+      cards: [
+        for (final (i, p) in pickOnes.indexed)
+          if (selectionOf(p, selections[i]) case final k when k >= 0)
+            if (_landingKeys[i] case final key?)
+              for (final c in p.ownedOptions![k].credentials.take(1))
+                (key, c.hash),
+      ],
+    );
+  }
+
+  /// The required items in the order they keep on this screen: as they
+  /// were when it opened, the ready ones first and the ones to add after.
+  List<(int, DisclosurePickOne)> _orderOf(
+    List<(int, DisclosurePickOne)> required,
+    Map<int, int> selections,
+  ) {
+    final ids = [for (final (i, _) in required) i];
+    if (_order == null || !listEquals([..._order!]..sort(), ids)) {
+      final ready = [
+        for (final (i, p) in required)
+          if (selectionOf(p, selections[i]) >= 0) i,
+      ];
+      _order = [...ready, ...ids.where((i) => !ready.contains(i))];
+    }
+    final byIndex = {for (final r in required) r.$1: r};
+    return [for (final i in _order!) byIndex[i]!];
+  }
+
   /// [items] with their gaps above them; the first item's gap is dropped
   /// when [first].
+  /// Right under a section label the gap is 8: the label sits close to the
+  /// cards it names.
   static List<Widget> _laidOut(List<_Spaced> items, {bool first = false}) => [
     for (final (n, item) in items.indexed) ...[
-      if (!(first && n == 0) && item.gap > 0) SizedBox(height: item.gap),
+      if (!(first && n == 0) && item.gap > 0)
+        SizedBox(
+          height: n > 0 && items[n - 1].child is _SectionLabel ? 8 : item.gap,
+        ),
       item.child,
     ],
   ];
@@ -776,38 +827,21 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     DisclosurePickOne p,
     Map<int, int> selections, {
     required List<schemaless.Credential> wallet,
-    required bool columns,
   }) {
     final k = selectionOf(p, selections[i]);
     final empty = k < 0;
     final mismatch = empty ? walletMismatch(p, wallet) : null;
-    const gap = 12.0;
     final child = mismatch != null
         ? _MismatchTile(
             key: Key("share_not_counted_$i"),
             mismatch: mismatch,
-            landingKey: columns ? null : _landingKey(i),
+            landingKey: _landingKey(i),
             requestor: widget.session.requestor.name,
           )
         : empty
         ? _emptySpot(i, p)
         : _filledTile(i, p, k);
-    if (!columns) return _Spaced(gap, child);
-    // On a tablet the Change sheet is a dialog and nothing flies: the card
-    // that was added fades into its spot. The switcher holds the spot as
-    // well, so it is already there when the card comes; its key keeps it
-    // when the gap above it comes or goes.
-    return _Spaced(
-      gap,
-      AnimatedSwitcher(
-        key: ValueKey(("share_required_item", i)),
-        duration: YiviMotion.duration(
-          context,
-          const Duration(milliseconds: 300),
-        ),
-        child: KeyedSubtree(key: ValueKey((i, empty)), child: child),
-      ),
-    );
+    return _Spaced(12, child);
   }
 
   /// A card that is not in the app yet. With one way to get it, Add goes
@@ -853,28 +887,24 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final rows = together
         ? [
             for (final d in addable)
-              for (final (label, value) in emptySpotRows(context, d))
-                (
-                  label,
-                  inApp.contains(d.credentialId)
-                      ? t("data.add.in_your_app")
-                      : value,
-                ),
+              for (final (label, value, asked) in emptySpotRows(context, d))
+                inApp.contains(d.credentialId)
+                    ? (label, t("data.add.in_your_app"), false)
+                    : (label, value, asked),
           ]
         : single == null
-        ? const <(String, String)>[]
+        ? const <SpotRow>[]
         : emptySpotRows(context, single);
     return EmptyCardSpot(
       key: Key("share_spot_$i"),
       rows: rows,
-      // Where the added card flies to; on a tablet it fades in instead, and
-      // the spot fading out must not hold the key the card then has.
-      landingKey: useSessionColumns(context) ? null : _landingKey(i),
+      // Where the added card flies to.
+      landingKey: _landingKey(i),
       title: _spotName(p),
       subtitle: subtitle,
       kinds: several || together ? addable : null,
       together: together,
-      addLabel: together && missing.length > 1 ? t("share.add_both") : null,
+      descriptor: single ?? (missing.length == 1 ? missing.single : null),
       // Without rows the values it must have go below the name; with a
       // choice of types they are in the sheet.
       requirements: [
@@ -904,9 +934,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       widget.session.disclosurePlan?.issueDuringDisclosure,
     );
     // A card that can't be used says so; the share button does the fix.
-    final tile = CardTileOutline(
+    final tile = _LandedRing(
       shown: _landed.contains(i),
-      color: YiviPalette.of(context).successText,
       child: SharedCardTile(
         key: Key("share_slot_$i"),
         bundle: bundle,
@@ -918,14 +947,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             : _choiceStrip(i, p, k) ?? _togetherStrip(bundle),
       ),
     );
-    if (!canChange(p)) return tile;
-    // Flies into the Change sheet, where the same card is the checked one.
-    return ChoiceHero(
-      sessionId: _sessionId,
-      index: i,
-      bundle: bundle,
-      child: tile,
-    );
+    // Picked up into the Change sheet, and put down here again.
+    return FlightSpot(flightKey: _tileKey(i), child: tile);
   }
 
   /// "These go together": a set of cards that is only accepted as a whole.
@@ -959,16 +982,19 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final owned = p.ownedOptions ?? const <DisclosureBundle>[];
     final k = selectionOf(p, selections[i]);
     if (k < 0) {
+      final kinds = optionalKinds(p);
+      final addable = addableOptions(p);
+      final one = addable.length == 1 && owned.isEmpty ? addable.single : null;
       return _Spaced(
         12,
-        _OptionalRow(
+        EmptyCardSpot(
           key: Key("share_add_optional_$i"),
-          landingKey: useSessionColumns(context) ? null : _landingKey(i),
-          title: orList(optionalKinds(p), context.tr("share.or")),
-          subtitle: context.tr("share.optional.row_sub", {
-            "requestor": widget.session.requestor.name,
-          }),
-          pick: context.tr("share.optional.row_pick"),
+          landingKey: _landingKey(i),
+          title: orList(kinds, context.tr("share.or")),
+          subtitle: one?.issuer.name ?? context.tr("share.spot.many"),
+          descriptor: one,
+          kinds: one == null && addable.length > 1 ? addable : null,
+          strip: context.tr("share.optional.not_shared"),
           onTap: owned.isEmpty
               ? () => _openSheet(i, kindsOnly: true)
               : () => _openSheet(i),
@@ -976,9 +1002,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       );
     }
     final bundle = owned[k];
-    final tile = CardTileOutline(
+    final tile = _LandedRing(
       shown: _landed.contains(i),
-      color: YiviPalette.of(context).successText,
       child: SharedCardTile(
         key: Key("share_slot_$i"),
         bundle: bundle,
@@ -996,10 +1021,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     );
     // A card picked for it in the sheet flies into its place, as a
     // required card does.
-    return _Spaced(
-      12,
-      ChoiceHero(sessionId: _sessionId, index: i, bundle: bundle, child: tile),
-    );
+    return _Spaced(12, FlightSpot(flightKey: _tileKey(i), child: tile));
   }
 
   static String _labelName(ShareLabel l) => switch (l) {

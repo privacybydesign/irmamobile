@@ -10,23 +10,27 @@ import "../../../providers/last_shared_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
-import "../../../widgets/credential_card/card_flight.dart";
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../../widgets/credential_card/faded_card_art.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
+import "../../../widgets/glass/sheet_heading.dart";
 import "../../../widgets/press_scale.dart";
+import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
 import "empty_card_spot.dart";
 import "issue_flow.dart";
 import "issue_sheet_progress.dart";
-import "session_columns.dart";
 import "shared_card_tile.dart";
 
 export "issue_flow.dart" show issuerOpenerProvider;
@@ -52,81 +56,51 @@ Future<void> showChangeChoiceSheet({
   CredentialDescriptor? addNew,
   bool kindsOnly = false,
   GlobalKey? landingKey,
-}) => showGlassSheet<void>(
-  context: context,
-  builder: (_) => ChangeChoiceSheet(
-    key: const Key("disclosure_choice_sheet"),
-    sessionId: sessionId,
-    index: index,
-    addNew: addNew,
-    kindsOnly: kindsOnly,
-    landingKey: landingKey,
-  ),
-);
-
-/// [child], the card of [bundle] as the choice for pick-one [index], as a
-/// hero: the card on the share screen and the same card in the sheet, so
-/// the chosen card flies into the sheet and the picked one back, also when
-/// the sheet is dragged closed.
-class ChoiceHero extends StatelessWidget {
-  final int sessionId;
-  final int index;
-  final DisclosureBundle bundle;
-  final Widget child;
-
-  const ChoiceHero({
-    super.key,
-    required this.sessionId,
-    required this.index,
-    required this.bundle,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) => Hero(
-    tag: (
-      "disclosure_choice",
-      sessionId,
-      index,
-      bundle.credentials.map((c) => c.hash).join("+"),
+  GlobalKey? liftFrom,
+  GlobalKey? returnTo,
+  Widget Function(DisclosureBundle bundle, double strip)? tileCopy,
+  VoidCallback? onLanded,
+}) {
+  // A card picked up first: the sheet waits a beat and comes in under it.
+  final wait = liftFrom != null && !MediaQuery.disableAnimationsOf(context)
+      ? const Duration(milliseconds: 120)
+      : Duration.zero;
+  return showGlassSheet<void>(
+    context: context,
+    motion: (addNew != null ? SheetMotion.issue : SheetMotion.share).copyWith(
+      openDelay: wait,
     ),
-    flightShuttleBuilder: _shuttle,
-    transitionOnUserGestures: true,
-    child: child,
-  );
-
-  /// A card flying between the share screen and the sheet: the card as it
-  /// is in the sheet, both ways, without its selection outline, on a
-  /// transparent material so its text and ink have one. Back on the share
-  /// screen its own card (with "Change choice" and every value) takes over
-  /// only once it has landed.
-  ///
-  /// The flight's box goes from the size of one card to the other; the card
-  /// keeps its own height in it, so it does not grow or shrink on the way.
-  static Widget _shuttle(
-    BuildContext flightContext,
-    Animation<double> animation,
-    HeroFlightDirection direction,
-    BuildContext fromContext,
-    BuildContext toContext,
-  ) => Material(
-    type: MaterialType.transparency,
-    child: OverflowBox(
-      alignment: Alignment.topCenter,
-      minHeight: 0,
-      maxHeight: double.infinity,
-      child: SharedCardTileInFlight(
-        // The sheet is pushed over the share screen: its card is the
-        // destination on the way in and the source on the way back.
-        child:
-            ((direction == HeroFlightDirection.push ? toContext : fromContext)
-                        .widget
-                    as Hero)
-                .child,
-      ),
+    builder: (_) => ChangeChoiceSheet(
+      key: const Key("disclosure_choice_sheet"),
+      sessionId: sessionId,
+      index: index,
+      addNew: addNew,
+      kindsOnly: kindsOnly,
+      landingKey: landingKey,
+      liftFrom: liftFrom,
+      returnTo: returnTo,
+      tileCopy: tileCopy,
+      onLanded: onLanded,
     ),
   );
 }
+
+/// A copy of a card tile, built at a flight's [size] (taller or shorter than
+/// the tile: its top stays, the rest is cut), on a transparent material.
+Widget tileAtSize(Size size, Widget tile) => Material(
+  type: MaterialType.transparency,
+  child: SizedBox.fromSize(
+    size: size,
+    child: ClipRect(
+      child: OverflowBox(
+        alignment: Alignment.topCenter,
+        minHeight: 0,
+        maxHeight: double.infinity,
+        child: SizedBox(width: size.width, child: tile),
+      ),
+    ),
+  ),
+);
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
   final int sessionId;
@@ -139,6 +113,21 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
   /// Where a card added in the sheet lands on the share screen.
   final GlobalKey? landingKey;
 
+  /// What was tapped on the share screen: the card (it is picked up and put
+  /// down in the sheet), or the picture of a card to add (it rises into the
+  /// first step).
+  final GlobalKey? liftFrom;
+
+  /// The card on the share screen the chosen card goes back to.
+  final GlobalKey? returnTo;
+
+  /// The share screen's tile of a card, with its bottom strip at [strip]
+  /// opacity: what flies between the share screen and the sheet.
+  final Widget Function(DisclosureBundle bundle, double strip)? tileCopy;
+
+  /// A card added in the sheet has landed in its place on the share screen.
+  final VoidCallback? onLanded;
+
   const ChangeChoiceSheet({
     super.key,
     required this.sessionId,
@@ -146,6 +135,10 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
     this.addNew,
     this.kindsOnly = false,
     this.landingKey,
+    this.liftFrom,
+    this.returnTo,
+    this.tileCopy,
+    this.onLanded,
   });
 
   @override
@@ -158,7 +151,170 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   void initState() {
     super.initState();
     issueStartWith(widget.addNew);
+    final from = widget.liftFrom;
+    if (from == null) return;
+    final adding = widget.addNew;
+    if (adding != null) {
+      _rise(from, adding);
+    } else {
+      // The tapped card is picked up and put down on its row here.
+      final row = _currentRow;
+      if (row != null) YiviFlight.hide([row]);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _liftIn(from));
+    }
   }
+
+  /// Per card in the app (by its first card's hash): where its row is.
+  final _rowKeys = <String, GlobalKey>{};
+
+  GlobalKey _rowKey(DisclosureBundle b) =>
+      _rowKeys[b.credentials.first.hash] ??= GlobalKey(
+        debugLabel: "sheet_row_${b.credentials.first.hash}",
+      );
+
+  /// The bundle in use now.
+  DisclosureBundle? get _current {
+    final pickOne = _pickOne;
+    if (pickOne == null) return null;
+    final choices = ref.read(sessionUserChoicesProvider(widget.sessionId));
+    if (pickOne.optional &&
+        !choices.addedOptionalIndices.contains(widget.index)) {
+      return null;
+    }
+    final selections = selectionsFrom(
+      [pickOne],
+      {0: ?choices.disclosureChoices[widget.index]},
+      {if (choices.addedOptionalIndices.contains(widget.index)) 0},
+      preferred: {
+        0: ?ref.read(lastSharedBundlesProvider(widget.sessionId))[widget.index],
+      },
+    );
+    final k = selectionOf(pickOne, selections[0]);
+    final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
+    return k >= 0 && k < owned.length ? owned[k] : null;
+  }
+
+  GlobalKey? get _currentRow {
+    final b = _current;
+    return b == null ? null : _rowKey(b);
+  }
+
+  /// The chosen card's ring shows once the card has been put down.
+  bool _ringShown = true;
+
+  /// Opened from the card on the share screen: it is picked up there (a
+  /// little bigger, a shadow, its bottom strip folding away), held while the
+  /// sheet comes in under it, and put down on its row, whose ring then fades
+  /// in. 620 ms.
+  void _liftIn(GlobalKey from) {
+    final bundle = _current;
+    final row = _currentRow;
+    final copy = widget.tileCopy;
+    if (!mounted || bundle == null || row == null || copy == null) {
+      if (row != null) YiviFlight.show([row]);
+      return;
+    }
+    setState(() => _ringShown = false);
+    YiviFlight.start(
+      context,
+      from: from,
+      to: YiviFlight.boxOf(row),
+      keys: [
+        const FlightKey(0, FlightKey.start),
+        FlightKey(
+          0.22,
+          (from, to) =>
+              Rect.fromLTWH(from.left, from.top, from.width, to.height),
+          lifted: true,
+          strip: 0,
+        ),
+        const FlightKey(0.82, FlightKey.end, lifted: true, strip: 0),
+        const FlightKey(1, FlightKey.end, strip: 0),
+      ],
+      duration: const Duration(milliseconds: 620),
+      radius: YiviCorners.cardRadius,
+      hide: [from, row],
+      copy: (context, frame) =>
+          tileAtSize(frame.size, copy(bundle, frame.strip)),
+      onLanded: () {
+        if (mounted) setState(() => _ringShown = true);
+      },
+    );
+  }
+
+  /// Back to the share screen with [bundle] (picked, or the one in use when
+  /// the sheet is closed): its row is picked up, carried over the card's
+  /// place and put down there, its bottom strip unfolding as it lands, while
+  /// the sheet goes down a beat later. 680 ms.
+  void _flyBack(DisclosureBundle bundle) {
+    final to = widget.returnTo;
+    final copy = widget.tileCopy;
+    if (to == null || copy == null) return;
+    final row = _rowKey(bundle);
+    YiviFlight.start(
+      context,
+      from: row,
+      to: YiviFlight.boxOf(to),
+      keys: [
+        const FlightKey(0, FlightKey.start, strip: 0),
+        const FlightKey(0.22, FlightKey.start, lifted: true, strip: 0),
+        FlightKey(
+          0.72,
+          (from, to) => Rect.fromLTWH(to.left, to.top, to.width, from.height),
+          lifted: true,
+          strip: 0,
+        ),
+        const FlightKey(1, FlightKey.end),
+      ],
+      duration: const Duration(milliseconds: 680),
+      radius: YiviCorners.cardRadius,
+      hide: [row, to],
+      copy: (context, frame) =>
+          tileAtSize(frame.size, copy(bundle, frame.strip)),
+    );
+  }
+
+  /// Opened on adding a card from its picture on the share screen ([from]),
+  /// or from a kind's row in this sheet: the picture is picked up, carried
+  /// into the first step's picture and put down there, while the sheet comes
+  /// in under it (or grows). 620 ms. The first step's picture shows only once
+  /// it has landed.
+  void _rise(GlobalKey from, CredentialDescriptor d) {
+    YiviFlight.hide([issueHeroKey]);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      YiviFlight.start(
+        context,
+        from: from,
+        to: YiviFlight.boxOf(issueHeroKey),
+        keys: FlightKey.carry(startOpacity: 0.6),
+        duration: const Duration(milliseconds: 620),
+        lift: YiviFlight.liftCarried,
+        shadow: _carriedShadow,
+        radius: const BorderRadius.all(Radius.circular(4)),
+        hide: [from, issueHeroKey],
+        copy: (context, frame) => SizedBox.fromSize(
+          size: frame.size,
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: CredentialTypeThumbnail(descriptor: d, width: 200),
+          ),
+        ),
+        onLanded: () => YiviFlight.show([issueHeroKey]),
+      );
+    });
+  }
+
+  /// The shadow of a card carried between the page and a sheet.
+  static const _carriedShadow = BoxShadow(
+    color: Color(0x3D102846),
+    blurRadius: 28,
+    offset: Offset(0, 12),
+  );
+
+  /// The sheet is closing because a card added in it lands on the share
+  /// screen: no card flies back from the list.
+  bool _landing = false;
 
   @override
   int get underlyingSessionId => widget.sessionId;
@@ -168,6 +324,9 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       ref.read(sessionStateProvider(widget.sessionId)).value;
 
   schemaless.TrustedParty? get _requestor => issueRequest?.requestor;
+
+  /// The request behind the sheet asks for a signature.
+  bool get _signing => issueRequest?.type == SessionType.signature;
 
   @override
   IssueSheetSubject issueSubject(CredentialDescriptor d) {
@@ -216,8 +375,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     return SheetAction(
       key: const Key("sheet_back_to_request"),
       label: context.tr(
-        "issuance.success_feedback.back_to",
-        _successParams(cards),
+        _signing ? "share.sheet.continue_sign" : "share.sheet.continue_share",
       ),
       onTap: _finish,
     );
@@ -271,9 +429,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     // The last card of a set added one by one: the set is in.
     final count = _set?.length ?? cards.length;
     return context.tr(
-      count > 1
-          ? "issuance.success_feedback.added_many_back"
-          : "issuance.success_feedback.added_one_back",
+      "share.sheet.added_${count > 1 ? "many" : "one"}${_signing ? "_sign" : ""}",
       {..._successParams(cards), "count": "$count"},
     );
   }
@@ -346,15 +502,30 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   void _pick(DisclosurePickOne pickOne, DisclosureBundle bundle) {
     if (pickOne.optional) _choices.addOptional(widget.index);
     _choices.setBundle(widget.index, bundle);
+    _picked = bundle;
     Navigator.of(context).pop();
   }
 
-  /// "Back to {requestor}": the new card flies into its spot as the sheet
-  /// closes. Without a spot to fly to, or for a card of another type than
-  /// the one being added (an issuance that happened to come in meanwhile),
-  /// the sheet just closes. On a tablet held upright, where the share screen
-  /// has its tablet columns, the card fades into its spot instead; held
-  /// sideways (also an unfolded phone) it flies, as on the phone.
+  /// The card picked in the list, to fly back once the sheet is told to go.
+  DisclosureBundle? _picked;
+
+  /// The sheet goes (picked, closed, dragged down) from its list: the card
+  /// in use flies back to its place on the share screen.
+  void _onClose() {
+    if (_landing || issueAdding != null) return;
+    final bundle = _picked ?? _current;
+    if (bundle != null) _flyBack(bundle);
+  }
+
+  /// "Continue sharing": the new card flies from the success page into its
+  /// spot as the sheet closes. Without a spot to fly to, or for a card of
+  /// another type than the one being added (an issuance that happened to
+  /// come in meanwhile), the sheet just closes.
+  ///
+  /// First the spot is brought into view on the page behind the sheet, at
+  /// once (it is still under the sheet); then the card is picked up from the
+  /// success page (turned as it lies there), carried and put down in the
+  /// spot, 950 ms, while the sheet goes down a beat (180 ms) later.
   Future<void> _finish() async {
     final cards = issueAdded ?? const <schemaless.Credential>[];
     final landing = widget.landingKey;
@@ -363,35 +534,39 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
     // A card of a set flies only once the set is whole: until then the
     // spot stays empty.
-    if (landing != null &&
-        i >= 0 &&
-        !useSessionColumns(context) &&
-        _nextOfSet(cards) == null) {
-      // First the spot into view on the page behind the sheet (to its middle,
-      // clear of the bars), then the flight: the card lands where they see
-      // it.
+    if (landing != null && i >= 0 && _nextOfSet(cards) == null) {
+      _landing = true;
       final spot = landing.currentContext;
       if (spot != null && !_inView(spot)) {
-        await Scrollable.ensureVisible(
-          spot,
-          alignment: 0.5,
-          duration: YiviMotion.duration(
-            context,
-            const Duration(milliseconds: 320),
-          ),
-          curve: Curves.easeOutCubic,
-        );
+        Scrollable.ensureVisible(spot, alignment: 0.5);
+        // Laid out at its new place before the flight measures it.
+        await WidgetsBinding.instance.endOfFrame;
         if (!mounted) return;
       }
-      CardFlight.start(
+      final card = cards[i];
+      final flew = YiviFlight.start(
         context,
-        source: issueAddedKeys[i],
-        card: cards[i],
-        landingKey: landing,
-        cardKey: const Key("sheet_flight_card"),
-        target: (overlay, {required first}) =>
-            CardFlight.rectOf(landing, overlay),
+        from: issueAddedKeys[i],
+        to: YiviFlight.boxOf(landing),
+        keys: const [
+          FlightKey(0, FlightKey.start, turn: -0.035),
+          FlightKey(0.2, FlightKey.start, lifted: true, turn: -0.035),
+          FlightKey(0.8, FlightKey.end, lifted: true),
+          FlightKey(1, FlightKey.end),
+        ],
+        duration: const Duration(milliseconds: 950),
+        lift: YiviFlight.liftCarried,
+        shadow: _carriedShadow,
+        radius: const BorderRadius.all(Radius.circular(4)),
+        hide: [landing],
+        copyKey: const Key("sheet_flight_card"),
+        copy: (context, frame) =>
+            CredentialCardArt(credential: card, width: frame.size.width),
+        onLanded: widget.onLanded,
       );
+      if (flew && mounted) {
+        delayGlassSheetClose(context, const Duration(milliseconds: 180));
+      }
     }
     // On "Success" while the sheet goes.
     issueClose();
@@ -425,10 +600,18 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final pickOne = pickOnes[widget.index];
     // "Add …" and its steps are subpages inside the sheet, as in a native
     // iOS sheet.
-    return issueSheet(
-      rootKey: "choose",
-      root: () => _buildChoose(pickOne),
-      onBack: _back,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _onClose();
+      },
+      child: issueSheet(
+        rootKey: "choose",
+        root: () => _buildChoose(pickOne),
+        onBack: _back,
+        // Adding a card is pushed onto the list: the list moves a little
+        // further aside and is dimmed under it.
+        rootShift: 0.28,
+      ),
     );
   }
 
@@ -499,6 +682,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                 title: d.name,
                 subtitle: d.issuer.name,
                 rows: emptySpotRows(context, d),
+                descriptor: d,
                 onTap: () => _addOfSet(set, d),
               ),
           ],
@@ -509,6 +693,18 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
 
   /// Whether the kinds to add are open under "Add another card".
   bool _addOpen = false;
+
+  /// The big headings of the list pages, for the bar's title.
+  final _chooseTitle = GlobalKey(debugLabel: "sheet_choose_title");
+  final _kindsTitle = GlobalKey(debugLabel: "sheet_kinds_title");
+
+  /// Per kind to add: where its row's picture is.
+  final _kindArtKeys = <String, GlobalKey>{};
+
+  GlobalKey _kindArtKey(CredentialDescriptor d) =>
+      _kindArtKeys[d.credentialId] ??= GlobalKey(
+        debugLabel: "sheet_kind_${d.credentialId}",
+      );
 
   Widget _buildChoose(DisclosurePickOne pickOne) {
     if (spotTogether(
@@ -577,16 +773,20 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     // Nothing usable in the app: what can be added is open from the start.
     final addOpen = _addOpen || !usable;
 
+    final title = pickOne.optional
+        ? context.tr("share.sheet.optional_title")
+        : context.tr("share.sheet.pick_card");
     return GlassSheetPage(
-      title: pickOne.optional
-          ? context.tr("share.sheet.optional_title")
-          : context.tr("share.sheet.pick_card"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      title: title,
+      titleUnder: _chooseTitle,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Intro(
-            pickOne.optional
+          SheetHeading(
+            title: title,
+            titleKey: _chooseTitle,
+            lead: pickOne.optional
                 ? _optionalIntro(pickOne, requestor)
                 : context.tr("share.sheet.subtitle_one", {
                     "requestor": requestor,
@@ -605,19 +805,19 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               onTap: _pickNothing,
             ),
           ],
-          ..._inRows(landscape, gap: 12, first: 18, [
+          ..._inRows(landscape, gap: 10, first: 18, [
             for (final b in owned)
-              ChoiceHero(
-                sessionId: widget.sessionId,
-                index: widget.index,
-                bundle: b,
+              FlightSpot(
+                flightKey: _rowKey(b),
                 child: _OwnedCard(
                   key: Key("sheet_owned_${b.credentials.first.hash}"),
                   bundle: b,
-                  selected: outlined(
-                    "owned:${b.credentials.first.hash}",
-                    current: current,
-                  ),
+                  selected:
+                      _ringShown &&
+                      outlined(
+                        "owned:${b.credentials.first.hash}",
+                        current: current,
+                      ),
                   fix: _fixOf(pickOne, b),
                   onTap: () {
                     _press("owned:${b.credentials.first.hash}");
@@ -689,20 +889,24 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           ),
         );
     final many = addable.length > 1;
+    final title = pickOne.optional
+        ? context.tr("share.sheet.optional_title")
+        : context.tr("share.next.pick");
     return GlassSheetPage(
-      title: pickOne.optional
-          ? context.tr("share.sheet.optional_title")
-          : context.tr("share.next.pick"),
+      title: title,
+      titleUnder: _kindsTitle,
       // A low sheet with only the kinds; it grows into the full sheet as
       // adding one comes in.
       fit: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Column(
         key: const Key("sheet_kinds"),
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Intro(
-            pickOne.optional
+          SheetHeading(
+            title: title,
+            titleKey: _kindsTitle,
+            lead: pickOne.optional
                 ? _optionalIntro(pickOne, requestor)
                 : context.tr(
                     docs
@@ -721,12 +925,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               selected: true,
               onTap: _pickNothing,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
             CapsLabel(
               context.tr(
                 many ? "share.sheet.or_add_one" : "share.sheet.or_add_it",
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
             ),
           ],
           ..._kindRows(addable, requestor, landscape),
@@ -746,7 +950,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         _AddKindRow(
           key: Key("sheet_add_${b.missing.single.credentialId}"),
           descriptor: b.missing.single,
-          onTap: () => _add(b.missing),
+          artKey: _kindArtKey(b.missing.single),
+          onTap: () {
+            _add(b.missing);
+            // Its picture rises into the first step as the sheet grows.
+            _rise(_kindArtKey(b.missing.single), b.missing.single);
+          },
         )
       else
         _setSpot(b, requestor),
@@ -778,16 +987,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         for (final d in b.missing) ...emptySpotRows(context, d),
         for (final c in b.owned)
           for (final a in c.attributes)
-            (a.effectiveDisplayName, t("data.add.in_your_app")),
+            (a.effectiveDisplayName, t("data.add.in_your_app"), false),
       ],
       together: true,
       kinds: b.missing.length > 1 ? b.missing : null,
-      // What a tap adds: both, or the one card the set still misses.
-      addLabel: b.missing.length > 1
-          ? t("share.add_both")
-          : t("share.sheet.together_add_next", {
-              "next": _inSentence(b.missing.single.name),
-            }),
+      descriptor: b.missing.length == 1 ? b.missing.single : null,
       onTap: () => _add(b.missing),
     );
   }

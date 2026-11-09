@@ -777,10 +777,10 @@ class _LeafContent extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(text, style: style),
-          _ValueTag(
+          ValueTag(
             key: Key(node.match ? "value_tag_match" : "value_tag_mismatch"),
             text: tag,
-            match: node.match,
+            tone: node.match ? ValueTagTone.match : ValueTagTone.mismatch,
           ),
         ],
       );
@@ -822,36 +822,44 @@ class _LeafContent extends StatelessWidget {
 
 /// "✓ Exactly what they ask" beside a value that is precisely what the
 /// request wants, or "Asked: …" beside one that is not.
-class _ValueTag extends StatelessWidget {
-  final String text;
-  final bool match;
+/// What a [ValueTag] says about a value: it is exactly what was asked
+/// (green, with a check), it is not (red), or it is what is asked of a card
+/// that is not in the app yet (blue).
+enum ValueTagTone { match, mismatch, asked }
 
-  const _ValueTag({super.key, required this.text, required this.match});
+/// A tag next to a value: "Exactly what they ask", "Asked: {value}",
+/// "Asked". 24 high, round.
+class ValueTag extends StatelessWidget {
+  final String text;
+  final ValueTagTone tone;
+
+  const ValueTag({super.key, required this.text, required this.tone});
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final ink = match ? palette.successText : palette.errorText;
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: match ? palette.successSurface : palette.errorSurface,
-        shape: const StadiumBorder(),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(7, 2, 9, 3),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 3,
-          children: [
-            if (match) Icon(Icons.check_rounded, size: 13, color: ink),
-            Text(
-              text,
-              style: palette
-                  .body(12, weight: FontWeight.w600)
-                  .copyWith(color: ink, height: 16 / 12),
-            ),
-          ],
-        ),
+    final (fill, ink) = switch (tone) {
+      ValueTagTone.match => (palette.successSurface, palette.successText),
+      ValueTagTone.mismatch => (palette.errorSurface, palette.errorText),
+      ValueTagTone.asked => (palette.infoSurface, palette.link),
+    };
+    return Container(
+      height: 24,
+      padding: const EdgeInsets.symmetric(horizontal: 9),
+      decoration: ShapeDecoration(color: fill, shape: const StadiumBorder()),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 3,
+        children: [
+          if (tone == ValueTagTone.match)
+            Icon(Icons.check_rounded, size: 13, color: ink),
+          Text(
+            text,
+            style: palette
+                .body(12.5, weight: FontWeight.w600)
+                .copyWith(color: ink, height: 17 / 12.5),
+          ),
+        ],
       ),
     );
   }

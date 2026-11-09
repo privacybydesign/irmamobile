@@ -43,6 +43,9 @@ class SessionScaffold extends StatelessWidget {
   /// ([IrmaAppBar.edgeShown]), also where [scrollEdge] is off.
   final ValueListenable<bool>? edgeShown;
 
+  /// See [IrmaAppBar.edgeColor].
+  final Color? edgeColor;
+
   const SessionScaffold({
     super.key,
     this.onDismiss,
@@ -56,6 +59,7 @@ class SessionScaffold extends StatelessWidget {
     this.cornerClose = false,
     this.scrollEdge = true,
     this.edgeShown,
+    this.edgeColor,
   });
 
   @override
@@ -80,6 +84,7 @@ class SessionScaffold extends StatelessWidget {
         edgeActions: cornerClose,
         edge: (scrollEdge || edgeShown != null) && !cornerClose,
         edgeShown: edgeShown,
+        edgeColor: edgeColor,
         leading: null,
         actions: [
           if (onDismiss != null)

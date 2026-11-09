@@ -135,21 +135,31 @@ void main() {
     ]),
   ];
 
-  testWidgets("one card: who issues it, the question and every value", (
+  testWidgets("one card: who gives it, and the card with every value", (
     tester,
   ) async {
-    await _pump(tester, IssuancePermission(issuedCredentials: [email]));
+    await _pump(
+      tester,
+      IssuancePermission(issuedCredentials: [email], onGivePermission: () {}),
+    );
 
     // The same question page as in the Change sheet.
-    expect(find.text("Do you want to add this card?"), findsOneWidget);
+    final heading = find.byKey(const Key("issuance_heading"));
     expect(
-      find.descendant(
-        of: find.byType(IssuerQuestion),
-        matching: find.text("Gemeente"),
-      ),
+      find.descendant(of: heading, matching: find.text("You get a card from")),
       findsOneWidget,
     );
-    expect(find.byKey(const Key("issuance_trust_label")), findsOneWidget);
+    expect(
+      find.descendant(of: heading, matching: find.text("Gemeente")),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: heading, matching: find.text("Registered with Yivi")),
+      findsOneWidget,
+    );
+    expect(find.text("THIS GOES IN YOUR APP"), findsOneWidget);
+    expect(find.byKey(const Key("issuance_card_0")), findsOneWidget);
+    expect(find.text("Add"), findsOneWidget);
     expect(find.byType(CardPile), findsNothing);
     expect(find.text("me@example.com"), findsOneWidget);
     expect(find.byKey(const Key("issuance_mismatch")), findsNothing);
@@ -171,7 +181,7 @@ void main() {
       ),
     );
 
-    expect(find.text("Do you want to add these 3 cards?"), findsOneWidget);
+    expect(find.text("You get 3 cards from"), findsOneWidget);
     for (final i in [0, 1, 2]) {
       expect(find.byKey(Key("issuance_card_$i")), findsOneWidget);
     }
@@ -218,7 +228,38 @@ void main() {
     expect(band, findsNothing);
   });
 
-  testWidgets("inside a request: the card says who it is for", (tester) async {
+  final phone = _card(
+    "phone",
+    attributes: [_value("phone", "Phone", "0612345678")],
+  );
+
+  testWidgets("inside a request: what it asks for is Asked, the rest Comes "
+      "too", (tester) async {
+    await _pump(
+      tester,
+      IssuancePermission(
+        issuedCredentials: [email, phone],
+        forRequest: testSession(steps: twoSteps),
+      ),
+    );
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("issuance_card_0")),
+        matching: find.text("Asked"),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key("issuance_card_1")),
+        matching: find.text("Comes too"),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("one card inside a request: no chip", (tester) async {
     await _pump(
       tester,
       IssuancePermission(
@@ -227,7 +268,8 @@ void main() {
       ),
     );
 
-    expect(find.text("For Test Verifier"), findsOneWidget);
+    expect(find.text("Asked"), findsNothing);
+    expect(find.text("Comes too"), findsNothing);
   });
 
   testWidgets("a value the request cannot use is warned about first", (
@@ -322,9 +364,9 @@ void main() {
       tester,
       const SessionScreen(sessionId: nestedId, hasUnderlyingSession: true),
       overrides: [
-        sessionStateProvider(
-          nestedId,
-        ).overrideWith((ref) => Stream.value(_issuance(nestedId, [email]))),
+        sessionStateProvider(nestedId).overrideWith(
+          (ref) => Stream.value(_issuance(nestedId, [email, phone])),
+        ),
         underlyingDisclosureProvider(
           nestedId,
         ).overrideWith((ref) => Stream.value(testSession(steps: twoSteps))),
@@ -332,7 +374,8 @@ void main() {
     );
 
     expect(find.byType(IssuancePermission), findsOneWidget);
-    expect(find.text("For Test Verifier"), findsOneWidget);
+    // The request's own card is marked as asked.
+    expect(find.text("Asked"), findsOneWidget);
   });
 
   group("SessionRepository.underlyingDisclosure", () {

@@ -13,12 +13,14 @@ class FillScrollView extends StatelessWidget {
   /// Its physics; the platform's by default (which doesn't scroll a page
   /// that fits).
   final ScrollPhysics? physics;
+  final ScrollController? controller;
 
   const FillScrollView({
     super.key,
     this.padding = EdgeInsets.zero,
     this.scrollKey,
     this.physics,
+    this.controller,
     required this.child,
   });
 
@@ -26,6 +28,7 @@ class FillScrollView extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) => SingleChildScrollView(
       key: scrollKey,
+      controller: controller,
       padding: padding,
       physics: physics,
       child: ConstrainedBox(

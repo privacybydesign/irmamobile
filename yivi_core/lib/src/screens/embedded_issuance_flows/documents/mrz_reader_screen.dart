@@ -290,10 +290,10 @@ class _SheetCamera extends StatelessWidget {
                   isHeader: true,
                   textAlign: TextAlign.center,
                   style: YiviPalette.of(context)
-                      .display(22, weight: FontWeight.w700)
+                      .display(24, weight: FontWeight.w700)
                       .copyWith(
-                        height: 30 / 22,
-                        color: YiviPalette.of(context).heading,
+                        height: 30 / 24,
+                        color: YiviPalette.of(context).text,
                       ),
                 ),
               ),

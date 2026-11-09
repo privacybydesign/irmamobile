@@ -44,7 +44,6 @@ void main() {
     WidgetTester tester,
     CredentialDescriptor credential, {
     Faq? faq,
-    String? forRequestor,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 1400);
@@ -65,11 +64,7 @@ void main() {
           home: Scaffold(
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: AddDataDetailsContent(
-                credential: credential,
-                faq: faq,
-                forRequestor: forRequestor,
-              ),
+              child: AddDataDetailsContent(credential: credential, faq: faq),
             ),
           ),
         ),
@@ -83,16 +78,15 @@ void main() {
     "Email domain name",
   ]);
 
-  testWidgets("the card large above its name, what you get as a checklist", (
-    tester,
-  ) async {
+  testWidgets("the card large above its name, what you get as a card with "
+      "a row per field", (tester) async {
     await pump(tester, email, faq: _emailFaq);
     // The hero: the card large, its name and "From {issuer}" centred under
     // it.
     final issuer = tester.getRect(
       find.byKey(const Key("add_data_details_issuer")),
     );
-    final card = tester.getRect(find.byType(CredentialTypeThumbnail));
+    final card = tester.getRect(find.byType(CredentialTypeThumbnail).first);
     expect(card.width, 200);
     final name = tester.getRect(find.byKey(const Key("add_data_details_name")));
     expect(name.top, greaterThan(card.bottom));
@@ -101,44 +95,30 @@ void main() {
     expect(find.text("Email address"), findsWidgets);
     expect(find.text("From Yivi"), findsOneWidget);
     expect(find.textContaining("Example card"), findsNothing);
-    expect(find.text("GOES INTO YOUR APP"), findsOneWidget);
+    expect(find.text("THIS GOES IN YOUR APP"), findsOneWidget);
     final list = find.byKey(const Key("add_data_checklist"));
-    expect(
-      find.descendant(of: list, matching: find.text("Email domain name")),
-      findsOneWidget,
-    );
+    for (final field in ["Email address", "Email domain name"]) {
+      expect(
+        find.descendant(of: list, matching: find.text(field)),
+        findsOneWidget,
+      );
+    }
     // The FAQ's own list repeats the attributes: left out.
     expect(
       find.textContaining("You will add the following data"),
       findsNothing,
     );
-    expect(find.byKey(const Key("add_data_show_all")), findsNothing);
   });
 
-  testWidgets("past eight attributes: Show all opens the rest", (tester) async {
-    final names = [for (var i = 1; i <= 11; i++) "Attribute $i"];
-    await pump(tester, _type("irma-demo.x.many", "Many", names));
-    expect(find.text("Attribute 8"), findsOneWidget);
-    expect(find.text("Attribute 9"), findsNothing);
-    expect(find.text("Show all 11"), findsOneWidget);
-    await tester.tap(find.byKey(const Key("add_data_show_all")));
-    await tester.pumpAndSettle();
-    expect(find.text("Attribute 11"), findsOneWidget);
-    expect(find.byKey(const Key("add_data_show_all")), findsNothing);
-  });
-
-  testWidgets("the questions are folded, with a peek; a tap opens one", (
+  testWidgets("the questions are folded, the question only; a tap opens one", (
     tester,
   ) async {
     await pump(tester, email, faq: _emailFaq);
     expect(find.text("GOOD TO KNOW"), findsOneWidget);
-    // The steps say how many there are and where they start.
-    expect(find.text("3 steps · Enter your e-mail address."), findsOneWidget);
-    expect(find.text("Open your email application."), findsNothing);
+    expect(find.textContaining("Enter your e-mail address."), findsNothing);
 
     await tester.tap(find.byKey(const Key("add_data_howto")));
     await tester.pumpAndSettle();
-    expect(find.text("3 steps · Enter your e-mail address."), findsNothing);
     for (final step in ["Enter your e-mail address.", "Click the link."]) {
       expect(find.textContaining(step), findsOneWidget);
     }
@@ -169,39 +149,10 @@ void main() {
     expect(find.text("GOOD TO KNOW"), findsNothing);
   });
 
-  testWidgets("during a request, the note sits at the foot of what you get", (
-    tester,
-  ) async {
-    await pump(tester, email, faq: _emailFaq, forRequestor: "Webshop Noord");
-    final note = find.byKey(const Key("add_data_disclosure_note"));
-    expect(
-      find.descendant(
-        of: find.byKey(const Key("add_data_you_get")),
-        matching: note,
-      ),
-      findsOneWidget,
-    );
-    expect(
-      tester.getRect(note).top,
-      greaterThan(
-        tester.getRect(find.byKey(const Key("add_data_checklist"))).bottom -
-            0.5,
-      ),
-    );
-  });
-
   testWidgets("a document: only its issuer under it, no word of NFC", (
     tester,
   ) async {
     await pump(tester, _type("pbdf.pbdf.passport", "Passport", ["Photo"]));
     expect(find.textContaining("NFC"), findsNothing);
-  });
-
-  testWidgets("during a request the note names who gets what", (tester) async {
-    await pump(tester, email, faq: _emailFaq, forRequestor: "Webshop Noord");
-    expect(
-      find.textContaining("Webshop Noord only gets what they ask from this."),
-      findsOneWidget,
-    );
   });
 }

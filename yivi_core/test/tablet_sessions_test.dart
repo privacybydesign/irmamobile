@@ -61,21 +61,23 @@ void main() {
       onGivePermission: () {},
     );
 
-    testWidgets("tablet: the issuer and the question left, the values and "
-        "the button right", (tester) async {
+    testWidgets("tablet: the issuer, the question and the button left, the "
+        "cards right", (tester) async {
       await pump(tester, _tablet, screen());
 
-      expect(find.byType(SessionColumns), findsOneWidget);
+      expect(find.byType(SidewaysLayout), findsOneWidget);
       final question = tester.getRect(
         find.byKey(const Key("issuance_question")),
       );
       final values = tester.getRect(find.byKey(const Key("issuance_card_0")));
       final add = tester.getRect(find.byKey(const Key("bottom_bar_primary")));
+      final panel = tester.getRect(find.byKey(const Key("issuance_panel")));
       expect(values.left, greaterThan(question.right));
-      expect(add.left, greaterThan(question.right));
-      // The way on at the foot of the right column, under the values; no
-      // Cancel under it (the close button declines).
-      expect(add.top, greaterThan(values.bottom));
+      expect(values.left, greaterThan(add.right));
+      // The way on at the foot of the left column, under the question; no
+      // Cancel (the close button declines).
+      expect(add.top, greaterThan(question.bottom));
+      expect(add.bottom, closeTo(panel.bottom, 80));
       expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
     });
 
@@ -84,7 +86,7 @@ void main() {
     ) async {
       await pump(tester, _phone, screen());
 
-      expect(find.byType(SessionColumns), findsNothing);
+      expect(find.byType(SidewaysLayout), findsNothing);
       final question = tester.getRect(
         find.byKey(const Key("issuance_question")),
       );

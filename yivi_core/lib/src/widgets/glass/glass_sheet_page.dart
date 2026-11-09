@@ -86,8 +86,17 @@ class GlassSheetPage extends StatefulWidget {
   /// Null: the title always shows.
   final double? titleAfterScroll;
 
+  /// The page's own big heading: the bar's title shows only once all of it
+  /// has scrolled up under the bar (measured, so a heading that wraps is
+  /// waited for). Null: see [titleAfterScroll].
+  final GlobalKey? titleUnder;
+
   /// See the constructor's `split`.
   final bool split;
+
+  /// On a phone held sideways, [bottom] (the progress) goes into the bar,
+  /// right after [titleWidget], instead of under the content.
+  final bool bottomInBar;
 
   const GlassSheetPage({
     super.key,
@@ -112,6 +121,8 @@ class GlassSheetPage extends StatefulWidget {
     this.fit = false,
     this.titleWidgetCentred = false,
     this.titleAfterScroll,
+    this.titleUnder,
+    this.bottomInBar = false,
   }) : split = split,
        padding = split ? EdgeInsets.zero : padding,
        scrolls = scrolls && !split,
@@ -141,11 +152,20 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     super.dispose();
   }
 
+  /// The bar, to measure the page's heading against.
+  final _barKey = GlobalKey();
+
   bool _onScroll(ScrollNotification n) {
-    final after = widget.titleAfterScroll;
-    if (after != null && n.metrics.axis == Axis.vertical) {
-      _past.value = n.metrics.pixels > after;
+    if (n.metrics.axis != Axis.vertical) return false;
+    final heading = widget.titleUnder?.currentContext.laidOutBox;
+    final bar = _barKey.currentContext.laidOutBox;
+    if (heading != null && bar != null) {
+      final bottom = heading.localToGlobal(Offset(0, heading.size.height)).dy;
+      _past.value = bottom < bar.localToGlobal(Offset(0, bar.size.height)).dy;
+      return false;
     }
+    final after = widget.titleAfterScroll;
+    if (after != null) _past.value = n.metrics.pixels > after;
     return false;
   }
 
@@ -158,6 +178,10 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final pinned = widget.pinned;
     final action = widget.action;
     final inBar = sheetActionInBar(context);
+    final bottomUp =
+        widget.bottomInBar &&
+        useSheetColumns(context) &&
+        !_GlassSheetFloating.of(context);
     _slot.takesBottom =
         widget.slotBottom &&
         !widget.scrolls &&
@@ -207,7 +231,9 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           final slotted = action == null ? _slot.action : null;
           // Until the page has scrolled its heading away, nothing in the
           // title's place (the title still names the page).
-          final hideTitle = widget.titleAfterScroll != null && !_past.value;
+          final hideTitle =
+              (widget.titleAfterScroll != null || widget.titleUnder != null) &&
+              !_past.value;
           return GlassSheetHeader(
             title: title,
             titleWidget:
@@ -232,6 +258,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                 ? role.ownOpacity
                 : null,
             subtitle: widget.subtitle,
+            extra: bottomUp ? widget.bottom : null,
           );
         },
       ),
@@ -245,7 +272,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         child: Column(
           mainAxisSize: role == null ? MainAxisSize.min : MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _body(context, inBar ? null : action),
+          children: _body(context, inBar ? null : action, bottomUp: bottomUp),
         ),
       ),
     );
@@ -273,6 +300,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
               ),
             ),
           Column(
+            key: _barKey,
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: head,
@@ -295,7 +323,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
 
   /// What scrolls, and the buttons under it: [GlassSheetPage.bottom] and
   /// [action] (the way on, when it is not in the bar).
-  List<Widget> _body(BuildContext context, SheetAction? action) {
+  List<Widget> _body(
+    BuildContext context,
+    SheetAction? action, {
+    bool bottomUp = false,
+  }) {
     final padding = widget.padding;
     final child = widget.child;
     final slivers = widget.slivers;
@@ -308,7 +340,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             primaryLeading: action.busy ? const SheetBusySpinner() : null,
             primaryNeutral: action.neutral,
           );
-    final given = widget.bottom;
+    final given = bottomUp ? null : widget.bottom;
     final bottom = button == null
         ? given
         : given == null

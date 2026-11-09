@@ -110,6 +110,10 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// ([HeaderEdgeBand]) instead of with the first scroll.
   final ValueListenable<bool>? edgeShown;
 
+  /// The colour the hard scroll edge is lighter than: the page's, or the
+  /// red wash's top when nobody vouches for a requestor.
+  final Color? edgeColor;
+
   IrmaAppBar({
     this.titleTranslationKey,
     this.titleString,
@@ -121,6 +125,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.edgeActions = false,
     this.edge = true,
     this.edgeShown,
+    this.edgeColor,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -266,7 +271,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (edge)
           Positioned.fill(
             child: edgeShown == null
-                ? const _AppBarEdge()
+                ? _AppBarEdge(color: edgeColor)
                 : HeaderEdgeBand(shown: edgeShown!),
           ),
         content,
@@ -309,7 +314,9 @@ class BarInsetsBuilder extends StatelessWidget {
 /// through the [Scaffold]'s [ScrollNotificationObserver], as a Material app
 /// bar knows it is scrolled under. Outside a scaffold it never shows.
 class _AppBarEdge extends StatefulWidget {
-  const _AppBarEdge();
+  final Color? color;
+
+  const _AppBarEdge({this.color});
 
   @override
   State<_AppBarEdge> createState() => _AppBarEdgeState();
@@ -339,7 +346,8 @@ class _AppBarEdgeState extends State<_AppBarEdge> {
   }
 
   @override
-  Widget build(BuildContext context) => ScrollEdgeBand(under: _under);
+  Widget build(BuildContext context) =>
+      ScrollEdgeBand(under: _under, color: widget.color);
 }
 
 /// Whether the top corners beside the safe area are free to use: on a phone

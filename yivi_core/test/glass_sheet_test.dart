@@ -702,7 +702,7 @@ void main() {
           )
           .fold(1.0, (o, f) => o * f.opacity.value);
 
-      testWidgets("the content slides over side by side; the button stays", (
+      testWidgets("the new content slides in over the old; the button stays", (
         tester,
       ) async {
         await open(tester);
@@ -729,10 +729,13 @@ void main() {
               .visible,
           isFalse,
         );
+        // The old content moves at most 30% of the width left; the new one
+        // comes in from the right over it.
         final out = tester.getRect(find.text("first page"));
         final into = tester.getRect(find.text("second page"));
         expect(out.left, lessThan(first.dx));
-        expect(into.left, greaterThanOrEqualTo(out.right - 0.01));
+        expect(first.dx - out.left, lessThanOrEqualTo(0.3 * 400 + 0.01));
+        expect(into.left, greaterThan(out.left));
 
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byKey(const Key("second_button"))), button);
@@ -768,7 +771,7 @@ void main() {
         setPages(() => two = true);
         await tester.pump();
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 60));
+        await tester.pump(const Duration(milliseconds: 20));
         final old = find.byKey(const Key("first_button"));
         expect(tester.getRect(old), button);
         expect(shown(tester, old), inExclusiveRange(0, 1));

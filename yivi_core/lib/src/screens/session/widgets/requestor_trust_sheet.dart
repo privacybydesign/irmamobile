@@ -4,10 +4,12 @@ import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/icon_square.dart";
@@ -28,21 +30,64 @@ const _euTrustedList =
 /// the request. [issuer]: about the issuer of a card being added (see
 /// [RequestorTrustSheet.issuer]). With [technicalDetails] the sheet ends with a row that opens
 /// them, as a subpage of the sheet.
+///
+/// With [logoFrom] (the card's logo) the logo flies: it grows from the card
+/// into the sheet's while the sheet comes up (380 ms), and goes back into the
+/// card while the sheet goes down (420 ms, a beat after the sheet starts).
 Future<void> showRequestorTrustSheet({
   required BuildContext context,
   required TrustedParty requestor,
   VoidCallback? onDontShare,
   List<TechGroup>? technicalDetails,
   bool issuer = false,
-}) => showGlassSheet<void>(
-  context: context,
-  builder: (_) => _TrustSheetPages(
-    requestor: requestor,
-    onDontShare: onDontShare,
-    technicalDetails: technicalDetails,
-    issuer: issuer,
-  ),
-);
+  GlobalKey? logoFrom,
+}) {
+  final into = GlobalKey(debugLabel: "trust_sheet_logo");
+  final style = RequestorTrustStyle.of(context, requestor);
+  void fly({required bool opening}) {
+    final from = logoFrom;
+    if (from == null) return;
+    YiviFlight.start(
+      context,
+      from: opening ? from : into,
+      to: YiviFlight.boxOf(opening ? into : from),
+      keys: const [FlightKey(0, FlightKey.start), FlightKey(1, FlightKey.end)],
+      duration: Duration(milliseconds: opening ? 380 : 420),
+      delay: Duration(milliseconds: opening ? 0 : 40),
+      curve: YiviMotion.ease,
+      hide: [from, into],
+      copy: (context, frame) => RequestorLogo(
+        requestor: requestor,
+        style: style,
+        size: frame.size.width,
+      ),
+    );
+  }
+
+  if (logoFrom != null && !MediaQuery.disableAnimationsOf(context)) {
+    YiviFlight.hide([into]);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      YiviFlight.show([into]);
+      fly(opening: true);
+    });
+  }
+  return showGlassSheet<void>(
+    context: context,
+    motion: SheetMotion.share,
+    builder: (_) => PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) fly(opening: false);
+      },
+      child: _TrustSheetPages(
+        requestor: requestor,
+        onDontShare: onDontShare,
+        technicalDetails: technicalDetails,
+        issuer: issuer,
+        logoKey: into,
+      ),
+    ),
+  );
+}
 
 /// The trust sheet and, when there are technical details, their subpage,
 /// which slides in over it.
@@ -51,12 +96,14 @@ class _TrustSheetPages extends StatefulWidget {
   final VoidCallback? onDontShare;
   final List<TechGroup>? technicalDetails;
   final bool issuer;
+  final GlobalKey? logoKey;
 
   const _TrustSheetPages({
     required this.requestor,
     this.onDontShare,
     this.technicalDetails,
     this.issuer = false,
+    this.logoKey,
   });
 
   @override
@@ -77,6 +124,7 @@ class _TrustSheetPagesState extends State<_TrustSheetPages> {
           requestor: widget.requestor,
           onDontShare: widget.onDontShare,
           issuer: widget.issuer,
+          logoKey: widget.logoKey,
           onTechnicalDetails: groups == null
               ? null
               : () => setState(() => _tech = true),
@@ -113,6 +161,9 @@ class RequestorTrustSheet extends StatelessWidget {
   /// to stop or a registration to ask for.
   final bool issuer;
 
+  /// Where the logo is: the card's logo flies in here.
+  final GlobalKey? logoKey;
+
   const RequestorTrustSheet({
     super.key,
     required this.requestor,
@@ -120,6 +171,7 @@ class RequestorTrustSheet extends StatelessWidget {
     this.onTechnicalDetails,
     this.onBack,
     this.issuer = false,
+    this.logoKey,
   });
 
   @override
@@ -256,8 +308,7 @@ class RequestorTrustSheet extends StatelessWidget {
       child: GlassSheetPage(
         title: "",
         onBack: onBack,
-        // No bar once scrolled either: only the close button floats.
-        edge: false,
+        // No title in the bar; once something is under it, the hard edge.
         // Held sideways the columns scroll each on their own.
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         split: sideways,
@@ -270,6 +321,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 requestor: requestor,
                 style: style,
                 size: 84,
+                flightKey: logoKey,
               ),
             ),
             const SizedBox(height: 16),
@@ -339,7 +391,6 @@ class RequestorTrustSheet extends StatelessWidget {
       );
     }
     return SheetSplit(
-      startWidth: 260,
       start: who,
       end: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

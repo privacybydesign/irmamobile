@@ -10,7 +10,7 @@ import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/translated_text.dart";
 
-enum ArrowBackType { issuance, disclosure, signature, error }
+enum ArrowBackType { issuance, error }
 
 class ArrowBack extends StatefulWidget {
   final ArrowBackType type;
@@ -61,12 +61,6 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
     switch (widget.type) {
       case ArrowBackType.issuance:
         infoText = "arrow_back.issuance_success";
-        break;
-      case ArrowBackType.disclosure:
-        infoText = "arrow_back.disclosure_success";
-        break;
-      case ArrowBackType.signature:
-        infoText = "arrow_back.signature_success";
         break;
       case ArrowBackType.error:
         infoText = "arrow_back.no_success";

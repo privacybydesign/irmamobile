@@ -5,6 +5,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/util/signature_message_text.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";
@@ -69,49 +70,29 @@ void main() {
       // The signing screen rendered (i.e. did not freeze).
       await tester.waitFor(find.byType(DisclosureShareScreen));
       expect(find.byType(DisclosureShareScreen), findsOneWidget);
-      expect(find.text("YOU SIGN"), findsOneWidget);
+      expect(find.text("THE MESSAGE"), findsOneWidget);
 
-      // The message is shown truncated to a few lines with an ellipsis, plus a
-      // bold, tappable "Read more" link to reveal the full text (chat-app
-      // style, à la WhatsApp).
-      expect(find.byKey(const Key("signature_message")), findsOneWidget);
-      final textFinder = find.byKey(const Key("signature_message_text"));
-      final toggleFinder = find.byKey(const Key("signature_message_toggle"));
-      expect(textFinder, findsOneWidget);
-      expect(toggleFinder, findsOneWidget);
-      expect(find.text("Read more"), findsOneWidget);
-      expect(find.text("Read less"), findsNothing);
+      // The message is cut after a few lines with a fade, and "Read the whole
+      // message" under it opens it in a sheet of its own.
+      expect(find.byKey(const Key("share_message")), findsOneWidget);
+      final readAll = find.byKey(const Key("signed_message_read_all"));
+      expect(readAll, findsOneWidget);
 
-      // The collapsed text is clamped to a few lines and overflows with an
-      // ellipsis, and shows less than the full (much longer) message.
-      final collapsedText = textFinder.evaluate().first.widget as Text;
-      expect(collapsedText.maxLines, isNotNull);
-      expect(collapsedText.overflow, TextOverflow.ellipsis);
-      expect(collapsedText.data!.runes.length, lessThan(message.runes.length));
+      // The whole (pathological) message in the sheet — the case that used
+      // to freeze — renders responsively.
+      await tester.ensureVisible(readAll);
+      await tester.tapAndSettle(readAll);
+      expect(find.byKey(const Key("message_sheet")), findsOneWidget);
+      expect(find.text("The message"), findsWidgets);
 
-      // Tapping the "Read more" link reveals the full (pathological) message —
-      // the case that used to freeze — and renders responsively.
-      await tester.ensureVisible(toggleFinder);
-      await tester.tapAndSettle(toggleFinder);
-      expect(find.text("Read less"), findsOneWidget);
-      expect(find.text("Read more"), findsNothing);
-      final expandedText = textFinder.evaluate().first.widget as Text;
-      expect(
-        expandedText.data!.runes.length,
-        greaterThan(collapsedText.data!.runes.length),
+      // Closed again with its close button.
+      await tester.tapAndSettle(
+        find.descendant(
+          of: find.byKey(const Key("message_sheet")),
+          matching: find.byType(IrmaCloseButton),
+        ),
       );
-
-      // Tapping "Read less" collapses it again. Centred, so it is clear of
-      // the bottom bar (taller when the requestor isn't known: the bar then
-      // says to share only if you trust them).
-      await Scrollable.ensureVisible(
-        tester.element(toggleFinder),
-        alignment: 0.5,
-      );
-      await tester.pumpAndSettle();
-      await tester.tapAndSettle(toggleFinder);
-      expect(find.text("Read more"), findsOneWidget);
-      expect(find.text("Read less"), findsNothing);
+      expect(find.byKey(const Key("message_sheet")), findsNothing);
 
       // The long message is still signable end-to-end. "Sign and share" lives
       // in the fixed bottom bar, so no scrolling is needed to reach it.

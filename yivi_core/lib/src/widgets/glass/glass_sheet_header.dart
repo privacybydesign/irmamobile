@@ -70,6 +70,12 @@ class GlassSheetHeader extends StatelessWidget {
   /// its heading to scroll away).
   final bool titleWidgetCentred;
 
+  /// On a phone held sideways: something right after [titleWidget] at the
+  /// start of the bar (the progress of adding a card); the bar then reads
+  /// from the start: the back or close button, [titleWidget], this, and the
+  /// way on at the end.
+  final Widget? extra;
+
   const GlassSheetHeader({
     super.key,
     required this.title,
@@ -86,11 +92,15 @@ class GlassSheetHeader extends StatelessWidget {
     this.buttons = true,
     this.subtitle,
     this.titleWidgetCentred = false,
+    this.extra,
   });
 
   @override
   Widget build(BuildContext context) {
     final sideways = useSheetColumns(context);
+    if (sideways && extra != null && !_GlassSheetFloating.of(context)) {
+      return _startRow(context);
+    }
     if (sideways && this.titleWidget != null && !titleWidgetCentred) {
       return _row(context);
     }
@@ -162,7 +172,12 @@ class GlassSheetHeader extends StatelessWidget {
     // Through closeGlassSheet, so a [GlassSheetConfirmDismiss] can ask first.
     void close() => closeGlassSheet(context);
     final keepsClose = SheetKeepsClose.of(context);
-    final closable = this.closable || keepsClose;
+    // A phone held sideways: the way on takes the close button's place;
+    // a page without one keeps the close button.
+    final adding = sideways && !floating && SheetKeepsClose.inScope(context);
+    final closable = adding && action != null
+        ? closeAtStart && onBack == null
+        : this.closable || keepsClose || adding;
     final closeStart =
         !floating && closable && closeAtStart && onBack == null && !keepsClose;
     final leading = this.leading == null ? null : shown(this.leading!);
@@ -239,6 +254,73 @@ class GlassSheetHeader extends StatelessWidget {
                   children: end,
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A phone held sideways with [extra]: one row from the start, the back
+  /// button (or the close button on a first page), [titleWidget], [extra],
+  /// and at the end the way on ([action]), or the close button when there is
+  /// none.
+  Widget _startRow(BuildContext context) {
+    void close() => closeGlassSheet(context);
+    final action = sheetActionInBar(context) ? this.action : null;
+    final onBack = this.onBack;
+    Widget shown(Widget child) => _kept(buttons, child);
+    final Widget? start = onBack != null
+        ? shown(
+            FadeTransition(
+              opacity: backOpacity ?? kAlwaysCompleteAnimation,
+              child: YiviBackButton(onTap: onBack),
+            ),
+          )
+        : closeAtStart || closable
+        ? shown(IrmaCloseButton(onTap: close))
+        : null;
+    final titleWidget = this.titleWidget;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          spacing: 12,
+          children: [
+            ?start,
+            if (titleWidget != null)
+              Flexible(
+                flex: 3,
+                child: FadeTransition(
+                  opacity: titleOpacity ?? kAlwaysCompleteAnimation,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: titleWidget,
+                  ),
+                ),
+              ),
+            Flexible(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(start: 4),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: extra,
+                ),
+              ),
+            ),
+            if (action != null)
+              shown(
+                FadeTransition(
+                  opacity: actionOpacity ?? kAlwaysCompleteAnimation,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 250),
+                    child: SheetBarButton(action: action, onTap: onAction),
+                  ),
+                ),
+              )
+            else if (onBack != null)
+              shown(IrmaCloseButton(onTap: close)),
           ],
         ),
       ),

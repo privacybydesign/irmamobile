@@ -182,7 +182,7 @@ void main() {
       expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
     });
 
-    testWidgets("an unknown party: a red ! on the logo, Not checked", (
+    testWidgets("an unknown party: a red × on the logo, Not known by Yivi", (
       tester,
     ) async {
       await _pump(
@@ -194,12 +194,12 @@ void main() {
           ),
         ),
       );
-      expect(find.text("Not checked"), findsOneWidget);
+      expect(find.text("Not known by Yivi"), findsOneWidget);
       expect(find.byType(RequestorTrustBadge), findsOneWidget);
-      expect(find.byIcon(Icons.priority_high_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
     });
 
-    testWidgets("the compact bar: a check or a red ! on the logo", (
+    testWidgets("the compact bar: a check or a red × on the logo", (
       tester,
     ) async {
       await _pump(
@@ -220,7 +220,7 @@ void main() {
         ),
       );
       expect(find.byIcon(Icons.check_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.priority_high_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
     });
   });
 

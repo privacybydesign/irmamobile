@@ -66,6 +66,9 @@ class IssueWebsiteStep extends StatefulWidget {
 class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
   var _opening = false;
 
+  /// The heading, for the bar's title once it has scrolled under the bar.
+  final _headingKey = GlobalKey(debugLabel: "website_heading");
+
   Future<void> _open() async {
     if (_opening) return;
     setState(() => _opening = true);
@@ -85,6 +88,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
     final align = sideways ? TextAlign.start : TextAlign.center;
 
     final heading = Semantics(
+      key: _headingKey,
       header: true,
       child: Text(
         context.tr(
@@ -94,8 +98,11 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
         key: const Key("sheet_website_heading"),
         textAlign: align,
         style: palette
-            .display(22, weight: FontWeight.w700)
-            .copyWith(height: 30 / 22, color: palette.heading),
+            .display(sideways ? 22 : 24, weight: FontWeight.w700)
+            .copyWith(
+              height: (sideways ? 29 : 30) / (sideways ? 22 : 24),
+              color: palette.text,
+            ),
       ),
     );
     final lead = Text(
@@ -139,7 +146,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       title: widget.title,
       titleWidget: widget.titleWidget,
       titleWidgetCentred: true,
-      titleAfterScroll: 150,
+      titleUnder: _headingKey,
       onBack: widget.onBack,
       action: SheetAction(
         key: const Key("sheet_open_website"),
@@ -150,6 +157,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
         onTap: _open,
       ),
       bottom: widget.bottom,
+      bottomInBar: true,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       split: sideways,
       child: sideways

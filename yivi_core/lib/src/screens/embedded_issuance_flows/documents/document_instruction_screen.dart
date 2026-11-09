@@ -51,7 +51,7 @@ class DocumentInstructionScreen extends StatelessWidget {
         child: DocumentInstructionIllustration(documentType: documentType),
       ),
     );
-    List<Widget> words(TextAlign align, {double top = 28, double size = 22}) =>
+    List<Widget> words(TextAlign align, {double top = 28, double size = 24}) =>
         [
           Padding(
             // In a sheet's column flush with the words under it.
@@ -67,7 +67,7 @@ class DocumentInstructionScreen extends StatelessWidget {
               isHeader: true,
               style: palette
                   .display(size, weight: FontWeight.w700)
-                  .copyWith(height: (size + 8) / size, color: palette.heading),
+                  .copyWith(height: (size + 6) / size, color: palette.text),
             ),
           ),
           Padding(
@@ -105,7 +105,7 @@ class DocumentInstructionScreen extends StatelessWidget {
           endFills: true,
           // The title and what to do at the left; the tip under the
           // picture, where the column has room for it.
-          start: words(TextAlign.start, top: 0, size: 20).take(2).toList(),
+          start: words(TextAlign.start, top: 0, size: 22).take(2).toList(),
           end: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 12,

@@ -159,8 +159,8 @@ class CardTile extends StatelessWidget {
   }
 }
 
-/// A strip across the bottom of a [CardTile]: a line above, a lighter fill,
-/// and a row with [children] (a sentence and a pill). [background] and
+/// A strip across the bottom of a [CardTile]: a line above and a row with
+/// [children] (what state the card is in, and a pill to act on it). [background] and
 /// [line] colour it for a problem.
 class CardTileStrip extends StatelessWidget {
   final List<Widget> children;
@@ -187,13 +187,8 @@ class CardTileStrip extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        // Halfway between the card and the page.
-        color:
-            background ??
-            Color.alphaBlend(
-              palette.background.withValues(alpha: 0.5),
-              palette.surface,
-            ),
+        // On the card itself; a problem colours it.
+        color: background,
         border: Border(top: BorderSide(color: line ?? palette.divider)),
       ),
       child: Padding(

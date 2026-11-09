@@ -1,9 +1,12 @@
+import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/press_scale.dart";
 import "requestor_card.dart";
 
@@ -57,7 +60,11 @@ class _NoSubject extends IssueSheetSubject {
 /// page's bottom ([GlassSheetPage.bottom]), which stays put while the pages
 /// change, so it does not jump; a page without a button keeps the button's
 /// room.
-class IssueSheetProgress extends StatelessWidget {
+///
+/// In a sheet's pages every page's progress shows one step: the step of the
+/// page that is coming on top. So as soon as a page is pushed or popped the
+/// parts fill on or empty back (420 ms), on the bar that stays put.
+class IssueSheetProgress extends StatefulWidget {
   final IssueSheetSubject subject;
 
   /// The step on screen, from 1 to [total]. The ones up to it are filled.
@@ -82,14 +89,76 @@ class IssueSheetProgress extends StatelessWidget {
       ? null
       : IssueSheetProgress(subject: subject, step: total, total: total);
 
+  @override
+  State<IssueSheetProgress> createState() => _IssueSheetProgressState();
+}
+
+class _IssueSheetProgressState extends State<IssueSheetProgress> {
+  /// The step the parts show, shared by the progress of every page of the
+  /// sheet; or this one's own outside sheet pages.
+  ValueNotifier<int>? _shown;
+  ValueNotifier<int>? _own;
+  ValueListenable<Object?>? _coming;
+  Object? _pageKey;
+
   /// A part's width: narrower for a long flow (a document with a face
   /// check), so it fits a sheet's left column held sideways.
-  double get _partWidth => total > 4 ? 18 : 28;
+  double get _partWidth => widget.total > 4 ? 18 : 28;
   static const double _partHeight = 4;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final memory = GlassSheetPages.memoryOf(context);
+    final coming = GlassSheetPages.comingOf(context);
+    if (memory == null || coming == null) {
+      // Starts empty, so the first part fills as it comes in.
+      _shown ??= _own = ValueNotifier(widget.step - 1);
+      _follow();
+      return;
+    }
+    _shown =
+        memory.putIfAbsent("issue_sheet_progress", () => ValueNotifier(0))
+            as ValueNotifier<int>;
+    _pageKey = GlassSheetPages.pageKeyOf(context);
+    if (_coming != coming) {
+      _coming?.removeListener(_follow);
+      _coming = coming..addListener(_follow);
+    }
+    _follow();
+  }
+
+  @override
+  void didUpdateWidget(IssueSheetProgress old) {
+    super.didUpdateWidget(old);
+    if (old.step != widget.step) _follow();
+  }
+
+  /// This page is (coming) on top: the parts show its step.
+  void _follow() {
+    final coming = _coming;
+    if (coming != null && coming.value != _pageKey) return;
+    final shown = _shown!;
+    if (shown.value == widget.step) return;
+    // After this frame: not while the pages build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) shown.value = widget.step;
+    });
+    WidgetsBinding.instance.scheduleFrame();
+  }
+
+  @override
+  void dispose() {
+    _coming?.removeListener(_follow);
+    _own?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final step = widget.step;
+    final total = widget.total;
     final params = {"step": "$step", "total": "$total"};
     final label = context.tr("share.step_count", params);
     return Semantics(
@@ -109,16 +178,11 @@ class IssueSheetProgress extends StatelessWidget {
             spacing: 6,
             children: [
               for (var i = 1; i <= total; i++)
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
+                _Part(
                   width: _partWidth,
                   height: _partHeight,
-                  decoration: BoxDecoration(
-                    color: i <= step
-                        ? palette.successText
-                        : palette.text.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(_partHeight / 2),
-                  ),
+                  index: i,
+                  shown: _shown!,
                 ),
             ],
           ),
@@ -127,9 +191,14 @@ class IssueSheetProgress extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              // A step lighter than other secondary text: the parts say
+              // it already.
               style: palette
                   .body(12)
-                  .copyWith(color: palette.secondaryText, height: 16 / 12),
+                  .copyWith(
+                    color: palette.secondaryText.withValues(alpha: 0.85),
+                    height: 16 / 12,
+                  ),
             ),
           ),
         ],
@@ -162,8 +231,8 @@ class IssueIslandScope extends InheritedWidget {
 }
 
 /// "For {requestor}" in the middle of the bar of each page of adding a card
-/// for a request: the requestor's logo and the words in a light pill with a
-/// chevron. A tap grows it into the island, which says why the card is
+/// for a request: the requestor's logo (with its badge) and the words in a
+/// light pill. A tap grows it into the island, which says why the card is
 /// added. Nothing when the card is not added for a request.
 class IssueRequestorPill extends StatelessWidget {
   final IssueSheetSubject subject;
@@ -184,7 +253,7 @@ class IssueRequestorPill extends StatelessWidget {
     // While the island is open it stands in the pill's place.
     final pill = AnimatedOpacity(
       opacity: scope?.isOpen ?? false ? 0 : 1,
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 160),
       child: Center(
         child: Semantics(
           key: const Key("issue_sheet_for_requestor"),
@@ -209,7 +278,12 @@ class IssueRequestorPill extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   spacing: 7,
                   children: [
-                    requestorAvatar(subject.requestor, size: 22),
+                    // The logo with its badge (who vouches), as everywhere.
+                    RequestorLogo(
+                      requestor: subject.requestor,
+                      style: RequestorTrustStyle.of(context, subject.requestor),
+                      size: 22,
+                    ),
                     Flexible(
                       child: Text(
                         text,
@@ -220,12 +294,6 @@ class IssueRequestorPill extends StatelessWidget {
                             .copyWith(color: palette.noteText),
                       ),
                     ),
-                    if (scope != null)
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 18,
-                        color: palette.noteText,
-                      ),
                   ],
                 ),
               ),
@@ -242,6 +310,92 @@ class IssueRequestorPill extends StatelessWidget {
     );
   }
 
-  /// Its logo, chevron and a few letters.
+  /// Its logo and a few letters.
   static const double _minWidth = 120;
+}
+
+/// One part of [IssueSheetProgress]: grey, or filled green from the start
+/// edge. It fills (or empties) over 420 ms as the step shown passes it.
+class _Part extends StatefulWidget {
+  final double width;
+  final double height;
+
+  /// Which step this part is, from 1.
+  final int index;
+  final ValueListenable<int> shown;
+
+  const _Part({
+    required this.width,
+    required this.height,
+    required this.index,
+    required this.shown,
+  });
+
+  @override
+  State<_Part> createState() => _PartState();
+}
+
+class _PartState extends State<_Part> with SingleTickerProviderStateMixin {
+  late final _fill = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+    value: _filled ? 1 : 0,
+  );
+
+  bool get _filled => widget.index <= widget.shown.value;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.shown.addListener(_change);
+  }
+
+  @override
+  void didUpdateWidget(_Part old) {
+    super.didUpdateWidget(old);
+    if (old.shown != widget.shown) {
+      old.shown.removeListener(_change);
+      widget.shown.addListener(_change);
+      _change();
+    }
+  }
+
+  void _change() {
+    final target = _filled ? 1.0 : 0.0;
+    if (_fill.value == target && !_fill.isAnimating) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _fill.value = target;
+    } else {
+      _fill.animateTo(target);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.shown.removeListener(_change);
+    _fill.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.height / 2),
+      child: Container(
+        width: widget.width,
+        height: widget.height,
+        color: palette.text.withValues(alpha: 0.12),
+        alignment: AlignmentDirectional.centerStart,
+        child: AnimatedBuilder(
+          animation: _fill,
+          builder: (context, _) => FractionallySizedBox(
+            widthFactor: YiviMotion.ease.transform(_fill.value),
+            heightFactor: 1,
+            child: ColoredBox(color: palette.successText),
+          ),
+        ),
+      ),
+    );
+  }
 }

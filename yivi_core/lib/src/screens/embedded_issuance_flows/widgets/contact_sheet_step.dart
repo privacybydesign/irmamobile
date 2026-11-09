@@ -214,8 +214,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   _Flow get _flow => _Flow.of(widget.kind);
 
   /// The `contact_sheet.<part>_email` or `_phone` text.
-  String _k(String part) =>
-      context.tr("contact_sheet.${part}_${_email ? "email" : "phone"}");
+  String _k(String part, [Map<String, String> params = const {}]) =>
+      context.tr("contact_sheet.${part}_${_email ? "email" : "phone"}", params);
 
   String get _language => context.lang;
 
@@ -317,25 +317,34 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   // ---------- the page ----------
 
+  /// The heading, for the bar's title once it has scrolled under the bar.
+  final _headingKey = GlobalKey(debugLabel: "contact_sheet_heading");
+
   /// The page's heading ("Your phone number", "Code from the text
-  /// message"): in the page, as on every step of adding a card; the bar
-  /// names the page once it has scrolled away.
+  /// message"): in the page, at the start, as on every step where you type;
+  /// the bar names the page once it has scrolled away.
   Widget _heading() {
     final palette = YiviPalette.of(context);
     final sideways = useSheetColumns(context);
     return Padding(
       padding: sideways
           ? const EdgeInsets.only(bottom: 4)
-          : const EdgeInsets.fromLTRB(8, 8, 8, 14),
+          : const EdgeInsets.fromLTRB(4, 8, 4, 14),
       child: Semantics(
         header: true,
-        child: Text(
-          _k(widget.code ? "code_head" : "head"),
-          key: const Key("contact_sheet_heading"),
-          textAlign: sideways ? TextAlign.start : TextAlign.center,
-          style: palette
-              .display(22, weight: FontWeight.w700)
-              .copyWith(height: 30 / 22, color: palette.heading),
+        child: KeyedSubtree(
+          key: _headingKey,
+          child: Text(
+            _k(widget.code ? "code_head" : "head"),
+            key: const Key("contact_sheet_heading"),
+            style: sideways
+                ? palette
+                      .display(22, weight: FontWeight.w700)
+                      .copyWith(height: 29 / 22, color: palette.text)
+                : palette
+                      .display(24, weight: FontWeight.w700)
+                      .copyWith(height: 30 / 24, color: palette.text),
+          ),
         ),
       ),
     );
@@ -406,20 +415,31 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       body = _split(
         key: const Key("contact_sheet_code"),
         [
-          ContactSentTo(
-            label: _k("sent_to"),
-            target: state.target,
-            email: _email,
-            changeLabel: context.tr("contact_sheet.change"),
-            onChange: _change,
-          ),
+          // Held sideways one line under the heading: where it went, and
+          // the way to change it.
+          if (sideways)
+            _SentLine(
+              text: _k("sent_short", {"target": state.target}),
+              change: context.tr("contact_sheet.change"),
+              onChange: _change,
+            )
+          else
+            ContactSentTo(
+              label: _k("sent_to"),
+              target: state.target,
+              email: _email,
+              changeLabel: context.tr("contact_sheet.change"),
+              onChange: _change,
+            ),
         ],
         [
           // The room the label above the boxes had: the heading says what
           // goes in them now.
-          if (!sideways) const SizedBox(height: 28),
+          if (!sideways) const SizedBox(height: 24),
           ContactCodeField(
             showLabel: false,
+            spread: true,
+            boxHeight: sideways ? 56 : 60,
             fieldKey: Key(
               _email
                   ? "email_verification_code_input_field"
@@ -463,10 +483,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             ),
             child: Text(
               _k("intro"),
-              textAlign: useSheetColumns(context)
-                  ? TextAlign.start
-                  : TextAlign.center,
-              style: YiviPalette.of(context).body(15).copyWith(height: 22 / 15),
+              style: useSheetColumns(context)
+                  ? YiviPalette.of(context).body(14).copyWith(height: 20 / 14)
+                  : YiviPalette.of(context).body(15).copyWith(height: 22 / 15),
             ),
           ),
         ],
@@ -517,7 +536,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       // Two steps of their own: the address, then the code.
       titleWidget: IssueRequestorPill.maybe(widget.subject),
       titleWidgetCentred: true,
-      titleAfterScroll: 40,
+      titleUnder: _headingKey,
+      bottomInBar: true,
       bottom: IssueSheetProgress(
         subject: widget.subject,
         step: code ? 3 : 2,
@@ -526,6 +546,49 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       child: landscape
           ? body
           : Padding(padding: const EdgeInsets.only(top: 8), child: body),
+    );
+  }
+}
+
+/// Held sideways, under the code's heading: "Texted to {number} · Change".
+class _SentLine extends StatelessWidget {
+  final String text;
+  final String change;
+  final VoidCallback onChange;
+
+  const _SentLine({
+    required this.text,
+    required this.change,
+    required this.onChange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final style = palette
+        .body(14)
+        .copyWith(height: 20 / 14, color: palette.heading);
+    return Wrap(
+      key: const Key("contact_sheet_sent_to"),
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text("$text · ", style: style),
+        Semantics(
+          button: true,
+          child: GestureDetector(
+            key: const Key("contact_sheet_change"),
+            behavior: HitTestBehavior.opaque,
+            onTap: onChange,
+            child: Text(
+              change,
+              style: style.copyWith(
+                fontWeight: FontWeight.w600,
+                color: palette.link,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

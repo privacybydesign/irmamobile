@@ -4,6 +4,7 @@ import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_corners.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/tab_layout.dart";
 
@@ -66,7 +67,7 @@ class DragToArrange extends StatefulWidget {
   static const shift = Duration(milliseconds: 260);
 
   /// How much bigger the card in the hand is.
-  static const lift = 1.04;
+  static const lift = 1.03;
 
   @override
   State<DragToArrange> createState() => _DragToArrangeState();
@@ -264,13 +265,39 @@ class _DragToArrangeState extends State<DragToArrange> {
   }) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     Widget card = widget.builder(context, index);
-    card = AnimatedScale(
-      scale: key == _dragged ? DragToArrange.lift : 1,
+    // Picked up as a card is everywhere: a little bigger, 4 up, a shadow
+    // (160 ms); put down over the landing shift (260 ms).
+    final lifted = key == _dragged;
+    card = TweenAnimationBuilder<double>(
+      tween: Tween(end: lifted ? 1 : 0),
       duration: reduceMotion
           ? Duration.zero
-          : const Duration(milliseconds: 160),
-      curve: Curves.easeOut,
+          : Duration(milliseconds: lifted ? 160 : 260),
+      curve: lifted ? Curves.easeOut : Curves.easeOutCubic,
       child: card,
+      builder: (context, t, child) => t == 0
+          ? child!
+          : Transform.translate(
+              offset: Offset(0, -4 * t),
+              child: Transform.scale(
+                scale: 1 + (DragToArrange.lift - 1) * t,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: YiviCorners.cardRadius,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(
+                          0x38102846,
+                        ).withValues(alpha: 0.22 * t),
+                        blurRadius: 34,
+                        offset: const Offset(0, 14),
+                      ),
+                    ],
+                  ),
+                  child: child,
+                ),
+              ),
+            ),
     );
     if (widget.enabled) {
       card = GestureDetector(

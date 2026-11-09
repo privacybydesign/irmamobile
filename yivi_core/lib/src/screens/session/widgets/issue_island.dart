@@ -31,18 +31,30 @@ class IssueIsland extends StatefulWidget {
   /// is.
   static const double top = 10;
 
-  /// Its distance from the sides: past the bar's buttons (16 + 44 + 4).
-  static const double side = 64;
+  /// Its distance from the sides, upright.
+  static const double side = 16;
+
+  /// Held sideways: where it starts from the sheet's left (the pill's
+  /// start), and how wide it is.
+  static const double sidewaysStart = 103;
+  static const double sidewaysWidth = 520;
 
   @override
   State<IssueIsland> createState() => _IssueIslandState();
 }
 
 class _IssueIslandState extends State<IssueIsland>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
+  /// Grows out of the pill: 420 ms, overshooting a little.
   late final _grow = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 420),
+  );
+
+  /// Folds back into it: 260 ms.
+  late final _fold = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
   );
 
   @override
@@ -54,7 +66,20 @@ class _IssueIslandState extends State<IssueIsland>
   @override
   void dispose() {
     _grow.dispose();
+    _fold.dispose();
     super.dispose();
+  }
+
+  /// Folds back into the pill, then tells the flow it is closed.
+  void _close() {
+    if (_fold.isAnimating || _fold.value == 1) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      widget.onClose();
+      return;
+    }
+    _fold.forward().whenComplete(() {
+      if (mounted) widget.onClose();
+    });
   }
 
   @override
@@ -67,16 +92,16 @@ class _IssueIslandState extends State<IssueIsland>
     final style = RequestorTrustStyle.of(context, widget.requestor);
     final sideways = useSheetColumns(context);
 
-    final panel = Semantics(
+    Widget panel(double radius) => Semantics(
       key: const Key("issue_island"),
       container: true,
       liveRegion: true,
       child: Container(
-        width: sideways ? 520 : double.infinity,
+        width: sideways ? IssueIsland.sidewaysWidth : double.infinity,
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
         decoration: BoxDecoration(
           color: fill,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(radius),
           boxShadow: const [
             BoxShadow(
               color: Color(0x47000000),
@@ -89,6 +114,46 @@ class _IssueIslandState extends State<IssueIsland>
       ),
     );
 
+    // Out of the pill and back: from the pill's size (62 % wide, a line
+    // high, its round ends) to its own. Its content comes in after it has
+    // started to grow, and goes first when it folds.
+    final island = reduceMotion
+        ? FadeTransition(
+            opacity: ReverseAnimation(_fold),
+            child: FadeTransition(opacity: _grow, child: panel(30)),
+          )
+        : AnimatedBuilder(
+            animation: Listenable.merge([_grow, _fold]),
+            builder: (context, _) {
+              final folding = _fold.value > 0;
+              final t = folding
+                  ? 1 - YiviMotion.leave.transform(_fold.value)
+                  : YiviMotion.overshoot.transform(_grow.value);
+              final contentIn = folding
+                  ? 1 - (_fold.value / (120 / 260)).clamp(0.0, 1.0)
+                  : Curves.easeOut.transform(
+                      ((_grow.value - 140 / 420) / (260 / 420)).clamp(0.0, 1.0),
+                    );
+              final opacity = folding ? t : 0.9 + 0.1 * _grow.value;
+              return Opacity(
+                opacity: opacity.clamp(0.0, 1.0),
+                child: Transform(
+                  alignment: sideways ? Alignment.topLeft : Alignment.topCenter,
+                  origin: Offset(sideways ? 20 : 0, 22),
+                  transform: Matrix4.diagonal3Values(
+                    0.62 + 0.38 * t,
+                    0.12 + 0.88 * t,
+                    1,
+                  ),
+                  child: _ContentFade(
+                    t: contentIn,
+                    child: panel(17 + 13 * t.clamp(0.0, 1.0)),
+                  ),
+                ),
+              );
+            },
+          );
+
     return Stack(
       children: [
         // A touch beside the island folds it back, and goes on to what is
@@ -97,49 +162,40 @@ class _IssueIslandState extends State<IssueIsland>
         Positioned.fill(
           child: Listener(
             behavior: HitTestBehavior.translucent,
-            onPointerDown: (_) => widget.onClose(),
+            onPointerDown: (_) => _close(),
           ),
         ),
-        Positioned(
-          top: IssueIsland.top,
-          // Clear of the bar's back and close buttons, which stay usable.
-          left: IssueIsland.side,
-          right: IssueIsland.side,
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: reduceMotion
-                ? FadeTransition(opacity: _grow, child: panel)
-                : AnimatedBuilder(
-                    animation: _grow,
-                    builder: (context, child) {
-                      // From the pill's size (about 62 % wide, a line high)
-                      // to its own, overshooting a little as it settles.
-                      final t = YiviMotion.overshoot.transform(_grow.value);
-                      final content = Curves.easeOut.transform(
-                        ((_grow.value - 0.33) / 0.67).clamp(0.0, 1.0),
-                      );
-                      return Transform(
-                        alignment: Alignment.topCenter,
-                        transform: Matrix4.diagonal3Values(
-                          0.62 + 0.38 * t,
-                          0.12 + 0.88 * t,
-                          1,
-                        ),
-                        child: Opacity(
-                          opacity: 0.9 + 0.1 * content,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: panel,
-                  ),
+        if (sideways)
+          Positioned(
+            top: IssueIsland.top,
+            left: IssueIsland.sidewaysStart,
+            child: island,
+          )
+        else
+          Positioned(
+            top: IssueIsland.top,
+            left: IssueIsland.side,
+            right: IssueIsland.side,
+            child: Align(alignment: Alignment.topCenter, child: island),
           ),
-        ),
       ],
     );
   }
 
-  Widget _content(BuildContext context, RequestorTrustStyle style) {
+  Widget _content(BuildContext context, RequestorTrustStyle style) => Builder(
+    builder: (context) {
+      final t = _IslandContentScope.of(context);
+      return Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, -4 * (1 - t)),
+          child: _contentColumn(context, style),
+        ),
+      );
+    },
+  );
+
+  Widget _contentColumn(BuildContext context, RequestorTrustStyle style) {
     final palette = YiviPalette.of(context);
     final label = style.label;
     return Column(
@@ -148,9 +204,7 @@ class _IssueIslandState extends State<IssueIsland>
         Row(
           spacing: 12,
           children: [
-            ExcludeSemantics(
-              child: requestorAvatar(widget.requestor, size: 40),
-            ),
+            RequestorLogo(requestor: widget.requestor, style: style, size: 40),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +247,7 @@ class _IssueIslandState extends State<IssueIsland>
               child: GestureDetector(
                 key: const Key("issue_island_ok"),
                 behavior: HitTestBehavior.opaque,
-                onTap: widget.onClose,
+                onTap: _close,
                 child: Container(
                   height: 40,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -225,4 +279,29 @@ class _IssueIslandState extends State<IssueIsland>
     RequestorTrust.unknown => const Color(0xFFF2A0A0),
     RequestorTrust.unevaluated => const Color(0xFFC9CED3),
   };
+}
+
+/// The island's content at [t]: it fades in from 4 above as the island
+/// grows, and out first as it folds (read by [_IssueIslandState._content]).
+class _ContentFade extends StatelessWidget {
+  final double t;
+  final Widget child;
+
+  const _ContentFade({required this.t, required this.child});
+
+  @override
+  Widget build(BuildContext context) => _IslandContentScope(t: t, child: child);
+}
+
+/// How far the island's content is in, for [_IssueIslandState._content].
+class _IslandContentScope extends InheritedWidget {
+  final double t;
+
+  const _IslandContentScope({required this.t, required super.child});
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_IslandContentScope>()?.t ?? 1;
+
+  @override
+  bool updateShouldNotify(_IslandContentScope old) => old.t != t;
 }

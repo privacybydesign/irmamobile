@@ -36,28 +36,12 @@ class _CompactBarSlot extends StatelessWidget {
 
 class _SectionLabel extends StatelessWidget {
   final String title;
-  final bool shown;
 
-  const _SectionLabel(this.title) : shown = true;
-
-  /// The label's room only: it holds the place of a label at the other
-  /// side, so what comes under both lines up.
-  const _SectionLabel.room(this.title) : shown = false;
+  const _SectionLabel(this.title);
 
   @override
-  Widget build(BuildContext context) {
-    if (!shown) {
-      // Hidden from screen readers too (maintainSemantics is off).
-      return Visibility(
-        visible: false,
-        maintainSize: true,
-        maintainAnimation: true,
-        maintainState: true,
-        child: _SectionLabel(title),
-      );
-    }
-    return CapsLabel(title, padding: const EdgeInsets.symmetric(horizontal: 6));
-  }
+  Widget build(BuildContext context) =>
+      CapsLabel(title, padding: const EdgeInsets.symmetric(horizontal: 6));
 }
 
 /// The strip at the foot of a card with other choices.
@@ -80,87 +64,6 @@ class _ChoiceStrip extends StatelessWidget {
         ),
         button,
       ],
-    );
-  }
-}
-
-/// Optional data that is not shared: one row with the kinds it takes, that
-/// it is not shared under it, and "Share" at the end. The whole row opens the
-/// sheet; the pill only says so. A card added in the sheet lands on its
-/// plus.
-class _OptionalRow extends StatelessWidget {
-  final GlobalKey? landingKey;
-  final String title;
-  final String subtitle;
-  final String pick;
-  final VoidCallback onTap;
-
-  const _OptionalRow({
-    super.key,
-    this.landingKey,
-    required this.title,
-    required this.subtitle,
-    required this.pick,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      label: "$title, $subtitle",
-      excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: PressScale(
-          scale: PressScale.card,
-          child: SurfaceCard(
-            padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
-            child: Row(
-              spacing: 12,
-              children: [
-                Container(
-                  key: landingKey,
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: palette.tint,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.add_rounded, size: 22, color: palette.link),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: palette
-                            .display(15)
-                            .copyWith(color: palette.text),
-                      ),
-                      Text(
-                        subtitle,
-                        style: palette
-                            .body(13.5)
-                            .copyWith(
-                              height: 19 / 13.5,
-                              color: palette.secondaryText,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                IgnorePointer(
-                  child: SmallPill(label: pick, onPressed: onTap),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -191,54 +94,22 @@ class _OfferedCard extends StatelessWidget {
   );
 }
 
-class _Footnote extends StatelessWidget {
-  final String text;
-
-  const _Footnote({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    // Centred under the cards, also when it fits on one line.
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          text,
-          key: const Key("share_footnote"),
-          textAlign: TextAlign.center,
-          style: palette
-              .body(13.5)
-              .copyWith(height: 19 / 13.5, color: palette.secondaryText),
-        ),
-      ),
-    );
-  }
-}
-
-/// How the line above the share button reads.
-enum _ReasonTone {
-  /// What is left to do before sharing: one short semibold line.
-  soft,
-
-  /// Everything is there: green, with a check.
-  ready,
-
-  /// Nobody vouches for the requestor: red.
-  risky,
-
-  /// Why it can't be done in Yivi.
-  plain,
-}
-
-/// The button at the bottom, with what is left above it.
+/// The bottom of the share screen: why it can't go on (red when nobody
+/// vouches for the requestor), the progress (a part per asked card, filled
+/// by how many are ready, and a line: what is left, or that all is set), the
+/// button, and for a card that does not count a quiet "Don't share".
 class _ShareBar extends StatelessWidget {
+  /// Above the button, alone: red when [risky], else why it can't be done.
   final String? reason;
-  final _ReasonTone tone;
 
-  /// Per required item whether it is ready: dots above the reason.
-  final List<bool>? steps;
+  /// The parts: how many asked cards, how many ready.
+  final ({int total, int filled})? parts;
+
+  /// The line beside the parts.
+  final String? line;
+
+  /// The line is a warning (a card that does not count): red, semibold.
+  final bool warn;
   final String label;
   final bool primary;
 
@@ -256,14 +127,14 @@ class _ShareBar extends StatelessWidget {
   /// A quiet "Don't share" under the button: the request may not be for them.
   final ({String label, VoidCallback onTap})? decline;
 
-  /// In a bar across the bottom; otherwise just the reason and the button
-  /// (the landscape panel).
+  /// In a bar across the bottom; otherwise just its content (the panel).
   final bool inBar;
 
   const _ShareBar({
     required this.reason,
-    this.tone = _ReasonTone.plain,
-    this.steps,
+    this.parts,
+    this.line,
+    this.warn = false,
     required this.label,
     required this.primary,
     this.risky = false,
@@ -277,22 +148,6 @@ class _ShareBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final style = switch (tone) {
-      _ReasonTone.risky =>
-        palette
-            .body(13.5, weight: FontWeight.w600)
-            .copyWith(height: 19 / 13.5, color: palette.errorText),
-      _ReasonTone.soft =>
-        palette
-            .body(15, weight: FontWeight.w600)
-            .copyWith(height: 20 / 15, color: palette.text),
-      _ReasonTone.ready =>
-        palette
-            .body(14.5, weight: FontWeight.w600)
-            .copyWith(height: 20 / 14.5, color: palette.successText),
-      _ReasonTone.plain =>
-        palette.body(13.5).copyWith(height: 19 / 13.5, color: palette.heading),
-    };
     final Widget button = risky
         ? PillButton(
             label: label,
@@ -311,50 +166,21 @@ class _ShareBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: [
-        if (steps case final dots?)
-          ExcludeSemantics(
-            child: Row(
-              key: const Key("share_steps"),
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 6,
-              children: [
-                for (final done in dots)
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: done
-                          ? palette.successText
-                          : palette.secondaryText.withValues(alpha: 0.3),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        if (reason != null)
-          Text.rich(
-            TextSpan(
-              children: [
-                if (tone == _ReasonTone.ready)
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: Icon(
-                        Icons.check_circle_rounded,
-                        size: 17,
-                        color: palette.successText,
-                      ),
-                    ),
-                  ),
-                TextSpan(text: reason),
-              ],
-            ),
+        if (reason case final r?)
+          Text(
+            r,
             key: const Key("share_reason"),
             textAlign: TextAlign.center,
-            style: style,
+            style: risky
+                ? palette
+                      .body(13.5, weight: FontWeight.w600)
+                      .copyWith(height: 19 / 13.5, color: palette.errorText)
+                : palette
+                      .body(13.5)
+                      .copyWith(height: 19 / 13.5, color: palette.heading),
           ),
+        if (line case final l?)
+          _ShareProgress(parts: parts, line: l, warn: warn),
         KeyedSubtree(
           key: const Key("share_button"),
           child: arriving
@@ -380,41 +206,151 @@ class _ShareBar extends StatelessWidget {
           ),
       ],
     );
-    // Floats over the page: solid behind the reason and the button, with
-    // the fade above it, so the reason never sits on a card.
+    // Floats over the page: solid behind the button, with the fade above
+    // it, so the line never sits on a card.
     return inBar ? IrmaBottomBarBase(child: content) : content;
   }
 }
 
-/// The message to sign, as a quote: brand-red marks around it.
-class _QuotedMessage extends StatelessWidget {
-  final String message;
+/// The share screen's progress: a 28×4 part per asked card, filled from
+/// the left by how many are ready (not by which), and [line] beside them. A
+/// part that fills while on screen grows from its start (450 ms).
+class _ShareProgress extends StatelessWidget {
+  final ({int total, int filled})? parts;
+  final String line;
+  final bool warn;
 
-  const _QuotedMessage({required this.message});
+  const _ShareProgress({
+    required this.parts,
+    required this.line,
+    required this.warn,
+  });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final mark = TextStyle(
-      fontFamily: "Georgia",
-      fontFamilyFallback: const ["serif"],
-      fontSize: 56,
-      height: 1,
-      color: palette.primary,
-    );
-    return SurfaceCard(
-      key: const Key("share_message"),
-      padding: const EdgeInsets.fromLTRB(18, 10, 18, 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    final p = parts;
+    return Semantics(
+      key: const Key("share_progress"),
+      label: line,
+      excludeSemantics: true,
+      liveRegion: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 10,
         children: [
-          ExcludeSemantics(child: Text("\u201C", style: mark)),
-          SignatureMessage(message: message),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ExcludeSemantics(child: Text("\u201D", style: mark)),
+          if (p != null && p.total > 0)
+            Row(
+              key: const Key("share_progress_parts"),
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                for (var i = 0; i < p.total; i++)
+                  _SharePart(filled: i < p.filled),
+              ],
+            ),
+          Flexible(
+            child: Text(
+              line,
+              key: const Key("share_progress_line"),
+              textAlign: p == null ? TextAlign.center : TextAlign.start,
+              style: warn
+                  ? palette
+                        .body(13.5, weight: FontWeight.w600)
+                        .copyWith(height: 19 / 13.5, color: palette.errorText)
+                  : palette
+                        .body(12)
+                        .copyWith(
+                          height: 16 / 12,
+                          color: palette.secondaryText.withValues(alpha: 0.85),
+                        ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SharePart extends StatefulWidget {
+  final bool filled;
+
+  const _SharePart({required this.filled});
+
+  @override
+  State<_SharePart> createState() => _SharePartState();
+}
+
+class _SharePartState extends State<_SharePart>
+    with SingleTickerProviderStateMixin {
+  late final _fill = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+    value: widget.filled ? 1 : 0,
+  );
+
+  @override
+  void didUpdateWidget(_SharePart old) {
+    super.didUpdateWidget(old);
+    if (widget.filled == old.filled) return;
+    final to = widget.filled ? 1.0 : 0.0;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _fill.value = to;
+    } else {
+      _fill.animateTo(to);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fill.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: Container(
+        width: 28,
+        height: 4,
+        color: palette.text.withValues(alpha: 0.12),
+        alignment: AlignmentDirectional.centerStart,
+        child: AnimatedBuilder(
+          animation: _fill,
+          builder: (context, _) => FractionallySizedBox(
+            widthFactor: YiviMotion.ease.transform(_fill.value),
+            heightFactor: 1,
+            child: ColoredBox(color: palette.successText),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The green ring around a card that landed while the screen was open: it
+/// fades in (350 ms) as the card lands, and stays.
+class _LandedRing extends StatelessWidget {
+  final bool shown;
+  final Widget child;
+
+  const _LandedRing({required this.shown, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!shown) return child;
+    final palette = YiviPalette.of(context);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: YiviMotion.duration(context, const Duration(milliseconds: 350)),
+      curve: Curves.easeOut,
+      child: child,
+      builder: (context, t, child) => CardTileOutline(
+        shown: true,
+        color: palette.successText.withValues(alpha: t),
+        child: child!,
       ),
     );
   }
@@ -447,7 +383,7 @@ class _MismatchTile extends StatelessWidget {
       key: const Key("share_not_counted"),
       art: landingKey == null
           ? art
-          : CardFlightLanding(landingKey: landingKey!, child: art),
+          : FlightSpot(flightKey: landingKey!, child: art),
       title: card.name,
       subtitle: card.issuer.name,
       chip: StatusChip(
@@ -496,64 +432,105 @@ class _MismatchTile extends StatelessWidget {
   }
 }
 
-/// The panel at the left on a phone held sideways: room for the first
-/// section label (so the card lines up with the first card at the right),
-/// who asks, what the page is, and at its bottom the reason and the button.
-/// It scrolls only when it doesn't fit (a large text size).
+/// The panel at the left held sideways (and on a tablet): the title and who
+/// asks at the top, the progress and the button at its bottom. It scrolls
+/// only when it doesn't fit (a large text size).
 class _LandscapePanel extends StatelessWidget {
   final double top;
-  final String? label;
+  final Widget title;
   final Widget card;
-  final String lead;
   final Widget action;
 
   const _LandscapePanel({
     required this.top,
-    required this.label,
+    required this.title,
     required this.card,
-    required this.lead,
     required this.action,
   });
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final bottom = FloatingBarPlacement.buttonBottom(context);
     return FillScrollView(
       scrollKey: const Key("share_panel"),
-      padding: EdgeInsets.fromLTRB(16, top, 0, bottom),
+      padding: EdgeInsets.fromLTRB(0, top, 0, bottom),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (label != null) ...[
-                const SizedBox(height: 24),
-                _SectionLabel.room(label!),
-                const SizedBox(height: 12),
-              ],
-              card,
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  lead,
-                  key: const Key("share_lead"),
-                  style: palette
-                      .body(13.5)
-                      .copyWith(
-                        height: 19 / 13.5,
-                        color: palette.secondaryText,
-                      ),
-                ),
-              ),
-            ],
+            children: [title, const SizedBox(height: 16), card],
           ),
           Padding(padding: const EdgeInsets.only(top: 16), child: action),
         ],
       ),
+    );
+  }
+}
+
+/// The right column held sideways: what is shared, scrolling under the
+/// corner's close button. Once something is under the top, the column gets
+/// the bar's hard edge behind that button, across to the screen's edge.
+class _SidewaysCards extends StatefulWidget {
+  final double top;
+  final bool risky;
+  final List<Widget> children;
+
+  const _SidewaysCards({
+    required this.top,
+    required this.risky,
+    required this.children,
+  });
+
+  @override
+  State<_SidewaysCards> createState() => _SidewaysCardsState();
+}
+
+class _SidewaysCardsState extends State<_SidewaysCards> {
+  final _under = ScrollEdgeNotifier();
+
+  @override
+  void dispose() {
+    _under.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final media = MediaQuery.paddingOf(context);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(
+          child: ScrollEdgeListener(
+            notifier: _under,
+            child: FillScrollView(
+              scrollKey: const Key("share_scroll_view"),
+              physics: const AlwaysScrollableScrollPhysics(),
+              // 4 at the left: room for a missing card's dashed outline.
+              padding: EdgeInsets.fromLTRB(4, widget.top, 0, 56 + media.bottom),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: widget.children,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          top: 0,
+          right: -sidewaysMargin(context, end: true),
+          height: media.top + 52,
+          child: IgnorePointer(
+            child: ScrollEdgeBand(
+              under: _under,
+              color: widget.risky ? palette.errorSurface : null,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -564,7 +541,10 @@ class _TrustWash extends StatelessWidget {
   final bool on;
   final Widget child;
 
-  const _TrustWash({required this.on, required this.child});
+  /// How far down the wash goes: 460, 300 held sideways.
+  final double height;
+
+  const _TrustWash({required this.on, required this.child, this.height = 460});
 
   @override
   Widget build(BuildContext context) {
@@ -577,7 +557,7 @@ class _TrustWash extends StatelessWidget {
           left: 0,
           right: 0,
           top: 0,
-          height: 460,
+          height: height,
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(

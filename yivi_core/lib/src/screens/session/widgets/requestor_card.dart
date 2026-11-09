@@ -7,6 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
+import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/party_avatar.dart";
 import "../../../widgets/press_scale.dart";
@@ -77,8 +78,8 @@ class RequestorTrustStyle {
   }
 }
 
-/// The round badge on a requestor's logo: a check when someone vouches, an
-/// exclamation mark when nobody does, nothing when it was not evaluated.
+/// The round badge on a requestor's logo: a check when someone vouches, a
+/// cross when nobody does, nothing when it was not evaluated.
 class RequestorTrustBadge extends StatelessWidget {
   final RequestorTrustStyle style;
   final double size;
@@ -92,9 +93,7 @@ class RequestorTrustBadge extends StatelessWidget {
     if (fill == null) return const SizedBox.shrink();
     return ExcludeSemantics(
       child: CornerBadge(
-        icon: style.trust.vouched
-            ? Icons.check_rounded
-            : Icons.priority_high_rounded,
+        icon: style.trust.vouched ? Icons.check_rounded : Icons.close_rounded,
         fill: fill,
         size: size,
         iconSize: size * 0.55,
@@ -105,23 +104,20 @@ class RequestorTrustBadge extends StatelessWidget {
   }
 }
 
-/// The hero tag of [requestor]'s logo: the card's logo flies into the trust
-/// sheet and back.
-Object requestorLogoHeroTag(TrustedParty requestor) =>
-    ("requestor_logo", requestor.id, requestor.name);
-
 /// A requestor's logo with its trust badge on the corner, at [size]. It is
 /// drawn at one size and scaled, so the badge keeps its place at any size
-/// and the logo can fly between the card (52 or 64 pt) and the trust sheet
-/// (84 pt) as one hero.
+/// and the logo can fly between the card (52 pt) and the trust sheet or the
+/// issuer's page (84 pt) as one ([flightKey], see [YiviFlight]).
 class RequestorLogo extends StatelessWidget {
   final TrustedParty requestor;
   final RequestorTrustStyle style;
   final double size;
 
-  /// The trust badge on the corner. The trust sheet keeps it; the share
-  /// screen's card shows a vouched party's check in its pill instead.
+  /// The trust badge on the corner.
   final bool showBadge;
+
+  /// Where it flies from or to ([FlightSpot]).
+  final GlobalKey? flightKey;
 
   const RequestorLogo({
     super.key,
@@ -129,43 +125,37 @@ class RequestorLogo extends StatelessWidget {
     required this.style,
     required this.size,
     this.showBadge = true,
+    this.flightKey,
   });
 
   static const double _drawn = 84;
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: requestorLogoHeroTag(requestor),
-      // Also back into the card when the sheet is dragged closed.
-      transitionOnUserGestures: true,
-      flightShuttleBuilder: (_, _, _, _, to) => Material(
-        type: MaterialType.transparency,
-        child: (to.widget as Hero).child,
-      ),
-      child: ExcludeSemantics(
-        child: SizedBox.square(
-          dimension: size,
-          child: FittedBox(
-            child: SizedBox.square(
-              dimension: _drawn,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  requestorAvatar(requestor, size: _drawn),
-                  if (showBadge)
-                    Positioned(
-                      right: -8,
-                      bottom: -8,
-                      child: RequestorTrustBadge(style: style, size: 36),
-                    ),
-                ],
-              ),
+    final logo = ExcludeSemantics(
+      child: SizedBox.square(
+        dimension: size,
+        child: FittedBox(
+          child: SizedBox.square(
+            dimension: _drawn,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                requestorAvatar(requestor, size: _drawn),
+                if (showBadge)
+                  Positioned(
+                    right: -8,
+                    bottom: -8,
+                    child: RequestorTrustBadge(style: style, size: 36),
+                  ),
+              ],
             ),
           ),
         ),
       ),
     );
+    final key = flightKey;
+    return key == null ? logo : FlightSpot(flightKey: key, child: logo);
   }
 }
 
@@ -179,16 +169,19 @@ Widget requestorAvatar(TrustedParty requestor, {double size = 46}) =>
       size: size,
     );
 
-/// Who is asking, at the top of the share screen ([RequestorCard.compact])
-/// and the pairing screen: the party as the subject of the page. The logo,
-/// the name, a pill saying who vouches with ⓘ next to it, and [ask] ("is
-/// asking for your data"). The whole card is a button that explains what
-/// the pill means ([onInfo], the trust sheet).
+/// Who is asking (the share screen, [RequestorCard.compact]) or who gives a
+/// card (the question page of adding one), and the pairing screen: the party
+/// as the subject of the page.
 ///
-/// One mark of trust: a party someone vouches for has its check in the pill
-/// only, not on the logo. A party nobody vouches for gets a red ! on its
-/// logo and a red "Not checked" pill. An unevaluated party gets neither, and
-/// the card is not a button.
+/// The compact form: a white card with the logo (52) and its badge (a green
+/// check when Yivi knows the party, blue when someone else vouches, a red
+/// cross when nobody does), the name, one line saying who vouches in the
+/// badge's colour ("Registered with Yivi", "Not known to Yivi"), and an ⓘ at
+/// the right end that opens the trust sheet ([onInfo]). The card itself is
+/// not a button. An unevaluated party gets no badge, no line and no ⓘ.
+///
+/// The centred form (pairing) keeps the pill with ⓘ and the whole card as
+/// the button.
 class RequestorCard extends StatelessWidget {
   final TrustedParty requestor;
 
@@ -197,6 +190,10 @@ class RequestorCard extends StatelessWidget {
 
   /// Opens the trust sheet.
   final VoidCallback? onInfo;
+
+  /// Where the logo is: it flies into the trust sheet (or the issuer's page)
+  /// and back.
+  final GlobalKey? logoKey;
 
   /// The share screen's form, under its title and in the landscape panel:
   /// the logo (52) beside the name, [ask] and the pill with ⓘ, all aligned
@@ -209,13 +206,15 @@ class RequestorCard extends StatelessWidget {
     required this.requestor,
     this.ask,
     this.onInfo,
-  }) : compact = false;
+  }) : compact = false,
+       logoKey = null;
 
   const RequestorCard.compact({
     super.key,
     required this.requestor,
     this.ask,
     this.onInfo,
+    this.logoKey,
   }) : compact = true;
 
   @override
@@ -223,10 +222,9 @@ class RequestorCard extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final style = RequestorTrustStyle.of(context, requestor);
     final risky = style.trust.risky;
-    final label = risky
-        ? FlutterI18n.translate(context, "share.trust.pill.unchecked")
-        : style.label;
+    final label = style.label;
     final tap = style.trust == RequestorTrust.unevaluated ? null : onInfo;
+    if (compact) return _compact(context, style, label, tap);
     final pillRow = label == null
         ? null
         : Row(
@@ -252,95 +250,45 @@ class RequestorCard extends StatelessWidget {
           );
     final decoration = SurfaceCard.decoration(context);
 
-    final card = compact
-        ? DecoratedBox(
-            key: const Key("session_requestor_header"),
-            decoration: decoration,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-              child: Row(
-                spacing: 12,
-                children: [
-                  RequestorLogo(
-                    requestor: requestor,
-                    style: style,
-                    size: 52,
-                    showBadge: !style.trust.vouched,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          requestor.name,
-                          key: const Key("session_requestor_name"),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .display(17, weight: FontWeight.w700)
-                              .copyWith(height: 22 / 17, color: palette.text),
-                        ),
-                        if (ask != null)
-                          Text(
-                            ask!,
-                            key: const Key("session_requestor_ask"),
-                            style: palette
-                                .body(13.5)
-                                .copyWith(
-                                  height: 18 / 13.5,
-                                  color: palette.heading,
-                                ),
-                          ),
-                        if (pillRow != null) ...[
-                          const SizedBox(height: 6),
-                          pillRow,
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    final card = DecoratedBox(
+      key: const Key("session_requestor_header"),
+      decoration: decoration,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+        child: Column(
+          children: [
+            RequestorLogo(
+              requestor: requestor,
+              style: style,
+              size: 64,
+              // The check of a vouched party is in the pill, once.
+              showBadge: !style.trust.vouched,
             ),
-          )
-        : DecoratedBox(
-            key: const Key("session_requestor_header"),
-            decoration: decoration,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-              child: Column(
-                children: [
-                  RequestorLogo(
-                    requestor: requestor,
-                    style: style,
-                    size: 64,
-                    // The check of a vouched party is in the pill, once.
-                    showBadge: !style.trust.vouched,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    requestor.name,
-                    key: const Key("session_requestor_name"),
-                    textAlign: TextAlign.center,
-                    style: palette
-                        .display(22, weight: FontWeight.w700)
-                        .copyWith(height: 28 / 22, color: palette.text),
-                  ),
-                  if (pillRow != null) ...[const SizedBox(height: 8), pillRow],
-                  if (ask != null) ...[
-                    const SizedBox(height: 14),
-                    Text(
-                      ask!,
-                      key: const Key("session_requestor_ask"),
-                      textAlign: TextAlign.center,
-                      style: palette
-                          .body(16)
-                          .copyWith(height: 23 / 16, color: palette.heading),
-                    ),
-                  ],
-                ],
-              ),
+            const SizedBox(height: 12),
+            Text(
+              requestor.name,
+              key: const Key("session_requestor_name"),
+              textAlign: TextAlign.center,
+              style: palette
+                  .display(22, weight: FontWeight.w700)
+                  .copyWith(height: 28 / 22, color: palette.text),
             ),
-          );
+            if (pillRow != null) ...[const SizedBox(height: 8), pillRow],
+            if (ask != null) ...[
+              const SizedBox(height: 14),
+              Text(
+                ask!,
+                key: const Key("session_requestor_ask"),
+                textAlign: TextAlign.center,
+                style: palette
+                    .body(16)
+                    .copyWith(height: 23 / 16, color: palette.heading),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
 
     final status = [label, ask].nonNulls.join(", ");
     if (tap == null) {
@@ -365,6 +313,114 @@ class RequestorCard extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: tap,
           child: card,
+        ),
+      ),
+    );
+  }
+
+  Widget _compact(
+    BuildContext context,
+    RequestorTrustStyle style,
+    String? label,
+    VoidCallback? tap,
+  ) {
+    final palette = YiviPalette.of(context);
+    final ink = style.badge ?? palette.secondaryText;
+    final status = [label, ask].nonNulls.join(", ");
+    return DecoratedBox(
+      key: const Key("session_requestor_header"),
+      decoration: SurfaceCard.decoration(context),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+        child: Row(
+          spacing: 12,
+          children: [
+            RequestorLogo(
+              requestor: requestor,
+              style: style,
+              size: 52,
+              flightKey: logoKey,
+            ),
+            Expanded(
+              child: Semantics(
+                container: true,
+                label: [
+                  requestor.name,
+                  status,
+                ].where((s) => s.isNotEmpty).join(", "),
+                excludeSemantics: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      requestor.name,
+                      key: const Key("session_requestor_name"),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette
+                          .display(17, weight: FontWeight.w700)
+                          .copyWith(height: 22 / 17, color: palette.text),
+                    ),
+                    if (ask != null)
+                      Text(
+                        ask!,
+                        key: const Key("session_requestor_ask"),
+                        style: palette
+                            .body(13.5)
+                            .copyWith(
+                              height: 18 / 13.5,
+                              color: palette.heading,
+                            ),
+                      ),
+                    if (label != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(
+                          label,
+                          key: const Key("session_requestor_trust"),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: palette
+                              .body(14, weight: FontWeight.w600)
+                              .copyWith(height: 19 / 14, color: ink),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (tap != null)
+              Semantics(
+                button: true,
+                label: FlutterI18n.translate(
+                  context,
+                  "share.trust.card_semantics",
+                  translationParams: {"name": requestor.name, "status": status},
+                ),
+                excludeSemantics: true,
+                child: PressScale(
+                  child: GestureDetector(
+                    key: const Key("session_requestor_info"),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: tap,
+                    // A 44 target around the 32 disc.
+                    child: SizedBox.square(
+                      dimension: 44,
+                      child: Center(
+                        child: ToneDisc(
+                          icon: Icons.info_outline_rounded,
+                          tone: style.trust.risky
+                              ? DialogTone.danger
+                              : DialogTone.info,
+                          size: 32,
+                          iconSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

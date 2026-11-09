@@ -138,37 +138,29 @@ void main() {
     expect(tile(_received), findsNothing);
     expect(tester.getTopLeft(tile(_older.first)), firstSlot);
 
-    // From 420 ms the new card is in the list, hidden, and the others
-    // slide down.
-    await tester.pump(const Duration(milliseconds: 450));
+    // From 190 ms, as it is picked up, the new card is in the list,
+    // hidden, and the others slide down.
+    await tester.pump(const Duration(milliseconds: 200));
     expect(tile(_received), findsOneWidget);
     expect(hidden(tester, _received), isTrue);
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(tester.getTopLeft(tile(_older.first)), secondSlot);
 
-    // After the 760 ms flight it sits on the first slot.
-    expect(tester.getTopLeft(flyingCard), firstSlot);
-
-    // The stack ends at 1120 ms: the copy is gone, the real card shows.
-    await tester.pump(const Duration(milliseconds: 300));
+    // After the 950 ms flight the real card shows on the first slot; the
+    // copy goes two frames later.
+    await tester.pump(const Duration(milliseconds: 260));
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
     expect(flyingCard, findsNothing);
     expect(IssuanceFlight.state.value, isNull);
     expect(hidden(tester, _received), isFalse);
     expect(tester.getTopLeft(tile(_received)), firstSlot);
   });
 
-  testWidgets("list view ends sooner, at 840 ms", (tester) async {
-    await repo.preferences.setWalletView("list");
-    await pump(tester, wallet: [_received, ..._older]);
-
-    IssuanceFlight.start(sourceContext, received: _received, source: sourceKey);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 860));
-    expect(flyingCard, findsNothing);
-    expect(IssuanceFlight.state.value, isNull);
-  });
-
-  testWidgets("reduce motion: only the curtain fades", (tester) async {
+  testWidgets("reduce motion: nothing flies, the session closes as usual", (
+    tester,
+  ) async {
     await pump(tester, wallet: [_received, ..._older], reduceMotion: true);
 
     expect(
@@ -177,13 +169,11 @@ void main() {
         received: _received,
         source: sourceKey,
       ),
-      isTrue,
+      isFalse,
     );
     await tester.pump();
     expect(flyingCard, findsNothing);
     expect(tile(_received), findsOneWidget);
-
-    await tester.pump(const Duration(milliseconds: 500));
     expect(IssuanceFlight.state.value, isNull);
   });
 
@@ -221,11 +211,10 @@ void main() {
         sources: [sourceKey],
         curtain: false,
       ),
-      isTrue,
+      isFalse,
     );
     await tester.pump();
     expect(flyingCard, findsNothing);
-    await tester.pump(const Duration(milliseconds: 50));
     expect(IssuanceFlight.state.value, isNull);
   });
 

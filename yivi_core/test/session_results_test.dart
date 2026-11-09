@@ -242,21 +242,24 @@ void main() {
       WidgetTester tester, {
       List<SelectableCredentialInstance> shared = const [],
       bool signature = false,
+      String? message,
       bool onOtherDevice = false,
       String? returnHost,
       VoidCallback? onReturn,
       bool goBackYourself = false,
+      VoidCallback? onBackToWebsite,
       VoidCallback? onDone,
     }) => _pump(
       tester,
       DisclosureFeedbackScreen(
-        feedbackType: DisclosureFeedbackType.success,
         otherParty: "Webshop",
         isSignatureSession: signature,
+        message: message,
         onOtherDevice: onOtherDevice,
         returnHost: returnHost,
         onReturn: onReturn,
         goBackYourself: goBackYourself,
+        onBackToWebsite: onBackToWebsite,
         shared: shared,
         onDismiss: (_) => onDone?.call(),
       ),
@@ -268,39 +271,35 @@ void main() {
       attributes: [_value("email", "Email address", "anna@example.com")],
     );
 
-    testWidgets("with whom, and exactly what", (tester) async {
+    testWidgets("with whom, the card in a pile, and Done", (tester) async {
       var done = 0;
       await pump(tester, shared: [email], onDone: () => done++);
 
+      expect(find.byKey(const Key("share_done_pile")), findsOneWidget);
       expect(find.byKey(const Key("share_done_check")), findsOneWidget);
       expect(find.text("Shared with Webshop"), findsOneWidget);
-      expect(find.text("THIS IS WHAT WEBSHOP GOT"), findsOneWidget);
-      expect(find.text("You'll find this in Activity."), findsOneWidget);
-      expect(find.text("anna@example.com"), findsOneWidget);
-
-      // On the same phone without a link back: no Done, only the close
-      // button in the bar.
-      expect(find.byKey(const Key("ok_button")), findsNothing);
-      await tester.tap(find.byKey(const Key("session_close")));
-      expect(done, 1);
-    });
-
-    testWidgets("on another device: continue there, at the top", (
-      tester,
-    ) async {
-      await pump(tester, shared: [email], onOtherDevice: true);
-
-      final next = find.byKey(const Key("share_done_next"));
       expect(
-        find.descendant(
-          of: next,
-          matching: find.text("Continue on the other screen"),
+        find.text(
+          "Email address has been shared. You'll find this in Activity.",
         ),
         findsOneWidget,
       );
+      expect(find.byKey(const Key("share_done_next")), findsNothing);
+      await tester.tap(find.byKey(const Key("ok_button")));
+      expect(done, 1);
+    });
+
+    testWidgets("more cards: how many", (tester) async {
+      await pump(tester, shared: [email, _shared("age", "Age limits")]);
+      expect(find.textContaining("2 cards have been shared."), findsOneWidget);
+    });
+
+    testWidgets("on another device: continue there", (tester) async {
+      await pump(tester, shared: [email], onOtherDevice: true);
+
       expect(
-        tester.getRect(next).top,
-        lessThan(tester.getRect(find.text("anna@example.com")).top),
+        find.textContaining("Continue on your other device."),
+        findsOneWidget,
       );
     });
 
@@ -315,12 +314,29 @@ void main() {
         onReturn: () => returned++,
       );
 
-      expect(find.text("Back to webshop.example"), findsNWidgets(2));
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("ok_button")),
+          matching: find.text("Back to webshop.example"),
+        ),
+        findsOneWidget,
+      );
       await tester.tap(find.byKey(const Key("ok_button")));
       expect(returned, 1);
     });
 
-    testWidgets("iOS without a link back: tap ◀ at the top left", (
+    testWidgets("Android without a link back: Back to the website", (
+      tester,
+    ) async {
+      var back = 0;
+      await pump(tester, shared: [email], onBackToWebsite: () => back++);
+
+      expect(find.text("Back to the website"), findsOneWidget);
+      await tester.tap(find.byKey(const Key("ok_button")));
+      expect(back, 1);
+    });
+
+    testWidgets("iOS without a link back: tap ◀ at the top left, no button", (
       tester,
     ) async {
       await pump(tester, shared: [email], goBackYourself: true);
@@ -329,25 +345,35 @@ void main() {
       expect(find.textContaining("Tap ◀"), findsOneWidget);
       // No browser named: they may have come from any app.
       expect(find.textContaining("Safari"), findsNothing);
+      expect(find.byKey(const Key("ok_button")), findsNothing);
     });
 
-    testWidgets("a signature", (tester) async {
-      await pump(tester, shared: [email], signature: true);
+    testWidgets("a signature: the message on paper, signed with the card", (
+      tester,
+    ) async {
+      await pump(tester, shared: [email], signature: true, message: "I agree");
 
-      expect(find.text("Signed"), findsOneWidget);
+      expect(find.text("Signed for Webshop"), findsOneWidget);
+      expect(find.byKey(const Key("share_done_paper")), findsOneWidget);
+      expect(find.text("I agree"), findsOneWidget);
+      expect(
+        find.textContaining("You signed this message with Email address."),
+        findsOneWidget,
+      );
     });
 
     testWidgets("nothing shared", (tester) async {
       await pump(tester);
 
-      // The title; no Done button on the same phone.
-      expect(find.text("Done"), findsOneWidget);
+      // The title, and the Done button.
+      expect(find.text("Done"), findsNWidgets(2));
       expect(
         find.text(
           "Webshop received no data from you. You can find this in Activity.",
         ),
         findsOneWidget,
       );
+      expect(find.byKey(const Key("share_done_pile")), findsNothing);
     });
 
     testWidgets("a card's last use: no note, no chip", (tester) async {

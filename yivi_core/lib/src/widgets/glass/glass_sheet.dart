@@ -1,5 +1,6 @@
 import "dart:math" as math;
 
+import "package:flutter/foundation.dart";
 import "package:flutter/rendering.dart";
 import "package:flutter/scheduler.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
@@ -10,6 +11,7 @@ import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../util/laid_out_box.dart";
 import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
@@ -40,6 +42,7 @@ part "glass_sheet_page.dart";
 Future<T?> showGlassSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
+  SheetMotion motion = SheetMotion.standard,
 }) {
   if (useFormSheet(context)) {
     // A page route, as on the phone, so heroes fly into the sheet (they
@@ -56,9 +59,74 @@ Future<T?> showGlassSheet<T>({
   return Navigator.of(context).push(
     _GlassSheetRoute<T>(
       builder: builder,
+      motion: motion,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     ),
   );
+}
+
+/// How a phone sheet slides up and down: how long, on which curve, and how
+/// long it waits first (a card that is picked up before the sheet comes in
+/// under it; a card that lands while the sheet goes).
+class SheetMotion {
+  final Duration open;
+  final Duration close;
+  final Curve openCurve;
+  final Curve closeCurve;
+  final Duration openDelay;
+  final Duration closeDelay;
+
+  const SheetMotion({
+    required this.open,
+    required this.close,
+    this.openCurve = Curves.easeOutCubic,
+    this.closeCurve = Curves.easeInCubic,
+    this.openDelay = Duration.zero,
+    this.closeDelay = Duration.zero,
+  });
+
+  /// Every other sheet.
+  static const standard = SheetMotion(
+    open: Duration(milliseconds: 420),
+    close: Duration(milliseconds: 320),
+  );
+
+  /// A sheet over the share screen (Welk kaartje deel je?, the trust sheet,
+  /// the message): it goes down a beat after it is told to.
+  static const share = SheetMotion(
+    open: Duration(milliseconds: 380),
+    close: Duration(milliseconds: 320),
+    openCurve: YiviMotion.ease,
+    closeCurve: YiviMotion.leave,
+    closeDelay: Duration(milliseconds: 120),
+  );
+
+  /// The sheet a card is added in.
+  static const issue = SheetMotion(
+    open: Duration(milliseconds: 420),
+    close: Duration(milliseconds: 360),
+    openCurve: YiviMotion.ease,
+    closeCurve: YiviMotion.leave,
+  );
+
+  SheetMotion copyWith({Duration? openDelay, Duration? closeDelay}) =>
+      SheetMotion(
+        open: open,
+        close: close,
+        openCurve: openCurve,
+        closeCurve: closeCurve,
+        openDelay: openDelay ?? this.openDelay,
+        closeDelay: closeDelay ?? this.closeDelay,
+      );
+}
+
+/// Makes the sheet at [context] wait [delay] before it goes down, the next
+/// time it closes: a card is picked up first and lands while it goes.
+void delayGlassSheetClose(BuildContext context, Duration delay) {
+  final route = ModalRoute.of(context);
+  if (route is _GlassSheetRoute) {
+    route.motion = route.motion.copyWith(closeDelay: delay);
+  }
 }
 
 /// The width of a sheet on a tablet (a form sheet in the middle): 540, as
@@ -310,7 +378,15 @@ bool glassSheetClosing(BuildContext context) {
 class _GlassSheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 
-  _GlassSheetRoute({required this.builder, required this.barrierLabel}) {
+  /// How it slides; its close delay can change while it is open
+  /// ([delayGlassSheetClose]).
+  SheetMotion motion;
+
+  _GlassSheetRoute({
+    required this.builder,
+    required this.barrierLabel,
+    this.motion = SheetMotion.standard,
+  }) {
     _pull.addListener(_followPull);
   }
 
@@ -532,10 +608,30 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 420);
+  Duration get transitionDuration => motion.openDelay + motion.open;
 
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 320);
+  Duration get reverseTransitionDuration => motion.closeDelay + motion.close;
+
+  /// How far up the sheet is at route animation [t]: the wait comes first,
+  /// then the slide on its curve.
+  double _shown(double t, bool closing) {
+    final delay = closing ? motion.closeDelay : motion.openDelay;
+    final run = closing ? motion.close : motion.open;
+    final total = (delay + run).inMicroseconds;
+    if (total == 0) return t;
+    // Elapsed of the way being gone: from 0 (closed) when opening, from 1
+    // (open) when closing.
+    final elapsed = (closing ? 1 - t : t) * total;
+    final local = ((elapsed - delay.inMicroseconds) / run.inMicroseconds).clamp(
+      0.0,
+      1.0,
+    );
+    final eased = (closing ? motion.closeCurve : motion.openCurve).transform(
+      local,
+    );
+    return closing ? 1 - eased : eased;
+  }
 
   /// The sheet's height, as last laid out. A scroll can start during layout
   /// (a lazy list that grows as rows are built), when the size may not be
@@ -575,7 +671,8 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     // As a native iOS sheet: from the top of the safe area to the bottom
     // (measured on iOS 27: the top edge at the top inset, 62 pt on an
     // iPhone 17 Pro). On a phone held sideways there is no top inset: 10
-    // below the top, and between the safe areas left and right.
+    // below the top; the sheet goes from edge to edge, its content between
+    // the safe areas left and right.
     final height = (screen - (landscape ? 10 : media.padding.top)).clamp(
       0.0,
       screen,
@@ -589,7 +686,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
       context: context,
       removeBottom: true,
       child: Padding(
-        padding: sides,
+        padding: EdgeInsets.zero,
         child: Align(
           alignment: Alignment.bottomCenter,
           // At most this high: a sheet that fits its content is lower.
@@ -640,6 +737,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                         bottomInset: media.viewInsets.bottom > 0
                             ? 0
                             : media.padding.bottom,
+                        sides: sides,
                         child: builder(context),
                       ),
                     ),
@@ -667,10 +765,9 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
         final t = animation.value;
         final shown = _gesture
             ? t
-            : (animation.status == AnimationStatus.reverse
-                      ? Curves.easeInCubic
-                      : Curves.easeOutCubic)
-                  .transform(t);
+            : MediaQuery.disableAnimationsOf(context)
+            ? (t > 0 ? 1.0 : 0.0)
+            : _shown(t, animation.status == AnimationStatus.reverse);
         return FractionalTranslation(
           translation: Offset(0, 1 - shown),
           child: child,
@@ -722,6 +819,10 @@ class _GlassSheet extends StatefulWidget {
   final double keyboard;
   final Widget child;
 
+  /// Held sideways: the safe areas left and right, between which the
+  /// content lies (the sheet itself goes from edge to edge).
+  final EdgeInsets sides;
+
   /// Told whether the sheet is lower than [height] (or on its way there), so
   /// the route leaves the page above it uncovered.
   final ValueChanged<bool>? onFitted;
@@ -731,6 +832,7 @@ class _GlassSheet extends StatefulWidget {
     required this.height,
     this.bottomInset = 0,
     this.keyboard = 0,
+    this.sides = EdgeInsets.zero,
     this.onFitted,
     required this.child,
   });
@@ -788,12 +890,13 @@ class _GlassSheetState extends State<_GlassSheet>
       return;
     }
     // Grows into the full sheet while the next page slides in (or back to
-    // the fitted one as it slides out): the same time and curve.
+    // the fitted one as it slides out), as a low sheet grows into the one a
+    // card is added in.
     _height
         .animateTo(
           target,
-          duration: const Duration(milliseconds: 340),
-          curve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 450),
+          curve: YiviMotion.ease,
         )
         .whenCompleteOrCancel(() {
           if (mounted && _fit == null) widget.onFitted?.call(false);
@@ -826,14 +929,14 @@ class _GlassSheetState extends State<_GlassSheet>
       // (useSheetColumns).
       child: LayoutBuilder(
         builder: (context, constraints) => SheetWidthScope(
-          width: constraints.maxWidth,
+          width: constraints.maxWidth - widget.sides.horizontal,
           child: ClipPath(
             clipper: ShapeBorderClipper(shape: shape),
             child: _SheetHeight(
               height: _height,
               onLaidOut: (h) => _laidOut = h,
               child: Padding(
-                padding: EdgeInsets.only(bottom: keyboard),
+                padding: widget.sides.copyWith(bottom: keyboard),
                 child: MediaQuery(
                   data: media.copyWith(
                     padding: media.padding.copyWith(
@@ -947,28 +1050,11 @@ class _GlassSheetFloating extends InheritedWidget {
 /// the keyboard would cover a button at the bottom. A phone held upright has
 /// it at the bottom, in the thumb's reach, right above the keyboard.
 bool sheetActionInBar(BuildContext context) =>
-    _GlassSheetFloating.of(context) ||
-    (useSheetColumns(context) && !SheetActionsInColumn.of(context));
-
-/// The pages under it keep their way on out of the bar on a phone held
-/// sideways: at the bottom of the left column of their [SheetSplit], under
-/// what the page puts above it (the progress of adding a card). The bar
-/// then only has back and close, as upright. A tablet's form sheet keeps it
-/// in the bar.
-class SheetActionsInColumn extends InheritedWidget {
-  const SheetActionsInColumn({super.key, required super.child});
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<SheetActionsInColumn>() !=
-      null;
-
-  @override
-  bool updateShouldNotify(SheetActionsInColumn oldWidget) => false;
-}
+    _GlassSheetFloating.of(context) || useSheetColumns(context);
 
 /// What a sideways [GlassSheetPage] puts at the bottom of its
-/// [SheetSplit]'s left column: its [GlassSheetPage.bottom] and its way on,
-/// when they are not in the bar ([SheetActionsInColumn]).
+/// [SheetSplit]'s left column: its [GlassSheetPage.bottom], when it is not
+/// in the bar.
 class SheetSplitBottom extends InheritedWidget {
   final Widget bottom;
 
@@ -992,6 +1078,11 @@ class SheetSplitBottom extends InheritedWidget {
 /// their own buttons, as the way on is in the bar there.
 class SheetKeepsClose extends InheritedWidget {
   const SheetKeepsClose({super.key, required super.child});
+
+  /// Whether [context] is in the pages of adding a card (sideways their way
+  /// on takes the close button's place).
+  static bool inScope(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SheetKeepsClose>() != null;
 
   /// Whether the pages at [context] show the close button at the right.
   static bool of(BuildContext context) =>

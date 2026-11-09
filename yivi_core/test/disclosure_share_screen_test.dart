@@ -35,6 +35,8 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
+import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
@@ -306,9 +308,9 @@ void main() {
       ]),
     );
 
-    // One title says who asks what: "Webshop Noord is asking for your
-    // data"; the card under it says who they are.
-    expect(find.text("Webshop Noord is asking for your data"), findsOneWidget);
+    // The title says what is going on, "You share data with"; the card
+    // under it says with whom, and whether Yivi knows them.
+    expect(find.text("You share data with"), findsOneWidget);
     expect(find.text("Webshop Noord"), findsOneWidget);
     expect(find.text("Registered with Yivi"), findsOneWidget);
     expect(find.text("is asking for your data"), findsNothing);
@@ -317,14 +319,8 @@ void main() {
     // Only one option: nothing to change.
     expect(find.byKey(const Key("share_change_0")), findsNothing);
     expect(find.byKey(const Key("share_reason")), findsNothing);
-    // Something is shared and nothing is missing: what stays private.
-    expect(
-      find.text(
-        "Webshop Noord only gets what is above. Everything else stays on "
-        "your phone.",
-      ),
-      findsOneWidget,
-    );
+    // No footnote under the cards any more.
+    expect(find.byKey(const Key("share_footnote")), findsNothing);
 
     // The button is the consent: no dialog, the choices are sent at once.
     await tester.tap(find.descendant(of: _share, matching: find.text("Share")));
@@ -351,7 +347,7 @@ void main() {
       find.byKey(const Key("share_scroll_view")),
     );
     expect(scrollable.physics, isA<AlwaysScrollableScrollPhysics>());
-    final title = find.text("Webshop Noord is asking for your data");
+    final title = find.text("You share data with");
     final before = tester.getRect(title).top;
     final gesture = await tester.startGesture(tester.getCenter(title));
     await gesture.moveBy(const Offset(0, 80));
@@ -367,13 +363,14 @@ void main() {
 
     expect(find.text("Jansen"), findsOneWidget);
     // The other choice, in a strip at the foot of the card.
-    expect(find.text("You can also choose another card"), findsOneWidget);
+    expect(find.text("You have another one"), findsOneWidget);
     expect(find.text("Change choice"), findsOneWidget);
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
-    expect(find.text("Which card do you share?"), findsOneWidget);
-    // A radio in each card's header, on the one in use.
-    expect(find.byKey(const Key("sheet_radio_on")), findsOneWidget);
+    // The page's heading, and the bar's title it hands over to.
+    expect(find.text("Which card do you share?"), findsWidgets);
+    // No radios: a ring around the card in use.
+    expect(find.byKey(const Key("sheet_chosen_ring")), findsOneWidget);
 
     await tester.tap(find.byKey(const Key("sheet_owned_hash-idcard-de Vries")));
     await tester.pumpAndSettle();
@@ -500,25 +497,17 @@ void main() {
       // Not shared: one row naming its kinds, and that it is not shared.
       final row = find.byKey(const Key("share_add_optional_0"));
       expect(find.text("Passport or ID card"), findsOneWidget);
-      expect(
-        find.text(
-          "Not shared. Webshop Noord asks for it, but you don't have to.",
-        ),
-        findsOneWidget,
-      );
+      expect(find.text("You don't share this"), findsOneWidget);
       expect(find.byKey(const Key("share_slot_0")), findsNothing);
       expect(find.text("Share without data"), findsOneWidget);
-      // The footnote is always there.
-      expect(find.byKey(const Key("share_footnote")), findsOneWidget);
 
       await tester.tap(row);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
-      expect(find.text("Do you want to share this too?"), findsOneWidget);
+      expect(find.text("Do you want to share this too?"), findsWidgets);
       expect(
         find.text(
-          "Webshop Noord asks for one of these cards, but you don't have to. "
-          "You can share without it too.",
+          "Webshop Noord asks for one of these cards, but you don't have to.",
         ),
         findsOneWidget,
       );
@@ -539,13 +528,7 @@ void main() {
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
       expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
       expect(find.byKey(const Key("share_add_optional_0")), findsNothing);
-      expect(
-        find.text(
-          "You don't have to. You can also not share it, or choose something "
-          "else.",
-        ),
-        findsOneWidget,
-      );
+      expect(find.text("You share this"), findsOneWidget);
       expect(find.text("Share"), findsOneWidget);
 
       // Change choice: the same sheet, the outline on the card in use.
@@ -633,7 +616,7 @@ void main() {
     testWidgets("not in the app: the row opens the sheet to add one; it is "
         "included once it arrives", (tester) async {
       final sessions = StreamController<SessionState>();
-      addTearDown(sessions.close);
+      addTearDown(() => unawaited(sessions.close()));
       DisclosurePickOne optional(List<SelectableCredentialInstance> owned) =>
           DisclosurePickOne(
             optional: true,
@@ -731,13 +714,17 @@ void main() {
         ),
         findsOneWidget,
       );
+      // No pill: the strip says it is not in the app yet; a tap adds.
       expect(
-        find.descendant(of: partly, matching: find.text("Add passport")),
+        find.descendant(of: partly, matching: find.text("Not in your app yet")),
         findsOneWidget,
       );
       final neither = find.byKey(const Key("sheet_add_income+address"));
       expect(
-        find.descendant(of: neither, matching: find.text("Add both")),
+        find.descendant(
+          of: neither,
+          matching: find.text("Not in your app yet"),
+        ),
         findsOneWidget,
       );
       expect(
@@ -750,7 +737,7 @@ void main() {
         findsOneWidget,
       );
 
-      // Its pill adds the card that is missing.
+      // A tap adds the card that is missing.
       await tester.ensureVisible(partly);
       await tester.tap(partly);
       await tester.pumpAndSettle();
@@ -812,7 +799,6 @@ void main() {
       // the fix.
       expect(find.byKey(const Key("shared_card_problem")), findsOneWidget);
       expect(find.byKey(const Key("shared_card_fix")), findsNothing);
-      expect(find.byKey(const Key("share_footnote")), findsOneWidget);
       expect(find.text("Add again"), findsOneWidget);
 
       // It opens the sheet straight on adding a new one: its details.
@@ -868,27 +854,17 @@ void main() {
         message: "I agree to the rental agreement.",
       ),
     );
-
-    expect(
-      find.text("Webshop Noord is asking you to sign something"),
-      findsOneWidget,
-    );
+    expect(find.text("You sign a message for"), findsOneWidget);
+    expect(find.text("Webshop Noord"), findsOneWidget);
     // The message as a quote, under its own label.
-    expect(find.text("YOU SIGN"), findsOneWidget);
+    expect(find.text("THE MESSAGE"), findsOneWidget);
     expect(find.byKey(const Key("share_message")), findsOneWidget);
-    expect(
-      find.text("You sign by pressing the button at the bottom."),
-      findsOneWidget,
-    );
     expect(find.text("YOU SIGN WITH"), findsOneWidget);
-    expect(find.text("Sign"), findsOneWidget);
     expect(
-      find.text(
-        "Webshop Noord only gets the message and what is above. Everything "
-        "else stays on your phone.",
-      ),
+      find.descendant(of: _share, matching: find.text("Sign")),
       findsOneWidget,
     );
+    expect(find.byKey(const Key("share_footnote")), findsNothing);
   });
 
   testWidgets("a card in return: You receive, Share and add card", (
@@ -916,7 +892,7 @@ void main() {
       ),
     );
 
-    expect(find.text("Webshop Noord is asking for your data"), findsOneWidget);
+    expect(find.text("You share data with"), findsOneWidget);
     expect(find.text("YOU GET THIS IN RETURN"), findsOneWidget);
     expect(find.text("Share and add card"), findsOneWidget);
   });
@@ -955,27 +931,40 @@ void main() {
       );
       expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
       expect(find.byKey(const Key("share_spot_1")), findsOneWidget);
-      // One type: its issuer under its name.
+      // One type: its issuer under its name (and on its faded picture).
       expect(
         find.descendant(
           of: find.byKey(const Key("share_spot_1")),
           matching: find.text("Issuer"),
         ),
-        findsOneWidget,
-      );
-      // The button adds it, with what is left above it; the footnote is
-      // there all along.
-      expect(
-        find.text("One more thing to add, then you can share"),
-        findsOneWidget,
+        findsWidgets,
       );
       expect(
-        find.descendant(of: _share, matching: find.text("Add data")),
+        find.descendant(
+          of: find.byKey(const Key("share_spot_1")),
+          matching: find.text("Not in your app yet"),
+        ),
         findsOneWidget,
       );
-      expect(find.byKey(const Key("share_footnote")), findsOneWidget);
-      // Two items, one ready: a dot each.
-      expect(find.byKey(const Key("share_steps")), findsOneWidget);
+      // The button adds it, with what is left above it.
+      expect(
+        find.text("One more card to add, then you can share"),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: _share, matching: find.text("Add ID card")),
+        findsOneWidget,
+      );
+      // Two items, one ready: a part each.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("share_progress_parts")),
+          matching: find.byWidgetPredicate(
+            (w) => w.runtimeType.toString() == "_SharePart",
+          ),
+        ),
+        findsNWidgets(2),
+      );
       await tester.tap(_share);
       await tester.pumpAndSettle();
       expect(calls.shared, isEmpty);
@@ -983,8 +972,8 @@ void main() {
       expect(find.text("Add ID card"), findsWidgets);
     });
 
-    testWidgets("one way to get it: the spot looks like the card, with what "
-        "it will share still empty", (tester) async {
+    testWidgets("one way to get it: the spot looks like the card, with the "
+        "values asked of it, marked Asked", (tester) async {
       await _pump(
         tester,
         session: _session([
@@ -1004,7 +993,10 @@ void main() {
                   Attribute(
                     claimPath: ["lastname"],
                     displayName: "Last name",
-                    requestedValue: AttributeValue(type: AttributeType.string),
+                    requestedValue: AttributeValue(
+                      type: AttributeType.string,
+                      string: "Jansen",
+                    ),
                   ),
                   // Part of the type, but not asked for: no row.
                   Attribute(claimPath: ["bsn"], displayName: "BSN"),
@@ -1019,18 +1011,30 @@ void main() {
         find.descendant(of: spot, matching: find.byType(CardTile)),
         findsOne,
       );
-      expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
+      // Asked without a value: nothing to show yet, no row.
       expect(
         find.descendant(of: spot, matching: find.text("First name")),
-        findsOneWidget,
+        findsNothing,
       );
+      // Asked with a value: its row, with that value and "Asked".
       expect(
         find.descendant(of: spot, matching: find.text("Last name")),
         findsOneWidget,
       );
       expect(
+        find.descendant(of: spot, matching: find.text("Jansen")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: spot,
+          matching: find.byKey(const Key("value_tag_asked")),
+        ),
+        findsOneWidget,
+      );
+      expect(
         find.descendant(of: spot, matching: find.text("Not in your app yet")),
-        findsNWidgets(2),
+        findsOneWidget,
       );
       expect(
         find.descendant(of: spot, matching: find.text("BSN")),
@@ -1082,7 +1086,10 @@ void main() {
         find.descendant(of: spot, matching: find.text("First name")),
         findsNothing,
       );
-      expect(find.descendant(of: spot, matching: find.text("Add")), findsOne);
+      expect(
+        find.descendant(of: spot, matching: find.text("Not in your app yet")),
+        findsOne,
+      );
 
       // The sheet has only the kinds, a row each: its name and how you
       // get it.
@@ -1109,9 +1116,8 @@ void main() {
       }
     });
 
-    testWidgets("the Add pill in the spot's strip opens it too", (
-      tester,
-    ) async {
+    testWidgets("no Add pill: the strip says it is not in the app yet, and "
+        "the whole spot is the button", (tester) async {
       await _pump(
         tester,
         session: _session([
@@ -1122,7 +1128,8 @@ void main() {
           ),
         ]),
       );
-      expect(find.text("Add it to your app first"), findsOneWidget);
+      expect(find.text("Not in your app yet"), findsOneWidget);
+      expect(find.byType(SmallPill), findsNothing);
       await tester.tap(find.byKey(const Key("empty_spot_add")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
@@ -1213,7 +1220,7 @@ void main() {
         findsNWidgets(2),
       );
       expect(
-        find.text("One more thing to add, then you can share"),
+        find.text("One more card to add, then you can share"),
         findsOneWidget,
       );
       expect(
@@ -1310,7 +1317,7 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.descendant(of: spot, matching: find.text("Add both")),
+          find.descendant(of: spot, matching: find.text("Not in your app yet")),
           findsOneWidget,
         );
         final above = tester.getRect(find.byKey(const Key("share_slot_0")));
@@ -1324,14 +1331,7 @@ void main() {
         tester,
       ) async {
         await _pump(tester, session: together(), size: tall);
-        // The spot's pressable surface lies over its label.
-        await tester.tap(
-          find.descendant(
-            of: find.byKey(const Key("share_spot_1")),
-            matching: find.text("Add both"),
-          ),
-          warnIfMissed: false,
-        );
+        await tester.tap(find.byKey(const Key("share_spot_1")));
         await tester.pumpAndSettle();
         expect(find.text("CARD 1 OF 2"), findsOneWidget);
         expect(find.text("CARD 2 OF 2"), findsOneWidget);
@@ -1355,14 +1355,7 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(
-          find.descendant(of: spot, matching: find.text("Add")),
-          findsOneWidget,
-        );
-        await tester.tap(
-          find.descendant(of: spot, matching: find.text("Add")),
-          warnIfMissed: false,
-        );
+        await tester.tap(spot);
         await tester.pumpAndSettle();
         expect(
           find.byKey(const Key("sheet_together_in_app_passport")),
@@ -1455,12 +1448,12 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text("Your card doesn't count for this request"),
+        find.text("Your card does not count for this request"),
         findsOneWidget,
       );
       // Not a singleton: add another; and a quiet way out.
       expect(
-        find.descendant(of: _share, matching: find.text("Add data")),
+        find.descendant(of: _share, matching: find.text("Add iDEAL")),
         findsOneWidget,
       );
       expect(find.byKey(const Key("share_decline")), findsOneWidget);
@@ -1519,24 +1512,32 @@ void main() {
     });
   });
 
-  testWidgets("tablet: the question and who asks left, what is shared and "
-      "the footnote right", (tester) async {
-    // A 13" iPad held upright; sideways a tablet has the phone's panel.
+  testWidgets("tablet: the title and who asks left, what is shared right, "
+      "in two equal columns", (tester) async {
+    // A 13" iPad held upright.
     await _pump(
       tester,
       session: _session([_passportOrIdCard()]),
       size: const Size(1032, 1376),
     );
-    expect(find.byType(SessionColumns), findsOneWidget);
+    expect(find.byType(SidewaysLayout), findsOneWidget);
     final slot = tester.getRect(find.byKey(const Key("share_slot_0")));
-    expect(
-      tester.getRect(find.byKey(const Key("session_requestor_header"))).right,
-      lessThan(slot.left),
+    final title = tester.getRect(find.byKey(const Key("share_title")));
+    expect(title.right, lessThan(slot.left));
+    // Equal columns, 40 apart, at most 838 wide together.
+    final row = tester.getRect(
+      find
+          .descendant(
+            of: find.byType(SidewaysLayout),
+            matching: find.byType(Row),
+          )
+          .first,
     );
-    // The footnote right under the last card.
-    final footnote = tester.getRect(find.byKey(const Key("share_footnote")));
-    expect(footnote.left, greaterThanOrEqualTo(slot.left));
-    expect(footnote.top, greaterThan(slot.bottom));
+    expect(row.width, lessThanOrEqualTo(838));
+    // (the card keeps a little room for its outline)
+    expect(slot.right, closeTo(row.right, 4));
+    expect(slot.width, closeTo((row.width - 40) / 2, 4));
+    expect(find.byKey(const Key("share_footnote")), findsNothing);
   });
 
   group("the Change sheet", () {
@@ -1655,7 +1656,7 @@ void main() {
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
 
-      expect(find.text("Which card do you share?"), findsOneWidget);
+      expect(find.text("Which card do you share?"), findsWidgets);
       expect(find.text("sanne@devries.example"), findsOneWidget);
       expect(find.text("Add another card"), findsOneWidget);
     });
@@ -1693,35 +1694,41 @@ void main() {
       semantics.dispose();
     });
 
-    testWidgets("sits on the bottom edge, the chosen card shared as a hero", (
-      tester,
-    ) async {
+    testWidgets("sits on the bottom edge; the chosen card is picked up from "
+        "the page and put down on its row", (tester) async {
       await _pump(tester, session: _session([_passportOrIdCard()]));
-      Object heroTagOf(Finder f) => tester
-          .widget<Hero>(find.ancestor(of: f, matching: find.byType(Hero)).first)
-          .tag;
-      final slotTag = heroTagOf(find.byKey(const Key("share_slot_0")));
+      double opacityOf(Finder f) => tester
+          .widget<Opacity>(
+            find.ancestor(of: f, matching: find.byType(Opacity)).first,
+          )
+          .opacity;
+      final slot = find.byKey(const Key("share_slot_0"));
+      final row = find.byKey(const Key("sheet_owned_hash-passport-Jansen"));
 
       await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      // Under way: its place on the page and its row are empty while the
+      // copy is carried.
+      expect(YiviFlight.isFlying, isTrue);
+      expect(opacityOf(slot), 0);
+      expect(opacityOf(row), 0);
       await tester.pumpAndSettle();
 
       expect(
         tester.getRect(find.byKey(const Key("glass_sheet"))).bottom,
         tester.view.physicalSize.height / tester.view.devicePixelRatio,
       );
-      // The card in the sheet has every value it would share. (The one on
-      // the share screen is hidden while its hero is in the sheet.)
+      // Landed: the card in the sheet has every value it would share, with
+      // the ring of the one in use.
+      expect(YiviFlight.isFlying, isFalse);
+      expect(opacityOf(row), 1);
       expect(
-        find.descendant(
-          of: find.byKey(const Key("sheet_owned_hash-passport-Jansen")),
-          matching: find.text("Jansen"),
-        ),
+        find.descendant(of: row, matching: find.text("Jansen")),
         findsOneWidget,
       );
-      expect(
-        heroTagOf(find.byKey(const Key("sheet_owned_hash-passport-Jansen"))),
-        slotTag,
-      );
+      expect(find.byKey(const Key("sheet_chosen_ring")), findsOneWidget);
     });
 
     testWidgets("the picked card flies back into the overview", (tester) async {
@@ -1736,14 +1743,19 @@ void main() {
       await tester.tap(picked);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 150));
-      // Mid-flight: the one card showing the new choice is on its way.
-      final flying = tester.getRect(find.text("de Vries")).top;
+      // Mid-flight: a copy of the new choice is on its way, between its row
+      // and its place on the page (both empty while it is carried).
+      final tops = [
+        for (final e in find.text("de Vries").evaluate())
+          tester.getRect(find.byWidget(e.widget)).top,
+      ];
 
       await tester.pumpAndSettle();
       final to = tester.getRect(find.text("de Vries")).top;
-      expect(flying, inInclusiveRange(min(from, to), max(from, to)));
-      expect(flying, isNot(closeTo(from, 1)));
-      expect(flying, isNot(closeTo(to, 1)));
+      expect(
+        tops.where((top) => top > min(from, to) + 1 && top < max(from, to) - 1),
+        isNotEmpty,
+      );
     });
 
     testWidgets("adding is a subpage: swiped back, its button at the bottom", (
@@ -1787,7 +1799,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_go_button")), findsNothing);
-      expect(find.text("Which card do you share?"), findsOneWidget);
+      expect(find.text("Which card do you share?"), findsWidgets);
     });
 
     testWidgets("back from adding returns to the choice", (tester) async {
@@ -1811,7 +1823,7 @@ void main() {
       await tester.tap(find.bySemanticsLabel("Go back"));
       await tester.pumpAndSettle();
 
-      expect(find.text("Which card do you share?"), findsOneWidget);
+      expect(find.text("Which card do you share?"), findsWidgets);
     });
   });
 
@@ -1837,7 +1849,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final nested = StreamController<SessionState>();
-      addTearDown(nested.close);
+      addTearDown(() => unawaited(nested.close()));
       final calls = await _pump(
         tester,
         session: _session([
@@ -1885,9 +1897,20 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 3, 3))),
         findsOneWidget,
       );
-      // The question, with who issues the card above it.
-      expect(find.text("Do you want to add this card?"), findsOneWidget);
-      expect(find.byKey(const Key("issuance_issuer_name")), findsOneWidget);
+      // The heading says what comes, the card under it says from whom.
+      final heading = find.byKey(const Key("issuance_heading"));
+      expect(
+        find.descendant(
+          of: heading,
+          matching: find.text("You get a card from"),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: heading, matching: find.text("Issuer")),
+        findsOneWidget,
+      );
+      expect(find.text("THIS GOES IN YOUR APP"), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_issue_add")));
       await tester.pump();
       final granted = calls.interactions.last;
@@ -1899,7 +1922,11 @@ void main() {
       nested.add(issuance(SessionStatus.success));
       await tester.pumpAndSettle();
       expect(find.text("Success"), findsWidgets);
-      expect(find.text("Back to Webshop Noord"), findsOneWidget);
+      expect(find.text("Continue sharing"), findsOneWidget);
+      expect(
+        find.text("The card is in your app now. Go back to share your data."),
+        findsOneWidget,
+      );
       // Done: no host waits any more, and closing does not ask.
       expect(
         ProviderScope.containerOf(
@@ -2026,17 +2053,17 @@ void main() {
       );
     });
 
-    for (final (name, size, flies) in [
-      // Upright, the share screen has its tablet columns: the card fades in.
-      ("tablet upright", const Size(1032, 1376), false),
-      // Sideways it has the phone's panel, with spots the card flies into.
-      ("tablet sideways", const Size(1180, 820), true),
-      ("unfolded phone sideways", const Size(951, 669), true),
+    // On a tablet, either way up, the share screen has the two columns with
+    // spots the card flies into, as on a phone.
+    for (final (name, size) in [
+      ("tablet upright", const Size(1032, 1376)),
+      ("tablet sideways", const Size(1180, 820)),
+      ("unfolded phone sideways", const Size(951, 669)),
     ]) {
-      testWidgets("$name: the same steps in the dialog, and the card "
-          "${flies ? "flies into its spot" : "fades in"}", (tester) async {
+      testWidgets("$name: the same steps in the dialog, and the card flies "
+          "into its spot", (tester) async {
         final nested = StreamController<SessionState>();
-        addTearDown(nested.close);
+        addTearDown(() => unawaited(nested.close()));
         await _pump(
           tester,
           size: size,
@@ -2072,10 +2099,7 @@ void main() {
         await tester.tap(find.byKey(const Key("sheet_back_to_request")));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 200));
-        expect(
-          find.byKey(const Key("sheet_flight_card")),
-          flies ? findsOneWidget : findsNothing,
-        );
+        expect(find.byKey(const Key("sheet_flight_card")), findsOneWidget);
         await tester.pumpAndSettle();
         expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
       });
@@ -2088,8 +2112,8 @@ void main() {
     addIdCard(WidgetTester tester, {int above = 0}) async {
       final sessions = StreamController<SessionState>.broadcast();
       final nested = StreamController<SessionState>();
-      addTearDown(sessions.close);
-      addTearDown(nested.close);
+      addTearDown(() => unawaited(sessions.close()));
+      addTearDown(() => unawaited(nested.close()));
       final idcard = _descriptor("idcard", "ID card");
       SessionState state({required bool owned}) => _session([
         for (var n = 0; n < above; n++)
@@ -2138,7 +2162,7 @@ void main() {
       matching: find.byKey(const Key("card_tile_outline")),
     );
 
-    testWidgets("the card lands, then a green ring for a moment and All set", (
+    testWidgets("the card lands, then a green ring that stays, and All set", (
       tester,
     ) async {
       await addIdCard(tester);
@@ -2168,8 +2192,8 @@ void main() {
         ).successText,
       );
       expect(
-        find.textContaining("All set. Have one more look at what you share."),
-        findsOneWidget,
+        tester.widget<Text>(find.byKey(const Key("share_progress_line"))).data,
+        "All set",
       );
       // The share button fades in, and doesn't take a tap meanwhile.
       expect(
@@ -2177,13 +2201,14 @@ void main() {
         findsWidgets,
       );
 
+      // The ring stays.
       await tester.pump(const Duration(milliseconds: 2500));
       await tester.pumpAndSettle();
-      expect(ring(0), findsNothing);
+      expect(ring(0), findsOneWidget);
     });
 
-    testWidgets("a spot out of view: the page scrolls to it first, then the "
-        "card flies", (tester) async {
+    testWidgets("a spot out of view: the page jumps to it under the sheet, "
+        "then the card flies", (tester) async {
       await addIdCard(tester, above: 6);
       final scroll = find.byKey(
         const Key("share_scroll_view"),
@@ -2206,12 +2231,16 @@ void main() {
 
       await tester.tap(find.byKey(const Key("sheet_back_to_request")));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      // Scrolling first, under the sheet: no card flies yet.
-      expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
-      await tester.pump(const Duration(milliseconds: 300));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      // No smooth scroll first: the page is already at the spot, and the
+      // card is on its way.
       expect(find.byKey(const Key("sheet_flight_card")), findsOneWidget);
+      final spot = tester.getRect(
+        find.byKey(const Key("share_slot_6"), skipOffstage: false),
+      );
+      expect(spot.top, greaterThan(0));
+      expect(spot.bottom, lessThan(tester.getRect(_share).top));
       await tester.pumpAndSettle();
 
       // The card is in view, clear of the share button.
@@ -2221,11 +2250,10 @@ void main() {
       expect(card.bottom, lessThan(button.top));
     });
 
-    testWidgets("tablet upright: a card added for a spot fades in over it", (
-      tester,
-    ) async {
+    testWidgets("tablet upright: a card that comes in without the sheet is "
+        "in its place at once, with the ring", (tester) async {
       final sessions = StreamController<SessionState>();
-      addTearDown(sessions.close);
+      addTearDown(() => unawaited(sessions.close()));
       final idcard = _descriptor("idcard", "ID card");
       SessionState withCard({required bool owned}) => _session([
         DisclosurePickOne(
@@ -2248,12 +2276,12 @@ void main() {
 
       sessions.add(withCard(owned: true));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 150));
-      // Half way: the spot fades out under the card that fades in.
-      expect(spot, findsOneWidget);
-      expect(find.byType(FadeTransition), findsWidgets);
-      await tester.pumpAndSettle();
+      await tester.pump();
       expect(spot, findsNothing);
+      expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
+      expect(YiviFlight.isFlying, isFalse);
+      await tester.pumpAndSettle();
+      expect(ring(0), findsOneWidget);
     });
 
     testWidgets("choosing does not ask: the choice list just closes", (
@@ -2773,8 +2801,8 @@ void main() {
         tester,
         session: _session(email(), requestor: party()),
       );
-      // A red ! on the logo and a red pill, no banner.
-      expect(find.text("Not checked"), findsOneWidget);
+      // A red ! on the logo and the trust text in red, no banner.
+      expect(find.text("Not known by Yivi"), findsOneWidget);
       expect(find.byType(RequestorTrustBadge), findsOneWidget);
       expect(find.byKey(const Key("share_trust_banner")), findsNothing);
       expect(wash, findsOneWidget);
@@ -2810,6 +2838,8 @@ void main() {
         session: _session(email(), requestor: party(level: "")),
       );
       expect(find.byKey(const Key("session_requestor_trust")), findsNothing);
+      // No ⓘ to open a sheet with, and the card itself opens nothing.
+      expect(find.byKey(const Key("session_requestor_info")), findsNothing);
       await tester.tap(find.byKey(const Key("session_requestor_header")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("requestor_trust_sheet")), findsNothing);
@@ -2823,11 +2853,11 @@ void main() {
       final from = tester.getRect(logo);
       expect(from.width, 52);
 
-      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 150));
       // Mid-flight: one logo on its way, between the two sizes.
-      // (The copy in flight is the hero's child: measure the scaled box.)
+      // (The copy in flight is scaled to its frame: measure that box.)
       final sizes = [
         for (final e in find.byType(FittedBox).evaluate())
           tester.getRect(find.byWidget(e.widget)).width,
@@ -2844,7 +2874,7 @@ void main() {
 
     testWidgets("the party opens what registered means", (tester) async {
       await _pump(tester, session: _session(email()));
-      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("requestor_trust_sheet")), findsOneWidget);
       expect(find.byKey(const Key("trust_sheet_head")), findsOneWidget);
@@ -2859,7 +2889,7 @@ void main() {
         tester,
         session: _session(email(), requestor: party()),
       );
-      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
       await tester.pumpAndSettle();
       expect(find.text("Unknown to Yivi"), findsOneWidget);
       expect(find.text("Nobody checked who they are"), findsOneWidget);
@@ -2880,7 +2910,7 @@ void main() {
           requestor: party(level: "medium", source: "eu_trusted_list"),
         ),
       );
-      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
       await tester.pumpAndSettle();
       expect(find.text("Verified by an EU trust service"), findsOneWidget);
       expect(
@@ -2951,7 +2981,7 @@ void main() {
         "the requestor's sheet, a subpage there", (tester) async {
       await _pump(tester, session: _session(email()));
       expect(find.byKey(const Key("share_technical_details")), findsNothing);
-      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
       await tester.pumpAndSettle();
       final row = find.byKey(const Key("trust_sheet_technical_details"));
       await tester.scrollUntilVisible(
@@ -3001,12 +3031,11 @@ void main() {
       expect(find.descendant(of: panel, matching: card), findsOneWidget);
       expect(find.descendant(of: panel, matching: _share), findsOneWidget);
       expect(find.byType(IrmaBottomBarBase), findsNothing);
-      // One sentence in the panel says what they get and that nothing else
-      // leaves the phone; no footnote under the list.
+      // The title above it, in the panel too; no footnote under the list.
       expect(
-        find.text(
-          "Webshop Noord only gets what is next to this, and only when you "
-          "press the share button. Everything else stays on your phone.",
+        find.descendant(
+          of: panel,
+          matching: find.byKey(const Key("share_title")),
         ),
         findsOneWidget,
       );
@@ -3039,7 +3068,7 @@ void main() {
           size: size,
           padding: padding,
         );
-        expect(find.byType(SessionColumns), findsNothing);
+        expect(find.byType(SidewaysLayout), findsOneWidget);
         expect(find.descendant(of: panel, matching: card), findsOneWidget);
         expect(find.descendant(of: panel, matching: _share), findsOneWidget);
         expect(find.byType(IrmaBottomBarBase), findsNothing);
@@ -3059,35 +3088,24 @@ void main() {
       });
     }
 
-    testWidgets("the panel's card is level with the first card", (
+    testWidgets("the panel: the title, who asks under it, the button at the "
+        "bottom; the right column starts with what is shared", (tester) async {
+      await pumpSideways(tester, _session([_passportOrIdCard()]));
+      final title = tester.getRect(find.byKey(const Key("share_title")));
+      final who = tester.getRect(card);
+      final button = tester.getRect(_share);
+      expect(who.top, greaterThan(title.bottom));
+      expect(button.top, greaterThan(who.bottom));
+      expect(button.bottom, greaterThan(402 - 80));
+      final label = tester.getRect(find.text("YOU SHARE THIS"));
+      final slot = tester.getRect(find.byKey(const Key("share_slot_0")));
+      expect(label.left, greaterThan(who.right));
+      expect(slot.top, greaterThan(label.bottom));
+    });
+
+    testWidgets("signing: the message first in the right column", (
       tester,
     ) async {
-      await pumpSideways(tester, _session([_passportOrIdCard()]));
-      expect(
-        tester.getRect(card).top,
-        tester.getRect(find.byKey(const Key("share_slot_0"))).top,
-      );
-    });
-
-    testWidgets("level with an empty spot", (tester) async {
-      await pumpSideways(
-        tester,
-        _session([
-          DisclosurePickOne(
-            optional: false,
-            ownedOptions: const [],
-            obtainableOptions: [_descriptor("idcard", "ID card")],
-          ),
-        ]),
-      );
-      final tile = find.descendant(
-        of: find.byKey(const Key("share_spot_0")),
-        matching: find.byType(CardTile),
-      );
-      expect(tester.getRect(card).top, tester.getRect(tile).top);
-    });
-
-    testWidgets("level with the message to sign", (tester) async {
       await pumpSideways(
         tester,
         _session(
@@ -3096,34 +3114,37 @@ void main() {
           message: "I agree.",
         ),
       );
-      // The message, as a quote, level with the requestor's card.
+      final message = tester.getRect(find.byKey(const Key("share_message")));
+      expect(message.left, greaterThan(tester.getRect(card).right));
       expect(
-        tester.getRect(card).top,
-        tester.getRect(find.byKey(const Key("share_message"))).top,
+        message.bottom,
+        lessThan(tester.getRect(find.byKey(const Key("share_slot_0"))).top),
       );
     });
 
-    testWidgets("sheets: between the safe areas, two columns, the button "
-        "at the right", (tester) async {
+    testWidgets("sheets: edge to edge, their content between the safe "
+        "areas, two columns", (tester) async {
       await pumpSideways(tester, _session([_passportOrIdCard()]));
       // Kies een kaartje: the two cards side by side.
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
       final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
-      expect(sheet.left, 62);
-      expect(sheet.right, 874 - 62);
+      expect(sheet.left, 0);
+      expect(sheet.right, 874);
       final passport = tester.getRect(
         find.byKey(const Key("sheet_owned_hash-passport-Jansen")),
       );
       final idcard = tester.getRect(
         find.byKey(const Key("sheet_owned_hash-idcard-de Vries")),
       );
+      expect(passport.left, greaterThanOrEqualTo(62));
+      expect(idcard.right, lessThanOrEqualTo(874 - 62));
       expect(passport.top, idcard.top);
       expect(idcard.left, greaterThan(passport.right));
     });
 
-    testWidgets("adding: the button at the bottom left under the progress, "
-        "what you get right, who it is for in the middle of the bar", (
+    testWidgets("adding: the way on in the bar at the right, who it is for "
+        "and the progress at its start; the card left, what you get right", (
       tester,
     ) async {
       await pumpSideways(
@@ -3151,37 +3172,41 @@ void main() {
       );
       await tester.tap(find.byKey(const Key("share_spot_0")));
       await tester.pumpAndSettle();
-      // The way on at the bottom of the left column, the progress right
-      // above it; no bottom bar across the sheet.
+      // The way on in the bar, at the right, in place of ✕; no bottom bar
+      // across the sheet.
       final go = tester.getRect(find.byKey(const Key("sheet_go_button")));
-      final title = tester.getRect(find.byKey(const Key("glass_sheet_title")));
-      final size = tester.view.physicalSize / tester.view.devicePixelRatio;
-      expect(go.top, greaterThan(size.height - 120));
+      expect(go.top, lessThan(60));
+      expect(go.right, greaterThan(874 / 2));
       expect(find.byType(SheetBottomBar), findsNothing);
-      final youGet = tester.getRect(find.byKey(const Key("add_data_you_get")));
-      expect(youGet.left, greaterThan(go.right));
+      // At the start of the bar: who the card is for, then the progress.
+      final forWho = tester.getRect(
+        find.byKey(const Key("issue_sheet_for_requestor")),
+      );
+      final progress = tester.getRect(
+        find.byKey(const Key("issue_sheet_progress_parts")),
+      );
+      expect(forWho.left, lessThan(progress.left));
+      expect(progress.right, lessThan(go.left));
+      expect(forWho.center.dy, closeTo(go.center.dy, 2));
+      expect(progress.center.dy, closeTo(go.center.dy, 2));
       // The test's card goes via a website: three steps.
       expect(
         find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
         findsOneWidget,
       );
-      final progress = tester.getRect(
-        find.byKey(const Key("issue_sheet_progress_parts")),
+      // The card and who gives it at the left, what you get at the right.
+      final from = tester.getRect(
+        find.byKey(const Key("add_data_details_issuer")),
       );
-      expect(progress.bottom, lessThanOrEqualTo(go.top));
-      // In the middle of the bar: who the card is for.
-      final forWho = tester.getRect(
-        find.byKey(const Key("issue_sheet_for_requestor")),
-      );
-      expect(forWho.center.dx, closeTo(title.center.dx, 2));
-      expect(forWho.center.dy, closeTo(title.center.dy, 2));
+      final youGet = tester.getRect(find.byKey(const Key("add_data_you_get")));
+      expect(youGet.left, greaterThan(from.right));
     });
 
     testWidgets("who is this, and the technical details, in two columns", (
       tester,
     ) async {
       await pumpSideways(tester, _session([_passportOrIdCard()]));
-      await tester.tap(find.byKey(const Key("session_requestor_header")));
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
       await tester.pumpAndSettle();
       final head = tester.getRect(find.byKey(const Key("trust_sheet_head")));
       final fact = tester.getRect(find.text("Yivi checked who they are"));
@@ -3215,7 +3240,7 @@ void main() {
         ),
       );
       expect(
-        find.descendant(of: panel, matching: find.text("Not checked")),
+        find.descendant(of: panel, matching: find.text("Not known by Yivi")),
         findsOneWidget,
       );
       expect(
