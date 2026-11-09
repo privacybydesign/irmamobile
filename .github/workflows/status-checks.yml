@@ -456,6 +456,27 @@ jobs:
         # komodo = Pixel 9 Pro XL
         run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 40m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
 
+  # CodeQL static analysis of the Go bridge, the Android Java plugins and the workflow
+  # files. Dart is not supported by CodeQL; Swift would need a macOS build of the iOS
+  # project, which the shared workflow (Ubuntu) cannot do. The weekly scheduled run
+  # re-analyses with the latest queries.
+  codeql:
+    uses: privacybydesign/github-workflows/.github/workflows/codeql.yml@v1
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    with:
+      # java-kotlin runs without a build (build-mode none), which covers the Java
+      # plugins; it needs no Flutter or Android SDK.
+      languages: '["go", "java-kotlin", "actions"]'
+      go-version-file: yivi_core/go.mod
+      # irmago links SQLCipher through cgo, so the Go build that CodeQL traces needs
+      # the library, which autobuild would not install.
+      go-build-command: |
+        sudo apt-get update && sudo apt-get install -y libsqlcipher-dev
+        cd yivi_core && go build ./...
+
   dependency-review:
     if: github.event_name == 'pull_request'
     uses: privacybydesign/github-workflows/.github/workflows/dependency-review.yml@v1
@@ -486,6 +507,7 @@ jobs:
       - integration-test-ios
       - integration-test-ios-summary
       - integration-test-android
+      - codeql
       - dependency-review
       - workflow-lint
     runs-on: ubuntu-latest
