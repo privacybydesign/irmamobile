@@ -39,8 +39,11 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
       key: const Key("driving_licence_mrz_input_field"),
       controller: controller,
       keyboardType: .text,
+      autocorrect: false,
+      enableSuggestions: false,
+      // No learning from what is typed (Gboard's incognito mode on Android).
+      enableIMEPersonalizedLearning: false,
       textCapitalization: .characters,
-      autofillHints: const [AutofillHints.creditCardNumber],
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
       inputFormatters: [
