@@ -358,6 +358,42 @@ void main() {
     expect(tester.getRect(title).top, closeTo(before, 0.5));
   });
 
+  testWidgets("Change: the card rises to its row's place first, then the "
+      "sheet comes up under it", (tester) async {
+    await _pump(tester, session: _session([_passportOrIdCard()]));
+    await tester.tap(find.byKey(const Key("share_change_0")));
+    await tester.pump();
+    final copy = find.byKey(const Key("sheet_lift_card"));
+    final sheet = find.byKey(const Key("disclosure_choice_sheet"));
+    final start = tester.getRect(find.byKey(const Key("share_slot_0"))).top;
+    Future<void> wait(int ms) async {
+      for (var t = 0; t < ms; t += 40) {
+        await tester.pump(const Duration(milliseconds: 40));
+      }
+    }
+
+    // At 320 ms the card has risen most of the way; the sheet has not
+    // moved yet.
+    await wait(320);
+    final risen = tester.getRect(copy).top;
+    expect(risen, lessThan(start - 60));
+    expect(tester.getRect(sheet).top, 844);
+    // From 440 ms it waits at its row's place while the sheet comes up.
+    await wait(120);
+    final up = tester.getRect(copy).top;
+    await wait(240);
+    expect(tester.getRect(copy).top, closeTo(up, 0.5));
+    expect(tester.getRect(sheet).top, lessThan(10));
+
+    // Put down on its row: no jump at the end.
+    await tester.pumpAndSettle();
+    expect(copy, findsNothing);
+    expect(
+      tester.getRect(find.byKey(const Key("sheet_chosen_ring"))).top,
+      closeTo(up, 6),
+    );
+  });
+
   testWidgets("Change opens the sheet; a tap picks and closes", (tester) async {
     final calls = await _pump(tester, session: _session([_passportOrIdCard()]));
 

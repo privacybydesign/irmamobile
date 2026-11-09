@@ -362,6 +362,14 @@ void main() {
       );
     });
 
+    testWidgets("a disclosure with an empty message: no paper", (tester) async {
+      await pump(tester, shared: [email], message: "");
+
+      expect(find.byKey(const Key("share_done_paper")), findsNothing);
+      expect(find.byKey(const Key("signed_message")), findsNothing);
+      expect(find.byKey(const Key("share_done_pile")), findsOneWidget);
+    });
+
     testWidgets("nothing shared", (tester) async {
       await pump(tester);
 

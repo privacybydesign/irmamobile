@@ -407,7 +407,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       VoidCallback? onBackToWebsite,
     }) => DisclosureFeedbackScreen(
       isSignatureSession: session.type == .signature,
-      message: session.messageToSign,
+      message: session.type == .signature ? session.messageToSign : null,
       otherParty: session.requestor.name,
       onDismiss: (_) => _popToUnderlyingOrHome(),
       shared: _sharedInstances,

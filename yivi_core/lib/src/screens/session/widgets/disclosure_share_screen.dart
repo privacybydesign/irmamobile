@@ -815,7 +815,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       button: SmallPill(
         key: Key("share_change_$i"),
         label: context.tr("share.change_choice"),
-        tone: SmallPillTone.surface,
         onPressed: () => _openSheet(i),
       ),
     );
@@ -1013,7 +1012,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           button: SmallPill(
             key: Key("share_change_$i"),
             label: context.tr("share.change_choice"),
-            tone: SmallPillTone.surface,
             onPressed: () => _openSheet(i),
           ),
         ),

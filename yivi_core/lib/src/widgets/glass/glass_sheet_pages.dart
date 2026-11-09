@@ -123,9 +123,29 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   void didUpdateWidget(GlassSheetPages oldWidget) {
     super.didUpdateWidget(oldWidget);
     _coming.value = widget.pages.last.key;
-    final added = widget.pages.length > oldWidget.pages.length;
-    final removed = widget.pages.length < oldWidget.pages.length;
-    if (added) {
+    // By the top page: a page that comes or goes under it (the PIN staying
+    // under "Success", a step's page dropped once it is done) does not move
+    // the page on top. A new top page slides in, unless it was under the old
+    // one, which then slides out.
+    final oldTop = oldWidget.pages.last.key;
+    final newTop = widget.pages.last.key;
+    final keyed = oldTop != null && newTop != null;
+    final sameTop = keyed && oldTop == newTop;
+    final back = keyed
+        ? !sameTop && oldWidget.pages.any((p) => p.key == newTop)
+        : widget.pages.length < oldWidget.pages.length;
+    final added = keyed
+        ? !sameTop && !back
+        : widget.pages.length > oldWidget.pages.length;
+    final removed = back;
+    if (sameTop && !_swipedOut) {
+      // Sliding out still (a page's removal), it slides on over the pages
+      // under it as they are now; otherwise they change in place.
+      _shown =
+          _shown.length > oldWidget.pages.length && _shown.last.key != newTop
+          ? [...widget.pages, _shown.last]
+          : widget.pages;
+    } else if (added) {
       _shown = widget.pages;
       _slide.value = 0;
       _slide.animateTo(1, curve: YiviMotion.ease);

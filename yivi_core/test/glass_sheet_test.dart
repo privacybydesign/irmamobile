@@ -474,6 +474,58 @@ void main() {
       );
     }
 
+    testWidgets("a page coming or going under the top one does not move it", (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      late StateSetter set;
+      var under = true;
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            set = setState;
+            return GlassSheetPages(
+              onBack: () {},
+              pages: [
+                const GlassSheetPage(
+                  key: ValueKey("one"),
+                  title: "First",
+                  child: Text("first page"),
+                ),
+                if (under)
+                  const GlassSheetPage(
+                    key: ValueKey("pin"),
+                    title: "PIN",
+                    child: Text("pin page"),
+                  ),
+                const GlassSheetPage(
+                  key: ValueKey("done"),
+                  title: "Success",
+                  child: Text("done page"),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      final at = tester.getTopLeft(find.text("done page"));
+      // Dropped from under it: "Success" stays put.
+      set(() => under = false);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(tester.getTopLeft(find.text("done page")), at);
+      }
+      // Back under it: still put.
+      set(() => under = true);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(tester.getTopLeft(find.text("done page")), at);
+      }
+    });
+
     testWidgets("a new page is a route of its own, named by its title", (
       tester,
     ) async {

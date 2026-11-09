@@ -61,10 +61,14 @@ Future<void> showChangeChoiceSheet({
   Widget Function(DisclosureBundle bundle, double strip)? tileCopy,
   VoidCallback? onLanded,
 }) {
-  // A card picked up first: the sheet waits a beat and comes in under it.
-  final wait = liftFrom != null && !MediaQuery.disableAnimationsOf(context)
+  // A card picked up first: the sheet waits and comes in under it. The
+  // tapped card first rises to its row's place ([ChangeChoiceSheet] lifts
+  // it in); a card being added only needs a beat.
+  final wait = liftFrom == null || MediaQuery.disableAnimationsOf(context)
+      ? Duration.zero
+      : addNew != null
       ? const Duration(milliseconds: 120)
-      : Duration.zero;
+      : ChangeChoiceSheet.liftedWait;
   return showGlassSheet<void>(
     context: context,
     motion: (addNew != null ? SheetMotion.issue : SheetMotion.share).copyWith(
@@ -103,6 +107,10 @@ Widget tileAtSize(Size size, Widget tile) => Material(
 );
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
+  /// How long the sheet waits when a card is lifted in: until the card has
+  /// nearly risen to its row's place.
+  static const liftedWait = Duration(milliseconds: 320);
+
   final int sessionId;
   final int index;
   final CredentialDescriptor? addNew;
@@ -203,9 +211,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   bool _ringShown = true;
 
   /// Opened from the card on the share screen: it is picked up there (a
-  /// little bigger, a shadow, its bottom strip folding away), held while the
-  /// sheet comes in under it, and put down on its row, whose ring then fades
-  /// in. 620 ms.
+  /// little bigger, a shadow, its bottom strip folding away), rises to where
+  /// its row will be, waits there while the sheet comes in under it
+  /// ([liftedWait]), and is put down on its row, whose ring then fades in.
+  /// 800 ms.
   void _liftIn(GlobalKey from) {
     final bundle = _current;
     final row = _currentRow;
@@ -218,22 +227,26 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     YiviFlight.start(
       context,
       from: from,
-      to: YiviFlight.boxOf(row),
+      // Where the row will be once the sheet is up, not where it is while
+      // the sheet slides: the card goes there first and waits.
+      to: (overlay) => sheetSettledBox(row, overlay),
       keys: [
         const FlightKey(0, FlightKey.start),
         FlightKey(
-          0.22,
+          0.15,
           (from, to) =>
               Rect.fromLTWH(from.left, from.top, from.width, to.height),
           lifted: true,
           strip: 0,
         ),
-        const FlightKey(0.82, FlightKey.end, lifted: true, strip: 0),
+        const FlightKey(0.48, FlightKey.end, lifted: true, strip: 0),
+        const FlightKey(0.88, FlightKey.end, lifted: true, strip: 0),
         const FlightKey(1, FlightKey.end, strip: 0),
       ],
-      duration: const Duration(milliseconds: 620),
+      duration: const Duration(milliseconds: 800),
       radius: YiviCorners.cardRadius,
       hide: [from, row],
+      copyKey: const Key("sheet_lift_card"),
       copy: (context, frame) =>
           tileAtSize(frame.size, copy(bundle, frame.strip)),
       onLanded: () {

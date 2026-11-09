@@ -81,6 +81,15 @@ class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
 class DisclosureFeedbackScreenState
     extends ConsumerState<DisclosureFeedbackScreen>
     with WidgetsBindingObserver {
+  /// The signed message; none for a disclosure (whose session has an
+  /// empty one).
+  String? get _message {
+    final message = widget.message;
+    return widget.isSignatureSession && message != null && message.isNotEmpty
+        ? message
+        : null;
+  }
+
   /// Per card of the pile (or the stack on the paper): its unturned box,
   /// where a card flies to.
   final _cardKeys = List.generate(
@@ -123,11 +132,11 @@ class DisclosureFeedbackScreenState
             picture: CredentialCardArt(credential: c, width: 260),
           ),
       ],
-      paper: widget.message == null ? null : _paperKey,
-      paperCopy: widget.message == null
+      paper: _message == null ? null : _paperKey,
+      paperCopy: _message == null
           ? null
           : SignedMessage(
-              message: widget.message!,
+              message: _message!,
               clamp: SignedMessage.paperClamp,
               padding: _paperPadding,
             ),
@@ -154,9 +163,7 @@ class DisclosureFeedbackScreenState
   /// The turn of the pile's card [i], in radians: -3°, 2°, 6°; on the paper's
   /// stack -5°, 2°, 8°.
   double _turnOf(int i) =>
-      (widget.message != null
-          ? const [-5.0, 2.0, 8.0]
-          : const [-3.0, 2.0, 6.0])[i] *
+      (_message != null ? const [-5.0, 2.0, 8.0] : const [-3.0, 2.0, 6.0])[i] *
       3.14159265 /
       180;
 
@@ -222,9 +229,9 @@ class DisclosureFeedbackScreenState
             onPressed: done,
           );
 
-    final hero = widget.message != null
+    final hero = _message != null
         ? _Paper(
-            message: widget.message!,
+            message: _message!,
             paperKey: _paperKey,
             cards: cards,
             cardKeys: _cardKeys,
@@ -232,7 +239,7 @@ class DisclosureFeedbackScreenState
             arriving: _arriving,
             onReadAll: () => showSignedMessageSheet(
               context: context,
-              message: widget.message!,
+              message: _message!,
               lead: context.tr("share.message_sheet.lead_done", {
                 "requestor": requestor,
               }),
@@ -334,7 +341,7 @@ class DisclosureFeedbackScreenState
             padding: insets + const EdgeInsets.fromLTRB(16, 0, 16, 24),
             children: [
               Center(child: hero),
-              SizedBox(height: widget.message != null ? 12 : 28),
+              SizedBox(height: _message != null ? 12 : 28),
               fading(words),
             ],
           ),

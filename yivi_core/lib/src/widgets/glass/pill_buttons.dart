@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_corners.dart";
-import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../press_scale.dart";
 
@@ -407,7 +406,7 @@ class PillButton extends StatelessWidget {
   }
 }
 
-enum SmallPillTone { tint, primary, surface }
+enum SmallPillTone { tint, primary }
 
 /// A small action inside content: "Change", "Add", "Add a new …", "Why?".
 /// 32 high and at least 44 wide, Open Sans 13 semibold. It takes no more
@@ -435,19 +434,10 @@ class SmallPill extends StatelessWidget {
     final (Color fill, Color fg) = switch (tone) {
       SmallPillTone.tint => (palette.tint, palette.link),
       SmallPillTone.primary => (palette.primary, Colors.white),
-      // In dark a step above the card it lies on, not the card's colour.
-      SmallPillTone.surface => (
-        palette.isDark ? palette.tint : palette.surface,
-        palette.link,
-      ),
     };
     final pill = Material(
       color: fill,
-      shape: StadiumBorder(
-        side: tone == SmallPillTone.surface
-            ? YiviEdges.block(context)
-            : BorderSide.none,
-      ),
+      shape: const StadiumBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         highlightColor: Colors.transparent,

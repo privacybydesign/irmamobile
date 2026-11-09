@@ -124,13 +124,23 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
     );
   }
 
-  Future<void> _handleCode(String code) async {
-    final session = await ref
-        .read(smsIssuanceProvider.notifier)
-        .verifyCode(code: code.toUpperCase());
+  /// A code being checked or its issuance starting: a second one would
+  /// start a second issuance.
+  var _handling = false;
 
-    if (session != null && mounted) {
-      handlePointer(context, session);
+  Future<void> _handleCode(String code) async {
+    if (_handling) return;
+    _handling = true;
+    try {
+      final session = await ref
+          .read(smsIssuanceProvider.notifier)
+          .verifyCode(code: code.toUpperCase());
+
+      if (session != null && mounted) {
+        await handlePointer(context, session);
+      }
+    } finally {
+      _handling = false;
     }
   }
 

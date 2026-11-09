@@ -129,6 +129,31 @@ void delayGlassSheetClose(BuildContext context, Duration delay) {
   }
 }
 
+/// The box of [key], in a sheet, in [overlay]'s coordinates as it will be
+/// once the sheet is all the way up: where it is now, without the sheet's
+/// slide in. For a flight that waits there while the sheet comes in under
+/// it.
+Rect? sheetSettledBox(GlobalKey key, RenderBox overlay) {
+  final box = key.currentContext?.findRenderObject();
+  if (box is! RenderBox || !box.hasSize || !overlay.attached) return null;
+  // The route's slide is the outermost translation above the box.
+  RenderFractionalTranslation? slide;
+  for (var node = box.parent; node != null; node = node.parent) {
+    if (node == overlay) break;
+    if (node is RenderFractionalTranslation) slide = node;
+  }
+  final Offset at;
+  if (slide == null) {
+    at = box.localToGlobal(Offset.zero, ancestor: overlay);
+  } else {
+    final page = slide.child!;
+    at =
+        slide.localToGlobal(Offset.zero, ancestor: overlay) +
+        box.localToGlobal(Offset.zero, ancestor: page);
+  }
+  return at & box.size;
+}
+
 /// The width of a sheet on a tablet (a form sheet in the middle): 540, as
 /// an iOS form sheet, or less in a narrow window. One column: under
 /// [sheetColumnsWidth].

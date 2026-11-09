@@ -214,16 +214,27 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
     );
   }
 
+  /// A code being checked or its issuance starting: a second one (the
+  /// button, the code completing again, the link) would start a second
+  /// issuance.
+  var _handling = false;
+
   Future<void> _handleCode(String code) async {
-    final session = await ref
-        .read(emailIssuanceProvider.notifier)
-        .verifyCode(code: code.toUpperCase());
+    if (_handling) return;
+    _handling = true;
+    try {
+      final session = await ref
+          .read(emailIssuanceProvider.notifier)
+          .verifyCode(code: code.toUpperCase());
 
-    if (session == null || !mounted) return;
+      if (session == null || !mounted) return;
 
-    final sessionId = await handlePointer(context, session);
-    if (_linking && sessionId != null && mounted) {
-      ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
+      final sessionId = await handlePointer(context, session);
+      if (_linking && sessionId != null && mounted) {
+        ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
+      }
+    } finally {
+      _handling = false;
     }
   }
 
