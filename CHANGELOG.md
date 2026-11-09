@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
 
+### Security
+- Links in markdown texts, which can come from issuers (such as the FAQ in EUDI credential metadata), only open when they are `https` or `mailto` links. A link with another scheme, such as `javascript:`, `file:`, `intent:` or another app's custom scheme, is ignored
+- An issuer or verifier logo or an attribute image in SVG format larger than 1 MiB is not drawn, so an oversized SVG cannot stall the app while it is parsed
+
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
 - The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
