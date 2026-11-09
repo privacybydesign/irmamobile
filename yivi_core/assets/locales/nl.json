@@ -353,6 +353,10 @@
     "submit": {
       "title": "Aanmelden",
       "progress_enrollment": "Welkom! Even geduld, we melden je aan."
+    },
+    "wallet_deleted": {
+      "title": "Wallet verwijderd",
+      "body": "Je wallet en al je gegevens zijn verwijderd"
     }
   },
   "error": {
@@ -734,7 +738,7 @@
     "delete": "Verwijder gegevens",
     "confirm_delete_dialog": {
       "title": "Gegevens verwijderen",
-      "explanation": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
+      "explanation": "Als je doorgaat, verwijder je al je gegevens, ook je activiteitengeschiedenis, en je toegang tot de Yivi-app. Dit kun je niet ongedaan maken: verwijderde gegevens zijn niet terug te halen. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
       "confirm": "Verwijder alles",
       "deny": "Annuleer"
     }

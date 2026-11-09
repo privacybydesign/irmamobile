@@ -145,6 +145,9 @@ class IrmaRepository {
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
+  // Set by a wipe and read once by the enrollment screen it lands on, which
+  // confirms the deletion to the user.
+  bool _walletDeleted = false;
 
   late final AppLanguage _appLanguage = AppLanguage(preferences);
 
@@ -272,6 +275,7 @@ class IrmaRepository {
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(false);
       _blockedSubject.add(null);
+      _walletDeleted = true;
       preferences.clearAll();
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
@@ -296,6 +300,14 @@ class IrmaRepository {
   void dispatch(Event event) {
     if (_closed) return;
     _eventSubject.add(event);
+  }
+
+  /// Whether a wipe happened since the last call. Clears the flag, so the
+  /// confirmation is shown once.
+  bool consumeWalletDeleted() {
+    final deleted = _walletDeleted;
+    _walletDeleted = false;
+    return deleted;
   }
 
   void bridgedDispatch(Event event) {

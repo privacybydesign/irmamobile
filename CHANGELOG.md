@@ -9,12 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - A "Report to the Data Protection Authority" item on the More tab, next to the privacy policy. It opens the page of the Dutch Autoriteit Persoonsgegevens where you can file a tip or a complaint ([#800](https://github.com/privacybydesign/irmamobile/issues/800))
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
+- A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
+
+### Changed
+- The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
 - The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
 - `go fix` modernisations in the `structodart` developer tool, so the Go code passes the shared Go checks
 - Status checks use the organisation's shared workflows next to our own Flutter/Fastlane jobs: Go checks with govulncheck for the Go bridge, dependency review, workflow lint and one `Status checks passed` gate. They also run on pushes to `master`, the merge queue and every Monday. Dependabot keeps the pinned actions and the Go modules up to date
+- Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
 
 ## [8.4.0] - 2026-11-03
 ### Added

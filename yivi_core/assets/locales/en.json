@@ -353,6 +353,10 @@
     "submit": {
       "title": "Logging in",
       "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
+    },
+    "wallet_deleted": {
+      "title": "Wallet removed",
+      "body": "Your wallet has been removed and all its data has been deleted"
     }
   },
   "error": {
@@ -734,7 +738,7 @@
     "delete": "Delete data",
     "confirm_delete_dialog": {
       "title": "Delete data",
-      "explanation": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
+      "explanation": "If you proceed, all data will be deleted from your Yivi app, including your activity history. This cannot be undone: the deleted data cannot be recovered. If you wish to continue using Yivi you will have to reload the data.",
       "confirm": "Yes, delete everything",
       "deny": "Cancel"
     }
