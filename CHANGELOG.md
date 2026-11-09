@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
 
+### Security
+- On iOS, third-party keyboards are no longer used in the app; the system keyboard is shown instead, so no keyboard extension sees what is typed. The fields for a document's number, dates and driving licence MRZ, from which the chip's access keys are derived, also turn off suggestions, autocorrect and keyboard learning (Gboard's incognito mode on Android), and the driving licence MRZ field no longer offers credit card autofill
+
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
 - The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
