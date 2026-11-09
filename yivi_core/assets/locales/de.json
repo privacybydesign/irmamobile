@@ -736,7 +736,7 @@
     "delete": "Daten löschen",
     "confirm_delete_dialog": {
       "title": "Daten löschen",
-      "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
+      "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht, einschließlich Ihres Aktivitätsverlaufs. Dies kann nicht rückgängig gemacht werden: Gelöschte Daten können nicht wiederhergestellt werden. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
       "confirm": "Ja, alles löschen",
       "deny": "Abbrechen"
     }
