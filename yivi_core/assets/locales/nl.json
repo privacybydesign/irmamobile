@@ -354,7 +354,10 @@
       "title": "Aanmelden",
       "progress_enrollment": "Welkom! Even geduld, we melden je aan."
     },
-    "wallet_deleted_toast": "Je wallet en al je gegevens zijn verwijderd"
+    "wallet_deleted": {
+      "title": "Wallet verwijderd",
+      "body": "Je wallet en al je gegevens zijn verwijderd"
+    }
   },
   "error": {
     "title": "Sorry, er gaat iets fout",

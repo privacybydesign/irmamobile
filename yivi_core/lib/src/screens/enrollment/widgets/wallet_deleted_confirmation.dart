@@ -1,12 +1,14 @@
 import "package:flutter/scheduler.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../providers/irma_repository_provider.dart";
-import "../../../theme/theme.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/irma_dialog.dart";
+import "../../../widgets/yivi_themed_button.dart";
 
-/// Confirms a wipe with a snackbar when it is first built, if the wallet was
-/// deleted since the last enrollment screen.
+/// Confirms a wipe with a dialog when it is first built, if the wallet was
+/// deleted since the last enrollment screen. A dialog stays until the user
+/// dismisses it, so they have the time to read it.
 class WalletDeletedConfirmation extends StatefulWidget {
   final Widget child;
 
@@ -22,22 +24,26 @@ class _WalletDeletedConfirmationState extends State<WalletDeletedConfirmation> {
   void initState() {
     super.initState();
 
-    // Post-frame: the messenger is only reachable once this subtree is mounted.
+    // Post-frame: the navigator is only reachable once this subtree is mounted.
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (!IrmaRepositoryProvider.of(context).consumeWalletDeleted()) return;
 
-      final theme = IrmaTheme.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: TranslatedText(
-            "enrollment.wallet_deleted_toast",
-            style: theme.themeData.textTheme.bodySmall!.copyWith(
-              color: theme.light,
-            ),
+      showDialog<void>(
+        context: context,
+        builder: (context) => IrmaDialog(
+          title: FlutterI18n.translate(
+            context,
+            "enrollment.wallet_deleted.title",
           ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: theme.themeData.colorScheme.secondary,
+          content: FlutterI18n.translate(
+            context,
+            "enrollment.wallet_deleted.body",
+          ),
+          child: YiviThemedButton(
+            label: "error.button_ok",
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
       );
     });

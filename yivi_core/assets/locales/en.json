@@ -354,7 +354,10 @@
       "title": "Logging in",
       "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
     },
-    "wallet_deleted_toast": "Your wallet has been removed and all its data has been deleted"
+    "wallet_deleted": {
+      "title": "Wallet removed",
+      "body": "Your wallet has been removed and all its data has been deleted"
+    }
   },
   "error": {
     "title": "Sorry, something went wrong",

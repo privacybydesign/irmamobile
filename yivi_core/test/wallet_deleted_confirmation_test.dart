@@ -10,6 +10,7 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/enrollment/widgets/wallet_deleted_confirmation.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/irma_dialog.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -24,9 +25,11 @@ class _RecordingBridge extends IrmaBridge {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const englishMessage =
+  const englishTitle = "Wallet removed";
+  const englishBody =
       "Your wallet has been removed and all its data has been deleted";
-  const dutchMessage = "Je wallet en al je gegevens zijn verwijderd";
+  const dutchTitle = "Wallet verwijderd";
+  const dutchBody = "Je wallet en al je gegevens zijn verwijderd";
 
   Future<IrmaRepository> repository() async {
     SharedPreferences.setMockInitialValues({});
@@ -102,7 +105,9 @@ void main() {
 
       await pumpConfirmation(tester, repo: repo);
 
-      expect(find.text(englishMessage), findsOneWidget);
+      expect(find.byType(IrmaDialog), findsOneWidget);
+      expect(find.text(englishTitle), findsOneWidget);
+      expect(find.text(englishBody), findsOneWidget);
     });
 
     testWidgets("confirms the deletion in Dutch after a wipe", (tester) async {
@@ -112,7 +117,24 @@ void main() {
 
       await pumpConfirmation(tester, repo: repo, locale: const Locale("nl"));
 
-      expect(find.text(dutchMessage), findsOneWidget);
+      expect(find.text(dutchTitle), findsOneWidget);
+      expect(find.text(dutchBody), findsOneWidget);
+    });
+
+    testWidgets("stays open until the user dismisses it", (tester) async {
+      final repo = await repository();
+      addTearDown(repo.close);
+      repo.bridgedDispatch(ClearAllDataEvent());
+
+      await pumpConfirmation(tester, repo: repo);
+      await tester.pump(const Duration(seconds: 30));
+
+      expect(find.byType(IrmaDialog), findsOneWidget);
+
+      await tester.tap(find.text("OK"));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(IrmaDialog), findsNothing);
     });
 
     testWidgets("shows nothing on a fresh enrollment", (tester) async {
@@ -121,7 +143,7 @@ void main() {
 
       await pumpConfirmation(tester, repo: repo);
 
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(IrmaDialog), findsNothing);
     });
   });
 }
