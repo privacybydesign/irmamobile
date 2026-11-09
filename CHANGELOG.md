@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
 - `go fix` modernisations in the `structodart` developer tool, so the Go code passes the shared Go checks
 - Status checks use the organisation's shared workflows next to our own Flutter/Fastlane jobs: Go checks with govulncheck for the Go bridge, dependency review, workflow lint and one `Status checks passed` gate. They also run on pushes to `master`, the merge queue and every Monday. Dependabot keeps the pinned actions and the Go modules up to date
+- Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
 
 ## [8.4.0] - 2026-11-03
 ### Added
