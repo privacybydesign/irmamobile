@@ -355,7 +355,11 @@ class _FlyingState extends State<_Flying> with SingleTickerProviderStateMixin {
                         borderRadius: widget.radius,
                         boxShadow: up == 0 ? null : [widget.shadow.scale(up)],
                       ),
-                      child: copy,
+                      // Its corners rounded all round, also where a copy
+                      // cut to the frame's height has lost its own.
+                      child: widget.radius == BorderRadius.zero
+                          ? copy
+                          : ClipRRect(borderRadius: widget.radius, child: copy),
                     ),
                   ),
                 ),

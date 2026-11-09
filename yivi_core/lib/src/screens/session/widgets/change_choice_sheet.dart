@@ -282,6 +282,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       duration: const Duration(milliseconds: 680),
       radius: YiviCorners.cardRadius,
       hide: [row, to],
+      copyKey: const Key("sheet_back_card"),
       copy: (context, frame) =>
           tileAtSize(frame.size, copy(bundle, frame.strip)),
     );
