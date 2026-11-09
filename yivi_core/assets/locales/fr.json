@@ -1,0 +1,1160 @@
+{
+  "accessibility": {
+    "irma_logo": "Logo Yivi",
+    "slideshow": "Diapositive {i} sur {n} : {description}",
+    "menu": "Menu",
+    "back": "Retour",
+    "close": "Fermer",
+    "next": "Suivant",
+    "alert": "Alerte",
+    "previous": "Précédent",
+    "expanded": "Développé",
+    "collapsed": "Réduit",
+    "unfold": "Développer",
+    "update": "Mettre à jour",
+    "remove": "Supprimer",
+    "expand": "Développer",
+    "expand_hint": "Appuyez deux fois pour développer",
+    "collapse_hint": "Appuyez deux fois pour réduire",
+    "refresh": "Actualiser",
+    "search_data": "Rechercher dans vos données",
+    "obtain_data": "Obtenir des données"
+  },
+  "new_terms_and_conditions": {
+    "title": "Nouvelles conditions générales",
+    "explanation_markdown": "La gestion de Yivi a récemment été transférée à une autre organisation ([Yivi B.V.](https://yivi.app/en/about_yivi)).\n\nLes conditions générales ont donc légèrement changé.\n\nNous vous demandons de [les lire]({terms_url}) et de les accepter ci-dessous.",
+    "accept": "Accepter",
+    "dismiss": "Pas maintenant"
+  },
+  "action_feedback": {
+    "ok": "OK"
+  },
+  "activity": {
+    "data_deleted": "Données supprimées",
+    "data_deleted_semantics": "Données supprimées de {issuerName} le {date}",
+    "data_received": "Données reçues",
+    "data_received_semantics": "Données reçues de {otherParty} le {date}",
+    "data_shared": "Données partagées",
+    "data_shared_semantics": "Données partagées avec {otherParty} le {date}",
+    "signed_message": "Message signé",
+    "message_signed": "Message signé",
+    "signed_message_semantics": "Message signé pour {otherParty} le {date}",
+    "shared_with": "Partagé avec",
+    "received_from": "Reçu de",
+    "shared_data": "Données partagées",
+    "received_data": "Données reçues",
+    "deleted_data": "Données supprimées",
+    "empty_placeholder": "Aucune activité n'a encore été enregistrée",
+    "yesterday": "Hier"
+  },
+  "arrow_back": {
+    "no_success": "Annulé",
+    "disclosure_success": "Réussi, vos données ont été partagées",
+    "issuance_success": "Réussi, les données ont été ajoutées",
+    "signature_success": "Réussi, le message a été signé",
+    "safari": "Appuyez sur le nom de l'application (comme Safari, Chrome, Firefox) en haut à gauche pour revenir à l'application précédente."
+  },
+  "change_pin": {
+    "dialog": {
+      "title": "Êtes-vous sûr ?",
+      "body": "Voulez-vous vraiment réinitialiser votre code PIN actuel ?",
+      "ok": "Modifier",
+      "cancel": "Annuler"
+    },
+    "toast": "Votre nouveau code PIN a bien été enregistré",
+    "enter_pin": {
+      "instruction": "Saisissez votre code PIN actuel",
+      "error_title": "Code PIN incorrect",
+      "error": "Saisissez votre code PIN actuel",
+      "error_action": "OK"
+    },
+    "confirm_pin": {
+      "instruction": "Saisissez à nouveau votre nouveau code PIN"
+    }
+  },
+  "choose_pin": {
+    "next": "Suivant",
+    "instruction": {
+      "long": "Choisissez un code PIN",
+      "short": "Choisissez un code PIN à 5 chiffres"
+    },
+    "switch_pin_size": {
+      "long": "Vous préférez un code PIN plus long ?",
+      "short": "Vous préférez un code PIN plus court ?"
+    }
+  },
+  "confirm_pin": {
+    "error": {
+      "title": "Code PIN saisi incorrectement",
+      "body": "Les codes PIN ne correspondent pas. Choisissez un nouveau code PIN et réessayez.",
+      "action": "OK"
+    }
+  },
+  "credential": {
+    "no_data": "Aucune donnée",
+    "valid_until": "Valable jusqu'au",
+    "indefinite_validity": "Illimitée",
+    "expires_on": "Expire le {date}",
+    "expired_on": "Expiré le {date}",
+    "date_at_time": "{date} à {time}",
+    "issued_by": "par {issuer}",
+    "sharable": "Partageable",
+    "sharable_count": "{count} partages restants",
+    "sharable_unlimited": "Illimité",
+    "options": {
+      "title": "Options",
+      "reobtain": "Obtenir à nouveau",
+      "delete": "Supprimer les données",
+      "confirm_delete": "Voulez-vous vraiment supprimer ces données ?",
+      "delete_success": "Les données ont bien été supprimées."
+    },
+    "about_to_expire": "Bientôt expiré",
+    "expired": "Expiré",
+    "revoked": "Révoqué",
+    "not_obtainable": "Ces données ne peuvent pas être obtenues. Veuillez contacter {issuerName} pour obtenir ces données.",
+    "boolean_yes": "Oui",
+    "boolean_no": "Non",
+    "driving_licence_categories": {
+      "title": "Catégories du permis de conduire",
+      "category": "Catégorie",
+      "status": "Statut",
+      "held": "Détenue",
+      "not_held": "Non détenue",
+      "issued": "Délivrée",
+      "expires": "Expire",
+      "no_information": "Aucune information sur les catégories",
+      "not_held_count-0": "{count} catégorie non détenue",
+      "not_held_count-1": "{count} catégorie non détenue",
+      "not_held_count-2": "{count} catégories non détenues",
+      "show_less": "Afficher moins"
+    }
+  },
+  "data": {
+    "tab": {
+      "title": "Mes données",
+      "obtain_data": "Récupérer mes données personnelles"
+    },
+    "detail": {
+      "title": "Coordonnées"
+    },
+    "add": {
+      "demo": "Démo (données d'exemple)",
+      "staging": "Préproduction (environnement de test)",
+      "title": "Ajouter des données",
+      "hint": "Appuyez deux fois pour ajouter",
+      "choose": "Choisissez les données que vous souhaitez ajouter",
+      "details": {
+        "title": "Ajouter des données",
+        "purpose_question": "Que puis-je faire avec ces données ?",
+        "content_question": "Quelles données vais-je récupérer ?",
+        "howto_question": "Comment ça marche ?",
+        "back_button": "Annuler",
+        "get_button": "Ajouter",
+        "disclosure_info_markdown": "**Remarque :** vous récupérerez toutes les données disponibles, mais vous ne partagerez que les données nécessaires à la demande.",
+        "obtain": "Ajouter {credential} à mon appli Yivi"
+      },
+      "nfc_unsupported": {
+        "title": "NFC non pris en charge",
+        "body": "Cet appareil ne prend pas en charge le NFC et ne peut donc pas charger cette attestation. Le NFC est nécessaire pour lire votre document.",
+        "hint": "Nécessite le NFC, que cet appareil ne prend pas en charge. Cette attestation ne peut pas être chargée."
+      }
+    },
+    "search": {
+      "no_results": "Aucune donnée trouvée pour '{query}'."
+    },
+    "category_other": "Autres",
+    "category_personal": "Personnelles",
+    "problematic": {
+      "title": "Impossible de charger ces données",
+      "explanation": "Ces données enregistrées sont endommagées et ne peuvent pas être affichées. Vous pouvez les supprimer."
+    }
+  },
+  "disclosure": {
+    "title": "Demande de données",
+    "disclosure_header": "Souhaitez-vous communiquer les données suivantes à {otherParty} ?",
+    "disclosure_call_header": "Souhaitez-vous communiquer les données suivantes à {otherParty} et appeler le {phoneNumber} ?",
+    "signing_header": "{otherParty} vous demande de signer un message",
+    "signing_call_header": "{otherParty} vous demande de signer un message et d'appeler le {phoneNumber}",
+    "unsatisfiable_header": "Vous n'avez pas dans votre appli Yivi toutes les données que demande {otherParty}.",
+    "issuer": "Émetteur",
+    "logo_semantic": "Logo de {otherParty}",
+    "choices": "{choices} choix",
+    "next": "choix suivants",
+    "previous": "choix précédents",
+    "not_present": "Ces données n'ont pas encore été ajoutées à Yivi.",
+    "not_present_have_other": "Les données demandées ne correspondent pas à celles dont vous disposez dans Yivi.",
+    "you_have": "Vous avez :",
+    "requested_for": "Ceci est demandé :",
+    "card_count": "{i} sur {total}",
+    "among_others": "Entre autres",
+    "add_additional": "Vous souhaitez partager d'autres informations ? Ajoutez des données '{credential}' supplémentaires.",
+    "expired": "Ces données ont expiré.",
+    "revoked": "Ces données ont été révoquées.",
+    "not_revokable": "Ces données doivent d'abord être actualisées.",
+    "obtain": "Ajouter",
+    "refresh": "Actualiser",
+    "nothing_selected": "Aucune sélection",
+    "redirect": "Vous êtes redirigé vers la page web...",
+    "feedback": {
+      "header": {
+        "success": "Réussi",
+        "canceled": "Annulé",
+        "not_satisfiable": "Annulé"
+      },
+      "text": {
+        "success": "Vos données ont été communiquées à {otherParty}",
+        "success_signature": "Vous avez signé la demande de {otherParty}",
+        "canceled": "Vos données n'ont pas été communiquées à {otherParty}",
+        "canceled_signature": "Vous n'avez pas signé la demande de {otherParty}",
+        "not_satisfiable": "Vos données n'ont pas été communiquées, car {otherParty} demande des données obsolètes. Vous ne pouvez rien y faire. Veuillez contacter le demandeur.",
+        "not_satisfiable_signature": "{otherParty} vous demande de signer avec des données obsolètes. Vous ne pouvez rien y faire. Veuillez contacter le demandeur."
+      }
+    }
+  },
+  "disclosure_permission": {
+    "title": "Demande de données",
+    "next": "Suivant",
+    "change_choice": "Modifier le choix",
+    "choose": "Faire un choix",
+    "obtain_new": "Obtenir de nouvelles données",
+    "next_step": "Étape suivante",
+    "obtain_data": "Obtenir des données",
+    "close": "Fermer",
+    "optional_data": "Données facultatives",
+    "add_optional_data": "Ajouter des données facultatives",
+    "no_data_selected": "Aucune donnée sélectionnée",
+    "introduction": {
+      "title": "C'est parti",
+      "header": "Partagez vos données",
+      "explanation": "Rassemblez les données requises pour pouvoir les partager avec les demandeurs.",
+      "continue": "C'est parti"
+    },
+    "issue_wizard": {
+      "title": "Rassembler les données",
+      "explanation_incomplete": "Obtenez mes données étape par étape, puis partagez-les avec le demandeur.",
+      "explanation_incomplete_single": "Obtenez les données requises, puis partagez-les avec le demandeur.",
+      "explanation_complete": "Toutes les données requises ont été ajoutées."
+    },
+    "previously_added": {
+      "title": "Valider les données",
+      "explanation": "Ces données ont déjà été ajoutées à votre appli. Vérifiez qu'elles sont toujours correctes."
+    },
+    "overview": {
+      "title": "Partager mes données",
+      "sign": "Voici le message que vous signez :",
+      "explanation": "Partager mes données avec {requestorName}",
+      "confirm": "Partager les données",
+      "confirm_sign": "Signer et partager",
+      "requestor_verification": {
+        "verified_suffix": "demande vos données. Il s'agit d'une partie connue qui s'est enregistrée auprès de Yivi.",
+        "unverified_suffix": "demande vos données. Attention : cette partie n'est pas connue de Yivi.",
+        "explanation": "Que signifie cela ?",
+        "bottom_sheet": {
+          "title": "Organisations connues et inconnues",
+          "content_markdown": "Toute organisation peut demander des données à votre appli Yivi.\nC'est vous qui décidez d'accepter ou non de partager ces données.\nYivi vous aide dans cette démarche.\n\nLes organisations peuvent s'enregistrer auprès de Yivi. Leur identité est alors vérifiée.\nLeurs informations (dont leur nom et leur logo) sont consignées et vérifiées.\nUne coche verte apparaît à côté de leur nom, pour que\nvous puissiez partager vos données avec plus de confiance.\nVous trouverez la liste des organisations enregistrées sur le [portail Yivi](https://portal.yivi.app/organizations).\n\nAvec les organisations qui ne se sont pas enregistrées auprès de Yivi,\nvous pouvez quand même partager vos données.\nCela relève toutefois entièrement de votre responsabilité.\nVous n'avez aucune certitude sur l'identité de celui avec qui vous partagez vos données.\n\nVous avez un doute ? Contactez directement l'organisation.\nVous pouvez lui recommander de s'enregistrer auprès de Yivi à l'adresse :\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+        }
+      }
+    },
+    "confirm_dialog": {
+      "title": "Partager les données",
+      "title_signature": "Signer et partager les données",
+      "explanation": "Vous êtes sur le point de partager des données avec {requestorName}. Appuyez sur 'Partager' pour continuer",
+      "explanation_signature": "Vous êtes sur le point de signer le message de {requestorName}. Appuyez sur 'Signer et partager' pour continuer",
+      "confirm": "Partager",
+      "confirm_signature": "Signer et partager",
+      "decline": "Ne pas partager",
+      "decline_signature": "Ne pas signer"
+    },
+    "confirm_close_dialog": {
+      "title": "Annuler le partage des données ?",
+      "explanation": "Voulez-vous vraiment ne pas partager vos données ?",
+      "confirm": "Oui",
+      "decline": "Non"
+    },
+    "wrong_credentials_added": {
+      "title": "Erreur",
+      "explanation": "Des données ont été ajoutées à l'appli, mais elles ne répondent pas aux critères demandés. Veuillez obtenir les bonnes données.",
+      "you_issued": "Reçu",
+      "expected": "Attendu",
+      "dismiss_action": "OK"
+    },
+    "call": {
+      "title": "Appeler via Yivi",
+      "disclosure_explanation": "Souhaitez-vous communiquer les données suivantes à {otherParty} et appeler le {phoneNumber} ?",
+      "disclosure_success": "Les données ont été partagées avec {otherParty}",
+      "explanation_header_ios": "Choisissez suivant pour appeler",
+      "explanation_ios": "Une fenêtre s'affiche et vous propose de passer l'appel. Le numéro est prérempli, suivi d'un code de liaison. Si vous choisissez d'appeler, vous entendrez quelques bips et vous serez mis en relation.",
+      "explanation_header_android": "1. Choisissez suivant",
+      "explanation_android": "L'application Téléphone s'ouvre maintenant automatiquement. Le numéro est prérempli, suivi d'un code de liaison.",
+      "extra_explanation_header_android": "2. Appuyez sur le bouton d'appel dans l'application Téléphone",
+      "extra_explanation_android": "Vous entendrez quelques bips et vous serez mis en relation."
+    }
+  },
+  "enrollment": {
+    "introduction": {
+      "step_1": {
+        "title": "Yivi est une appli pour votre identité numérique",
+        "explanation": "Votre nom officiel, votre date de naissance, votre adresse, votre numéro de sécurité sociale et plus encore. En toute sécurité dans votre appli Yivi"
+      },
+      "step_2": {
+        "title": "Avec Yivi, vous gardez le contrôle de vos données",
+        "explanation": "Simple, sûr et rapide. Vous contrôlez ce que vous partagez et avec qui."
+      },
+      "step_3": {
+        "title": "En sécurité sur votre téléphone",
+        "explanation": "Vous seul pouvez accéder aux données de votre téléphone. Personne n'a accès à vos transactions, pas même Yivi."
+      }
+    },
+    "confirm_pin": {
+      "instruction": "Saisissez à nouveau votre code PIN"
+    },
+    "email": {
+      "provide": {
+        "title": "Ajouter une adresse e-mail",
+        "header": "Associez votre adresse e-mail à votre appli Yivi",
+        "explanation": "Une adresse e-mail vous permet de désactiver votre appli Yivi à distance si votre mobile est perdu ou volé",
+        "input": {
+          "label": "Adresse e-mail",
+          "hint": "Saisissez-la",
+          "invalid": "Adresse e-mail non valide"
+        },
+        "confirm_skip_dialog": {
+          "title": "Êtes-vous sûr ?",
+          "explanation": "Ajouter une adresse e-mail renforce la sécurité",
+          "decline": "Saisir une adresse e-mail"
+        }
+      },
+      "confirm": {
+        "title": "Confirmez votre adresse e-mail",
+        "header": "Notre e-mail a été envoyé à :",
+        "explanation": "L'arrivée de l'e-mail peut prendre quelques minutes. Vous n'avez pas reçu notre e-mail ? Vérifiez votre dossier de courrier indésirable.",
+        "explanation_extra_markdown": "Vous avez reçu un e-mail de **noreply@mail.yivi.app**. Ouvrez le lien de ce message pour associer votre adresse e-mail à votre appli Yivi."
+      }
+    },
+    "terms_and_conditions": {
+      "title": "Nos valeurs",
+      "explanation": "Avec Yivi, vous reprenez le contrôle de vos données en ligne et vous protégez votre vie privée en ligne.",
+      "point_1": "Vous décidez des données que vous conservez et de celles que vous partagez.",
+      "point_2": "Vos données restent uniquement sur votre téléphone, en sécurité. Nulle part ailleurs.",
+      "point_3": "Personne ne peut voir vos données ni vos transactions, pas même Yivi !",
+      "accept_markdown": "Oui, j'accepte les [conditions générales]({terms_url})"
+    },
+    "error_reporting": {
+      "accept": {
+        "share_errors": "Partager les messages d'erreur et l'état de l'appli",
+        "with_yivi": "avec Yivi",
+        "optional": "Facultatif"
+      },
+      "dialog": {
+        "title": "Signalement des erreurs et de l'état de l'appli",
+        "explanation": "En activant le signalement des erreurs, vous nous aidez à améliorer l'expérience utilisateur. Cette option permet aussi à votre appli de nous envoyer régulièrement un message sur son état. Nous faisons tout cela sans avoir accès à vos informations personnelles ni à vos transactions."
+      }
+    },
+    "submit": {
+      "title": "Connexion",
+      "progress_enrollment": "Bienvenue ! Veuillez patienter un instant, nous procédons à votre inscription."
+    },
+    "wallet_deleted": {
+      "title": "Portefeuille supprimé",
+      "body": "Votre portefeuille a été supprimé et toutes ses données ont été effacées"
+    }
+  },
+  "error": {
+    "title": "Désolé, une erreur s'est produite",
+    "blocked_title": "Appli bloquée",
+    "button_ok": "OK",
+    "button_send_to_irma": "Envoyer ce message à Yivi",
+    "button_show_error": "Afficher les détails techniques",
+    "button_retry": "Réessayer",
+    "button_back": "Retour",
+    "button_reset": "Tout recommencer",
+    "details_title": "Message d'erreur",
+    "report": "Si cela se reproduit, veuillez en informer l'équipe Yivi.",
+    "show_sensitive_data": "Afficher les données sensibles",
+    "types": {
+      "general": "Une erreur s'est produite.",
+      "blocked": "Votre appli Yivi a été bloquée à distance. Cela a été fait soit via MyYivi, soit parce que vous n'avez pas utilisé Yivi sur cet appareil depuis plus d'un an. Si vous souhaitez continuer à utiliser Yivi sur cet appareil, vous devrez tout recommencer.",
+      "expired": "La session a expiré. Veuillez recommencer.",
+      "pairing_rejected": "La session a été refusée. Veuillez recommencer.",
+      "no_internet": "Veuillez vérifier que votre appareil dispose d'une connexion internet fonctionnelle."
+    }
+  },
+  "help": {
+    "about_irma": "À propos de Yivi",
+    "ask": "Poser une question",
+    "contact": "support@yivi.app",
+    "device": "Mobile",
+    "email": "Envoyer un e-mail",
+    "faq": "Questions fréquentes",
+    "login": "Connexion",
+    "mail_error": "Désolé, nous ne pouvons pas ouvrir votre application de messagerie",
+    "mail_error_button": "OK",
+    "mail_error_title": "Désolé",
+    "mail_subject": "Aide pour l'appli Yivi",
+    "question_1": "Que puis-je faire avec Yivi ?",
+    "answer_1_markdown": "Yivi est une application mobile sûre, respectueuse de la vie privée et gratuite. Yivi fonctionne comme un portefeuille numérique rempli de données personnelles. Vous pouvez l'utiliser pour vous connecter à des services en ligne ou pour prouver votre identité, mais toujours en partageant le minimum de données personnelles. Car Yivi vous donne les moyens de faire ce choix : ce que vous conservez, ce que vous partagez et avec qui. Vous gardez toujours le contrôle.\n\nVous n'avez pas à retenir d'identifiants de compte ni de longs mots de passe. Seulement votre code PIN Yivi. Et quand vous partagez des données, vous ne partagez que celles qui sont nécessaires, rien de plus. Que ce soit pour commander un colis en ligne ou pour prendre rendez-vous chez votre médecin.\n\nVous voulez commander un billet en ligne ? Avec Yivi, vous pouvez facilement prouver que vous avez plus de 18 ans, sans en dévoiler davantage. Votre vie privée est ainsi protégée. Vous pouvez aussi signer des documents numériquement avec Yivi, en utilisant vos attributs personnels comme signature. Vous pouvez signer en tant que citoyen, médecin ou dans un autre rôle. Consultez l'aperçu actuel pour voir la liste des organisations qui utilisent déjà Yivi.",
+    "question_2": "Pourquoi Yivi existe-t-il ?",
+    "answer_2": "Redonner aux gens le contrôle de leurs données en ligne est la mission de Yivi. Que conservez-vous ? Que partagez-vous ? Et avec qui ? Yivi vous donne les moyens de faire ce choix. Avec notre appli, vous décidez de ce que les autres apprennent sur vous. Ces données sont partagées depuis votre téléphone avec le demandeur, sans aucun autre intervenant dans cette transaction. Pas même Yivi.\n\nTout est conservé en sécurité sur votre téléphone, chiffré et protégé par un code PIN. Il n'existe aucun stockage centralisé ni dans le cloud qui contienne vos données personnelles. Vous avez perdu votre téléphone ? Pas de panique. Il suffit de bloquer votre appli Yivi à distance. Personne ne pourra alors utiliser vos données à votre insu.\n\nVendre vos données n'est pas, et ne sera jamais, notre modèle économique. Pourtant, Yivi est gratuit. Y a-t-il un piège ? Non ! Seules les organisations qui utilisent Yivi paient pour les services, ce qui garantit que Yivi reste gratuit pour vous.\n",
+    "question_3": "Qui est derrière l'appli Yivi ?",
+    "answer_3_markdown": "La Privacy by Design Foundation est l'organisation à but non lucratif derrière Yivi. Vous ne connaissez peut-être pas ce nom, mais vous avez sans doute profité de sa vision si vous tenez à une identité numérique respectueuse de la vie privée. La fondation se consacre au développement de technologies sûres et protectrices de la vie privée, qui laissent aux utilisateurs le contrôle de leurs données. Elle a créé Yivi pour donner à chacun un moyen de s'identifier numériquement, en toute sécurité et de façon sélective. \n\n Caesar Groep, forte de plusieurs décennies d'expérience dans l'innovation et l'infrastructure informatiques, veille à ce que Yivi fonctionne de façon fluide et sûre. Du backend à l'interface utilisateur, Caesar Groep s'assure que chaque interaction avec Yivi est fluide et fiable, à tout moment et en tout lieu.",
+    "question_4": "Comment utiliser Yivi pour me connecter à un site web sur mobile ?",
+    "answer_4": {
+      "step_1": "Ouvrez le site web sur votre mobile et choisissez de vous connecter avec Yivi.",
+      "step_2": "L'appli Yivi démarre automatiquement.\nSaisissez votre code PIN.",
+      "step_3": "Acceptez (ou refusez) de communiquer vos données personnelles.",
+      "step_4": "Une fois les données communiquées, vous êtes connecté.\nVous pouvez maintenant utiliser le site web."
+    },
+    "question_5": "Comment utiliser Yivi pour me connecter à un site web sur mon ordinateur ?",
+    "answer_5": {
+      "step_1": "Ouvrez le site web sur votre ordinateur et choisissez « Se connecter avec Yivi ».",
+      "step_2": "Ouvrez l'appli Yivi sur votre mobile et saisissez votre code PIN.",
+      "step_3": "Lancez le lecteur de code QR dans l'appli Yivi. Scannez le code QR affiché sur l'écran de votre ordinateur.",
+      "step_4": "Acceptez (ou non) de communiquer vos données personnelles.",
+      "step_5": "Une fois les données communiquées, vous êtes connecté.\nVous pouvez maintenant utiliser le site web."
+    },
+    "question_6": "Que faire si je perds mon mobile ?",
+    "answer_6_markdown": "Si vous perdez votre téléphone, personne ne peut accéder à votre appli Yivi, car elle est protégée par votre code PIN. Vous voulez renforcer la sécurité ? Ajoutez une adresse e-mail de récupération lors de l'installation. Elle vous permettra de bloquer l'application à distance, pour qu'il ne se passe rien si vous perdez votre téléphone.\n\nVous n'avez pas encore ajouté d'adresse de récupération ? Rendez-vous simplement sur MijnYivi pour l'ajouter. ",
+    "question_7": "Puis-je installer Yivi sur plusieurs appareils mobiles ?",
+    "answer_7": "Oui, nous vous le recommandons même ! Il suffit de télécharger l'appli sur plusieurs appareils et d'y charger vos données personnelles. Si vous perdez un appareil, vous avez toujours une sauvegarde.",
+    "question_8": "Où sont stockées mes données Yivi ?",
+    "answer_8": "Toutes les données de l'appli Yivi sont stockées uniquement en local. Il n'existe aucun stockage centralisé (ni dans le cloud). Cela signifie que vous êtes la seule personne à pouvoir accéder à vos données. Vous gardez le contrôle et vous donnez votre autorisation pour partager vos données avec des organisations en ligne. Vous avez supprimé vos données de l'appli ? Elles sont alors définitivement effacées. Vous contrôlez entièrement vos données. Vous seul décidez de ce que vous partagez et avec qui.",
+    "question_9": "Qu'est-ce qui rend Yivi respectueux de la vie privée et sûr ?",
+    "answer_9": "Redonner aux gens le contrôle de leurs données numériques est la mission de Yivi. Que conservez-vous ? Que partagez-vous ? Et avec qui ? Yivi vous donne les moyens de faire ce choix. Avec notre appli, vous décidez de ce que les autres apprennent sur vous. Ces données sont partagées depuis votre téléphone avec le demandeur, sans aucun autre intervenant dans cette transaction. Pas même Yivi.\n\nTout est conservé en sécurité sur votre téléphone, chiffré et protégé par un code PIN. Il n'existe aucun stockage centralisé ni dans le cloud qui contienne vos données personnelles. Vous avez perdu votre téléphone ? Pas de panique. Il suffit de bloquer votre appli Yivi à distance. Personne ne pourra alors utiliser vos données à votre insu.\n\nLes données chargées dans Yivi sont signées numériquement par le fournisseur de ces données, ce qui prouve leur validité. Le demandeur peut ainsi toujours être sûr que les données que vous avez fournies sont authentiques.",
+    "question_10": "Pourquoi les données de l'appli Yivi ont-elles une validité limitée ?",
+    "answer_10": "Le fournisseur des données détermine leur durée de validité. Vos données peuvent donc expirer. Vous recevrez alors un avertissement dans l'appli Yivi. La durée de validité de vos données dépend de leur type. Votre nom et votre date de naissance sont valables 5 ans. Votre adresse, un an seulement. Vous pouvez actualiser vos données à tout moment, par exemple en actualisant votre âge après votre 18e anniversaire. Vous pouvez ainsi prouver directement que vous avez plus de 18 ans. ",
+    "question_11": "Yivi, vie privée et sécurité",
+    "answer_11": "L'appli Yivi a été conçue pour que vous, et vous seul, puissiez voir et utiliser vos données personnelles. Vos données personnelles sont stockées uniquement sur votre téléphone et nulle part ailleurs. Nous ne stockons pas vos données dans le cloud.\n\nL'appli Yivi permet à un site web ou à un magasin de vérifier (par cryptographie) que les données que vous avez communiquées sont authentiques.\n\nL'appli Yivi communique vos données directement depuis votre téléphone au site web. Personne d'autre ne peut voir que vous vous identifiez. Pas même l'organisation derrière Yivi.\n\nEn utilisant Yivi, vous acceptez la [politique de confidentialité](https://www.yivi.app/en/privacy).",
+    "send": "Vous avez d'autres questions ? Envoyez-nous un e-mail. Il peut s'écouler quelques jours avant que vous receviez une réponse.",
+    "security_and_privacy": "Sécurité et confidentialité"
+  },
+  "home": {
+    "nav_bar": {
+      "data": "Données",
+      "activity": "Activité",
+      "notifications": "Notifications",
+      "more": "Plus",
+      "scan_qr": "Scanner un QR"
+    },
+    "nav_bar_hints": {
+      "data": "onglet 1 sur 4",
+      "activity": "onglet 2 sur 4",
+      "notifications": "onglet 3 sur 4",
+      "more": "onglet 4 sur 4"
+    }
+  },
+  "data_tab": {
+    "empty": {
+      "title": "Obtenez vos données personnelles",
+      "subtitle": "Appuyez sur l'icône plus pour obtenir vos données personnelles."
+    }
+  },
+  "issuance": {
+    "title": "Ajouter des données",
+    "description": "Voulez-vous ajouter ces données à votre appli Yivi ?",
+    "add": "Ajouter des données",
+    "cancel": "Annuler",
+    "success_feedback": {
+      "header": "Réussi",
+      "text": "Les données ont bien été ajoutées à Yivi"
+    },
+    "pre-authorized_code": {
+      "tx_code_screen": {
+        "title": "Ajouter des données",
+        "header": "{issuer} demande un code de transaction",
+        "body": "{issuer} vous a envoyé un code de transaction. Saisissez-le ci-dessous pour recevoir {credential}.",
+        "body_multiple": "{issuer} vous a envoyé un code de transaction. Saisissez-le ci-dessous pour recevoir {count} attestations.",
+        "continue": "Continuer",
+        "cancel": "Annuler",
+        "invalid_code_error-0": "Code incorrect. {count} tentative restante.",
+        "invalid_code_error-1": "Code incorrect. {count} tentative restante.",
+        "invalid_code_error-2": "Code incorrect. {count} tentatives restantes."
+      },
+      "tx_code_lockout": {
+        "title": "Trop de codes incorrects",
+        "body": "Vous avez saisi un code de transaction erroné trop de fois. Veuillez recommencer pour recevoir un nouveau code."
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Ajouter des données",
+        "body": "{issuer} doit vérifier certaines informations dans votre navigateur. Appuyez sur '{button}' pour continuer. Vous reviendrez ici automatiquement lorsque vous aurez terminé.",
+        "open_browser": "Ouvrir le navigateur",
+        "cancel": "Annuler"
+      }
+    }
+  },
+  "email_issuance": {
+    "enter_email": {
+      "title": "Ajouter une adresse e-mail",
+      "header": "Saisissez votre adresse e-mail",
+      "body": "Nous vous enverrons un e-mail contenant un code de vérification. Vous devrez saisir ce code à l'étape suivante.",
+      "error": "Une erreur s'est produite lors de l'envoi du code de vérification.",
+      "email_hint": "Saisissez votre adresse e-mail...",
+      "next_button": "Envoyer l'e-mail",
+      "back_button": "Annuler"
+    },
+    "verify_code": {
+      "title": "Vérifier l'adresse e-mail",
+      "header": "Nous vous avons envoyé un e-mail",
+      "body": "Nous avons envoyé un e-mail contenant un code de vérification à {email}.\n\nSaisissez le code de vérification reçu par e-mail pour continuer.",
+      "next_button": "Vérifier le code",
+      "back_button": "Annuler",
+      "no_email_received": "Vous n'avez pas reçu d'e-mail ?",
+      "error": "Une erreur s'est produite lors de la vérification du code de vérification.",
+      "invalid_code_error": "Code non valide, réessayez...",
+      "back_dialog": {
+        "title": "Êtes-vous sûr ?",
+        "body": "Voulez-vous vraiment revenir en arrière ?",
+        "confirm": "Revenir en arrière",
+        "cancel": "Annuler"
+      },
+      "resend_dialog": {
+        "title": "Envoyer un nouveau code",
+        "body": "Nous vous enverrons un nouvel e-mail contenant un nouveau code de vérification.",
+        "confirm": "Envoyer l'e-mail",
+        "cancel": "Annuler"
+      }
+    }
+  },
+  "sms_issuance": {
+    "enter_phone": {
+      "title": "Ajouter un numéro de téléphone",
+      "header": "Saisissez votre numéro de téléphone",
+      "body": "Nous vous enverrons un SMS contenant un code de vérification. Vous devrez saisir ce code à l'étape suivante.",
+      "error": "Une erreur s'est produite lors de l'envoi du code de vérification.",
+      "phone_hint": "Saisissez votre numéro de téléphone...",
+      "next_button": "Envoyer le SMS",
+      "back_button": "Annuler",
+      "search_label": "Rechercher un pays ou un indicatif",
+      "search_hint": "Saisissez le nom de votre pays..."
+    },
+    "verify_code": {
+      "title": "Vérifier le numéro de téléphone",
+      "header": "Nous vous avons envoyé un SMS",
+      "body": "Nous avons envoyé un SMS contenant un code de vérification au {phone}.\n\nSaisissez le code de vérification reçu par SMS pour continuer.",
+      "next_button": "Vérifier le code",
+      "back_button": "Annuler",
+      "no_sms_received": "Vous n'avez pas reçu de SMS ?",
+      "error": "Une erreur s'est produite lors de la vérification du code de vérification.",
+      "invalid_code_error": "Code non valide, réessayez...",
+      "back_dialog": {
+        "title": "Êtes-vous sûr ?",
+        "body": "Voulez-vous vraiment revenir en arrière ?",
+        "confirm": "Revenir en arrière",
+        "cancel": "Annuler"
+      },
+      "resend_dialog": {
+        "title": "Envoyer un nouveau code",
+        "body": "Nous vous enverrons un nouveau SMS contenant un nouveau code de vérification.",
+        "confirm": "Envoyer le SMS",
+        "cancel": "Annuler"
+      }
+    }
+  },
+  "issue_wizard": {
+    "back": "Annuler",
+    "done": "OK",
+    "add": "Ajouter",
+    "add_cards": "Ajouter des cartes",
+    "add_credential": "Ajouter {credential}",
+    "success": {
+      "header": "Réussi",
+      "content": "Vous avez terminé toutes les étapes avec succès"
+    }
+  },
+  "more_tab": {
+    "app_management": "Gestion de l'appli",
+    "settings": "Paramètres",
+    "faq": "Questions fréquentes",
+    "debugging": "Débogage",
+    "contact": "Nous contacter",
+    "share": "Partager Yivi",
+    "share_text": "Découvrez l'appli Yivi : https://yivi.app",
+    "website": "Site web de Yivi",
+    "need_help": "Besoin d'aide ?",
+    "know_more": "Plus d'informations",
+    "stay_informed": "Restez informé et participez à la conversation",
+    "slogan": "Tout le monde mérite la vie privée",
+    "version": "Version {version}",
+    "developer_mode_enabled": "Mode développeur activé",
+    "developer_mode_already_enabled": "Mode développeur déjà activé",
+    "irma_website": "Site web de Yivi",
+    "irma_website_link": "https://www.yivi.app/en",
+    "privacy_policy": "Politique de confidentialité de Yivi",
+    "privacy_policy_link": "https://www.yivi.app/en/privacy",
+    "app_id": "ID de l'appli {id}",
+    "log_out": "Se déconnecter",
+    "logged_out_toast": "Vous avez été déconnecté"
+  },
+  "pin": {
+    "subtitle": "Saisissez votre code PIN",
+    "unlock": "Déverrouiller",
+    "button_forgot": "J'ai oublié mon code PIN",
+    "button_block": "Bloquer Yivi",
+    "biometric_button": "Déverrouiller avec la biométrie",
+    "biometric_reason": "Déverrouiller l'appli Yivi",
+    "biometric_confirm_reason": "Confirmez pour activer le déverrouillage biométrique",
+    "biometric_prompt": {
+      "title": "Déverrouiller avec la biométrie ?",
+      "body": "Utilisez votre empreinte digitale ou votre visage pour déverrouiller l'appli. Vous devrez toujours saisir votre code PIN pour les sessions.",
+      "enable": "Activer",
+      "not_now": "Pas maintenant"
+    },
+    "cancel_session_dialog": {
+      "title": "Annuler cette demande ?",
+      "explanation": "Vous reviendrez à l'écran de verrouillage.",
+      "confirm": "Oui",
+      "decline": "Non"
+    }
+  },
+  "pin_accessibility": {
+    "show_pin": "Afficher le code PIN",
+    "hide_pin": "Masquer le code PIN",
+    "backspace": "Effacer",
+    "empty_pin_input": "Aucun code PIN saisi",
+    "digits_entered-1": "{digits} chiffre saisi",
+    "digits_entered-2": "{digits} chiffres saisis"
+  },
+  "pin_common": {
+    "blocked_for": "La connexion est bloquée pendant",
+    "second": {
+      "time-0": "{time} seconde",
+      "time-1": "{time} seconde",
+      "time-2": "{time} secondes"
+    },
+    "minute": {
+      "time-0": "{time} minute",
+      "time-1": "{time} minute",
+      "time-2": "{time} minutes"
+    },
+    "hour": {
+      "time-0": "{time} heure",
+      "time-1": "{time} heure",
+      "time-2": "{time} heures"
+    },
+    "day": {
+      "time-0": "{time} jour",
+      "time-1": "{time} jour",
+      "time-2": "{time} jours"
+    },
+    "invalid_title": "Code PIN incorrect",
+    "invalid_pin": {
+      "attempts-0": "Ce code PIN n'est pas correct. Il vous reste {count} tentative avant que votre appli Yivi soit bloquée temporairement.",
+      "attempts-1": "Ce code PIN n'est pas correct. Il vous reste {count} tentative avant que votre appli Yivi soit bloquée temporairement.",
+      "attempts-2": "Ce code PIN n'est pas correct. Il vous reste {count} tentatives avant que votre appli Yivi soit bloquée temporairement."
+    },
+    "invalid_close": "Réessayer",
+    "blocked_title": "Appli bloquée",
+    "blocked_pin": "Votre appli est bloquée pendant {blocked}. Veuillez réessayer plus tard.",
+    "blocked_close": "Réessayer",
+    "done": "Continuer",
+    "view": "Afficher le code PIN",
+    "hide": "Masquer le code PIN"
+  },
+  "qr_scanner": {
+    "title": "Scanner un code QR",
+    "instruction": {
+      "title": "Commencer à scanner",
+      "message": "Dirigez l'appareil photo de votre mobile vers le code QR Yivi",
+      "semantic": "Commencez à scanner ! Dirigez l'appareil photo de votre mobile vers le code QR Yivi."
+    },
+    "success": {
+      "title": "Réussi",
+      "message": "Code QR scanné",
+      "semantic": "Réussi ! Code QR scanné."
+    },
+    "error": {
+      "title": "Désolé",
+      "message": "Ceci n'est pas un code QR Yivi",
+      "semantic": "Désolé ! Ceci n'est pas un code QR Yivi."
+    },
+    "permission_dialog": {
+      "title": "Activer l'appareil photo",
+      "content": "Autorisez Yivi à utiliser votre appareil photo. Accédez aux paramètres pour donner l'autorisation.",
+      "settings": "Ouvrir les paramètres"
+    }
+  },
+  "reset_pin": {
+    "title": "Code PIN oublié",
+    "header": "Vous avez oublié votre code PIN ?",
+    "explanation": "Nous sommes désolés, mais l'organisation Yivi ne possède pas de copie de votre code PIN. Si vous souhaitez continuer à utiliser Yivi, vous devrez saisir un nouveau code PIN et recharger toutes vos données.",
+    "reset": "Tout recommencer"
+  },
+  "rooted_warning": {
+    "title": "Appareil non sécurisé",
+    "explanation": "Le système d'exploitation de votre appareil semble modifié (root/jailbreak). La sécurité de vos données ne peut donc pas être garantie.",
+    "accept_risk": "J'accepte le risque"
+  },
+  "secure_pin": {
+    "info_button": "Code PIN peut-être peu sûr",
+    "title": "Choisir un code PIN",
+    "subtitle": "Un code PIN sûr répond aux critères suivants :",
+    "rules": {
+      "contains_3_unique": "Contient au moins 3 chiffres différents",
+      "must_not_asc_or_desc": "Ne doit pas contenir de suite croissante ni décroissante sur le clavier, comme 12345",
+      "not_abcab_nor_abcba": "Ne doit pas contenir les motifs suivants : abcba, abcab, comme 12312, 12321, 13331",
+      "must_contain_valid_subset": "Doit contenir 5 chiffres adjacents qui respectent les règles ci-dessus"
+    }
+  },
+  "session": {
+    "navigation_bar": {
+      "more": "Plus",
+      "yes": "Oui",
+      "no": "Non",
+      "back": "Retour",
+      "cancel": "Annuler"
+    },
+    "pairing": {
+      "title": "Contrôle de sécurité supplémentaire",
+      "instruction": "Saisissez ce code de vérification sur le site web pour plus de sécurité."
+    },
+    "unknown_session_type": {
+      "title": "Annulé",
+      "explanation": "La session Yivi que vous avez lancée n'est pas prise en charge par l'appli."
+    }
+  },
+  "session_pin": {
+    "subtitle": "Saisissez votre code PIN"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "start_qr": "Ouvrir le lecteur de QR au lancement",
+    "start_qr_explanation": "Ouvrir automatiquement le lecteur de QR après le démarrage",
+    "report_errors": "Signalement des erreurs et de l'état de l'appli",
+    "report_errors_explanation": "En activant le signalement des erreurs et de l'état de l'appli, vous nous aidez à améliorer l'expérience utilisateur.",
+    "enable_screenshots": "Autoriser les captures d'écran",
+    "enable_screenshots_explanation": "Lorsque cette option est activée, l'appli ne sera pas floutée dans le sélecteur d'applications.",
+    "developer_mode": "Mode développeur",
+    "other": "Autres",
+    "language": "Langue",
+    "use_system_language": "Utiliser la langue du système",
+    "change_pin": "Modifier le code PIN",
+    "biometric_unlock": "Déverrouiller avec la biométrie",
+    "biometric_unlock_explanation": "Utilisez votre empreinte digitale ou votre visage pour déverrouiller l'appli. Votre code PIN reste nécessaire pour recevoir ou partager des données.",
+    "biometric_immediate": "Déverrouiller automatiquement",
+    "biometric_immediate_explanation": "Déverrouille automatiquement avec la biométrie à l'ouverture de l'appli, sans devoir appuyer sur le bouton.",
+    "delete": "Supprimer les données",
+    "confirm_delete_dialog": {
+      "title": "Supprimer les données",
+      "explanation": "Si vous continuez, toutes les données seront supprimées de votre appli Yivi. Si vous souhaitez continuer à utiliser Yivi, vous devrez recharger les données.",
+      "confirm": "Oui, tout supprimer",
+      "deny": "Annuler"
+    }
+  },
+  "ui": {
+    "loading": "Chargement…",
+    "step_of_steps": "Étape {i} sur {n}",
+    "step": "Étape",
+    "done": "Terminé",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "delete": "Supprimer",
+    "skip": "Passer",
+    "continue": "Continuer",
+    "retry": "Réessayer",
+    "error": "Une erreur s'est produite",
+    "end_of_list": "Vous avez atteint la fin de la liste",
+    "unknown": "Inconnu",
+    "go_back": "Retour",
+    "add": "Ajouter",
+    "activate": "Activer"
+  },
+  "search": {
+    "cancel": "Annuler"
+  },
+  "update": {
+    "title": "Mise à jour disponible",
+    "explanation": "Pour continuer à utiliser l'appli Yivi, vous devez télécharger la dernière version.",
+    "update_app": "Mettre à jour l'appli"
+  },
+  "name_changed": {
+    "title": "Vous vous souvenez de nous ?",
+    "header": "IRMA a un nouveau nom et un nouveau look : Yivi",
+    "explanation": "Rien n'a changé sous le capot, vous pouvez vous connecter avec votre ancien code PIN."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification",
+    "credential_status": {
+      "revoked": {
+        "title": "Données révoquées",
+        "message": "{issuerName} a révoqué ces données : {credentialName}"
+      },
+      "expired": {
+        "title": "Données expirées",
+        "message": "Ces données ont expiré : {credentialName}"
+      },
+      "expiring_soon": {
+        "title": "Données bientôt expirées",
+        "message": "Ces données vont bientôt expirer : {credentialName}"
+      }
+    },
+    "bell": {
+      "new_notifications": "Cloche de notifications - Nouvelles notifications",
+      "no_new_notifications": "Cloche de notifications - Aucune nouvelle notification"
+    }
+  },
+  "switch": {
+    "describe_state_on": "Interrupteur activé",
+    "describe_state_off": "Interrupteur désactivé",
+    "hint_state_on": "Appuyez deux fois pour désactiver",
+    "hint_state_off": "Appuyez deux fois pour activer"
+  },
+  "mrz_camera_permissions": {
+    "title": "Pas d'autorisation pour l'appareil photo",
+    "content": "Yivi a besoin de l'autorisation d'utiliser l'appareil photo pour scanner automatiquement votre document. Autorisez Yivi à utiliser l'appareil photo dans les paramètres du système ou saisissez manuellement les données requises.",
+    "open_settings": "Ouvrir les paramètres"
+  },
+  "mrz_scanner": {
+    "glare_hint": "Reflet sur le document. Inclinez-le légèrement."
+  },
+  "face_verification": {
+    "title": "Vérification faciale",
+    "preparing": "Un instant, préparation de vos données…",
+    "hold_upright": {
+      "title": "Tenez votre téléphone à la verticale",
+      "body": "La vérification faciale reprendra dès que votre téléphone sera de nouveau à la verticale."
+    },
+    "intro": {
+      "explanation": "Nous allons maintenant effectuer une rapide vérification faciale pour confirmer que vous êtes bien la personne figurant sur le document.",
+      "tip_camera": "Dirigez la caméra frontale vers votre visage.",
+      "tip_lighting": "Assurez-vous qu'il y a assez de lumière.",
+      "tip_look_straight": "Regardez droit dans la caméra.",
+      "tip_no_accessories": "Retirez vos lunettes, votre chapeau, etc.",
+      "start": "Démarrer la vérification"
+    }
+  },
+  "driving_licence": {
+    "scan": {
+      "title": "Scanner le permis de conduire",
+      "success": "Réussi",
+      "success_explanation": "Le permis de conduire a bien été scanné.",
+      "manual": "Saisir manuellement",
+      "error": "Impossible de lire le permis de conduire. Veuillez réessayer."
+    },
+    "manual": {
+      "title": "Saisir les informations du permis de conduire",
+      "explanation": "Nous avons besoin de la zone de lecture automatique (MRZ) de votre permis de conduire pour accéder à la puce NFC du document.",
+      "fields": {
+        "mrz": "Zone de lecture automatique (MRZ)",
+        "mrz_required": "La zone de lecture automatique (MRZ) est obligatoire",
+        "mrz_invalid": "La zone de lecture automatique (MRZ) n'est pas valide"
+      }
+    },
+    "nfc": {
+      "introduction": "Vous allez maintenant scanner les données contenues dans votre permis de conduire.\n\nPlacez l'arrière de votre téléphone contre votre permis de conduire. Appuyez sur démarrer pour lancer le scan.",
+      "start_scanning": "Démarrer le scan",
+      "title": "Lire le permis de conduire",
+      "nfc_enabled": "NFC activé",
+      "nfc_disabled": "NFC désactivé",
+      "reading": "Lecture en cours...",
+      "error": "Impossible de lire le permis de conduire. Veuillez réessayer.",
+      "nfc_not_supported": "Le NFC n'est pas pris en charge sur cet appareil.",
+      "nfc_disabled_explanation": "Le NFC est désactivé. Veuillez l'activer dans les paramètres du système et réessayer.",
+      "nfc_interrupted": "Lecture interrompue. Réessayez en maintenant votre téléphone immobile sur votre permis de conduire.",
+      "tip_1": "Ne bougez pas votre téléphone. La lecture ne prend généralement que 10 à 20 secondes.",
+      "tip_2": "Placez l'arrière de votre téléphone contre votre permis de conduire.",
+      "tip_3": "Des difficultés de lecture ? Essayez de retirer la coque de votre téléphone. Cela améliore souvent le signal NFC.",
+      "success": "Réussi",
+      "success_explanation": "La lecture du permis de conduire s'est terminée avec succès",
+      "idle": "Prêt à lire le permis de conduire",
+      "cancelling": "Annulation...",
+      "hold_near_photo_page": "Approchez votre téléphone de votre permis de conduire.",
+      "cancelled": "Annulé",
+      "connecting": "Connexion au permis de conduire...",
+      "finished": "Terminé",
+      "reading_card_security": "Détermination de l'accès à la puce NFC...",
+      "authenticating": "Authentification auprès du permis de conduire...",
+      "reading_passport_data": "Lecture des données du permis de conduire...",
+      "performing_security_verification": "Vérification de sécurité en cours...",
+      "completed_successfully": "La lecture du permis de conduire s'est terminée avec succès.",
+      "error_generic": "Une erreur s'est produite lors de la lecture du permis de conduire.",
+      "failed_initiate_session": "Impossible d'établir la session avec le permis de conduire.",
+      "timeout_waiting_for_tag": "Délai dépassé en attendant le tag du permis de conduire",
+      "tag_lost_try_again": "Le tag a été perdu. Veuillez réessayer.",
+      "cancelled_by_user": "Vous avez annulé le scan.",
+      "cancel_dialog": {
+        "title": "Annuler la lecture du permis de conduire ?",
+        "explanation": "Voulez-vous vraiment annuler la lecture du permis de conduire ?",
+        "confirm": "Oui",
+        "decline": "Non"
+      }
+    }
+  },
+  "id_card": {
+    "scan": {
+      "title": "Scanner la carte d'identité",
+      "success": "Réussi",
+      "success_explanation": "La carte d'identité a bien été scannée.",
+      "manual": "Saisir manuellement",
+      "error": "Impossible de lire la carte d'identité. Veuillez réessayer."
+    },
+    "manual": {
+      "title": "Saisir les informations de la carte d'identité",
+      "explanation": "Nous avons besoin du numéro de document, de la date de naissance et de la date d'expiration de votre carte d'identité pour accéder à la puce NFC.",
+      "fields": {
+        "document_nr": "Numéro de document",
+        "document_nr_required": "Le numéro de document est obligatoire",
+        "document_nr_invalid": "Le numéro de document n'est pas valide",
+        "date_of_birth": "Date de naissance",
+        "date_of_birth_required": "La date de naissance est obligatoire",
+        "date_of_expiry": "Date d'expiration",
+        "date_of_expiry_required": "La date d'expiration est obligatoire",
+        "date_invalid": "La date n'est pas valide"
+      }
+    },
+    "nfc": {
+      "introduction": "Vous allez maintenant scanner les données contenues dans votre carte d'identité.\n\nPlacez l'arrière de votre téléphone contre votre carte d'identité. Appuyez sur démarrer pour lancer le scan.",
+      "start_scanning": "Démarrer le scan",
+      "title": "Lire la carte d'identité",
+      "nfc_enabled": "NFC activé",
+      "nfc_disabled": "NFC désactivé",
+      "reading": "Lecture en cours...",
+      "error": "Impossible de lire la carte d'identité. Veuillez réessayer.",
+      "nfc_not_supported": "Le NFC n'est pas pris en charge sur cet appareil.",
+      "nfc_disabled_explanation": "Le NFC est désactivé. Veuillez l'activer dans les paramètres du système et réessayer.",
+      "nfc_interrupted": "Lecture interrompue. Réessayez en maintenant votre téléphone immobile sur votre carte d'identité.",
+      "tip_1": "Ne bougez pas votre téléphone. La lecture ne prend généralement que 10 à 20 secondes.",
+      "tip_2": "Placez l'arrière de votre téléphone contre votre carte d'identité.",
+      "tip_3": "Des difficultés de lecture ? Essayez de retirer la coque de votre téléphone. Cela améliore souvent le signal NFC.",
+      "success": "Réussi",
+      "success_explanation": "La lecture de la carte d'identité s'est terminée avec succès",
+      "idle": "Prêt à lire la carte d'identité",
+      "cancelling": "Annulation...",
+      "hold_near_photo_page": "Approchez votre téléphone de votre carte d'identité.",
+      "cancelled": "Annulé",
+      "connecting": "Connexion à la carte d'identité...",
+      "finished": "Terminé",
+      "reading_card_security": "Détermination de l'accès à la puce NFC...",
+      "authenticating": "Authentification auprès de la carte d'identité...",
+      "reading_passport_data": "Lecture des données de la carte d'identité...",
+      "performing_security_verification": "Vérification de sécurité en cours...",
+      "completed_successfully": "La lecture de la carte d'identité s'est terminée avec succès.",
+      "error_generic": "Une erreur s'est produite lors de la lecture de la carte d'identité.",
+      "failed_initiate_session": "Impossible d'établir la session avec la carte d'identité.",
+      "timeout_waiting_for_tag": "Délai dépassé en attendant le tag de la carte d'identité",
+      "tag_lost_try_again": "Le tag a été perdu. Veuillez réessayer.",
+      "cancelled_by_user": "Vous avez annulé le scan.",
+      "cancel_dialog": {
+        "title": "Annuler la lecture de la carte d'identité ?",
+        "explanation": "Voulez-vous vraiment annuler la lecture de votre carte d'identité ?",
+        "confirm": "Oui",
+        "decline": "Non"
+      },
+      "wrong_document": "Il s'agit d'un titre de séjour",
+      "wrong_document_tip": "Revenez en arrière et choisissez Titre de séjour."
+    }
+  },
+  "residence_permit": {
+    "scan": {
+      "title": "Scanner le titre de séjour",
+      "success": "Réussi",
+      "success_explanation": "Le titre de séjour a bien été scanné.",
+      "manual": "Saisir manuellement",
+      "error": "Impossible de lire le titre de séjour. Veuillez réessayer."
+    },
+    "manual": {
+      "title": "Saisir les informations du titre de séjour",
+      "explanation": "Nous avons besoin du numéro de document, de la date de naissance et de la date d'expiration de votre titre de séjour pour accéder à la puce NFC.",
+      "fields": {
+        "document_nr": "Numéro de document",
+        "document_nr_required": "Le numéro de document est obligatoire",
+        "document_nr_invalid": "Le numéro de document n'est pas valide",
+        "date_of_birth": "Date de naissance",
+        "date_of_birth_required": "La date de naissance est obligatoire",
+        "date_of_expiry": "Date d'expiration",
+        "date_of_expiry_required": "La date d'expiration est obligatoire",
+        "date_invalid": "La date n'est pas valide"
+      }
+    },
+    "nfc": {
+      "introduction": "Vous allez maintenant scanner les données contenues dans votre titre de séjour.\n\nPlacez l'arrière de votre téléphone contre votre titre de séjour. Appuyez sur démarrer pour lancer le scan.",
+      "start_scanning": "Démarrer le scan",
+      "title": "Lire le titre de séjour",
+      "nfc_enabled": "NFC activé",
+      "nfc_disabled": "NFC désactivé",
+      "reading": "Lecture en cours...",
+      "error": "Impossible de lire le titre de séjour. Veuillez réessayer.",
+      "nfc_not_supported": "Le NFC n'est pas pris en charge sur cet appareil.",
+      "nfc_disabled_explanation": "Le NFC est désactivé. Veuillez l'activer dans les paramètres du système et réessayer.",
+      "nfc_interrupted": "Lecture interrompue. Réessayez en maintenant votre téléphone immobile sur votre titre de séjour.",
+      "tip_1": "Ne bougez pas votre téléphone. La lecture ne prend généralement que 10 à 20 secondes.",
+      "tip_2": "Placez l'arrière de votre téléphone contre votre titre de séjour.",
+      "tip_3": "Des difficultés de lecture ? Essayez de retirer la coque de votre téléphone. Cela améliore souvent le signal NFC.",
+      "success": "Réussi",
+      "success_explanation": "La lecture du titre de séjour s'est terminée avec succès",
+      "idle": "Prêt à lire le titre de séjour",
+      "cancelling": "Annulation...",
+      "hold_near_photo_page": "Approchez votre téléphone de votre titre de séjour.",
+      "cancelled": "Annulé",
+      "connecting": "Connexion au titre de séjour...",
+      "finished": "Terminé",
+      "reading_card_security": "Détermination de l'accès à la puce NFC...",
+      "authenticating": "Authentification auprès du titre de séjour...",
+      "reading_passport_data": "Lecture des données du titre de séjour...",
+      "performing_security_verification": "Vérification de sécurité en cours...",
+      "completed_successfully": "La lecture du titre de séjour s'est terminée avec succès.",
+      "error_generic": "Une erreur s'est produite lors de la lecture du titre de séjour.",
+      "failed_initiate_session": "Impossible d'établir la session avec le titre de séjour.",
+      "timeout_waiting_for_tag": "Délai dépassé en attendant le tag du titre de séjour",
+      "tag_lost_try_again": "Le tag a été perdu. Veuillez réessayer.",
+      "cancelled_by_user": "Vous avez annulé le scan.",
+      "cancel_dialog": {
+        "title": "Annuler la lecture du titre de séjour ?",
+        "explanation": "Voulez-vous vraiment annuler la lecture de votre titre de séjour ?",
+        "confirm": "Oui",
+        "decline": "Non"
+      },
+      "wrong_document": "Il s'agit d'une carte d'identité",
+      "wrong_document_tip": "Revenez en arrière et choisissez Carte d'identité."
+    }
+  },
+  "passport": {
+    "scan": {
+      "title": "Scanner le passeport",
+      "success": "Réussi",
+      "success_explanation": "Le passeport a bien été scanné.",
+      "manual": "Saisir manuellement",
+      "error": "Impossible de lire le passeport. Veuillez réessayer."
+    },
+    "manual": {
+      "title": "Saisir les informations du passeport",
+      "explanation": "Nous avons besoin du numéro de document, de la date de naissance et de la date d'expiration de votre passeport pour accéder à la puce NFC du passeport.",
+      "fields": {
+        "document_nr": "Numéro de document",
+        "document_nr_required": "Le numéro de document est obligatoire",
+        "document_nr_invalid": "Le numéro de document n'est pas valide",
+        "date_of_birth": "Date de naissance",
+        "date_of_birth_required": "La date de naissance est obligatoire",
+        "date_of_expiry": "Date d'expiration",
+        "date_of_expiry_required": "La date d'expiration est obligatoire",
+        "date_invalid": "La date n'est pas valide"
+      }
+    },
+    "nfc": {
+      "introduction": "Vous allez maintenant scanner les données contenues dans votre passeport.\n\nPlacez l'arrière de votre téléphone contre votre passeport. Appuyez sur démarrer pour lancer le scan.",
+      "start_scanning": "Démarrer le scan",
+      "title": "Lire le passeport",
+      "nfc_enabled": "NFC activé",
+      "nfc_disabled": "NFC désactivé",
+      "reading": "Lecture en cours...",
+      "error": "Impossible de lire le passeport. Veuillez réessayer.",
+      "nfc_not_supported": "Le NFC n'est pas pris en charge sur cet appareil.",
+      "nfc_disabled_explanation": "Le NFC est désactivé. Veuillez l'activer dans les paramètres du système et réessayer.",
+      "nfc_interrupted": "Lecture interrompue. Réessayez en maintenant votre téléphone immobile sur votre passeport.",
+      "tip_1": "Ne bougez pas votre téléphone. La lecture ne prend généralement que 10 à 20 secondes.",
+      "tip_2": "Placez l'arrière de votre téléphone contre votre passeport.",
+      "tip_3": "Des difficultés de lecture ? Essayez de retirer la coque de votre téléphone. Cela améliore souvent le signal NFC.",
+      "success": "Réussi",
+      "success_explanation": "La lecture du passeport s'est terminée avec succès",
+      "idle": "Prêt à lire le passeport",
+      "cancelling": "Annulation...",
+      "hold_near_photo_page": "Approchez votre téléphone de votre passeport.",
+      "cancelled": "Annulé",
+      "connecting": "Connexion au passeport...",
+      "finished": "Terminé",
+      "reading_card_security": "Détermination de l'accès à la puce NFC...",
+      "authenticating": "Authentification auprès du passeport...",
+      "reading_passport_data": "Lecture des données du passeport...",
+      "performing_security_verification": "Vérification de sécurité en cours...",
+      "completed_successfully": "La lecture du passeport s'est terminée avec succès.",
+      "error_generic": "Une erreur s'est produite lors de la lecture du passeport.",
+      "failed_initiate_session": "Impossible d'établir la session avec le passeport.",
+      "timeout_waiting_for_tag": "Délai dépassé en attendant le tag du passeport",
+      "tag_lost_try_again": "Le tag a été perdu. Veuillez réessayer.",
+      "cancelled_by_user": "Vous avez annulé le scan.",
+      "cancel_dialog": {
+        "title": "Annuler la lecture du passeport ?",
+        "explanation": "Voulez-vous vraiment annuler la lecture du passeport ?",
+        "confirm": "Oui",
+        "decline": "Non"
+      }
+    }
+  },
+  "debug": {
+    "title": "Débogage",
+    "issue_digid": "Émettre DigiD",
+    "random_issuance": "Émettre des attestations aléatoires",
+    "custom_issue_wizard": "Lancer l'assistant d'émission",
+    "start_session": "Démarrer une session",
+    "session_helper": "Assistant de session",
+    "confirm_scheme_public_key_dialog_title": "Confirmer la clé publique",
+    "scheme_management": {
+      "title": "Gestion des schémas",
+      "issuer_schemes": "Schémas d'émetteurs",
+      "requestor_schemes": "Schémas de demandeurs",
+      "success": "Schéma ajouté avec succès",
+      "activating": "Activation de {scheme}...",
+      "activate_success": "Le schéma {scheme} a bien été activé.",
+      "remove": "Suppression de {scheme}...",
+      "update": "Mettre à jour les schémas",
+      "updating": "Mise à jour des schémas...",
+      "update_success": "Les schémas ont bien été mis à jour.",
+      "install_scheme_dialog": {
+        "title": "Installer un schéma",
+        "content": "Saisissez l'URL du schéma à installer :"
+      },
+      "request_pin": {
+        "title": "Activer le schéma",
+        "content": "Saisissez votre code PIN pour confirmer l'activation du schéma {scheme}"
+      },
+      "verify_pin": {
+        "title": "Vérifier le code PIN",
+        "content": "Authentification auprès du serveur keyshare du schéma {scheme}",
+        "success": "Code PIN vérifié avec succès",
+        "failed": "Échec de la vérification du code PIN (tentatives restantes : {remainingAttempts}, bloqué : {blockedDuration} secondes)."
+      },
+      "warning_dialog": {
+        "title": "Attention !",
+        "content": "Ajouter et supprimer des schémas peut endommager votre appli. Ne continuez que si vous savez ce que vous faites."
+      }
+    },
+    "cert_management": {
+      "title": "Gestion des certificats",
+      "issuer_certs": "Certificats d'émetteurs",
+      "verifier_certs": "Certificats de vérificateurs",
+      "install_cert_dialog": {
+        "title": "Installer un certificat",
+        "content": "Saisissez le contenu encodé en PEM du certificat à installer :"
+      },
+      "remove_cert": "Supprimer le certificat",
+      "removed": "Certificat supprimé",
+      "warning_dialog": {
+        "title": "Attention !",
+        "content": "Ajouter et supprimer des certificats peut endommager votre appli. Ne continuez que si vous savez ce que vous faites."
+      }
+    },
+    "delete_credentials": {
+      "delete": "Supprimer toutes les attestations",
+      "success": "Toutes les attestations supprimables ont bien été supprimées",
+      "dialog": {
+        "title": "Supprimer les attestations",
+        "content": "Voulez-vous vraiment supprimer toutes les attestations ?"
+      }
+    }
+  },
+  "signature": {
+    "read_more": "Lire la suite",
+    "read_less": "Lire moins"
+  },
+  "review": {
+    "gate": {
+      "title": "Vous aimez Yivi ?",
+      "body": "Vous avez maintenant utilisé Yivi plusieurs fois. Nous aimerions savoir comment cela se passe.",
+      "positive": "Oui, j'aime bien",
+      "negative": "Pas vraiment"
+    },
+    "feedback": {
+      "title": "Que pourrions-nous améliorer ?",
+      "body": "Dites-nous ce qui ne fonctionne pas.",
+      "hint": "Votre avis",
+      "privacy": "Votre message est transmis à notre équipe, veuillez donc ne pas y inclure de données personnelles.",
+      "send": "Envoyer",
+      "cancel": "Annuler",
+      "thanks": "Merci, nous l'utiliserons pour améliorer Yivi.",
+      "close": "Fermer"
+    }
+  }
+}
