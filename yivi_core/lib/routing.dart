@@ -787,6 +787,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       if (redirectionTriggers.value.deviceLockRequired) {
         return "/device_lock_required";
       }
+      if (state.matchedLocation == "/device_lock_required") {
+        return "/loading";
+      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return "/rooted_warning";
       }
