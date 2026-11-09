@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
 
+### Security
+- On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
+
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
 - The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
