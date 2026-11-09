@@ -22,6 +22,10 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Debug signing of release builds is opt-in for local testing. Compare the value, so that
+// -PallowDebugSigning=false opts out; the bare -PallowDebugSigning flag gives an empty string.
+def allowDebugSigning = ["", "true"].contains(project.findProperty("allowDebugSigning")?.toString())
+
 android {
     compileSdkVersion 37
     ndkVersion = "28.2.13676358"
@@ -71,7 +75,7 @@ android {
 
             if (project.hasProperty("keyStoreFile")) {
                 signingConfig signingConfigs.release
-            } else if (project.hasProperty("allowDebugSigning")) {
+            } else if (allowDebugSigning) {
                 // Local testing only: sign the release build with the debug key.
                 signingConfig signingConfigs.debug
             }
@@ -103,7 +107,7 @@ gradle.taskGraph.whenReady { graph ->
     def buildsRelease = graph.allTasks.any { task ->
         task.project == project && task.name ==~ /(assemble|bundle|package)\w*Release/
     }
-    if (buildsRelease && !project.hasProperty("keyStoreFile") && !project.hasProperty("allowDebugSigning")) {
+    if (buildsRelease && !project.hasProperty("keyStoreFile") && !allowDebugSigning) {
         throw new GradleException(
             "Release builds must be signed with the release key. Pass -PkeyStoreFile, -PkeyStorePassword, " +
             "-PkeyAlias and -PkeyPassword, or, for local testing only, -PallowDebugSigning " +
