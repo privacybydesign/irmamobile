@@ -1,5 +1,4 @@
 import "dart:async";
-import "dart:math";
 
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
@@ -28,6 +27,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/passport
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/done_flight.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
@@ -201,6 +201,9 @@ Future<_Calls> _pump(
     ..devicePixelRatio = 1;
   if (padding != null) tester.view.padding = padding;
   addTearDown(tester.view.reset);
+  // A test that stops mid-flight leaves no copy for the next one.
+  addTearDown(YiviFlight.reset);
+  addTearDown(DoneFlight.reset);
   final calls = _Calls();
   final repo = (await tester.runAsync(
     () async => IrmaRepository(
@@ -358,40 +361,124 @@ void main() {
     expect(tester.getRect(title).top, closeTo(before, 0.5));
   });
 
-  testWidgets("Change: the card rises to its row's place first, then the "
-      "sheet comes up under it", (tester) async {
+  testWidgets("Change: the card rises to just above its row, the sheet "
+      "comes up under it, then it comes down onto its row", (tester) async {
     await _pump(tester, session: _session([_passportOrIdCard()]));
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pump();
     final copy = find.byKey(const Key("sheet_lift_card"));
     final sheet = find.byKey(const Key("disclosure_choice_sheet"));
-    final start = tester.getRect(find.byKey(const Key("share_slot_0"))).top;
     Future<void> wait(int ms) async {
       for (var t = 0; t < ms; t += 40) {
         await tester.pump(const Duration(milliseconds: 40));
       }
     }
 
-    // At 320 ms the card has risen most of the way; the sheet has not
-    // moved yet.
-    await wait(320);
-    final risen = tester.getRect(copy).top;
-    expect(risen, lessThan(start - 60));
-    expect(tester.getRect(sheet).top, 844);
-    // From 440 ms it waits at its row's place while the sheet comes up.
+    // At 440 ms it is up; the sheet is on its way up under it.
+    await wait(440);
+    final high = tester.getRect(copy).top;
+    expect(tester.getRect(sheet).top, greaterThan(0));
+    // It waits there until the sheet is nearly up.
     await wait(120);
-    final up = tester.getRect(copy).top;
-    await wait(240);
-    expect(tester.getRect(copy).top, closeTo(up, 0.5));
-    expect(tester.getRect(sheet).top, lessThan(10));
+    expect(tester.getRect(copy).top, closeTo(high, 2));
 
-    // Put down on its row: no jump at the end.
+    // Then down onto its row, the rise lower (lifted 4 higher still): over
+    // the sheet's edge, as far for every card.
     await tester.pumpAndSettle();
     expect(copy, findsNothing);
+    final row = tester.getRect(find.byKey(const Key("sheet_chosen_ring")));
+    expect(row.top - high, closeTo(FlightKey.riseHeight + 4, 3));
+  });
+
+  testWidgets("Close: the card rises just out of the sheet, the sheet goes "
+      "down under it, then it lands on its place", (tester) async {
+    await _pump(tester, session: _session([_passportOrIdCard()]));
+    final slot = tester.getRect(find.byKey(const Key("share_slot_0"))).top;
+    await tester.tap(find.byKey(const Key("share_change_0")));
+    await tester.pumpAndSettle();
+    final row = tester.getRect(find.byKey(const Key("sheet_chosen_ring"))).top;
+    await tester.tap(find.byType(IrmaCloseButton).last);
+    await tester.pump();
+    final copy = find.byKey(const Key("sheet_back_card"));
+    final sheet = find.byKey(const Key("disclosure_choice_sheet"));
+    Future<void> wait(int ms) async {
+      for (var t = 0; t < ms; t += 40) {
+        await tester.pump(const Duration(milliseconds: 40));
+      }
+    }
+
+    // Risen out of the sheet before it has gone far.
+    await wait(280);
+    expect(tester.getRect(sheet).top, lessThan(400));
+    // Up there, as far above its row as on the way in, while the sheet goes
+    // down under it.
+    await wait(120);
+    final high = tester.getRect(copy).top;
+    expect(row - high, closeTo(FlightKey.riseHeight + 4, 3));
+    await wait(40);
+    expect(tester.getRect(copy).top, closeTo(high, 1));
+
+    await tester.pumpAndSettle();
+    expect(copy, findsNothing);
+    expect(sheet, findsNothing);
     expect(
-      tester.getRect(find.byKey(const Key("sheet_chosen_ring"))).top,
-      closeTo(up, 6),
+      tester.getRect(find.byKey(const Key("share_slot_0"))).top,
+      closeTo(slot, 0.5),
     );
+  });
+
+  group("Change sheet dragged down by hand", () {
+    Future<(Finder, TestGesture)> dragDown(
+      WidgetTester tester,
+      int steps,
+    ) async {
+      await _pump(tester, session: _session([_passportOrIdCard()]));
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      final g = await tester.startGesture(
+        tester
+                .getRect(find.byKey(const Key("disclosure_choice_sheet")))
+                .topCenter +
+            const Offset(0, 22),
+      );
+      for (var i = 0; i < steps; i++) {
+        await g.moveBy(const Offset(0, 30));
+        await tester.pump(const Duration(milliseconds: 40));
+      }
+      return (find.byKey(const Key("sheet_back_card")), g);
+    }
+
+    testWidgets("the card is lifted out at once and follows the hand; let go, "
+        "it lands on its place", (tester) async {
+      final (copy, g) = await dragDown(tester, 4);
+      expect(copy, findsOneWidget);
+      final early = tester.getRect(copy).top;
+      for (var i = 0; i < 16; i++) {
+        await g.moveBy(const Offset(0, 30));
+        await tester.pump(const Duration(milliseconds: 40));
+      }
+      final later = tester.getRect(copy).top;
+      // On its way to its tile on the share screen (lower than its row).
+      expect(later, greaterThan(early + 20));
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(copy, findsNothing);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+      expect(find.text("Jansen"), findsOneWidget);
+    });
+
+    testWidgets("a short drag springs back: the card goes back to its row", (
+      tester,
+    ) async {
+      final (copy, g) = await dragDown(tester, 3);
+      expect(copy, findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 200));
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(copy, findsNothing);
+      expect(find.byKey(const Key("disclosure_choice_sheet")), findsOneWidget);
+      expect(find.byKey(const Key("sheet_chosen_ring")), findsOneWidget);
+    });
   });
 
   testWidgets("Change opens the sheet; a tap picks and closes", (tester) async {
@@ -1767,7 +1854,8 @@ void main() {
       expect(find.byKey(const Key("sheet_chosen_ring")), findsOneWidget);
     });
 
-    testWidgets("the picked card flies back into the overview", (tester) async {
+    testWidgets("the picked card rises out of the sheet and flies back into "
+        "the overview", (tester) async {
       await _pump(tester, session: _session([_passportOrIdCard()]));
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
@@ -1778,20 +1866,23 @@ void main() {
 
       await tester.tap(picked);
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 150));
-      // Mid-flight: a copy of the new choice is on its way, between its row
-      // and its place on the page (both empty while it is carried).
+      for (var t = 0; t < 320; t += 40) {
+        await tester.pump(const Duration(milliseconds: 40));
+      }
+      // Mid-flight: a copy of the new choice has risen out of the sheet,
+      // just above its row (empty while it is carried, as its place on the
+      // page is).
       final tops = [
         for (final e in find.text("de Vries").evaluate())
           tester.getRect(find.byWidget(e.widget)).top,
       ];
-
-      await tester.pumpAndSettle();
-      final to = tester.getRect(find.text("de Vries")).top;
       expect(
-        tops.where((top) => top > min(from, to) + 1 && top < max(from, to) - 1),
+        tops.where((top) => (from - top - FlightKey.riseHeight).abs() < 8),
         isNotEmpty,
       );
+
+      await tester.pumpAndSettle();
+      expect(find.text("de Vries"), findsOneWidget);
     });
 
     testWidgets("adding is a subpage: swiped back, its button at the bottom", (
@@ -2906,6 +2997,45 @@ void main() {
         matching: logo,
       );
       expect(tester.getRect(inSheet).width, 84);
+    });
+
+    testWidgets("the logo rises just above its place in the sheet, waits while "
+        "the sheet comes up, and back the same way", (tester) async {
+      await _pump(tester, session: _session(email()));
+      final card = tester.getRect(find.byType(RequestorLogo)).top;
+      final copy = find.byKey(const Key("trust_sheet_logo_flight"));
+      Future<void> wait(int ms) async {
+        for (var t = 0; t < ms; t += 40) {
+          await tester.pump(const Duration(milliseconds: 40));
+        }
+      }
+
+      await tester.tap(find.byKey(const Key("session_requestor_info")));
+      await tester.pump();
+      await wait(480);
+      final high = tester.getRect(copy).top;
+      await tester.pumpAndSettle();
+      final place = tester
+          .getRect(
+            find.descendant(
+              of: find.byKey(const Key("requestor_trust_sheet")),
+              matching: find.byType(RequestorLogo),
+            ),
+          )
+          .top;
+      expect(place - high, closeTo(FlightKey.riseHeight + 4, 3));
+
+      // Closed: it rises out of the sheet as far, then lands on the card.
+      await tester.tap(find.byType(IrmaCloseButton).last);
+      await tester.pump();
+      await wait(400);
+      expect(
+        place - tester.getRect(copy).top,
+        closeTo(FlightKey.riseHeight + 4, 3),
+      );
+      await tester.pumpAndSettle();
+      expect(copy, findsNothing);
+      expect(tester.getRect(find.byType(RequestorLogo)).top, card);
     });
 
     testWidgets("the party opens what registered means", (tester) async {

@@ -42,6 +42,18 @@ class FlightKey {
   static Rect start(Rect from, Rect to) => from;
   static Rect end(Rect from, Rect to) => to;
 
+  /// How far a copy carried over a sheet's edge rises above where it lands
+  /// in the sheet (or leaves it from): it waits there while the sheet comes
+  /// up, or goes down, under it. The same for every copy, wherever it lands,
+  /// so each comes down (or goes up) as far and as fast.
+  static const riseHeight = 48.0;
+
+  /// [place], [riseHeight] higher.
+  static Rect Function(Rect from, Rect to) above(
+    Rect Function(Rect from, Rect to) place,
+  ) =>
+      (from, to) => place(from, to).translate(0, -riseHeight);
+
   /// The keys of a card carried from one place to another in three beats:
   /// picked up where it is, carried while lifted, put down; [lift] and [hold]
   /// are where the beats meet.
@@ -77,6 +89,23 @@ class FlightFrame {
 /// up, a list that settles). Null while it is not on screen: the last known
 /// box stands in.
 typedef FlightTarget = Rect? Function(RenderBox overlay);
+
+/// Steers a flight by hand ([YiviFlight.follow]): its [t] follows a gesture
+/// (a sheet dragged down), and once the gesture ends it [land]s, or goes
+/// [back] to where it started.
+class FlightHandle {
+  _FlyingState? _state;
+
+  /// How far through the flight, 0..1.
+  double get t => _state?._clock.value ?? 0;
+  set t(double value) => _state?._steer(value);
+
+  /// Flies on from where it is to the end, in the rest of its duration.
+  void land() => _state?._finish(back: false);
+
+  /// Flies back to where it started, and shows that place again.
+  void back() => _state?._finish(back: true);
+}
 
 /// A copy of something that flies, in the root overlay, from where it is to
 /// where it lands: a card from its row into a sheet and back, a logo into a
@@ -121,6 +150,7 @@ class YiviFlight {
   /// copies that fly at the same time: higher is on top.
   static bool start(
     BuildContext context, {
+    FlightHandle? handle,
     GlobalKey? from,
     Rect? fromRect,
     required FlightTarget to,
@@ -174,6 +204,7 @@ class YiviFlight {
         wrap: wrap,
         onTick: onTick,
         backdrop: backdrop,
+        handle: handle,
         onDone: () {
           // Show the places first, then take the copy away two frames later.
           show(hiding);
@@ -198,6 +229,42 @@ class YiviFlight {
   }
 
   static final _zOf = Expando<int>();
+
+  /// A flight steered by hand: as [start], but it stays at the start until
+  /// [handle] moves it, and lands (or goes back) when told. Null when it
+  /// cannot fly (no start on screen, reduce motion).
+  static FlightHandle? follow(
+    BuildContext context, {
+    required GlobalKey from,
+    required FlightTarget to,
+    required Widget Function(BuildContext context, FlightFrame frame) copy,
+    required List<FlightKey> keys,
+    required Duration duration,
+    double lift = liftCard,
+    BorderRadius radius = BorderRadius.zero,
+    Iterable<Key> hide = const [],
+    VoidCallback? onLanded,
+    Key? copyKey,
+  }) {
+    final handle = FlightHandle();
+    final flies = start(
+      context,
+      handle: handle,
+      from: from,
+      to: to,
+      copy: copy,
+      keys: keys,
+      duration: duration,
+      // One to one with the hand; the landing eases ([FlightHandle.land]).
+      curve: Curves.linear,
+      lift: lift,
+      radius: radius,
+      hide: hide,
+      onLanded: onLanded,
+      copyKey: copyKey,
+    );
+    return flies ? handle : null;
+  }
 
   /// The box of [key] in the overlay's coordinates, for a [FlightTarget].
   static FlightTarget boxOf(GlobalKey key) =>
@@ -248,6 +315,7 @@ class _Flying extends StatefulWidget {
   final Widget Function(Widget copy, Animation<double> clock)? wrap;
   final void Function(Duration elapsed)? onTick;
   final Widget Function(Duration elapsed)? backdrop;
+  final FlightHandle? handle;
 
   const _Flying({
     required this.z,
@@ -266,6 +334,7 @@ class _Flying extends StatefulWidget {
     this.wrap,
     this.onTick,
     this.backdrop,
+    this.handle,
   });
 
   @override
@@ -287,11 +356,45 @@ class _FlyingState extends State<_Flying> with SingleTickerProviderStateMixin {
     super.initState();
     final onTick = widget.onTick;
     if (onTick != null) _clock.addListener(() => onTick(_elapsed));
-    _clock.forward().whenComplete(() {
-      if (_done) return;
-      _done = true;
-      widget.onDone();
-    });
+    final handle = widget.handle;
+    if (handle != null) {
+      // Steered: it waits at the start for the hand.
+      handle._state = this;
+      return;
+    }
+    _clock.forward().whenComplete(_end);
+  }
+
+  void _end() {
+    if (_done) return;
+    _done = true;
+    widget.handle?._state = null;
+    widget.onDone();
+  }
+
+  void _steer(double t) {
+    if (_done || _clock.isAnimating) return;
+    _clock.value = t.clamp(0.0, 1.0);
+  }
+
+  /// On to the end, or back to the start, in the rest of the flight's time.
+  void _finish({required bool back}) {
+    if (_done) return;
+    final target = back ? 0.0 : 1.0;
+    final left = (target - _clock.value).abs();
+    // Never in a snap: at least 360 ms, however little is left.
+    final duration = widget.duration * left;
+    const least = Duration(milliseconds: 360);
+    _clock
+        .animateTo(
+          target,
+          duration: left == 0
+              ? Duration.zero
+              : (duration < least ? least : duration),
+          // From the hand's slow pace: no jump as it is let go.
+          curve: Curves.easeInOut,
+        )
+        .whenComplete(_end);
   }
 
   @override

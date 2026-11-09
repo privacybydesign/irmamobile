@@ -4,7 +4,6 @@ import "../../../models/requestor_trust.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
@@ -31,9 +30,10 @@ const _euTrustedList =
 /// [RequestorTrustSheet.issuer]). With [technicalDetails] the sheet ends with a row that opens
 /// them, as a subpage of the sheet.
 ///
-/// With [logoFrom] (the card's logo) the logo flies: it grows from the card
-/// into the sheet's while the sheet comes up (380 ms), and goes back into the
-/// card while the sheet goes down (420 ms, a beat after the sheet starts).
+/// With [logoFrom] (the card's logo) the logo is carried over the sheet's
+/// edge as a card into the Change sheet is: into the sheet's place while the
+/// sheet comes up under it (900 ms), and back onto the card after rising out
+/// of the sheet as it goes down (860 ms).
 Future<void> showRequestorTrustSheet({
   required BuildContext context,
   required TrustedParty requestor,
@@ -44,39 +44,65 @@ Future<void> showRequestorTrustSheet({
 }) {
   final into = GlobalKey(debugLabel: "trust_sheet_logo");
   final style = RequestorTrustStyle.of(context, requestor);
-  void fly({required bool opening}) {
-    final from = logoFrom;
-    if (from == null) return;
-    YiviFlight.start(
-      context,
-      from: opening ? from : into,
-      to: YiviFlight.boxOf(opening ? into : from),
-      keys: const [FlightKey(0, FlightKey.start), FlightKey(1, FlightKey.end)],
-      duration: Duration(milliseconds: opening ? 380 : 420),
-      delay: Duration(milliseconds: opening ? 0 : 40),
-      curve: YiviMotion.ease,
-      hide: [from, into],
-      copy: (context, frame) => RequestorLogo(
-        requestor: requestor,
-        style: style,
-        size: frame.size.width,
-      ),
-    );
-  }
+  final carried = logoFrom != null && !MediaQuery.disableAnimationsOf(context);
+  Widget copy(BuildContext context, FlightFrame frame) =>
+      RequestorLogo(requestor: requestor, style: style, size: frame.size.width);
 
-  if (logoFrom != null && !MediaQuery.disableAnimationsOf(context)) {
+  // As a card into the Change sheet: picked up, risen to just above where it
+  // lands in the sheet, waiting there while the sheet comes up under it, then
+  // put down there. Back the same way: it rises out of the sheet, which goes
+  // down under it, then comes down onto the requestor's card.
+  void flyIn() => YiviFlight.start(
+    context,
+    from: logoFrom,
+    to: (overlay) => sheetSettledBox(into, overlay),
+    keys: [
+      const FlightKey(0, FlightKey.start),
+      const FlightKey(0.15, FlightKey.start, lifted: true),
+      FlightKey(0.45, FlightKey.above(FlightKey.end), lifted: true),
+      FlightKey(0.62, FlightKey.above(FlightKey.end), lifted: true),
+      const FlightKey(0.9, FlightKey.end, lifted: true),
+      const FlightKey(1, FlightKey.end),
+    ],
+    duration: const Duration(milliseconds: 900),
+    shadow: _noShadow,
+    hide: [logoFrom!, into],
+    copyKey: const Key("trust_sheet_logo_flight"),
+    copy: copy,
+  );
+
+  void flyBack() => YiviFlight.start(
+    context,
+    from: into,
+    to: YiviFlight.boxOf(logoFrom!),
+    keys: [
+      const FlightKey(0, FlightKey.start),
+      const FlightKey(0.15, FlightKey.start, lifted: true),
+      FlightKey(0.42, FlightKey.above(FlightKey.start), lifted: true),
+      FlightKey(0.55, FlightKey.above(FlightKey.start), lifted: true),
+      const FlightKey(0.88, FlightKey.end, lifted: true),
+      const FlightKey(1, FlightKey.end),
+    ],
+    duration: const Duration(milliseconds: 860),
+    shadow: _noShadow,
+    hide: [logoFrom, into],
+    copyKey: const Key("trust_sheet_logo_flight"),
+    copy: copy,
+  );
+
+  if (carried) {
     YiviFlight.hide([into]);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       YiviFlight.show([into]);
-      fly(opening: true);
+      flyIn();
     });
   }
   return showGlassSheet<void>(
     context: context,
-    motion: SheetMotion.share,
+    motion: carried ? SheetMotion.carried : SheetMotion.share,
     builder: (_) => PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) fly(opening: false);
+        if (didPop && carried) flyBack();
       },
       child: _TrustSheetPages(
         requestor: requestor,
@@ -88,6 +114,9 @@ Future<void> showRequestorTrustSheet({
     ),
   );
 }
+
+/// A logo is lifted without a shadow (it has no card under it to cast one).
+const _noShadow = BoxShadow(color: Color(0x00000000));
 
 /// The trust sheet and, when there are technical details, their subpage,
 /// which slides in over it.

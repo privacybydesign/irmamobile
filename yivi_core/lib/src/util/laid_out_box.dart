@@ -10,10 +10,15 @@ extension LaidOutBox on BuildContext? {
     return box is RenderBox && box.attached && box.hasSize ? box : null;
   }
 
-  /// Where [laidOutBox] is in [ancestor]'s coordinates.
+  /// Where [laidOutBox] is in [ancestor]'s coordinates; null while a box
+  /// between them has no size yet (a page just put back on stage).
   Rect? rectIn(RenderBox ancestor) {
     final box = laidOutBox;
     if (box == null) return null;
+    for (RenderObject? node = box.parent; node != null; node = node.parent) {
+      if (node == ancestor) break;
+      if (node is RenderBox && !node.hasSize) return null;
+    }
     return box.localToGlobal(Offset.zero, ancestor: ancestor) & box.size;
   }
 }

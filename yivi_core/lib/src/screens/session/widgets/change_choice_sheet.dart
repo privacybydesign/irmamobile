@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -68,7 +69,7 @@ Future<void> showChangeChoiceSheet({
       ? Duration.zero
       : addNew != null
       ? const Duration(milliseconds: 120)
-      : ChangeChoiceSheet.liftedWait;
+      : SheetMotion.carried.openDelay;
   return showGlassSheet<void>(
     context: context,
     motion: (addNew != null ? SheetMotion.issue : SheetMotion.share).copyWith(
@@ -107,10 +108,6 @@ Widget tileAtSize(Size size, Widget tile) => Material(
 );
 
 class ChangeChoiceSheet extends ConsumerStatefulWidget {
-  /// How long the sheet waits when a card is lifted in: until the card has
-  /// nearly risen to its row's place.
-  static const liftedWait = Duration(milliseconds: 320);
-
   final int sessionId;
   final int index;
   final CredentialDescriptor? addNew;
@@ -154,7 +151,7 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
 }
 
 class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
-    with IssueFlow<ChangeChoiceSheet> {
+    with IssueFlow<ChangeChoiceSheet>, SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -211,10 +208,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   bool _ringShown = true;
 
   /// Opened from the card on the share screen: it is picked up there (a
-  /// little bigger, a shadow, its bottom strip folding away), rises to where
-  /// its row will be, waits there while the sheet comes in under it
-  /// ([liftedWait]), and is put down on its row, whose ring then fades in.
-  /// 800 ms.
+  /// little bigger, a shadow, its bottom strip folding away), rises to just
+  /// above where its row will be ([FlightKey.riseHeight]), waits there while
+  /// the sheet comes in under it ([SheetMotion.carried]), and comes down
+  /// onto its row, whose ring then fades in. 900 ms.
   void _liftIn(GlobalKey from) {
     final bundle = _current;
     final row = _currentRow;
@@ -224,11 +221,13 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       return;
     }
     setState(() => _ringShown = false);
+    // Up above its row, at the row's size and side.
+    final risen = FlightKey.above(FlightKey.end);
     YiviFlight.start(
       context,
       from: from,
       // Where the row will be once the sheet is up, not where it is while
-      // the sheet slides: the card goes there first and waits.
+      // the sheet slides.
       to: (overlay) => sheetSettledBox(row, overlay),
       keys: [
         const FlightKey(0, FlightKey.start),
@@ -239,11 +238,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           lifted: true,
           strip: 0,
         ),
-        const FlightKey(0.48, FlightKey.end, lifted: true, strip: 0),
-        const FlightKey(0.88, FlightKey.end, lifted: true, strip: 0),
+        // Risen, it waits while the sheet comes up under it, then comes
+        // down over the sheet's edge onto its row.
+        FlightKey(0.45, risen, lifted: true, strip: 0),
+        FlightKey(0.62, risen, lifted: true, strip: 0),
+        const FlightKey(0.9, FlightKey.end, lifted: true, strip: 0),
         const FlightKey(1, FlightKey.end, strip: 0),
       ],
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 900),
       radius: YiviCorners.cardRadius,
       hide: [from, row],
       copyKey: const Key("sheet_lift_card"),
@@ -255,31 +257,149 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
+  /// The sheet waits as it closes while the card in use would rise out of
+  /// it ([_flyBack]); not while a card is being added (nothing flies back)
+  /// or lands (it sets its own).
+  void _setCloseDelay() {
+    if (_landing) return;
+    final flies =
+        issueAdding == null &&
+        widget.returnTo != null &&
+        widget.tileCopy != null &&
+        !MediaQuery.disableAnimationsOf(context);
+    delayGlassSheetClose(
+      context,
+      flies
+          ? SheetMotion.carried.closeDelay
+          : (widget.addNew != null ? SheetMotion.issue : SheetMotion.share)
+                .closeDelay,
+    );
+  }
+
+  /// The keys of a card carried back to the share screen by hand: picked up
+  /// from its row, carried lifted over its place, put down there with its
+  /// strip.
+  static final _handKeys = [
+    const FlightKey(0, FlightKey.start, strip: 0),
+    const FlightKey(0.22, FlightKey.start, lifted: true, strip: 0),
+    FlightKey(
+      0.72,
+      (from, to) => Rect.fromLTWH(to.left, to.top, to.width, from.height),
+      lifted: true,
+      strip: 0,
+    ),
+    const FlightKey(1, FlightKey.end),
+  ];
+
+  // ---------- dragged down by hand ----------
+
+  /// The sheet's hand: a drag or pull of it under way, and how far up it is.
+  ({ValueListenable<bool> dragging, Animation<double> shown})? _hand;
+
+  /// The card lifted out of the sheet as a hand drags it down: it follows
+  /// the drag towards its place on the share screen, lands there when the
+  /// sheet closes, or goes back to its row when it springs back.
+  FlightHandle? _handFlight;
+
+  /// The pick-up as the drag starts, in time rather than with the hand.
+  late final _picking = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 160),
+  )..addListener(_steerHand);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final hand = glassSheetHand(context);
+    if (hand?.dragging == _hand?.dragging) return;
+    _hand?.dragging.removeListener(_onHand);
+    _hand?.shown.removeListener(_steerHand);
+    _hand = hand;
+    hand?.dragging.addListener(_onHand);
+    hand?.shown.addListener(_steerHand);
+  }
+
+  @override
+  void dispose() {
+    _hand?.dragging.removeListener(_onHand);
+    _hand?.shown.removeListener(_steerHand);
+    _picking.dispose();
+    super.dispose();
+  }
+
+  void _onHand() {
+    if (_hand?.dragging.value ?? false) {
+      _pickUpByHand();
+      return;
+    }
+    // Let go and sprung back up (a close lands it, see [_onClose]).
+    final flight = _handFlight;
+    _handFlight = null;
+    flight?.back();
+  }
+
+  void _pickUpByHand() {
+    if (_handFlight != null || _landing || issueAdding != null) return;
+    final bundle = _picked ?? _current;
+    final to = widget.returnTo;
+    final copy = widget.tileCopy;
+    if (bundle == null || to == null || copy == null) return;
+    final row = _rowKey(bundle);
+    _handFlight = YiviFlight.follow(
+      context,
+      from: row,
+      to: YiviFlight.boxOf(to),
+      keys: _handKeys,
+      duration: const Duration(milliseconds: 680),
+      radius: YiviCorners.cardRadius,
+      hide: [row, to],
+      copyKey: const Key("sheet_back_card"),
+      copy: (context, frame) =>
+          tileAtSize(frame.size, copy(bundle, frame.strip)),
+    );
+    if (_handFlight != null) _picking.forward(from: 0);
+  }
+
+  /// Picked up in time, then carried along as far as the sheet is down.
+  void _steerHand() {
+    final flight = _handFlight;
+    final hand = _hand;
+    if (flight == null || hand == null) return;
+    final picked = Curves.easeOut.transform(_picking.value);
+    flight.t = 0.22 * picked + 0.5 * (1 - hand.shown.value);
+  }
+
   /// Back to the share screen with [bundle] (picked, or the one in use when
-  /// the sheet is closed): its row is picked up, carried over the card's
-  /// place and put down there, its bottom strip unfolding as it lands, while
-  /// the sheet goes down a beat later. 680 ms.
+  /// the sheet is closed): its row is picked up and rises out of the sheet
+  /// to just above it ([FlightKey.riseHeight]), the sheet goes down under it
+  /// ([SheetMotion.carried]), and it comes down onto its place, its
+  /// bottom strip unfolding as it lands. 860 ms. The way in, backwards.
   void _flyBack(DisclosureBundle bundle) {
     final to = widget.returnTo;
     final copy = widget.tileCopy;
     if (to == null || copy == null) return;
     final row = _rowKey(bundle);
+    // Up above its row.
+    final risen = FlightKey.above(FlightKey.start);
     YiviFlight.start(
       context,
       from: row,
       to: YiviFlight.boxOf(to),
       keys: [
         const FlightKey(0, FlightKey.start, strip: 0),
-        const FlightKey(0.22, FlightKey.start, lifted: true, strip: 0),
+        const FlightKey(0.15, FlightKey.start, lifted: true, strip: 0),
+        // Risen, it waits while the sheet goes down under it.
+        FlightKey(0.42, risen, lifted: true, strip: 0),
+        FlightKey(0.55, risen, lifted: true, strip: 0),
         FlightKey(
-          0.72,
+          0.88,
           (from, to) => Rect.fromLTWH(to.left, to.top, to.width, from.height),
           lifted: true,
           strip: 0,
         ),
         const FlightKey(1, FlightKey.end),
       ],
-      duration: const Duration(milliseconds: 680),
+      duration: const Duration(milliseconds: 860),
       radius: YiviCorners.cardRadius,
       hide: [row, to],
       copyKey: const Key("sheet_back_card"),
@@ -526,6 +646,13 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// The sheet goes (picked, closed, dragged down) from its list: the card
   /// in use flies back to its place on the share screen.
   void _onClose() {
+    // Dragged down by hand: the card already lifted out lands.
+    final hand = _handFlight;
+    if (hand != null) {
+      _handFlight = null;
+      hand.land();
+      return;
+    }
     if (_landing || issueAdding != null) return;
     final bundle = _picked ?? _current;
     if (bundle != null) _flyBack(bundle);
@@ -608,6 +735,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final pickOnes =
         session?.disclosurePlan?.disclosureChoicesOverview ?? const [];
     issueListen();
+    _setCloseDelay();
     if (widget.index >= pickOnes.length || session == null) {
       return const SizedBox.shrink();
     }

@@ -101,6 +101,18 @@ class SheetMotion {
     closeDelay: Duration(milliseconds: 120),
   );
 
+  /// A sheet over the share screen with something carried over its edge (a
+  /// card, a logo): it comes up under the copy that waits above where it
+  /// lands, and goes down under the copy that has risen out of it.
+  static const carried = SheetMotion(
+    open: Duration(milliseconds: 380),
+    close: Duration(milliseconds: 320),
+    openCurve: YiviMotion.ease,
+    closeCurve: YiviMotion.leave,
+    openDelay: Duration(milliseconds: 330),
+    closeDelay: Duration(milliseconds: 300),
+  );
+
   /// The sheet a card is added in.
   static const issue = SheetMotion(
     open: Duration(milliseconds: 420),
@@ -397,6 +409,18 @@ bool glassSheetClosing(BuildContext context) {
   return route is _GlassSheetRoute && route._closeAsked;
 }
 
+/// A hand on the sheet at [context]: whether a drag or pull of it is under
+/// way ([dragging], until the sheet has settled after it), and how far up
+/// the sheet is meanwhile ([shown]: 1 all the way up, 0 gone). Null outside
+/// a sheet.
+({ValueListenable<bool> dragging, Animation<double> shown})? glassSheetHand(
+  BuildContext context,
+) {
+  final route = ModalRoute.of(context);
+  if (route is! _GlassSheetRoute) return null;
+  return (dragging: route._hand, shown: route.animation!);
+}
+
 /// The route of a sheet: it slides up from the bottom over a dim barrier,
 /// closes on a tap outside it, a drag down or a pull of its list, and is a
 /// [PageRoute], so heroes fly into it (a modal bottom sheet is not).
@@ -473,9 +497,13 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   bool _gesture = false;
   NavigatorState? _gestureNavigator;
 
+  /// [_gesture], for the sheet's content ([glassSheetHand]).
+  final _hand = ValueNotifier(false);
+
   void _startGesture() {
     if (_gesture) return;
     _gesture = true;
+    _hand.value = true;
     _gestureNavigator = navigator;
     _gestureNavigator!.didStartUserGesture();
   }
@@ -483,6 +511,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   void _stopGesture() {
     if (!_gesture) return;
     _gesture = false;
+    _hand.value = false;
     _gestureNavigator?.didStopUserGesture();
     _gestureNavigator = null;
   }
@@ -557,6 +586,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     _stopGesture();
     controller?.removeStatusListener(_onCoverStatus);
     _cover(false);
+    _hand.dispose();
     _pull.dispose();
     _backdrop.dispose();
     super.dispose();
