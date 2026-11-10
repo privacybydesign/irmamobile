@@ -208,10 +208,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   bool _ringShown = true;
 
   /// Opened from the card on the share screen: it is picked up there (a
-  /// little bigger, a shadow, its bottom strip folding away), rises to just
-  /// above where its row will be ([FlightKey.riseHeight]), waits there while
-  /// the sheet comes in under it ([SheetMotion.carried]), and comes down
-  /// onto its row, whose ring then fades in. 900 ms.
+  /// little bigger, a shadow, its bottom strip folding away as it takes its
+  /// row's size), arcs over the sheet's edge as the sheet comes up under it
+  /// ([SheetMotion.carried]) and comes straight down onto its row
+  /// ([FlightPath]), whose ring then fades in. One movement, never stopping:
+  /// 640 ms.
   void _liftIn(GlobalKey from) {
     final bundle = _current;
     final row = _currentRow;
@@ -221,31 +222,21 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       return;
     }
     setState(() => _ringShown = false);
-    // Up above its row, at the row's size and side.
-    final risen = FlightKey.above(FlightKey.end);
     YiviFlight.start(
       context,
       from: from,
       // Where the row will be once the sheet is up, not where it is while
       // the sheet slides.
       to: (overlay) => sheetSettledBox(row, overlay),
-      keys: [
-        const FlightKey(0, FlightKey.start),
-        FlightKey(
-          0.15,
-          (from, to) =>
-              Rect.fromLTWH(from.left, from.top, from.width, to.height),
-          lifted: true,
-          strip: 0,
-        ),
-        // Risen, it waits while the sheet comes up under it, then comes
-        // down over the sheet's edge onto its row.
-        FlightKey(0.45, risen, lifted: true, strip: 0),
-        FlightKey(0.62, risen, lifted: true, strip: 0),
-        const FlightKey(0.9, FlightKey.end, lifted: true, strip: 0),
-        const FlightKey(1, FlightKey.end, strip: 0),
+      path: const FlightPath.into(),
+      keys: const [
+        FlightKey(0, FlightKey.start),
+        FlightKey(0.2, FlightKey.start, lifted: true, strip: 0.4),
+        FlightKey(0.5, FlightKey.start, lifted: true, strip: 0),
+        FlightKey(0.84, FlightKey.start, lifted: true, strip: 0),
+        FlightKey(1, FlightKey.start, strip: 0),
       ],
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 640),
       radius: YiviCorners.cardRadius,
       hide: [from, row],
       copyKey: const Key("sheet_lift_card"),
@@ -370,36 +361,27 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   }
 
   /// Back to the share screen with [bundle] (picked, or the one in use when
-  /// the sheet is closed): its row is picked up and rises out of the sheet
-  /// to just above it ([FlightKey.riseHeight]), the sheet goes down under it
-  /// ([SheetMotion.carried]), and it comes down onto its place, its
-  /// bottom strip unfolding as it lands. 860 ms. The way in, backwards.
+  /// the sheet is closed): its row is picked up and rises straight out of
+  /// the sheet as the sheet goes down under it ([SheetMotion.carried]), arcs
+  /// over and comes down onto its place, its bottom strip unfolding as it
+  /// lands ([FlightPath]). The way in, backwards: 620 ms.
   void _flyBack(DisclosureBundle bundle) {
     final to = widget.returnTo;
     final copy = widget.tileCopy;
     if (to == null || copy == null) return;
     final row = _rowKey(bundle);
-    // Up above its row.
-    final risen = FlightKey.above(FlightKey.start);
     YiviFlight.start(
       context,
       from: row,
       to: YiviFlight.boxOf(to),
-      keys: [
-        const FlightKey(0, FlightKey.start, strip: 0),
-        const FlightKey(0.15, FlightKey.start, lifted: true, strip: 0),
-        // Risen, it waits while the sheet goes down under it.
-        FlightKey(0.42, risen, lifted: true, strip: 0),
-        FlightKey(0.55, risen, lifted: true, strip: 0),
-        FlightKey(
-          0.88,
-          (from, to) => Rect.fromLTWH(to.left, to.top, to.width, from.height),
-          lifted: true,
-          strip: 0,
-        ),
-        const FlightKey(1, FlightKey.end),
+      path: const FlightPath.outOf(size: Interval(0.7, 1)),
+      keys: const [
+        FlightKey(0, FlightKey.start, strip: 0),
+        FlightKey(0.18, FlightKey.start, lifted: true, strip: 0),
+        FlightKey(0.76, FlightKey.start, lifted: true, strip: 0),
+        FlightKey(1, FlightKey.start),
       ],
-      duration: const Duration(milliseconds: 860),
+      duration: const Duration(milliseconds: 620),
       radius: YiviCorners.cardRadius,
       hide: [row, to],
       copyKey: const Key("sheet_back_card"),

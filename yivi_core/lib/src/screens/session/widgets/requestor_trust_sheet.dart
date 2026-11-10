@@ -32,8 +32,8 @@ const _euTrustedList =
 ///
 /// With [logoFrom] (the card's logo) the logo is carried over the sheet's
 /// edge as a card into the Change sheet is: into the sheet's place while the
-/// sheet comes up under it (900 ms), and back onto the card after rising out
-/// of the sheet as it goes down (860 ms).
+/// sheet comes up under it (640 ms), and back onto the card after rising out
+/// of the sheet as it goes down (620 ms).
 Future<void> showRequestorTrustSheet({
   required BuildContext context,
   required TrustedParty requestor,
@@ -48,23 +48,17 @@ Future<void> showRequestorTrustSheet({
   Widget copy(BuildContext context, FlightFrame frame) =>
       RequestorLogo(requestor: requestor, style: style, size: frame.size.width);
 
-  // As a card into the Change sheet: picked up, risen to just above where it
-  // lands in the sheet, waiting there while the sheet comes up under it, then
-  // put down there. Back the same way: it rises out of the sheet, which goes
-  // down under it, then comes down onto the requestor's card.
+  // As a card into the Change sheet ([FlightPath]): picked up, over the
+  // sheet's edge as the sheet comes up under it, straight down onto its
+  // place. Back the same way: it rises straight out of the sheet as the
+  // sheet goes down under it, and comes down onto the requestor's card.
   void flyIn() => YiviFlight.start(
     context,
     from: logoFrom,
     to: (overlay) => sheetSettledBox(into, overlay),
-    keys: [
-      const FlightKey(0, FlightKey.start),
-      const FlightKey(0.15, FlightKey.start, lifted: true),
-      FlightKey(0.45, FlightKey.above(FlightKey.end), lifted: true),
-      FlightKey(0.62, FlightKey.above(FlightKey.end), lifted: true),
-      const FlightKey(0.9, FlightKey.end, lifted: true),
-      const FlightKey(1, FlightKey.end),
-    ],
-    duration: const Duration(milliseconds: 900),
+    path: const FlightPath.into(size: Interval(0, 0.7)),
+    keys: _carriedKeys,
+    duration: const Duration(milliseconds: 640),
     shadow: _noShadow,
     hide: [logoFrom!, into],
     copyKey: const Key("trust_sheet_logo_flight"),
@@ -75,15 +69,9 @@ Future<void> showRequestorTrustSheet({
     context,
     from: into,
     to: YiviFlight.boxOf(logoFrom!),
-    keys: [
-      const FlightKey(0, FlightKey.start),
-      const FlightKey(0.15, FlightKey.start, lifted: true),
-      FlightKey(0.42, FlightKey.above(FlightKey.start), lifted: true),
-      FlightKey(0.55, FlightKey.above(FlightKey.start), lifted: true),
-      const FlightKey(0.88, FlightKey.end, lifted: true),
-      const FlightKey(1, FlightKey.end),
-    ],
-    duration: const Duration(milliseconds: 860),
+    path: const FlightPath.outOf(size: Interval(0.3, 1)),
+    keys: _carriedKeys,
+    duration: const Duration(milliseconds: 620),
     shadow: _noShadow,
     hide: [logoFrom, into],
     copyKey: const Key("trust_sheet_logo_flight"),
@@ -114,6 +102,14 @@ Future<void> showRequestorTrustSheet({
     ),
   );
 }
+
+/// Lifted as it sets off, put down as it lands.
+const _carriedKeys = [
+  FlightKey(0, FlightKey.start),
+  FlightKey(0.18, FlightKey.start, lifted: true),
+  FlightKey(0.84, FlightKey.start, lifted: true),
+  FlightKey(1, FlightKey.start),
+];
 
 /// A logo is lifted without a shadow (it has no card under it to cast one).
 const _noShadow = BoxShadow(color: Color(0x00000000));

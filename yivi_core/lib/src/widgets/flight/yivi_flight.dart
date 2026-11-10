@@ -42,17 +42,10 @@ class FlightKey {
   static Rect start(Rect from, Rect to) => from;
   static Rect end(Rect from, Rect to) => to;
 
-  /// How far a copy carried over a sheet's edge rises above where it lands
-  /// in the sheet (or leaves it from): it waits there while the sheet comes
-  /// up, or goes down, under it. The same for every copy, wherever it lands,
-  /// so each comes down (or goes up) as far and as fast.
+  /// How high a copy carried over a sheet's edge ([FlightPath]) comes from
+  /// above its place in the sheet (or rises out of it): the same for every
+  /// copy, wherever it lands, so each comes down (or goes up) alike.
   static const riseHeight = 48.0;
-
-  /// [place], [riseHeight] higher.
-  static Rect Function(Rect from, Rect to) above(
-    Rect Function(Rect from, Rect to) place,
-  ) =>
-      (from, to) => place(from, to).translate(0, -riseHeight);
 
   /// The keys of a card carried from one place to another in three beats:
   /// picked up where it is, carried while lifted, put down; [lift] and [hold]
@@ -68,6 +61,57 @@ class FlightKey {
     FlightKey(hold, end, lifted: true),
     const FlightKey(1, end),
   ];
+}
+
+/// The way a copy carried over a sheet's edge goes: one smooth curve,
+/// never stopping on the way. Into a sheet it is picked up, arcs over the
+/// sheet's edge and comes straight down onto its place; out of a sheet it
+/// rises straight up out of its place, arcs over and comes down where it
+/// lands. Its size changes during [size] (a part of the flight, 0..1).
+///
+/// With a path, a flight's [FlightKey]s only say how lifted, turned, faded
+/// and folded the copy is; their places are not used.
+class FlightPath {
+  /// Into a sheet ([to] is in the sheet), or out of one.
+  final bool into;
+
+  /// When the copy takes on its new size.
+  final Interval size;
+
+  /// One curve over the whole way: it sets off gently as it is picked up and
+  /// settles slowly as it is put down, with no stop or jolt between.
+  final Curve curve;
+
+  const FlightPath.into({
+    this.size = const Interval(0, 0.5),
+    this.curve = const Cubic(0.4, 0, 0.2, 1),
+  }) : into = true;
+
+  const FlightPath.outOf({
+    this.size = const Interval(0.5, 1),
+    this.curve = const Cubic(0.4, 0, 0.2, 1),
+  }) : into = false;
+
+  /// The box at [t] (not eased): a cubic Bézier through the boxes' top-left
+  /// corners, its handle at the sheet's end straight above that end
+  /// (2 × [FlightKey.riseHeight]), so the copy comes down onto its place in
+  /// the sheet, or rises out of it, upright, from over the sheet's edge.
+  Rect at(double t, Rect from, Rect to) {
+    final s = curve.transform(t);
+    const high = 2 * FlightKey.riseHeight;
+    const low = 0.5 * FlightKey.riseHeight;
+    final p0 = from.topLeft, p3 = to.topLeft;
+    final p1 = p0.translate(0, -(into ? low : high));
+    final p2 = p3.translate(0, -(into ? high : low));
+    final u = 1 - s;
+    final at =
+        p0 * (u * u * u) +
+        p1 * (3 * u * u * s) +
+        p2 * (3 * u * s * s) +
+        p3 * (s * s * s);
+    final grown = size.transform(t);
+    return at & Size.lerp(from.size, to.size, grown)!;
+  }
 }
 
 /// What a copy's builder is told on every frame.
@@ -159,6 +203,7 @@ class YiviFlight {
     required Duration duration,
     Duration delay = Duration.zero,
     Curve curve = YiviMotion.carry,
+    FlightPath? path,
     double lift = liftCard,
     BorderRadius radius = BorderRadius.zero,
     BoxShadow shadow = const BoxShadow(
@@ -197,6 +242,7 @@ class YiviFlight {
         duration: duration,
         delay: delay,
         curve: curve,
+        path: path,
         lift: lift,
         radius: radius,
         shadow: shadow,
@@ -307,6 +353,7 @@ class _Flying extends StatefulWidget {
   final Duration duration;
   final Duration delay;
   final Curve curve;
+  final FlightPath? path;
   final double lift;
   final BorderRadius radius;
   final BoxShadow shadow;
@@ -326,6 +373,7 @@ class _Flying extends StatefulWidget {
     required this.duration,
     required this.delay,
     required this.curve,
+    this.path,
     required this.lift,
     required this.radius,
     required this.shadow,
@@ -485,8 +533,11 @@ class _FlyingState extends State<_Flying> with SingleTickerProviderStateMixin {
     final local = span <= 0 ? 1.0 : ((t - a.at) / span).clamp(0.0, 1.0);
     final e = widget.curve.transform(local);
     double lerp(double x, double y) => x + (y - x) * e;
+    final path = widget.path;
     return _Frame(
-      rect: Rect.lerp(a.place(from, to), b.place(from, to), e)!,
+      rect: path != null
+          ? path.at(t, from, to)
+          : Rect.lerp(a.place(from, to), b.place(from, to), e)!,
       lifted: lerp(a.lifted ? 1 : 0, b.lifted ? 1 : 0),
       turn: lerp(a.turn, b.turn),
       opacity: lerp(a.opacity, b.opacity),

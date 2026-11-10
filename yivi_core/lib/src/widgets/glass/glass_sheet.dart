@@ -102,15 +102,16 @@ class SheetMotion {
   );
 
   /// A sheet over the share screen with something carried over its edge (a
-  /// card, a logo): it comes up under the copy that waits above where it
-  /// lands, and goes down under the copy that has risen out of it.
+  /// card, a logo, see [FlightPath]): it comes up under the copy as it is
+  /// carried over, nearly there as the copy comes down onto its place; it
+  /// goes down once the copy has risen clear of it.
   static const carried = SheetMotion(
     open: Duration(milliseconds: 380),
     close: Duration(milliseconds: 320),
     openCurve: YiviMotion.ease,
     closeCurve: YiviMotion.leave,
-    openDelay: Duration(milliseconds: 330),
-    closeDelay: Duration(milliseconds: 300),
+    openDelay: Duration(milliseconds: 150),
+    closeDelay: Duration(milliseconds: 150),
   );
 
   /// The sheet a card is added in.
