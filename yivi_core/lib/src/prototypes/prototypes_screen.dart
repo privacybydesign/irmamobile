@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../models/schemaless/schemaless_events.dart";
 import "../screens/error/blocked_screen.dart";
 import "../screens/error/error_screen.dart";
 import "../screens/error/no_internet_screen.dart";
@@ -158,7 +159,7 @@ class PrototypesScreen extends StatelessWidget {
             context,
             "Disclosure feedback - disclosure success",
             DisclosureFeedbackScreen(
-              otherParty: "other party",
+              requestor: _otherParty,
               onDismiss: Navigator.pop,
             ),
           ),
@@ -166,7 +167,7 @@ class PrototypesScreen extends StatelessWidget {
             context,
             "Disclosure feedback - signature success",
             DisclosureFeedbackScreen(
-              otherParty: "other party",
+              requestor: _otherParty,
               onDismiss: Navigator.pop,
               isSignatureSession: true,
               message: "I agree to the terms.",
@@ -186,3 +187,12 @@ class PrototypesScreen extends StatelessWidget {
     );
   }
 }
+
+/// The party of the prototype sessions.
+final _otherParty = TrustedParty(
+  id: "other",
+  name: "other party",
+  url: null,
+  parent: null,
+  verified: true,
+);

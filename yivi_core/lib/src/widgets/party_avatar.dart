@@ -97,11 +97,21 @@ class PartyAvatar extends StatelessWidget {
           ),
         ),
       ),
+      // The whole logo inside the circle, on white (what logos are made
+      // for): a wide one is not cut off by the circle, a small one is not
+      // left small in a grey ring.
       child: IrmaAvatar(
         size: size,
+        logoFit: BoxFit.contain,
+        logoPadding: size * 0.08,
+        logoBackground: Colors.white,
         logoImage: image == null
             ? null
-            : Base64Image(base64: image.base64, mimeType: image.mimeType),
+            : Base64Image(
+                base64: image.base64,
+                mimeType: image.mimeType,
+                fit: BoxFit.contain,
+              ),
         logoPath: image == null ? imagePath : null,
         logoSemanticsLabel: name,
         initials: name.isEmpty ? "?" : name.characters.first,

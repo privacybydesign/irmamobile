@@ -164,8 +164,9 @@ class RequestorLogo extends StatelessWidget {
         ),
       ),
     );
+    final key = flightKey;
     if (hero) {
-      return Hero(
+      final flies = Hero(
         tag: requestorLogoHeroTag(requestor),
         // Also back into the card when the sheet is dragged closed.
         transitionOnUserGestures: true,
@@ -175,8 +176,9 @@ class RequestorLogo extends StatelessWidget {
         ),
         child: logo,
       );
+      // Still found by [flightKey], for the flight into the done screen.
+      return key == null ? flies : KeyedSubtree(key: key, child: flies);
     }
-    final key = flightKey;
     return key == null ? logo : FlightSpot(flightKey: key, child: logo);
   }
 }
@@ -464,11 +466,15 @@ class RequestorCompactBar extends StatelessWidget {
   final String subtitle;
   final double opacity;
 
+  /// Where the logo is, for a flight from it.
+  final GlobalKey? logoKey;
+
   const RequestorCompactBar({
     super.key,
     required this.requestor,
     required this.subtitle,
     this.opacity = 1,
+    this.logoKey,
   });
 
   @override
@@ -483,7 +489,10 @@ class RequestorCompactBar extends StatelessWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              requestorAvatar(requestor, size: 32),
+              KeyedSubtree(
+                key: logoKey,
+                child: requestorAvatar(requestor, size: 32),
+              ),
               Positioned(
                 right: -3,
                 bottom: -3,

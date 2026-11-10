@@ -14,11 +14,13 @@ class _CompactBarSlot extends StatelessWidget {
   final ValueListenable<bool> shown;
   final schemaless.TrustedParty requestor;
   final String subtitle;
+  final GlobalKey? logoKey;
 
   const _CompactBarSlot({
     required this.shown,
     required this.requestor,
     required this.subtitle,
+    this.logoKey,
   });
 
   @override
@@ -29,6 +31,7 @@ class _CompactBarSlot extends StatelessWidget {
         requestor: requestor,
         subtitle: subtitle,
         opacity: t,
+        logoKey: logoKey,
       ),
     );
   }

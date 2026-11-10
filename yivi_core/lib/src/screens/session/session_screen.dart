@@ -408,7 +408,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }) => DisclosureFeedbackScreen(
       isSignatureSession: session.type == .signature,
       message: session.type == .signature ? session.messageToSign : null,
-      otherParty: session.requestor.name,
+      requestor: session.requestor,
       onDismiss: (_) => _popToUnderlyingOrHome(),
       shared: _sharedInstances,
       onOtherDevice: onOtherDevice,

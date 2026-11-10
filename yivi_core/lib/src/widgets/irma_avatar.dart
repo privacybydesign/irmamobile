@@ -12,12 +12,24 @@ class IrmaAvatar extends StatelessWidget {
   final String? logoSemanticsLabel;
   final String? initials;
 
+  /// How a logo at [logoPath] fills the room inside [logoPadding].
+  final BoxFit? logoFit;
+
+  /// Room around a logo, inside the circle.
+  final double logoPadding;
+
+  /// Behind a logo (else the light neutral of the initials).
+  final Color? logoBackground;
+
   const IrmaAvatar({
     this.size = 48,
     this.logoImage,
     this.logoPath,
     this.initials,
     this.logoSemanticsLabel,
+    this.logoFit,
+    this.logoPadding = 0,
+    this.logoBackground,
   }) : assert(
          (logoImage != null || logoPath != null) || initials != null,
          "Provide initials or a logo",
@@ -36,7 +48,7 @@ class IrmaAvatar extends StatelessWidget {
       final logoFile = File(logoPath!);
 
       if (logoFile.existsSync()) {
-        image = Image.file(logoFile);
+        image = Image.file(logoFile, fit: logoFit);
       }
     }
 
@@ -52,9 +64,12 @@ class IrmaAvatar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
         child: Container(
-          color: theme.neutralExtraLight,
+          color: image == null
+              ? theme.neutralExtraLight
+              : logoBackground ?? theme.neutralExtraLight,
           height: size,
           width: size,
+          padding: image == null ? null : EdgeInsets.all(logoPadding),
           child:
               image ??
               Container(

@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -16,23 +18,26 @@ import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/signed_message.dart";
 import "done_flight.dart";
+import "requestor_card.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
 
 /// "Shared with {requestor}" (or "Signed for {requestor}"), after the share
-/// button: what was shared as a pile of the cards, tilted, with the green
-/// check on its corner (a signed message instead as a sheet of paper, the
-/// cards as a small stack on its corner); the title; one sentence (what
+/// button: the shared cards handed to the requestor's logo, which ends with
+/// the green check ([_Handover]; a signed message instead as a sheet of
+/// paper, the cards as a small stack on its corner); the title; one sentence (what
 /// was shared, where it goes on, that it is in Activity); and what to do
 /// now: on iOS on the same phone a box that says to tap ◀ at the top left,
 /// else a button (back to the website, or Done).
 ///
-/// Coming from the share screen the cards (and the message) fly in from
-/// where they were there ([DoneFlight]); the words fade up after them and
-/// the check pops on last.
+/// Coming from the share screen the cards, the requestor's logo (and the
+/// message) fly in from where they were there ([DoneFlight]); the words
+/// fade up after them; then the cards are handed over and the check pops on
+/// last.
 class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
-  final String otherParty;
+  /// Who asked: their name in the words, their logo that takes the cards.
+  final schemaless.TrustedParty requestor;
   final Function(BuildContext) onDismiss;
   final bool isSignatureSession;
 
@@ -61,7 +66,7 @@ class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
 
   const DisclosureFeedbackScreen({
     super.key,
-    required this.otherParty,
+    required this.requestor,
     required this.onDismiss,
     bool? isSignatureSession,
     this.message,
@@ -97,6 +102,7 @@ class DisclosureFeedbackScreenState
     (i) => GlobalKey(debugLabel: "done_card_$i"),
   );
   final _paperKey = GlobalKey(debugLabel: "done_paper");
+  final _logoKey = GlobalKey(debugLabel: "done_logo");
 
   /// The cards flew in: the words come up after them, and the check pops on.
   late final bool _arriving = DoneFlight.pending;
@@ -108,7 +114,7 @@ class DisclosureFeedbackScreenState
     if (_arriving) {
       // The places are hidden from the first frame; the flight shows them
       // as each card lands.
-      YiviFlight.hide([..._cardKeys, _paperKey]);
+      YiviFlight.hide([..._cardKeys, _paperKey, _logoKey]);
       WidgetsBinding.instance.addPostFrameCallback((_) => _land());
     }
   }
@@ -116,7 +122,7 @@ class DisclosureFeedbackScreenState
   void _land() {
     if (!mounted) {
       DoneFlight.reset();
-      YiviFlight.show([..._cardKeys, _paperKey]);
+      YiviFlight.show([..._cardKeys, _paperKey, _logoKey]);
       return;
     }
     final cards = _cards();
@@ -140,10 +146,13 @@ class DisclosureFeedbackScreenState
               clamp: SignedMessage.paperClamp,
               padding: _paperPadding,
             ),
+      // The logo takes the cards; on a signed message there is none.
+      logo: _message == null ? _logoKey : null,
+      logoCopy: requestorAvatar(widget.requestor, size: _Handover.logo),
     );
     // What does not fly (not captured) just shows.
     YiviFlight.show([
-      for (final k in [..._cardKeys, _paperKey])
+      for (final k in [..._cardKeys, _paperKey, _logoKey])
         if (!flying.contains(k)) k,
     ]);
   }
@@ -163,7 +172,7 @@ class DisclosureFeedbackScreenState
   /// The turn of the pile's card [i], in radians (see [pilePlace]).
   double _turnOf(int i) =>
       pilePlace(
-        _message != null ? _Paper._seal : _Pile._places,
+        _message != null ? _Paper._seal : _Handover._places,
         i,
         widget.shared.length,
       ).turn *
@@ -172,13 +181,23 @@ class DisclosureFeedbackScreenState
 
   static const _paperPadding = EdgeInsets.fromLTRB(44, 26, 44, 34);
 
+  /// When the cards start going to the logo: once the last of [count] has
+  /// flown in from the share screen ([DoneFlight.land]: 560 ms each, the
+  /// first after 60 ms, 70 ms apart) and has lain there a moment; else a
+  /// moment after the screen is there.
+  Duration _handOverAt(int count) => Duration(
+    milliseconds: _arriving && count > 0
+        ? 60 + (count - 1) * 70 + 560 + 250
+        : 400,
+  );
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final shared = widget.shared;
     ref.watch(walletCardsProvider);
     final cards = _cards();
-    final requestor = widget.otherParty;
+    final requestor = widget.requestor.name;
     final sign = widget.isSignatureSession;
     final host = widget.returnHost;
 
@@ -249,9 +268,13 @@ class DisclosureFeedbackScreenState
               from: _paperKey,
             ),
           )
-        : cards.isEmpty
-        ? const SizedBox(height: 40)
-        : _Pile(cards: cards, cardKeys: _cardKeys, arriving: _arriving);
+        : _Handover(
+            requestor: widget.requestor,
+            cards: cards,
+            cardKeys: _cardKeys,
+            logoKey: _logoKey,
+            start: _handOverAt(cards.length),
+          );
 
     final sideways = useSheetColumns(context) || useSessionColumns(context);
     final words = <Widget>[
@@ -445,20 +468,43 @@ class _CheckPop extends StatelessWidget {
   return (dx: lastX * f, dy: lastY * f, turn: turn);
 }
 
-/// The shared cards as a pile, 300 × 200: pictures 260 wide, the first on
-/// top turned −3°, the next 12 right and 10 up turned 2°, the third 22 right
-/// and 18 up turned 6° (more share that room, see [pilePlace]); the green
-/// check on the top right corner.
-class _Pile extends StatelessWidget {
+/// The shared cards handed to who asked: the cards as a pile (300 × 200:
+/// pictures 260 wide, the first on top turned −3°, the next 12 right and 10
+/// up turned 2°, the third 22 right and 18 up turned 6°; more share that
+/// room, see [pilePlace]) under the requestor's logo (112). Once the cards
+/// are in place ([start], after they have flown in), each in turn, the front
+/// one first, is lifted, rises into the logo while it tilts away and shrinks,
+/// and is gone; the logo takes each in with a small swell. Then the logo
+/// settles in the middle where the pile was, a ring goes out from it, the
+/// green check pops on, and the cards come back small on the logo's bottom
+/// left corner (up to three, the back one first). With reduce motion: the
+/// logo with the check and the small cards.
+class _Handover extends StatefulWidget {
+  final schemaless.TrustedParty requestor;
   final List<schemaless.Credential> cards;
   final List<GlobalKey> cardKeys;
-  final bool arriving;
 
-  const _Pile({
+  /// Where the logo is while it is up, for its flight in ([DoneFlight]).
+  final GlobalKey logoKey;
+
+  /// How long to wait before the first card goes: until the cards have
+  /// landed in the pile.
+  final Duration start;
+
+  const _Handover({
+    required this.requestor,
     required this.cards,
     required this.cardKeys,
-    required this.arriving,
+    required this.logoKey,
+    required this.start,
   });
+
+  static const double width = 300;
+  static const double height = 340;
+  static const double logo = 112;
+
+  /// The pile's top, under the logo.
+  static const double _pileTop = 140;
 
   static const _places = [
     (0.0, 0.0, -3.0),
@@ -466,55 +512,330 @@ class _Pile extends StatelessWidget {
     (22.0, -18.0, 6.0),
   ];
 
+  /// One card going: lifted, carried up into the logo, gone.
+  static const _cardGoes = 1050;
+
+  /// After the last card is in: the logo settles, the ring, the check, the
+  /// small cards.
+  static const _settles = 520;
+  static const _ring = 650;
+  static const _check = 360;
+  static const _miniAt = 420;
+  static const _miniGap = 80;
+  static const _mini = 420;
+
+  /// The small cards on the logo's corner, the front one first: right,
+  /// down, and turn in degrees.
+  static const _minis = [
+    (0.0, 0.0, -8.0),
+    (6.0, -6.0, -1.0),
+    (11.0, -11.0, 6.0),
+  ];
+
+  @override
+  State<_Handover> createState() => _HandoverState();
+}
+
+class _HandoverState extends State<_Handover>
+    with SingleTickerProviderStateMixin {
+  late final int _count = widget.cards.length;
+
+  /// Between two cards going, so that many still go within about a second.
+  late final int _gap = _count < 2 ? 0 : math.min(260, 900 ~/ (_count - 1));
+
+  late final int _start = widget.start.inMilliseconds;
+
+  /// When the last card is in the logo.
+  late final int _lastIn =
+      _start + (_count == 0 ? 0 : (_count - 1) * _gap + _Handover._cardGoes);
+
+  /// How many come back small.
+  late final int _small = math.min(_count, 3);
+
+  late final int _total =
+      _lastIn +
+      [
+        _Handover._settles,
+        300 + _Handover._ring,
+        _Handover._miniAt +
+            (_small - 1).clamp(0, 2) * _Handover._miniGap +
+            _Handover._mini,
+      ].reduce(math.max);
+
+  late final AnimationController _clock = AnimationController(
+    vsync: this,
+    duration: Duration(milliseconds: _total),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _clock.forward();
+  }
+
+  @override
+  void dispose() {
+    _clock.dispose();
+    super.dispose();
+  }
+
+  /// How far [ms] is through the beat from [from] lasting [length], 0..1.
+  static double _through(double ms, num from, num length) =>
+      length <= 0 ? 1 : ((ms - from) / length).clamp(0.0, 1.0);
+
+  static const _carry = Cubic(0.65, 0, 0.35, 1);
+
   @override
   Widget build(BuildContext context) {
+    final still = MediaQuery.disableAnimationsOf(context);
     return SizedBox(
-      key: const Key("share_done_pile"),
-      width: 300,
-      height: 200,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          for (final i in [for (var i = cards.length - 1; i >= 0; i--) i])
-            Positioned(
-              left: 20 + pilePlace(_places, i, cards.length).dx,
-              top: 22 + pilePlace(_places, i, cards.length).dy,
-              width: 260,
-              height: 164,
-              child: FlightSpot(
-                flightKey: cardKeys[i],
-                child: Transform.rotate(
-                  angle:
-                      pilePlace(_places, i, cards.length).turn *
-                      3.14159265 /
-                      180,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: YiviCorners.cardRadius,
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x1F000000),
-                          blurRadius: 18,
-                          offset: Offset(0, 6),
+      key: const Key("share_done_handover"),
+      width: _Handover.width,
+      height: _Handover.height,
+      child: AnimatedBuilder(
+        animation: _clock,
+        builder: (context, _) {
+          final ms = still ? _total.toDouble() : _clock.value * _total;
+          const logo = _Handover.logo;
+          const logoLeft = (_Handover.width - logo) / 2;
+          // The logo's centre while it is up; where it settles.
+          const up = Offset(_Handover.width / 2, logo / 2);
+          const settled = (_Handover.height - logo) / 2;
+          // Nothing shared: it is there from the start.
+          final down = _count == 0
+              ? 1.0
+              : _carry.transform(_through(ms, _lastIn, _Handover._settles));
+          // A small swell as each card goes in.
+          var swell = 0.0;
+          for (var i = 0; i < _count; i++) {
+            final t = _through(ms, _arrives(i), 300);
+            swell = math.max(swell, math.sin(t * math.pi));
+          }
+          final ring = _through(ms, _lastIn + 300, _Handover._ring);
+          final check = _through(ms, _lastIn + 320, _Handover._check);
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Back to front, so the front card is on top.
+              for (var i = _count - 1; i >= 0; i--) ?_card(i, ms, up),
+              Positioned(
+                left: logoLeft,
+                top: settled * down,
+                width: logo,
+                height: logo,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    if (ring > 0 && ring < 1)
+                      Positioned.fill(
+                        child: Transform.scale(
+                          scale: 1 + 0.5 * Curves.easeOut.transform(ring),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: YiviPalette.successMark.withValues(
+                                  alpha: 0.5 * (1 - ring),
+                                ),
+                                width: 2,
+                              ),
+                            ),
+                          ),
                         ),
-                      ],
+                      ),
+                    FlightSpot(
+                      flightKey: widget.logoKey,
+                      child: Transform.scale(
+                        scale: 1 + 0.07 * swell,
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0x29102846),
+                                blurRadius: 30,
+                                offset: Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: ExcludeSemantics(
+                            child: requestorAvatar(
+                              widget.requestor,
+                              size: logo,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: CredentialCardArt(credential: cards[i], width: 260),
+                    if (_small > 0)
+                      Positioned(
+                        key: const Key("share_done_minis"),
+                        left: -30,
+                        bottom: -12,
+                        width: 70,
+                        height: 46,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Back to front.
+                            for (var i = _small - 1; i >= 0; i--) ?_mini(i, ms),
+                          ],
+                        ),
+                      ),
+                    if (check > 0)
+                      Positioned(
+                        right: -6,
+                        bottom: -6,
+                        child: Transform.scale(
+                          scale: _pop(check),
+                          child: const ReceivedCheck(
+                            key: Key("share_done_check"),
+                            size: 44,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// When card [i] is in the logo.
+  double _arrives(int i) =>
+      (_start + i * _gap + _Handover._cardGoes * 0.92).toDouble();
+
+  /// Card [i] at [ms], or null once it is gone: in its place in the pile,
+  /// then lifted, then carried up into the logo centred at [logo].
+  Widget? _card(int i, double ms, Offset logo) {
+    final t = _through(ms, _start + i * _gap, _Handover._cardGoes);
+    if (t >= 1) return null;
+    final place = pilePlace(_Handover._places, i, _count);
+    final left = 20 + place.dx;
+    final top = _Handover._pileTop + 22 + place.dy;
+    // Lifted in the first fifth, carried up the rest of the way, gone at
+    // the end.
+    final lift = Curves.easeOut.transform((t / 0.2).clamp(0.0, 1.0));
+    final go = _carry.transform(((t - 0.2) / 0.72).clamp(0.0, 1.0));
+    final fade = 1 - ((t - 0.88) / 0.12).clamp(0.0, 1.0);
+    const size = Size(260, 164);
+    final centre = Offset(left + size.width / 2, top + size.height / 2);
+    final to = logo - centre;
+    final scale = (1 + 0.04 * lift) * (1 - 0.74 * go);
+    final turn = place.turn * (1 - go) * math.pi / 180;
+    final up = lift * (1 - go);
+    return Positioned(
+      left: left,
+      top: top,
+      width: size.width,
+      height: size.height,
+      child: Opacity(
+        opacity: fade,
+        child: Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.0012)
+            ..translateByDouble(to.dx * go, -14 * lift + to.dy * go, 0, 1)
+            ..rotateX(22 * math.pi / 180 * go)
+            ..scaleByDouble(scale, scale, 1, 1),
+          // The spot is the unturned box, where a card flies in to.
+          child: FlightSpot(
+            flightKey: widget.cardKeys[i],
+            child: Transform.rotate(
+              angle: turn,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: YiviCorners.cardRadius,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color.lerp(
+                        const Color(0x1F000000),
+                        const Color(0x38102846),
+                        up,
+                      )!,
+                      blurRadius: 18 + 20 * up,
+                      offset: Offset(0, 6 + 14 * up),
+                    ),
+                  ],
+                ),
+                child: CredentialCardArt(
+                  credential: widget.cards[i],
+                  width: 260,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Small card [i] (0 the front one) at [ms]: out of the logo onto its
+  /// corner, the back one first; null before it comes.
+  Widget? _mini(int i, double ms) {
+    final order = _small - 1 - i;
+    final t = _through(
+      ms,
+      _lastIn + _Handover._miniAt + order * _Handover._miniGap,
+      _Handover._mini,
+    );
+    if (t <= 0) return null;
+    final e = const Cubic(0.2, 0.8, 0.2, 1).transform(t);
+    final (dx, dy, turn) = _Handover._minis[i];
+    final palette = YiviPalette.of(context);
+    return Positioned(
+      left: 0,
+      bottom: 0,
+      width: 58,
+      height: 37,
+      child: Opacity(
+        opacity: t.clamp(0.0, 1.0),
+        child: Transform.translate(
+          offset: Offset(34 + (dx - 34) * e, -30 + (dy + 30) * e),
+          child: Transform.rotate(
+            angle: turn * e * math.pi / 180,
+            child: Transform.scale(
+              scale: 0.3 + 0.7 * e,
+              child: DecoratedBox(
+                position: DecorationPosition.foreground,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(color: palette.background, width: 2),
+                ),
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(7)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x2E102846),
+                        blurRadius: 8,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(7),
+                    child: CredentialCardArt(
+                      credential: widget.cards[i],
+                      width: 58,
+                    ),
                   ),
                 ),
               ),
             ),
-          Positioned(
-            right: -2,
-            top: 0,
-            child: _CheckPop(
-              on: arriving,
-              child: const ReceivedCheck(key: Key("share_done_check")),
-            ),
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  /// The check's pop: past its size and back.
+  static double _pop(double t) {
+    final eased = Curves.easeOut.transform(t);
+    return eased < 0.7 ? 1.1 * eased / 0.7 : 1.1 - 0.1 * (eased - 0.7) / 0.3;
   }
 }
 

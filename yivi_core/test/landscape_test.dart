@@ -128,12 +128,12 @@ void main() {
     });
   });
 
-  testWidgets("shared: the pile with its check left, the words and Done "
+  testWidgets("shared: their logo with the check left, the words and Done "
       "right", (tester) async {
     await pump(
       tester,
       DisclosureFeedbackScreen(
-        otherParty: "Webshop",
+        requestor: testParty("Webshop"),
         isSignatureSession: false,
         // On another device: with Done.
         onOtherDevice: true,
@@ -152,15 +152,14 @@ void main() {
         onDismiss: (_) {},
       ),
     );
-    final pile = tester.getRect(find.byKey(const Key("share_done_pile")));
+    final hero = tester.getRect(find.byKey(const Key("share_done_handover")));
     final check = tester.getRect(find.byKey(const Key("share_done_check")));
     final title = tester.getRect(find.byKey(const Key("share_done_title")));
     final ok = tester.getRect(find.byKey(const Key("ok_button")));
-    // The check on the pile's corner.
-    expect(check.right, lessThanOrEqualTo(pile.right + 4));
-    expect(check.top, closeTo(pile.top, 4));
+    // The check on the logo, in the left column.
+    expect(hero.contains(check.center), isTrue);
     // The words and the button in the right column, the button under them.
-    expect(title.left, greaterThan(pile.right));
+    expect(title.left, greaterThan(hero.right));
     expect(ok.left, title.left);
     expect(
       ok.top,

@@ -111,6 +111,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// the done screen.
   final _messageKey = GlobalKey(debugLabel: "share_message");
 
+  /// The requestor's logo, in its card and in the compact bar: it flies
+  /// into the done screen ([DoneFlight]).
+  final _logoKey = GlobalKey(debugLabel: "share_requestor_logo");
+  final _barLogoKey = GlobalKey(debugLabel: "share_bar_logo");
+
   /// The page's scroll: a card is brought into view before it lifts into a
   /// sheet and before one lands in it.
   final _scroll = ScrollController();
@@ -443,6 +448,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         requestor: session.requestor,
         onInfo: openTrust,
         logoHero: true,
+        logoKey: _logoKey,
       ),
     );
 
@@ -641,6 +647,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         shown: _scrolledPast,
         requestor: session.requestor,
         subtitle: ask,
+        logoKey: _barLogoKey,
       ),
       body: _TrustWash(
         on: trust.risky,
@@ -694,6 +701,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     DoneFlight.capture(
       context,
       messageKey: _messageKey,
+      // From the compact bar once the card has gone under it.
+      logoKey: _scrolledPast.value ? _barLogoKey : _logoKey,
       cards: [
         for (final (i, p) in pickOnes.indexed)
           if (selectionOf(p, selections[i]) case final k when k >= 0)

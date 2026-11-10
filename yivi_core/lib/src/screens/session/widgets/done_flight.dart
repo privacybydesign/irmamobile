@@ -5,21 +5,24 @@ import "../../../util/laid_out_box.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 
 /// The flight from the share screen into the done screen: when the user
-/// shares, [capture] notes where each card's picture and the message are;
-/// on its first frame the done screen [land]s them: each picture flies to
-/// its place in the pile (or the stack on a signed message), the bottom card
-/// first, and the message to the paper.
+/// shares, [capture] notes where each card's picture, the message and the
+/// requestor's logo are; on its first frame the done screen [land]s them:
+/// each picture flies to its place in the pile (or the stack on a signed
+/// message), the bottom card first, the message to the paper, and the logo
+/// to the done screen's.
 class DoneFlight {
   DoneFlight._();
 
   static _Captured? _captured;
 
-  /// Notes where [cards] (a picture's key and its card's hash) and the message at
-  /// [messageKey] are, in the overlay's coordinates. A card scrolled out of
-  /// view starts just past that edge of the screen.
+  /// Notes where [cards] (a picture's key and its card's hash), the message
+  /// at [messageKey] and the logo at [logoKey] are, in the overlay's
+  /// coordinates. A card scrolled out of view starts just past that edge of
+  /// the screen.
   static void capture(
     BuildContext context, {
     GlobalKey? messageKey,
+    GlobalKey? logoKey,
     List<(GlobalKey, String)> cards = const [],
   }) {
     final overlay =
@@ -39,14 +42,16 @@ class DoneFlight {
             (hash, clamp(r)),
       ],
       message: messageKey?.currentContext.rectIn(overlay),
+      logo: logoKey?.currentContext.rectIn(overlay),
     );
   }
 
   /// Flies what was captured into the done screen: [cards] are the pile's
   /// pictures (the key of their unturned box, the card's hash, how high they
   /// lie in the pile: the bottom one flies first, and their turn), [paper]
-  /// the message. 560 ms each, 70 ms apart. Returns the places that fly
-  /// (they show as they land); the others are up to the caller.
+  /// the message, [logo] the requestor's logo ([logoCopy], drawn at any
+  /// size). 560 ms each, 70 ms apart. Returns the places that fly (they show
+  /// as they land); the others are up to the caller.
   static Set<GlobalKey> land(
     BuildContext context, {
     required List<
@@ -55,6 +60,8 @@ class DoneFlight {
     cards,
     GlobalKey? paper,
     Widget? paperCopy,
+    GlobalKey? logo,
+    Widget? logoCopy,
   }) {
     final captured = _captured;
     _captured = null;
@@ -128,6 +135,28 @@ class DoneFlight {
         ),
       );
     }
+    final from = captured.logo;
+    if (from != null && logo != null && logoCopy != null) {
+      flying.add(logo);
+      YiviFlight.start(
+        context,
+        fromRect: from,
+        to: YiviFlight.boxOf(logo),
+        keys: const [
+          FlightKey(0, FlightKey.start),
+          FlightKey(1, FlightKey.end),
+        ],
+        duration: duration,
+        curve: YiviMotion.carry,
+        hide: [logo],
+        z: 20,
+        copyKey: const Key("done_logo_flight"),
+        copy: (context, frame) => SizedBox.fromSize(
+          size: frame.size,
+          child: FittedBox(fit: BoxFit.fill, child: logoCopy),
+        ),
+      );
+    }
     return flying;
   }
 
@@ -141,6 +170,11 @@ class DoneFlight {
 class _Captured {
   final List<(String, Rect)> cards;
   final Rect? message;
+  final Rect? logo;
 
-  const _Captured({required this.cards, required this.message});
+  const _Captured({
+    required this.cards,
+    required this.message,
+    required this.logo,
+  });
 }

@@ -19,6 +19,7 @@ import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/done_flight.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
 import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
@@ -36,6 +37,17 @@ class _SilentBridge extends IrmaBridge {
   @override
   void dispatch(Event event) {}
 }
+
+/// The big cards of the done screen's pile (the small ones are 58 wide).
+final _bigCards = find.byWidgetPredicate(
+  (w) => w is CredentialCardArt && w.width == 260,
+);
+
+/// The small cards on the logo's corner at the end.
+Finder _smallCards() => find.descendant(
+  of: find.byKey(const Key("share_done_minis")),
+  matching: find.byType(CredentialCardArt),
+);
 
 /// The repository and preferences a whole [SessionScreen] needs.
 Future<List<Override>> _app() async {
@@ -249,10 +261,12 @@ void main() {
       bool goBackYourself = false,
       VoidCallback? onBackToWebsite,
       VoidCallback? onDone,
+      bool settle = true,
     }) => _pump(
       tester,
+      settle: settle,
       DisclosureFeedbackScreen(
-        otherParty: "Webshop",
+        requestor: testParty("Webshop"),
         isSignatureSession: signature,
         message: message,
         onOtherDevice: onOtherDevice,
@@ -271,12 +285,25 @@ void main() {
       attributes: [_value("email", "Email address", "anna@example.com")],
     );
 
-    testWidgets("with whom, the card in a pile, and Done", (tester) async {
+    testWidgets("with whom, the card handed to their logo, and Done", (
+      tester,
+    ) async {
       var done = 0;
       await pump(tester, shared: [email], onDone: () => done++);
 
-      expect(find.byKey(const Key("share_done_pile")), findsOneWidget);
-      expect(find.byKey(const Key("share_done_check")), findsOneWidget);
+      // Handed over: no card left in the pile, the check on the logo, the
+      // card small on its corner.
+      final handover = find.byKey(const Key("share_done_handover"));
+      expect(handover, findsOneWidget);
+      expect(find.descendant(of: handover, matching: _bigCards), findsNothing);
+      expect(_smallCards(), findsOneWidget);
+      expect(
+        find.descendant(
+          of: handover,
+          matching: find.byKey(const Key("share_done_check")),
+        ),
+        findsOneWidget,
+      );
       expect(find.text("Shared with Webshop"), findsOneWidget);
       expect(
         find.text(
@@ -289,28 +316,133 @@ void main() {
       expect(done, 1);
     });
 
-    for (final message in [null, "I agree"]) {
-      testWidgets("five cards: all five in the "
-          "${message == null ? "pile" : "stack on the paper"}", (tester) async {
-        await pump(
-          tester,
-          signature: message != null,
-          message: message,
-          shared: [
-            for (final n in ["one", "two", "three", "four", "five"])
-              _shared(n, n),
-          ],
-        );
-        final pile = find.byKey(
-          Key(message == null ? "share_done_pile" : "share_done_paper"),
-        );
-        expect(
-          find.descendant(of: pile, matching: find.byType(CredentialCardArt)),
-          findsNWidgets(5),
-        );
-        expect(find.textContaining("5 cards"), findsOneWidget);
-      });
-    }
+    final five = [
+      for (final n in ["one", "two", "three", "four", "five"]) _shared(n, n),
+    ];
+
+    testWidgets("five cards: all five in the stack, then all five handed "
+        "over, the front one first", (tester) async {
+      await pump(tester, shared: five, settle: false);
+      final handover = find.byKey(const Key("share_done_handover"));
+      List<String> left() => [
+        for (final e
+            in find.descendant(of: handover, matching: _bigCards).evaluate())
+          (e.widget as CredentialCardArt).credential.name,
+      ];
+      expect(left(), hasLength(5));
+      expect(find.byKey(const Key("share_done_check")), findsNothing);
+      // One at a time, the front one first; the check once all are in.
+      final counts = <int>[5];
+      while (left().isNotEmpty) {
+        await tester.pump(const Duration(milliseconds: 50));
+        final n = left().length;
+        if (n != counts.last) {
+          counts.add(n);
+          if (n == 4) expect(left(), isNot(contains("one")));
+        }
+      }
+      expect(counts, [5, 4, 3, 2, 1, 0]);
+      expect(_smallCards(), findsNothing);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("share_done_check")), findsOneWidget);
+      // The first three come back small on the logo's corner, the front one
+      // on top.
+      final small = [
+        for (final e in _smallCards().evaluate())
+          (e.widget as CredentialCardArt).credential.name,
+      ];
+      expect(small, ["three", "two", "one"]);
+      expect(find.textContaining("5 cards"), findsOneWidget);
+    });
+
+    testWidgets("five cards on a signed message: all five in the stack on "
+        "the paper", (tester) async {
+      await pump(tester, signature: true, message: "I agree", shared: five);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("share_done_paper")),
+          matching: find.byType(CredentialCardArt),
+        ),
+        findsNWidgets(5),
+      );
+      expect(find.textContaining("5 cards"), findsOneWidget);
+    });
+
+    testWidgets("from the share screen the logo flies in from where it was, "
+        "and lands on its place above the cards", (tester) async {
+      addTearDown(DoneFlight.reset);
+      final was = GlobalKey();
+      await _pump(
+        tester,
+        Builder(
+          builder: (context) => Stack(
+            children: [
+              Positioned(
+                left: 30,
+                top: 300,
+                child: SizedBox(key: was, width: 52, height: 52),
+              ),
+              Positioned(
+                left: 0,
+                top: 0,
+                child: TextButton(
+                  key: const Key("share"),
+                  onPressed: () {
+                    DoneFlight.capture(context, logoKey: was);
+                    Navigator.of(context).push(
+                      PageRouteBuilder<void>(
+                        transitionDuration: Duration.zero,
+                        pageBuilder: (_, _, _) => DisclosureFeedbackScreen(
+                          requestor: testParty("Webshop"),
+                          shared: [email],
+                          onDismiss: (_) {},
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("Share"),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key("share")));
+      await tester.pump();
+      await tester.pump();
+      final copy = find.byKey(const Key("done_logo_flight"));
+      expect(copy, findsOneWidget);
+      expect(tester.getRect(copy).topLeft, const Offset(30, 300));
+      expect(tester.getRect(copy).width, 52);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      // Landed: the copy is gone, the logo 112 wide above the cards.
+      expect(copy, findsNothing);
+      final handover = tester.getRect(
+        find.byKey(const Key("share_done_handover")),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("share_done_handover")),
+          matching: _bigCards,
+        ),
+        findsOneWidget,
+      );
+      expect(handover.width, 300);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets("the small cards sit on the logo's bottom left corner, the "
+        "check on its bottom right", (tester) async {
+      await pump(tester, shared: [email, _shared("age", "Age limits")]);
+      final minis = tester.getRect(find.byKey(const Key("share_done_minis")));
+      final check = tester.getRect(find.byKey(const Key("share_done_check")));
+      expect(_smallCards(), findsNWidgets(2));
+      expect(minis.right, lessThan(check.left));
+      expect(minis.bottom, closeTo(check.bottom, 12));
+    });
 
     testWidgets("more cards: how many", (tester) async {
       await pump(tester, shared: [email, _shared("age", "Age limits")]);
@@ -390,7 +522,7 @@ void main() {
 
       expect(find.byKey(const Key("share_done_paper")), findsNothing);
       expect(find.byKey(const Key("signed_message")), findsNothing);
-      expect(find.byKey(const Key("share_done_pile")), findsOneWidget);
+      expect(find.byKey(const Key("share_done_handover")), findsOneWidget);
     });
 
     testWidgets("nothing shared", (tester) async {
@@ -404,7 +536,10 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.byKey(const Key("share_done_pile")), findsNothing);
+      // Their logo with the check, without cards, also not small.
+      expect(find.byKey(const Key("share_done_check")), findsOneWidget);
+      expect(find.byType(CredentialCardArt), findsNothing);
+      expect(find.byKey(const Key("share_done_minis")), findsNothing);
     });
 
     testWidgets("a card's last use: no note, no chip", (tester) async {
