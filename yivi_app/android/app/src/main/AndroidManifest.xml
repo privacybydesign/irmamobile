@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -7,6 +8,7 @@
          FlutterApplication and put your custom class here. -->
     <application
       android:allowBackup="false"
+      android:dataExtractionRules="@xml/data_extraction_rules"
       android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -85,7 +87,12 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Merged in by camera_android_camerax for video recording, which the app does not use:
+         the camera only reads MRZ frames, with enableAudio: false. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+    <!-- Implied by the merger because of the WRITE_EXTERNAL_STORAGE above, before that is removed.
+         Nothing reads external storage; sharing goes through a FileProvider. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
 </manifest>

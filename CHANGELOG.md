@@ -5,13 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
+- Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
 
 ### Changed
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
+
+### Removed
+- The Android app no longer asks for permissions it does not use. Dropped from both flavours: `RECORD_AUDIO` and `WRITE_EXTERNAL_STORAGE`/`READ_EXTERNAL_STORAGE`, which the camera plugin adds for video recording, and `WAKE_LOCK`. The F-Droid app also drops `VIBRATE`; the Play app keeps it, because the face verification SDK declares it
+
+### Security
+- On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
+- An Android release build of the Yivi app no longer falls back to the debug key when no release key is given: the build fails instead. For local testing, debug signing can still be requested explicitly with `ORG_GRADLE_PROJECT_allowDebugSigning=true` (or `-PallowDebugSigning`). The F-Droid build is unchanged, because its build recipe builds without the release key
+- On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
@@ -20,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Status checks use the organisation's shared workflows next to our own Flutter/Fastlane jobs: Go checks with govulncheck for the Go bridge, dependency review, workflow lint and one `Status checks passed` gate. They also run on pushes to `master`, the merge queue and every Monday. Dependabot keeps the pinned actions and the Go modules up to date
 - Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
 - Status checks run CodeQL (security-extended queries) on the Go bridge, the Android Java plugins and the workflow files, through the organisation's shared workflow. Dart is not supported by CodeQL, and Swift would need a macOS build
+- The privacybydesign/pc-dart fork (pointycastle) is pinned to a commit instead of following `master`, in `yivi_core`, `yivi_app` and `yivi_fdroid`. The pin is the commit before the current `master`, which only added debug prints to `CMac.init`, so those prints are no longer in the app
 
 ## [8.4.0] - 2026-11-03
 ### Added
