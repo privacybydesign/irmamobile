@@ -32,6 +32,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
+import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
@@ -730,6 +731,42 @@ void main() {
       nested.add(issuance(SessionStatus.success));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_added_text")), findsOneWidget);
+    });
+
+    testWidgets("a swipe back on the issuer's details goes back to the "
+        "offer, not the step before it", (tester) async {
+      final (_, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: _sheet,
+          matching: find.byKey(const Key("session_requestor_info")),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("issuer_trust_page")), findsOneWidget);
+
+      final sheet = tester.getRect(find.byKey(const Key("glass_sheet")));
+      final swipe = await tester.startGesture(
+        Offset(sheet.left + 20, sheet.center.dy),
+      );
+      for (var i = 0; i < 15; i++) {
+        await swipe.moveBy(Offset(sheet.width * 0.04, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await swipe.up();
+      // The page goes with the finger: no logo flies back from outside.
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(YiviFlight.isFlying, isFalse);
+      }
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key("issuer_trust_page")), findsNothing);
+      expect(find.byKey(const Key("issuance_heading")), findsOneWidget);
+      expect(find.byKey(const Key("sheet_issue_add")), findsOneWidget);
     });
 
     testWidgets("Success says so in the bar", (tester) async {

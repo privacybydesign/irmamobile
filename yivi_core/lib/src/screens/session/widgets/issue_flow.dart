@@ -619,6 +619,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// Back in the sheet: one step back, or from the details to the root page.
   void issueBack() {
+    // The issuer's details over the permission: back to what is under them.
+    if (_issuerDepth == 2) {
+      setState(() => _issuerDepth = 1);
+      return;
+    }
+    if (_issuerDepth == 1) {
+      final issuer = _lastOffer?.offeredCredentials?.firstOrNull?.issuer;
+      // Swiped back, the page is out of the sheet already: no logo flies
+      // back from there.
+      if (issuer != null && !_issuerPageOut) {
+        _closeIssuerPage(issuer);
+      } else {
+        setState(() => _issuerDepth = 0);
+      }
+      return;
+    }
     final nested = _nestedId;
     if (_standalone && issueAdding == null && nested != null) {
       // Nothing to go back to: declines the issuance, which ends it
@@ -875,6 +891,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       YiviFlight.show([_issuerLogoTo]);
       _flyIssuerLogo(issuer, from: _issuerLogoFrom, to: _issuerLogoTo);
     });
+  }
+
+  /// The issuer's page is out of the sheet, to its right (swiped back).
+  bool get _issuerPageOut {
+    final logo = _issuerLogoTo.currentContext?.findRenderObject();
+    final sheet = context.findRenderObject();
+    if (logo is! RenderBox || sheet is! RenderBox) return true;
+    if (!logo.hasSize || !sheet.hasSize) return true;
+    final right = sheet.localToGlobal(Offset(sheet.size.width, 0)).dx;
+    return logo.localToGlobal(Offset.zero).dx >= right - 1;
   }
 
   /// Back to the question: the logo shrinks back into the question's.
