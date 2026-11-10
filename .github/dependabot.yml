@@ -1,0 +1,43 @@
+# Updates are grouped (one PR per ecosystem) and wait 7 days after a release
+# (cooldown) so compromised releases are usually yanked before they reach us.
+# Security updates are not delayed.
+version: 2
+updates:
+  - package-ecosystem: github-actions # also bumps the shared workflows
+    directories: ["/", "/.github/actions/setup-build-environment"]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      actions: { patterns: ["*"] }
+      actions-security: { applies-to: security-updates, patterns: ["*"] }
+    cooldown: { default-days: 7 }
+
+  - package-ecosystem: gomod
+    directory: /yivi_core
+    schedule: { interval: weekly, day: monday }
+    groups:
+      go: { patterns: ["*"], update-types: [minor, patch] }
+      go-security: { applies-to: security-updates, patterns: ["*"] }
+    cooldown: { default-days: 7 }
+
+  # The Dart/Flutter dependencies of the app, the shared core and the F-Droid flavour.
+  - package-ecosystem: pub
+    directories: ["/yivi_core", "/yivi_app", "/yivi_fdroid"]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      pub: { patterns: ["*"], update-types: [minor, patch] }
+      pub-security: { applies-to: security-updates, patterns: ["*"] }
+    cooldown: { default-days: 7 }
+
+  # The Android dependencies declared in our own Gradle files (AndroidX, ML Kit, OCR,
+  # the Android Gradle plugin). Dependencies of Flutter plugins come in through pub.
+  - package-ecosystem: gradle
+    directories: ["/yivi_core/android", "/yivi_app/android", "/yivi_fdroid/android"]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      gradle: { patterns: ["*"], update-types: [minor, patch] }
+      gradle-security: { applies-to: security-updates, patterns: ["*"] }
+    cooldown: { default-days: 7 }
+
+  # No cocoapods entry: the Podfile declares no pods of its own. Every pod comes from a
+  # Flutter plugin, so pub updates it, and the Podfile cannot be evaluated without a
+  # Flutter SDK and `flutter pub get`, which Dependabot does not run.

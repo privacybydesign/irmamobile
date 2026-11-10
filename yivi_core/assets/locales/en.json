@@ -353,6 +353,10 @@
     "submit": {
       "title": "Logging in",
       "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
+    },
+    "wallet_deleted": {
+      "title": "Wallet removed",
+      "body": "Your wallet has been removed and all its data has been deleted"
     }
   },
   "error": {
@@ -732,7 +736,7 @@
     "delete": "Delete data",
     "confirm_delete_dialog": {
       "title": "Delete data",
-      "explanation": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
+      "explanation": "If you proceed, all data will be deleted from your Yivi app, including your activity history. This cannot be undone: the deleted data cannot be recovered. If you wish to continue using Yivi you will have to reload the data.",
       "confirm": "Yes, delete everything",
       "deny": "Cancel"
     }
@@ -938,7 +942,73 @@
         "explanation": "Are you sure you want to cancel reading your ID-card?",
         "confirm": "Yes",
         "decline": "No"
+      },
+      "wrong_document": "This is a residence permit",
+      "wrong_document_tip": "Go back and choose Residence permit."
+    }
+  },
+  "residence_permit": {
+    "scan": {
+      "title": "Scan residence permit",
+      "success": "Success",
+      "success_explanation": "The residence permit has been successfully scanned.",
+      "manual": "Enter manually",
+      "error": "Could not read residence permit. Please try again."
+    },
+    "manual": {
+      "title": "Enter residence permit details",
+      "explanation": "We need the document number, date of birth and date of expiry of your residence permit to access the NFC-chip.",
+      "fields": {
+        "document_nr": "Document number",
+        "document_nr_required": "Document number is required",
+        "document_nr_invalid": "Document number is invalid",
+        "date_of_birth": "Date of birth",
+        "date_of_birth_required": "Date of birth is required",
+        "date_of_expiry": "Date of expiry",
+        "date_of_expiry_required": "Date of expiry is required",
+        "date_invalid": "Date is invalid"
       }
+    },
+    "nfc": {
+      "introduction": "You'll now scan the data inside your residence permit.\n\nHold the back of your phone against your residence permit. Press start to start the scanning process.",
+      "start_scanning": "Start scanning",
+      "title": "Read residence permit",
+      "nfc_enabled": "NFC enabled",
+      "nfc_disabled": "NFC disabled",
+      "reading": "Reading...",
+      "error": "Could not read residence permit. Please try again.",
+      "nfc_not_supported": "NFC is not supported on this device.",
+      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
+      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your residence permit.",
+      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
+      "tip_2": "Hold the back of your phone against your residence permit.",
+      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal.",
+      "success": "Success",
+      "success_explanation": "Reading residence permit completed successfully",
+      "idle": "Ready to start reading residence permit",
+      "cancelling": "Cancelling...",
+      "hold_near_photo_page": "Hold your phone near your residence permit.",
+      "cancelled": "Cancelled",
+      "connecting": "Connecting to residence permit...",
+      "finished": "Finished",
+      "reading_card_security": "Determining NFC-chip access...",
+      "authenticating": "Authenticating with residence permit...",
+      "reading_passport_data": "Reading residence permit data...",
+      "performing_security_verification": "Performing security verification...",
+      "completed_successfully": "Reading residence permit completed successfully.",
+      "error_generic": "An error has occurred while reading residence permit.",
+      "failed_initiate_session": "Failed to initiate session with residence permit.",
+      "timeout_waiting_for_tag": "Timeout while waiting for residence permit tag",
+      "tag_lost_try_again": "Tag was lost. Please try again.",
+      "cancelled_by_user": "You cancelled the scanning process.",
+      "cancel_dialog": {
+        "title": "Cancel reading residence permit?",
+        "explanation": "Are you sure you want to cancel reading your residence permit?",
+        "confirm": "Yes",
+        "decline": "No"
+      },
+      "wrong_document": "This is an ID-card",
+      "wrong_document_tip": "Go back and choose ID-card."
     }
   },
   "passport": {

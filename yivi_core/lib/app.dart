@@ -71,7 +71,12 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [Locale("en", "US"), Locale("nl", "NL"), Locale("de", "DE")];
+    return const [
+      Locale("en", "US"),
+      Locale("nl", "NL"),
+      Locale("de", "DE"),
+      Locale("fr", "FR"),
+    ];
   }
 
   @override

@@ -353,6 +353,10 @@
     "submit": {
       "title": "Anmeldung",
       "progress_enrollment": "Willkommen! Bitte warten Sie einen Moment, wir melden Sie an."
+    },
+    "wallet_deleted": {
+      "title": "Wallet entfernt",
+      "body": "Ihre Wallet wurde entfernt und alle Ihre Daten wurden gelöscht"
     }
   },
   "error": {
@@ -732,7 +736,7 @@
     "delete": "Daten löschen",
     "confirm_delete_dialog": {
       "title": "Daten löschen",
-      "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
+      "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht, einschließlich Ihres Aktivitätsverlaufs. Dies kann nicht rückgängig gemacht werden: Gelöschte Daten können nicht wiederhergestellt werden. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
       "confirm": "Ja, alles löschen",
       "deny": "Abbrechen"
     }
@@ -938,7 +942,73 @@
         "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Personalausweises abbrechen möchten?",
         "confirm": "Ja",
         "decline": "Nein"
+      },
+      "wrong_document": "Das ist ein Aufenthaltstitel",
+      "wrong_document_tip": "Gehen Sie zurück und wählen Sie Aufenthaltstitel."
+    }
+  },
+  "residence_permit": {
+    "scan": {
+      "title": "Aufenthaltstitel scannen",
+      "success": "Erfolg",
+      "success_explanation": "Der Aufenthaltstitel wurde erfolgreich gescannt.",
+      "manual": "Manuell eingeben",
+      "error": "Aufenthaltstitel konnte nicht gelesen werden. Bitte versuchen Sie es erneut."
+    },
+    "manual": {
+      "title": "Daten des Aufenthaltstitels eingeben",
+      "explanation": "Wir benötigen die Dokumentennummer, das Geburtsdatum und das Ablaufdatum Ihres Aufenthaltstitels, um auf den NFC-Chip zuzugreifen.",
+      "fields": {
+        "document_nr": "Dokumentennummer",
+        "document_nr_required": "Dokumentennummer ist erforderlich",
+        "document_nr_invalid": "Dokumentennummer ist ungültig",
+        "date_of_birth": "Geburtsdatum",
+        "date_of_birth_required": "Geburtsdatum ist erforderlich",
+        "date_of_expiry": "Ablaufdatum",
+        "date_of_expiry_required": "Ablaufdatum ist erforderlich",
+        "date_invalid": "Datum ist ungültig"
       }
+    },
+    "nfc": {
+      "introduction": "Sie scannen jetzt die Daten in Ihrem Aufenthaltstitel.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Aufenthaltstitel. Drücken Sie Start, um den Scanvorgang zu starten.",
+      "start_scanning": "Scannen starten",
+      "title": "Aufenthaltstitel lesen",
+      "nfc_enabled": "NFC aktiviert",
+      "nfc_disabled": "NFC deaktiviert",
+      "reading": "Lesen...",
+      "error": "Aufenthaltstitel konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
+      "nfc_not_supported": "NFC wird auf diesem Gerät nicht unterstützt.",
+      "nfc_disabled_explanation": "NFC ist deaktiviert. Bitte aktivieren Sie NFC in den Systemeinstellungen und versuchen Sie es erneut.",
+      "nfc_interrupted": "Lesevorgang unterbrochen. Versuchen Sie es erneut und halten Sie Ihr Telefon ruhig auf Ihrem Aufenthaltstitel.",
+      "tip_1": "Bewegen Sie Ihr Telefon nicht. Das Lesen dauert normalerweise nur 10-20 Sekunden.",
+      "tip_2": "Halten Sie die Rückseite Ihres Telefons an Ihren Aufenthaltstitel.",
+      "tip_3": "Probleme beim Lesen? Versuchen Sie, die Hülle Ihres Telefons zu entfernen. Das verstärkt oft das NFC-Signal.",
+      "success": "Erfolg",
+      "success_explanation": "Aufenthaltstitel erfolgreich gelesen",
+      "idle": "Bereit zum Starten des Lesens des Aufenthaltstitels",
+      "cancelling": "Abbrechen...",
+      "hold_near_photo_page": "Halten Sie Ihr Telefon an Ihren Aufenthaltstitel.",
+      "cancelled": "Abgebrochen",
+      "connecting": "Verbindung zum Aufenthaltstitel wird hergestellt...",
+      "finished": "Fertig",
+      "reading_card_security": "NFC-Chip-Zugriff wird ermittelt...",
+      "authenticating": "Authentifizierung mit Aufenthaltstitel...",
+      "reading_passport_data": "Daten des Aufenthaltstitels werden gelesen...",
+      "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
+      "completed_successfully": "Aufenthaltstitel erfolgreich gelesen.",
+      "error_generic": "Beim Lesen des Aufenthaltstitels ist ein Fehler aufgetreten.",
+      "failed_initiate_session": "Verbindung mit Aufenthaltstitel konnte nicht gestartet werden.",
+      "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Aufenthaltstitel-Tag",
+      "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
+      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
+      "cancel_dialog": {
+        "title": "Lesen des Aufenthaltstitels abbrechen?",
+        "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Aufenthaltstitels abbrechen möchten?",
+        "confirm": "Ja",
+        "decline": "Nein"
+      },
+      "wrong_document": "Das ist ein Personalausweis",
+      "wrong_document_tip": "Gehen Sie zurück und wählen Sie Personalausweis."
     }
   },
   "passport": {

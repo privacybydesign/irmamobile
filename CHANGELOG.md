@@ -5,13 +5,55 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
+- A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
+- Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
+
+### Changed
+- The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
+
+### Removed
+- The Android app no longer asks for permissions it does not use. Dropped from both flavours: `RECORD_AUDIO` and `WRITE_EXTERNAL_STORAGE`/`READ_EXTERNAL_STORAGE`, which the camera plugin adds for video recording, and `WAKE_LOCK`. The F-Droid app also drops `VIBRATE`; the Play app keeps it, because the face verification SDK declares it
+
+### Security
+- On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
+- An Android release build of the Yivi app no longer falls back to the debug key when no release key is given: the build fails instead. For local testing, debug signing can still be requested explicitly with `ORG_GRADLE_PROJECT_allowDebugSigning=true` (or `-PallowDebugSigning`). The F-Droid build is unchanged, because its build recipe builds without the release key
+- On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
+
+### Internal
+- The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
+- The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
+- `go fix` modernisations in the `structodart` developer tool, so the Go code passes the shared Go checks
+- Status checks use the organisation's shared workflows next to our own Flutter/Fastlane jobs: Go checks with govulncheck for the Go bridge, dependency review, workflow lint and one `Status checks passed` gate. They also run on pushes to `master`, the merge queue and every Monday. Dependabot keeps the pinned actions and the Go modules up to date
+- Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
+- Status checks run CodeQL (security-extended queries) on the Go bridge, the Android Java plugins and the workflow files, through the organisation's shared workflow. Dart is not supported by CodeQL, and Swift would need a macOS build
+- The privacybydesign/pc-dart fork (pointycastle) is pinned to a commit instead of following `master`, in `yivi_core`, `yivi_app` and `yivi_fdroid`. The pin is the commit before the current `master`, which only added debug prints to `CMac.init`, so those prints are no longer in the app
+
+## [8.4.0] - 2026-11-03
+### Added
+- Support for SD-JWT-secured W3C VCDM credentials (format `vc+sd-jwt`)
+- An attribute image in SVG format is shown. It used to render blank, because every attribute image was drawn as a bitmap. Attribute images now draw like logos: as an SVG when irmago's new `mime_type` says so or, without one, when the image starts like an SVG; as a bitmap otherwise ([privacybydesign/irmago#779](https://github.com/privacybydesign/irmago/issues/779))
+
+### Changed
+- An attribute the issuer gave no display name is labelled with its key made readable, e.g. `targetCode` as "Target code" and `institutionBRINCode` as "Institution BRIN code", instead of the raw key ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+
 ### Fixed
+- A credential, issuer or verifier logo that is not valid base64, or not an image, no longer shows as a grey error box: it is left out, as attribute images already were.
+- Nested claims the issuer gave no display name keep their structure on the card ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+  - The entries of a list are titled after the list and numbered per list, e.g. "ALIGNMENT 1/2" and "ALIGNMENT 2/2", instead of "ITEM 1/4" .. "ITEM 4/4" numbered across every such list on the card. A list of values inside such an entry is shown in that entry.
+  - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
+  - Each level shows its values first, then its nested objects and lists, then its images. A value used to land between two headings when its key sorted between theirs, where it read as part of the heading above it.
+  - A first key that every attribute on the card shares, such as a VCDM credential's `credentialSubject`, gets no heading of its own. Neither does an mdoc namespace, however many the card shows: an mDL with AAMVA fields shows its elements in one list, as before. This needs irmago to send the format of a credential the wallet does not hold yet, which it does from v1.5.0, the version that adds `format` to credential descriptors.
 - A screen reader now announces the search and add data buttons in the top bar of the data tab as "Search your data" and "Obtain data" ("Zoek in je gegevens" and "Haal gegevens op" in Dutch), instead of only "button" ([#726](https://github.com/privacybydesign/irmamobile/issues/726))
 - A screen reader can now read the App ID and the version on the More tab, and activate the item that enables developer mode ([#727](https://github.com/privacybydesign/irmamobile/issues/727))
 - A screen reader no longer announces the progress bar on the collect data screen by its numeric value; the "Step 1 of 2" text stays ([#728](https://github.com/privacybydesign/irmamobile/issues/728))
 
 ### Internal
 - Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
+- Add integration tests for issuing and disclosing `vc+sd-jwt` and Open Badges credentials against the Veramo test issuer and verifier on staging (`integration_test/vcdm_test.dart`)
+- The debug log leaves out the images of attribute values (`base64_image`), as it already did for logos
+- Upgrade irmago to v1.5.0
 - Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.3.3] - 2026-10-16
@@ -788,7 +830,8 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
-[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.3.3...HEAD
+[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.4.0...HEAD
+[8.4.0]: https://github.com/privacybydesign/irmamobile/compare/v8.3.3...v8.4.0
 [8.3.3]: https://github.com/privacybydesign/irmamobile/compare/v8.3.2...v8.3.3
 [8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1

@@ -1,5 +1,6 @@
 /// Full credential IDs whose issuance requires reading a physical document over
-/// the device's onboard NFC chip (passport, ID card, driving licence).
+/// the device's onboard NFC chip (passport, ID card, residence permit, driving
+/// licence).
 ///
 /// These can only be obtained on devices that actually have NFC hardware. On
 /// devices without NFC (e.g. iPads) they are not hidden from the credential
@@ -11,10 +12,12 @@ const Set<String> nfcRequiringCredentialIds = {
   "pbdf.pbdf.passport",
   "pbdf.pbdf.drivinglicence",
   "pbdf.pbdf.idcard",
+  "pbdf.pbdf.residencepermit",
   // staging
   "pbdf-staging.pbdf.passport",
   "pbdf-staging.pbdf.drivinglicence",
   "pbdf-staging.pbdf.idcard",
+  "pbdf-staging.pbdf.residencepermit",
 };
 
 /// Whether obtaining the credential with [credentialId] requires onboard NFC.
