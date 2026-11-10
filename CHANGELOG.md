@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 - On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
+- On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
