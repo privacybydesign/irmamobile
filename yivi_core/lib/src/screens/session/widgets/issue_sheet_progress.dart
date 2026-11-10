@@ -239,9 +239,16 @@ class IssueRequestorPill extends StatelessWidget {
 
   const IssueRequestorPill({super.key, required this.subject});
 
-  /// The pill for [subject]; none without a request.
+  /// The pill for [subject]; none without a request. Keyed by its
+  /// requestor, so it stays put in the bar while the sheet's pages change
+  /// ([GlassSheetPages]).
   static IssueRequestorPill? maybe(IssueSheetSubject? subject) =>
-      subject is _ForRequest ? IssueRequestorPill(subject: subject) : null;
+      subject is _ForRequest
+      ? IssueRequestorPill(
+          key: ValueKey(("issue_pill", subject.requestor.id)),
+          subject: subject,
+        )
+      : null;
 
   @override
   Widget build(BuildContext context) {

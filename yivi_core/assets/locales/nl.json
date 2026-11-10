@@ -512,7 +512,8 @@
       }
     },
     "island": {
-      "body": "Ze vragen om gegevens die nog niet in je app staan. Voeg eerst dit kaartje toe; daarna deel je het met ze.",
+      "body": "Deze partij vraagt om gegevens die je nog niet hebt; die ben je nu aan het toevoegen. Na het toevoegen kom je weer terug bij het scherm om je gegevens te delen.",
+      "body_sign": "Deze partij vraagt om gegevens die je nog niet hebt; die ben je nu aan het toevoegen. Na het toevoegen kom je weer terug bij het scherm om te ondertekenen.",
       "ok": "Begrepen",
       "hint": "Waarom je dit toevoegt"
     },

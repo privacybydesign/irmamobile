@@ -588,6 +588,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                   Positioned.fill(
                     child: IssueIsland(
                       requestor: issueRequest!.requestor,
+                      signing: issueRequest!.type == SessionType.signature,
                       onClose: _closeIsland,
                     ),
                   ),

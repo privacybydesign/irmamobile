@@ -512,7 +512,8 @@
       }
     },
     "island": {
-      "body": "Sie fragen nach Daten, die noch nicht in deiner App sind. Füge zuerst diese Karte hinzu; danach teilst du sie mit ihnen.",
+      "body": "Diese Partei fragt nach Daten, die du noch nicht hast; die fügst du jetzt hinzu. Danach kommst du zurück zum Bildschirm, um deine Daten zu teilen.",
+      "body_sign": "Diese Partei fragt nach Daten, die du noch nicht hast; die fügst du jetzt hinzu. Danach kommst du zurück zum Bildschirm, um zu unterschreiben.",
       "ok": "Verstanden",
       "hint": "Warum du das hinzufügst"
     },

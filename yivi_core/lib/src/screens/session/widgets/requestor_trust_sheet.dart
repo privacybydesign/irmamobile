@@ -30,89 +30,28 @@ const _euTrustedList =
 /// [RequestorTrustSheet.issuer]). With [technicalDetails] the sheet ends with a row that opens
 /// them, as a subpage of the sheet.
 ///
-/// With [logoFrom] (the card's logo) the logo is carried over the sheet's
-/// edge as a card into the Change sheet is: into the sheet's place while the
-/// sheet comes up under it (640 ms), and back onto the card after rising out
-/// of the sheet as it goes down (620 ms).
+/// With [logoHero] the logo is a hero from the share screen's card
+/// ([RequestorLogo.hero]): it grows from the card into the sheet as the sheet
+/// comes up, and goes back into the card as it goes down, also following the
+/// hand when the sheet is dragged closed.
 Future<void> showRequestorTrustSheet({
   required BuildContext context,
   required TrustedParty requestor,
   VoidCallback? onDontShare,
   List<TechGroup>? technicalDetails,
   bool issuer = false,
-  GlobalKey? logoFrom,
-}) {
-  final into = GlobalKey(debugLabel: "trust_sheet_logo");
-  final style = RequestorTrustStyle.of(context, requestor);
-  final carried = logoFrom != null && !MediaQuery.disableAnimationsOf(context);
-  Widget copy(BuildContext context, FlightFrame frame) =>
-      RequestorLogo(requestor: requestor, style: style, size: frame.size.width);
-
-  // As a card into the Change sheet ([FlightPath]): picked up, over the
-  // sheet's edge as the sheet comes up under it, straight down onto its
-  // place. Back the same way: it rises straight out of the sheet as the
-  // sheet goes down under it, and comes down onto the requestor's card.
-  void flyIn() => YiviFlight.start(
-    context,
-    from: logoFrom,
-    to: (overlay) => sheetSettledBox(into, overlay),
-    path: const FlightPath.into(size: Interval(0, 0.7)),
-    keys: _carriedKeys,
-    duration: const Duration(milliseconds: 640),
-    shadow: _noShadow,
-    hide: [logoFrom!, into],
-    copyKey: const Key("trust_sheet_logo_flight"),
-    copy: copy,
-  );
-
-  void flyBack() => YiviFlight.start(
-    context,
-    from: into,
-    to: YiviFlight.boxOf(logoFrom!),
-    path: const FlightPath.outOf(size: Interval(0.3, 1)),
-    keys: _carriedKeys,
-    duration: const Duration(milliseconds: 620),
-    shadow: _noShadow,
-    hide: [logoFrom, into],
-    copyKey: const Key("trust_sheet_logo_flight"),
-    copy: copy,
-  );
-
-  if (carried) {
-    YiviFlight.hide([into]);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      YiviFlight.show([into]);
-      flyIn();
-    });
-  }
-  return showGlassSheet<void>(
-    context: context,
-    motion: carried ? SheetMotion.carried : SheetMotion.share,
-    builder: (_) => PopScope(
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop && carried) flyBack();
-      },
-      child: _TrustSheetPages(
-        requestor: requestor,
-        onDontShare: onDontShare,
-        technicalDetails: technicalDetails,
-        issuer: issuer,
-        logoKey: into,
-      ),
-    ),
-  );
-}
-
-/// Lifted as it sets off, put down as it lands.
-const _carriedKeys = [
-  FlightKey(0, FlightKey.start),
-  FlightKey(0.18, FlightKey.start, lifted: true),
-  FlightKey(0.84, FlightKey.start, lifted: true),
-  FlightKey(1, FlightKey.start),
-];
-
-/// A logo is lifted without a shadow (it has no card under it to cast one).
-const _noShadow = BoxShadow(color: Color(0x00000000));
+  bool logoHero = false,
+}) => showGlassSheet<void>(
+  context: context,
+  motion: SheetMotion.share,
+  builder: (_) => _TrustSheetPages(
+    requestor: requestor,
+    onDontShare: onDontShare,
+    technicalDetails: technicalDetails,
+    issuer: issuer,
+    logoHero: logoHero,
+  ),
+);
 
 /// The trust sheet and, when there are technical details, their subpage,
 /// which slides in over it.
@@ -121,14 +60,14 @@ class _TrustSheetPages extends StatefulWidget {
   final VoidCallback? onDontShare;
   final List<TechGroup>? technicalDetails;
   final bool issuer;
-  final GlobalKey? logoKey;
+  final bool logoHero;
 
   const _TrustSheetPages({
     required this.requestor,
     this.onDontShare,
     this.technicalDetails,
     this.issuer = false,
-    this.logoKey,
+    this.logoHero = false,
   });
 
   @override
@@ -149,7 +88,7 @@ class _TrustSheetPagesState extends State<_TrustSheetPages> {
           requestor: widget.requestor,
           onDontShare: widget.onDontShare,
           issuer: widget.issuer,
-          logoKey: widget.logoKey,
+          logoHero: widget.logoHero,
           onTechnicalDetails: groups == null
               ? null
               : () => setState(() => _tech = true),
@@ -186,8 +125,12 @@ class RequestorTrustSheet extends StatelessWidget {
   /// to stop or a registration to ask for.
   final bool issuer;
 
-  /// Where the logo is: the card's logo flies in here.
+  /// Where the logo is: the issuer's logo flies in here ([YiviFlight]), in
+  /// the issuance sheet.
   final GlobalKey? logoKey;
+
+  /// The logo is a hero from the share screen's card.
+  final bool logoHero;
 
   const RequestorTrustSheet({
     super.key,
@@ -197,6 +140,7 @@ class RequestorTrustSheet extends StatelessWidget {
     this.onBack,
     this.issuer = false,
     this.logoKey,
+    this.logoHero = false,
   });
 
   @override
@@ -347,6 +291,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 style: style,
                 size: 84,
                 flightKey: logoKey,
+                hero: logoHero,
               ),
             ),
             const SizedBox(height: 16),

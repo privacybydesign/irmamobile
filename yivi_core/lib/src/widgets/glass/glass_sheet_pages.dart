@@ -518,8 +518,10 @@ class _SheetPageRole extends InheritedWidget {
       otherKey != old.otherKey;
 }
 
-/// What a [GlassSheetPage] has in its bar.
-typedef _Chrome = ({bool back, bool pinned, bool action});
+/// What a [GlassSheetPage] has in its bar; [title] is the key of its title
+/// widget, so two pages with the same one (the "For {requestor}" pill on
+/// every step of adding a card) keep it in place instead of fading it.
+typedef _Chrome = ({bool back, bool pinned, bool action, Key? title});
 
 /// [child] on the sheet's colour.
 class _SheetColoured extends StatelessWidget {

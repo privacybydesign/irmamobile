@@ -104,10 +104,15 @@ class RequestorTrustBadge extends StatelessWidget {
   }
 }
 
+/// The hero tag of [requestor]'s logo ([RequestorLogo.hero]).
+Object requestorLogoHeroTag(TrustedParty requestor) =>
+    ("requestor_logo", requestor.id, requestor.name);
+
 /// A requestor's logo with its trust badge on the corner, at [size]. It is
 /// drawn at one size and scaled, so the badge keeps its place at any size
-/// and the logo can fly between the card (52 pt) and the trust sheet or the
-/// issuer's page (84 pt) as one ([flightKey], see [YiviFlight]).
+/// and the logo can fly between the card (52 pt) and the trust sheet (84 pt)
+/// as one hero ([hero]), or into the issuer's page in the issuance sheet, a
+/// subpage and not a route ([flightKey], see [YiviFlight]).
 class RequestorLogo extends StatelessWidget {
   final TrustedParty requestor;
   final RequestorTrustStyle style;
@@ -119,6 +124,10 @@ class RequestorLogo extends StatelessWidget {
   /// Where it flies from or to ([FlightSpot]).
   final GlobalKey? flightKey;
 
+  /// A hero between the share screen's card and the trust sheet; also back
+  /// into the card as the sheet is dragged closed by hand.
+  final bool hero;
+
   const RequestorLogo({
     super.key,
     required this.requestor,
@@ -126,6 +135,7 @@ class RequestorLogo extends StatelessWidget {
     required this.size,
     this.showBadge = true,
     this.flightKey,
+    this.hero = false,
   });
 
   static const double _drawn = 84;
@@ -154,6 +164,18 @@ class RequestorLogo extends StatelessWidget {
         ),
       ),
     );
+    if (hero) {
+      return Hero(
+        tag: requestorLogoHeroTag(requestor),
+        // Also back into the card when the sheet is dragged closed.
+        transitionOnUserGestures: true,
+        flightShuttleBuilder: (_, _, _, _, to) => Material(
+          type: MaterialType.transparency,
+          child: (to.widget as Hero).child,
+        ),
+        child: logo,
+      );
+    }
     final key = flightKey;
     return key == null ? logo : FlightSpot(flightKey: key, child: logo);
   }
@@ -195,6 +217,9 @@ class RequestorCard extends StatelessWidget {
   /// and back.
   final GlobalKey? logoKey;
 
+  /// The logo is a hero into the trust sheet ([RequestorLogo.hero]).
+  final bool logoHero;
+
   /// The share screen's form, under its title and in the landscape panel:
   /// the logo (52) beside the name, [ask] and the pill with ⓘ, all aligned
   /// to the left like the title. Without it the centred form of the pairing
@@ -207,7 +232,8 @@ class RequestorCard extends StatelessWidget {
     this.ask,
     this.onInfo,
   }) : compact = false,
-       logoKey = null;
+       logoKey = null,
+       logoHero = false;
 
   const RequestorCard.compact({
     super.key,
@@ -215,6 +241,7 @@ class RequestorCard extends StatelessWidget {
     this.ask,
     this.onInfo,
     this.logoKey,
+    this.logoHero = false,
   }) : compact = true;
 
   @override
@@ -340,6 +367,7 @@ class RequestorCard extends StatelessWidget {
               style: style,
               size: 52,
               flightKey: logoKey,
+              hero: logoHero,
             ),
             Expanded(
               child: Semantics(

@@ -191,6 +191,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       back: onBack != null,
       pinned: pinned != null,
       action: inBar && (action != null || _slot.action != null),
+      title: widget.titleWidget?.key,
     );
     // While pages change, what only one of the two pages has fades; what
     // both have stays put (the top page's stands in for the other's).
@@ -211,6 +212,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       afterFrame(() => report(null));
     }
     final pinnedFades = moving && other != null && !other.pinned;
+    // A title widget both pages have (same key) does not fade out and in:
+    // the top page's stays, the one underneath is hidden under it.
+    final titleKey = widget.titleWidget?.key;
+    final sharedTitle =
+        moving && other != null && titleKey != null && other.title == titleKey;
     // Underneath, the top page's pinned part stands in for this one, unless
     // it has none.
     final pinnedShown = pinned == null
@@ -250,7 +256,9 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             closeAtStart: widget.closeAtStart,
             leading: widget.leading,
             buttons: top,
-            titleOpacity: role?.titleOpacity,
+            titleOpacity: sharedTitle
+                ? (top ? null : kAlwaysDismissedAnimation)
+                : role?.titleOpacity,
             backOpacity: moving && other != null && !other.back
                 ? role.ownOpacity
                 : null,

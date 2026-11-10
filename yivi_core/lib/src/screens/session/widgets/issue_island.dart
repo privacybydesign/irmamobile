@@ -11,7 +11,8 @@ import "requestor_card.dart";
 /// Why a card is added during a request, as a dark panel that grows out of
 /// the "For {requestor}" pill in the bar ([IssueRequestorPill]), as the
 /// Dynamic Island grows: who asks (logo, name, whether Yivi knows them),
-/// and that the card is added first and shared with them after.
+/// that they ask for data you do not have yet, which you are adding now,
+/// and that you come back to share it (or sign, [signing]) after.
 /// "Got it", or a touch beside it (which still reaches the page), folds it
 /// back into the pill.
 ///
@@ -19,11 +20,15 @@ import "requestor_card.dart";
 /// the pill is tapped.
 class IssueIsland extends StatefulWidget {
   final TrustedParty requestor;
+
+  /// The request is a signature: you come back to sign.
+  final bool signing;
   final VoidCallback onClose;
 
   const IssueIsland({
     super.key,
     required this.requestor,
+    this.signing = false,
     required this.onClose,
   });
 
@@ -232,7 +237,11 @@ class _IssueIslandState extends State<IssueIsland>
         Padding(
           padding: const EdgeInsets.fromLTRB(2, 14, 2, 0),
           child: Text(
-            context.tr("issuance.island.body"),
+            context.tr(
+              widget.signing
+                  ? "issuance.island.body_sign"
+                  : "issuance.island.body",
+            ),
             style: palette
                 .body(14.5)
                 .copyWith(color: const Color(0xFFE6E9EC), height: 21 / 14.5),

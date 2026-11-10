@@ -509,7 +509,8 @@
       }
     },
     "island": {
-      "body": "They ask for data that is not in your app yet. Add this card first; then you share it with them.",
+      "body": "This party asks for data you don't have yet; you are adding it now. Once it is added, you come back to the screen to share your data.",
+      "body_sign": "This party asks for data you don't have yet; you are adding it now. Once it is added, you come back to the screen to sign.",
       "ok": "Got it",
       "hint": "Why you add this"
     },

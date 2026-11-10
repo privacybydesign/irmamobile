@@ -437,6 +437,99 @@ void main() {
     );
   });
 
+  testWidgets("adding: the For-pill stays in the bar while the pages slide, "
+      "never fading out and in", (tester) async {
+    await _pump(
+      tester,
+      session: _session([
+        DisclosurePickOne(
+          optional: false,
+          ownedOptions: const [],
+          obtainableOptions: [_descriptor("idcard", "ID card")],
+        ),
+      ]),
+    );
+    await tester.tap(find.byKey(const Key("share_spot_0")));
+    await tester.pumpAndSettle();
+    final pill = find.byKey(const Key("issue_sheet_for_requestor"));
+    expect(pill, findsOneWidget);
+    final place = tester.getRect(pill);
+
+    // How visible a pill is: the opacities above it multiplied.
+    double shown(Element e) {
+      var o = 1.0;
+      e.visitAncestorElements((a) {
+        final w = a.widget;
+        if (w is FadeTransition) o *= w.opacity.value;
+        if (w is Opacity) o *= w.opacity;
+        if (w is Visibility && !w.visible) o = 0;
+        return true;
+      });
+      return o;
+    }
+
+    await tester.tap(find.byKey(const Key("sheet_go_button")));
+    var frames = 0;
+    for (var t = 0; t < 600; t += 16) {
+      await tester.pump(const Duration(milliseconds: 16));
+      final pills = pill.evaluate().toList();
+      if (pills.isEmpty) continue;
+      frames++;
+      // A pill fully there on every frame, and every pill that shows at
+      // all where it was (two on one spot are one pill to the eye).
+      final best = pills.map(shown).reduce((a, b) => a > b ? a : b);
+      expect(best, closeTo(1, 0.01), reason: "frame at $t ms");
+      for (final e in pills.where((e) => shown(e) > 0.01)) {
+        expect(
+          tester.getRect(find.byElementPredicate((x) => x == e)),
+          place,
+          reason: "frame at $t ms",
+        );
+      }
+    }
+    expect(frames, greaterThan(10));
+    await tester.pumpAndSettle();
+    expect(pill, findsOneWidget);
+  });
+
+  for (final signing in [false, true]) {
+    testWidgets("adding: the pill grows into the island, which says why, "
+        "with the canvas's words (${signing ? "signing" : "sharing"})", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session(
+          [
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: const [],
+              obtainableOptions: [_descriptor("idcard", "ID card")],
+            ),
+          ],
+          type: signing ? SessionType.signature : SessionType.disclosure,
+          message: signing ? "I agree" : null,
+        ),
+      );
+      await tester.tap(find.byKey(const Key("share_spot_0")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("issue_sheet_for_requestor")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("issue_island")), findsOneWidget);
+      expect(
+        find.text(
+          "This party asks for data you don't have yet; you are adding it "
+          "now. Once it is added, you come back to the screen "
+          "${signing ? "to sign." : "to share your data."}",
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const Key("issue_island_ok")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("issue_island")), findsNothing);
+    });
+  }
+
   group("Change sheet dragged down by hand", () {
     Future<(Finder, TestGesture)> dragDown(
       WidgetTester tester,
@@ -3007,50 +3100,37 @@ void main() {
       expect(tester.getRect(inSheet).width, 84);
     });
 
-    testWidgets("the logo comes down onto its place in the sheet from over "
-        "its edge without stopping, and rises straight out of it", (
-      tester,
-    ) async {
+    testWidgets("dragged closed by hand, the logo follows the hand back "
+        "into the card", (tester) async {
       await _pump(tester, session: _session(email()));
-      final card = tester.getRect(find.byType(RequestorLogo)).top;
-      final copy = find.byKey(const Key("trust_sheet_logo_flight"));
-      Future<List<double>> fly() async {
-        final tops = <double>[];
-        for (var t = 0; t < 2000; t += 16) {
-          if (copy.evaluate().isEmpty) {
-            if (tops.isNotEmpty) break;
-            await tester.pump(const Duration(milliseconds: 16));
-            continue;
-          }
-          tops.add(tester.getRect(copy).top);
-          await tester.pump(const Duration(milliseconds: 16));
-        }
-        return tops;
-      }
-
+      final logo = find.byType(RequestorLogo);
+      final card = tester.getRect(logo);
       await tester.tap(find.byKey(const Key("session_requestor_info")));
-      await tester.pump();
-      final tops = await fly();
       await tester.pumpAndSettle();
-      final place = tester
-          .getRect(
-            find.descendant(
-              of: find.byKey(const Key("requestor_trust_sheet")),
-              matching: find.byType(RequestorLogo),
-            ),
-          )
-          .top;
-      expect(tops.length * 16, lessThan(760));
-      expect(tops[tops.length - 6], lessThan(place - 1));
+      final sheet = find.byKey(const Key("glass_sheet"));
+      // All logos drawn now, measured by their scaled box.
+      List<double> widths() => [
+        for (final e in find.byType(FittedBox).evaluate())
+          tester.getRect(find.byWidget(e.widget)).width,
+      ];
 
-      // Closed: it rises out of the sheet, then lands on the card.
-      await tester.tap(find.byType(IrmaCloseButton).last);
-      await tester.pump();
-      final back = await fly();
-      expect(back[6], lessThan(place - 2));
+      final g = await tester.startGesture(
+        tester.getRect(sheet).topCenter + const Offset(0, 30),
+      );
+      for (var i = 0; i < 6; i++) {
+        await g.moveBy(const Offset(0, 40));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      // Under way with the hand: one logo between the two sizes.
+      expect(widths().any((w) => w > 52.5 && w < 83.5), isTrue);
+      for (var i = 0; i < 10; i++) {
+        await g.moveBy(const Offset(0, 40));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await g.up();
       await tester.pumpAndSettle();
-      expect(copy, findsNothing);
-      expect(tester.getRect(find.byType(RequestorLogo)).top, card);
+      expect(find.byKey(const Key("requestor_trust_sheet")), findsNothing);
+      expect(tester.getRect(logo), card);
     });
 
     testWidgets("the party opens what registered means", (tester) async {

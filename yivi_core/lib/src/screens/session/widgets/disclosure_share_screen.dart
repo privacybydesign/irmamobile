@@ -106,7 +106,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   final _scrolledPast = ValueNotifier(false);
 
   /// The requestor's logo: it flies into the trust sheet and back.
-  final _logoKey = GlobalKey(debugLabel: "share_requestor_logo");
 
   /// The message to sign: it grows into the message sheet, and flies into
   /// the done screen.
@@ -392,7 +391,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     void openTrust() => showRequestorTrustSheet(
       context: context,
       requestor: session.requestor,
-      logoFrom: _logoKey,
+      logoHero: true,
       onDontShare: widget.onClose,
       technicalDetails: technicalDetailsOf(
         session,
@@ -443,7 +442,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       child: RequestorCard.compact(
         requestor: session.requestor,
         onInfo: openTrust,
-        logoKey: _logoKey,
+        logoHero: true,
       ),
     );
 
