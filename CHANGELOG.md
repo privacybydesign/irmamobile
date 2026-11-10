@@ -5,13 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
 
 ### Changed
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
+
+### Removed
+- The Android app no longer asks for permissions it does not use. Dropped from both flavours: `RECORD_AUDIO` and `WRITE_EXTERNAL_STORAGE`/`READ_EXTERNAL_STORAGE`, which the camera plugin adds for video recording, and `WAKE_LOCK`. The F-Droid app also drops `VIBRATE`; the Play app keeps it, because the face verification SDK declares it
 
 ### Security
 - On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
@@ -21,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
 - `go fix` modernisations in the `structodart` developer tool, so the Go code passes the shared Go checks
 - Status checks use the organisation's shared workflows next to our own Flutter/Fastlane jobs: Go checks with govulncheck for the Go bridge, dependency review, workflow lint and one `Status checks passed` gate. They also run on pushes to `master`, the merge queue and every Monday. Dependabot keeps the pinned actions and the Go modules up to date
+- Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
 
 ## [8.4.0] - 2026-11-03
 ### Added
