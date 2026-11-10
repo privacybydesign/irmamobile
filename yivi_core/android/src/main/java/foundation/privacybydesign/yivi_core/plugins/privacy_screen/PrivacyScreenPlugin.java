@@ -11,6 +11,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.app.Activity;
 import android.view.WindowManager;
@@ -29,6 +30,24 @@ public class PrivacyScreenPlugin implements MethodCallHandler, FlutterPlugin, Ac
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
         mainActivity = binding.getActivity();
+        protectAgainstOverlays(mainActivity);
+    }
+
+    // Protects the whole app, and so the PIN keypad and the consent screens, against
+    // tapjacking: another app drawing over Yivi to read or redirect the user's taps.
+    //  - From Android 12 on, windows of other apps that draw over Yivi
+    //    (TYPE_APPLICATION_OVERLAY) are hidden while Yivi is in the foreground. This
+    //    needs the HIDE_OVERLAY_WINDOWS permission, declared in this plugin's manifest.
+    //  - On every version, a touch that arrives while another window covers Yivi is
+    //    dropped. Set on the decor view, it applies to every view below it, the Flutter
+    //    view included, because ViewGroup.dispatchTouchEvent filters at every level.
+    //    From Android 12 on the system already blocks touches through untrusted
+    //    overlays, so this mostly matters for Android 8 to 11.
+    private static void protectAgainstOverlays(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            activity.getWindow().setHideOverlayWindows(true);
+        }
+        activity.getWindow().getDecorView().setFilterTouchesWhenObscured(true);
     }
     @Override
     public void onDetachedFromActivity(){
