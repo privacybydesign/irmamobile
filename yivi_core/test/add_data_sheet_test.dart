@@ -37,6 +37,7 @@ import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/loading_indicator.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -696,6 +697,34 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
         findsOneWidget,
       );
+    });
+
+    testWidgets("after Add the offer stays as it was until Success: no "
+        "loading in its place, and a second tap adds nothing", (tester) async {
+      final (calls, nested) = await openWebsite(tester);
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      final add = find.byKey(const Key("sheet_issue_add"));
+      final before = calls.interactions.length;
+      await tester.tap(add);
+      // irmago is adding the card: the page does not change.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(find.byKey(const Key("issuance_heading")), findsOneWidget);
+        expect(add, findsOneWidget);
+        expect(
+          find.descendant(of: _sheet, matching: find.byType(LoadingIndicator)),
+          findsNothing,
+        );
+      }
+      await tester.tap(add);
+      await tester.pump();
+      expect(calls.interactions.length, before + 1);
+
+      nested.add(issuance(SessionStatus.success));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("sheet_added_text")), findsOneWidget);
     });
 
     testWidgets("Success says so in the bar", (tester) async {

@@ -462,35 +462,38 @@ class _SheetPageRole extends InheritedWidget {
         child: child,
       );
     }
-    Widget moved = _Slide(
-      animation: animation,
-      from: top ? 1 : 0,
-      to: top ? 0 : -shift,
-      // The top page covers the one under it, which only moves part of the
-      // way: it has the sheet's own colour.
-      child: top && moving ? _SheetColoured(child: child) : child,
-    );
-    if (dims && !top) {
-      moved = Stack(
-        fit: StackFit.passthrough,
-        children: [
-          moved,
-          Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedBuilder(
-                animation: animation,
-                builder: (context, _) => ColoredBox(
-                  color: sheetDim.withValues(
-                    alpha: sheetDim.a * animation.value,
-                  ),
-                ),
-              ),
-            ),
+    // Always the same widgets, whatever the page is doing: only their
+    // colour and dim change. A wrapper that came and went (the sheet's
+    // colour while sliding in, the dim while under) would rebuild the page
+    // from scratch at the end of every slide, restarting what it animates
+    // (the card on "Success" dropping in twice) and losing its scroll.
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        _Slide(
+          animation: animation,
+          from: top ? 1 : 0,
+          to: top ? 0 : -shift,
+          // The top page covers the one under it, which only moves part of
+          // the way: it has the sheet's own colour.
+          child: _SheetColoured(coloured: top && moving, child: child),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: dims && !top
+                ? AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, _) => ColoredBox(
+                      color: sheetDim.withValues(
+                        alpha: sheetDim.a * animation.value,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
-        ],
-      );
-    }
-    return moved;
+        ),
+      ],
+    );
   }
 
   /// How far [slide] has moved this page, as a fraction of [width].
@@ -523,15 +526,19 @@ class _SheetPageRole extends InheritedWidget {
 /// every step of adding a card) keep it in place instead of fading it.
 typedef _Chrome = ({bool back, bool pinned, bool action, Key? title});
 
-/// [child] on the sheet's colour.
+/// [child] on the sheet's colour while [coloured]; see-through otherwise,
+/// with the same widgets either way (see [_SheetPageRole.slide]).
 class _SheetColoured extends StatelessWidget {
+  final bool coloured;
   final Widget child;
 
-  const _SheetColoured({required this.child});
+  const _SheetColoured({required this.coloured, required this.child});
 
   @override
-  Widget build(BuildContext context) =>
-      ColoredBox(color: YiviPalette.of(context).sheet, child: child);
+  Widget build(BuildContext context) => ColoredBox(
+    color: coloured ? YiviPalette.of(context).sheet : const Color(0x00000000),
+    child: child,
+  );
 }
 
 /// Moves [child] sideways by a fraction of its width, from [from] (slide 0)

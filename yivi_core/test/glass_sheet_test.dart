@@ -526,6 +526,62 @@ void main() {
       }
     });
 
+    testWidgets("pages keep their state through a slide: pushed, under, back "
+        "on top, and with a page dropped from under the top one", (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      final born = <String, int>{};
+      late StateSetter set;
+      var top = 1;
+      var pin = false;
+      Widget page(String name, {VoidCallback? onBack}) => GlassSheetPage(
+        key: ValueKey(name),
+        title: name,
+        onBack: onBack,
+        child: _Born(name: name, born: born),
+      );
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            set = setState;
+            return GlassSheetPages(
+              onBack: () => setState(() => top = 1),
+              // The root dims under the flow, as the Change sheet's does.
+              rootShift: 0.3,
+              pages: [
+                page("root"),
+                if (pin) page("pin"),
+                if (top > 1) page("done", onBack: () {}),
+              ],
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(born, {"root": 1});
+
+      // A page slides in over the root, which dims under it, and back.
+      set(() => pin = true);
+      await tester.pumpAndSettle();
+      expect(born, {"root": 1, "pin": 1});
+      set(() => pin = false);
+      await tester.pumpAndSettle();
+      expect(born, {"root": 1, "pin": 1});
+
+      // The PIN, then "Success" over it; the PIN page goes from under it,
+      // as after a PIN. "Success" is built once (its card drops in once).
+      set(() => pin = true);
+      await tester.pumpAndSettle();
+      set(() => top = 2);
+      await tester.pumpAndSettle();
+      set(() => pin = false);
+      await tester.pumpAndSettle();
+      expect(born["done"], 1);
+    });
+
     testWidgets("a new page is a route of its own, named by its title", (
       tester,
     ) async {
@@ -1078,4 +1134,27 @@ class _CountedState extends State<_Counted> {
 
   @override
   Widget build(BuildContext context) => const SizedBox(height: 1);
+}
+
+/// Counts how often its state is made, by [name]: a page whose state is
+/// made again has been rebuilt from scratch.
+class _Born extends StatefulWidget {
+  final String name;
+  final Map<String, int> born;
+
+  const _Born({required this.name, required this.born});
+
+  @override
+  State<_Born> createState() => _BornState();
+}
+
+class _BornState extends State<_Born> {
+  @override
+  void initState() {
+    super.initState();
+    widget.born[widget.name] = (widget.born[widget.name] ?? 0) + 1;
+  }
+
+  @override
+  Widget build(BuildContext context) => Text("${widget.name} page");
 }

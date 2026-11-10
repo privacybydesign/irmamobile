@@ -215,8 +215,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// "Success" comes in over it (forward) instead of the PIN going away.
   bool _pinShown = false;
 
-  /// The last offer shown, for the offer page while "Success" covers it.
+  /// The last offer shown, for the offer page while "Success" covers it,
+  /// and while irmago adds the card after "Add" ([_granted]).
   SessionState? _lastOffer;
+
+  /// "Add" was tapped on the offer: it stays as it was (no loading in its
+  /// place for the moment before "Success" or the PIN), and a second tap
+  /// does nothing.
+  bool _granted = false;
 
   // The repository only once something is added, kept for dispose (where
   // ref is unsafe). The host notifier up front for the same reason.
@@ -247,6 +253,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       issueAdded = null;
       _pinShown = false;
       _lastOffer = null;
+      _granted = false;
     });
   }
 
@@ -381,6 +388,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _nestedId = null;
     _pinShown = false;
     _lastOffer = null;
+    _granted = false;
   }
 
   /// None of the steps that prove the card is under way: no website opened,
@@ -708,7 +716,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ),
         then: () {
           if (!mounted) return;
-          setState(() => _nestedId = null);
+          setState(() {
+            _nestedId = null;
+            _granted = false;
+          });
           if (_standalone && issueAdding == null) issueSessionEnded();
         },
       );
@@ -759,7 +770,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     });
   }
 
-  void _grant(int sessionId) => _repo.grantSession(sessionId);
+  void _grant(int sessionId) {
+    if (_granted) return;
+    _granted = true;
+    _repo.grantSession(sessionId);
+  }
 
   // ---------- the pages ----------
 
@@ -1065,13 +1080,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final awaiting =
         nestedId != null &&
         ref.watch(sessionAwaitingInteractionProvider(nestedId));
-    // Under "Success" (sliding away as it comes in) the offer as it was:
-    // the session has moved on by then.
+    // After "Add", and under "Success" (sliding away as it comes in), the
+    // offer as it was: the session has moved on by then.
     final current = state != null && _isOffer(state) && !awaiting
         ? state
         : null;
     if (current != null) _lastOffer = current;
-    final offer = current ?? (issueAdded != null ? _lastOffer : null);
+    final offer =
+        current ?? (issueAdded != null || _granted ? _lastOffer : null);
     final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
 
     // Inside a request, a card whose value is not what the request needs
