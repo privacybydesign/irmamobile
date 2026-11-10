@@ -150,7 +150,10 @@ jobs:
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
+      # The prototypes APK is only a PR build artifact, so it is signed with the debug key.
       - run: cd yivi_app && flutter build apk --flavor alpha -t lib/main_prototypes.dart
+        env:
+          ORG_GRADLE_PROJECT_allowDebugSigning: "true"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: prototypes-alpha-android
