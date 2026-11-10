@@ -289,6 +289,29 @@ void main() {
       expect(done, 1);
     });
 
+    for (final message in [null, "I agree"]) {
+      testWidgets("five cards: all five in the "
+          "${message == null ? "pile" : "stack on the paper"}", (tester) async {
+        await pump(
+          tester,
+          signature: message != null,
+          message: message,
+          shared: [
+            for (final n in ["one", "two", "three", "four", "five"])
+              _shared(n, n),
+          ],
+        );
+        final pile = find.byKey(
+          Key(message == null ? "share_done_pile" : "share_done_paper"),
+        );
+        expect(
+          find.descendant(of: pile, matching: find.byType(CredentialCardArt)),
+          findsNWidgets(5),
+        );
+        expect(find.textContaining("5 cards"), findsOneWidget);
+      });
+    }
+
     testWidgets("more cards: how many", (tester) async {
       await pump(tester, shared: [email, _shared("age", "Age limits")]);
       expect(find.textContaining("2 cards have been shared."), findsOneWidget);

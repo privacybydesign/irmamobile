@@ -300,8 +300,10 @@ class ActivityHeroHeader extends StatelessWidget {
   }
 }
 
-/// Up to three of an entry's cards as a large pile, each card behind a
-/// little higher and smaller, with the other party's logo on its corner.
+/// An entry's cards as a large pile, each card behind a little higher and
+/// smaller, with the other party's logo on its corner. Three as drawn (16
+/// higher and 10 % smaller each); more share the same room, from the front
+/// card to where the third is.
 class ActivityHeroPile extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -316,7 +318,9 @@ class ActivityHeroPile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final cards = entry.cards;
-    final shown = cards.length.clamp(0, 3);
+    final shown = cards.length;
+    // How far back card [i] is: 0 in front, 2 where the third of three is.
+    double back(int i) => shown <= 3 ? i.toDouble() : 2 * i / (shown - 1);
     return ExcludeSemantics(
       child: SizedBox(
         width: width,
@@ -328,9 +332,9 @@ class ActivityHeroPile extends StatelessWidget {
             for (var i = shown - 1; i >= 0; i--)
               Positioned(
                 left: (width - cardWidth) / 2,
-                top: 32 - 16.0 * i,
+                top: 32 - 16.0 * back(i),
                 child: Transform.scale(
-                  scale: 1 - 0.1 * i,
+                  scale: 1 - 0.1 * back(i),
                   alignment: Alignment.topCenter,
                   // As shared: what did not go along is a blur.
                   child: CredentialCardArt(

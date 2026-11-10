@@ -38,6 +38,7 @@ import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/loading_indicator.dart";
+import "package:yivi_core/src/widgets/unfocus_on_tap_outside.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -206,8 +207,12 @@ Future<_Calls> _pump(
         child: IrmaTheme(
           builder: (_) => MaterialApp.router(
             routerConfig: router,
-            builder: (context, child) =>
-                LegacyMaterialBridge(child: child ?? const SizedBox.shrink()),
+            // As the app: a tap outside a text field puts the keyboard away.
+            builder: (context, child) => UnfocusOnTapOutside(
+              child: LegacyMaterialBridge(
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
             localizationsDelegates: [
               FlutterI18nDelegate(
                 translationLoader: FileTranslationLoader(
@@ -1113,6 +1118,81 @@ void main() {
     expect(api.verified, ["111111", "123456"]);
   });
 
+  for (final email in [false, true]) {
+    testWidgets("${email ? "an e-mail address" : "a phone number"}: the "
+        "keyboard stays up from the field to the code boxes", (tester) async {
+      // Sending takes a moment, as over the network.
+      final sms = _FakeSmsApi()..delay = const Duration(milliseconds: 800);
+      final mail = _FakeEmailApi()..delay = const Duration(milliseconds: 800);
+      await _pump(
+        tester,
+        store: email
+            ? null
+            : [
+                CredentialStoreCategory(
+                  category: "Personal",
+                  items: [
+                    _item(
+                      "pbdf.sidn-pbdf.mobilenumber",
+                      "Mobile number",
+                      issueURL: "https://sms-issuer.example/issue",
+                      issuer: "Yivi",
+                    ),
+                  ],
+                ),
+              ],
+        overrides: [
+          smsIssuerApiProvider.overrideWithValue(sms),
+          emailIssuerApiProvider.overrideWithValue(mail),
+        ],
+      );
+      await tester.tap(
+        find.byKey(
+          Key(
+            email
+                ? "pbdf.sidn-pbdf.email_tile"
+                : "pbdf.sidn-pbdf.mobilenumber_tile",
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("sheet_go_button")));
+      await _pumpFor(tester);
+      await tester.enterText(
+        find.byKey(
+          Key(email ? "email_input_field" : "phone_number_input_field"),
+        ),
+        email ? "jan@example.com" : "612345678",
+      );
+      await _pumpFor(tester);
+
+      tester.testTextInput.log.clear();
+      await tester.tap(find.byKey(const Key("contact_sheet_send")));
+      // Sending, then the code page sliding in.
+      for (var i = 0; i < 120; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(find.byKey(const Key("contact_sheet_code")), findsOneWidget);
+      // Never hidden on the way: the code boxes take it over.
+      expect(
+        tester.testTextInput.log.map((c) => c.method),
+        isNot(contains("TextInput.hide")),
+      );
+      // And the code boxes have it.
+      final code = find.byKey(
+        Key(
+          email
+              ? "email_verification_code_input_field"
+              : "sms_verification_code_input_field",
+        ),
+      );
+      final editable = tester.widget<EditableText>(
+        find.descendant(of: code, matching: find.byType(EditableText)),
+      );
+      expect(editable.focusNode.hasFocus, isTrue);
+    });
+  }
+
   testWidgets("Send again waits a minute, counting down, then sends", (
     tester,
   ) async {
@@ -1333,11 +1413,17 @@ class _FakeSmsApi implements SmsIssuerApi {
   final verified = <String>[];
   var failCodes = false;
 
+  /// How long sending takes, as over the network.
+  var delay = Duration.zero;
+
   @override
   Future<void> sendSms({
     required String phoneNumber,
     required String language,
-  }) async => sent.add(phoneNumber);
+  }) async {
+    await Future<void>.delayed(delay);
+    sent.add(phoneNumber);
+  }
 
   @override
   Future<SessionPointer> verifyCode({
@@ -1358,11 +1444,17 @@ class _FakeSmsApi implements SmsIssuerApi {
 class _FakeEmailApi implements EmailIssuerApi {
   final sent = <String>[];
 
+  /// How long sending takes, as over the network.
+  var delay = Duration.zero;
+
   @override
   Future<void> sendEmail({
     required String emailAddress,
     required String language,
-  }) async => sent.add(emailAddress);
+  }) async {
+    await Future<void>.delayed(delay);
+    sent.add(emailAddress);
+  }
 
   @override
   Future<SessionPointer> verifyCode({

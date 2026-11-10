@@ -8,6 +8,7 @@ import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
+import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -39,12 +40,15 @@ LogInfo _log(
   bool verified = true,
   String? url,
   bool sharedToReceive = false,
+  List<LogCredential>? cards,
 }) {
-  final credentials = [
-    _credential("Email address", [
-      stringAttr("email", "s.devries@werk.example"),
-    ]),
-  ];
+  final credentials =
+      cards ??
+      [
+        _credential("Email address", [
+          stringAttr("email", "s.devries@werk.example"),
+        ]),
+      ];
   final party = _party(verifier, verified: verified, url: url);
   return LogInfo(
     type: type,
@@ -204,6 +208,34 @@ void main() {
     expect(find.text("Data deleted from"), findsOneWidget);
     expect(find.text("Deleted"), findsOneWidget);
     expect(find.text("This cannot be undone."), findsOneWidget);
+  });
+
+  testWidgets("five cards: all five in the hero's pile, in its room", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _log(
+        LogType.disclosure,
+        cards: [
+          for (final n in ["One", "Two", "Three", "Four", "Five"])
+            _credential(n, [stringAttr("v", n)]),
+        ],
+      ),
+    );
+    final pile = find.byType(ActivityHeroPile);
+    final arts = find.descendant(
+      of: pile,
+      matching: find.byType(CredentialCardArt),
+    );
+    expect(arts, findsNWidgets(5));
+    // Where three would be: none higher than the third of three (16 × 2
+    // above the front card).
+    final front = tester.getRect(arts.last).top;
+    for (final e in arts.evaluate()) {
+      final top = tester.getRect(find.byWidget(e.widget)).top;
+      expect(top, greaterThanOrEqualTo(front - 32.5));
+    }
   });
 
   testWidgets("two kinds of card: a heading for each", (tester) async {

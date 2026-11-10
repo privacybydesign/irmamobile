@@ -13,6 +13,8 @@ import "sheet_layout.dart";
 /// ([primaryLabel], the fancy red button) on the right, always equally wide.
 /// With only one of them it takes the whole width. A label that wraps (at a
 /// large text size) makes both buttons taller, never just one.
+///
+/// A tap on them keeps the keyboard up ([SheetKeepsKeyboard]).
 class SheetActionRow extends StatelessWidget {
   final String? primaryLabel;
   final VoidCallback? onPrimary;
@@ -84,30 +86,49 @@ class SheetActionRow extends StatelessWidget {
     if (useSheetColumns(context) && !SheetSplit.isIn(context)) {
       // A phone held sideways: the way on at the right, 320 wide, the way
       // back as text to its left.
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        spacing: 12,
-        children: [
-          if (secondaryButton != null)
-            Flexible(
-              child: SizedBox(height: height, child: secondaryButton),
-            ),
-          if (primaryButton != null)
-            SizedBox(width: landscapeWidth, child: primaryButton),
-        ],
+      return SheetKeepsKeyboard(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          spacing: 12,
+          children: [
+            if (secondaryButton != null)
+              Flexible(
+                child: SizedBox(height: height, child: secondaryButton),
+              ),
+            if (primaryButton != null)
+              SizedBox(width: landscapeWidth, child: primaryButton),
+          ],
+        ),
       );
     }
-    return IntrinsicHeight(
-      child: Row(
-        spacing: 8,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (secondaryButton != null) Expanded(child: secondaryButton),
-          if (primaryButton != null) Expanded(child: primaryButton),
-        ],
+    return SheetKeepsKeyboard(
+      child: IntrinsicHeight(
+        child: Row(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (secondaryButton != null) Expanded(child: secondaryButton),
+            if (primaryButton != null) Expanded(child: primaryButton),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// A sheet's buttons ([SheetActionRow], [SheetBarButton]) are part of its
+/// text fields' tap region: a tap on one is not a tap outside the field
+/// (which puts the keyboard away, see `UnfocusOnTapOutside`). "Send code"
+/// keeps the keyboard up while the code is sent, so it goes on to the code
+/// boxes without going down and up. Where the next page has no field the
+/// keyboard still goes: the page under it gives up its focus.
+class SheetKeepsKeyboard extends StatelessWidget {
+  final Widget child;
+
+  const SheetKeepsKeyboard({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) => TextFieldTapRegion(child: child);
 }
 
 /// The way on of a sheet page, as data: where it shows is the page's
@@ -232,12 +253,14 @@ class SheetBarButton extends StatelessWidget {
   const SheetBarButton({super.key, required this.action, this.onTap});
 
   @override
-  Widget build(BuildContext context) => FancyPillButton(
-    key: action.key,
-    label: action.label,
-    onPressed: action.enabled ? (onTap ?? action.onTap) : null,
-    size: PillSize.bar,
-    leading: action.busy ? const SheetBusySpinner(size: 14) : null,
+  Widget build(BuildContext context) => SheetKeepsKeyboard(
+    child: FancyPillButton(
+      key: action.key,
+      label: action.label,
+      onPressed: action.enabled ? (onTap ?? action.onTap) : null,
+      size: PillSize.bar,
+      leading: action.busy ? const SheetBusySpinner(size: 14) : null,
+    ),
   );
 }
 

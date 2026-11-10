@@ -92,8 +92,8 @@ class DisclosureFeedbackScreenState
 
   /// Per card of the pile (or the stack on the paper): its unturned box,
   /// where a card flies to.
-  final _cardKeys = List.generate(
-    3,
+  late final _cardKeys = List.generate(
+    widget.shared.length,
     (i) => GlobalKey(debugLabel: "done_card_$i"),
   );
   final _paperKey = GlobalKey(debugLabel: "done_paper");
@@ -154,16 +154,19 @@ class DisclosureFeedbackScreenState
     super.dispose();
   }
 
-  /// Up to three of the shared cards, as pictures.
+  /// All the shared cards, as pictures.
   List<schemaless.Credential> _cards() {
     final wallet = ref.read(walletCardsProvider);
-    return [for (final i in widget.shared.take(3)) sharedCardFor(i, wallet)];
+    return [for (final i in widget.shared) sharedCardFor(i, wallet)];
   }
 
-  /// The turn of the pile's card [i], in radians: -3°, 2°, 6°; on the paper's
-  /// stack -5°, 2°, 8°.
+  /// The turn of the pile's card [i], in radians (see [pilePlace]).
   double _turnOf(int i) =>
-      (_message != null ? const [-5.0, 2.0, 8.0] : const [-3.0, 2.0, 6.0])[i] *
+      pilePlace(
+        _message != null ? _Paper._seal : _Pile._places,
+        i,
+        widget.shared.length,
+      ).turn *
       3.14159265 /
       180;
 
@@ -420,9 +423,32 @@ class _CheckPop extends StatelessWidget {
   }
 }
 
-/// The shared cards as a pile, 300 × 200: up to three pictures 260 wide, the
-/// first on top turned −3°, the next 12 right and 10 up turned 2°, the third
-/// 22 right and 18 up turned 6°; the green check on the top right corner.
+/// Where card [i] of [count] goes in a pile drawn for three ([three]: the
+/// front card, the second, the third, each as right, down and turn in
+/// degrees). Up to three, as drawn. More fit in the same room: from the
+/// front card to where the third is, evenly, turned from the second's turn
+/// to the third's; the front card keeps its own.
+({double dx, double dy, double turn}) pilePlace(
+  List<(double, double, double)> three,
+  int i,
+  int count,
+) {
+  if (count <= 3) {
+    final (dx, dy, turn) = three[i];
+    return (dx: dx, dy: dy, turn: turn);
+  }
+  final (lastX, lastY, lastTurn) = three[2];
+  final f = i / (count - 1);
+  final turn = i == 0
+      ? three[0].$3
+      : three[1].$3 + (lastTurn - three[1].$3) * (i - 1) / (count - 2);
+  return (dx: lastX * f, dy: lastY * f, turn: turn);
+}
+
+/// The shared cards as a pile, 300 × 200: pictures 260 wide, the first on
+/// top turned −3°, the next 12 right and 10 up turned 2°, the third 22 right
+/// and 18 up turned 6° (more share that room, see [pilePlace]); the green
+/// check on the top right corner.
 class _Pile extends StatelessWidget {
   final List<schemaless.Credential> cards;
   final List<GlobalKey> cardKeys;
@@ -451,14 +477,17 @@ class _Pile extends StatelessWidget {
         children: [
           for (final i in [for (var i = cards.length - 1; i >= 0; i--) i])
             Positioned(
-              left: 20 + _places[i].$1,
-              top: 22 + _places[i].$2,
+              left: 20 + pilePlace(_places, i, cards.length).dx,
+              top: 22 + pilePlace(_places, i, cards.length).dy,
               width: 260,
               height: 164,
               child: FlightSpot(
                 flightKey: cardKeys[i],
                 child: Transform.rotate(
-                  angle: _places[i].$3 * 3.14159265 / 180,
+                  angle:
+                      pilePlace(_places, i, cards.length).turn *
+                      3.14159265 /
+                      180,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: YiviCorners.cardRadius,
@@ -572,14 +601,17 @@ class _Paper extends StatelessWidget {
                     for (var i = cards.length - 1; i >= 0; i--) i,
                   ])
                     Positioned(
-                      left: _seal[i].$1,
-                      bottom: -_seal[i].$2,
+                      left: pilePlace(_seal, i, cards.length).dx,
+                      bottom: -pilePlace(_seal, i, cards.length).dy,
                       width: 96,
                       height: 61,
                       child: FlightSpot(
                         flightKey: cardKeys[i],
                         child: Transform.rotate(
-                          angle: _seal[i].$3 * 3.14159265 / 180,
+                          angle:
+                              pilePlace(_seal, i, cards.length).turn *
+                              3.14159265 /
+                              180,
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(7),
