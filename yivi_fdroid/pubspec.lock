@@ -964,8 +964,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: master
-      resolved-ref: "0f361ed6e729e770c64ef59169934545643a3450"
+      ref: "47302073aa8d60d71d98717ffeafc2afa9cb9389"
+      resolved-ref: "47302073aa8d60d71d98717ffeafc2afa9cb9389"
       url: "https://github.com/privacybydesign/pc-dart.git"
     source: git
     version: "4.0.0"
