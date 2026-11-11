@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
 - Status checks run CodeQL (security-extended queries) on the Go bridge, the Android Java plugins and the workflow files, through the organisation's shared workflow. Dart is not supported by CodeQL, and Swift would need a macOS build
 - The privacybydesign/pc-dart fork (pointycastle) is pinned to a commit instead of following `master`, in `yivi_core`, `yivi_app` and `yivi_fdroid`. The pin is the commit before the current `master`, which only added debug prints to `CMac.init`, so those prints are no longer in the app
+- Enabled Private Vulnerability Reporting on repository and included SECURITY.md
 
 ## [8.4.0] - 2026-11-03
 ### Added
