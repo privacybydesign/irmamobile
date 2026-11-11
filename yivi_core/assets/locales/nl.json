@@ -582,6 +582,8 @@
     "irma_website_link": "https://yivi.app",
     "privacy_policy": "Yivi's privacyregels",
     "privacy_policy_link": "https://www.yivi.app/privacy",
+    "dpa_report": "Melden bij de Autoriteit Persoonsgegevens",
+    "dpa_report_link": "https://autoriteitpersoonsgegevens.nl/een-tip-of-klacht-indienen-bij-de-ap",
     "app_id": "App-ID {id}",
     "log_out": "Uitloggen",
     "logged_out_toast": "Je bent uitgelogd"
